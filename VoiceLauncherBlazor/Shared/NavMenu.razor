@@ -1,0 +1,42 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Voice Launcher</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink accesskey="h" class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> <u>H</u>ome
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink accesskey="l" class="nav-link" href="languages">
+                <span class="oi oi-microphone" aria-hidden="true"></span> <u>L</u>anguages
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink accesskey="c" class="nav-link" href="categories">
+                <span class="oi oi-book" aria-hidden="true"></span> <u>C</u>ategories
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink accesskey="i" class="nav-link" href="intellisenses">
+                <span class="oi oi-plus" aria-hidden="true"></span> <u>I</u>ntelliSense
+            </NavLink>
+        </li>
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

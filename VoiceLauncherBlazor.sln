@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29721.120
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceLauncherBlazor", "VoiceLauncherBlazor\VoiceLauncherBlazor.csproj", "{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTestProject\UnitTestProject.csproj", "{33894701-68D6-4EF5-8232-6EA8B072BD2B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C58F1ED7-5F2B-44BC-A7FE-45AD98825C20}
+	EndGlobalSection
+EndGlobal

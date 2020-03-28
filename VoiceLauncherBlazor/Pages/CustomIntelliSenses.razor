@@ -1,0 +1,185 @@
+﻿@page "/intellisenses"
+
+@using VoiceLauncherBlazor.Data
+@using VoiceLauncherBlazor.Models
+@inject VoiceLauncherService VoiceLauncherService
+@inject NavigationManager NavigationManager
+
+<h3>
+    List of Custom IntelliSense
+    @if (StatusMessage != null)
+    {
+        <small class="text-danger"> Last Action: @StatusMessage</small>
+    }
+    @if (SearchTerm != null)
+    {
+        <small class="text-warning"> Filter: @SearchTerm</small>
+    }
+</h3>
+
+<div class="form-field row">
+    <a accesskey="0" class="btn btn-sm btn-success col-md-2" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>
+    <label class="control-label col-md-1">Filter</label>
+    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
+    <button accesskey="2" class="btn btn-sm btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+</div>
+@if (intellisenses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (intellisenses.Count == 0)
+{
+    <text>No Custom IntelliSenses found</text> }
+else
+{
+    <table class="table table-dark table-bordered table-striped" id="table1">
+        <thead>
+            <tr>
+                <th>
+                    Language Name
+                    <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" accesskey="3" class="btn btn-sm btn-info">(3) <i class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" accesskey="4" class="btn btn-sm btn-info">(4) <i class="oi oi-sort-descending"></i></button>
+                </th>
+                <th>
+                    <div class="row">
+                        <div class="col-md-3">Category</div>
+                        @*<select accesskey="1" class="form-control-sm col-md-5" style="width: 150px" @bind="categories." @onblur="FilterByCategory">
+                            <option value="">-Select to filter-</option>
+                            @if (generalLookups != null)
+                            {
+                                @foreach (var lookup in generalLookups)
+                                {
+                                    <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                }
+                            }
+                        </select>*@
+
+                    </div>
+                </th>
+                <th>
+                    Display Value
+                </th>
+                <th>SendKeys Value></th>
+                <th>Remarks</th>
+                <th>Computer</th>
+                <th>Delivery Type</th>
+                <th>
+                    <button accesskey="6" class="btn btn-sm btn-success" @onclick="SaveAllCustomIntelliSenses">Save All (6) <i class="oi oi-hard-drive"></i></button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ var counter = 5;}
+            @foreach (var intellisense in intellisenses)
+            {
+                counter++;
+                <tr>
+                    <td>
+                        <input class="form-control" @bind="intellisense.Language.LanguageName" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" @bind="intellisense.Category.CategoryName" />
+                    </td>
+                    <td>
+                        <input  class="form-control" @bind="@intellisense.DisplayValue" />
+                    </td>
+                    <td>
+                        <input  class="form-control" @bind="@intellisense.SendKeysValue" />
+                    </td>
+                    <td>
+                        <input  class="form-control" @bind="@intellisense.Remarks" />
+                    </td>
+                    <td>
+                        @if (intellisense.Computer!= null )
+                        {
+                            <input  class="form-control" @bind="@intellisense.Computer.ComputerName" />
+                        }
+                    </td>
+                    <td>
+                        <input  class="form-control" @bind="@intellisense.DeliveryType" />
+                    </td>
+                    <td>
+                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/intellisense/@intellisense.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))">Delete <i class="oi oi-circle-x"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<TemplatedDialog Show="ShowDialog">
+    <ConfirmDialog Message="Please confirm you wish to Delete this Customer IntelliSense!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense(customIntellisenseIdDelete))">
+    </ConfirmDialog>
+</TemplatedDialog>
+
+@code {
+    public bool ShowDialog { get; set; }
+    private int customIntellisenseIdDelete { get; set; }
+    private List<VoiceLauncherBlazor.Models.CustomIntelliSense> intellisenses;
+    public string StatusMessage { get; set; }
+    public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
+    //private bool? activeFilter { get; set; } = null;
+    private string searchTerm;
+    public string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (searchTerm != value)
+            {
+                searchTerm = value;
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync();
+        categories = await VoiceLauncherService.GetCategoriesAsync();
+    }
+
+    async Task ApplyFilter()
+    {
+        if (SearchTerm != null)
+        {
+            intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(SearchTerm.Trim());
+            StateHasChanged();
+        }
+    }
+
+    //void HandleValidSubmit()
+    //{
+    //    Console.WriteLine("OnValidSubmit");
+    //}
+    void ConfirmDelete(int customIntellisenseId)
+    {
+        ShowDialog = true;
+        customIntellisenseIdDelete = customIntellisenseId;
+    }
+    void CancelDelete()
+    {
+        ShowDialog = false;
+    }
+    async Task SortCustomIntelliSenses(string column, string sortType)
+    {
+        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync("", column, sortType);
+    }
+    async Task DeleteCustomIntelliSense(int customIntellisenseId)
+    {
+        var result = await VoiceLauncherService.DeleteCustomIntelliSense(customIntellisenseId);
+        StatusMessage = result;
+        ShowDialog = false;
+        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync();
+    }
+    async Task FilterByCategory( int categoryId)
+    {
+        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(null, null, null, categoryId);
+    }
+    async Task SaveAllCustomIntelliSenses()
+    {
+        intellisenses = await VoiceLauncherService.SaveAllCustomIntelliSenses(intellisenses);
+        StatusMessage = $"Custom IntelliSenses Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
+    }
+}

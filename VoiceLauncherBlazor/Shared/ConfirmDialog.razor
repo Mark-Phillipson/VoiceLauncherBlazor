@@ -1,0 +1,27 @@
+﻿
+<div class="dialog-title">
+    <h2>@Title</h2>
+</div>
+<form class="dialog-body">
+    <div class="font-weight-bold text-dark">
+        @Message
+    </div>
+</form>
+<div class="dialog-buttons">
+    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Confirm</button>
+</div>
+
+@code { 
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string Message { get; set; }
+
+
+    //protected async override Task OnInitializedAsync()
+    //{
+
+    //}
+
+}
