@@ -83,6 +83,10 @@ namespace VoiceLauncherBlazor.Data
                     intellisenses = intellisenses.OrderByDescending(v => v.Language.LanguageName);
                 }
             }
+            else
+            {
+                intellisenses = intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(t => t.Category.CategoryName).ThenBy(b => b.DisplayValue);
+            }
             if (languageIdFilter != null)
             {
                 intellisenses = intellisenses.Where(v => v.LanguageId == languageIdFilter);
@@ -104,7 +108,7 @@ namespace VoiceLauncherBlazor.Data
             Language language = await _context.Languages.Include("CustomIntelliSense").Where(v => v.Id == languageId).FirstOrDefaultAsync();
             return language;
         }
-        public async Task<CustomIntelliSense> GetIntelliSenseAsync(int intellisenseId)
+        public async Task<CustomIntelliSense> GetCustomIntelliSenseAsync(int intellisenseId)
         {
             CustomIntelliSense intellisense = await _context.CustomIntelliSense.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
             return intellisense;

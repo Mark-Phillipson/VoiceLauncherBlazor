@@ -1,0 +1,156 @@
+﻿@page "/intellisense/{customIntellisenseId:int}";
+@using VoiceLauncherBlazor.Data
+@using VoiceLauncherBlazor.Models
+@inject VoiceLauncherService VoiceLauncherService
+@inject NavigationManager NavigationManager
+
+<h1>Custom IntelliSense</h1>
+@if (intellisense == null)
+{
+    <text>Loading.</text>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-field row">
+                    <label class="col-md-4">Id</label>
+                    @if (intellisense.Id > 0)
+                    {
+                        <div class="col-md-8">@intellisense.Id</div>
+                    }
+                    <input type="hidden" name="Id" id="Id" value="@intellisense.Id" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.LanguageId" class="col-md-4"> Language Name (0)</label>
+                    <select accesskey="0" class="form-control-lg col-md-8" @bind="intellisense.LanguageId">
+                        <option value="">-</option>
+                        @if (languages != null)
+                            {
+                            @foreach (var language in languages)
+                                {
+                                    if (language.Id == intellisense.LanguageId)
+                                    {
+                                    <option selected value="@language.Id.ToString()">@language.LanguageName</option>
+                                    }
+                                    else
+                                    {
+                                    <option value="@language.Id.ToString()">@language.LanguageName</option>
+                                    }
+                                }
+                            }
+                    </select>
+                    <ValidationMessage For="@(() => intellisense.LanguageId)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.CategoryId" class="col-md-4"> Category (1)</label>
+                    <select accesskey="1" class="form-control-lg col-md-8" @bind="@intellisense.CategoryId">
+                        <option value="">-</option>
+                        @if (categories != null)
+                            {
+                            @foreach (var category in categories)
+                                {
+                                @if (intellisense.CategoryId == category.Id)
+                                    {
+                                    <option selected value="@category.Id.ToString()">@category.CategoryName</option>
+                                    }
+                                    else
+                                    {
+                                    <option value="@category.Id.ToString()">@category.CategoryName</option>
+                                    }
+                                }
+                            }
+                    </select>
+                    <ValidationMessage For="@(() => intellisense.CategoryId)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.DisplayValue" class="col-md-4"> Display Value</label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter the Display Value" id="DisplayValue" @bind-Value="intellisense.DisplayValue"></InputText>
+                    <ValidationMessage For="@(() => intellisense.DisplayValue)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.SendKeysValue" class="col-md-4"> Sendkeys Value</label>
+                    <InputTextArea style="min-height: 270px"  class="col-md-8 form-control" placeholder="Enter Send Keys Value" id="SendKeysValue" @bind-Value="intellisense.SendKeysValue" rows="6" >
+                        </InputTextArea>
+                    <ValidationMessage For="@(() => intellisense.SendKeysValue)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.Remarks" class="col-md-4"> Remarks</label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter the Remarks" id="Remarks" @bind-Value="intellisense.Remarks"></InputText>
+                    <ValidationMessage For="@(() => intellisense.Remarks)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@intellisense.DeliveryType" class="col-md-4"> Delivery Type</label>
+                    <InputSelect class="form-control-lg col-md-8" @bind-Value="intellisense.DeliveryType">
+                        <option value="">-</option>
+                        @if (generalLookups != null)
+                            {
+                            @foreach (var lookup in generalLookups)
+                                {
+                                @if (intellisense.DeliveryType == lookup.ItemValue)
+                                    {
+                                    <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                    }
+                                    else
+                                    {
+                                    <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                    }
+                                }
+                            }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => intellisense.DeliveryType)" />
+                </div>
+                <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
+            </EditForm>
+        </div>
+    </div>
+}
+<hr>
+
+@code {
+    [Parameter] public int customIntellisenseId { get; set; }
+    private EditContext _editContext;
+    public VoiceLauncherBlazor.Models.CustomIntelliSense intellisense { get; set; }
+    public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
+    public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
+    public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (customIntellisenseId > 0)
+        {
+            intellisense = await VoiceLauncherService.GetCustomIntelliSenseAsync(customIntellisenseId);
+        }
+        else
+        {
+            intellisense = new Models.CustomIntelliSense
+            {
+                DeliveryType = "SendKeys"
+            };
+        }
+        _editContext = new EditContext(intellisense);
+        generalLookups = await VoiceLauncherService.GetGeneralLookUpsAsync("Delivery Type");
+        languages = await VoiceLauncherService.GetLanguagesAsync();
+        categories = await VoiceLauncherService.GetCategoriesAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (intellisense.Id > 0)
+        {
+            intellisense = await VoiceLauncherService.GetCustomIntelliSenseAsync(intellisense.Id);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await VoiceLauncherService.SaveCustomIntelliSense(intellisense);
+        NavigationManager.NavigateTo("intellisenses");
+    }
+
+
+}
+
+

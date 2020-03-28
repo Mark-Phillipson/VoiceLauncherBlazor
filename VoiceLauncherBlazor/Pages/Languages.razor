@@ -138,7 +138,7 @@ else
     }
     async Task SortLanguages(string column, string sortType)
     {
-        languages = await VoiceLauncherService.GetLanguagesAsync("", column, sortType);
+        languages = await VoiceLauncherService.GetLanguagesAsync(searchTerm, column, sortType);
     }
     async Task DeleteLanguage(int languageId)
     {

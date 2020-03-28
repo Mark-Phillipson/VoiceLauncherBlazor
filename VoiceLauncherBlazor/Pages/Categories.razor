@@ -153,7 +153,7 @@ else if (categories.Count == 0)
     }
     async Task SortCategories(string column,string sortType)
     {
-        categories = await VoiceLauncherService.GetCategoriesAsync("", column, sortType);
+        categories = await VoiceLauncherService.GetCategoriesAsync(searchTerm, column, sortType);
     }
     async Task DeleteCategory(int categoryId)
     {
