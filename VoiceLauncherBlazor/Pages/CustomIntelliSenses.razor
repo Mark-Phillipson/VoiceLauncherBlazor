@@ -1,4 +1,6 @@
 ﻿@page "/intellisenses"
+@page "/intellisensesC/{categoryIdFilter:int}"
+@page "/intellisensesL/{languageIdFilter:int}"
 
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
@@ -42,21 +44,31 @@ else
                     Language
                     <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" accesskey="3" class="btn btn-sm btn-info">(3) <i class="oi oi-sort-ascending"></i></button>
                     <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" accesskey="4" class="btn btn-sm btn-info">(4) <i class="oi oi-sort-descending"></i></button>
+                    <select style="max-width:160px" accesskey="l" class="form-control-sm col-md-10 ml-2" @bind="languageIdFilter" @onblur="FilterByLanguage">
+                        <option value="">-Select to filter-</option>
+                        @if (languages != null)
+                        {
+                            @foreach (var language in languages)
+                            {
+                                <option value="@language.Id">@language.LanguageName</option>
+                            }
+                        }
+                    </select>
+
                 </th>
                 <th style="width: 60px">
                     <div class="row">
-                        <div class="col-md-3">Category</div>
-                        @*<select accesskey="1" class="form-control-sm col-md-5" style="width: 150px" @bind="categories." @onblur="FilterByCategory">
-                    <option value="">-Select to filter-</option>
-                    @if (generalLookups != null)
-                    {
-                        @foreach (var lookup in generalLookups)
+                        <div class="col-md-12">Category</div>
+                        <select style="max-width:160px" accesskey="c" class="form-control-sm col-md-10 ml-3" @bind="categoryIdFilter" @onblur="FilterByCategory">
+                        <option value="">-Select to filter-</option>
+                        @if (categories != null)
                         {
-                            <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Id">@category.CategoryName</option>
+                            }
                         }
-                    }
-                </select>*@
-
+                        </select>
                     </div>
                 </th>
                 <th>Display Value</th>
@@ -124,70 +136,3 @@ else
     </ConfirmDialog>
 </TemplatedDialog>
 
-@code {
-    public bool ShowDialog { get; set; }
-    private int customIntellisenseIdDelete { get; set; }
-    private List<VoiceLauncherBlazor.Models.CustomIntelliSense> intellisenses;
-    public string StatusMessage { get; set; }
-    public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-    public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-    public int MaximumRows { get; set; } = 8;
-    private string searchTerm;
-    public string SearchTerm
-    {
-        get => searchTerm;
-        set
-        {
-            if (searchTerm != value)
-            {
-                searchTerm = value;
-            }
-        }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(maximumRows:MaximumRows);
-        categories = await VoiceLauncherService.GetCategoriesAsync();
-        generalLookups = await VoiceLauncherService.GetGeneralLookUpsAsync("Delivery Type");
-    }
-
-    async Task ApplyFilter()
-    {
-        if (SearchTerm != null)
-        {
-            intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(SearchTerm.Trim(),maximumRows:MaximumRows);
-            StateHasChanged();
-        }
-    }
-
-    void ConfirmDelete(int customIntellisenseId)
-    {
-        ShowDialog = true;
-        customIntellisenseIdDelete = customIntellisenseId;
-    }
-    void CancelDelete()
-    {
-        ShowDialog = false;
-    }
-    async Task SortCustomIntelliSenses(string column, string sortType)
-    {
-        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(searchTerm, column, sortType,maximumRows:MaximumRows);
-    }
-    async Task DeleteCustomIntelliSense(int customIntellisenseId)
-    {
-        var result = await VoiceLauncherService.DeleteCustomIntelliSense(customIntellisenseId);
-        StatusMessage = result;
-        ShowDialog = false;
-        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(searchTerm,maximumRows:MaximumRows);
-    }
-    async Task FilterByCategory( int categoryId)
-    {
-        intellisenses = await VoiceLauncherService.GetCustomIntelliSensesAsync(null, null, null, categoryId,maximumRows:MaximumRows);
-    }
-    async Task SaveAllCustomIntelliSenses()
-    {
-        var temporary= await VoiceLauncherService.SaveAllCustomIntelliSenses(intellisenses);
-        StatusMessage = $"Custom IntelliSenses Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
-    }
-}

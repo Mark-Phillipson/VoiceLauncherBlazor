@@ -78,13 +78,13 @@ else if (categories.Count == 0)
                                     <input disabled="disabled" class="form-control" @bind="category.CategoryType" />
                                 </td>
                                 <td>
-                                    @if (category.CategoryType=="Launch Applications")
+                                    @if (category.CategoryType == "Launch Applications")
                                     {
                                         @category.Launcher.Count
                                     }
                                     else
                                     {
-                                        @category.CustomIntelliSense.Count
+                                        <a href="intellisensesC/@category.Id">@category.CustomIntelliSense.Count</a>
                                     }
                                 </td>
                                 <td>
