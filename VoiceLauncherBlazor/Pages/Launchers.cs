@@ -6,18 +6,16 @@ using VoiceLauncherBlazor.Data;
 
 namespace VoiceLauncherBlazor.Pages
 {
-    public partial class CustomIntelliSenses
+    public partial class Launchers
     {
         [Parameter] public int? categoryIdFilter { get; set; }
-        [Parameter] public int? languageIdFilter { get; set; }
         public bool ShowDialog { get; set; }
-        private int customIntellisenseIdDelete { get; set; }
-        private List<VoiceLauncherBlazor.Models.CustomIntelliSense> intellisenses;
+        private int launcherIdDelete { get; set; }
+        private List<VoiceLauncherBlazor.Models.Launcher> launchers;
         public string StatusMessage { get; set; }
         public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-        public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-        public int MaximumRows { get; set; } = 10;
+        public List<VoiceLauncherBlazor.Models.Computer> computers { get; set; }
+        public int MaximumRows { get; set; } = 15;
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -38,17 +36,9 @@ namespace VoiceLauncherBlazor.Pages
             if (categoryIdFilter != null)
             {
                 await FilterByCategory();
-            }
-            else if (languageIdFilter != null)
-            {
-                await FilterByLanguage();
-            }
-            else
-            {
                 try
                 {
-                    _loadFailed = false;
-                    intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(maximumRows: MaximumRows);
+                    categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
                 }
                 catch (Exception exception)
                 {
@@ -56,17 +46,19 @@ namespace VoiceLauncherBlazor.Pages
                     _loadFailed = true;
                 }
             }
-            try
+            else
             {
-                categories = await CategoryService.GetCategoriesAsync();
-                languages = await LanguageService.GetLanguagesAsync();
-                generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                _loadFailed = true;
+                try
+                {
+                    _loadFailed = false;
+                    launchers = await LauncherService.GetLaunchersAsync(maximumRows: MaximumRows);
+                    categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
+                    _loadFailed = true;
+                }
             }
         }
 
@@ -76,7 +68,7 @@ namespace VoiceLauncherBlazor.Pages
             {
                 try
                 {
-                    intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm.Trim(), maximumRows: MaximumRows);
+                    launchers = await LauncherService.GetLaunchersAsync(SearchTerm.Trim(), maximumRows: MaximumRows);
                 }
                 catch (Exception exception)
                 {
@@ -87,20 +79,20 @@ namespace VoiceLauncherBlazor.Pages
             }
         }
 
-        void ConfirmDelete(int customIntellisenseId)
+        void ConfirmDelete(int launcherId)
         {
             ShowDialog = true;
-            customIntellisenseIdDelete = customIntellisenseId;
+            launcherIdDelete = launcherId;
         }
         void CancelDelete()
         {
             ShowDialog = false;
         }
-        async Task SortCustomIntelliSenses(string column, string sortType)
+        async Task SortLaunchers(string column, string sortType)
         {
             try
             {
-                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, column, sortType, maximumRows: MaximumRows);
+                launchers = await LauncherService.GetLaunchersAsync(searchTerm, column, sortType, maximumRows: MaximumRows);
             }
             catch (Exception exception)
             {
@@ -108,14 +100,14 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
         }
-        async Task DeleteCustomIntelliSense(int customIntellisenseId)
+        async Task DeleteLauncher(int launcherId)
         {
             try
             {
-                var result = await CustomIntellisenseService.DeleteCustomIntelliSense(customIntellisenseId);
+                var result = await LauncherService.DeleteLauncher(launcherId);
                 StatusMessage = result;
                 ShowDialog = false;
-                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, maximumRows: MaximumRows);
+                launchers = await LauncherService.GetLaunchersAsync(searchTerm, maximumRows: MaximumRows);
 
             }
             catch (Exception exception)
@@ -125,24 +117,24 @@ namespace VoiceLauncherBlazor.Pages
             }
         }
 
-        async Task SaveAllCustomIntelliSenses()
+        async Task SaveAllLaunchers()
         {
             try
             {
-                var temporary = await CustomIntellisenseService.SaveAllCustomIntelliSenses(intellisenses);
+                var temporary = await LauncherService.SaveAllLaunchers(launchers);
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
                 _loadFailed = true;
             }
-            StatusMessage = $"Custom IntelliSenses Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
+            StatusMessage = $"Launchers Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
         }
         async Task FilterByCategory()
         {
             try
             {
-                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, categoryIdFilter, maximumRows: MaximumRows);
+                launchers = await LauncherService.GetLaunchersAsync(null, null, null, categoryIdFilter, maximumRows: MaximumRows);
             }
             catch (Exception exception)
             {
@@ -150,18 +142,5 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
         }
-        async Task FilterByLanguage()
-        {
-            try
-            {
-                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, null, languageIdFilter, maximumRows: MaximumRows);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                _loadFailed = true;
-            }
-        }
-
     }
 }

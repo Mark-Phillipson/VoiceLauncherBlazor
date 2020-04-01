@@ -4,7 +4,11 @@
 
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
-@inject VoiceLauncherService VoiceLauncherService
+@inject CustomIntellisenseService CustomIntellisenseService
+@inject CategoryService CategoryService
+@inject LanguageService LanguageService
+@inject GeneralLookupService GeneralLookupService
+
 @inject NavigationManager NavigationManager
 
 <h3>
@@ -20,21 +24,25 @@
 </h3>
 
 <div class="form-field row">
-    <a accesskey="0" class="btn btn-sm btn-success col-md-2" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>
+    <a accesskey="0" class="btn btn-success col-md-1" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>
     <label class="control-label col-md-1">Filter</label>
-    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-4" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
-    <button accesskey="1" class="btn btn-sm btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
+    <button accesskey="2" class="btn btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" class="form-control col-md-1" />
-
 </div>
-@if (intellisenses == null)
+@if (intellisenses == null && _loadFailed)
 {
-    <p><em>Loading...</em></p>
+    <h1 class="text-danger">The data failed to load please try again in a little while..</h1>
+}
+else if (intellisenses == null)
+{
+    <h1 class="text-success">Loading...</h1>
 }
 else if (intellisenses.Count == 0)
 {
-    <text>No Custom IntelliSenses found</text> }
+    <text>No Custom IntelliSenses found</text>
+}
 else
 {
     <table class="table table-dark table-sm table-bordered table-striped" id="table1">
@@ -44,7 +52,7 @@ else
                     Language
                     <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" accesskey="3" class="btn btn-sm btn-info">(3) <i class="oi oi-sort-ascending"></i></button>
                     <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" accesskey="4" class="btn btn-sm btn-info">(4) <i class="oi oi-sort-descending"></i></button>
-                    <select style="max-width:160px" accesskey="l" class="form-control-sm col-md-10 ml-2" @bind="languageIdFilter" @onblur="FilterByLanguage">
+                    <select style="max-width:160px" class="form-control-sm col-md-10 ml-2" @bind="languageIdFilter" @onblur="FilterByLanguage">
                         <option value="">-Select to filter-</option>
                         @if (languages != null)
                         {
@@ -59,15 +67,15 @@ else
                 <th style="width: 60px">
                     <div class="row">
                         <div class="col-md-12">Category</div>
-                        <select style="max-width:160px" accesskey="c" class="form-control-sm col-md-10 ml-3" @bind="categoryIdFilter" @onblur="FilterByCategory">
-                        <option value="">-Select to filter-</option>
-                        @if (categories != null)
-                        {
-                            @foreach (var category in categories)
+                        <select style="max-width:160px" class="form-control-sm col-md-10 ml-3" @bind="categoryIdFilter" @onblur="FilterByCategory">
+                            <option value="">-Select to filter-</option>
+                            @if (categories != null)
                             {
-                                <option value="@category.Id">@category.CategoryName</option>
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.Id">@category.CategoryName</option>
+                                }
                             }
-                        }
                         </select>
                     </div>
                 </th>
@@ -80,10 +88,13 @@ else
             </tr>
         </thead>
         <tbody>
-            @{ var counter = 5;}
+            @{ var counter = 6;}
             @foreach (var intellisense in intellisenses)
             {
-                counter++;
+                if (counter > 0)
+                {
+                    counter++;
+                }
                 <tr>
                     <td>
                         <input type="hidden" @bind="intellisense.Id" />
@@ -91,16 +102,17 @@ else
                         <input type="hidden" @bind="intellisense.CategoryId" />
                         <input type="hidden" @bind="intellisense.CommandType" />
                         <input type="hidden" @bind="intellisense.Remarks" />
+                        <input type="hidden" @bind="intellisense.ComputerId" />
                         <input disabled="disabled" class="form-control-sm" @bind="intellisense.Language.LanguageName" />
                     </td>
                     <td>
                         <input disabled="disabled" type="text" class="form-control-sm" @bind="intellisense.Category.CategoryName" />
                     </td>
                     <td>
-                        <input  class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
+                        <input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
                     </td>
                     <td>
-                        <textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense.SendKeysValue" class="form-control-sm" @bind="@intellisense.SendKeysValue"></textarea>
+                        <textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue" class="form-control-sm" @bind="@intellisense.SendKeysValue"></textarea>
                     </td>
                     <td>
                         <select style="min-width: 130px" class="form-control-sm col-md-8" @bind="@intellisense.DeliveryType">
@@ -110,7 +122,8 @@ else
                                 {
                                     @if (intellisense.DeliveryType == lookup.ItemValue)
                                     {
-                                        <option selected value="@lookup.ItemValue">@lookup.ItemValue</option> 
+                                        <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+
                                     }
                                     else
                                     {

@@ -1,0 +1,125 @@
+﻿@page "/launchers"
+
+@using VoiceLauncherBlazor.Data
+@using VoiceLauncherBlazor.Models
+@inject LauncherService LauncherService
+@inject CategoryService CategoryService
+@inject LanguageService LanguageService
+@inject ComputerService ComputerService
+@inject NavigationManager NavigationManager
+
+
+<h3>
+    List of Launchers
+    @if (StatusMessage != null)
+    {
+        <small class="text-danger"> Last Action: @StatusMessage</small>
+    }
+    @if (SearchTerm != null)
+    {
+        <small class="text-warning"> Filter: @SearchTerm</small>
+    }
+</h3>
+
+<div class="form-field row">
+    <a accesskey="0" class="btn btn-success col-md-2" href="/launcher/0">Create (0) <i class="oi oi-plus"></i></a>
+    <label class="control-label col-md-1">Filter</label>
+    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
+    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+    <label class="control-label col-md-1">Max Rows</label>
+    <input @bind="MaximumRows" class="form-control col-md-1" />
+
+</div>
+@if (launchers == null && _loadFailed)
+{
+    <h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+}
+else if (launchers == null)
+{
+    <h1 class="text-success">Loading...</h1>
+}
+else if (launchers.Count == 0)
+{
+    <text>No launchers found</text>
+}
+else
+{
+    <table class="table table-dark table-sm table-bordered table-striped" id="table1">
+        <thead>
+            <tr>
+                <th>
+                    Launcher Name
+                    <button @onclick="@(e  => SortLaunchers("CategoryName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortLaunchers("CategoryName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                </th>
+                <th style="width: 350px">
+                    <div class="row">
+                        <div class="col-md-6">Command Line</div>
+                    </div>
+                </th>
+                <th>
+                    Category
+                    <select class="form-control-sm col-md-5" style="width: 150px" @bind="categoryIdFilter" @onblur="FilterByCategory">
+                        <option value="">-Select to filter-</option>
+                        @if (categories != null)
+                        {
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Id">@category.CategoryName</option>
+                            }
+                        }
+                    </select>
+                </th>
+                <th>
+                    Computer
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-success" @onclick="SaveAllLaunchers">Save All <i class="oi oi-hard-drive"></i></button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ var counter = 2;}
+            @foreach (var launcher in launchers)
+            {
+                counter = counter + 1;
+                <tr>
+                    <td>
+                        <input type="hidden" @bind="launcher.Id" />
+                        <input type="hidden" @bind="launcher.CategoryId" />
+                        <input type="hidden" @bind="launcher.ComputerId" />
+                        <input class="form-control" @bind="launcher.Name" />
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="launcher.CommandLine" />
+                    </td>
+                    <td>
+                        <input disabled="disabled" type="text" class="form-control-sm" @bind="launcher.Category.CategoryName" />
+                    </td>
+                    <td>
+                        @if (launcher.Computer!= null )
+                        {
+                            <input disabled="disabled" type="text" class="form-control-sm" @bind="launcher.Computer.ComputerName" />
+                        }
+                        else
+                        {
+                            <h6>Not applicable</h6>
+                        }
+                    </td>
+                    <td>
+                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/launcher/@launcher.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(launcher.Id))">Delete <i class="oi oi-circle-x"></i></button>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<TemplatedDialog Show="ShowDialog">
+    <ConfirmDialog Message="Please confirm you wish to Delete this Launcher Record!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLauncher(launcherIdDelete))">
+    </ConfirmDialog>
+</TemplatedDialog>
+

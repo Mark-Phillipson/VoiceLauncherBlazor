@@ -1,7 +1,8 @@
 ﻿@page "/category/{categoryId:int}";
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
-@inject VoiceLauncherService VoiceLauncherService
+@inject CategoryService CategoryService
+@inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 
 <h1>Category
@@ -78,45 +79,6 @@ else
     {
         <LauncherList category="@category" />
     }
-}
-
-@code {
-        [Parameter] public int categoryId { get; set; }
-    private EditContext _editContext;
-    public VoiceLauncherBlazor.Models.Category category { get; set; }
-    public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        if (categoryId > 0)
-        {
-            category = await VoiceLauncherService.GetCategoryAsync(categoryId);
-        }
-        else
-        {
-            category = new Models.Category
-            {
-                CategoryType = "IntelliSense Command"
-            };
-        }
-        _editContext = new EditContext(category);
-        generalLookups =  await VoiceLauncherService.GetGeneralLookUpsAsync("Category Types");
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (categoryId > 0)
-        {
-            category = await VoiceLauncherService.GetCategoryAsync(categoryId);
-        }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        var result = await VoiceLauncherService.SaveCategory(category);
-        NavigationManager.NavigateTo("categories");
-    }
-
-
 }
 
 

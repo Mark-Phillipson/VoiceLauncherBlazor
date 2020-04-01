@@ -22,15 +22,17 @@ namespace VoiceLauncherBlazor
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<CategoriesDataGridService>();
-            Syncfusion.EJ2.Blazor.SyncfusionBlazor.AddSyncfusionBlazor(services);
             services.AddRazorPages();
-
             services.AddServerSideBlazor();
             services.AddDbContext<ApplicationDbContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
-            services.AddScoped<VoiceLauncherService>();
+            services.AddScoped<CategoryService>();
+            services.AddScoped<LanguageService>();
+            services.AddScoped<LauncherService>();
+            services.AddScoped<ComputerService>();
+            services.AddScoped<CustomIntellisenseService>();
+            services.AddScoped<GeneralLookupService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

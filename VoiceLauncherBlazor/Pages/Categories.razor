@@ -2,11 +2,12 @@
 
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
-@inject VoiceLauncherService VoiceLauncherService
+@inject CategoryService CategoryService
+@inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 
 <h3>
-    List of Categories
+    List of Categories 
     @if (StatusMessage != null)
     {
         <small class="text-danger"> Last Action: @StatusMessage</small>
@@ -18,22 +19,26 @@
 </h3>
 
 <div class="form-field row">
-    <a accesskey="0" class="btn btn-sm btn-success col-md-2" href="/category/0">Create (0) <i class="oi oi-plus"></i></a>
+    <a accesskey="0" class="btn btn-success col-md-2" href="/category/0">Create (0) <i class="oi oi-plus"></i></a>
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
-    <button accesskey="2" class="btn btn-sm btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
 </div>
-@if (categories == null)
+@if (categories== null  && _loadFailed)
 {
-    <p><em>Loading...</em></p>
+    <h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+}
+else if (categories == null)
+{
+    <h1 class="text-success">Loading...</h1>
 }
 else if (categories.Count == 0)
 {
-<text>No categories found</text> }
+<text>No categories found</text> 
+}
             else
             {
-                @*<input placeholder="Type to filter"  @bind="@searchTerm" />*@
-                <table class="table table-dark table-bordered table-striped" id="table1">
+                <table class="table table-dark table-sm table-bordered table-striped" id="table1">
                     <thead>
                         <tr>
                             <th>
@@ -89,7 +94,7 @@ else if (categories.Count == 0)
                                 </td>
                                 <td>
                                     <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/category/@category.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
-                                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteCategory(category.Id))">Delete <i class="oi oi-circle-x"></i></button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(category.Id))">Delete <i class="oi oi-circle-x"></i></button>
                                 </td>
                             </tr>
                         }
@@ -102,76 +107,3 @@ else if (categories.Count == 0)
                    OnCancel="CancelDelete" OnConfirm="@(() => DeleteCategory(categoryIdDelete))">
     </ConfirmDialog>
 </TemplatedDialog>
-
-@code {
-    public bool ShowDialog { get; set; }
-    private int categoryIdDelete { get; set; }
-    private List<VoiceLauncherBlazor.Models.Category> categories;
-    public string StatusMessage { get; set; }
-    public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-    private string categoryTypeFilter { get; set; }
-    private string searchTerm;
-    public string SearchTerm
-    {
-        get => searchTerm;
-        set
-        {
-            if (searchTerm != value)
-            {
-                searchTerm = value;
-            }
-        }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        categories = await VoiceLauncherService.GetCategoriesAsync();
-        generalLookups = await VoiceLauncherService.GetGeneralLookUpsAsync("Category Types");
-    }
-
-    async Task ApplyFilter()
-    {
-        if (SearchTerm != null)
-        {
-            categories = await VoiceLauncherService.GetCategoriesAsync(SearchTerm.Trim());
-            StateHasChanged();
-        }
-    }
-
-    void HandleValidSubmit()
-    {
-        Console.WriteLine("OnValidSubmit");
-    }
-    void ConfirmDelete(int categoryId)
-    {
-        ShowDialog = true;
-        categoryIdDelete = categoryId;
-    }
-    void CancelDelete()
-    {
-        ShowDialog = false;
-    }
-    async Task SortCategories(string column,string sortType)
-    {
-        categories = await VoiceLauncherService.GetCategoriesAsync(searchTerm, column, sortType);
-    }
-    async Task DeleteCategory(int categoryId)
-    {
-        var result = await VoiceLauncherService.DeleteCategory(categoryId);
-        StatusMessage = result;
-        ShowDialog = false;
-        categories = await VoiceLauncherService.GetCategoriesAsync();
-    }
-    async Task FilterCategoryType()
-    {
-        if (categoryTypeFilter!= null )
-        {
-            categories = await VoiceLauncherService.GetCategoriesAsync( null , null , null ,categoryTypeFilter);
-        }
-    }
-    async Task SaveAllCategories()
-    {
-        categories = await VoiceLauncherService.SaveAllCategories(categories);
-        StatusMessage= $"Categories Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
-    }
-}

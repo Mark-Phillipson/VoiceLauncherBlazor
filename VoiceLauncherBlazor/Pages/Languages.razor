@@ -2,7 +2,7 @@
 
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
-@inject VoiceLauncherService VoiceLauncherService
+@inject LanguageService LanguageService
 @inject NavigationManager NavigationManager
 
 <h3>
@@ -18,21 +18,25 @@
 </h3>
 
 <div class="form-field row">
-    <a accesskey="0" class="btn btn-sm btn-success col-md-2" href="/language/0">Create (0) <i class="oi oi-plus"></i></a>
+    <a accesskey="0" class="btn btn-success col-md-2" href="/language/0">Create (0) <i class="oi oi-plus"></i></a>
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
-    <button accesskey="2" class="btn btn-sm btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
 </div>
-@if (languages == null)
+@if (languages== null  && _loadFailed)
 {
-    <p><em>Loading...</em></p>
+    <h1 class="text-danger">The data failed to load please try again in a little bit..</h1>
+}
+else if (languages == null)
+{
+    <h1 class="text-success">Loading...</h1>
 }
 else if (languages.Count == 0)
 {
     <text>No languages found</text> }
 else
 {
-    <table class="table table-dark table-bordered table-striped" id="table1">
+    <table class="table table-dark table-sm table-bordered table-striped" id="table1">
         <thead>
             <tr>
                 <th>
@@ -44,7 +48,7 @@ else
                     <div class="row">
                         <div class="col-md-3">Active</div>
                         <button @onclick="@(e => ShowAll())" accesskey="5" class="btn btn-sm btn-info col-md-4">Show All (5) <i class="oi oi-eye"></i></button>
-                        <input type="checkbox" accesskey="1" class="form-control-sm col-md-5" style="width: 150px" @bind="activeFilter" @onblur="FilterActive" />
+                        <input type="checkbox" class="form-control-sm col-md-5" style="width: 150px" @bind="activeFilter" @onblur="FilterActive" />
                     </div>
                 </th>
                 <th>
@@ -56,7 +60,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @{ var counter = 5;}
+            @{ var counter = 6;}
             @foreach (var language in languages)
             {
                 counter++;
@@ -88,77 +92,3 @@ else
                    OnCancel="CancelDelete" OnConfirm="@(() => DeleteLanguage(languageIdDelete))">
     </ConfirmDialog>
 </TemplatedDialog>
-
-@code {
-    public bool ShowDialog { get; set; }
-    private int languageIdDelete { get; set; }
-    private List<VoiceLauncherBlazor.Models.Language> languages;
-    public string StatusMessage { get; set; }
-    //public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-    private bool? activeFilter { get; set; } = null;
-    private string searchTerm;
-    public string SearchTerm
-    {
-        get => searchTerm;
-        set
-        {
-            if (searchTerm != value)
-            {
-                searchTerm = value;
-            }
-        }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        languages= await VoiceLauncherService.GetLanguagesAsync();
-    }
-
-    async Task ApplyFilter()
-    {
-        if (SearchTerm != null)
-        {
-            languages = await VoiceLauncherService.GetLanguagesAsync(SearchTerm.Trim());
-            StateHasChanged();
-        }
-    }
-
-    //void HandleValidSubmit()
-    //{
-    //    Console.WriteLine("OnValidSubmit");
-    //}
-    void ConfirmDelete(int languageId)
-    {
-        ShowDialog = true;
-        languageIdDelete = languageId;
-    }
-    void CancelDelete()
-    {
-        ShowDialog = false;
-    }
-    async Task SortLanguages(string column, string sortType)
-    {
-        languages = await VoiceLauncherService.GetLanguagesAsync(searchTerm, column, sortType);
-    }
-    async Task DeleteLanguage(int languageId)
-    {
-        var result = await VoiceLauncherService.DeleteLanguage(languageId);
-        StatusMessage = result;
-        ShowDialog = false;
-        languages = await VoiceLauncherService.GetLanguagesAsync();
-    }
-    async Task FilterActive()
-    {
-        languages = await VoiceLauncherService.GetLanguagesAsync(null, null, null, activeFilter);
-    }
-    async Task SaveAllLanguages()
-    {
-        languages = await VoiceLauncherService.SaveAllLanguages(languages);
-        StatusMessage = $"Languages Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
-    }
-    async Task ShowAll()
-    {
-        activeFilter = null;
-        await FilterActive();
-    }
-}

@@ -36,7 +36,7 @@ namespace TestingDemo
             var mockContext = new Mock<ApplicationDbContext>();
             mockContext.Setup(c => c.Categories).Returns(mockSet.Object);
 
-            var service = new VoiceLauncherService(mockContext.Object);
+            var service = new CategoryService(mockContext.Object);
             //Apparently it's not possible to test an async method with the current version of entity framework!
             var categories = await service.GetCategoriesAsync();
             //var categories = await service.GetCategoriesAsync();
@@ -67,7 +67,7 @@ namespace TestingDemo
             var mockContext = new Mock<ApplicationDbContext>();
             mockContext.Setup(c => c.Categories).Returns(mockSet.Object);
 
-            var service = new VoiceLauncherService(mockContext.Object);
+            var service = new CategoryService(mockContext.Object);
             var categories = service.GetCategoriesAsync();
             // Not able to test async method with current version of ASP.net core
             //Assert.AreEqual(3, categories.Count);

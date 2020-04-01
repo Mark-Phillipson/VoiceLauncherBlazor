@@ -1,11 +1,18 @@
-﻿@page "/intellisense/{customIntellisenseId:int}";
+﻿@page "/intellisense/{customIntellisenseId:int}"
 @using VoiceLauncherBlazor.Data
 @using VoiceLauncherBlazor.Models
-@inject VoiceLauncherService VoiceLauncherService
+@inject CustomIntellisenseService CustomIntellisenseService
+@inject CategoryService CategoryService
+@inject LanguageService LanguageService
+@inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 
 <h1>Custom IntelliSense</h1>
-@if (intellisense == null)
+@if (intellisense== null  && _loadFailed)
+{
+    <h1 class="text-danger">The data failed to load please try again :( </h1>
+}
+else if (intellisense == null)
 {
     <text>Loading.</text>
 }
@@ -34,11 +41,11 @@ else
                                 {
                                     if (language.Id == intellisense.LanguageId)
                                     {
-                                    <option selected value="@language.Id.ToString()">@language.LanguageName</option>
+                                    <option selected value="@language.Id">@language.LanguageName</option>
                                     }
                                     else
                                     {
-                                    <option value="@language.Id.ToString()">@language.LanguageName</option>
+                                    <option value="@language.Id">@language.LanguageName</option>
                                     }
                                 }
                             }
@@ -109,48 +116,3 @@ else
     </div>
 }
 <hr>
-
-@code {
-    [Parameter] public int customIntellisenseId { get; set; }
-    private EditContext _editContext;
-    public VoiceLauncherBlazor.Models.CustomIntelliSense intellisense { get; set; }
-    public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-    public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
-    public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        if (customIntellisenseId > 0)
-        {
-            intellisense = await VoiceLauncherService.GetCustomIntelliSenseAsync(customIntellisenseId);
-        }
-        else
-        {
-            intellisense = new Models.CustomIntelliSense
-            {
-                DeliveryType = "SendKeys"
-            };
-        }
-        _editContext = new EditContext(intellisense);
-        generalLookups = await VoiceLauncherService.GetGeneralLookUpsAsync("Delivery Type");
-        languages = await VoiceLauncherService.GetLanguagesAsync();
-        categories = await VoiceLauncherService.GetCategoriesAsync();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (intellisense.Id > 0)
-        {
-            intellisense = await VoiceLauncherService.GetCustomIntelliSenseAsync(intellisense.Id);
-        }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        var result = await VoiceLauncherService.SaveCustomIntelliSense(intellisense);
-        NavigationManager.NavigateTo("intellisenses");
-    }
-
-
-}
-
-
