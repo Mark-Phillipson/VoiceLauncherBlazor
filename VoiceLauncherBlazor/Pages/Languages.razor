@@ -23,13 +23,14 @@
     <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
     <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
 </div>
-@if (languages== null  && _loadFailed)
+@if (languages == null && _loadFailed)
 {
     <h1 class="text-danger">The data failed to load please try again in a little bit..</h1>
 }
 else if (languages == null)
 {
     <h1 class="text-success">Loading...</h1>
+    <div style="display:normal;margin:auto" class="loader"></div>
 }
 else if (languages.Count == 0)
 {
@@ -72,9 +73,9 @@ else
                         <input type="checkbox" class="form-control" @bind="language.Active" />
                     </td>
                     <td>
-                        @if (language.CustomIntelliSense!= null )
+                        @if (language.CustomIntelliSense != null)
                         {
-                        <a href="intellisensesL/@language.Id">@language.CustomIntelliSense.Count</a>
+                            <a href="intellisensesL/@language.Id">@language.CustomIntelliSense.Count</a>
                         }
                     </td>
                     <td>

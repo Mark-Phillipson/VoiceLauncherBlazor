@@ -35,7 +35,6 @@ namespace VoiceLauncherBlazor.Pages
             {
                 categories = await CategoryService.GetCategoriesAsync();
                 generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Category Types");
-
             }
             catch (Exception exception)
             {

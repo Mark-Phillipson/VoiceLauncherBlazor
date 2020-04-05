@@ -32,5 +32,22 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script>
+        function CallChange(elementId) {
+            var element = document.getElementById(elementId);
+            if (element) {
+                var event = new Event('change');
+                element.dispatchEvent(event);
+            }
+        }
+        window.exampleJsFunctions = {
+            focusElement: function (elementId) {
+                var element = document.getElementById(elementId);
+                if (element) {
+                    element.focus();
+                }
+            }
+        }
+    </script>
 </body>
 </html>

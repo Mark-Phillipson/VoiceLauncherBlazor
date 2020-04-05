@@ -37,6 +37,7 @@
 else if (launchers == null)
 {
     <h1 class="text-success">Loading...</h1>
+    <div style="display:normal;margin:auto" class="loader"></div>
 }
 else if (launchers.Count == 0)
 {
@@ -97,14 +98,13 @@ else
                         <input disabled="disabled" type="text" class="form-control-sm" @bind="launcher.Category.CategoryName" />
                     </td>
                     <td>
-                        @if (launcher.Computer!= null )
+                        @if (launcher.Computer != null)
                         {
                             <input disabled="disabled" type="text" class="form-control-sm" @bind="launcher.Computer.ComputerName" />
                         }
                         else
                         {
-                            <h6>Not applicable</h6>
-                        }
+    <h6>Not applicable</h6>}
                     </td>
                     <td>
                         <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/launcher/@launcher.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>

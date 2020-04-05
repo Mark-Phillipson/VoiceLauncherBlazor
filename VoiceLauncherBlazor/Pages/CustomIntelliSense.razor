@@ -8,13 +8,14 @@
 @inject NavigationManager NavigationManager
 
 <h1>Custom IntelliSense</h1>
-@if (intellisense== null  && _loadFailed)
+@if (intellisense == null && _loadFailed)
 {
     <h1 class="text-danger">The data failed to load please try again :( </h1>
 }
 else if (intellisense == null)
 {
     <text>Loading.</text>
+    <div style="display:normal;margin:auto" class="loader"></div>
 }
 else
 {
@@ -36,19 +37,19 @@ else
                     <select accesskey="0" class="form-control-lg col-md-8" @bind="intellisense.LanguageId">
                         <option value="">-</option>
                         @if (languages != null)
-                            {
+                        {
                             @foreach (var language in languages)
+                            {
+                                if (language.Id == intellisense.LanguageId)
                                 {
-                                    if (language.Id == intellisense.LanguageId)
-                                    {
                                     <option selected value="@language.Id">@language.LanguageName</option>
-                                    }
-                                    else
-                                    {
+                                }
+                                else
+                                {
                                     <option value="@language.Id">@language.LanguageName</option>
-                                    }
                                 }
                             }
+                        }
                     </select>
                     <ValidationMessage For="@(() => intellisense.LanguageId)" />
                 </div>
@@ -57,19 +58,19 @@ else
                     <select accesskey="1" class="form-control-lg col-md-8" @bind="@intellisense.CategoryId">
                         <option value="">-</option>
                         @if (categories != null)
-                            {
+                        {
                             @foreach (var category in categories)
-                                {
+                            {
                                 @if (intellisense.CategoryId == category.Id)
-                                    {
+                                {
                                     <option selected value="@category.Id.ToString()">@category.CategoryName</option>
-                                    }
-                                    else
-                                    {
+                                }
+                                else
+                                {
                                     <option value="@category.Id.ToString()">@category.CategoryName</option>
-                                    }
                                 }
                             }
+                        }
                     </select>
                     <ValidationMessage For="@(() => intellisense.CategoryId)" />
                 </div>
@@ -80,8 +81,8 @@ else
                 </div>
                 <div class="form-field row">
                     <label for="@intellisense.SendKeysValue" class="col-md-4"> Sendkeys Value</label>
-                    <InputTextArea style="min-height: 270px"  class="col-md-8 form-control" placeholder="Enter Send Keys Value" id="SendKeysValue" @bind-Value="intellisense.SendKeysValue" rows="6" >
-                        </InputTextArea>
+                    <InputTextArea style="min-height: 270px" class="col-md-8 form-control" placeholder="Enter Send Keys Value" id="SendKeysValue" @bind-Value="intellisense.SendKeysValue" rows="6">
+                    </InputTextArea>
                     <ValidationMessage For="@(() => intellisense.SendKeysValue)" />
                 </div>
                 <div class="form-field row">

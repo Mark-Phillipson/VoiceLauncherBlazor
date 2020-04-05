@@ -7,7 +7,7 @@ using VoiceLauncherBlazor.Models;
 
 namespace VoiceLauncherBlazor.Data
 {
-    public class CategoryService
+    public class CategoryService 
     {
         readonly ApplicationDbContext _context;
         public CategoryService(ApplicationDbContext context)
