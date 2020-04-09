@@ -40,13 +40,17 @@
                 element.dispatchEvent(event);
             }
         }
-        window.exampleJsFunctions = {
-            focusElement: function (elementId) {
-                var element = document.getElementById(elementId);
-                if (element) {
-                    element.focus();
-                }
+        window.setFocus = (elementId) => {
+            setTimeout(internalFocus, 10, elementId);
+        };
+        function internalFocus(elementId) {
+            var element = document.getElementById(elementId);
+            if (element == null) {
+                setTimeout(internalFocus, 10, elementId);
+                return;
             }
+            element.focus();
+            element.select();
         }
     </script>
 </body>

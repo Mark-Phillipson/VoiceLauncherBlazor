@@ -5,11 +5,12 @@
 @inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 
-<h1>Category
+<h1>
+    Category
     <small>
-        @if (category!= null )
+        @if (category != null)
         {
-            @if (category.CategoryType=="Launch Applications")
+            @if (category.CategoryType == "Launch Applications")
             {
                 <text> Launcher </text>
             }
@@ -17,10 +18,10 @@
             {
                 <text> Language </text>
             }
-                @category.CategoryName
+            @category.CategoryName
         }
     </small>
-    </h1>
+</h1>
 @if (category == null)
 {
     <text>Loading.</text>
@@ -47,38 +48,39 @@ else
                 </div>
                 <div class="form-field row">
                     <label for="@category.CategoryType" class="col-md-4"> Category Type (1)</label>
-                    <InputSelect accesskey="1" class="form-control-lg col-md-8" @bind-Value="category.CategoryType" >
+                    <InputSelect accesskey="1" class="form-control-lg col-md-8" @bind-Value="category.CategoryType">
                         <option value="">-</option>
-                        @if (generalLookups!= null)
-                        {
-                            @foreach (var lookup in generalLookups)
+                        @if (generalLookups != null)
                             {
-                                @if (category.CategoryType==lookup.ItemValue)
+                            @foreach (var lookup in generalLookups)
                                 {
+                                @if (category.CategoryType == lookup.ItemValue)
+                                    {
                                     <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
-                                }
-                                else
-                                {
+                                    }
+                                    else
+                                    {
                                     <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                    }
                                 }
                             }
-                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => category.CategoryType)" />
                 </div>
+
                 <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
             </EditForm>
         </div>
     </div>
     <hr>
-    @if (category.CategoryType=="IntelliSense Command")
+    @if (category.CategoryType == "IntelliSense Command")
     {
-        <CustomIntellisenseList category=@category/>
-    }
+        <CustomIntellisenseList category=@category />
+ }
     else
     {
         <LauncherList category="@category" />
-    }
+}
 }
 
 

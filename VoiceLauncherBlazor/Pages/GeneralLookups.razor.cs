@@ -146,7 +146,7 @@ namespace VoiceLauncherBlazor.Pages
                 SortOrder = generalLookupSource?.SortOrder + 1
             };
             generalLookups.Add(generalLookup);
-            await JSRuntime.InvokeVoidAsync("exampleJsFunctions.focusElement", "0ItemValue");
+            await JSRuntime.InvokeVoidAsync("setFocus", "0ItemValue");
         }
         private async Task CallChangeAsync(string elementId)
         {
