@@ -1,0 +1,37 @@
+﻿@page "/examples"
+@using VoiceLauncherBlazor.Data
+@using VoiceLauncherBlazor.Models
+@inject ExampleService ExampleService
+
+<h3>Examples<small class="text-success"> @StatusMessage</small> </h3>
+@if (_loadFailed)
+{
+    <div>Data failed to load</div>
+}
+else
+{
+    <DxDataGrid Data="@examples" PageSize="5"
+                ShowFilterRow="true"
+                RowRemovingAsync="@OnRowRemoving"
+                RowUpdatingAsync="@OnRowUpdating"
+                RowInsertingAsync="@OnRowInserting"
+                InitNewRow="@OnInitNewRow"
+                style="width:70%">
+
+        <DxDataGridCommandColumn></DxDataGridCommandColumn>
+        <DxDataGridColumn Field="@nameof(Example.Text)"></DxDataGridColumn>
+        <DxDataGridColumn Field="@nameof(Example.LargeText)"></DxDataGridColumn>
+        <DxDataGridDateEditColumn Field="@nameof(Example.DateValue)"></DxDataGridDateEditColumn>
+        <DxDataGridSpinEditColumn Field="@nameof(Example.NumberValue)"></DxDataGridSpinEditColumn>
+        <DxDataGridCheckBoxColumn Field="@nameof(Example.Boolean)"></DxDataGridCheckBoxColumn>
+    </DxDataGrid>
+}
+
+<TemplatedDialog Show="ShowDialog">
+    <ConfirmDialog Message="Please confirm you wish to Delete this Example!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteExample(exampleIdDelete))">
+    </ConfirmDialog>
+</TemplatedDialog>
+
+

@@ -1,18 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace VoiceLauncherBlazor
 {
     public class Program
     {
+        //readonly IServiceCollection _builder;
+        //public Program(IServiceCollection builder)
+        //{
+        //    this._builder = builder;
+        //}
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();

@@ -25,6 +25,10 @@ namespace VoiceLauncherBlazor.Data
             {
                 Console.WriteLine(exception.Message);
             }
+            if (Environment.MachineName != "SURFACEPRO")
+            {
+                intellisenses = intellisenses.Where(v => v.Category.Sensitive == false);
+            }
             if (searchTerm != null && searchTerm.Length > 0)
             {
                 intellisenses = intellisenses.Where(v => v.DisplayValue.Contains(searchTerm) || v.SendKeysValue.Contains(searchTerm));

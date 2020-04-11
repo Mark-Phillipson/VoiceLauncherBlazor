@@ -39,67 +39,67 @@ else if (generalLookups.Count == 0)
 else
 {
     <EditForm OnValidSubmit="SaveAllGeneralLookups" OnInvalidSubmit="NotifyInvalid" Model="generalLookups">
-    <table class="table table-dark table-sm table-bordered table-striped" id="table1">
-        <thead>
-            <tr>
-                <th>
-                    Item Value
-                    <button @onclick="@(e  => SortGeneralLookups("ItemValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-                    <button @onclick="@(e => SortGeneralLookups("ItemValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
-                </th>
-                <th style="width: 350px">
-                    <div class="row">
-                        <div class="col-md-6">Category</div>
-                        <select class="form-control-sm col-md-5" style="width: 150px" @bind="categoryFilter" @onblur="FilterGeneralLookups">
-                            <option value="">-Select to filter-</option>
-                            @if (generalLookupsCategories != null)
-                            {
-                                @foreach (var item in generalLookupsCategories)
-                                {
-                                    <option value="@item">@item</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                </th>
-                <th style="width:100px">
-                    Sort Order
-                </th>
-                <th> Display Value </th>
-                <th>
-                    @*<button class="btn btn-sm btn-success" @onclick="SaveAllGeneralLookups">Save All <i class="oi oi-hard-drive"></i></button>*@
-                    <button class="btn btn-sm btn-success" type="submit">Save All <i class="oi oi-hard-drive"></i></button>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @{ var counter = 2;}
-            @foreach (var generalLookup in generalLookups)
-                @*@for (int i = 0; i < generalLookups.Count; i++)*@
-                    {
-                    counter++;
+        <table class="table table-dark table-sm table-bordered table-striped" id="table1">
+            <thead>
                 <tr>
-                    <td>
-                        <input required class="form-control" @bind="generalLookup.ItemValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "ItemValue"))" id="@generalLookup.Id.ToString()ItemValue" @bind:event="onchange"/>
-                    </td>
-                    <td>
-                        <input required class="form-control" @bind="generalLookup.Category" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "Category"))" @bind:event="onchange" id="@generalLookup.Id.ToString()Category"/>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="generalLookup.SortOrder" type="number" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "SortOrder"))" id="@generalLookup.Id.ToString()SortOrder" @bind:event="onchange"/>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="generalLookup.DisplayValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "DisplayValue"))" id="@generalLookup.Id.ToString()DisplayValue" @bind:event="onchange"/>
-                    </td>
-                    <td class="btn-group">
-                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/generallookup/@generalLookup.Id">@(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
-                        <button class="btn btn-sm btn-danger" type="button" @onclick="@(() => ConfirmDelete(generalLookup.Id))"><i class="oi oi-circle-x"></i></button>
-                        <button class="btn btn-sm btn-warning" type="button" @onclick="@(() => DuplicateRecord(generalLookup.Id))"><i class="oi oi-copywriting"></i></button>
-                    </td>
+                    <th>
+                        Item Value
+                        <button @onclick="@(e  => SortGeneralLookups("ItemValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                        <button @onclick="@(e => SortGeneralLookups("ItemValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                    </th>
+                    <th style="width: 350px">
+                        <div class="row">
+                            <div class="col-md-6">Category</div>
+                            <select class="form-control-sm col-md-5" style="width: 150px" @bind="categoryFilter" @onblur="FilterGeneralLookups">
+                                <option value="">-Select to filter-</option>
+                                @if (generalLookupsCategories != null)
+                                {
+                                    @foreach (var item in generalLookupsCategories)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </th>
+                    <th style="width:100px">
+                        Sort Order
+                    </th>
+                    <th> Display Value </th>
+                    <th>
+                        @*<button class="btn btn-sm btn-success" @onclick="SaveAllGeneralLookups">Save All <i class="oi oi-hard-drive"></i></button>*@
+                        <button class="btn btn-sm btn-success" type="submit">Save All <i class="oi oi-hard-drive"></i></button>
+                    </th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @{ var counter = 2;}
+                @foreach (var generalLookup in generalLookups)
+                @*@for (int i = 0; i < generalLookups.Count; i++)*@ {
+                    counter++;
+                    <tr>
+                        <td>
+                            <input required class="form-control" @bind="generalLookup.ItemValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "ItemValue"))" id="@generalLookup.Id.ToString()ItemValue" @bind:event="onchange" />
+                        </td>
+                        <td>
+                            <input required class="form-control" @bind="generalLookup.Category" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "Category"))" @bind:event="onchange" id="@generalLookup.Id.ToString()Category" />
+                        </td>
+                        <td>
+                            <input class="form-control" @bind="generalLookup.SortOrder" type="number" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "SortOrder"))" id="@generalLookup.Id.ToString()SortOrder" @bind:event="onchange" />
+                        </td>
+                        <td>
+                            <input class="form-control" @bind="generalLookup.DisplayValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "DisplayValue"))" id="@generalLookup.Id.ToString()DisplayValue" @bind:event="onchange" />
+                        </td>
+                        <td class="btn-group">
+                            <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/generallookup/@generalLookup.Id">@(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
+                            <button class="btn btn-sm btn-danger" type="button" @onclick="@(() => ConfirmDelete(generalLookup.Id))"><i class="oi oi-circle-x"></i></button>
+                            <button class="btn btn-sm btn-warning" type="button" @onclick="@(() => DuplicateRecord(generalLookup.Id))"><i class="oi oi-copywriting"></i></button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </EditForm>
 }
 <TemplatedDialog Show="ShowDialog">

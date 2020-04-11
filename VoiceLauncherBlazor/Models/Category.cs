@@ -17,13 +17,13 @@ namespace VoiceLauncherBlazor.Models
         public int Id { get; set; }
         [StringLength(30)]
         [Column("Category")]
-        [Required(ErrorMessage = "The Category Name is required dick head!")]
+        [Required(ErrorMessage = "The Category Name is required!")]
         public string CategoryName { get; set; }
         [Column("Category_Type")]
         [StringLength(255)]
-        [Required(ErrorMessage = "The Category Type is required dick head!")]
+        [Required(ErrorMessage = "The Category Type is required!")]
         public string CategoryType { get; set; }
-
+        public bool Sensitive { get; set; } = false;
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
         [InverseProperty("Category")]

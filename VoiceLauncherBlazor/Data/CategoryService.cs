@@ -7,7 +7,7 @@ using VoiceLauncherBlazor.Models;
 
 namespace VoiceLauncherBlazor.Data
 {
-    public class CategoryService 
+    public class CategoryService
     {
         readonly ApplicationDbContext _context;
         public CategoryService(ApplicationDbContext context)
@@ -30,6 +30,10 @@ namespace VoiceLauncherBlazor.Data
             {
                 Console.WriteLine(exception.Message);
                 return null;
+            }
+            if (Environment.MachineName != "SURFACEPRO")
+            {
+                categories = categories.Where(v => v.Sensitive == false);
             }
             if (searchTerm != null && searchTerm.Length > 0)
             {

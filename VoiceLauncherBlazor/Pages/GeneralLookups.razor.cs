@@ -20,7 +20,6 @@ namespace VoiceLauncherBlazor.Pages
         private bool _loadFailed = false;
 #pragma warning restore 414
 
-
         public string SearchTerm
         {
             get => searchTerm;

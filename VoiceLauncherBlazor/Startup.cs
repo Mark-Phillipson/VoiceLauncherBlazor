@@ -28,17 +28,19 @@ namespace VoiceLauncherBlazor
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
             services.AddScoped<CategoryService>();
+            services.AddScoped<ExampleService>();
             services.AddScoped<LanguageService>();
             services.AddScoped<LauncherService>();
             services.AddScoped<ComputerService>();
             services.AddScoped<CustomIntellisenseService>();
             services.AddScoped<GeneralLookupService>();
+            services.AddDevExpressBlazor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjE3ODA5QDMxMzcyZTM0MmUzME44MU0yUkh5aWNJakV0Y2VRTTNrQzFBNTI5cUt1L2dBUFBYVDRRa1RPejA9");
+            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjE3ODA5QDMxMzcyZTM0MmUzME44MU0yUkh5aWNJakV0Y2VRTTNrQzFBNTI5cUt1L2dBUFBYVDRRa1RPejA9");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

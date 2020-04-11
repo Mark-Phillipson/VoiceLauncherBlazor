@@ -51,6 +51,7 @@ namespace VoiceLauncherBlazor.Models
         public virtual DbSet<ViewPropertyTabPositions> ViewPropertyTabPositions { get; set; }
         public virtual DbSet<ViewSavedMousePosition> ViewSavedMousePosition { get; set; }
         public virtual DbSet<ViewValuesToInsert> ViewValuesToInsert { get; set; }
+        public virtual DbSet<Example> Examples { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
