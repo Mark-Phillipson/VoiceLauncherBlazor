@@ -27,13 +27,13 @@ namespace VoiceLauncherBlazor
             services.AddDbContext<ApplicationDbContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
-            services.AddScoped<CategoryService>();
-            services.AddScoped<ExampleService>();
-            services.AddScoped<LanguageService>();
-            services.AddScoped<LauncherService>();
-            services.AddScoped<ComputerService>();
-            services.AddScoped<CustomIntellisenseService>();
-            services.AddScoped<GeneralLookupService>();
+            services.AddTransient<CategoryService>();
+            services.AddTransient<ExampleService>();
+            services.AddTransient<LanguageService>();
+            services.AddTransient<LauncherService>();
+            services.AddTransient<ComputerService>();
+            services.AddTransient<CustomIntellisenseService>();
+            services.AddTransient<GeneralLookupService>();
             services.AddDevExpressBlazor();
         }
 

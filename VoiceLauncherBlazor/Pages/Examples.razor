@@ -12,7 +12,7 @@ else
 {
     <DxDataGrid Data="@examples" PageSize="5"
                 ShowFilterRow="true"
-                RowRemovingAsync="@OnRowRemoving"
+                RowRemoving="@OnRowRemoving"
                 RowUpdatingAsync="@OnRowUpdating"
                 RowInsertingAsync="@OnRowInserting"
                 InitNewRow="@OnInitNewRow"

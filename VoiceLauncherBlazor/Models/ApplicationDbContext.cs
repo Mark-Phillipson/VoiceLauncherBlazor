@@ -52,7 +52,7 @@ namespace VoiceLauncherBlazor.Models
         public virtual DbSet<ViewSavedMousePosition> ViewSavedMousePosition { get; set; }
         public virtual DbSet<ViewValuesToInsert> ViewValuesToInsert { get; set; }
         public virtual DbSet<Example> Examples { get; set; }
-
+        public virtual DbSet<Todo> Todos { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

@@ -13,9 +13,10 @@
 
 <h3>
     List of Custom IntelliSense
+
     @if (StatusMessage != null)
     {
-        <small class="text-danger"> Last Action: @StatusMessage</small>
+        <small lass="text-success"> Last Action: @StatusMessage</small>
     }
     @if (SearchTerm != null)
     {
@@ -148,4 +149,4 @@ else
                    OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense(customIntellisenseIdDelete))">
     </ConfirmDialog>
 </TemplatedDialog>
-
+ 

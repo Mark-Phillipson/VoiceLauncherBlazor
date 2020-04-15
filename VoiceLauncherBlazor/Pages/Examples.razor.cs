@@ -34,7 +34,7 @@ namespace VoiceLauncherBlazor.Pages
             }
         }
 
-        async Task OnRowRemoving(Example dataItem)
+        void OnRowRemoving(Example dataItem)
         {
             exampleIdDelete = dataItem.Id;
             ShowDialog = true;

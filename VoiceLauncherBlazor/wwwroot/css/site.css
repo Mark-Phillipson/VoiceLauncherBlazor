@@ -347,3 +347,28 @@ app {
         transform: rotate(360deg);
     }
 }
+@keyframes inputFlash {
+    from {
+        background-color:darkseagreen
+    }
+
+    to {
+        background-color:white 
+    }
+}
+
+input {
+    background-color:white;
+    animation-name:inputFlash;
+    animation-duration: 6s;
+}
+
+/*.text-success .text-danger {
+    transition: opacity 6s;
+}
+*/
+@-moz-keyframes status {
+}
+
+@-webkit-keyframes status {
+}

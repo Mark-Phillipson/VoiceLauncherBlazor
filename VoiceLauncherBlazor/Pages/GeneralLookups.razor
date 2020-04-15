@@ -9,7 +9,7 @@
     List of General Lookups
     @if (StatusMessage != null)
     {
-        <small class="text-success"> Last Action: @StatusMessage</small>
+        <small class="@ClassName"> Last Action: @StatusMessage</small>
     }
     @if (SearchTerm != null)
     {
@@ -44,8 +44,8 @@ else
                 <tr>
                     <th>
                         Item Value
-                        <button @onclick="@(e  => SortGeneralLookups("ItemValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-                        <button @onclick="@(e => SortGeneralLookups("ItemValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                        <button type="button" @onclick="@(e  => SortGeneralLookups("ItemValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                        <button type="button" @onclick="@(e => SortGeneralLookups("ItemValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
                     </th>
                     <th style="width: 350px">
                         <div class="row">

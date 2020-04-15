@@ -16,6 +16,7 @@ namespace VoiceLauncherBlazor.Pages
         public List<string> generalLookupsCategories { get; set; }
         private string categoryFilter { get; set; }
         private string searchTerm;
+        public string ClassName { get; set; } = "";
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -92,6 +93,7 @@ namespace VoiceLauncherBlazor.Pages
             {
                 var result = await GeneralLookupService.DeleteGeneralLookup(generalLookupId);
                 StatusMessage = result;
+                ClassName = "text-danger";
                 ShowDialog = false;
                 generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm);
 
@@ -129,6 +131,7 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
             StatusMessage = $"General Lookups Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
+            ClassName = "text-success";
         }
         private void NotifyInvalid()
         {
