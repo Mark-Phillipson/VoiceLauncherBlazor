@@ -1,0 +1,265 @@
+﻿@page "/Todos"
+@inject ITodoData TodoData
+@inject IJSRuntime JSRuntime
+@if (Project == null)
+{
+    <h1>
+        Todos
+        <small>
+            <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @onblur="@(e => CallChangeAsync("SearchTerm"))" id="SearchTerm" />
+            <button accesskey="2" class="btn btn-primary btn-sm mt-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+            @if (Project == null)
+            {
+                <select class="form-control-sm" @bind="ProjectFilter" @onblur="ApplyFilter">
+                    <option value="">-Select to filter by project-</option>
+                    @if (projects != null)
+                    {
+                        @foreach (var item in projects)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    }
+                </select>
+            }
+        </small>
+    </h1>
+    <h4>Insert/Edit Todos</h4>
+
+    <EditForm Model="@todo" OnValidSubmit="@InsertTodo">
+        <DataAnnotationsValidator />
+        @if (todo.Id > 0)
+        {
+            <div>@todo.Id</div>
+        }
+
+        <table class="table table-bordered table-striped table-sm" id="table1">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th style="min-width: 500px">Description</th>
+                    <th>Completed</th>
+                    <th>Project</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <InputText class="form-control" @bind-Value="todo.Title" placeholder="Enter a Title" @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Title"))" id="@(todo.Id.ToString() + "Title")" />
+                        <ValidationMessage For="@(() => todo.Title)" />
+                    </td>
+                    <td>
+                        <InputTextArea class="form-control" @bind-Value="todo.Description" placeholder="Enter what needs to be done." @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Description"))" id="@(todo.Id.ToString() + "Description")" />
+                        <ValidationMessage For="@(() => todo.Description)" />
+                    </td>
+                    <td>
+                        <InputCheckbox class="form-control" @bind-Value="todo.Completed" />
+                    </td>
+                    <td>
+                        <InputText class="form-control" @bind-Value="todo.Project" placeholder="Optionally Enter a Project" @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Project"))" id="@(todo.Id.ToString() + "Project")" />
+                        <ValidationMessage For="@(() => todo.Project)" />
+                    </td>
+                    <td>    <button type="submit" class="btn btn-success btn-sm">Submit</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+    </EditForm>
+
+    <h4>Current Todos</h4>
+}
+@if (_loadFailed)
+{
+    <div class="text-danger">The data failed to load please try again later!</div>
+}
+else if (todos == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-sm" id="table1">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th style="min-width:500px">Description</th>
+                <th>Completed</th>
+                @if (Project == null)
+                {
+                    <th>Project</th>
+                    <th>Action</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var todo in todos)
+            {
+                <tr>
+                    <td>@todo.Title</td>
+                    <td style="min-width: 500px">@todo.Description</td>
+                    <td>
+                        @if (todo.Completed)
+                        {
+                            <span class="text-success">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">No</span>
+                        }
+                    </td>
+                    @if (Project == null)
+                    {
+                        <td>@todo.Project</td>
+                        <td class="btn-group">
+                            <button class="btn btn-warning btn-sm" type="button" @onclick="() => EditTodo(todo)">Edit</button>
+                            <button class="btn btn-danger btn-sm" type="button" @onclick="() => ConfirmDelete(todo.Id)">Delete</button>
+                            @if (todo.Completed)
+                            {
+                                <button class="btn btn-primary btn-sm" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (todos.Count > 0)
+    {
+        <div class="progress my-2">
+            <div class="progress-bar" role="progressbar" style="width:@(percentDone)%" aria-valuemin="0" aria-valuemax="100">
+                @(percentDone)%
+            </div>
+        </div>
+    }
+
+}
+<TemplatedDialog Show="ShowDialog">
+    <ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(todoIdDelete))">
+    </ConfirmDialog>
+</TemplatedDialog>
+<TemplatedDialog Show="ShowDialogArchive">
+    <ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(todoIdArchive))">
+    </ConfirmDialog>
+</TemplatedDialog>
+
+@code {
+    [Parameter] public string Project { get; set; }
+    private List<DataAccessLibrary.Models.Todo> todos;
+    private Todo todo = null;
+    public bool ShowDialog { get; set; }
+    public bool ShowDialogArchive { get; set; }
+    public int todoIdDelete { get; set; }
+    public int todoIdArchive { get; set; }
+    public string SearchTerm { get; set; } = null;
+    public bool _loadFailed { get; set; }
+    public List<string> projects { get; set; } = new List<string>();
+    public string ProjectFilter { get; set; }
+    private int percentDone
+    {
+        get
+        {
+            return (todos.Count(x => x.Completed) * 100) / todos.Count;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        todo = new Todo { Project = Project };
+        await LoadData();
+    }
+    private async Task InsertTodo()
+    {
+        if (todo.Id > 0)
+        {
+            await SaveTodo();
+        }
+        else
+        {
+            await TodoData.InsertToDo(todo);
+            await LoadData();
+            todo = new Todo { Project = Project };
+        }
+    }
+    private void EditTodo(Todo todoEdit)
+    {
+        todo.Id = todoEdit.Id;
+        todo.Title = todoEdit.Title;
+        todo.Description = todoEdit.Description;
+        todo.Completed = todoEdit.Completed;
+        todo.Project = todoEdit.Project;
+        todo.Archived = todoEdit.Archived;
+        JSRuntime.InvokeVoidAsync("setFocus", $"{todo.Id.ToString()}Title");
+    }
+    private async Task SaveTodo()
+    {
+        await TodoData.UpdateToDo(todo);
+        await LoadData();
+        todo = new Todo { Project = Project };
+    }
+    void ConfirmArchive(int todoId)
+    {
+        ShowDialogArchive = true;
+        todoIdArchive = todoId;
+    }
+    void ConfirmDelete(int todoId)
+    {
+        ShowDialog = true;
+        todoIdDelete = todoId;
+    }
+    void CancelDialog()
+    {
+        ShowDialog = false;
+        ShowDialogArchive = false;
+    }
+
+    private async Task DeleteTodo(int todoId)
+    {
+        Todo todo = await TodoData.GetTodo(todoId);
+        await TodoData.DeleteToDo(todo);
+        await LoadData();
+        ShowDialog = false;
+    }
+    private async Task ArchiveTodo(int todoId)
+    {
+        Todo todo = await TodoData.GetTodo(todoId);
+        todo.Archived = true;
+        await TodoData.UpdateToDo(todo);
+        await LoadData();
+        ShowDialogArchive = false;
+    }
+    async Task ApplyFilter()
+    {
+        await LoadData();
+    }
+    async Task LoadData()
+    {
+        if (ProjectFilter == "")
+        {
+            ProjectFilter = null;
+        }
+        try
+        {
+            if (Project != null)
+            {
+                ProjectFilter = Project;
+            }
+            todos = await TodoData.GetTodos(SearchTerm, ProjectFilter);
+            projects = await TodoData.GetProjects();
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+            _loadFailed = true;
+        }
+    }
+
+    private async Task CallChangeAsync(string elementId)
+    {
+        await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+    }
+
+}

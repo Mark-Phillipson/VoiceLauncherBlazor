@@ -1,3 +1,4 @@
+using DataAccessLibrary;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,8 @@ namespace VoiceLauncherBlazor
             services.AddTransient<ComputerService>();
             services.AddTransient<CustomIntellisenseService>();
             services.AddTransient<GeneralLookupService>();
+            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+            services.AddTransient<ITodoData, TodoData>();
             services.AddDevExpressBlazor();
         }
 
