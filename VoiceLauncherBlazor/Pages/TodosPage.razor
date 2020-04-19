@@ -32,11 +32,11 @@
             <div>@todo.Id</div>
         }
 
-        <table class="table table-bordered table-striped table-sm" id="table1">
+        <table class="table table-bordered table-striped table-responsive table-sm" id="table1">
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th style="min-width: 500px">Description</th>
+                    <th style="width: 40%">Description</th>
                     <th>Completed</th>
                     <th>Project</th>
                     <th>Action</th>
@@ -79,11 +79,11 @@ else if (todos == null)
 }
 else
 {
-    <table class="table table-bordered table-striped table-sm" id="table1">
+    <table class="table table-bordered table-striped table-responsive table-sm" id="table1">
         <thead>
             <tr>
                 <th>Title</th>
-                <th style="min-width:500px">Description</th>
+                <th>Description</th>
                 <th>Completed</th>
                 @if (Project == null)
                 {
@@ -97,7 +97,7 @@ else
             {
                 <tr>
                     <td>@todo.Title</td>
-                    <td style="min-width: 500px">@todo.Description</td>
+                    <td style="">@todo.Description</td>
                     <td>
                         @if (todo.Completed)
                         {

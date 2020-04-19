@@ -97,6 +97,9 @@ app {
                 color: white;
             }
 
+.sidebar {
+    max-width: 240px;
+}
 .content {
     padding-top: 1.1rem;
 }
