@@ -7,6 +7,10 @@ namespace VoiceLauncherBlazor.Models
 {
     public partial class Launcher
     {
+        public Launcher()
+        {
+            LaunchersMultipleLauncherBridges = new HashSet<LauncherMultipleLauncherBridge>();
+        }
         [Key]
         [Column("ID")]
         public int Id { get; set; }
@@ -26,5 +30,6 @@ namespace VoiceLauncherBlazor.Models
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]
         public virtual Computer Computer { get; set; }
+        public virtual ICollection<LauncherMultipleLauncherBridge> LaunchersMultipleLauncherBridges { get; set; }
     }
 }

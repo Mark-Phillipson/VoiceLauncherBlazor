@@ -1,0 +1,121 @@
+﻿@page "/multiplelaunchers"
+@inject LauncherService LauncherService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime;
+<h3>
+    Multiple Launchers
+    @if (StatusMessage != null)
+    {
+        <small class="@StatusClassName">@StatusMessage</small>
+    }
+</h3>
+
+<EditForm Model="multipleLauncher" OnValidSubmit="SaveMultipleLauncher">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <InputText class="form-control col-md-5" @bind-Value="multipleLauncher.Description"
+                   @onblur="@(e => CallChangeAsync(multipleLauncher.Id.ToString()+ "Description"))" id="@(multipleLauncher.Id.ToString() + "Description")"
+                   placeholder="Type here to add new Multiple Launcher" />
+        <button class="btn btn-sm btn-success col-md-1" type="submit">Create</button>
+        <input class="form-control col-md-5" @bind="SearchTerm"
+               @onblur="@(e => CallChangeAsync("SearchTerm"))" id="SearchTerm"
+               placeholder="Type here to Filter" />
+        <button class="btn btn-sm btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter</button>
+    </div>
+</EditForm>
+
+
+@if (bridge.MultipleLauncherId > 0)
+{
+    <EditForm Model="bridge" OnValidSubmit="@SaveBridge">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row">
+            <input @bind="LauncherFilter" @onblur="ReloadLaunchers" id="FilterLauncher" 
+                   placeholder="Type to Filter Launchers" class="mr-2 col-md-2" />
+            @if (LauncherFilter != null)
+            {
+                <select class="form-control-sm mr-2 col-md-7" @bind="bridge.LauncherId" id="NewbridgeSelect">
+                    <option value="">-Select to filter-</option>
+                    @if (launchers != null)
+                    {
+                        @foreach (var item in launchers)
+                        {
+
+                            @if (bridge.LauncherId == item.Id)
+                            {
+                                <option selected value="@item.Id">@item.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+                <button type="submit" class="btn btn-sm btn-success col-md-2">Save</button>
+            }
+        </div>
+    </EditForm>
+}
+
+@if (multipleLaunchers == null && _loadFailed)
+{
+    <h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+}
+else if (multipleLaunchers == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (multipleLaunchers.Count == 0)
+{
+    <text>No Multiple Launchers Found</text>
+}
+else
+{
+
+    <EditForm Model="@multipleLaunchers" OnValidSubmit="@SaveMultipleLaunchers">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <table class="table table-bordered table-striped table-sm" id="table1">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>
+                        <button class="btn btn-sm btn-success" type="submit">Save Descriptions</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var multipleLauncher in multipleLaunchers)
+                {
+                    <tr>
+                        <td>
+                            <InputText class="form-control" @bind-Value="multipleLauncher.Description"
+                                       @onblur="@(e => CallChangeAsync(multipleLauncher.Id.ToString()+ "Description"))" id="@(multipleLauncher.Id.ToString() + "Description")" />
+                            <table class="table table-bordered table-striped table-sm" id="table2">
+                                @foreach (var bridge in multipleLauncher.LaunchersMultipleLauncherBridges)
+                                {
+                                    <tr>
+                                        <td>
+                                            <InputText class="form-control" @bind-Value="bridge.Launcher.Name" readonly="readonly" />
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" type="button" @onclick="@(() => DeleteBridge(bridge))">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-success" @onclick="@(() => CreateBridge(multipleLauncher))">Create Launcher</button>
+                            <button type="button" class="btn btn-sm btn-danger" @onclick="@(() => DeleteMultipleLauncher(multipleLauncher.Id))">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </EditForm>
+}

@@ -12,7 +12,9 @@ namespace VoiceLauncherBlazor.Models
         public int Id { get; set; }
         [Column("LauncherID")]
         public int LauncherId { get; set; }
+        public Launcher Launcher { get; set; }
         [Column("MultipleLauncherID")]
         public int MultipleLauncherId { get; set; }
+        public MultipleLauncher MultipleLauncher { get; set; }
     }
 }
