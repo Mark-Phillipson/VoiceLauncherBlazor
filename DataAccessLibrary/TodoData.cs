@@ -25,6 +25,7 @@ namespace DataAccessLibrary
             {
                 sql = sql + $" And Project='{projectFilter}'";
             }
+            sql = sql + $" ORDER BY Project;";
             return _db.LoadData<Todo, dynamic>(sql, new { });
         }
         public Task<List<string>> GetProjects()
