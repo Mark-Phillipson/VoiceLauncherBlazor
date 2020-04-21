@@ -14,9 +14,11 @@ namespace VoiceLauncherBlazor.Pages
         public string StatusMessage { get; set; }
         public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
         public List<string> generalLookupsCategories { get; set; }
+        public int AlertDuration { get; set; }
         private string categoryFilter { get; set; }
         private string searchTerm;
-        public string ClassName { get; set; } = "";
+        public string AlertType { get; set; } = "success";
+        public bool ShowAlert { get; set; } = true;
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -38,6 +40,9 @@ namespace VoiceLauncherBlazor.Pages
             {
                 generalLookups = await GeneralLookupService.GetGeneralLookupsAsync();
                 generalLookupsCategories = await GeneralLookupService.GetGeneralLookUpsCategoriesAsync();
+                StatusMessage = "Welcome to the general lookups page!";
+                ShowAlert = true;
+                AlertDuration = 6000;
             }
             catch (Exception exception)
             {
@@ -93,7 +98,9 @@ namespace VoiceLauncherBlazor.Pages
             {
                 var result = await GeneralLookupService.DeleteGeneralLookup(generalLookupId);
                 StatusMessage = result;
-                ClassName = "text-danger";
+                AlertDuration = 7000;
+                AlertType = "danger";
+                ShowAlert = true;
                 ShowDialog = false;
                 generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm);
 
@@ -131,7 +138,9 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
             StatusMessage = $"General Lookups Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
-            ClassName = "text-success";
+            AlertDuration = 6000;
+            ShowAlert = true;
+            AlertType = "info";
         }
         private void NotifyInvalid()
         {

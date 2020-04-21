@@ -2,13 +2,15 @@
 @inject LauncherService LauncherService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime;
-<h3>
-    Multiple Launchers
-    @if (StatusMessage != null)
-    {
-        <small class="@StatusClassName">@StatusMessage</small>
-    }
-</h3>
+    <header>
+        <h3>
+            Multiple Launchers
+        </h3>
+            @if (StatusMessage != null)
+            {
+                <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
+            }
+    </header>
 
 <EditForm Model="multipleLauncher" OnValidSubmit="SaveMultipleLauncher">
     <DataAnnotationsValidator />

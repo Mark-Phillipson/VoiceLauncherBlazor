@@ -5,17 +5,19 @@
 @inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime;
-<h3>
-    List of General Lookups
-    @if (StatusMessage != null)
-    {
-        <small class="@ClassName"> Last Action: @StatusMessage</small>
-    }
-    @if (SearchTerm != null)
-    {
-        <small class="text-warning"> Filter: @SearchTerm</small>
-    }
-</h3>
+    <header>
+        <h3 class="mr-3">
+            List of General Lookups
+        </h3>
+            @if (SearchTerm != null)
+            {
+                <span class="text-warning"> Filter: @SearchTerm</span>
+            }
+            @if (StatusMessage != null)
+            {
+                <Alert Title="Last Action" Display="@StatusMessage" Duration="@AlertDuration" AlertType="@AlertType" Show="@ShowAlert" />
+            }
+    </header>
 
 <div class="form-field row">
     <a accesskey="0" class="btn btn-success col-md-2" href="/generallookup/0">Create (0) <i class="oi oi-plus"></i></a>

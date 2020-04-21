@@ -330,48 +330,7 @@ app {
     animation: spin 2s linear infinite;
 }
 
-/* Safari */
-@-webkit-keyframes spin {
-    0% {
-        -webkit-transform: rotate(0deg);
+    header > h3 {
+        display: inline-block;
     }
 
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-@keyframes inputFlash {
-    from {
-        background-color:darkseagreen
-    }
-
-    to {
-        background-color:white 
-    }
-}
-
-input {
-    background-color:white;
-    animation-name:inputFlash;
-    animation-duration: 6s;
-}
-
-/*.text-success .text-danger {
-    transition: opacity 6s;
-}
-*/
-@-moz-keyframes status {
-}
-
-@-webkit-keyframes status {
-}

@@ -2,8 +2,6 @@
 @page "/intellisensesC/{categoryIdFilter:int}"
 @page "/intellisensesL/{languageIdFilter:int}"
 
-@using VoiceLauncherBlazor.Data
-@using VoiceLauncherBlazor.Models
 @inject CustomIntellisenseService CustomIntellisenseService
 @inject CategoryService CategoryService
 @inject LanguageService LanguageService
@@ -11,18 +9,20 @@
 
 @inject NavigationManager NavigationManager
 
-<h3>
-    List of Custom IntelliSense
+    <header>
+        <h3>
+            List of Custom IntelliSense
 
-    @if (StatusMessage != null)
-    {
-        <small lass="text-success"> Last Action: @StatusMessage</small>
-    }
-    @if (SearchTerm != null)
-    {
-        <small class="text-warning"> Filter: @SearchTerm</small>
-    }
-</h3>
+            @if (SearchTerm != null)
+            {
+                <small class="text-warning"> Filter: @SearchTerm</small>
+            }
+        </h3>
+            @if (StatusMessage != null)
+            {
+                <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
+            }
+    </header>
 
 <div class="form-field row">
     <a accesskey="0" class="btn btn-success col-md-1" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>

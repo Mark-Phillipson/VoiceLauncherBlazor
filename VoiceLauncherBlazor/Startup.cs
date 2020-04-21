@@ -38,6 +38,7 @@ namespace VoiceLauncherBlazor
             services.AddTransient<ISqlDataAccess, SqlDataAccess>();
             services.AddTransient<ITodoData, TodoData>();
             services.AddDevExpressBlazor();
+            services.AddSingleton<NotifierService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

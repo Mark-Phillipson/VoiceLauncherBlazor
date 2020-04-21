@@ -3,26 +3,32 @@
 @inject IJSRuntime JSRuntime
 @if (Project == null)
 {
-    <h1>
-        Todos
-        <small>
-            <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @onblur="@(e => CallChangeAsync("SearchTerm"))" id="SearchTerm" />
-            <button accesskey="2" class="btn btn-primary btn-sm mt-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
-            @if (Project == null)
-            {
-                <select class="form-control-sm" @bind="ProjectFilter" @onblur="ApplyFilter">
-                    <option value="">-Select to filter by project-</option>
-                    @if (projects != null)
-                    {
-                        @foreach (var item in projects)
+    <header>
+        <h3>
+            Todos
+            <small>
+                <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @onblur="@(e => CallChangeAsync("SearchTerm"))" id="SearchTerm" />
+                <button accesskey="2" class="btn btn-primary btn-sm mt-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+                @if (Project == null)
+                {
+                    <select class="form-control-sm" @bind="ProjectFilter" @onblur="ApplyFilter">
+                        <option value="">-Select to filter by project-</option>
+                        @if (projects != null)
                         {
-                            <option value="@item">@item</option>
+                            @foreach (var item in projects)
+                            {
+                                <option value="@item">@item</option>
+                            }
                         }
-                    }
-                </select>
+                    </select>
+                }
+            </small>
+        </h3>
+            @if (StatusMessage!= null )
+            {
+                <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />
             }
-        </small>
-    </h1>
+    </header>
     <h4>Insert/Edit Todos</h4>
 
     <EditForm Model="@todo" OnValidSubmit="@InsertTodo">
@@ -159,6 +165,7 @@ else
     public bool _loadFailed { get; set; }
     public List<string> projects { get; set; } = new List<string>();
     public string ProjectFilter { get; set; }
+    public string StatusMessage { get; set; }
     private int percentDone
     {
         get
@@ -181,6 +188,7 @@ else
         {
             await TodoData.InsertToDo(todo);
             await LoadData();
+            StatusMessage = $"Created Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
             todo = new Todo { Project = Project };
         }
     }
@@ -198,6 +206,7 @@ else
     {
         await TodoData.UpdateToDo(todo);
         await LoadData();
+        StatusMessage = $"Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
         todo = new Todo { Project = Project };
     }
     void ConfirmArchive(int todoId)
@@ -222,6 +231,7 @@ else
         await TodoData.DeleteToDo(todo);
         await LoadData();
         ShowDialog = false;
+        StatusMessage = $"Deleted Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
     }
     private async Task ArchiveTodo(int todoId)
     {
@@ -230,6 +240,7 @@ else
         await TodoData.UpdateToDo(todo);
         await LoadData();
         ShowDialogArchive = false;
+        StatusMessage = $"Archived Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
     }
     async Task ApplyFilter()
     {
@@ -249,6 +260,7 @@ else
             }
             todos = await TodoData.GetTodos(SearchTerm, ProjectFilter);
             projects = await TodoData.GetProjects();
+            StatusMessage = $"Data Loaded Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
         }
         catch (Exception exception)
         {
