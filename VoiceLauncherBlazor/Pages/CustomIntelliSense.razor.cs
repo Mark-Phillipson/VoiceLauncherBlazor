@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,16 +10,16 @@ namespace VoiceLauncherBlazor.Pages
     public partial class CustomIntelliSense
     {
         [Parameter] public int customIntellisenseId { get; set; }
-        private EditContext _editContext;
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
-
+        [Parameter] public EventCallback OnClose { get; set; }
 
         public VoiceLauncherBlazor.Models.CustomIntelliSense intellisense { get; set; }
         public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
         public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
         public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
+        private List<string> customValidationErrors = new List<string>();
         protected override async Task OnInitializedAsync()
         {
             if (customIntellisenseId > 0)
@@ -38,10 +38,10 @@ namespace VoiceLauncherBlazor.Pages
             {
                 intellisense = new Models.CustomIntelliSense
                 {
-                    DeliveryType = "SendKeys"
+                    DeliveryType = "Send Keys"
                 };
             }
-            _editContext = new EditContext(intellisense);
+            //_editContext = new EditContext(intellisense);
             generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
             languages = await LanguageService.GetLanguagesAsync();
             categories = await CategoryService.GetCategoriesAsync();
@@ -55,12 +55,35 @@ namespace VoiceLauncherBlazor.Pages
             }
         }
 
-        private async Task HandleValidSubmit()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
-            NavigationManager.NavigateTo("intellisenses");
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
+            }
         }
 
+        private async Task HandleValidSubmit()
+        {
+            customValidationErrors.Clear();
+            if (intellisense.LanguageId == 0)
+            {
+                customValidationErrors.Add("Language is required");
+            }
+            if (intellisense.CategoryId == 0)
+            {
+                customValidationErrors.Add("Category is required");
+            }
+            if (customValidationErrors.Count == 0)
+            {
+                var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
+                NavigationManager.NavigateTo("intellisenses");
+            }
+        }
+        private async Task CallChangeAsync(string elementId)
+        {
+            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+        }
 
     }
 }

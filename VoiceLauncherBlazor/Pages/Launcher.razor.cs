@@ -14,6 +14,7 @@ namespace VoiceLauncherBlazor.Pages
         public VoiceLauncherBlazor.Models.Launcher launcher { get; set; }
         public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
         public List<VoiceLauncherBlazor.Models.Computer> computers { get; set; }
+        [Parameter] public EventCallback OnClose { get; set; }
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414

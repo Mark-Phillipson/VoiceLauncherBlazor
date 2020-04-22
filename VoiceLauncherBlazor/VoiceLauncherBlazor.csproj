@@ -27,11 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\NewFolder1\" />
-    <Folder Include="Pages\NewFolder2\" />
-    <Folder Include="Pages\NewFolder3\" />
-    <Folder Include="Pages\NewFolder4\" />
-    <Folder Include="Pages\NewFolder\" />
     <Folder Include="Shared\NewFolder\" />
   </ItemGroup>
 

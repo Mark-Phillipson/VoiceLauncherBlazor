@@ -18,6 +18,8 @@ namespace VoiceLauncherBlazor.Pages
         public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
         public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
         public int MaximumRows { get; set; } = 10;
+        private int _customIntellisenseId;
+        private bool showCreateNewOrEdit = false;
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -162,6 +164,18 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
         }
-
+        private void CreateNew()
+        {
+            showCreateNewOrEdit = true;
+        }
+        private void CloseCreateNew()
+        {
+            showCreateNewOrEdit = false;
+        }
+        private void EditRecord( int customIntellisenseId)
+        {
+            _customIntellisenseId = customIntellisenseId;
+            showCreateNewOrEdit = true;
+        }
     }
 }

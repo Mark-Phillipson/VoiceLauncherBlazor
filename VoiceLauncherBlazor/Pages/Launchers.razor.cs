@@ -16,6 +16,8 @@ namespace VoiceLauncherBlazor.Pages
         public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
         public List<VoiceLauncherBlazor.Models.Computer> computers { get; set; }
         public int MaximumRows { get; set; } = 15;
+        public bool ShowCreateNewOrEdit { get; set; }
+        private int _launcherId;
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -141,6 +143,19 @@ namespace VoiceLauncherBlazor.Pages
                 Console.WriteLine(exception.Message);
                 _loadFailed = true;
             }
+        }
+        private void EditRecord(int launcherId)
+        {
+            _launcherId = launcherId;
+            ShowCreateNewOrEdit = true;
+        }
+        private void CloseDialog()
+        {
+            ShowCreateNewOrEdit = false;
+        }
+        private void CreateRecord()
+        {
+            ShowCreateNewOrEdit = true;
         }
     }
 }

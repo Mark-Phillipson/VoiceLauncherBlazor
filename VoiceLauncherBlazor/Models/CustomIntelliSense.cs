@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VoiceLauncherBlazor.Models
@@ -16,6 +14,7 @@ namespace VoiceLauncherBlazor.Models
         [Column("Display_Value")]
         [StringLength(255)]
         public string DisplayValue { get; set; }
+        [Required(AllowEmptyStrings = false)]
         [Column("SendKeys_Value")]
         public string SendKeysValue { get; set; }
         [Column("Command_Type")]
@@ -28,7 +27,7 @@ namespace VoiceLauncherBlazor.Models
         public string Search { get; set; }
         [Column("ComputerID")]
         public int? ComputerId { get; set; }
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [StringLength(30)]
         public string DeliveryType { get; set; }
 

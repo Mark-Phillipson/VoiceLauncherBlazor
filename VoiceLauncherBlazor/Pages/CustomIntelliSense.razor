@@ -6,6 +6,7 @@
 @inject LanguageService LanguageService
 @inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <h1>Custom IntelliSense</h1>
 @if (intellisense == null && _loadFailed)
@@ -20,21 +21,30 @@ else if (intellisense == null)
 else
 {
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
-                <ValidationSummary />
+                @*<ValidationSummary />*@
+                @if (customValidationErrors != null)
+                {
+                    <ul class="text-danger">
+                        @foreach (var item in customValidationErrors)
+                        {
+                        <li>@item</li>
+                        }
+                    </ul>
+                }
                 <div class="form-field row">
-                    <label class="col-md-4">Id</label>
+                    <label class="col-md-3">Id</label>
                     @if (intellisense.Id > 0)
                     {
-                        <div class="col-md-8">@intellisense.Id</div>
+                        <div class="col-md-9">@intellisense.Id</div>
                     }
                     <input type="hidden" name="Id" id="Id" value="@intellisense.Id" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.LanguageId" class="col-md-4"> Language Name (0)</label>
-                    <select accesskey="0" class="form-control-lg col-md-8" @bind="intellisense.LanguageId">
+                    <label for="@intellisense.LanguageId" class="col-md-3"> Language Name (0)</label>
+                    <select accesskey="0" class="form-control-lg col-md-9" @bind="intellisense.LanguageId" id="LanguageSelect">
                         <option value="">-</option>
                         @if (languages != null)
                         {
@@ -54,8 +64,8 @@ else
                     <ValidationMessage For="@(() => intellisense.LanguageId)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.CategoryId" class="col-md-4"> Category (1)</label>
-                    <select accesskey="1" class="form-control-lg col-md-8" @bind="@intellisense.CategoryId">
+                    <label for="@intellisense.CategoryId" class="col-md-3"> Category (1)</label>
+                    <select accesskey="1" class="form-control-lg col-md-9" @bind="@intellisense.CategoryId">
                         <option value="">-</option>
                         @if (categories != null)
                         {
@@ -75,24 +85,26 @@ else
                     <ValidationMessage For="@(() => intellisense.CategoryId)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.DisplayValue" class="col-md-4"> Display Value</label>
-                    <InputText class="col-md-8 form-control-lg" placeholder="Enter the Display Value" id="DisplayValue" @bind-Value="intellisense.DisplayValue"></InputText>
+                    <label for="@intellisense.DisplayValue" class="col-md-3"> Display Value</label>
+                    <InputText class="col-md-9 form-control-lg" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
+                               @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "DisplayValue"))" id="@(intellisense.Id.ToString() + "DisplayValue")"></InputText>
                     <ValidationMessage For="@(() => intellisense.DisplayValue)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.SendKeysValue" class="col-md-4"> Sendkeys Value</label>
-                    <InputTextArea style="min-height: 270px" class="col-md-8 form-control" placeholder="Enter Send Keys Value" id="SendKeysValue" @bind-Value="intellisense.SendKeysValue" rows="6">
+                    <label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value</label>
+                    <InputTextArea style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
+                                   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "SendKeysValue"))" id="@(intellisense.Id.ToString() + "SendKeysValue")">
                     </InputTextArea>
                     <ValidationMessage For="@(() => intellisense.SendKeysValue)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.Remarks" class="col-md-4"> Remarks</label>
-                    <InputText class="col-md-8 form-control-lg" placeholder="Enter the Remarks" id="Remarks" @bind-Value="intellisense.Remarks"></InputText>
+                    <label for="@intellisense.Remarks" class="col-md-3"> Remarks</label>
+                    <InputText class="col-md-9 form-control-lg" placeholder="Enter the Remarks" id="Remarks" @bind-Value="intellisense.Remarks"></InputText>
                     <ValidationMessage For="@(() => intellisense.Remarks)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@intellisense.DeliveryType" class="col-md-4"> Delivery Type</label>
-                    <InputSelect class="form-control-lg col-md-8" @bind-Value="intellisense.DeliveryType">
+                    <label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type</label>
+                    <InputSelect class="form-control-lg col-md-9" @bind-Value="intellisense.DeliveryType">
                         <option value="">-</option>
                         @if (generalLookups != null)
                             {
@@ -111,9 +123,14 @@ else
                     </InputSelect>
                     <ValidationMessage For="@(() => intellisense.DeliveryType)" />
                 </div>
-                <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
+                <div class="form-field row">
+                    <div class="col-md-12 m-y-2">
+                        <button accesskey="s" class="btn btn-lg btn-success" type="submit"><u>S</u>ubmit <i class="oi oi-document"></i></button>
+                        <button accesskey="c" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@OnClose"><u>C</u>lose</button>
+                    </div>
+                </div>
             </EditForm>
         </div>
     </div>
 }
-<hr>
+
