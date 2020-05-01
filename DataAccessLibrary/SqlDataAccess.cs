@@ -10,6 +10,7 @@ namespace DataAccessLibrary
 {
     public class SqlDataAccess : ISqlDataAccess
     {
+
         readonly IConfiguration _config;
         public string ConnectionStringName { get; set; } = "VoiceLauncher";
 

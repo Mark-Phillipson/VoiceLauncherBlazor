@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceLauncherWebAPI", "VoiceLauncherWebAPI\VoiceLauncherWebAPI.csproj", "{4D35E8D9-C257-4887-B291-F0910A41E0D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D35E8D9-C257-4887-B291-F0910A41E0D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D35E8D9-C257-4887-B291-F0910A41E0D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D35E8D9-C257-4887-B291-F0910A41E0D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D35E8D9-C257-4887-B291-F0910A41E0D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
