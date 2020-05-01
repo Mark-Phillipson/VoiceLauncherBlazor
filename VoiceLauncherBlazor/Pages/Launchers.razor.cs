@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VoiceLauncherBlazor.Data;
+
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -11,10 +13,10 @@ namespace VoiceLauncherBlazor.Pages
         [Parameter] public int? categoryIdFilter { get; set; }
         public bool ShowDialog { get; set; }
         private int launcherIdDelete { get; set; }
-        private List<VoiceLauncherBlazor.Models.Launcher> launchers;
+        private List<DataAccessLibrary.Models.Launcher> launchers;
         public string StatusMessage { get; set; }
-        public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-        public List<VoiceLauncherBlazor.Models.Computer> computers { get; set; }
+        public List<DataAccessLibrary.Models.Category> categories { get; set; }
+        public List<DataAccessLibrary.Models.Computer> computers { get; set; }
         public int MaximumRows { get; set; } = 15;
         public bool ShowCreateNewOrEdit { get; set; }
         private int _launcherId;
@@ -157,5 +159,11 @@ namespace VoiceLauncherBlazor.Pages
         {
             ShowCreateNewOrEdit = true;
         }
+        private async Task CallChangeAsync(string elementId)
+        {
+            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            await ApplyFilter();
+        }
+
     }
 }

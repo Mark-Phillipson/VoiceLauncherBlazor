@@ -6,7 +6,7 @@
 @inject CategoryService CategoryService
 @inject LanguageService LanguageService
 @inject GeneralLookupService GeneralLookupService
-
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
 <header>
@@ -28,7 +28,9 @@
     @*<a accesskey="0" class="btn btn-success col-md-1" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>*@
     <button class="btn btn-sm btn-success" @onclick="CreateNew">Create New</button>
     <label class="control-label col-md-1">Filter</label>
-    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
+    <input @bind="SearchTerm"
+           @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
     <button accesskey="2" class="btn btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" class="form-control col-md-1" />

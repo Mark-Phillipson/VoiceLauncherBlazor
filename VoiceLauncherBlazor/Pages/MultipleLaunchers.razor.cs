@@ -10,10 +10,10 @@ namespace VoiceLauncherBlazor.Pages
         public bool ShowDialog { get; set; }
         public int MultipleLauncherIdDelete { get; set; }
         public string SearchTerm { get; set; }
-        private List<VoiceLauncherBlazor.Models.MultipleLauncher> multipleLaunchers;
-        private List<VoiceLauncherBlazor.Models.Launcher> launchers;
-        private VoiceLauncherBlazor.Models.MultipleLauncher multipleLauncher = new Models.MultipleLauncher();
-        private VoiceLauncherBlazor.Models.LauncherMultipleLauncherBridge bridge = new Models.LauncherMultipleLauncherBridge();
+        private List<DataAccessLibrary.Models.MultipleLauncher> multipleLaunchers;
+        private List<DataAccessLibrary.Models.Launcher> launchers;
+        private DataAccessLibrary.Models.MultipleLauncher multipleLauncher = new DataAccessLibrary.Models.MultipleLauncher();
+        private DataAccessLibrary.Models.LauncherMultipleLauncherBridge bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge();
         public string StatusMessage { get; set; }
         public string StatusClassName { get; set; }
 #pragma warning disable 414
@@ -35,15 +35,15 @@ namespace VoiceLauncherBlazor.Pages
             }
 
         }
-        private async Task DeleteBridge(VoiceLauncherBlazor.Models.LauncherMultipleLauncherBridge bridge)
+        private async Task DeleteBridge(DataAccessLibrary.Models.LauncherMultipleLauncherBridge bridge)
         {
             StatusMessage = await LauncherService.DeleteBridge(bridge);
             StatusClassName = "text-danger";
             multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
         }
-        private async Task CreateBridge(VoiceLauncherBlazor.Models.MultipleLauncher multipleLauncher)
+        private async Task CreateBridge(DataAccessLibrary.Models.MultipleLauncher multipleLauncher)
         {
-            bridge = new Models.LauncherMultipleLauncherBridge { MultipleLauncherId = multipleLauncher.Id };
+            bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge { MultipleLauncherId = multipleLauncher.Id };
             await JSRuntime.InvokeVoidAsync("setFocus", "FilterLauncher");
         }
         private async Task ReloadLaunchers()
@@ -57,14 +57,14 @@ namespace VoiceLauncherBlazor.Pages
             StatusMessage = await LauncherService.SaveBridge(bridge);
             multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
             LauncherFilter = null;
-            bridge = new Models.LauncherMultipleLauncherBridge();
+            bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge();
         }
         private async Task SaveMultipleLauncher()
         {
             StatusMessage = await LauncherService.SaveMultipleLauncher(multipleLauncher);
             multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
             StatusClassName = "text-success";
-            multipleLauncher = new Models.MultipleLauncher();
+            multipleLauncher = new DataAccessLibrary.Models.MultipleLauncher();
         }
         private async Task SaveMultipleLaunchers()
         {

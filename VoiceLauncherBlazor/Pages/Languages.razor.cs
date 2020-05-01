@@ -9,7 +9,7 @@ namespace VoiceLauncherBlazor.Pages
     {
         public bool ShowDialog { get; set; }
         private int languageIdDelete { get; set; }
-        private List<VoiceLauncherBlazor.Models.Language> languages;
+        private List<DataAccessLibrary.Models.Language> languages;
         public string StatusMessage { get; set; }
         //public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
         private bool? activeFilter { get; set; } = null;

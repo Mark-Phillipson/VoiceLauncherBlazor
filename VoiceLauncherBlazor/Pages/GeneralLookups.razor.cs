@@ -12,7 +12,7 @@ namespace VoiceLauncherBlazor.Pages
         public bool ShowValidationWarning { get; set; }
         private int generalLookupIdDelete { get; set; }
         public string StatusMessage { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
+        public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
         public List<string> generalLookupsCategories { get; set; }
         public int AlertDuration { get; set; }
         private string categoryFilter { get; set; }
@@ -148,8 +148,8 @@ namespace VoiceLauncherBlazor.Pages
         }
         private async Task DuplicateRecord(int generalLookupId)
         {
-            VoiceLauncherBlazor.Models.GeneralLookup generalLookupSource = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
-            VoiceLauncherBlazor.Models.GeneralLookup generalLookup = new VoiceLauncherBlazor.Models.GeneralLookup
+            DataAccessLibrary.Models.GeneralLookup generalLookupSource = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
+            DataAccessLibrary.Models.GeneralLookup generalLookup = new DataAccessLibrary.Models.GeneralLookup
             {
                 Category = generalLookupSource?.Category,
                 DisplayValue = generalLookupSource?.DisplayValue,
@@ -162,6 +162,7 @@ namespace VoiceLauncherBlazor.Pages
         private async Task CallChangeAsync(string elementId)
         {
             await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            await ApplyFilter();
         }
     }
 }

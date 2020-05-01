@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VoiceLauncherBlazor.Data;
-using VoiceLauncherBlazor.Models;
 
 namespace VoiceLauncherBlazor
 {
@@ -25,7 +24,7 @@ namespace VoiceLauncherBlazor
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<DataAccessLibrary.Models.ApplicationDbContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
             services.AddTransient<CategoryService>();

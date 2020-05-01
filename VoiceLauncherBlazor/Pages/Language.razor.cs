@@ -11,7 +11,7 @@ namespace VoiceLauncherBlazor.Pages
     {
         [Parameter] public int languageId { get; set; }
         private EditContext _editContext;
-        public VoiceLauncherBlazor.Models.Language language { get; set; }
+        public DataAccessLibrary.Models.Language language { get; set; }
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -33,7 +33,7 @@ namespace VoiceLauncherBlazor.Pages
             }
             else
             {
-                language = new Models.Language
+                language = new DataAccessLibrary.Models.Language
                 {
                     Active = true
                 };

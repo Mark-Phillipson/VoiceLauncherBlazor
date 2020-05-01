@@ -8,9 +8,9 @@ namespace VoiceLauncherBlazor.Pages
     {
         public bool ShowDialog { get; set; }
         private int categoryIdDelete { get; set; }
-        private List<VoiceLauncherBlazor.Models.Category> categories;
+        private List<DataAccessLibrary.Models.Category> categories;
         public string StatusMessage { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
+        public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
         private string categoryTypeFilter { get; set; }
         private string searchTerm;
 #pragma warning disable 414

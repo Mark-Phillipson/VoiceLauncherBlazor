@@ -11,9 +11,9 @@ namespace VoiceLauncherBlazor.Pages
     {
         [Parameter] public int launcherId { get; set; }
         private EditContext _editContext;
-        public VoiceLauncherBlazor.Models.Launcher launcher { get; set; }
-        public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-        public List<VoiceLauncherBlazor.Models.Computer> computers { get; set; }
+        public DataAccessLibrary.Models.Launcher launcher { get; set; }
+        public List<DataAccessLibrary.Models.Category> categories { get; set; }
+        public List<DataAccessLibrary.Models.Computer> computers { get; set; }
         [Parameter] public EventCallback OnClose { get; set; }
 #pragma warning disable 414
         private bool _loadFailed = false;
@@ -35,7 +35,7 @@ namespace VoiceLauncherBlazor.Pages
             }
             else
             {
-                launcher = new Models.Launcher
+                launcher = new DataAccessLibrary.Models.Launcher
                 {
                     CommandLine = "http://"
                 };

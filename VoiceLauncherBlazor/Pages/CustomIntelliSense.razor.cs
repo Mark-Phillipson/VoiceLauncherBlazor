@@ -15,10 +15,10 @@ namespace VoiceLauncherBlazor.Pages
 #pragma warning restore 414
         [Parameter] public EventCallback OnClose { get; set; }
 
-        public VoiceLauncherBlazor.Models.CustomIntelliSense intellisense { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
-        public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
-        public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
+        public DataAccessLibrary.Models.CustomIntelliSense intellisense { get; set; }
+        public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
+        public List<DataAccessLibrary.Models.Language> languages { get; set; }
+        public List<DataAccessLibrary.Models.Category> categories { get; set; }
         private List<string> customValidationErrors = new List<string>();
         protected override async Task OnInitializedAsync()
         {
@@ -36,7 +36,7 @@ namespace VoiceLauncherBlazor.Pages
             }
             else
             {
-                intellisense = new Models.CustomIntelliSense
+                intellisense = new DataAccessLibrary.Models.CustomIntelliSense
                 {
                     DeliveryType = "Send Keys"
                 };

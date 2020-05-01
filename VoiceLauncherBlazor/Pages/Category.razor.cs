@@ -12,8 +12,8 @@ namespace VoiceLauncherBlazor.Pages
     {
         [Parameter] public int categoryId { get; set; }
         private EditContext _editContext;
-        public VoiceLauncherBlazor.Models.Category category { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
+        public DataAccessLibrary.Models.Category category { get; set; }
+        public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
@@ -34,7 +34,7 @@ namespace VoiceLauncherBlazor.Pages
             }
             else
             {
-                category = new Models.Category
+                category = new DataAccessLibrary.Models.Category
                 {
                     CategoryType = "IntelliSense Command"
                 };

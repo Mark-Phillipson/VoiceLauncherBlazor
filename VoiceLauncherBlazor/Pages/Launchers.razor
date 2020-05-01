@@ -1,33 +1,32 @@
 ﻿@page "/launchers"
-
-@using VoiceLauncherBlazor.Data
-@using VoiceLauncherBlazor.Models
 @inject LauncherService LauncherService
 @inject CategoryService CategoryService
 @inject LanguageService LanguageService
 @inject ComputerService ComputerService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
-
-    <header>
-        <h3>
-            List of Launchers
-            @if (SearchTerm != null)
-            {
-                <small class="text-warning"> Filter: @SearchTerm</small>
-            }
-        </h3>
-        @if (StatusMessage != null)
+<header>
+    <h3>
+        List of Launchers
+        @if (SearchTerm != null)
         {
-            <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
+            <small class="text-warning"> Filter: @SearchTerm</small>
         }
-    </header>
+    </h3>
+    @if (StatusMessage != null)
+    {
+        <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
+    }
+</header>
 
 <div class="form-field row">
     @*<a accesskey="0" class="btn btn-success col-md-2" href="/launcher/0">Create (0) <i class="oi oi-plus"></i></a>*@
-    <button class="btn btn-sm btn-success"@onclick="CreateRecord">Create New <i class="oi oi-plus"></i></button>
+    <button class="btn btn-sm btn-success" @onclick="CreateRecord">Create New <i class="oi oi-plus"></i></button>
     <label class="control-label col-md-1">Filter</label>
-    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
+    <input @bind="SearchTerm"
+           @oninput="@(e => CallChangeAsync("SearchInput"))" id="@("SearchInput")"
+           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
     <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" class="form-control col-md-1" />
@@ -107,7 +106,7 @@ else
                         }
                         else
                         {
-    <h6>Not applicable</h6>}
+                            <h6>Not applicable</h6>}
                     </td>
                     <td>
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditRecord(launcher.Id))"><i class="oi oi-pencil"></i></button>
@@ -127,6 +126,6 @@ else
     </ConfirmDialog>
 </TemplatedDialog>
 
-<TemplatedDialog Show="ShowCreateNewOrEdit" >
-    <Launcher launcherId="_launcherId" OnClose="CloseDialog"/>
+<TemplatedDialog Show="ShowCreateNewOrEdit">
+    <Launcher launcherId="_launcherId" OnClose="CloseDialog" />
 </TemplatedDialog>

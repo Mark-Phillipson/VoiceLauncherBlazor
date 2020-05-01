@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,15 +13,15 @@ namespace VoiceLauncherBlazor.Pages
         [Parameter] public int? languageIdFilter { get; set; }
         public bool ShowDialog { get; set; }
         private int customIntellisenseIdDelete { get; set; }
-        private List<VoiceLauncherBlazor.Models.CustomIntelliSense> intellisenses;
+        private List<DataAccessLibrary.Models.CustomIntelliSense> intellisenses;
         public string StatusMessage { get; set; }
-        public List<VoiceLauncherBlazor.Models.Category> categories { get; set; }
-        public List<VoiceLauncherBlazor.Models.Language> languages { get; set; }
-        public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
+        public List<DataAccessLibrary.Models.Category> categories { get; set; }
+        public List<DataAccessLibrary.Models.Language> languages { get; set; }
+        public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
         public int MaximumRows { get; set; } = 10;
         private int _customIntellisenseId;
-        private bool showCreateNewOrEdit = false;
 #pragma warning disable 414
+        private bool showCreateNewOrEdit = false;
         private bool _loadFailed = false;
 #pragma warning restore 414
         private string searchTerm;
@@ -172,10 +173,16 @@ namespace VoiceLauncherBlazor.Pages
         {
             showCreateNewOrEdit = false;
         }
-        private void EditRecord( int customIntellisenseId)
+        private void EditRecord(int customIntellisenseId)
         {
             _customIntellisenseId = customIntellisenseId;
             showCreateNewOrEdit = true;
         }
+        private async Task CallChangeAsync(string elementId)
+        {
+            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            await ApplyFilter();
+        }
+
     }
 }
