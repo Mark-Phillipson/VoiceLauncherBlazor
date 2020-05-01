@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
+    /// <summary>
+    /// Category is used to identify certain launch or custom IntelliSense items :-)
+    /// </summary>
     public partial class Category
     {
         public Category()

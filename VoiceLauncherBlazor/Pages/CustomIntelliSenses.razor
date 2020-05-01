@@ -30,8 +30,8 @@
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm"
            @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
-    <button accesskey="2" class="btn btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+    <button accesskey="2" class="btn btn-primary col-md-1" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" class="form-control col-md-1" />
 </div>

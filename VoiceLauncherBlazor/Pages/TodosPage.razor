@@ -7,7 +7,7 @@
         <h3>
             Todos
             <small>
-                <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @oninput="@(e => CallChangeAsync("SearchTerm"))" id="SearchTerm" />
+                <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" />
                 <button accesskey="2" class="btn btn-primary btn-sm mt-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
                 @if (Project == null)
                 {

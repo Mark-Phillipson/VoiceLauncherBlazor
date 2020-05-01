@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.JSInterop;
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -127,6 +128,11 @@ namespace VoiceLauncherBlazor.Pages
                 _loadFailed = true;
             }
             StatusMessage = $"Categories Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
+        }
+        private async Task CallChangeAsync(string elementId)
+        {
+            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            await ApplyFilter();
         }
 
     }

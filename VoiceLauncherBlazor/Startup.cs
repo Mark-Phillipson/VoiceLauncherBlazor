@@ -36,7 +36,6 @@ namespace VoiceLauncherBlazor
             services.AddTransient<GeneralLookupService>();
             services.AddTransient<ISqlDataAccess, SqlDataAccess>();
             services.AddTransient<ITodoData, TodoData>();
-            services.AddDevExpressBlazor();
             services.AddSingleton<NotifierService>();
         }
 

@@ -3,7 +3,7 @@
 @inject CategoryService CategoryService
 @inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
-
+@inject IJSRuntime JSRuntime
     <header>
         <h3>
             List of Categories
@@ -21,8 +21,10 @@
 <div class="form-field row">
     <a accesskey="0" class="btn btn-success col-md-2" href="/category/0">Create (0) <i class="oi oi-plus"></i></a>
     <label class="control-label col-md-1">Filter</label>
-    <input @bind="SearchTerm" @bind:event="oninput" class="form-control col-md-5" accesskey="1" placeholder="Type to Filter, Use Press Commands to trigger (1)" />
-    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+    <input @bind="SearchTerm"
+           @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
 </div>
 @if (categories == null && _loadFailed)
 {
