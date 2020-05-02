@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using DataAccessLibrary.Models;
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLibrary.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace VoiceLauncherWebAPI.Controllers
 {
@@ -14,9 +11,11 @@ namespace VoiceLauncherWebAPI.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly CategoryService _categoryService;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ApplicationDbContext context, CategoryService categoryService)
         {
+            _categoryService = categoryService;
             _context = context;
         }
         /// <summary>
@@ -24,90 +23,89 @@ namespace VoiceLauncherWebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         // GET: api/Categories
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesByTypeAsync(string categoryType)
+        //{
+        //    if (categoryType != null)
+        //    {
+        //        var categories = await _categoryService.GetCategoriesByTypeAsync(categoryType);
+        //        return categories;
+        //    }
+        //    return NotFound();
+        //}
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(string searchTerm = null, string sortColumn = null, string sortType = null, string categoryTypeFilter = null, int maximumRows = 200)
         {
-            return await _context.Categories.ToListAsync();
+            var categories = await _categoryService.GetCategoriesAsync(searchTerm, sortColumn, sortType, categoryTypeFilter, maximumRows);
+            return categories;
         }
-
         // GET: api/Categories/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
-        {
-            var category = await _context.Categories.Where(v => v.Id == id).FirstOrDefaultAsync();
-            //var category = await _context.Categories.FindAsync(id);
-
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return category;
-        }
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<Category>> GetCategory(int id)
+        //{
+        //    var category = await _categoryService.GetCategoryAsync(id);
+        //    if (category == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return category;
+        //}
 
         // PUT: api/Categories/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
-        {
-            if (id != category.Id)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutCategory(int id, Category category)
+        //{
+        //    if (id != category.Id)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(category).State = EntityState.Modified;
+        //    _context.Entry(category).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!CategoryExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/Categories
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<string>> PostCategory(Category category)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
+            var result = await _categoryService.SaveCategory(category);
+            return result;
         }
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Category>> DeleteCategory(int id)
+        public async Task<ActionResult<string>> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return category;
+            var result = await _categoryService.DeleteCategory(id);
+            return result;
         }
+        //[HttpPost]
+        //public async Task<ActionResult<IEnumerable<Category>>> PostCategories(List<Category> categories)
+        //{
+        //    var savedCategories = await _categoryService.SaveAllCategories(categories);
+        //    return categories;
+        //}
 
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.Id == id);
-        }
     }
 }

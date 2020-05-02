@@ -83,7 +83,12 @@ else
                         </select>
                     </div>
                 </th>
-                <th>Display Value</th>
+                <th>
+                    Display Value
+                    <button @onclick="@(e  => SortCustomIntelliSenses("DisplayValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortCustomIntelliSenses("DisplayValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+
+                </th>
                 <th>SendKeys Value</th>
                 <th style="width: 30px">Delivery Type</th>
                 <th>

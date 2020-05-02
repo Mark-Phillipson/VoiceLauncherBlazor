@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataAccessLibrary.Models;
 
-namespace VoiceLauncherBlazor.Data
+namespace DataAccessLibrary.Services
 {
     public class CategoryService
     {
@@ -24,7 +24,8 @@ namespace VoiceLauncherBlazor.Data
             IQueryable<Category> categories = null;
             try
             {
-                categories = _context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launcher).OrderBy(v => v.CategoryName);
+                categories = _context.Categories.OrderBy(v => v.CategoryName);
+                //categories = _context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launcher).OrderBy(v => v.CategoryName);
             }
             catch (Exception exception)
             {

@@ -4,19 +4,19 @@
 @inject GeneralLookupService GeneralLookupService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-    <header>
-        <h3>
-            List of Categories
-            @if (SearchTerm != null)
-            {
-                <small class="text-warning"> Filter: @SearchTerm</small>
-            }
-        </h3>
-            @if (StatusMessage != null)
-            {
-                <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
-            }
-    </header>
+<header>
+    <h3>
+        List of Categories
+        @if (SearchTerm != null)
+        {
+            <small class="text-warning"> Filter: @SearchTerm</small>
+        }
+    </h3>
+    @if (StatusMessage != null)
+    {
+        <Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />
+    }
+</header>
 
 <div class="form-field row">
     <a accesskey="0" class="btn btn-success col-md-2" href="/category/0">Create (0) <i class="oi oi-plus"></i></a>
@@ -88,11 +88,11 @@ else
                     <td>
                         @if (category.CategoryType == "Launch Applications")
                         {
-                            @category.Launcher.Count
+                            <a href="launchersbycategory/@category.Id">Launchers</a>
                         }
                         else
                         {
-                            <a href="intellisensesC/@category.Id">@category.CustomIntelliSense.Count</a>
+                            <a href="intellisensesC/@category.Id">IntelliSense</a>
                         }
                     </td>
                     <td>

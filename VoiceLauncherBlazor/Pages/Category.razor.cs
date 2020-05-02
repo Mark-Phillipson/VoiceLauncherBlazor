@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using VoiceLauncherBlazor.Data;
+
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -17,7 +18,7 @@ namespace VoiceLauncherBlazor.Pages
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
-
+        public string StatusMessage { get; set; }
         protected override async Task OnInitializedAsync()
         {
             if (categoryId > 0)
@@ -72,13 +73,22 @@ namespace VoiceLauncherBlazor.Pages
             try
             {
                 var result = await CategoryService.SaveCategory(category);
+                if (result.ToLower().Contains("success"))
+                {
+                    NavigationManager.NavigateTo("categories");
+                }
+                StatusMessage = result;
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
                 _loadFailed = true;
             }
-            NavigationManager.NavigateTo("categories");
         }
+        private async Task CallChangeAsync(string elementId)
+        {
+            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+        }
+
     }
 }

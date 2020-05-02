@@ -14,7 +14,6 @@ namespace DataAccessLibrary.Models
             CustomIntelliSense = new HashSet<CustomIntelliSense>();
             Launcher = new HashSet<Launcher>();
         }
-
         [Key]
         [Column("ID")]
         public int Id { get; set; }

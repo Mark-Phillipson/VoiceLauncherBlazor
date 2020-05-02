@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-
+using DataAccessLibrary.Services;
 namespace VoiceLauncherWebAPI
 {
     public class Startup
@@ -33,6 +33,14 @@ namespace VoiceLauncherWebAPI
             services.AddDbContext<DataAccessLibrary.Models.ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
                 ServiceLifetime.Transient);
+            services.AddTransient<CategoryService>();
+            services.AddTransient<LanguageService>();
+            services.AddTransient<LauncherService>();
+            services.AddTransient<ComputerService>();
+            services.AddTransient<CustomIntellisenseService>();
+            services.AddTransient<GeneralLookupService>();
+            services.AddSingleton<NotifierService>();
+
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {

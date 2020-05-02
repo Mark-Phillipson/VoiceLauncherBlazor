@@ -28,9 +28,5 @@
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="App_Start\" />
-  </ItemGroup>
-
 
 </Project>

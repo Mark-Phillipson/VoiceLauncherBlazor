@@ -1,5 +1,5 @@
 ﻿@page "/category/{categoryId:int}";
-
+@inject IJSRuntime JSRuntime
 
 @inject CategoryService CategoryService
 @inject GeneralLookupService GeneralLookupService
@@ -22,6 +22,10 @@
         }
     </small>
 </h1>
+@if (StatusMessage!= null )
+{
+    <div class="text-danger">@StatusMessage</div>
+}
 @if (category == null)
 {
     <text>Loading.</text>
@@ -43,7 +47,9 @@ else
                 </div>
                 <div class="form-field row">
                     <label for="@category.CategoryName" class="col-md-4"> Category Name (0)</label>
-                    <InputText class="col-md-8 form-control-lg" placeholder="Enter Category Name, must be unique" accesskey="0" id="CategoryName" @bind-Value="category.CategoryName"></InputText>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter Category Name, must be unique" accesskey="0"
+                                   @onblur="@(e => CallChangeAsync(category.Id.ToString()+ "CategoryName"))" id="@(category.Id.ToString() + "CategoryName")"
+                               @bind-Value="category.CategoryName"></InputText>
                     <ValidationMessage For="@(() => category.CategoryName)" />
                 </div>
                 <div class="form-field row">

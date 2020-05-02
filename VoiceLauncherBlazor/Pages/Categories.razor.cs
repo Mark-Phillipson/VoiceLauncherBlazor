@@ -92,7 +92,7 @@ namespace VoiceLauncherBlazor.Pages
                 var result = await CategoryService.DeleteCategory(categoryId);
                 StatusMessage = result;
                 ShowDialog = false;
-                categories = await CategoryService.GetCategoriesAsync();
+                categories = await CategoryService.GetCategoriesAsync(SearchTerm);
 
             }
             catch (Exception exception)

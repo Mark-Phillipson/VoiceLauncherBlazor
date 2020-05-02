@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using VoiceLauncherBlazor.Data;
+using DataAccessLibrary.Services;
 
 namespace VoiceLauncherBlazor
 {
@@ -28,7 +28,6 @@ namespace VoiceLauncherBlazor
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
             services.AddTransient<CategoryService>();
-            services.AddTransient<ExampleService>();
             services.AddTransient<LanguageService>();
             services.AddTransient<LauncherService>();
             services.AddTransient<ComputerService>();

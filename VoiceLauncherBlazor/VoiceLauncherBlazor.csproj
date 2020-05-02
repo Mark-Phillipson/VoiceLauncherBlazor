@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\**" />
     <Compile Remove="Models\**" />
+    <Content Remove="Data\**" />
     <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Data\**" />
     <EmbeddedResource Remove="Models\**" />
+    <None Remove="Data\**" />
     <None Remove="Models\**" />
   </ItemGroup>
 

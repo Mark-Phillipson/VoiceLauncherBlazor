@@ -1,9 +1,9 @@
-﻿using Microsoft.JSInterop;
+﻿using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using VoiceLauncherBlazor.Data;
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -61,7 +61,7 @@ namespace VoiceLauncherBlazor.Pages
             }
             try
             {
-                categories = await CategoryService.GetCategoriesAsync();
+                categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
                 languages = await LanguageService.GetLanguagesAsync();
                 generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
 
@@ -103,7 +103,7 @@ namespace VoiceLauncherBlazor.Pages
         {
             try
             {
-                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, column, sortType, maximumRows: MaximumRows);
+                intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, column, sortType, categoryIdFilter, languageIdFilter, maximumRows: MaximumRows);
             }
             catch (Exception exception)
             {
