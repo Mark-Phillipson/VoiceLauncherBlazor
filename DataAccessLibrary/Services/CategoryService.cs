@@ -61,7 +61,8 @@ namespace DataAccessLibrary.Services
 
         public async Task<Category> GetCategoryAsync(int categoryId)
         {
-            Category category = await _context.Categories.Include("CustomIntelliSense.Language").Include("Launcher.Computer").Where(v => v.Id == categoryId).FirstOrDefaultAsync();
+            Category category = await _context.Categories.Where(v => v.Id == categoryId).FirstOrDefaultAsync();
+            //Category category = await _context.Categories.Include("CustomIntelliSense.Language").Include("Launcher.Computer").Where(v => v.Id == categoryId).FirstOrDefaultAsync();
             return category;
         }
         public async Task<string> SaveCategory(Category category)
@@ -72,8 +73,8 @@ namespace DataAccessLibrary.Services
             }
             else
             {
-                var categories = _context.Categories.Where(v => v.CategoryName.ToLower() == category.CategoryName.ToLower() && v.CategoryType.ToLower()==category.CategoryType.ToLower());
-                if (categories.Count()>0)
+                var categories = _context.Categories.Where(v => v.CategoryName.ToLower() == category.CategoryName.ToLower() && v.CategoryType.ToLower() == category.CategoryType.ToLower());
+                if (categories.Count() > 0)
                 {
                     return $"There is already a category in the system with the same category type. This is not allowed by design. Please enter a unique category and try again.";
                 }

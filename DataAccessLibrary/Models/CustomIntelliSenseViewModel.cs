@@ -3,13 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
-    public partial class CustomIntelliSense
+    public class CustomIntelliSenseViewModel
     {
         [Key]
         [Column("ID")]
         public int Id { get; set; }
         [Column("LanguageID")]
         public int LanguageId { get; set; }
+        [Display(Name = "Language Name")]
+        public string LanguageName { get; set; }
         [Required]
         [Column("Display_Value")]
         [StringLength(255)]
@@ -22,24 +24,15 @@ namespace DataAccessLibrary.Models
         public string CommandType { get; set; }
         [Column("CategoryID")]
         public int CategoryId { get; set; }
+        [Display(Name = "Category Name")]
+        public string CategoryName { get; set; }
         [StringLength(255)]
         public string Remarks { get; set; }
-        public string Search { get; set; }
-        [Column("ComputerID")]
-        public int? ComputerId { get; set; }
         [Required(AllowEmptyStrings = false)]
         [StringLength(30)]
         public string DeliveryType { get; set; }
 
-        [ForeignKey(nameof(CategoryId))]
-        [InverseProperty(nameof(Models.Category.CustomIntelliSense))]
-        public virtual Category Category { get; set; }
-        [ForeignKey(nameof(ComputerId))]
-        [InverseProperty(nameof(Models.Computer.CustomIntelliSense))]
-        public virtual Computer Computer { get; set; }
-        [ForeignKey(nameof(LanguageId))]
-        [InverseProperty(nameof(Models.Language.CustomIntelliSense))]
-        public virtual Language Language { get; set; }
+
     }
 }
 

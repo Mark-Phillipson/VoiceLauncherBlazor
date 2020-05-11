@@ -1,4 +1,4 @@
-﻿@page "/Todos"
+﻿@page "/todos"
 @inject ITodoData TodoData
 @inject IJSRuntime JSRuntime
 @if (Project == null)
@@ -118,7 +118,10 @@
                         </div>
                         <ValidationMessage For="@(() => todo.Project)" />
                     </td>
-                    <td>    <button type="submit" class="btn btn-success btn-sm">Submit</button></td>
+                    <td>
+                        <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="@(() => CancelEdit())">Cancel</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -244,6 +247,11 @@ else
             StatusMessage = $"Created Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
             todo = new Todo { Project = Project };
         }
+    }
+    private void CancelEdit()
+    {
+        todo = new Todo { Project = Project };
+        JSRuntime.InvokeVoidAsync("setFocus", $"SearchInput");
     }
     private void EditTodo(Todo todoEdit)
     {

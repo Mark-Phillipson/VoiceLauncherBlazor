@@ -40,16 +40,16 @@ namespace VoiceLauncherWebAPI.Controllers
             return categories;
         }
         // GET: api/Categories/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Category>> GetCategory(int id)
-        //{
-        //    var category = await _categoryService.GetCategoryAsync(id);
-        //    if (category == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return category;
-        //}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Category>> GetCategory(int id)
+        {
+            var category = await _categoryService.GetCategoryAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return category;
+        }
 
         // PUT: api/Categories/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
