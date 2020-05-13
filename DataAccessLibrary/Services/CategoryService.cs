@@ -24,8 +24,8 @@ namespace DataAccessLibrary.Services
             IQueryable<Category> categories = null;
             try
             {
-                categories = _context.Categories.OrderBy(v => v.CategoryName);
-                //categories = _context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launcher).OrderBy(v => v.CategoryName);
+                //categories = _context.Categories.OrderBy(v => v.CategoryName);
+                categories = _context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launcher).OrderBy(v => v.CategoryName);
             }
             catch (Exception exception)
             {
