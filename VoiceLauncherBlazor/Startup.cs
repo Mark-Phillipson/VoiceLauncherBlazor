@@ -27,6 +27,7 @@ namespace VoiceLauncherBlazor
             services.AddDbContext<DataAccessLibrary.Models.ApplicationDbContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
              ServiceLifetime.Transient);
+            services.AddDevExpressBlazor();
             services.AddTransient<CategoryService>();
             services.AddTransient<LanguageService>();
             services.AddTransient<LauncherService>();

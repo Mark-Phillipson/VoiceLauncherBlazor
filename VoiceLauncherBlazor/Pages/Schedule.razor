@@ -1,0 +1,40 @@
+﻿@page "/schedule"
+<DxScheduler Id="scheduler"
+             StartDate="@(DateTime.Today.AddDays(-1))"
+             DataStorage="@DataStorage"
+              ActiveViewType="SchedulerViewType.WorkWeek">
+    <DxSchedulerDayView ShowWorkTimeOnly="true"
+                        DayCount="3"
+                        TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.TodayView"
+                        TimeScale="@(new TimeSpan(0,15,0))"
+                        WorkTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(9),
+                         TimeSpan.FromHours(18)))"
+                        VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8),
+                         TimeSpan.FromHours(19)))">
+    </DxSchedulerDayView>
+    <DxSchedulerWeekView ShowWorkTimeOnly="true"></DxSchedulerWeekView>
+    <DxSchedulerWorkWeekView ShowWorkTimeOnly="true"></DxSchedulerWorkWeekView>
+</DxScheduler>
+
+<a href="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler#views">Documentation</a>
+@code {
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+    {
+        AppointmentsSource = AppointmentCollection.GetAppointments(),
+        AppointmentMappings = new DxSchedulerAppointmentMappings()
+        {
+            Id="Id",
+            Type = "AppointmentType",
+            Start = "StartDate",
+            End = "EndDate",
+            Subject = "Caption",
+            AllDay = "AllDay",
+            Location = "Location",
+            Description = "Description",
+            LabelId = "Label",
+            StatusId = "Status",
+            RecurrenceInfo = "Recurrence"
+        }
+    };
+
+}

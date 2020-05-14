@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceLauncherWebAPI", "VoiceLauncherWebAPI\VoiceLauncherWebAPI.csproj", "{93EEE62B-8288-46AE-B215-A142BABD047C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceLauncherWebAPI", "VoiceLauncherWebAPI\VoiceLauncherWebAPI.csproj", "{93EEE62B-8288-46AE-B215-A142BABD047C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
