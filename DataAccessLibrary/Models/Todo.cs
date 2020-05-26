@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLibrary.Models
 {
@@ -17,5 +18,6 @@ namespace DataAccessLibrary.Models
         [StringLength(255, ErrorMessage = "Please enter 255 characters or less for the project!")]
         public string Project { get; set; }
         public bool Archived { get; set; } = false;
+        public DateTime Created { get; set; } = DateTime.Now;
     }
 }

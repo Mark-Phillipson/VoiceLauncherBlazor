@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceLauncherWebAPI", "VoiceLauncherWebAPI\VoiceLauncherWebAPI.csproj", "{93EEE62B-8288-46AE-B215-A142BABD047C}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "VoiceLauncherDatabaseProject", "VoiceLauncherDatabaseProject\VoiceLauncherDatabaseProject.sqlproj", "{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,12 @@ Global
 		{93EEE62B-8288-46AE-B215-A142BABD047C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93EEE62B-8288-46AE-B215-A142BABD047C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93EEE62B-8288-46AE-B215-A142BABD047C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A6FE78C-8AC9-4466-97E1-0DA6176E2096}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

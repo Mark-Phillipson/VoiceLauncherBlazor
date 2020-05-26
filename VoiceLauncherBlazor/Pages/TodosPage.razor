@@ -3,11 +3,12 @@
 @inject IJSRuntime JSRuntime
 @if (Project == null)
 {
+
     <header>
         <h3>
             Todos
             <small>
-                <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" />
+                <input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
                 <button accesskey="2" class="btn btn-primary btn-sm mt-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
                 @if (Project == null)
                 {
@@ -29,106 +30,8 @@
             <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />
         }
     </header>
-    <h4>Insert/Edit Todos</h4>
 
-    <EditForm Model="@todo" OnValidSubmit="@InsertTodo">
-        <DataAnnotationsValidator />
-        @if (todo.Id > 0)
-        {
-            <div>@todo.Id</div>
-        }
-
-        <table class="table table-bordered table-striped table-responsive table-sm" id="table1">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th style="width: 40%">Description</th>
-                    <th>Completed</th>
-                    <th>Project</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="input-group input-group">
-                            <div class="input-group-prepend bg-info">
-                                <i class="oi oi-text p-2"></i>
-                            </div>
-                            <InputText class="form-control" @bind-Value="todo.Title" placeholder="Enter a Title" @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Title"))" id="@(todo.Id.ToString() + "Title")" />
-                            @if (todo.Title?.Length > 0)
-                            {
-                                <div class="input-group-append bg-success">
-                                    <i class="oi oi-check p-2"></i>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="input-group-append bg-danger">
-                                    <i class="oi oi-arrow-left p-2"></i>
-                                </div>
-                            }
-                        </div>
-                        <ValidationMessage For="@(() => todo.Title)" />
-                    </td>
-                    <td>
-
-                        <div class="input-group input-group">
-                            <div class="input-group-prepend bg-info">
-                                <i class="oi oi-document p-2"></i>
-                            </div>
-                            <InputTextArea class="form-control" @bind-Value="todo.Description" placeholder="Enter what needs to be done." @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Description"))" id="@(todo.Id.ToString() + "Description")" />
-                            @if (todo.Description?.Length > 0)
-                            {
-                                <div class="input-group-append bg-success">
-                                    <i class="oi oi-check p-2"></i>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="input-group-append bg-danger">
-                                    <i class="oi oi-arrow-left p-2"></i>
-                                </div>
-                            }
-                        </div>
-                        <ValidationMessage For="@(() => todo.Description)" />
-                    </td>
-                    <td>
-                        <InputCheckbox class="form-control" @bind-Value="todo.Completed" />
-                    </td>
-                    <td>
-                        <div class="input-group input-group">
-                            <div class="input-group-prepend bg-info">
-                                <i class="oi oi-badge p-2"></i>
-                            </div>
-                            <InputText class="form-control" @bind-Value="todo.Project" placeholder="Optionally Enter a Project" @onblur="@(e => CallChangeAsync(todo.Id.ToString()+ "Project"))" id="@(todo.Id.ToString() + "Project")" />
-                            @if (todo.Project?.Length > 0)
-                            {
-                                <div class="input-group-append bg-success">
-                                    <i class="oi oi-check p-2"></i>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="input-group-append bg-primary">
-                                    <span class="p-2">?</span>
-                                    @*<i class="oi oi-arrow-left p-2"></i>*@
-                                </div>
-                            }
-                        </div>
-                        <ValidationMessage For="@(() => todo.Project)" />
-                    </td>
-                    <td>
-                        <button type="submit" class="btn btn-success btn-sm">Submit</button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="@(() => CancelEdit())">Cancel</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-
-    </EditForm>
-
+    <EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
     <h4>Current Todos</h4>
 }
 @if (_loadFailed)
@@ -146,7 +49,7 @@ else
             <tr>
                 <th>Title</th>
                 <th>Description</th>
-                <th>Completed</th>
+                <th>Done</th>
                 @if (Project == null)
                 {
                     <th>Project</th>
@@ -157,32 +60,36 @@ else
         <tbody>
             @foreach (var todo in todos)
             {
-                <tr>
+            <tr>
+                @if (todo.Completed != true)
+                {
                     <td>@todo.Title</td>
-                    <td style="">@todo.Description</td>
+                    <td>@todo.Description</td>
                     <td>
-                        @if (todo.Completed)
-                        {
-                            <span class="text-success">Yes</span>
-                        }
-                        else
-                        {
-                            <span class="text-danger">No</span>
-                        }
+                        <button class="btn btn-sm btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))"><i class="oi oi-circle-x"></i></button>
                     </td>
-                    @if (Project == null)
-                    {
+                }
+                else
+                {
+                    <td class="text-muted"><del>@todo.Title</del></td>
+                    <td class="text-muted"><del>@todo.Description</del></td>
+                    <td>
+                        <button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-circle-check"></i></button>
+                    </td>
+                        }
+                        @if (Project == null)
+                        {
                         <td>@todo.Project</td>
                         <td class="btn-group">
-                            <button class="btn btn-warning btn-sm" type="button" @onclick="() => EditTodo(todo)">Edit</button>
-                            <button class="btn btn-danger btn-sm" type="button" @onclick="() => ConfirmDelete(todo.Id)">Delete</button>
+                            <button class="btn btn-warning btn-sm" type="button" @onclick="() => EditTodo(todo)"><i class="oi oi-pencil"></i></button>
+                            <button class="btn btn-danger btn-sm" type="button" @onclick="() => ConfirmDelete(todo.Id)"><i class="oi oi-delete"></i></button>
                             @if (todo.Completed)
                             {
                                 <button class="btn btn-primary btn-sm" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
                             }
                         </td>
                     }
-                </tr>
+                    </tr>
             }
         </tbody>
     </table>
@@ -234,20 +141,6 @@ else
         todo = new Todo { Project = Project };
         await LoadData();
     }
-    private async Task InsertTodo()
-    {
-        if (todo.Id > 0)
-        {
-            await SaveTodo();
-        }
-        else
-        {
-            await TodoData.InsertToDo(todo);
-            await LoadData();
-            StatusMessage = $"Created Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
-            todo = new Todo { Project = Project };
-        }
-    }
     private void CancelEdit()
     {
         todo = new Todo { Project = Project };
@@ -262,13 +155,6 @@ else
         todo.Project = todoEdit.Project;
         todo.Archived = todoEdit.Archived;
         JSRuntime.InvokeVoidAsync("setFocus", $"{todo.Id.ToString()}Title");
-    }
-    private async Task SaveTodo()
-    {
-        await TodoData.UpdateToDo(todo);
-        await LoadData();
-        StatusMessage = $"Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
-        todo = new Todo { Project = Project };
     }
     void ConfirmArchive(int todoId)
     {
@@ -328,6 +214,35 @@ else
             Console.WriteLine(exception.Message);
             _loadFailed = true;
         }
+    }
+    private async Task InsertTodo()
+    {
+        await CallChangeAsync(todo.Id.ToString() + "Project");
+        if (todo.Id > 0)
+        {
+            await SaveTodo();
+        }
+        else
+        {
+            await TodoData.InsertToDo(todo);
+            await LoadData();
+            StatusMessage = $"Created Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
+            todo = new Todo { Project = Project };
+        }
+    }
+    private async Task ChangeCompleted( int todoId,bool completed)
+    {
+        todo=todos.Where(v => v.Id == todoId).FirstOrDefault();
+        todo.Completed=completed;
+        await TodoData.UpdateToDo(todo);
+        await LoadData();
+    }
+    private async Task SaveTodo()
+    {
+        await TodoData.UpdateToDo(todo);
+        await LoadData();
+        StatusMessage = $"Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
+        todo = new Todo { Project = Project };
     }
 
     private async Task CallChangeAsync(string elementId)
