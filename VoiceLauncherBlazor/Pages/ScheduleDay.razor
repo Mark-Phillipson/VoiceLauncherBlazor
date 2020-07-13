@@ -1,4 +1,4 @@
-﻿@page "/schedule"
+﻿@page "/scheduleday"
 @inject AppointmentService Service
 <DxScheduler Id="scheduler"
              StartDate="@(DateTime.Today.AddDays(-1))"
@@ -8,26 +8,28 @@
              AppointmentUpdated=" async (e) => await AppointmentUpdated(e)"
              AppointmentRemoved=" async (e) => await AppointmentRemoved(e)"
              >
-
-    <DxSchedulerWorkWeekView ShowWorkTimeOnly="true"></DxSchedulerWorkWeekView>
-
+        <DxSchedulerDayView ShowWorkTimeOnly="true"
+                            DayCount="3"
+                            TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.TodayView"
+                            TimeScale="@(new TimeSpan(0,15,0))"
+                            WorkTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(9),
+                         TimeSpan.FromHours(18)))"
+                            VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8),
+                         TimeSpan.FromHours(19)))">
+        </DxSchedulerDayView>
 </DxScheduler>
 
 <a class="btn btn-outline-info btn-lg" href="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler#views">Documentation</a>
-<a  class="btn btn-outline-info btn-lg" href="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxSchedulerAppointmentItem"> Create Edit Delete</a>
-@*<button class="btn btn-sm btn-success" @onclick="() => { scheduleViewType = SchedulerViewType.Day; StateHasChanged(); }">Day</button>
-<button class="btn btn-sm btn-success" @onclick="() => { scheduleViewType = SchedulerViewType.Week; StateHasChanged(); }">Week</button>
-<button class="btn btn-sm btn-success" @onclick="() => { scheduleViewType = SchedulerViewType.WorkWeek; StateHasChanged(); }">Work Week</button>*@
+<a class="btn btn-outline-info btn-lg" href="https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxSchedulerAppointmentItem"> Create Edit Delete</a>
 @if (StatusMessage != null)
 {
-    <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" AlertType="@AlertType" />
+    <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />
 }
 
 @code {
     List<Appointment> Appointments { get; set; }
     DxSchedulerDataStorage DataStorage { get; set; } = new DxSchedulerDataStorage();
     public string StatusMessage { get; set; }
-    public string AlertType { get; set; } = "info";
     protected override async Task OnInitializedAsync()
     {
         Appointments = await Service.GetAppointments();

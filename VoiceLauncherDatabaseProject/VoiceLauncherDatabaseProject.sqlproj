@@ -108,5 +108,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="VoiceLauncherDatabaseProject.publish.xml" />
+    <None Include="dbo\Views\Script1.sql" />
   </ItemGroup>
 </Project>

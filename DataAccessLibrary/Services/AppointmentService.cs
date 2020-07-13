@@ -1,16 +1,68 @@
 ﻿using DataAccessLibrary.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
-
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Services
 {
-
-    public static partial class AppointmentCollection
+    public class AppointmentService
     {
-        public static List<Appointment> GetAppointments()
+        readonly ApplicationDbContext _context;
+        public AppointmentService(ApplicationDbContext context)
         {
+            _context = context;
+        }
+        public async Task<string> SaveAppointment(Appointment appointment)
+        {
+            var action = "Updated";
+            if (appointment != null)
+            {
+                if (appointment.Id == -1)
+                {
+                    appointment.Id = 0;
+                    _context.Appointments.Add(appointment);
+                    action = "Added";
+                }
+                else
+                {
+                    _context.Appointments.Update(appointment);
+                }
+                await _context.SaveChangesAsync();
+                return $"Appointment {action} Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
+            }
+            return $"Cannot save appointment as not supplied";
+        }
+        public async Task<string> RemoveAppointment(string id)
+        {
+            var appointment = await _context.Appointments.Where(v => v.Id.ToString() == id).FirstOrDefaultAsync();
+            if (appointment != null)
+            {
+                _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
+                return $"Appointment Removed Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
+            }
+            return $"Appointment (Id: {id}) not found so cannot be removed!";
+        }
+        public async Task<string> SaveAppointments(List<Appointment> appointments)
+        {
+            _context.Appointments.UpdateRange(appointments);
+            await _context.SaveChangesAsync();
+            return $"Appointments Saved Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
+        }
+        public async Task<List<Appointment>> GetAppointments()
+        {
+            //List<Appointment> dataSource = await CreateDemoAppointmentsAsync();
+            //_context.Appointments.UpdateRange(dataSource);
+            //await _context.SaveChangesAsync();
+            var appointments = _context.Appointments.Where(v => v.StartDate >= DateTime.Now.AddMonths(-3));
+            return await appointments.ToListAsync();
+        }
+
+        private async Task<List<Appointment>> CreateDemoAppointmentsAsync()
+        {
+            await RemoveAllAppointments();
             DateTime date = DateTimeUtils.CreateWeekStart(DateTime.Now);
             var dataSource = new List<Appointment>() {
             new Appointment {
@@ -137,6 +189,14 @@ namespace DataAccessLibrary.Services
             }
         };
             return dataSource;
+        }
+
+        async Task RemoveAllAppointments()
+        {
+            List<Appointment> appointments = await _context.Appointments.ToListAsync();
+            _context.Appointments.RemoveRange(appointments);
+            await _context.SaveChangesAsync();
+            return;
         }
     }
 }
