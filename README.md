@@ -7,3 +7,4 @@ The tables are used in conjunction with KnowBrainer scripts to provide extra fun
 Also provided by the tables is the ability to launch any application, folder or website.
 
   
+There are also calendars/schedules that use DevExpress Blazor controls
