@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @namespace VoiceLauncherBlazor.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
@@ -42,6 +42,7 @@
             if (element) {
                 var event = new Event('change');
                 element.dispatchEvent(event);
+                console.log(elementId + " change fired " + element.localName)
             }
         }
         window.setFocus = (elementId) => {

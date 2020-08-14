@@ -1,0 +1,1 @@
+﻿SELECT [Logins].[ID], [Logins].[Name], [Logins].[Username], [Logins].[Password], [Logins].[Description], [Logins].[Created] from Logins
