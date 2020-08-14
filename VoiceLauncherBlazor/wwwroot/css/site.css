@@ -334,3 +334,7 @@ app {
         display: inline-block;
     }
 
+#components-reconnect-modal > h5 {
+    background-color: black;
+    color: red
+}
