@@ -72,7 +72,7 @@ namespace DataAccessLibrary.Models
             modelBuilder.Entity<AspNetRoles>(entity =>
             {
                 entity.HasIndex(e => e.NormalizedName)
-                    .HasName("RoleNameIndex")
+                    .HasDatabaseName("RoleNameIndex")
                     .IsUnique()
                     .HasFilter("([NormalizedName] IS NOT NULL)");
             });
@@ -104,10 +104,10 @@ namespace DataAccessLibrary.Models
             modelBuilder.Entity<AspNetUsers>(entity =>
             {
                 entity.HasIndex(e => e.NormalizedEmail)
-                    .HasName("EmailIndex");
+                    .HasDatabaseName("EmailIndex");
 
                 entity.HasIndex(e => e.NormalizedUserName)
-                    .HasName("UserNameIndex")
+                    .HasDatabaseName("UserNameIndex")
                     .IsUnique()
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
             });
@@ -115,13 +115,13 @@ namespace DataAccessLibrary.Models
             modelBuilder.Entity<CustomIntelliSense>(entity =>
             {
                 entity.HasIndex(e => e.CategoryId)
-                    .HasName("IX_CategoryID");
+                    .HasDatabaseName("IX_CategoryID");
 
                 entity.HasIndex(e => e.ComputerId)
-                    .HasName("IX_ComputerID");
+                    .HasDatabaseName("IX_ComputerID");
 
                 entity.HasIndex(e => e.LanguageId)
-                    .HasName("IX_LanguageID");
+                    .HasDatabaseName("IX_LanguageID");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.CustomIntelliSense)
@@ -142,10 +142,10 @@ namespace DataAccessLibrary.Models
             modelBuilder.Entity<Launcher>(entity =>
             {
                 entity.HasIndex(e => e.CategoryId)
-                    .HasName("IX_CategoryID");
+                    .HasDatabaseName("IX_CategoryID");
 
                 entity.HasIndex(e => e.ComputerId)
-                    .HasName("IX_ComputerID");
+                    .HasDatabaseName("IX_ComputerID");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Launcher)
