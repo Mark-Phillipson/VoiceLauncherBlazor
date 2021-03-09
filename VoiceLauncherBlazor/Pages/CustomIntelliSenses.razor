@@ -26,7 +26,7 @@
 
 <div class="form-field row">
     @*<a accesskey="0" class="btn btn-success col-md-1" href="/intellisense/0">Create (0) <i class="oi oi-plus"></i></a>*@
-    <button class="btn btn-sm btn-success" @onclick="CreateNew">Create New</button>
+    <button class="btn btn-sm btn-success" @onclick="CreateNew">Create New <i class="fas fa-plus"></i></button>
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm"
            @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
@@ -54,8 +54,8 @@ else
             <tr>
                 <th style="width: 60px">
                     Language
-                    <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" accesskey="3" class="btn btn-sm btn-info">(3) <i class="oi oi-sort-ascending"></i></button>
-                    <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" accesskey="4" class="btn btn-sm btn-info">(4) <i class="oi oi-sort-descending"></i></button>
+                    <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
                     <select style="max-width:160px" class="form-control-sm col-md-10 ml-2" @bind="languageIdFilter" @onblur="FilterByLanguage">
                         <option value="">-Select to filter-</option>
                         @if (languages != null)
@@ -158,6 +158,6 @@ else
     </ConfirmDialog>
 </TemplatedDialog>
 
-<TemplatedDialog Show="showCreateNewOrEdit">
+@*<TemplatedDialog Show="showCreateNewOrEdit">
     <CustomIntelliSense OnClose="CloseCreateNew" customIntellisenseId="_customIntellisenseId" />
-</TemplatedDialog>
+</TemplatedDialog>*@

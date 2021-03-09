@@ -54,6 +54,7 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<Example> Examples { get; set; }
         public virtual DbSet<Todo> Todos { get; set; }
         public virtual DbSet<Appointment> Appointments { get; set; }
+        public virtual DbSet<AdditionalCommand> AdditionalCommands { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

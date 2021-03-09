@@ -10,12 +10,11 @@ namespace VoiceLauncherBlazor.Pages
 {
 	public partial class CustomIntelliSense
 	{
-		[Parameter] public int customIntellisenseId { get; set; }
+		[Parameter] public int customIntellisenseId { get; set; } = 0;
+		[Inject] NavigationManager NavigationManager { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
-		[Parameter] public EventCallback OnClose { get; set; }
-
 		public DataAccessLibrary.Models.CustomIntelliSense intellisense { get; set; }
 		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
 		public List<DataAccessLibrary.Models.Language> languages { get; set; }
@@ -42,7 +41,6 @@ namespace VoiceLauncherBlazor.Pages
 					DeliveryType = "Send Keys"
 				};
 			}
-			//_editContext = new EditContext(intellisense);
 			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
 			languages = await LanguageService.GetLanguagesAsync();
 			categories = await CategoryService.GetCategoriesAsync();
@@ -63,7 +61,6 @@ namespace VoiceLauncherBlazor.Pages
 				await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
 			}
 		}
-
 		private async Task HandleValidSubmit()
 		{
 			intellisense.SendKeysValue = CarriageReturn.ReplaceForCarriageReturnChar(intellisense.SendKeysValue);
@@ -79,13 +76,15 @@ namespace VoiceLauncherBlazor.Pages
 			if (customValidationErrors.Count == 0)
 			{
 				var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
-				await OnClose.InvokeAsync();
 			}
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 		}
-
+		private void GoBack()
+		{
+			NavigationManager.NavigateTo("/intellisenses");
+		}
 	}
 }

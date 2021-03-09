@@ -1,4 +1,5 @@
-﻿using DataAccessLibrary.Services;
+﻿using Blazored.Toast.Services;
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
@@ -11,6 +12,8 @@ namespace VoiceLauncherBlazor.Pages
 	{
 		[Parameter] public int? categoryIdFilter { get; set; }
 		[Parameter] public int? languageIdFilter { get; set; }
+		[Inject] public AdditionalCommandService AdditionalCommandService { get; set; }
+		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
 		private int customIntellisenseIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.CustomIntelliSense> intellisenses;
@@ -19,7 +22,6 @@ namespace VoiceLauncherBlazor.Pages
 		public List<DataAccessLibrary.Models.Language> languages { get; set; }
 		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
 		public int MaximumRows { get; set; } = 10;
-		private int _customIntellisenseId;
 #pragma warning disable 414
 		private bool showCreateNewOrEdit = false;
 		private bool _loadFailed = false;
@@ -113,6 +115,13 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task DeleteCustomIntelliSense(int customIntellisenseId)
 		{
+			var additionalCommands =  await AdditionalCommandService.GetAdditionalCommandsAsync(customIntellisenseId);
+			if (additionalCommands.Count>0)
+			{
+				ShowDialog = false;
+				ToastService.ShowWarning("Please remove additional commands before deleting this record!", "Delete Cancelled");
+				return;
+			}
 			try
 			{
 				var result = await CustomIntellisenseService.DeleteCustomIntelliSense(customIntellisenseId);
@@ -167,7 +176,7 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void CreateNew()
 		{
-			showCreateNewOrEdit = true;
+			NavigationManager.NavigateTo("/intellisense");
 		}
 		private void CloseCreateNew()
 		{
@@ -175,8 +184,8 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void EditRecord(int customIntellisenseId)
 		{
-			_customIntellisenseId = customIntellisenseId;
-			showCreateNewOrEdit = true;
+			NavigationManager.NavigateTo($"/intellisense/{customIntellisenseId}");
+
 		}
 		private async Task CallChangeAsync(string elementId)
 		{

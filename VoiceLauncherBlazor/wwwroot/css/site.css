@@ -130,16 +130,19 @@ a, .btn-link {
 }
 
 .dialog-title {
-	background-color: #444;
-	color: #fff2cc;
+	background-color: whitesmoke;
+	color: black;
+	border-color: red;
+	border: solid;
+	border-width: 1px;
 	padding: 1.3rem 2rem;
 }
 
 	.dialog-title h2 {
-		color: white;
+		color: black;
 		font-size: 1.4rem;
 		margin: 0;
-		font-family: 'Bahnschrift', Arial, Helvetica, sans-serif;
+		font-family: 'Ubuntu', Arial, Helvetica, sans-serif;
 		text-transform: uppercase;
 		line-height: 1.3rem;
 	}
@@ -148,6 +151,7 @@ a, .btn-link {
 	flex-grow: 1;
 	padding: 0.5rem 3rem 1rem 0;
 	margin: 3rem;
+	font-size: large;
 }
 
 .dialog-buttons {
@@ -155,7 +159,7 @@ a, .btn-link {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	background-color: rgba( 76, 76, 76,1);
+	color: black;
 	padding: 0 1rem;
 }
 
@@ -163,6 +167,7 @@ a, .btn-link {
 	display: flex;
 	margin-top: 1rem;
 	align-items: center;
+	color: black;
 }
 
 .dialog-body label {
@@ -174,6 +179,10 @@ a, .btn-link {
 .dialog-body input, .dialog-body select {
 	flex-grow: 1;
 	width: unset;
+}
+
+.dialog-footer {
+	background-color: white;
 }
 
 .dialog-body .size-label {
@@ -190,13 +199,19 @@ a, .btn-link {
 	border: 16px solid #f3f3f3;
 	border-radius: 50%;
 	border-top: 16px solid #3498db;
-	width: 120px;
-	height: 120px;
+	width: 150px;
+	height: 150px;
 	-webkit-animation: spin 2s linear infinite; /* Safari */
 	animation: spin 2s linear infinite;
 }
 
-header > h3 {
+.blazored-modal {
+	color:black;
+}
+
+.page-background {
+	background-color: azure;
+}header > h3 {
 	display: inline-block;
 }
 
