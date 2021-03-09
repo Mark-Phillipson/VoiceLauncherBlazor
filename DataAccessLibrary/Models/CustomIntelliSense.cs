@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
     public partial class CustomIntelliSense
     {
+		public CustomIntelliSense()
+		{
+			AdditionalCommands = new HashSet<AdditionalCommand>();
+		}
         [Key]
         [Column("ID")]
         public int Id { get; set; }
@@ -40,6 +45,7 @@ namespace DataAccessLibrary.Models
         [ForeignKey(nameof(LanguageId))]
         [InverseProperty(nameof(Models.Language.CustomIntelliSense))]
         public virtual Language Language { get; set; }
-    }
+		public virtual ICollection<AdditionalCommand> AdditionalCommands { get; set; }
+	}
 }
 
