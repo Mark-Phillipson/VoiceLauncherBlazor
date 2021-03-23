@@ -1,4 +1,5 @@
-﻿using DataAccessLibrary.Services;
+﻿using Blazored.Toast.Services;
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
@@ -12,6 +13,7 @@ namespace VoiceLauncherBlazor.Pages
 	{
 		[Parameter] public int customIntellisenseId { get; set; } = 0;
 		[Inject] NavigationManager NavigationManager { get; set; }
+		[Inject] IToastService ToastService { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
@@ -20,6 +22,7 @@ namespace VoiceLauncherBlazor.Pages
 		public List<DataAccessLibrary.Models.Language> languages { get; set; }
 		public List<DataAccessLibrary.Models.Category> categories { get; set; }
 		private List<string> customValidationErrors = new List<string>();
+		public string Message { get; set; }
 		protected override async Task OnInitializedAsync()
 		{
 			if (customIntellisenseId > 0)
@@ -42,7 +45,7 @@ namespace VoiceLauncherBlazor.Pages
 				};
 			}
 			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-			languages = await LanguageService.GetLanguagesAsync();
+			languages = (await LanguageService.GetLanguagesAsync(activeFilter:true));
 			categories = await CategoryService.GetCategoriesAsync();
 		}
 
@@ -76,6 +79,12 @@ namespace VoiceLauncherBlazor.Pages
 			if (customValidationErrors.Count == 0)
 			{
 				var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
+				if (result.Contains("Successfully"))
+				{
+					ToastService.ShowSuccess(result, "Success");
+					return;
+				}
+				ToastService.ShowError(result, "Failure");
 			}
 		}
 		private async Task CallChangeAsync(string elementId)

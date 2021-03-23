@@ -9,14 +9,15 @@ namespace DataAccessLibrary.Services
 {
     public class ComputerService
     {
-        readonly ApplicationDbContext _context;
-        public ComputerService(ApplicationDbContext context)
+		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+		public ComputerService(IDbContextFactory<ApplicationDbContext> context)
         {
-            _context = context;
+            _contextFactory = context;
         }
         public async Task<List<Computer>> GetComputersAsync()
         {
-            List<Computer> computers = await _context.Computers.OrderBy(v => v.ComputerName).ToListAsync();
+			using var context = _contextFactory.CreateDbContext();
+			List<Computer> computers = await context.Computers.OrderBy(v => v.ComputerName).ToListAsync();
             return computers;
         }
     }

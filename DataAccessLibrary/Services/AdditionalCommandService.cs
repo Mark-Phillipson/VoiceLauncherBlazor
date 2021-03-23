@@ -9,18 +9,19 @@ namespace DataAccessLibrary.Services
 {
 	public class AdditionalCommandService
 	{
-		private readonly ApplicationDbContext _context;
-		public AdditionalCommandService(ApplicationDbContext context)
+		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+		public AdditionalCommandService(IDbContextFactory<ApplicationDbContext> context)
 		{
-			_context = context;
+			_contextFactory = context;
 		}
 		public async Task<List<AdditionalCommand>> GetAdditionalCommandsAsync(int customIntellisenseId)
 		{
+			using var context = _contextFactory.CreateDbContext();
 			IQueryable<AdditionalCommand> additionalCommands = null;
 			try
 			{
-				additionalCommands = _context.AdditionalCommands.Include(i => i.CustomIntelliSense)
-					.Where(v => v.CustomIntelliSenseId==customIntellisenseId);
+				additionalCommands = context.AdditionalCommands.Include(i => i.CustomIntelliSense)
+					.Where(v => v.CustomIntelliSenseId == customIntellisenseId);
 			}
 			catch (Exception exception)
 			{
@@ -28,52 +29,54 @@ namespace DataAccessLibrary.Services
 			}
 			return await additionalCommands.ToListAsync();
 		}
-	public async Task<AdditionalCommand> GetAdditionalCommandAsync(int additionalCommandId)
-	{
-		AdditionalCommand additionalCommand = await _context.AdditionalCommands.Include("CustomIntelliSense").Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
-		return additionalCommand;
-	}
-	public async Task<string> SaveAdditionalCommand(AdditionalCommand additionalCommand)
-	{
-		if (additionalCommand.Id > 0)
+		public async Task<AdditionalCommand> GetAdditionalCommandAsync(int additionalCommandId)
 		{
-			_context.AdditionalCommands.Update(additionalCommand);
+			using var context = _contextFactory.CreateDbContext();
+			AdditionalCommand additionalCommand = await context.AdditionalCommands.Include("CustomIntelliSense").Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
+			return additionalCommand;
 		}
-		else
+		public async Task<string> SaveAdditionalCommand(AdditionalCommand additionalCommand)
 		{
-			_context.AdditionalCommands.Add(additionalCommand);
+			using var context = _contextFactory.CreateDbContext();
+			if (additionalCommand.Id > 0)
+			{
+				context.AdditionalCommands.Update(additionalCommand);
+			}
+			else
+			{
+				context.AdditionalCommands.Add(additionalCommand);
+			}
+			try
+			{
+				await context.SaveChangesAsync();
+				return $"AdditionalCommand Saved Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
+			}
+			catch (Exception exception)
+			{
+				return exception.Message;
+			}
 		}
-		try
+		public async Task<string> DeleteAdditionalCommand(int additionalCommandId)
 		{
-			await _context.SaveChangesAsync();
-			return $"AdditionalCommand Saved Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
+			using var context = _contextFactory.CreateDbContext();
+			var additionalCommand = await context.AdditionalCommands.Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
+			var result = $"Delete AdditionalCommand Failed {DateTime.UtcNow:h:mm:ss tt zz}";
+			if (additionalCommand != null)
+			{
+				context.AdditionalCommands.Remove(additionalCommand);
+				await context.SaveChangesAsync();
+				result = $"AdditionalCommand Successfully Deleted {DateTime.UtcNow:h:mm:ss tt zz}";
+			}
+			return result;
 		}
-		catch (Exception exception)
+		public async Task<List<AdditionalCommand>> SaveAllAdditionalCommands(List<AdditionalCommand> additionalCommands)
 		{
-			return exception.Message;
+			foreach (var additionalCommand in additionalCommands)
+			{
+				await SaveAdditionalCommand(additionalCommand);
+			}
+			return additionalCommands;
 		}
-	}
-	public async Task<string> DeleteAdditionalCommand(int additionalCommandId)
-	{
-		var additionalCommand = await _context.AdditionalCommands.Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
-		var result = $"Delete AdditionalCommand Failed {DateTime.UtcNow:h:mm:ss tt zz}";
-		if (additionalCommand != null)
-		{
-			_context.AdditionalCommands.Remove(additionalCommand);
-			await _context.SaveChangesAsync();
-			result = $"AdditionalCommand Successfully Deleted {DateTime.UtcNow:h:mm:ss tt zz}";
-		}
-		return result;
-	}
-	public async Task<List<AdditionalCommand>> SaveAllAdditionalCommands(List<AdditionalCommand> additionalCommands)
-	{
-		foreach (var additionalCommand in additionalCommands)
-		{
-			await SaveAdditionalCommand(additionalCommand);
-		}
-		return additionalCommands;
-	}
 
-
-}
+	}
 }

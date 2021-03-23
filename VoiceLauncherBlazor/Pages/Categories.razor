@@ -25,6 +25,7 @@
            @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
            class="form-control col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
     <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+
 </div>
 @if (categories == null && _loadFailed)
 {

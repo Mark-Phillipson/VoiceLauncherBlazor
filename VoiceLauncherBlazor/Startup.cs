@@ -1,6 +1,7 @@
 using Blazored.Modal;
 using Blazored.Toast;
 using DataAccessLibrary;
+using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,19 +29,17 @@ namespace VoiceLauncherBlazor
 			services.AddBlazoredModal();
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
-			services.AddDbContext<DataAccessLibrary.Models.ApplicationDbContext>(options =>
-			 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
-			 ServiceLifetime.Transient);
-			services.AddTransient<CategoryService>();
-			services.AddTransient<AdditionalCommandService>();
-			services.AddTransient<LanguageService>();
-			services.AddTransient<LauncherService>();
-			services.AddTransient<ComputerService>();
-			services.AddTransient<CustomIntellisenseService>();
-			services.AddTransient<GeneralLookupService>();
-			services.AddTransient<ISqlDataAccess, SqlDataAccess>();
-			services.AddTransient<ITodoData, TodoData>();
-			services.AddTransient<AppointmentService>();
+			services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+			services.AddScoped<CategoryService>();
+			services.AddScoped<AdditionalCommandService>();
+			services.AddScoped<LanguageService>();
+			services.AddScoped<LauncherService>();
+			services.AddScoped<ComputerService>();
+			services.AddScoped<CustomIntellisenseService>();
+			services.AddScoped<GeneralLookupService>();
+			services.AddScoped<ISqlDataAccess, SqlDataAccess>();
+			services.AddScoped<ITodoData, TodoData>();
+			services.AddScoped<AppointmentService>();
 			services.AddSingleton<NotifierService>();
 		}
 

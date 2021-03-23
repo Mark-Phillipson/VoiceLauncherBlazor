@@ -5,6 +5,8 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Linq;
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -40,7 +42,22 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		protected override async Task OnInitializedAsync()
 		{
-			if (categoryIdFilter != null)
+			var query = new Uri(NavigationManager.Uri).Query;
+			if (QueryHelpers.ParseQuery(query).TryGetValue("language",out var languageName))
+			{
+				var language = await LanguageService.GetLanguageAsync(languageName);
+				languageIdFilter = language?.Id;
+			}
+			if (QueryHelpers.ParseQuery(query).TryGetValue("category",out var categoryName))
+			{
+				var category = await CategoryService.GetCategoryAsync(categoryName,"IntelliSense Command");
+				categoryIdFilter=category?.Id;
+			}
+			if (categoryIdFilter!= null  && languageIdFilter!= null )
+			{
+				 await FilterByLanguageAndCategory();
+			}
+			else if (categoryIdFilter != null)
 			{
 				await FilterByCategory();
 			}
@@ -127,7 +144,9 @@ namespace VoiceLauncherBlazor.Pages
 				var result = await CustomIntellisenseService.DeleteCustomIntelliSense(customIntellisenseId);
 				StatusMessage = result;
 				ShowDialog = false;
-				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, maximumRows: MaximumRows);
+				//intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, maximumRows: MaximumRows);
+				var ci = intellisenses.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+				intellisenses.Remove(ci);
 
 			}
 			catch (Exception exception)
@@ -149,6 +168,18 @@ namespace VoiceLauncherBlazor.Pages
 				_loadFailed = true;
 			}
 			StatusMessage = $"Custom IntelliSenses Successfully Saved {DateTime.UtcNow:h:mm:ss tt zz}";
+		}
+		async Task FilterByLanguageAndCategory()
+		{
+			try
+			{
+				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, categoryIdFilter,languageIdFilter, maximumRows: MaximumRows);
+			}
+			catch (Exception exception)
+			{
+				Console.WriteLine(exception.Message);
+				_loadFailed = true;
+			}
 		}
 		async Task FilterByCategory()
 		{

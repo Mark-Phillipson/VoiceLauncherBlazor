@@ -9,17 +9,18 @@ namespace DataAccessLibrary.Services
 {
 	public class CustomIntellisenseService
 	{
-		private readonly ApplicationDbContext _context;
-		public CustomIntellisenseService(ApplicationDbContext context)
+		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+		public CustomIntellisenseService(IDbContextFactory<ApplicationDbContext> context)
 		{
-			_context = context;
+			_contextFactory = context;
 		}
 		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 200)
 		{
+			using var context = _contextFactory.CreateDbContext();
 			IQueryable<CustomIntelliSense> intellisenses = null;
 			try
 			{
-				intellisenses = _context.CustomIntelliSense.Include(i => i.Category).Include(i => i.Language).OrderBy(v => v.Category);
+				intellisenses = context.CustomIntelliSense.Include(i => i.Category).Include(i => i.Language).OrderBy(v => v.Category);
 			}
 			catch (Exception exception)
 			{
@@ -69,22 +70,35 @@ namespace DataAccessLibrary.Services
 		}
 		public async Task<CustomIntelliSense> GetCustomIntelliSenseAsync(int intellisenseId)
 		{
-			CustomIntelliSense intellisense = await _context.CustomIntelliSense.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
+			using var context = _contextFactory.CreateDbContext();
+			CustomIntelliSense intellisense = await context.CustomIntelliSense.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
 			return intellisense;
 		}
 		public async Task<string> SaveCustomIntelliSense(CustomIntelliSense intellisense)
 		{
+			using var context = _contextFactory.CreateDbContext();
 			if (intellisense.Id > 0)
 			{
-				_context.CustomIntelliSense.Update(intellisense);
+				var existingIntellisense =  await context.CustomIntelliSense.FirstOrDefaultAsync(c => c.Id == intellisense.Id);
+				if (existingIntellisense!= null )
+				{
+					existingIntellisense.LanguageId = intellisense.LanguageId;
+					existingIntellisense.CategoryId= intellisense.CategoryId;
+					existingIntellisense.CommandType= intellisense.CommandType;
+					existingIntellisense.Remarks= intellisense.Remarks;
+					existingIntellisense.ComputerId= intellisense.ComputerId;
+					existingIntellisense.DeliveryType= intellisense.DeliveryType;
+					existingIntellisense.DisplayValue= intellisense.DisplayValue;
+					existingIntellisense.SendKeysValue= intellisense.SendKeysValue;
+				}
 			}
 			else
 			{
-				_context.CustomIntelliSense.Add(intellisense);
+				context.CustomIntelliSense.Add(intellisense);
 			}
 			try
 			{
-				await _context.SaveChangesAsync();
+				await context.SaveChangesAsync();
 				return $"Custom IntelliSense Saved Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
 			}
 			catch (Exception exception)
@@ -94,14 +108,15 @@ namespace DataAccessLibrary.Services
 		}
 		public async Task<string> DeleteCustomIntelliSense(int customIntellisenseId)
 		{
-			var intellisense = await _context.CustomIntelliSense.Where(v => v.Id == customIntellisenseId).FirstOrDefaultAsync();
+			using var context = _contextFactory.CreateDbContext();
+			var intellisense = await context.CustomIntelliSense.Where(v => v.Id == customIntellisenseId).FirstOrDefaultAsync();
 			var result = $"Delete Custom IntelliSense Failed {DateTime.UtcNow:h:mm:ss tt zz}";
 			if (intellisense != null)
 			{
-				_context.CustomIntelliSense.Remove(intellisense);
+				context.CustomIntelliSense.Remove(intellisense);
 				try
 				{
-					await _context.SaveChangesAsync();
+					await context.SaveChangesAsync();
 				}
 				catch (Exception exception)
 				{

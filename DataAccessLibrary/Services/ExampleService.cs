@@ -9,17 +9,18 @@ namespace DataAccessLibrary.Services
 {
     public class ExampleService
     {
-        readonly ApplicationDbContext _context;
-        public ExampleService(ApplicationDbContext context)
+		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+		public ExampleService(IDbContextFactory<ApplicationDbContext> context)
         {
-            this._context = context;
+            this._contextFactory = context;
         }
         public IQueryable<Example> GetExamples(string searchTerm = null, string sortColumn = null, string sortType = null, string categoryTypeFilter = null, int maximumRows = 200)
         {
-            IQueryable<Example> examples = null;
+			using var context = _contextFactory.CreateDbContext();
+			IQueryable<Example> examples = null;
             try
             {
-                examples = _context.Examples.OrderBy(v => v.Text);
+                examples = context.Examples.OrderBy(v => v.Text);
             }
             catch (Exception exception)
             {
@@ -51,22 +52,24 @@ namespace DataAccessLibrary.Services
 
         public async Task<Example> GetExampleAsync(int exampleId)
         {
-            Example example = await _context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
+			using var context = _contextFactory.CreateDbContext();
+			Example example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
             return example;
         }
         public async Task<string> SaveExample(Example example)
         {
-            if (example.Id > 0)
+			using var context = _contextFactory.CreateDbContext();
+			if (example.Id > 0)
             {
-                _context.Examples.Update(example);
+                context.Examples.Update(example);
             }
             else
             {
-                _context.Examples.Add(example);
+                context.Examples.Add(example);
             }
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return $"Example Saved Successfully! {DateTime.UtcNow:h:mm:ss tt zz}";
             }
             catch (Exception exception)
@@ -77,12 +80,13 @@ namespace DataAccessLibrary.Services
 
         public async Task<string> DeleteExample(int exampleId)
         {
-            var example = await _context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
+			using var context = _contextFactory.CreateDbContext();
+			var example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
             var result = $"Delete Example Failed {DateTime.UtcNow:h:mm:ss tt zz}";
             if (example != null)
             {
-                _context.Examples.Remove(example);
-                await _context.SaveChangesAsync();
+                context.Examples.Remove(example);
+                await context.SaveChangesAsync();
                 result = $"Example Successfully Deleted {DateTime.UtcNow:h:mm:ss tt zz}";
             }
             return result;
