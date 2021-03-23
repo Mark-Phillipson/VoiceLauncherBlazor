@@ -1,9 +1,11 @@
 ﻿using Blazored.Toast.Services;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VoiceLauncherBlazor.helpers;
 
@@ -23,6 +25,10 @@ namespace VoiceLauncherBlazor.Pages
 		public List<DataAccessLibrary.Models.Category> categories { get; set; }
 		private List<string> customValidationErrors = new List<string>();
 		public string Message { get; set; }
+		[Parameter]
+		public int? LanguageIdDefault { get; set; }
+		[Parameter]
+		public int? CategoryIdDefault { get; set; }
 		protected override async Task OnInitializedAsync()
 		{
 			if (customIntellisenseId > 0)
@@ -43,6 +49,23 @@ namespace VoiceLauncherBlazor.Pages
 				{
 					DeliveryType = "Send Keys"
 				};
+				var query = new Uri(NavigationManager.Uri).Query;
+				if (QueryHelpers.ParseQuery(query).TryGetValue("languageId", out var languageId))
+				{
+					LanguageIdDefault = Int32.Parse(languageId);
+				}
+				if (QueryHelpers.ParseQuery(query).TryGetValue("categoryId", out var categoryId))
+				{
+					CategoryIdDefault = Int32.Parse(categoryId);
+				}
+				if (LanguageIdDefault!=  null )
+				{
+					intellisense.LanguageId = (int)LanguageIdDefault;
+				}
+				if (CategoryIdDefault!= null )
+				{
+					intellisense.CategoryId = (int)CategoryIdDefault;
+				}
 			}
 			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
 			languages = (await LanguageService.GetLanguagesAsync(activeFilter:true));
@@ -95,5 +118,24 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			NavigationManager.NavigateTo("/intellisenses");
 		}
+		//public async Task<IEnumerable<DataAccessLibrary.Models.Language>> FilterLanguages(string searchText)
+		//{
+		//	var languages = await LanguageService.GetLanguagesAsync(searchText);
+		//	return languages;
+		//}
+		//public int? GetLanguageId(DataAccessLibrary.Models.Language language)
+		//{
+		//	return language?.Id;
+		//}
+		//public DataAccessLibrary.Models.Language LoadSelectedLanguage(int? languageId)
+		//{
+		//	if (languageId != null)
+		//	{
+		//		var language = languages.FirstOrDefault(l => l.Id == languageId);
+		//		return language;
+		//	}
+		//	return null;
+		//}
+
 	}
 }

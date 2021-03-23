@@ -26,7 +26,7 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
-			if (Environment.MachineName != "SURFACEPRO")
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
 				intellisenses = intellisenses.Where(v => v.Category.Sensitive == false);
 			}

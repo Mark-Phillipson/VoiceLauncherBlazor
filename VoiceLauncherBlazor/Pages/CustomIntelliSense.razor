@@ -43,27 +43,40 @@ else
 						}
 					</ul>
 				}
-				<div class="form-field row">
-					<label for="@intellisense.LanguageId" class="col-md-3"> Language Name (0)</label>
-					<select accesskey="0" class="form-control col-md-9" @bind="intellisense.LanguageId" id="LanguageSelect">
-						<option value="">-</option>
-						@if (languages != null)
+			<div class="form-field row">
+				<label for="@intellisense.LanguageId" class="col-md-3"> Language Name (0)</label>
+				<select accesskey="0" class="form-control col-md-9" @bind="intellisense.LanguageId" id="LanguageSelect">
+					<option value="">-</option>
+					@if (languages != null)
+					{
+						@foreach (var language in languages)
 						{
-							@foreach (var language in languages)
+							if (language.Id == intellisense.LanguageId)
 							{
-								if (language.Id == intellisense.LanguageId)
-								{
-									<option selected value="@language.Id">@language.LanguageName</option>
-								}
-								else
-								{
-									<option value="@language.Id">@language.LanguageName</option>
-								}
+								<option selected value="@language.Id">@language.LanguageName</option>
+							}
+							else
+							{
+								<option value="@language.Id">@language.LanguageName</option>
 							}
 						}
-					</select>
-					<ValidationMessage For="@(() => intellisense.LanguageId)" />
-				</div>
+					}
+				</select>
+				@*<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="intellisense.LanguageId" placeholder="Select language" ShowDropDownOnFocus="true">
+					<SelectedTemplate Context="languageIdContext">
+						@{ var selectedLanguage = LoadSelectedLanguage(languageIdContext);
+							<text>@selectedLanguage?.LanguageName</text> }
+					</SelectedTemplate>
+					<ResultTemplate Context="languageContext">
+						@languageContext.LanguageName
+					</ResultTemplate>
+					<NotFoundTemplate>
+						Sorry, no language matched the search result.
+					</NotFoundTemplate>
+				</BlazoredTypeahead>*@
+
+				<ValidationMessage For="@(() => intellisense.LanguageId)" />
+			</div>
 				<div class="form-field row">
 					<label for="@intellisense.CategoryId" class="col-md-3"> Category (1)</label>
 					<select accesskey="1" class="form-control col-md-9" @bind="@intellisense.CategoryId">

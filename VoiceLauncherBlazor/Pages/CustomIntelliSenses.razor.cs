@@ -23,7 +23,7 @@ namespace VoiceLauncherBlazor.Pages
 		public List<DataAccessLibrary.Models.Category> categories { get; set; }
 		public List<DataAccessLibrary.Models.Language> languages { get; set; }
 		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
-		public int MaximumRows { get; set; } = 10;
+		public int MaximumRows { get; set; } = 100;
 #pragma warning disable 414
 		private bool showCreateNewOrEdit = false;
 		private bool _loadFailed = false;
@@ -42,20 +42,37 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		protected override async Task OnInitializedAsync()
 		{
+			await LoadData();
+			try
+			{
+				categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
+				languages = await LanguageService.GetLanguagesAsync();
+				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
+
+			}
+			catch (Exception exception)
+			{
+				Console.WriteLine(exception.Message);
+				_loadFailed = true;
+			}
+		}
+
+		private async Task LoadData()
+		{
 			var query = new Uri(NavigationManager.Uri).Query;
-			if (QueryHelpers.ParseQuery(query).TryGetValue("language",out var languageName))
+			if (QueryHelpers.ParseQuery(query).TryGetValue("language", out var languageName))
 			{
 				var language = await LanguageService.GetLanguageAsync(languageName);
 				languageIdFilter = language?.Id;
 			}
-			if (QueryHelpers.ParseQuery(query).TryGetValue("category",out var categoryName))
+			if (QueryHelpers.ParseQuery(query).TryGetValue("category", out var categoryName))
 			{
-				var category = await CategoryService.GetCategoryAsync(categoryName,"IntelliSense Command");
-				categoryIdFilter=category?.Id;
+				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+				categoryIdFilter = category?.Id;
 			}
-			if (categoryIdFilter!= null  && languageIdFilter!= null )
+			if (categoryIdFilter != null && languageIdFilter != null)
 			{
-				 await FilterByLanguageAndCategory();
+				await FilterByLanguageAndCategory();
 			}
 			else if (categoryIdFilter != null)
 			{
@@ -77,18 +94,6 @@ namespace VoiceLauncherBlazor.Pages
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
-			}
-			try
-			{
-				categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
-				languages = await LanguageService.GetLanguagesAsync();
-				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-
-			}
-			catch (Exception exception)
-			{
-				Console.WriteLine(exception.Message);
-				_loadFailed = true;
 			}
 		}
 
@@ -207,11 +212,24 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void CreateNew()
 		{
-			NavigationManager.NavigateTo("/intellisense");
-		}
-		private void CloseCreateNew()
-		{
-			showCreateNewOrEdit = false;
+			// By default set the language and category defaults to whatever is filtered
+			if (languageIdFilter!= null  && categoryIdFilter!= null )
+			{
+				NavigationManager.NavigateTo($"/intellisense?languageId={languageIdFilter}&categoryId={categoryIdFilter}");
+				return;
+			}
+			if (languageIdFilter!= null)
+			{
+				NavigationManager.NavigateTo($"/intellisense?languageId={languageIdFilter}");
+				return;
+			}
+			if (categoryIdFilter!= null )
+			{
+				NavigationManager.NavigateTo($"/intellisense?categoryId={categoryIdFilter}");
+				return;
+			}
+
+			NavigationManager.NavigateTo($"/intellisense");
 		}
 		private void EditRecord(int customIntellisenseId)
 		{
@@ -222,6 +240,42 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 			await ApplyFilter();
+		}
+		public async Task<IEnumerable<DataAccessLibrary.Models.Language>> FilterLanguages(string searchText)
+		{
+			var languages= await LanguageService.GetLanguagesAsync(searchText);
+			return languages;
+		}
+		public int? GetLanguageId(DataAccessLibrary.Models.Language language)
+		{
+			return language?.Id;
+		}
+		public DataAccessLibrary.Models.Language LoadSelectedLanguage(int? languageId)
+		{
+			if (languageId!= null )
+			{
+				var language = languages.FirstOrDefault(l => l.Id == languageId);
+				return language;
+			}
+			return null;
+		}
+		public async Task<IEnumerable<DataAccessLibrary.Models.Category>> FilterCategories(string searchText)
+		{
+			var categories = await CategoryService.GetCategoriesAsync(searchText);
+			return categories;
+		}
+		public int? GetCategoryId(DataAccessLibrary.Models.Category category)
+		{
+			return category?.Id;
+		}
+		public DataAccessLibrary.Models.Category LoadSelectedCategory(int? categoryId)
+		{
+			if (categoryId!= null )
+			{
+				var category = categories.FirstOrDefault(c => c.Id == categoryId);
+				return category;
+			}
+			return null ;
 		}
 
 	}
