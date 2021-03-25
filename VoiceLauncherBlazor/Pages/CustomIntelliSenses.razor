@@ -38,8 +38,11 @@
 		<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="languageIdFilter" placeholder="filter language" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
 			<SelectedTemplate Context="languageId">
 				@{
-					var selectedLanguage = LoadSelectedLanguage(languageId);
-					<text>@selectedLanguage?.LanguageName</text>
+					if (languageId != null)
+					{
+						var selectedLanguage = LoadSelectedLanguage(languageId);
+						<text>@selectedLanguage?.LanguageName</text>
+					}
 				}
 			</SelectedTemplate>
 			<ResultTemplate>

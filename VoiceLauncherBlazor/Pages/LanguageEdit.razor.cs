@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VoiceLauncherBlazor.Pages
 {
-    public partial class Language
+    public partial class LanguageEdit
     {
         [Parameter] public int languageId { get; set; }
         private EditContext _editContext;

@@ -12,8 +12,8 @@ namespace VoiceLauncherBlazor.Pages
 {
 	public partial class CustomIntelliSenses
 	{
-		[Parameter] public int? categoryIdFilter { get; set; }
-		[Parameter] public int? languageIdFilter { get; set; }
+		[Parameter] public int? categoryIdFilter { get; set; } = 0;
+		[Parameter] public int? languageIdFilter { get; set; } = 0;
 		[Inject] public AdditionalCommandService AdditionalCommandService { get; set; }
 		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
@@ -42,7 +42,6 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		protected override async Task OnInitializedAsync()
 		{
-			await LoadData();
 			try
 			{
 				categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
@@ -55,6 +54,7 @@ namespace VoiceLauncherBlazor.Pages
 				Console.WriteLine(exception.Message);
 				_loadFailed = true;
 			}
+			await LoadData();
 		}
 
 		private async Task LoadData()
@@ -252,7 +252,7 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		public DataAccessLibrary.Models.Language LoadSelectedLanguage(int? languageId)
 		{
-			if (languageId!= null )
+			if (languageId!= null  && languages!= null )
 			{
 				var language = languages.FirstOrDefault(l => l.Id == languageId);
 				return language;
@@ -270,7 +270,7 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		public DataAccessLibrary.Models.Category LoadSelectedCategory(int? categoryId)
 		{
-			if (categoryId!= null )
+			if (categoryId!= null  && categories!= null )
 			{
 				var category = categories.FirstOrDefault(c => c.Id == categoryId);
 				return category;

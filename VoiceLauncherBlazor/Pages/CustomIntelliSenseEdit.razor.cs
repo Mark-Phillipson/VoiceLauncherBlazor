@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
@@ -11,7 +12,7 @@ using VoiceLauncherBlazor.helpers;
 
 namespace VoiceLauncherBlazor.Pages
 {
-	public partial class CustomIntelliSense
+	public partial class CustomIntelliSenseEdit
 	{
 		[Parameter] public int customIntellisenseId { get; set; } = 0;
 		[Inject] NavigationManager NavigationManager { get; set; }
@@ -58,17 +59,17 @@ namespace VoiceLauncherBlazor.Pages
 				{
 					CategoryIdDefault = Int32.Parse(categoryId);
 				}
-				if (LanguageIdDefault!=  null )
+				if (LanguageIdDefault != null)
 				{
 					intellisense.LanguageId = (int)LanguageIdDefault;
 				}
-				if (CategoryIdDefault!= null )
+				if (CategoryIdDefault != null)
 				{
 					intellisense.CategoryId = (int)CategoryIdDefault;
 				}
 			}
 			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-			languages = (await LanguageService.GetLanguagesAsync(activeFilter:true));
+			languages = (await LanguageService.GetLanguagesAsync(activeFilter: true));
 			categories = await CategoryService.GetCategoriesAsync();
 		}
 
@@ -118,24 +119,23 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			NavigationManager.NavigateTo("/intellisenses");
 		}
-		//public async Task<IEnumerable<DataAccessLibrary.Models.Language>> FilterLanguages(string searchText)
-		//{
-		//	var languages = await LanguageService.GetLanguagesAsync(searchText);
-		//	return languages;
-		//}
-		//public int? GetLanguageId(DataAccessLibrary.Models.Language language)
-		//{
-		//	return language?.Id;
-		//}
-		//public DataAccessLibrary.Models.Language LoadSelectedLanguage(int? languageId)
-		//{
-		//	if (languageId != null)
-		//	{
-		//		var language = languages.FirstOrDefault(l => l.Id == languageId);
-		//		return language;
-		//	}
-		//	return null;
-		//}
+		public async Task<IEnumerable<Language>> FilterLanguages(string searchText)
+		{
+			return await LanguageService.GetLanguagesAsync(searchText);
+		}
+		public int? GetLanguageId(Language language)
+		{
+			return language?.Id;
+		}
+		public Language LoadSelectedLanguage(int? languageId)
+		{
+			if (languageId != null && languages != null)
+			{
+				var language = languages.FirstOrDefault(l => l.Id == languageId);
+				return language;
+			}
+			return null;
+		}
 
 	}
 }
