@@ -32,23 +32,6 @@ else
 	<div class="row">
 		<div class="col-md-12">
 
-			@*<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="SelectedLanguageId" placeholder="Select language" ShowDropDownOnFocus="true">
-					<SelectedTemplate Context="languageIdContext">
-						@{
-								if (languageIdContext != null)
-								{
-									var selectedLanguage = LoadSelectedLanguage(languageIdContext);
-								<text>@selectedLanguage?.LanguageName</text>
-								}
-						}
-					</SelectedTemplate>
-					<ResultTemplate>
-						@context.LanguageName
-					</ResultTemplate>
-					<NotFoundTemplate>
-						Sorry, no language matched the search result.
-					</NotFoundTemplate>
-				</BlazoredTypeahead>*@
 			<EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
 				<DataAnnotationsValidator />
 				@*<ValidationSummary />*@
@@ -85,42 +68,44 @@ else
 					<ValidationMessage For="@(() => intellisense.LanguageId)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.CategoryId" class="col-md-3"> Category (1)</label>
-					<select accesskey="1" class="form-control col-md-9" @bind="@intellisense.CategoryId">
-						<option value="">-</option>
-						@if (categories != null)
-						{
-							@foreach (var category in categories)
-							{
-								@if (intellisense.CategoryId == category.Id)
-								{
-									<option selected value="@category.Id.ToString()">@category.CategoryName</option>
+					<label for="@intellisense.CategoryId" class="col-md-3"> Category</label>
+					<div class="col-md-9">
+						<BlazoredTypeahead SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="SelectedCategoryId" placeholder="select category" @onblur="SetCategory" ShowDropDownOnFocus="true">
+							<SelectedTemplate Context="categoryId">
+								@{
+										if (categoryId != null)
+										{
+											var selectedCategory = LoadSelectedCategory(categoryId);
+										<text>@selectedCategory?.CategoryName</text>
+										}
 								}
-								else
-								{
-									<option value="@category.Id.ToString()">@category.CategoryName</option>
-								}
-							}
-						}
-					</select>
+							</SelectedTemplate>
+							<ResultTemplate Context="category">
+								@category.CategoryName
+							</ResultTemplate>
+							<NotFoundTemplate>
+								Sorry, no Category matched the search result.
+							</NotFoundTemplate>
+						</BlazoredTypeahead>
+					</div>
 					<ValidationMessage For="@(() => intellisense.CategoryId)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.DisplayValue" class="col-md-3"> Display Value</label>
-					<InputText class="col-md-9 form-control" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
+					<label for="@intellisense.DisplayValue" class="col-md-3"> Display Value (1)</label>
+					<InputText accesskey="1" class="col-md-9 form-control" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
 							   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "DisplayValue"))" id="@(intellisense.Id.ToString() + "DisplayValue")"></InputText>
 					<ValidationMessage For="@(() => intellisense.DisplayValue)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value</label>
-					<InputTextArea style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
+					<label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value (2)</label>
+					<InputTextArea accesskey="2" style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
 								   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "SendKeysValue"))" id="@(intellisense.Id.ToString() + "SendKeysValue")">
 					</InputTextArea>
 					<ValidationMessage For="@(() => intellisense.SendKeysValue)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type</label>
-					<InputSelect class="form-control col-md-9" @bind-Value="intellisense.DeliveryType">
+					<label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type (3)</label>
+					<InputSelect accesskey="3" class="form-control col-md-9" @bind-Value="intellisense.DeliveryType">
 						<option value="">-</option>
 						@if (generalLookups != null)
 							{

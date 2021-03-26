@@ -130,9 +130,18 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			return await LanguageService.GetLanguagesAsync(searchText);
 		}
+		public async Task<IEnumerable<Category>> FilterCategories(string searchText)
+		{
+			var result = await CategoryService.GetCategoriesAsync(searchText);
+			return result;
+		}
 		public int? GetLanguageId(Language language)
 		{
 			return language?.Id;
+		}
+		public int? GetCategoryId(Category category)
+		{
+			return category?.Id;
 		}
 		public Language LoadSelectedLanguage(int? languageId)
 		{
@@ -149,6 +158,22 @@ namespace VoiceLauncherBlazor.Pages
 			{
 				intellisense.LanguageId = (int)SelectedLanguageId;
 			}
+		}
+		void SetCategory(FocusEventArgs args)
+		{
+			if (SelectedCategoryId!= null )
+			{
+				intellisense.CategoryId = (int)SelectedCategoryId;
+			}
+		}
+		public Category LoadSelectedCategory(int? categoryId)
+		{
+			if (categoryId!= null  && categories!= null )
+			{
+				var category = categories.FirstOrDefault(c => c.Id == categoryId);
+				return category;
+			}
+			return null;
 		}
 
 	}

@@ -22,7 +22,7 @@ else if (FilteredAdditionalCommands == null)
 else if (FilteredAdditionalCommands.Count == 0)
 {
 	<p>No additional commands.</p>
-	<button @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create <i class="fas fa-plus"></i></button>
+	<button @onclick="AddNewAdditionalCommandAsync" accesskey="4" class="btn btn-success">Create (4) <i class="fas fa-plus"></i></button>
 }
 else
 {
@@ -36,7 +36,7 @@ else
 				<th>Delivery Type</th>
 				<th>Remarks</th>
 				<th>
-					<button @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create <i class="fas fa-plus"></i>
+					<button accesskey="4" @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create (4) <i class="fas fa-plus"></i>
 					</button>
 				</th>
 			</tr>

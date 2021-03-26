@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VoiceLauncherBlazor.Pages
 {
-    public partial class Category
+    public partial class CategoryEdit
     {
         [Parameter] public int categoryId { get; set; }
         private EditContext _editContext;
