@@ -19,7 +19,7 @@
 	}
 </div>
 @if (intellisense == null && _loadFailed)
-		   {
+{
 	<h1 class="text-danger">The data failed to load please try again :( </h1>
 }
 else if (intellisense == null)
@@ -28,9 +28,27 @@ else if (intellisense == null)
 	<div style="display:normal;margin:auto" class="loader"></div>
 }
 else
-	{
+{
 	<div class="row">
 		<div class="col-md-12">
+
+			@*<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="SelectedLanguageId" placeholder="Select language" ShowDropDownOnFocus="true">
+					<SelectedTemplate Context="languageIdContext">
+						@{
+								if (languageIdContext != null)
+								{
+									var selectedLanguage = LoadSelectedLanguage(languageIdContext);
+								<text>@selectedLanguage?.LanguageName</text>
+								}
+						}
+					</SelectedTemplate>
+					<ResultTemplate>
+						@context.LanguageName
+					</ResultTemplate>
+					<NotFoundTemplate>
+						Sorry, no language matched the search result.
+					</NotFoundTemplate>
+				</BlazoredTypeahead>*@
 			<EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
 				<DataAnnotationsValidator />
 				@*<ValidationSummary />*@
@@ -43,40 +61,29 @@ else
 						}
 					</ul>
 				}
-			<div class="form-field row">
-				<label for="@intellisense.LanguageId" class="col-md-3"> Language Name (0)</label>
-				<select accesskey="0" class="form-control col-md-9" @bind="intellisense.LanguageId" id="LanguageSelect">
-					<option value="">-</option>
-					@if (languages != null)
-					{
-						@foreach (var language in languages)
-						{
-							if (language.Id == intellisense.LanguageId)
-							{
-								<option selected value="@language.Id">@language.LanguageName</option>
-							}
-							else
-							{
-								<option value="@language.Id">@language.LanguageName</option>
-							}
-						}
-					}
-				</select>
-				@*<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="intellisense.LanguageId" placeholder="Select language" ShowDropDownOnFocus="true">
-					<SelectedTemplate Context="languageIdContext">
-						@{ var selectedLanguage = LoadSelectedLanguage(languageIdContext);
-							<text>@selectedLanguage?.LanguageName</text> }
-					</SelectedTemplate>
-					<ResultTemplate Context="languageContext">
-						@languageContext.LanguageName
-					</ResultTemplate>
-					<NotFoundTemplate>
-						Sorry, no language matched the search result.
-					</NotFoundTemplate>
-				</BlazoredTypeahead>*@
-
-				<ValidationMessage For="@(() => intellisense.LanguageId)" />
-			</div>
+				<div class="form-field row">
+					<label for="@intellisense.LanguageId" class="col-md-3"> Language Name</label>
+					<div class="col-md-9">
+						<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="SelectedLanguageId" placeholder="filter language" @onblur="SetLanguage" ShowDropDownOnFocus="true">
+							<SelectedTemplate Context="languageId">
+								@{
+										if (languageId != null)
+										{
+											var selectedLanguage = LoadSelectedLanguage(languageId);
+										<text>@selectedLanguage?.LanguageName</text>
+										}
+								}
+							</SelectedTemplate>
+							<ResultTemplate Context="language">
+								@language.LanguageName
+							</ResultTemplate>
+							<NotFoundTemplate>
+								Sorry, no language matched the search result.
+							</NotFoundTemplate>
+						</BlazoredTypeahead>
+					</div>
+					<ValidationMessage For="@(() => intellisense.LanguageId)" />
+				</div>
 				<div class="form-field row">
 					<label for="@intellisense.CategoryId" class="col-md-3"> Category (1)</label>
 					<select accesskey="1" class="form-control col-md-9" @bind="@intellisense.CategoryId">
@@ -149,7 +156,7 @@ else
 			</EditForm>
 		</div>
 	</div>
-	@if (intellisense?.Id>0)
+	@if (intellisense?.Id > 0)
 	{
 		<AdditionalCommandOverview CustomIntelliSenseId="intellisense.Id" />
 	}

@@ -2,6 +2,7 @@
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using System;
@@ -30,6 +31,8 @@ namespace VoiceLauncherBlazor.Pages
 		public int? LanguageIdDefault { get; set; }
 		[Parameter]
 		public int? CategoryIdDefault { get; set; }
+		public int? SelectedLanguageId { get; set; } = 0;
+		public int? SelectedCategoryId { get; set; } = 0;
 		protected override async Task OnInitializedAsync()
 		{
 			if (customIntellisenseId > 0)
@@ -43,6 +46,8 @@ namespace VoiceLauncherBlazor.Pages
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
+				SelectedCategoryId = intellisense.CategoryId;
+				SelectedLanguageId = intellisense.LanguageId;
 			}
 			else
 			{
@@ -62,10 +67,12 @@ namespace VoiceLauncherBlazor.Pages
 				if (LanguageIdDefault != null)
 				{
 					intellisense.LanguageId = (int)LanguageIdDefault;
+					SelectedLanguageId = LanguageIdDefault;
 				}
 				if (CategoryIdDefault != null)
 				{
 					intellisense.CategoryId = (int)CategoryIdDefault;
+					SelectedCategoryId = CategoryIdDefault;
 				}
 			}
 			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
@@ -135,6 +142,13 @@ namespace VoiceLauncherBlazor.Pages
 				return language;
 			}
 			return null;
+		}
+		void SetLanguage(FocusEventArgs args)
+		{
+			if (SelectedLanguageId != null)
+			{
+				intellisense.LanguageId = (int)SelectedLanguageId;
+			}
 		}
 
 	}
