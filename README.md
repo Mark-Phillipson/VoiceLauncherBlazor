@@ -6,5 +6,7 @@
 
 * Also provided by the tables is the ability to launch any application, folder or website.
 
-  
+* Functionality also exist to Search and filter Visual Studio Menu commands. These can then be used with the following Visual Studio extension to activate by voice:
+
+* https://marketplace.visualstudio.com/items?itemName=MadsKristensen.VoiceCommands
 
