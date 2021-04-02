@@ -1,19 +1,17 @@
 ﻿using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using VoiceLauncherBlazor.Shared;
-using VoiceLauncherBlazor.Components;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace VoiceLauncherBlazor.Pages
 {
@@ -41,24 +39,23 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			await LoadData();
 		}
-		 async Task LoadData()
+		async Task LoadData()
 		{
 			var query = new Uri(NavigationManager.Uri).Query;
-			string caption= null ;
+			string caption = null;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("caption", out var captionQuery))
 			{
 				caption = captionQuery;
 			}
-
 			try
 			{
-				if (caption!= null )
+				if (caption != null)
 				{
-					VisualStudioCommands = (await VisualStudioCommandService.GetVisualStudioCommandsAsync(caption)).ToList(); 
+					VisualStudioCommands = (await VisualStudioCommandService.GetVisualStudioCommandsAsync(caption)).ToList();
 				}
 				else
 				{
-					VisualStudioCommands = (await VisualStudioCommandService.GetVisualStudioCommandsAsync()).ToList(); 
+					VisualStudioCommands = (await VisualStudioCommandService.GetVisualStudioCommandsAsync()).ToList();
 				}
 			}
 			catch (Exception e)
@@ -76,8 +73,8 @@ namespace VoiceLauncherBlazor.Pages
 			if (firstRender)
 			{
 				await SearchInput.FocusAsync();
-		
-	}
+
+			}
 		}
 		//protected async Task AddNewVisualStudioCommandAsync()
 		//{
