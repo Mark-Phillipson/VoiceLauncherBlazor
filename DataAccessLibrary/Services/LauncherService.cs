@@ -110,7 +110,11 @@ namespace DataAccessLibrary.Services
 			using var context = _contextFactory.CreateDbContext();
 			if (launcher.Id > 0)
 			{
-				context.Launcher.Update(launcher);
+				var existingLauncher = context.Launcher.FirstOrDefault(l => l.Id == launcher.Id);
+				existingLauncher.Name = launcher.Name;
+				existingLauncher.CommandLine = launcher.CommandLine;
+				existingLauncher.CategoryId = launcher.CategoryId;
+				existingLauncher.ComputerId = launcher.ComputerId;
 			}
 			else
 			{

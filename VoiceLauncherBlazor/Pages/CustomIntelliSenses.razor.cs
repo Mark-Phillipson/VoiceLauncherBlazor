@@ -12,8 +12,8 @@ namespace VoiceLauncherBlazor.Pages
 {
 	public partial class CustomIntelliSenses
 	{
-		[Parameter] public int? categoryIdFilter { get; set; } = 0;
-		[Parameter] public int? languageIdFilter { get; set; } = 0;
+		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
+		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
 		[Inject] public AdditionalCommandService AdditionalCommandService { get; set; }
 		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
@@ -63,22 +63,22 @@ namespace VoiceLauncherBlazor.Pages
 			if (QueryHelpers.ParseQuery(query).TryGetValue("language", out var languageName))
 			{
 				var language = await LanguageService.GetLanguageAsync(languageName);
-				languageIdFilter = language?.Id;
+				LanguageIdFilter = language?.Id;
 			}
 			if (QueryHelpers.ParseQuery(query).TryGetValue("category", out var categoryName))
 			{
 				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
-				categoryIdFilter = category?.Id;
+				CategoryIdFilter = category?.Id;
 			}
-			if (categoryIdFilter != null && languageIdFilter != null)
+			if (CategoryIdFilter != null && LanguageIdFilter != null)
 			{
 				await FilterByLanguageAndCategory();
 			}
-			else if (categoryIdFilter != null)
+			else if (CategoryIdFilter != null)
 			{
 				await FilterByCategory();
 			}
-			else if (languageIdFilter != null)
+			else if (LanguageIdFilter != null)
 			{
 				await FilterByLanguage();
 			}
@@ -127,7 +127,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			try
 			{
-				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, column, sortType, categoryIdFilter, languageIdFilter, maximumRows: MaximumRows);
+				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, column, sortType, CategoryIdFilter, LanguageIdFilter, maximumRows: MaximumRows);
 			}
 			catch (Exception exception)
 			{
@@ -178,7 +178,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			try
 			{
-				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, categoryIdFilter,languageIdFilter, maximumRows: MaximumRows);
+				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, CategoryIdFilter,LanguageIdFilter, maximumRows: MaximumRows);
 			}
 			catch (Exception exception)
 			{
@@ -190,7 +190,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			try
 			{
-				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, categoryIdFilter, maximumRows: MaximumRows);
+				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, CategoryIdFilter, maximumRows: MaximumRows);
 			}
 			catch (Exception exception)
 			{
@@ -202,7 +202,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			try
 			{
-				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, null, languageIdFilter, maximumRows: MaximumRows);
+				intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(null, null, null, null, LanguageIdFilter, maximumRows: MaximumRows);
 			}
 			catch (Exception exception)
 			{
@@ -213,19 +213,19 @@ namespace VoiceLauncherBlazor.Pages
 		private void CreateNew()
 		{
 			// By default set the language and category defaults to whatever is filtered
-			if (languageIdFilter!= null  && categoryIdFilter!= null )
+			if (LanguageIdFilter!= null  && CategoryIdFilter!= null )
 			{
-				NavigationManager.NavigateTo($"/intellisense?languageId={languageIdFilter}&categoryId={categoryIdFilter}");
+				NavigationManager.NavigateTo($"/intellisense?languageId={LanguageIdFilter}&categoryId={CategoryIdFilter}");
 				return;
 			}
-			if (languageIdFilter!= null)
+			if (LanguageIdFilter!= null)
 			{
-				NavigationManager.NavigateTo($"/intellisense?languageId={languageIdFilter}");
+				NavigationManager.NavigateTo($"/intellisense?languageId={LanguageIdFilter}");
 				return;
 			}
-			if (categoryIdFilter!= null )
+			if (CategoryIdFilter!= null )
 			{
-				NavigationManager.NavigateTo($"/intellisense?categoryId={categoryIdFilter}");
+				NavigationManager.NavigateTo($"/intellisense?categoryId={CategoryIdFilter}");
 				return;
 			}
 
