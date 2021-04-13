@@ -1,0 +1,11 @@
+﻿h6 {
+	color:aqua
+}
+h3,h4 {
+	color:#00AEED
+}
+li {
+	font-size:small;
+	font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+   list-style-type:square
+}
