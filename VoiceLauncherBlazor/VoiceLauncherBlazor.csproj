@@ -18,10 +18,14 @@
 
   <ItemGroup>
     <Content Remove="NuGet.config" />
+    <Content Remove="wwwroot\data\MyKBCommands.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="NuGet.config" />
+    <Resource Include="wwwroot\data\MyKBCommands.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +45,9 @@
 
   <ItemGroup>
     <Content Update="wwwroot\images\VisualStudioLogo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\MyKBCommands.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
