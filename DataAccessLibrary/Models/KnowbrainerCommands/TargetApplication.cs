@@ -21,7 +21,7 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
 		public string WindowTitle { get; set; }
 		public string WindowClass { get; set; }
 		public int KnowbrainerCommands_Id { get; set; }
-		public ICollection<VoiceCommand> VoiceCommands { get; set; }
+		public virtual ICollection<VoiceCommand> VoiceCommands { get; set; }
 
 	}
 }

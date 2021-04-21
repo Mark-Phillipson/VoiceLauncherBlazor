@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLibrary.Models.KnowbrainerCommands
 {
@@ -6,7 +7,7 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
 	{
 		public VoiceCommand()
 		{
-
+			VoiceCommandContents = new HashSet<VoiceCommandContent>();
 		}
 		public int Command_id { get; set; }
 		public string Description { get; set; }
@@ -17,5 +18,6 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
 		public int Commands_id { get; set; }
 		[Display(Name = "Target Application")]
 		public TargetApplication TargetApplication { get; set; }
+		public virtual ICollection<VoiceCommandContent> VoiceCommandContents { get; set; }
 	}
 }
