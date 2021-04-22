@@ -87,7 +87,7 @@ namespace DataAccessLibrary.Services
 			}
 			if (filename== null )
 			{
-
+				filename = @"%HOME%\site\wwwroot\MyKBCommandNewCommands.xml";
 			}
 			FileManagement.LoadXMLDocument(filename, dataSet);
 			return dataSet;

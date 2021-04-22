@@ -47,9 +47,6 @@
     <Content Update="wwwroot\images\VisualStudioLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\MyKBCommands.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>
