@@ -1,0 +1,120 @@
+@page "/commandsetoverview"
+@inject IJSRuntime JSRuntime
+@using VoiceLauncherBlazor.Components
+<div class="form-inline">
+	<div style="margin:4px">
+		<h6>@Title</h6>
+	</div>
+	<div style="margin:4px">	<label class="control-label">Show</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
+	</div>
+	<div style="margin:4px">	<label class="control-label">Show Lists</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
+	</div>
+	<div style="margin:4px">	<label class="control-label">Show Code</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control" @bind="@ShowCode" title="Hide Code Only" />
+	</div>
+	<div style="margin:4px">
+		<input @ref="SearchInput" class="form-control m-1" style="float:right" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by command name" />
+	</div>
+	<div style="margin:4px">
+		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Filter by Applications" />
+	</div>
+</div>
+
+@if (FilteredTargetApplications == null && _loadFailed == true)
+{
+	<h1 class="text-danger">The data failed to load please try again in a little while..</h1>
+	<h6>@ExceptionMessage</h6>
+}
+else if (FilteredTargetApplications == null)
+{
+	<div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredTargetApplications.Count == 0)
+{
+	<p>No Commands/scripts Found.</p>
+}
+else
+{
+	<table class="table table-responsive-sm table-dark table-condensed table-bordered table-sm" id="tableTargetApplications">
+		<thead>
+			<tr>
+				<th style="max-width:200px">Application/Global</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var targetApplication in FilteredTargetApplications.OrderBy(a => a.ModuleDescription))
+			{
+				<tr>
+					<td>
+						<span>Description @targetApplication.ModuleDescription | </span>
+						<span>Module @targetApplication.Module | </span>
+						<span>Scope @targetApplication.Scope | </span>
+						<span>Company @targetApplication.Company</span>
+						@if (targetApplication.WindowTitle != null)
+						{
+							<span> | Window Title @targetApplication.WindowTitle</span>
+						}
+						@if (targetApplication.WindowClass != null)
+						{
+							<span> | Window Class @targetApplication.WindowClass</span>
+						}
+					</td>
+				</tr>
+				<tr>
+					@if (ShowCommands)
+					{
+						@*<table class="table table-bordered table-striped table-condensed table-sm" id="tableCommands">
+							<thead>*@
+						<table style="background-color:slategrey">
+							<tr>
+								<th colspan="3">
+									Command Name
+								</th>
+								<th>
+									Description
+								</th>
+								<th>
+									Group
+								</th>
+								<th>
+									Enabled?
+								</th>
+							</tr>
+							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
+							@foreach (var voiceCommand in targetApplication.VoiceCommands.Where(v => v.Name.ToLower().Contains(SearchTerm.ToLower())).OrderBy(a => a.Name))
+							{
+								<tr>
+									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">
+										@voiceCommand.Name
+									</td>
+									<td>
+										@voiceCommand.Description
+									</td>
+									<td>
+										@voiceCommand.Group
+									</td>
+									<td>
+										@voiceCommand.Enabled
+									</td>
+								</tr>
+								@if (ShowLists)
+								{
+									<VoiceCommandListComponent CommandSet="@CommandSet" VoiceCommand="@voiceCommand" Show="@ShowLists" />
+								}
+								@if (ShowCode)
+								{
+									<VoiceCommandContentComponent VoiceCommandContent="@voiceCommand.VoiceCommandContents.FirstOrDefault()" />
+								}
+							}
+						</table>
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
+}

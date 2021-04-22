@@ -33,6 +33,11 @@ namespace DataAccessLibrary.Services
 			var results = new List<TargetApplication>();
 			foreach (var targetApplication in targetApplications)
 			{
+				if (targetApplication.Scope == "global")
+				{
+					targetApplication.ModuleDescription = "*GLOBAL*";
+					targetApplication.Module = "*GLOBAL*";
+				}
 				var voiceCommands = GetVoiceCommands(targetApplication);
 				targetApplication.VoiceCommands = voiceCommands;
 				results.Add(targetApplication);
@@ -76,9 +81,13 @@ namespace DataAccessLibrary.Services
 		}
 		private DataSet LoadDataSet(ref string filename)
 		{
-			if (Environment.MachineName == "DESKTOP-UROO8T1" || filename == null)
+			if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null)
 			{
 				filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands - Copy.xml";
+			}
+			if (filename== null )
+			{
+
 			}
 			FileManagement.LoadXMLDocument(filename, dataSet);
 			return dataSet;
@@ -95,7 +104,7 @@ namespace DataAccessLibrary.Services
 			{
 				Command_id = row.Field<int>("Command_Id"),
 				Description = row.Field<string>("description"),
-				Enabled = row.Field<string>("enabled").ToLower() == "yes" ? true : false,
+				Enabled = row.Field<string>("enabled").ToLower() == "true" ? true : false,
 				Group = row.Field<string>("group"),
 				Name = row.Field<string>("name"),
 				Commands_id = row.Field<int>("Commands_Id"),

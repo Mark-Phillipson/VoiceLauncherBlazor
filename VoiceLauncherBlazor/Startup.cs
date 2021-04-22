@@ -41,6 +41,7 @@ namespace VoiceLauncherBlazor
 			services.AddScoped<ITodoData, TodoData>();
 			services.AddScoped<AppointmentService>();
 			services.AddScoped<VisualStudioCommandService>();
+			services.AddScoped<CommandSetService>();
 			services.AddSingleton<NotifierService>();
 		}
 

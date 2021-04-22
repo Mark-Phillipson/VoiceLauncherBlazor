@@ -1,0 +1,15 @@
+﻿<table class="table table-bordered table-dark">
+	<tr>
+		<td>
+			@VoiceCommandContent?.Type
+		</td>
+		<td>
+			<pre>@VoiceCommandContent?.Content</pre>
+		</td>
+		<td>
+			<button class="btn btn-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent.Content) )">Copy</button>
+		</td>
+	</tr>
+</table>
+
+
