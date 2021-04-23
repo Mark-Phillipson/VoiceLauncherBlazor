@@ -145,8 +145,14 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				filename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\MyCommands.xml";
-				// TODO also set up for website access in the root
+				if (Environment.MachineName == "DESKTOP-UROO8T1")
+				{
+					filename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\MyCommands.xml"; 
+				}
+				else
+				{
+					filename = @"D:\home\site\wwwroot\wwwroot\MyCommands.xml";
+				}
 			}
 			try
 			{
@@ -159,9 +165,7 @@ namespace DataAccessLibrary.Services
 			}
 			commandSet.DragonFilename = Path.GetFileName(filename);
 			return dataSetDragon;
-
 		}
-
 		private List<VoiceCommand> GetVoiceCommands(TargetApplication targetApplication, bool isKB)
 		{
 			DataTable table;
