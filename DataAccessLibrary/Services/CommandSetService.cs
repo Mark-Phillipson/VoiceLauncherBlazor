@@ -10,11 +10,12 @@ namespace DataAccessLibrary.Services
 	public class CommandSetService
 	{
 		readonly DataSet dataSet = new DataSet();
-		public CommandSetService(string filename = null)
+		readonly CommandSet commandSet = new CommandSet();
+		public CommandSetService(string filename = null,bool viewNew=false)
 		{
-			dataSet = LoadDataSet(ref filename);
+			dataSet = LoadDataSet(ref filename,viewNew);
 		}
-		public CommandSet GetCommandSet(string filename = null)
+		public CommandSet GetCommandSet()
 		{
 			DataTable table = dataSet.Tables[1];
 			List<TargetApplication> targetApplications = table.AsEnumerable().Select(row =>
@@ -42,7 +43,6 @@ namespace DataAccessLibrary.Services
 				targetApplication.VoiceCommands = voiceCommands;
 				results.Add(targetApplication);
 			}
-			CommandSet commandSet = new CommandSet();
 			commandSet.TargetApplications = results;
 			commandSet.SpeechLists = GetSpeechLists();
 			return commandSet;
@@ -79,17 +79,34 @@ namespace DataAccessLibrary.Services
 			).ToList();
 			return listValues;
 		}
-		private DataSet LoadDataSet(ref string filename)
+		private DataSet LoadDataSet(ref string filename,bool viewNew=false)
 		{
-			if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null)
+
+			if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null && viewNew==false)
 			{
-				filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands - Copy.xml";
+				filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml";
 			}
-			if (filename== null )
+			if (Environment.MachineName== "DESKTOP-UROO8T1" && filename== null  && viewNew==true)
 			{
-				filename = @"%HOME%\site\wwwroot\MyKBCommandNewCommands.xml";
+				filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommandsNewCommands.xml";
 			}
-			FileManagement.LoadXMLDocument(filename, dataSet);
+			if (filename== null  && viewNew)
+			{
+				filename = @"D:\home\site\wwwroot\wwwroot\MyKBCommandsNewCommands.xml";
+			}
+			if (filename== null  && viewNew==false)
+			{
+				filename = @"D:\home\site\wwwroot\wwwroot\MyKBCommands.xml";
+			}
+			try
+			{
+				FileManagement.LoadXMLDocument(filename, dataSet);
+			}
+			catch (Exception exception)
+			{
+				throw new Exception($"There was a problem finding the XML file {filename} {exception.Message}");
+			}
+			commandSet.Filename = filename;
 			return dataSet;
 		}
 

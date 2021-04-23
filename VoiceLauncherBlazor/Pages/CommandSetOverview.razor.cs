@@ -13,11 +13,12 @@ namespace VoiceLauncherBlazor.Pages
 {
 	public partial class CommandSetOverview
 	{
-		[Inject] public CommandSetService CommandSetService { get; set; }
+		 public CommandSetService CommandSetService { get; set; }
 		[Inject] NavigationManager NavigationManager { get; set; }
 		[Inject] public ILogger<CommandSetOverview> Logger { get; set; }
 		[Inject] public IToastService ToastService { get; set; }
 		[CascadingParameter] public IModalService Modal { get; set; }
+		public bool ViewNew { get; set; } = false;
 		public bool ShowCommands { get; set; } = true;
 		public bool ShowLists { get; set; } = false;
 		public string Title { get; set; } = "Command Set";
@@ -65,6 +66,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			try
 			{
+				CommandSetService = new CommandSetService(null, ViewNew);
 				CommandSet = CommandSetService.GetCommandSet();
 			}
 			catch (Exception e)
@@ -76,7 +78,10 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			TargetApplications = CommandSet.TargetApplications;
 			FilteredTargetApplications = TargetApplications;
-			SearchTerm = "Add Method";
+			if (string.IsNullOrWhiteSpace(SearchTerm))
+			{
+				SearchTerm = "Add Method";
+			}
 			ApplyFilter();
 		}
 		private void ApplyFilter()
@@ -117,6 +122,12 @@ namespace VoiceLauncherBlazor.Pages
 		public void CommandDrillDown(string name)
 		{
 			SearchTerm = name;
+		}
+		public void ToggleScriptFile()
+		{
+			ViewNew = !ViewNew;
+			CommandSet = null;
+			LoadData();
 		}
 	}
 }
