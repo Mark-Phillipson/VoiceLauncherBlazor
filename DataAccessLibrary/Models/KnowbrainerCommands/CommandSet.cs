@@ -10,6 +10,7 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
     {
 		public virtual List<TargetApplication> TargetApplications { get; set; }
 		public virtual List<SpeechList> SpeechLists { get; set; }
-		public string Filename { get; set; }
+		public string KBFilename { get; set; }
+		public string DragonFilename { get; set; }
 	}
 }

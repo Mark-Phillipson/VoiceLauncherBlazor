@@ -6,5 +6,6 @@
 		public VoiceCommand VoiceCommand { get; set; }
 		public string Type { get; set; }
 		public string Content { get; set; }
+		public string RTF { get; set; }
 	}
 }

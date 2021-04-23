@@ -14,6 +14,7 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
 		public string Name { get; set; }
 		public string Group { get; set; }
 		public bool Enabled { get; set; }
+		public string States { get; set; }
 		[Display(Name = "Target Application")]
 		public int Commands_id { get; set; }
 		[Display(Name = "Target Application")]

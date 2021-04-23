@@ -88,7 +88,7 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
-				FilteredTargetApplications = TargetApplications.OrderBy(v => v.Module).Take(4).ToList();
+				FilteredTargetApplications = TargetApplications.OrderBy(v => v.Module).ToList();
 				Title = $"All Applications ({FilteredTargetApplications.Count})";
 			}
 			else
@@ -96,7 +96,6 @@ namespace VoiceLauncherBlazor.Pages
 				var searchTermRevised = SearchTerm.Trim().ToLower();
 					FilteredTargetApplications = TargetApplications
 						.Where(v => (v.VoiceCommands.Any(c => c.Name.ToLower().Contains(searchTermRevised))))
-						.Take(4)
 						.ToList();
 
 			}

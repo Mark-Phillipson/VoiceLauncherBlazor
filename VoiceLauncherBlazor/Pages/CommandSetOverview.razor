@@ -3,7 +3,7 @@
 @using VoiceLauncherBlazor.Components
 
 <div style="margin:4px">
-	<h6>@Title / @CommandSet?.Filename</h6>
+	<h6>@Title / KnowBrainer: @CommandSet?.KBFilename / Dragon: @CommandSet?.DragonFilename</h6>
 </div>
 <div class="form-inline">
 	<div style="margin:4px">	<label class="control-label">Show</label></div>
@@ -56,6 +56,7 @@ else
 			{
 				<tr>
 					<td>
+						<span>Source @targetApplication.CommandSource | </span>
 						<span>Description @targetApplication.ModuleDescription | </span>
 						<span>Module @targetApplication.Module | </span>
 						<span>Scope @targetApplication.Scope | </span>
