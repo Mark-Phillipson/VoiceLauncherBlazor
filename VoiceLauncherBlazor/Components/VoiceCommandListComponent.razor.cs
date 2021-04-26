@@ -13,18 +13,25 @@ namespace VoiceLauncherBlazor.Components
 		protected override void OnParametersSet()
 		{
 			var name = VoiceCommand.Name;
+			var startCharacter = "<";
+			var endCharacter = ">";
+			if (VoiceCommand.TargetApplication.CommandSource == "Dragon")
+			{
+				startCharacter = "[";
+				endCharacter = "]";
+			}
 			ListNames = new List<string>();
-			if (name.Contains("<") && name.Contains(">"))
+			if (name.Contains(startCharacter) && name.Contains(endCharacter) )
 			{
 				do
 				{
-					var position1 = name.IndexOf("<");
-					var position2 = name.IndexOf(">");
+					var position1 = name.IndexOf(startCharacter);
+					var position2 = name.IndexOf(endCharacter);
 					position1++;
 					var listName = name.Substring(position1, position2 - position1);
 					ListNames.Add(listName);
 					name = name.Substring(position2 + 1);
-				} while (name.Contains("<") && name.Contains(">"));
+				} while (name.Contains(startCharacter) && name.Contains(endCharacter));
 			}
 		}
 	}

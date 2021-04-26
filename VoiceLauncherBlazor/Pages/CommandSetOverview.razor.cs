@@ -18,11 +18,11 @@ namespace VoiceLauncherBlazor.Pages
 		[Inject] public ILogger<CommandSetOverview> Logger { get; set; }
 		[Inject] public IToastService ToastService { get; set; }
 		[CascadingParameter] public IModalService Modal { get; set; }
-		public bool ViewNew { get; set; } = false;
+		public bool ViewNew { get; set; } = true;
 		public bool ShowCommands { get; set; } = true;
 		public bool ShowLists { get; set; } = false;
 		public string Title { get; set; } = "Command Set";
-		private string searchTerm="Add Method";
+		private string searchTerm="Delete";
 		public string SearchTerm 
 		{ get => searchTerm; 
 			set {
@@ -32,7 +32,7 @@ namespace VoiceLauncherBlazor.Pages
 				}
 				else
 				{
-					searchTerm = "Add Method"; 
+					searchTerm = "Delete"; 
 				}
 				ApplyFilter(); 
 			} 
@@ -53,6 +53,10 @@ namespace VoiceLauncherBlazor.Pages
 		public bool ShowCode { get; set; } = false;
 		protected override void OnInitialized()
 		{
+			if (Environment.MachineName== "DESKTOP-UROO8T1")
+			{
+				ViewNew = false;
+			}
 			LoadData();
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -80,7 +84,7 @@ namespace VoiceLauncherBlazor.Pages
 			FilteredTargetApplications = TargetApplications;
 			if (string.IsNullOrWhiteSpace(SearchTerm))
 			{
-				SearchTerm = "Add Method";
+				SearchTerm = "Delete";
 			}
 			ApplyFilter();
 		}

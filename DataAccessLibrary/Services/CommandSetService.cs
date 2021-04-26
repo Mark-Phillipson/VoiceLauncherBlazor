@@ -49,7 +49,7 @@ namespace DataAccessLibrary.Services
 				results.Add(targetApplication);
 			}
 			commandSet.TargetApplications = results;
-			commandSet.SpeechLists = GetSpeechLists();
+			commandSet.SpeechLists = GetSpeechLists(true);
 			// Now try Dragon
 			table = dataSetDragon.Tables[1];
 			targetApplications = table.AsEnumerable().Select(row =>
@@ -77,12 +77,20 @@ namespace DataAccessLibrary.Services
 				targetApplication.VoiceCommands = voiceCommands;
 				commandSet.TargetApplications.Add(targetApplication);
 			}
-			// commandSet.SpeechLists = GetSpeechLists();
+			commandSet.SpeechLists.AddRange( GetSpeechLists(false));
 			return commandSet;
 		}
-		List<SpeechList> GetSpeechLists()
+		List<SpeechList> GetSpeechLists(bool isKB)
 		{
-			DataTable table = dataSetKB.Tables[5];
+			DataTable table;
+			if (isKB)
+			{
+				table = dataSetKB.Tables[5];
+			}
+			else
+			{
+				table = dataSetDragon.Tables[9];
+			}
 			List<SpeechList> speechLists = table.AsEnumerable().Select(row =>
 				   new SpeechList
 				   {
@@ -93,25 +101,43 @@ namespace DataAccessLibrary.Services
 			List<SpeechList> results = new List<SpeechList>();
 			foreach (var speechList in speechLists)
 			{
-				speechList.ListValues = GetListValues(speechList);
+				speechList.ListValues = GetListValues(speechList,isKB);
 				results.Add(speechList);
 			}
 			return results;
 		}
-		List<ListValue> GetListValues(SpeechList speechList)
+		List<ListValue> GetListValues(SpeechList speechList,bool isKB)
 		{
-			DataTable table = dataSetKB.Tables[6];
-			List<ListValue> listValues = table.AsEnumerable()
-				.Where(v => v.Field<int>("List_Id") == speechList.List_Id)
-				.Select(row =>
-			   new ListValue
-			   {
-				   List_Id = row.Field<int>("List_Id"),
-				   Value_Text = row.Field<string>("value_Text")
-			   }
-			).ToList();
-			return listValues;
-		}
+			if (isKB)
+			{
+				DataTable table = dataSetKB.Tables[6];
+				List<ListValue> listValues = table.AsEnumerable()
+					.Where(v => v.Field<int>("List_Id") == speechList.List_Id)
+					.Select(row =>
+				   new ListValue
+				   {
+					   List_Id = row.Field<int>("List_Id"),
+					   Value_Text = row.Field<string>("value_Text")
+				   }
+				).ToList();
+				return listValues;
+
+			}
+			else
+			{
+				DataTable table = dataSetDragon.Tables[10];
+				List<ListValue> listValues = table.AsEnumerable()
+					.Where(v => v.Field<int>("List_Id") == speechList.List_Id)
+					.Select(row =>
+				   new ListValue
+				   {
+					   List_Id = row.Field<int>("List_Id"),
+					   Value_Text = row.Field<string>("Value_Text")
+				   }
+				).ToList();
+				return listValues;
+
+			}		}
 		private DataSet LoadDataSet(ref string filename, bool viewNew = false, bool isKB = false)
 		{
 			if (isKB)
