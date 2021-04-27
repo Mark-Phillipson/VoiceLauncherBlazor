@@ -3,6 +3,7 @@ using Blazored.Toast.Services;
 using DataAccessLibrary.Models.KnowbrainerCommands;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -82,6 +83,15 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			TargetApplications = CommandSet.TargetApplications;
 			FilteredTargetApplications = TargetApplications;
+			var query = new Uri(NavigationManager.Uri).Query;
+			if (QueryHelpers.ParseQuery(query).TryGetValue("name", out var name))
+			{
+				SearchTerm = name;
+			}
+			if (QueryHelpers.ParseQuery(query).TryGetValue("application", out var application))
+			{
+				SearchTermApplication = application;
+			}
 			if (string.IsNullOrWhiteSpace(SearchTerm))
 			{
 				SearchTerm = "Delete";
