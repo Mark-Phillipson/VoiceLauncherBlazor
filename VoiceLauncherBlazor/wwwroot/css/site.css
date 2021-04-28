@@ -1,5 +1,4 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
-
 html, body {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -8,10 +7,68 @@ a, .btn-link {
 	color: #0366d6;
 }
 
-.btn-primary {
-	color: #fff;
-	background-color: #1b6ec2;
-	border-color: #1861ac;
+.btn-lg {
+	min-height: 70px;
+	padding: 7px;
+	margin: 4px;
+}
+
+.btn-xl {
+	min-height: 100px;
+	padding: 14px;
+	margin: 4px;
+	font-size: xx-large;
+}
+
+input {
+	color: white;
+	background-color: #252525;
+	border-color: azure;
+}
+
+.blazored-typeahead__result{
+	color: white;
+	background-color: #252525;
+	border-color: azure;
+}
+
+
+.form-control {
+	color: white;
+	background-color: #252525;
+	border-color: azure;
+}
+.form-control-sm {
+	color: white;
+	background-color: #252525;
+	border-color: azure;
+}
+
+	.form-control[readonly] {
+		color: #CCCCCC;
+		background-color: #252525;
+		border-color: azure;
+	}
+	.form-control:disabled {
+		color: #CCCCCC;
+		background-color: #252525;
+		border-color: azure;
+	}
+	.form-control:focus {
+		color: white;
+		background-color: #252525;
+		border-color: #DF0024;
+	}
+
+
+select {
+	color: white;
+	background-color: #252525;
+	border-color: azure;
+}
+
+input:disabled {
+	color: white;
 }
 
 .content {
@@ -204,6 +261,7 @@ a, .btn-link {
 	-webkit-animation: spin 2s linear infinite; /* Safari */
 	animation: spin 2s linear infinite;
 }
+
 @keyframes spin {
 	0% {
 		transform: rotateY(0deg);
@@ -218,17 +276,24 @@ a, .btn-link {
 	-webkit-animation: spin 5s linear alternate; /* Safari */
 	animation: spin 5s linear alternate;
 }
+
 .blazored-modal {
-	color:black;
+	color: black;
 }
 
 .page-background {
 	background-color: azure;
-}header > h3 {
+}
+
+header > h3 {
 	display: inline-block;
 }
 
 #components-reconnect-modal > h5 {
 	background-color: black;
 	color: red
+}
+
+.table-dark {
+	background-color:black;
 }
