@@ -41,43 +41,60 @@
 				[Show/View] <a href="commandsetoverview?name=Bookmark%20Window&application=devenv">Bookmark Window</a> | <a href="commandsetoverview?name=Show%20Error%20List&application=devenv">Show Error List</a> | <a href="commandsetoverview?name=Immediate%20Window&application=devenv">Immediate Window</a> | <a href="commandsetoverview?name=Command%20Window&application=devenv">Command Window</a> | <a href="commandsetoverview?name=Close%20Tool%20Window&application=devenv">Close Tool Window</a> | <a href="commandsetoverview?name=Auto%20Hide&application=devenv">Auto Hide</a>
 			</li>
 			<li>
-				Start Application (Shift+F5) / Press F5 / {Build | Clean} {Project | Solution Confirm}
+				<a @onclick="@(() => FilterCommand("Start Application","devenv"))" class="">Start Application (Shift+F5)</a>
+				/ Press F5 / {
+				<a @onclick="@(() => FilterCommand("Build","devenv"))">Build</a>
+
+				| <a @onclick="@(() => FilterCommand("Clean","devenv"))" class="">Clean</a>
+				} {Project |
+				<a @onclick="@(() => FilterCommand("Solution Confirm","devenv"))" class="">Solution Confirm</a>}
 			</li>
 		</ul>
 		<h6>Creating/Editing</h6>
 		<ul>
 			<li>
-				New Empty File / Add Existing Item / Add New Scaffolding
+				<a href="loading" @onclick="@(() => FilterCommand("New Empty File","devenv"))">New Empty File</a>
+				/ <a href="loading" @onclick="@(() => FilterCommand("Add Existing Item","devenv"))">Add Existing Item</a>
+				/ <a href="loading" @onclick="@(() => FilterCommand("Add New Scaffolding","devenv"))">Add New Scaffolding</a>
 			</li>
 			<li>
-				Move into Brackets/Blank Line
+				<a href="loading" @onclick="@(() => FilterCommand("Move into Brackets","devenv"))">Move into Brackets</a>
+				/<a href="loading" @onclick="@(() => FilterCommand("Move into Blank Line","devenv"))">Blank Line</a>
 			</li>
 			<li>
-				Expand Selection [&lt;#&gt;] / Select Matching [&lt;#&gt;]
+				<a href="loading" @onclick="@(() => FilterCommand("Expand Selection","devenv"))">Expand Selection</a>
+				[&lt;#&gt;] /
+				<a href="loading" @onclick="@(() => FilterCommand("Select Matching","devenv"))">Select Matching</a>
+				[&lt;#&gt;]
 			</li>
 			<li>
-				Add Class &lt;scope&gt; &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Add Class","devenv"))">Add Class</a> &lt;scope&gt; &lt;dictation&gt;
 			</li>
 			<li>
-				Add Method [ &lt;scope&gt; &lt;DataType&gt; ] &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Add Method","devenv"))">Add Method</a> [ &lt;scope&gt; &lt;DataType&gt; ] &lt;dictation&gt;
 			</li>
 			<li>
-				Add { Parameter | Variable } &lt;DataType&gt; &lt;dictation&gt;
+				Add {
+				<a href="loading" @onclick="@(() => FilterCommand("Add Parameter","devenv"))">Parameter</a>
+				| <a href="loading" @onclick="@(() => FilterCommand("Add Variable","devenv"))">Variable</a>
+				} &lt;DataType&gt; &lt;dictation&gt;
 			</li>
 			<li>
-				Add Button &lt;ButtonClass&gt; &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Add Button","devenv"))">Add Button</a> &lt;ButtonClass&gt; &lt;dictation&gt;
 			</li>
 			<li>
-				Add { Label | Link } &lt;dictation&gt;
+				Add { <a href="loading" @onclick="@(() => FilterCommand("Add Label","devenv"))">Label</a>
+				| <a href="loading" @onclick="@(() => FilterCommand("Add Link","devenv"))">Link</a>
+				} &lt;dictation&gt;
 			</li>
 			<li>
-				Add Input &lt;InputType&gt; &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Add Input","devenv"))">Add Input</a> &lt;InputType&gt; &lt;dictation&gt;
 			</li>
 			<li>
-				Generic &lt;GenericsCollection&gt; e.g. Generic I collection
+				<a href="loading" @onclick="@(() => FilterCommand("Generic","global"))">Generic</a> &lt;GenericsCollection&gt; e.g. Generic I collection
 			</li>
 			<li>
-				Quick Actions (Ctrl+.)
+				<a href="loading" @onclick="@(() => FilterCommand("Quick Actions","devenv"))">Quick Actions</a> (Ctrl+.)
 			</li>
 		</ul>
 	</div>
@@ -87,64 +104,70 @@
 		<h6> Search/Create Scripts</h6>
 		<ul>
 			<li>
-				Browse [App Name] Scripts &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Browse ","global"))">Browse</a> [App Name] Scripts &lt;dictation&gt;
 			</li>
 			<li>
-				Dragon Script &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Dragon Script ","global"))">Dragon Script</a> &lt;dictation&gt;
 			</li>
 			<li>
-				New Dragon Scripting Command &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("New Dragon Scripting Command","global"))">New Dragon Scripting Command</a> &lt;dictation&gt;
 			</li>
 			<li>
-				New [ Application | Global | Window ] [ Mouse | Listing ] Command [&lt;dictation&gt;]
+				New [ <a href="loading" @onclick="@(() => FilterCommand("New Application","global"))">Application</a>
+				| <a href="loading" @onclick="@(() => FilterCommand("New Global","global"))">Global</a>
+				| <a href="loading" @onclick="@(() => FilterCommand("New Window","global"))">Window</a>
+				] [ <a href="loading" @onclick="@(() => FilterCommand("New Mouse","global"))">Mouse</a>
+				| <a href="loading" @onclick="@(() => FilterCommand("New Listing ","global"))">Listing</a>
+				] Command [&lt;dictation&gt;]
 			</li>
 		</ul>
 		<h6> Voice Launcher/Custom IntelliSense Database</h6>
 		<ul>
 			<li>
-				Launcher &lt;Categories&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Launcher <launcher_categories>","global"))">Launcher</a> &lt;Categories&gt;
 			</li>
 			<li>
-				Create Custom IntelliSense
+				<a href="loading" @onclick="@(() => FilterCommand("Create Custom IntelliSense","global"))">Create Custom IntelliSense</a>
 			</li>
 			<li>
-				Edit to Do &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Edit to Do","global"))">Edit to Do</a> &lt;dictation&gt;
 			</li>
 			<li>
-				Search Union &lt;dictation&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Search Union","global"))">Search Union</a> &lt;dictation&gt;
 			</li>
 			<li>
-				&lt;Language&gt; &lt;Category&gt; [&lt;dictation&gt;] / Words &lt;dictation&gt;
+				&lt;<a href="loading" @onclick="@(() => FilterCommand("programminglanguage","global"))">Language</a>&gt; &lt;Category&gt; [&lt;dictation&gt;] / 
+					<a href="loading" @onclick="@(() => FilterCommand("<categories> <dictation>","global"))">Words</a> &lt;dictation&gt;
 			</li>
 		</ul>
 		<ul>
 			<li>
-				Modern Mode/Tray Icon Mode
+				<a href="loading" @onclick="@(() => FilterCommand("DragonBar","global"))">Modern Mode/Tray Icon Mode</a>
 			</li>
 			<li>
-				Command Close &lt;Explorer/Word/Excel/Access/Windows Speech&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Command <commands>","global"))">Command Close</a> &lt;Explorer/Word/Excel/Access/Windows Speech&gt;
 			</li>
 			<li>
-				Cycle Open Apps / Switch
+				<a href="loading" @onclick="@(() => FilterCommand("Cycle Open Apps","global"))">Cycle Open Apps</a> /
+				<a href="loading" @onclick="@(() => FilterCommand("Switch","global"))">Switch</a>
 			</li>
 			</ul>
 		<h6> Internet Browsers</h6>
 		<ul>
 			<li>
-				Overlay Hints / Show Hints / Hide Hints [Permanent] / Click &lt;1to200&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("Overlay Hints","msedge"))">Overlay Hints</a>
+				/ <a href="loading" @onclick="@(() => FilterCommand("Show Hints","msedge"))">Show Hints</a>
+				/ <a href="loading" @onclick="@(() => FilterCommand("Hide Hints","msedge"))">Hide Hints</a> [Permanent] / Click &lt;1to200&gt;
 			</li>
 		</ul>
 		<h6> Mouse Control</h6>
 		<ul>
 			<li>
-				{Left | Right | (Double|Right) Click | Touch} &lt;Alpha-Zulu/1-7&gt; &lt;Alpha-Tango&gt;
+				<a href="loading" @onclick="@(() => FilterCommand("<screen>","global"))">{Left | Right | (Double|Right) Click | Touch} &lt;Alpha-Zulu/1-7&gt; &lt;Alpha-Tango&gt;</a>
 			</li>
 			<li>
-				Taskbar | Ribbon | Menu &lt;Alpha-Zulu/1-7&gt; [&lt;1-9&gt;]
+				<a href="loading" @onclick="@(() => FilterCommand("<screenlocation>","global"))">Taskbar | Ribbon | Menu</a> &lt;Alpha-Zulu/1-7&gt; [&lt;1-9&gt;]
 			</li>
 		</ul>
 	</div>
 </div>
-@code {
-
-}
