@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace VoiceLauncherBlazor.Pages
@@ -179,6 +180,5 @@ namespace VoiceLauncherBlazor.Pages
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 			await ApplyFilter();
 		}
-
 	}
 }

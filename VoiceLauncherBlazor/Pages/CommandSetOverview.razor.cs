@@ -69,6 +69,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		void LoadData()
 		{
+			var query = new Uri(NavigationManager.Uri).Query;
+			if (QueryHelpers.ParseQuery(query).TryGetValue("viewnew", out var viewNew))
+			{
+				ViewNew = viewNew.ToString().ToLower() == "true" ? true : false;
+			}
 			try
 			{
 				CommandSetService = new CommandSetService(null, ViewNew);
@@ -83,7 +88,6 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			TargetApplications = CommandSet.TargetApplications;
 			FilteredTargetApplications = TargetApplications;
-			var query = new Uri(NavigationManager.Uri).Query;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("name", out var name))
 			{
 				SearchTerm = name;

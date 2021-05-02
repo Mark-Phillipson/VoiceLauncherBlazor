@@ -53,7 +53,7 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="commandsetoverview">
+			<NavLink class="nav-link" href="loading" @onclick="@(() => LoadScripts())">
 				<span class="oi oi-script" aria-hidden="true"></span> Scripts
 			</NavLink>
 		</li>
@@ -69,15 +69,3 @@
 		</li>
 	</ul>
 </div>
-
-@code {
-	private bool collapseNavMenu = true;
-
-	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-
-	private void ToggleNavMenu()
-	{
-		collapseNavMenu = !collapseNavMenu;
-	}
-}
