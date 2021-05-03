@@ -7,38 +7,74 @@
 		<h6>Navigation</h6>
 		<ul>
 			<li>
-				<a href="commandsetoverview?name=Last&application=devenv">Last</a> [ Edit | Position ] / <a href="commandsetoverview?name=Go%20To%20Containing%20Block&application=devenv">Go To Containing Block</a>
+				<a @onclick="@(() => FilterCommand("Last","devenv"))" class="">Last</a> 
+				[ Edit | Position ] /
+				<a @onclick="@(() => FilterCommand("Go To Containing Block","devenv"))" class="">Go To Containing Block</a>
 			</li>
 			<li>
-				<a href="commandsetoverview?name=Navigation&application=devenv">Navigation Menu</a> Navigate { <a href="commandsetoverview?name=Navigate%20Backwards&application=devenv">Backwards</a> | <a href="commandsetoverview?name=Navigate%20Forwards&application=devenv">Forwards</a> }
+				<a @onclick="@(() => FilterCommand("Navigation","devenv"))" class="">Navigation Menu</a> 
+				Navigate {
+				<a @onclick="@(() => FilterCommand("Navigate Backwards","devenv"))" class="">Backwards</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Forwards","devenv"))" class="">Forwards</a>
+				}
 			</li>
 			<li>
-				<a href="commandsetoverview?name=Navigate%20To&application=devenv">Navigate To</a> [ &lt;dictation&gt; / Navigate <a href="commandsetoverview?name=Navigate%20Blazor%20Component&application=devenv">Blazor Component</a> | <a href="commandsetoverview?name=Navigate%20View%20Model&application=devenv">View Model</a> | <a href="commandsetoverview?name=Navigate%20Controller&application=devenv">Controller</a> | <a href="commandsetoverview?name=Navigate%20Type&application=devenv">Type</a> | <a href="commandsetoverview?name=Navigate%20Members&application=devenv">Members</a> | <a href="commandsetoverview?name=Navigate%20Symbols&application=devenv">Symbols</a> | <a href="commandsetoverview?name=Navigate%20URL&application=devenv">URL</a> | <a href="commandsetoverview?name=Navigate%20Recent%20Files&application=devenv">Recent Files</a> ]
+				<a @onclick="@(() => FilterCommand("Navigate To","devenv"))" class="">Navigate To</a> 
+				[ &lt;dictation&gt; / Navigate
+				<a @onclick="@(() => FilterCommand("Navigate Blazor Component","devenv"))" class="">Blazor Component</a> |
+				<a @onclick="@(() => FilterCommand("Navigate View Model","devenv"))" class="">View Model</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Controller","devenv"))" class="">Controller</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Type","devenv"))" class="">Type</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Members","devenv"))" class="">Members</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Symbols","devenv"))" class="">Symbols</a> |
+				<a @onclick="@(() => FilterCommand("Navigate URL","devenv"))" class="">URL</a> |
+				<a @onclick="@(() => FilterCommand("Navigate Recent Files","devenv"))" class="">Navigate Recent Files</a>
+				]
 			</li>
 			<li>
-				<a href="commandsetoverview?name=Go%20to&application=devenv">Go to</a> [ Definition | Implementation ]
+				<a @onclick="@(() => FilterCommand("Go to","devenv"))" class="">Go to</a>
+				[ Definition | Implementation ]
 			</li>
 			<li>
-				Following / Previous { <a href="commandsetoverview?name=Issue&application=devenv">Issue</a> | <a href="commandsetoverview?name=Highlight&application=devenv">Highlight</a> | <a href="commandsetoverview?name=Bookmark&application=devenv">Bookmark</a> | <a href="commandsetoverview?name=Method&application=devenv">Method</a> }
+				Following / Previous {
+				<a @onclick="@(() => FilterCommand("Issue","devenv"))" class="">Issue</a> |
+				<a @onclick="@(() => FilterCommand("Highlight","devenv"))" class="">Highlight</a> |
+				<a @onclick="@(() => FilterCommand("Bookmark","devenv"))" class="">Bookmark</a> |
+				<a @onclick="@(() => FilterCommand("Method","devenv"))" class="">Method</a>
+				}
 			</li>
 			<li>
-				{Drop | Swap | Collect} <a href="commandsetoverview?name=Marker&application=devenv">Marker</a> (CodeRush only)
+				{Drop | Swap | Collect}
+				<a @onclick="@(() => FilterCommand("Marker","devenv"))" class="">Marker</a>
+				(CodeRush only)
 			</li>
 			<li>
-				<a href="commandsetoverview?name=Jump%20to&application=devenv">Jump to</a> [Symbol | File] / [Next | Previous] <a href="commandsetoverview?name=Tab&application=devenv">Tab</a>
+				<a @onclick="@(() => FilterCommand("Jump to","devenv"))" class="">Jump to</a>
+				[Symbol | File] / [Next | Previous]
+				<a @onclick="@(() => FilterCommand("Tab","devenv"))" class="">Tab</a>
 			</li>
 			<li>
-				<a href="commandsetoverview?name=Search%20Code%20Location&application=devenv">Search Code Location</a>
+				<a @onclick="@(() => FilterCommand("Search Code Location","devenv"))" class="">Search Code Location</a>
 			</li>
 
 		</ul>
 		<h6> Debugging</h6>
 		<ul>
 			<li>
-				Toggle { <a href="commandsetoverview?name=Toggle%20Bookmark&application=devenv">Bookmark</a> | <a href="commandsetoverview?name=Toggle%20Breakpoint&application=devenv">Breakpoint</a>}
+				Toggle {
+				<a @onclick="@(() => FilterCommand("Toggle Bookmark","devenv"))" class="">Toggle Bookmark</a> |
+				<a @onclick="@(() => FilterCommand("Breakpoint","devenv"))" class="">Breakpoint</a> }
 			</li>
 			<li>
-				[Show/View] <a href="commandsetoverview?name=Bookmark%20Window&application=devenv">Bookmark Window</a> | <a href="commandsetoverview?name=Show%20Error%20List&application=devenv">Show Error List</a> | <a href="commandsetoverview?name=Immediate%20Window&application=devenv">Immediate Window</a> | <a href="commandsetoverview?name=Command%20Window&application=devenv">Command Window</a> | <a href="commandsetoverview?name=Close%20Tool%20Window&application=devenv">Close Tool Window</a> | <a href="commandsetoverview?name=Auto%20Hide&application=devenv">Auto Hide</a>
+				[Show/View]  |
+				<a @onclick="@(() => FilterCommand("Bookmark Window","devenv"))" class="">Bookmark Window</a> |
+				<a @onclick="@(() => FilterCommand("Show Error List","devenv"))" class="">Show Error List</a> |
+
+				<a @onclick="@(() => FilterCommand("Immediate Window","devenv"))" class="">Immediate Window</a> |
+
+				<a @onclick="@(() => FilterCommand("Command Window","devenv"))" class="">Command Window</a> |
+				<a @onclick="@(() => FilterCommand("Close Tool Window","devenv"))" class="">Close Tool Window</a> |
+				<a @onclick="@(() => FilterCommand("Auto Hide","devenv"))" class="">Auto Hide</a>
 			</li>
 			<li>
 				<a @onclick="@(() => FilterCommand("Start Application","devenv"))" class="">Start Application (Shift+F5)</a>

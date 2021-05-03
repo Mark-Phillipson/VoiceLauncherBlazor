@@ -10,7 +10,7 @@ namespace VoiceLauncherBlazor.Pages
 		void FilterCommand(string commandToFilter,string applicationToFilter="devenv")
 		{
 			commandToFilter = commandToFilter.Replace(" ", "%20");
-			NavigationManager.NavigateTo($"commandsetoverview?name={commandToFilter}&application={applicationToFilter}");
+			NavigationManager.NavigateTo($"commandsetoverview?name={commandToFilter}&application={applicationToFilter}&viewnew=false");
 		}
 	}
 }
