@@ -17,8 +17,8 @@ namespace DataAccessLibrary.Services
 		readonly CommandSet commandSet = new CommandSet();
 		public CommandSetService(string filename = null, bool viewNew = false)
 		{
-			dataSetKB = LoadDataSet(ref filename, viewNew, true);
-			dataSetDragon = LoadDataSet(ref filename, viewNew, false);
+			dataSetKB = LoadDataSet(filename, viewNew, true);
+			dataSetDragon = LoadDataSet(null, viewNew, false);
 		}
 		public CommandSet GetCommandSet()
 		{
@@ -138,7 +138,7 @@ namespace DataAccessLibrary.Services
 				return listValues;
 
 			}		}
-		private DataSet LoadDataSet(ref string filename, bool viewNew = false, bool isKB = false)
+		private DataSet LoadDataSet(string filename, bool viewNew = false, bool isKB = false)
 		{
 			if (isKB)
 			{

@@ -17774,27 +17774,6 @@ SendKeys "%{Down}"
 End Sub
 ]]></content>
     </Command>
-    <Command name="Create Custom IntelliSense" group="" enabled="true">
-      <description></description>
-      <content type="WinWrap Basic"><![CDATA[Sub Main
-
-DIM backup as String
-on error resume next
-backup=Clipboard
-SendKeys "^c"
-DIM value as String
-value=Clipboard
-
-   ' strCommandLine="C:\Users\MPhil\source\repos\SpeechRecognitionHelpers\VoiceLauncher\bin\Release\VoiceLauncher.exe"
-     '       strCommandLine =    strCommandLine & " "  & Chr(34)  & "/ " &  "Add New" & CHR(34)  & " " & Chr(34) &   " / " &  value  & Chr(34)
-strCommandLine="https://localhost:5001/intellisense"
-ShellExecute strCommandLine
-            ' Shell(strCommandLine,vbNormalFocus)
-Clipboard (backup)
-
-End Sub
-]]></content>
-    </Command>
     <Command name="Force &lt;dictation&gt;" group="" enabled="true">
       <description>Used to force dictation into any field you can type into</description>
       <content type="WinWrap Basic"><![CDATA[Sub Main
@@ -19372,6 +19351,27 @@ Function FileExists(FileName As String)
 
 
 End Function
+]]></content>
+    </Command>
+    <Command name="Create Custom IntelliSense" group="" enabled="true">
+      <description></description>
+      <content type="WinWrap Basic"><![CDATA[Sub Main
+
+DIM backup as String
+on error resume next
+backup=Clipboard
+SendKeys "^c"
+DIM value as String
+value=Clipboard
+
+   ' strCommandLine="C:\Users\MPhil\source\repos\SpeechRecognitionHelpers\VoiceLauncher\bin\Release\VoiceLauncher.exe"
+     '       strCommandLine =    strCommandLine & " "  & Chr(34)  & "/ " &  "Add New" & CHR(34)  & " " & Chr(34) &   " / " &  value  & Chr(34)
+strCommandLine="https://localhost:5667/intellisense"
+ShellExecute strCommandLine
+            ' Shell(strCommandLine,vbNormalFocus)
+Clipboard (backup)
+
+End Sub
 ]]></content>
     </Command>
   </Commands>
@@ -43705,6 +43705,13 @@ End Sub
       <description></description>
       <content type="WinWrap Basic"><![CDATA[Sub Main
 SendKeys "{F7}"
+End Sub
+]]></content>
+    </Command>
+    <Command name="Restart Application" group="" enabled="true">
+      <description></description>
+      <content type="WinWrap Basic"><![CDATA[Sub Main
+SendKeys "^+{F5}"
 End Sub
 ]]></content>
     </Command>
