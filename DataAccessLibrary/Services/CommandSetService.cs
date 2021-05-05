@@ -15,10 +15,10 @@ namespace DataAccessLibrary.Services
 		readonly DataSet dataSetDragon = new DataSet();
 		XElement MyCommands = null;
 		readonly CommandSet commandSet = new CommandSet();
-		public CommandSetService(string filename = null, bool viewNew = false)
+		public CommandSetService(string knowbrainerScriptFileName = null, string dragonScriptFileName = null, bool viewNew = false)
 		{
-			dataSetKB = LoadDataSet(filename, viewNew, true);
-			dataSetDragon = LoadDataSet(null, viewNew, false);
+			dataSetKB = LoadDataSet(knowbrainerScriptFileName, viewNew, true);
+			dataSetDragon = LoadDataSet(dragonScriptFileName, viewNew, false);
 		}
 		public CommandSet GetCommandSet()
 		{
@@ -52,6 +52,7 @@ namespace DataAccessLibrary.Services
 			commandSet.SpeechLists = GetSpeechLists(true);
 			// Now try Dragon
 			table = dataSetDragon.Tables[1];
+			DataColumnCollection dataColumnCollection = table.Columns;
 			targetApplications = table.AsEnumerable().Select(row =>
 			new TargetApplication
 			{
@@ -60,8 +61,8 @@ namespace DataAccessLibrary.Services
 				Company = row.Field<string>("company"),
 				Module = row.Field<string>("module"),
 				ModuleDescription = row.Field<string>("description"),
-				WindowClass = row.Field<string>("class"),
-				WindowTitle = row.Field<string>("caption"),
+				WindowClass = dataColumnCollection.Contains("class") ? row.Field<string>("class") : null,
+				WindowTitle = dataColumnCollection.Contains("caption") ? row.Field<string>("caption") : null,
 				CommandSource = "Dragon",
 				KnowbrainerCommands_Id = row.Field<int>("MyCommands_Id")
 			}
@@ -77,7 +78,11 @@ namespace DataAccessLibrary.Services
 				targetApplication.VoiceCommands = voiceCommands;
 				commandSet.TargetApplications.Add(targetApplication);
 			}
-			commandSet.SpeechLists.AddRange( GetSpeechLists(false));
+			var speechLists = GetSpeechLists(false);
+			if (speechLists!= null)
+			{
+				commandSet.SpeechLists.AddRange(speechLists); 
+			}
 			return commandSet;
 		}
 		List<SpeechList> GetSpeechLists(bool isKB)
@@ -89,7 +94,14 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				table = dataSetDragon.Tables[9];
+				table = dataSetDragon.Tables["List"];
+				//if (dataSetDragon.Tables.Count>=9)
+				//{
+				//}
+				//else
+				//{
+				//	return null; 
+				//}
 			}
 			List<SpeechList> speechLists = table.AsEnumerable().Select(row =>
 				   new SpeechList
@@ -101,12 +113,12 @@ namespace DataAccessLibrary.Services
 			List<SpeechList> results = new List<SpeechList>();
 			foreach (var speechList in speechLists)
 			{
-				speechList.ListValues = GetListValues(speechList,isKB);
+				speechList.ListValues = GetListValues(speechList, isKB);
 				results.Add(speechList);
 			}
 			return results;
 		}
-		List<ListValue> GetListValues(SpeechList speechList,bool isKB)
+		List<ListValue> GetListValues(SpeechList speechList, bool isKB)
 		{
 			if (isKB)
 			{
@@ -125,7 +137,7 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				DataTable table = dataSetDragon.Tables[10];
+				DataTable table = dataSetDragon.Tables["Value"];
 				List<ListValue> listValues = table.AsEnumerable()
 					.Where(v => v.Field<int>("List_Id") == speechList.List_Id)
 					.Select(row =>
@@ -137,7 +149,8 @@ namespace DataAccessLibrary.Services
 				).ToList();
 				return listValues;
 
-			}		}
+			}
+		}
 		private DataSet LoadDataSet(string filename, bool viewNew = false, bool isKB = false)
 		{
 			if (isKB)
@@ -171,11 +184,11 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				if (Environment.MachineName == "DESKTOP-UROO8T1")
+				if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null)
 				{
-					filename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\MyCommands.xml"; 
+					filename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\MyCommands.xml";
 				}
-				else
+				else if (filename == null)
 				{
 					filename = @"D:\home\site\wwwroot\wwwroot\MyCommands.xml";
 				}
@@ -255,13 +268,17 @@ namespace DataAccessLibrary.Services
 			{
 				table = dataSetDragon.Tables[3];
 				var result = from elements in MyCommands.Descendants("Commands").Descendants("Command")
-							 where (string)elements.Attribute("name") == voiceCommand.Name 
-							 //&& (string)elements.Descendants("contents").Attributes("type") == "SCRIPT"
+							 where (string)elements.Attribute("name") == voiceCommand.Name
 							 select (string)elements.Descendants("contents").FirstOrDefault();
+
+				var type = from elements in MyCommands.Descendants("Commands").Descendants("Command")
+							 where (string)elements.Attribute("name") == voiceCommand.Name
+							 select elements.Descendants("contents").Attributes("type");
 
 				var value = result.FirstOrDefault();
 				VoiceCommandContent voiceCommandContent = new VoiceCommandContent();
 				voiceCommandContent.Content = value;
+				voiceCommandContent.Type =  type.FirstOrDefault().FirstOrDefault().Value ;
 				var returnValue = new List<VoiceCommandContent>();
 				returnValue.Add(voiceCommandContent);
 				return returnValue;

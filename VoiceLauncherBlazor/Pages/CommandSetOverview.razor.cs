@@ -20,33 +20,46 @@ namespace VoiceLauncherBlazor.Pages
 		public CommandSetService CommandSetService { get; set; }
 		[Inject] NavigationManager NavigationManager { get; set; }
 		[Inject] public ILogger<CommandSetOverview> Logger { get; set; }
-		[Inject] IWebHostEnvironment webHostEnvironment { get; set; }
+		[Inject] IWebHostEnvironment WebHostEnvironment { get; set; }
 		[Inject] public IToastService ToastService { get; set; }
 		[CascadingParameter] public IModalService Modal { get; set; }
 		public bool ViewNew { get; set; } = true;
 		public bool ShowCommands { get; set; } = true;
 		public bool ShowLists { get; set; } = false;
 		public string Title { get; set; } = "Command Set";
-		private string searchTerm = "Delete";
+		private string searchTerm =  null;
 		public string SearchTerm
 		{
 			get => searchTerm;
 			set
 			{
-				if (!string.IsNullOrWhiteSpace(value))
+				searchTerm = value;
+				if (!string.IsNullOrWhiteSpace(searchTerm) || !string.IsNullOrWhiteSpace(SearchTermApplication))
 				{
-					searchTerm = value;
+					ApplyFilter();
 				}
 				else
 				{
-					searchTerm = "Delete";
+					FilteredTargetApplications = null; 
 				}
-				ApplyFilter();
 			}
 		}
 		private string searchTermApplication;
-		public string SearchTermApplication { get => searchTermApplication; set { searchTermApplication = value; ApplyFilter(); } }
-
+		public string SearchTermApplication { 
+			get => searchTermApplication; 
+			set { 
+				searchTermApplication = value;
+				if (!string.IsNullOrWhiteSpace(searchTermApplication) || !string.IsNullOrWhiteSpace(SearchTerm))
+				{
+					ApplyFilter(); 
+				}
+				else
+				{
+					FilteredTargetApplications = null; 
+				}
+			} 
+		}
+		public bool IsKnowbrainer { get; set; } = true;
 		public CommandSet CommandSet { get; set; }
 		public List<TargetApplication> TargetApplications { get; set; }
 		public List<TargetApplication> FilteredTargetApplications { get; set; }
@@ -73,7 +86,7 @@ namespace VoiceLauncherBlazor.Pages
 				await SearchInput.FocusAsync();
 			}
 		}
-		void LoadData(string clientScriptFile= null )
+		void LoadData(string knowbrainerScriptFileName= null,string dragonScriptFileName= null )
 		{
 			var query = new Uri(NavigationManager.Uri).Query;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("viewnew", out var viewNew))
@@ -82,7 +95,7 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			try
 			{
-				CommandSetService = new CommandSetService(clientScriptFile, ViewNew);
+				CommandSetService = new CommandSetService(knowbrainerScriptFileName, dragonScriptFileName , ViewNew);
 				CommandSet = CommandSetService.GetCommandSet();
 			}
 			catch (Exception e)
@@ -102,11 +115,14 @@ namespace VoiceLauncherBlazor.Pages
 			{
 				SearchTermApplication = application;
 			}
-			if (string.IsNullOrWhiteSpace(SearchTerm))
+			if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(SearchTermApplication))
 			{
-				SearchTerm = "Delete";
+				ApplyFilter();
 			}
-			ApplyFilter();
+			else
+			{
+				FilteredTargetApplications = null; 
+			}
 		}
 		private void ApplyFilter()
 		{
@@ -157,12 +173,23 @@ namespace VoiceLauncherBlazor.Pages
 			long maxFileSize=1024* 2048;
 			var file = arguments.File;
 			var reader = file.OpenReadStream(maxFileSize);
-			var path = $"{webHostEnvironment.WebRootPath}\\{file.Name}";
+			var path = $"{WebHostEnvironment.WebRootPath}\\{file.Name}";
 			FileStream fileStream = File.Create(path);
 			await reader.CopyToAsync(fileStream);
 			reader.Close();
 			fileStream.Close();
-			LoadData(path);
+			if (IsKnowbrainer)
+			{
+				LoadData(path);
+			}
+			else
+			{
+				LoadData( null ,path); 
+			}
+		}
+		void SetImportFlag(bool isKnowbrainer)
+		{
+			IsKnowbrainer = isKnowbrainer;
 		}
 	}
 }

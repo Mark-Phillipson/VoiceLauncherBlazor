@@ -28137,15 +28137,6 @@ SendKeys "m"
 End Sub
 ]]></content>
     </Command>
-    <Command name="A" group="" enabled="true">
-      <description></description>
-      <content type="WinWrap Basic"><![CDATA[Sub Main
-SetMousePosition 1,408,220
-Wait 0.1
-ButtonClick 1,1
-End Sub
-]]></content>
-    </Command>
     <Command name="Select Function" group="" enabled="true">
       <description></description>
       <content type="WinWrap Basic"><![CDATA[Sub Main

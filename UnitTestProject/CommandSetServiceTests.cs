@@ -9,9 +9,17 @@ namespace UnitTestProject
 	public class CommandSetServiceTests
 	{
 		[TestMethod]
-		public void GetCommandSetTest()
+		public void GetCommandSetTestDragonScripts()
 		{
-			CommandSetService commandSetService = new CommandSetService();
+			CommandSetService commandSetService = new CommandSetService( null , @"C:\Users\MPhil\OneDrive\Documents\Productivity.xml",true);
+			var result=commandSetService.GetCommandSet();
+			Assert.IsTrue(result.TargetApplications.Count>0);
+			Assert.IsTrue(result.SpeechLists.Count>0);
+		}
+		[TestMethod]
+		public void GetCommandSetTestKnowBrainerScripts()
+		{
+			CommandSetService commandSetService = new CommandSetService(@"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands_2016.xml",  null ,true);
 			var result=commandSetService.GetCommandSet();
 			Assert.IsTrue(result.TargetApplications.Count>0);
 			Assert.IsTrue(result.SpeechLists.Count>0);

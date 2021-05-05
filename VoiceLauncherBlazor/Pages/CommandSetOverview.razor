@@ -4,7 +4,10 @@
 
 <div style="margin:4px">
 	<h6>@Title / KnowBrainer: @CommandSet?.KBFilename / Dragon: @CommandSet?.DragonFilename</h6>
-	<InputFile OnChange="ImportFileAsync"/>
+	<label class="control-label">Select KnowBrainer custom file</label>
+	<InputFile OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))"/>
+	<label class="control-label">Select Dragon custom file</label>
+	<InputFile OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(false))"/>
 </div>
 <div class="form-inline">
 	<div style="margin:4px">	<label class="control-label">Show</label></div>
@@ -39,7 +42,7 @@
 }
 else if (FilteredTargetApplications == null)
 {
-	<div style="display:normal;margin:auto" class="loader"></div>
+	<h4> Please enter a search term ( Command or Application )</h4>
 }
 else if (FilteredTargetApplications.Count == 0)
 {
@@ -56,8 +59,13 @@ else
 		<tbody>
 			@foreach (var targetApplication in FilteredTargetApplications.OrderBy(a => a.ModuleDescription))
 			{
+				var className = "info";
+				if (targetApplication.CommandSource=="KB")
+				{
+					className = "primary";
+				}
 				<tr>
-					<td>
+					<td class="text-@className">
 						<span>Source @targetApplication.CommandSource | </span>
 						<span>Description @targetApplication.ModuleDescription | </span>
 						<span>Module @targetApplication.Module | </span>
@@ -94,7 +102,10 @@ else
 								</th>
 							</tr>
 							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
-							@foreach (var voiceCommand in targetApplication.VoiceCommands.Where(v => v.Name.ToLower().Contains(SearchTerm.ToLower())).OrderBy(a => a.Name))
+							@foreach (var voiceCommand in targetApplication.VoiceCommands
+								.Where(v => (SearchTerm!= null  &&  v.Name.ToLower().Contains(SearchTerm.ToLower())
+								  &&  v.Name.Length>0 ))
+								.OrderBy(a => a.Name))
 							{
 								<tr>
 									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">
