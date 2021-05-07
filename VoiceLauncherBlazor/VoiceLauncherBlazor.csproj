@@ -17,12 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="NuGet.config" />
     <Content Remove="wwwroot\data\MyKBCommands.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="NuGet.config" />
     <Resource Include="wwwroot\data\MyKBCommands.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
