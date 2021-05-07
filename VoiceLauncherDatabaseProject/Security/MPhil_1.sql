@@ -1,3 +1,0 @@
-﻿CREATE LOGIN [MPhil]
-    WITH PASSWORD = N'dSiHsmmfb}hznt?glahx_hoLmsFT7_&#$!~<l{WXytbocoue', SID = 0xAE518B630671E043989134C53CB3E7D6, DEFAULT_DATABASE = [QAComplaints], DEFAULT_LANGUAGE = [us_english], CHECK_POLICY = OFF;
-
