@@ -16,7 +16,7 @@ namespace VoiceLauncherBlazor.Pages
 		protected override async Task OnInitializedAsync()
 		{
 			projects = await TodoData.GetProjects();
-			ToastService.ShowInfo("To Blazor Server demonstration application", "Hello and Welcome");
+			ToastService.ShowInfo("To Blazor Server demo app", "Hello and Welcome 🌝");
 		}
 	}
 }
