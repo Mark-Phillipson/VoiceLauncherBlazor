@@ -173,7 +173,7 @@ namespace DataAccessLibrary.Services
 				}
 				try
 				{
-					FileManagement.LoadXMLDocument(filename, dataSetKB);
+					FileManagement.LoadXMLDocument(filename, dataSetKB,true,commandSet);
 				}
 				catch (Exception exception)
 				{
@@ -195,7 +195,7 @@ namespace DataAccessLibrary.Services
 			}
 			try
 			{
-				FileManagement.LoadXMLDocument(filename, dataSetDragon);
+				FileManagement.LoadXMLDocument(filename, dataSetDragon,false,commandSet);
 				MyCommands = XElement.Load(filename);
 			}
 			catch (Exception exception)

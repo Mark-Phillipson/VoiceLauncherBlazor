@@ -93,6 +93,18 @@ namespace VoiceLauncherBlazor.Pages
 			{
 				ViewNew = viewNew.ToString().ToLower() == "true" ? true : false;
 			}
+			if (QueryHelpers.ParseQuery(query).TryGetValue("showcommands", out var showCommands))
+			{
+				ShowCommands = showCommands.ToString().ToLower() == "true" ? true : false;
+			}
+			if (QueryHelpers.ParseQuery(query).TryGetValue("showlists", out var showLists))
+			{
+				ShowLists = showLists.ToString().ToLower() == "true" ? true : false;
+			}
+			if (QueryHelpers.ParseQuery(query).TryGetValue("showcode", out var showCode))
+			{
+				ShowCode = showCode.ToString().ToLower() == "true" ? true : false;
+			}
 			try
 			{
 				CommandSetService = new CommandSetService(knowbrainerScriptFileName, dragonScriptFileName , ViewNew);
@@ -161,12 +173,6 @@ namespace VoiceLauncherBlazor.Pages
 		public void CommandDrillDown(string name)
 		{
 			SearchTerm = name;
-		}
-		public void ToggleScriptFile()
-		{
-			ViewNew = !ViewNew;
-			CommandSet = null;
-			LoadData();
 		}
 		async Task ImportFileAsync(InputFileChangeEventArgs arguments)
 		{

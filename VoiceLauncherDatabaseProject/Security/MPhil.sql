@@ -1,2 +1,0 @@
-﻿CREATE USER [MPhil] FOR LOGIN [MPhil];
-

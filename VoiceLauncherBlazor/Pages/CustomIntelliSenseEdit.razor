@@ -61,9 +61,9 @@ else
 							<ResultTemplate Context="language">
 								@language.LanguageName
 							</ResultTemplate>
-							<NotFoundTemplate>
+							@*<NotFoundTemplate>
 								Sorry, no language matched the search result.
-							</NotFoundTemplate>
+							</NotFoundTemplate>*@
 						</BlazoredTypeahead>
 					</div>
 					<ValidationMessage For="@(() => intellisense.LanguageId)" />
@@ -84,9 +84,9 @@ else
 							<ResultTemplate Context="category">
 								@category.CategoryName
 							</ResultTemplate>
-							<NotFoundTemplate>
+							@*<NotFoundTemplate>
 								Sorry, no Category matched the search result.
-							</NotFoundTemplate>
+							</NotFoundTemplate>*@
 						</BlazoredTypeahead>
 					</div>
 					<ValidationMessage For="@(() => intellisense.CategoryId)" />

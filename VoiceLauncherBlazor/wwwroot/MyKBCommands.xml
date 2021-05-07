@@ -42331,13 +42331,6 @@ SendKeys "+%]"
 End Sub
 ]]></content>
     </Command>
-    <Command name="Find Next" group="" enabled="true">
-      <description></description>
-      <content type="WinWrap Basic"><![CDATA[Sub Main
-SendKeys "{F3}"
-End Sub
-]]></content>
-    </Command>
     <Command name="Set Following Statement" group="" enabled="true">
       <description></description>
       <content type="WinWrap Basic"><![CDATA[Sub Main
@@ -42617,13 +42610,6 @@ End Sub
       <description></description>
       <content type="WinWrap Basic"><![CDATA[Sub Main
 SendKeys "^+q"
-End Sub
-]]></content>
-    </Command>
-    <Command name="Find Next" group="" enabled="true">
-      <description></description>
-      <content type="WinWrap Basic"><![CDATA[Sub Main
-SendKeys "{F3}"
 End Sub
 ]]></content>
     </Command>
@@ -43703,6 +43689,32 @@ End Sub
       <description></description>
       <content type="WinWrap Basic"><![CDATA[Sub Main
 SendKeys "^+{F5}"
+End Sub
+]]></content>
+    </Command>
+    <Command name="Select Tag &lt;htmltags&gt;" group="" enabled="true">
+      <description></description>
+      <content type="WinWrap Basic"><![CDATA[Sub Main
+SendKeys "^f"
+Wait 0.1
+SendKeys "%e"
+Dim actualTag as String
+Dim hasAClosingTag as Boolean
+hasAClosingTag=True
+actualTag=ListVar1
+if actualTag="Image" Then
+ actualTag="img"
+ hasAClosingTag=false
+elseif actualTag="Anchor" Then
+ actualTag="a"
+end if
+if hasAClosingTag Then
+ SendKeys "<" & actualTag & "[\r\s\S]{+}?/" & actualTag & ">"
+else
+SendKeys "<" & actualTag & "[\r\s\S]{+}?/>"
+end If
+
+
 End Sub
 ]]></content>
     </Command>

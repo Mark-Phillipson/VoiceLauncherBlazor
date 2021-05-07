@@ -1,26 +1,26 @@
 ﻿@page "/commands"
 
 <h3>Popular <span class="oi oi-microphone" aria-hidden="true"></span> Commands</h3>
-<div class="row">
-	<div class="col-md-6">
-		<h4> Visual Studio <a target="_blank" href="https://visualstudio.microsoft.com/"><img src="/images/VisualStudioLogo.png" class="img-thumbnail rounded" width="100" /></a></h4>
+<section class="row">
+	<div class="col-md-6 background-logo">
+		<h4><a target="_blank" href="https://visualstudio.microsoft.com/">Visual Studio</a></h4>
 		<h6>Navigation</h6>
 		<ul>
 			<li>
-				<a @onclick="@(() => FilterCommand("Last","devenv"))" class="">Last</a> 
+				<a @onclick="@(() => FilterCommand("Last","devenv"))" class="">Last</a>
 				[ Edit | Position ] /
 				<a @onclick="@(() => FilterCommand("Go To Containing Block","devenv"))" class="">Go To Containing Block</a>
 			</li>
 			<li>
-				<a @onclick="@(() => FilterCommand("Navigation","devenv"))" class="">Navigation Menu</a> 
+				<a @onclick="@(() => FilterCommand("Navigation","devenv"))" class="">Navigation Menu</a> /
 				Navigate {
 				<a @onclick="@(() => FilterCommand("Navigate Backwards","devenv"))" class="">Backwards</a> |
 				<a @onclick="@(() => FilterCommand("Navigate Forwards","devenv"))" class="">Forwards</a>
 				}
 			</li>
 			<li>
-				<a @onclick="@(() => FilterCommand("Navigate To","devenv"))" class="">Navigate To</a> 
-				[ &lt;dictation&gt; / Navigate
+				<a @onclick="@(() => FilterCommand("Navigate To","devenv"))" class="">Navigate To</a>
+				[ &lt;dictation&gt; ] / Navigate
 				<a @onclick="@(() => FilterCommand("Navigate Blazor Component","devenv"))" class="">Blazor Component</a> |
 				<a @onclick="@(() => FilterCommand("Navigate View Model","devenv"))" class="">View Model</a> |
 				<a @onclick="@(() => FilterCommand("Navigate Controller","devenv"))" class="">Controller</a> |
@@ -28,12 +28,12 @@
 				<a @onclick="@(() => FilterCommand("Navigate Members","devenv"))" class="">Members</a> |
 				<a @onclick="@(() => FilterCommand("Navigate Symbols","devenv"))" class="">Symbols</a> |
 				<a @onclick="@(() => FilterCommand("Navigate URL","devenv"))" class="">URL</a> |
-				<a @onclick="@(() => FilterCommand("Navigate Recent Files","devenv"))" class="">Navigate Recent Files</a>
+				<a @onclick="@(() => FilterCommand("Navigate Recent Files","devenv"))" class="">Recent Files</a>
 				]
 			</li>
 			<li>
 				<a @onclick="@(() => FilterCommand("Go to","devenv"))" class="">Go to</a>
-				[ Definition | Implementation ]
+				{ Definition | Implementation }
 			</li>
 			<li>
 				Following / Previous {
@@ -46,7 +46,7 @@
 			<li>
 				{Drop | Swap | Collect}
 				<a @onclick="@(() => FilterCommand("Marker","devenv"))" class="">Marker</a>
-				(CodeRush only)
+				(<a target="_blank" href="https://www.devexpress.com/products/coderush/">CodeRush</a> only)
 			</li>
 			<li>
 				<a @onclick="@(() => FilterCommand("Jump to","devenv"))" class="">Jump to</a>
@@ -54,7 +54,14 @@
 				<a @onclick="@(() => FilterCommand("Tab","devenv"))" class="">Tab</a>
 			</li>
 			<li>
-				<a @onclick="@(() => FilterCommand("Search Code Location","devenv"))" class="">Search Code Location</a>
+				<a @onclick="@(() => FilterCommand("Find","devenv",true))" class="">Find {Following/Previous} &lt;dictation&gt;</a>
+				<a @onclick="@(() => FilterCommand("Search Code Location","devenv"))" class=""> / Search Code Location</a>
+				<br>
+				<a @onclick="@(() => FilterCommand("Use Regular Expression","devenv"))" class="">Use Regular Expressions</a>
+				
+			</li>
+			<li>
+				<a @onclick="@(() => FilterCommand("Select Tag","devenv"))" class="">Select Tag</a>&lt;htmltags&gt;
 			</li>
 
 		</ul>
@@ -172,8 +179,8 @@
 				<a href="loading" @onclick="@(() => FilterCommand("Search Union","global"))">Search Union</a> &lt;dictation&gt;
 			</li>
 			<li>
-				&lt;<a href="loading" @onclick="@(() => FilterCommand("programminglanguage","global"))">Language</a>&gt; &lt;Category&gt; [&lt;dictation&gt;] / 
-					<a href="loading" @onclick="@(() => FilterCommand("<categories> <dictation>","global"))">Words</a> &lt;dictation&gt;
+				&lt;<a href="loading" @onclick="@(() => FilterCommand("programminglanguage","global"))">Language</a>&gt; &lt;Category&gt; [&lt;dictation&gt;] /
+				<a href="loading" @onclick="@(() => FilterCommand("<categories> <dictation>","global"))">Words</a> &lt;dictation&gt;
 			</li>
 		</ul>
 		<ul>
@@ -187,7 +194,7 @@
 				<a href="loading" @onclick="@(() => FilterCommand("Cycle Open Apps","global"))">Cycle Open Apps</a> /
 				<a href="loading" @onclick="@(() => FilterCommand("Switch","global"))">Switch</a>
 			</li>
-			</ul>
+		</ul>
 		<h6> Internet Browsers</h6>
 		<ul>
 			<li>
@@ -206,4 +213,4 @@
 			</li>
 		</ul>
 	</div>
-</div>
+</section>

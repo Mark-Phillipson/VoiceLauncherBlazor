@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccessLibrary.Models.KnowbrainerCommands;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace DataAccessLibrary.XML_Import
 {
 	public static class FileManagement
 	{
-		public static bool LoadXMLDocument(string filename, DataSet dataSet)
+		public static bool LoadXMLDocument(string filename, DataSet dataSet,bool isKnowBrainer,CommandSet commandSet)
 		{
 			XDocument document = XDocument.Load(filename);
 			var commands = document.Descendants("Command").Count();
@@ -16,6 +17,16 @@ namespace DataAccessLibrary.XML_Import
 			if (commands == 0 || lists == 0)
 			{
 				return false;
+			}
+			if (isKnowBrainer)
+			{
+				commandSet.KBScripts = commands;
+				commandSet.KBLists = lists;
+			}
+			else
+			{
+				commandSet.DragonScripts = commands;
+				commandSet.DragonLists = lists;
 			}
 			dataSet.Clear();
 			dataSet.ReadXmlSchema(filename);
