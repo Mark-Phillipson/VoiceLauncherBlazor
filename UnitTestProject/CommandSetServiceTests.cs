@@ -11,19 +11,10 @@ namespace UnitTestProject
 	public class CommandSetServiceTests
 	{
 		[TestMethod]
-		public void GetCommandSetTestDragonScripts()
+		public void GetCommandSetTestLoadingScripts()
 		{
 			var currentDirectory = Environment.CurrentDirectory;
-			CommandSetService commandSetService = new CommandSetService( null , $@"{currentDirectory}/Files/Productivity.xml",true);
-			var result=commandSetService.GetCommandSet();
-			Assert.IsTrue(result.TargetApplications.Count>0);
-			Assert.IsTrue(result.SpeechLists.Count>0);
-		}
-		[TestMethod]
-		public void GetCommandSetTestKnowBrainerScripts()
-		{
-			var currentDirectory=Environment.CurrentDirectory;
-			CommandSetService commandSetService = new CommandSetService($@"{currentDirectory}/Files/MyKBCommands.xml",  null ,true);
+			CommandSetService commandSetService = new CommandSetService($@"{currentDirectory}/Files/MyKBCommands.xml", $@"{currentDirectory}/Files/Productivity.xml",true);
 			var result=commandSetService.GetCommandSet();
 			Assert.IsTrue(result.TargetApplications.Count>0);
 			Assert.IsTrue(result.SpeechLists.Count>0);
