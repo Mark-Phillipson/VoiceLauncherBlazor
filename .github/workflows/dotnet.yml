@@ -25,3 +25,6 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: Azure WebApp
       uses: Azure/webapps-deploy@v2
+      with:
+        app-name: VoiceLauncherBlazor
+        publish-profile: ${{ secrets.PUBLISH_PROFILE }}
