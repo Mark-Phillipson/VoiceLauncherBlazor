@@ -14,7 +14,7 @@ namespace UnitTestProject
 		public void GetCommandSetTestDragonScripts()
 		{
 			var currentDirectory = Environment.CurrentDirectory;
-			CommandSetService commandSetService = new CommandSetService( null , $@"{currentDirectory}\Files\Productivity.xml",true);
+			CommandSetService commandSetService = new CommandSetService( null , $@"{currentDirectory}/Files/Productivity.xml",true);
 			var result=commandSetService.GetCommandSet();
 			Assert.IsTrue(result.TargetApplications.Count>0);
 			Assert.IsTrue(result.SpeechLists.Count>0);
@@ -23,7 +23,7 @@ namespace UnitTestProject
 		public void GetCommandSetTestKnowBrainerScripts()
 		{
 			var currentDirectory=Environment.CurrentDirectory;
-			CommandSetService commandSetService = new CommandSetService($@"{currentDirectory}\Files\MyKBCommands.xml",  null ,true);
+			CommandSetService commandSetService = new CommandSetService($@"{currentDirectory}/Files/MyKBCommands.xml",  null ,true);
 			var result=commandSetService.GetCommandSet();
 			Assert.IsTrue(result.TargetApplications.Count>0);
 			Assert.IsTrue(result.SpeechLists.Count>0);
