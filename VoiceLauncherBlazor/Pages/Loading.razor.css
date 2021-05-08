@@ -1,44 +1,33 @@
 ﻿:root {
 	--yellow: #feb60a;
 	--red: #ff0062;
-	--blue: #00dbf9;
-	--violet: #da00f7;
+	--green: #00db00;
 }
-
 
 div.ballscontainer {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-div > div {
-	width: 3vw;
-	height: 3vw;
+	width: 2vw;
+	height: 2vw;
 	border-radius: 100%;
-	margin: 2vw;
+	margin: auto;
 	background-image: linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(0,0,0,0) 100%);
 	animation: bounce 1.5s 0.5s linear infinite;
-}
-
-.yellow {
-	background-color: var(--yellow);
+	padding:25px;
 }
 
 .red {
 	background-color: var(--red);
 	animation-delay: 0.51s;
 }
+.yellow {
+	background-color: var(--yellow);
+}
 
-.blue {
-	background-color: var(--blue);
+
+.green {
+	background-color: var(--green);
 	animation-delay: 0.72s;
 }
 
-.violet {
-	background-color: var(--blue);
-	animation-delay: 0.83s;
-}
 
 @keyframes bounce {
 	0%, 50%, 100% {

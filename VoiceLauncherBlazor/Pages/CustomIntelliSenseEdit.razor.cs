@@ -124,7 +124,7 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void GoBack()
 		{
-			NavigationManager.NavigateTo("/intellisenses");
+			NavigationManager.NavigateTo($"/intellisenses?language={intellisense.Language.LanguageName}&category={intellisense.Category.CategoryName}");
 		}
 		public async Task<IEnumerable<Language>> FilterLanguages(string searchText)
 		{
