@@ -122,6 +122,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task DeleteLauncher(int launcherId)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				StatusMessage = "This demo application does not allow Deleting!";
+				return;
+			}
 			try
 			{
 				var result = await LauncherService.DeleteLauncher(launcherId);
@@ -139,6 +144,11 @@ namespace VoiceLauncherBlazor.Pages
 
 		async Task SaveAllLaunchers()
 		{
+			if (Environment.MachineName!= "DESKTOP-UROO8T1")
+			{
+				StatusMessage = "This demo application does not allow saving!";
+				return;
+			}
 			try
 			{
 				var temporary = await LauncherService.SaveAllLaunchers(launchers);

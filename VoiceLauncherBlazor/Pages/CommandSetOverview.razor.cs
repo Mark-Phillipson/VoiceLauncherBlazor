@@ -138,6 +138,9 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void ApplyFilter()
 		{
+			ShowCode = false;
+			ShowLists = false;
+			ShowCommands = false;
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
 				FilteredTargetApplications = TargetApplications.OrderBy(v => v.Module).ToList();
@@ -161,7 +164,16 @@ namespace VoiceLauncherBlazor.Pages
 					  || (v.WindowTitle != null && v.WindowTitle.ToLower().Contains(searchTermRevised)))
 					.ToList();
 			}
-			Title = $"Filtered Applications ({FilteredTargetApplications.Count})";
+			var recordsReturned = FilteredTargetApplications.Count;
+			Title = $"Filtered Applications ({recordsReturned})";
+			if (recordsReturned < 55)
+			{
+				ShowCommands = true;
+				if (recordsReturned < 11)
+				{
+					ShowCode = true;
+				}
+			}
 		}
 		protected void SortTargetApplications(string sortColumn)
 		{
@@ -196,6 +208,16 @@ namespace VoiceLauncherBlazor.Pages
 		void SetImportFlag(bool isKnowbrainer)
 		{
 			IsKnowbrainer = isKnowbrainer;
+		}
+		private void BuildSearchUrl()
+		{
+			var commandName = SearchTerm;
+			commandName = commandName.Replace(" ", "%20");
+			commandName = commandName.Replace("<", "%3C");
+			commandName = commandName.Replace(">", "%3E");
+
+			var url = $"https://voicelauncherblazor.azurewebsites.net/commandsetoverview?name={commandName}&application={SearchTermApplication}&viewnew={ViewNew}&showcommands={ShowCommands}&showlists={ShowLists}&showcode={ShowCode}";
+			NavigationManager.NavigateTo(url);
 		}
 	}
 }

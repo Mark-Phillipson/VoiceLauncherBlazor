@@ -137,6 +137,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task DeleteCustomIntelliSense(int customIntellisenseId)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			var additionalCommands =  await AdditionalCommandService.GetAdditionalCommandsAsync(customIntellisenseId);
 			if (additionalCommands.Count>0)
 			{
@@ -163,6 +168,11 @@ namespace VoiceLauncherBlazor.Pages
 
 		async Task SaveAllCustomIntelliSenses()
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			try
 			{
 				var temporary = await CustomIntellisenseService.SaveAllCustomIntelliSenses(intellisenses);

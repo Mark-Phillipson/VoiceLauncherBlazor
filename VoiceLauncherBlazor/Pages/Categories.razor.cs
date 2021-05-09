@@ -1,4 +1,6 @@
-﻿using Microsoft.JSInterop;
+﻿using Blazored.Toast.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,6 +9,7 @@ namespace VoiceLauncherBlazor.Pages
 {
 	public partial class Categories
 	{
+		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
 		private int categoryIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.Category> categories;
@@ -87,6 +90,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task DeleteCategory(int categoryId)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			try
 			{
 				var result = await CategoryService.DeleteCategory(categoryId);
@@ -118,6 +126,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task SaveAllCategories()
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			try
 			{
 				categories = await CategoryService.SaveAllCategories(categories);

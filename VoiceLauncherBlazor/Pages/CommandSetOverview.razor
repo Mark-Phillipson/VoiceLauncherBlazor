@@ -23,7 +23,7 @@
 	</div>
 	<div style="margin:4px">	<label class="control-label">Show Code</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" class="form-control" @bind="@ShowCode" title="Hide Code Only" />
+		<input type="checkbox" class="form-control-lg" @bind="@ShowCode" title="Hide Code Only" />
 	</div>
 	<div style="margin:4px"><label class="control-label ml-4">Filter by Name</label></div>
 	<div style="margin:6px">
@@ -32,7 +32,9 @@
 	<div style="margin:4px">
 		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Filter by Applications" />
 	</div>
-
+	<div style="margin:4px">
+		<button class="btn btn-success" type="button" @onclick="@( ( ) => BuildSearchUrl(  ) )">Build Search Url</button>
+	</div>
 </div>
 
 @if (FilteredTargetApplications == null && _loadFailed == true)
@@ -105,9 +107,9 @@ else
 							</tr>
 							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
 							@foreach (var voiceCommand in targetApplication.VoiceCommands
-							   .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
-								 && v.Name.Length > 0))
-							   .OrderBy(a => a.Name))
+							  .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
+								&& v.Name.Length > 0))
+							  .OrderBy(a => a.Name))
 							{
 								<tr>
 									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">

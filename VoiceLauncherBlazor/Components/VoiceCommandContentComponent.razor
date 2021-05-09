@@ -4,14 +4,18 @@
 			@VoiceCommandContent?.Type
 		</td>
 		<td>
-			<pre><code class="language-visual-basic">@VoiceCommandContent?.Content</code></pre>
+			@{
+				var languageClass = "text-dark";
+				if (VoiceCommandContent.Type.ToLower().Contains("basic") || VoiceCommandContent.Type.ToLower().Contains("script"))
+				{
+					languageClass = "language-visual-basic";
+				}
+			}
+			<pre><code class="@languageClass">@VoiceCommandContent?.Content</code></pre>
 		</td>
 		<td>
 			<button class="btn btn-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent.Content) )">Copy</button>
 		</td>
 	</tr>
 </table>
-@code {
-
-}
 

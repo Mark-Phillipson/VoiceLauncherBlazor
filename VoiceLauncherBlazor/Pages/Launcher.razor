@@ -5,87 +5,87 @@
 @inject NavigationManager NavigationManager
 
 <h1>
-    Launcher
+	Launcher
 </h1>
 @if (launcher == null && _loadFailed)
 {
-    <h1 class="text-danger">There was a problem loading the data. Please try again in a bit :-(</h1>
+	<h1 class="text-danger">There was a problem loading the data. Please try again in a bit :-(</h1>
 }
 else if (launcher == null)
 {
-    <h1 class="text-warning">Loading..</h1>
+	<Loading />
 }
 else
 {
-    <div class="row">
-        <div class="col-md-12">
-            <EditForm Model="@launcher" OnValidSubmit="HandleValidSubmit">
-                <DataAnnotationsValidator />
-                @*<ValidationSummary />*@
-                <div class="form-field row">
-                    <label class="col-md-3">Id</label>
-                    @if (launcher.Id > 0)
-                    {
-                        <div class="col-md-9">@launcher.Id</div>
-                    }
-                    <input type="hidden" name="Id" id="Id" value="@launcher.Id" />
-                </div>
-                <div class="form-field row">
-                    <label for="@launcher.Name" class="col-md-3"> Launcher Name (0)</label>
-                    <InputText class="col-md-9 form-control-lg" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="launcher.Name"></InputText>
-                    <ValidationMessage For="@(() => launcher.Name)" />
-                </div>
-                <div class="form-field row">
-                    <label for="@launcher.CommandLine" class="col-md-3"> Command Line (1)</label>
-                    <InputText class="col-md-9 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="launcher.CommandLine"></InputText>
-                    <ValidationMessage For="@(() => launcher.CommandLine)" />
-                </div>
-                <div class="form-field row">
-                    <label for="@launcher.CategoryId" class="col-md-3"> Category</label>
-                    <select class="form-control-lg col-md-9" @bind="launcher.CategoryId">
-                        <option value="">-</option>
-                        @if (categories != null)
-                        {
-                            @foreach (var category in categories)
-                            {
-                                @if (launcher.CategoryId == category.Id)
-                                {
-                                    <option selected value="@category.Id">@category.CategoryName</option>
-                                }
-                                else
-                                {
-                                    <option value="@category.Id">@category.CategoryName </option>
-                                }
-                            }
-                        }
-                    </select>
-                    <ValidationMessage For="@(() => launcher.CategoryId)" />
-                </div>
-                <div class="form-field row">
-                    <label for="@launcher.ComputerId" class="col-md-3"> Computer</label>
-                    <select class="form-control-lg col-md-9" @bind="launcher.ComputerId">
-                        <option value="">-</option>
-                        @if (computers != null)
-                        {
-                            @foreach (var computer in computers)
-                            {
-                                @if (launcher.ComputerId == computer.Id)
-                                {
-                                    <option selected value="@computer.Id">@computer.ComputerName</option>
-                                }
-                                else
-                                {
-                                    <option value="@computer.Id">@computer.ComputerName </option>
-                                }
-                            }
-                        }
-                    </select>
-                    <ValidationMessage For="@(() => launcher.ComputerId)" />
-                </div>
-                <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-document"></i></button>
-                <button accesskey="c" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@OnClose"><u>C</u>lose</button>
-            </EditForm>
-        </div>
-    </div>
+	<div class="row">
+		<div class="col-md-12">
+			<EditForm Model="@launcher" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				@*<ValidationSummary />*@
+				<div class="form-field row">
+					<label class="col-md-3">Id</label>
+					@if (launcher.Id > 0)
+					{
+						<div class="col-md-9">@launcher.Id</div>
+					}
+					<input type="hidden" name="Id" id="Id" value="@launcher.Id" />
+				</div>
+				<div class="form-field row">
+					<label for="@launcher.Name" class="col-md-3"> Launcher Name (0)</label>
+					<InputText class="col-md-9 form-control-lg" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="launcher.Name"></InputText>
+					<ValidationMessage For="@(() => launcher.Name)" />
+				</div>
+				<div class="form-field row">
+					<label for="@launcher.CommandLine" class="col-md-3"> Command Line (1)</label>
+					<InputText class="col-md-9 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="launcher.CommandLine"></InputText>
+					<ValidationMessage For="@(() => launcher.CommandLine)" />
+				</div>
+				<div class="form-field row">
+					<label for="@launcher.CategoryId" class="col-md-3"> Category</label>
+					<select class="form-control-lg col-md-9" @bind="launcher.CategoryId">
+						<option value="">-</option>
+						@if (categories != null)
+						{
+							@foreach (var category in categories)
+							{
+								@if (launcher.CategoryId == category.Id)
+								{
+									<option selected value="@category.Id">@category.CategoryName</option>
+								}
+								else
+								{
+									<option value="@category.Id">@category.CategoryName </option>
+								}
+							}
+						}
+					</select>
+					<ValidationMessage For="@(() => launcher.CategoryId)" />
+				</div>
+				<div class="form-field row">
+					<label for="@launcher.ComputerId" class="col-md-3"> Computer</label>
+					<select class="form-control-lg col-md-9" @bind="launcher.ComputerId">
+						<option value="">-</option>
+						@if (computers != null)
+						{
+							@foreach (var computer in computers)
+							{
+								@if (launcher.ComputerId == computer.Id)
+								{
+									<option selected value="@computer.Id">@computer.ComputerName</option>
+								}
+								else
+								{
+									<option value="@computer.Id">@computer.ComputerName </option>
+								}
+							}
+						}
+					</select>
+					<ValidationMessage For="@(() => launcher.ComputerId)" />
+				</div>
+				<button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-document"></i></button>
+				<button accesskey="c" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@OnClose"><u>C</u>lose</button>
+			</EditForm>
+		</div>
+	</div>
 
 }
