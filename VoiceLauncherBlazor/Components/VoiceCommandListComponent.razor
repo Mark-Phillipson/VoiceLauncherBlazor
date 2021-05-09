@@ -11,14 +11,14 @@
 						@listName
 					</th>
 				</tr>
-				@foreach (var listValue in CommandSet.SpeechLists.Where(v => v.Name == listName).FirstOrDefault()?.ListValues)
-				{
-					<tr>
-						<td>
-							@listValue?.Value_Text
-						</td>
-					</tr>
-				}
+				<tr>
+					<td>
+						@foreach (var listValue in CommandSet.SpeechLists.Where(v => v.Name == listName).FirstOrDefault()?.ListValues)
+						{
+							@listValue?.Value_Text <span> | </span>
+						}
+					</td>
+				</tr>
 			</table>
 		}
 	}
