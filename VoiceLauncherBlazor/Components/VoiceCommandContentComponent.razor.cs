@@ -18,6 +18,9 @@ namespace VoiceLauncherBlazor.Components
 				"clipboardCopy.copyText", text);
 			Result = $"Copied Successfully at {DateTime.Now:hh:mm}";
 		}
-
+		protected override async Task OnAfterRenderAsync(bool firstRender)
+		{
+			await JavaScriptRuntime.InvokeVoidAsync("Prism.highlightAll");
+		}
 	}
 }
