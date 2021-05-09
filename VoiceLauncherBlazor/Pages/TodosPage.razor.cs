@@ -43,6 +43,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void EditTodo(Todo todoEdit)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			todo.Id = todoEdit.Id;
 			todo.Title = todoEdit.Title;
 			todo.Description = todoEdit.Description;
@@ -82,6 +87,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private async Task ArchiveTodo(int todoId)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			Todo todo = await TodoData.GetTodo(todoId);
 			todo.Archived = true;
 			await TodoData.UpdateToDo(todo);
@@ -117,6 +127,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private async Task InsertTodo()
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			await CallChangeAsync(todo.Id.ToString() + "Project");
 			if (todo.Id > 0)
 			{
@@ -132,6 +147,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private async Task ChangeCompleted(int todoId, bool completed)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			todo = todos.Where(v => v.Id == todoId).FirstOrDefault();
 			todo.Completed = completed;
 			await TodoData.UpdateToDo(todo);

@@ -97,6 +97,11 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		async Task DeleteGeneralLookup(int generalLookupId)
 		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
 			try
 			{
 				var result = await GeneralLookupService.DeleteGeneralLookup(generalLookupId);
