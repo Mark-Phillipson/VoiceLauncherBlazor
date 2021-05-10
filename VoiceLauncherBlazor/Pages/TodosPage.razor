@@ -63,7 +63,12 @@ else
 				<tr>
 					@if (todo.Completed != true)
 					{
-						<td>@todo.Title</td>
+						<td>
+							@todo.Title
+							<br>
+							<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,true ) )">@todo.SortPriority</button>
+							<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,false ) )">@todo.SortPriority</button>
+						</td>
 						<td>@todo.Description</td>
 						<td>
 							<button class="btn btn-sm btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))"><i class="oi oi-circle-x"></i></button>
@@ -71,7 +76,9 @@ else
 					}
 					else
 					{
-						<td class="text-muted"><del>@todo.Title</del></td>
+						<td class="text-muted">
+							<del>@todo.Title</del>
+						</td>
 						<td class="text-muted"><del>@todo.Description</del></td>
 						<td>
 							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-circle-check"></i></button>

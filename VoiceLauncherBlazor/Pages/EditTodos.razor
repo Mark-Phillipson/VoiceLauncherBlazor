@@ -11,7 +11,7 @@
 	<table class="table table-bordered table-striped table-responsive table-sm" id="table1">
 		<thead>
 			<tr>
-				<th>Title</th>
+				<th>Title/Priority</th>
 				<th style="width: 40%">Description</th>
 				<th>Done</th>
 				<th>Project</th>
@@ -40,6 +40,15 @@
 						}
 					</div>
 					<ValidationMessage For="@(() => Todo.Title)" />
+					<div class="input-group input-group">
+						<div class="input-group-prepend bg-info">
+							<i class="oi oi-infinity p-2"></i>
+						</div>
+						<InputNumber class="form-control" @bind-Value="Todo.SortPriority" />
+							<div class="input-group-append bg-info">
+								<i class="oi oi-arrow-circle-top p-2"></i>
+							</div>
+					</div>
 				</td>
 				<td>
 

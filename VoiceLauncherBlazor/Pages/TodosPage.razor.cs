@@ -175,5 +175,26 @@ namespace VoiceLauncherBlazor.Pages
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 			await ApplyFilter();
 		}
+		async Task SetPriorityAsync(int todoId,bool increase)
+		{
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			{
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				return;
+			}
+			todo =  await TodoData.GetTodo(todoId);
+			if (increase)
+			{
+				todo.SortPriority++;
+			}
+			else
+			{
+				todo.SortPriority--; 
+			}
+			await TodoData.UpdateToDo(todo);
+			await LoadData();
+			StatusMessage = $"Priority Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
+			todo = new Todo { Project = Project };
+		}
 	}
 }

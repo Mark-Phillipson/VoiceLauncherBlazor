@@ -8,7 +8,7 @@ namespace DataAccessLibrary
 	public class TodoData : ITodoData
 	{
 		private string table = "dbo.Todos";
-		private string[] columns = new string[] { "Title", "Description", "Completed", "Project", "Archived" };
+		private string[] columns = new string[] { "Title", "Description", "Completed", "Project", "Archived","SortPriority" };
 		private readonly ISqlDataAccess _db;
 		public TodoData(ISqlDataAccess db)
 		{
@@ -25,7 +25,7 @@ namespace DataAccessLibrary
 			{
 				sql = sql + $" And Project='{projectFilter}'";
 			}
-			sql = sql + $" ORDER BY Completed, Created DESC;";
+			sql = sql + $" ORDER BY Completed, SortPriority DESC, Created DESC;";
 			return _db.LoadData<Todo, dynamic>(sql, new { });
 		}
 		public Task<List<string>> GetProjects()
