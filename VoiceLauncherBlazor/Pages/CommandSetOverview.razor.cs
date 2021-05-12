@@ -138,9 +138,6 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private void ApplyFilter()
 		{
-			ShowCode = false;
-			ShowLists = false;
-			ShowCommands = false;
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
 				FilteredTargetApplications = TargetApplications.OrderBy(v => v.Module).ToList();
@@ -166,14 +163,9 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			var recordsReturned = FilteredTargetApplications.Count;
 			Title = $"Filtered Applications ({recordsReturned})";
-			if (recordsReturned < 55)
-			{
-				ShowCommands = true;
-				if (recordsReturned < 11)
-				{
-					ShowCode = true;
-				}
-			}
+			ShowCommands = recordsReturned<55;
+			ShowCode = recordsReturned<11;
+			ShowLists = false;
 		}
 		protected void SortTargetApplications(string sortColumn)
 		{
@@ -218,6 +210,10 @@ namespace VoiceLauncherBlazor.Pages
 
 			var url = $"https://voicelauncherblazor.azurewebsites.net/commandsetoverview?name={commandName}&application={SearchTermApplication}&viewnew={ViewNew}&showcommands={ShowCommands}&showlists={ShowLists}&showcode={ShowCode}";
 			NavigationManager.NavigateTo(url);
+		}
+		void ApplyApplicationFilter(string module)
+		{
+			SearchTermApplication = module;
 		}
 	}
 }

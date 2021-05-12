@@ -54,7 +54,7 @@ else if (FilteredTargetApplications.Count == 0)
 }
 else
 {
-	<table class="table table-responsive-sm table-dark table-condensed table-bordered table-sm" id="tableTargetApplications">
+	<table style="max-width:1500px" class="table table-responsive-sm table-dark table-condensed table-bordered table-sm" id="tableTargetApplications">
 		<thead>
 			<tr>
 				<th style="max-width:200px">Application/Global</th>
@@ -69,20 +69,22 @@ else
 					className = "primary";
 				}
 				<tr>
-					<td class="text-@className">
-						<span>Source @targetApplication.CommandSource | </span>
-						<span>Description @targetApplication.ModuleDescription | </span>
-						<span>Module @targetApplication.Module | </span>
-						<span>Scope @targetApplication.Scope | </span>
-						<span>Company @targetApplication.Company</span>
-						@if (targetApplication.WindowTitle != null)
-						{
-							<span> | Window Title @targetApplication.WindowTitle</span>
-						}
-						@if (targetApplication.WindowClass != null)
-						{
-							<span> | Window Class @targetApplication.WindowClass</span>
-						}
+					<td>
+						<button class="btn btn-@className" type="button" @onclick="@( ( ) => ApplyApplicationFilter( targetApplication.Module ) )">
+							<span>Source @targetApplication.CommandSource | </span>
+							<span>Description @targetApplication.ModuleDescription | </span>
+							<span>Module @targetApplication.Module | </span>
+							<span>Scope @targetApplication.Scope | </span>
+							<span>Company @targetApplication.Company</span>
+							@if (targetApplication.WindowTitle != null)
+							{
+								<span> | Window Title @targetApplication.WindowTitle</span>
+							}
+							@if (targetApplication.WindowClass != null)
+							{
+								<span> | Window Class @targetApplication.WindowClass</span>
+							}
+						</button>
 					</td>
 				</tr>
 				<tr>

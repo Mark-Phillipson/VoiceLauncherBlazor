@@ -8,11 +8,11 @@
 		<h3>
 			Todos
 			<small>
-				<input placeholder="Type to filter by title or description" style="min-width: 300px" class="form-control-sm" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
+				<input placeholder="Filter by title/description (Alt+1)" style="min-width: 300px" class="form-control-sm" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
 				<button accesskey="2" class="btn btn-primary btn-sm mt-2 mx-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
 				@if (Project == null)
 				{
-					<select class="form-control-sm" @bind="ProjectFilter" @onblur="ApplyFilter">
+					<select class="form-control-sm mr-2" @bind="ProjectFilter" @onblur="ApplyFilter">
 						<option value="">-Select to filter by project-</option>
 						@if (projects != null)
 						{
@@ -32,6 +32,7 @@
 	</header>
 
 	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
+
 	<h4>Current Todos</h4>
 }
 @if (_loadFailed)
@@ -44,6 +45,15 @@ else if (todos == null)
 }
 else
 {
+	@if (todos.Count > 0)
+	{
+		<div class="progress my-2">
+			<div class="progress-bar" role="progressbar" style="width:@(percentDone)%" aria-valuemin="0" aria-valuemax="100">
+				@(percentDone)%
+			</div>
+		</div>
+	}
+
 	<table class="table table-bordered table-striped table-responsive table-sm" id="table1">
 		<thead>
 			<tr>
@@ -66,8 +76,10 @@ else
 						<td>
 							@todo.Title
 							<br>
-							<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,true ) )">@todo.SortPriority</button>
-							<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,false ) )">@todo.SortPriority</button>
+							<div class="btn-group">
+								<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,true ) )"><i class="oi oi-arrow-circle-top"></i></button>
+								<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,false ) )"><i class="oi oi-arrow-circle-bottom"></i></button>
+							</div>
 						</td>
 						<td>@todo.Description</td>
 						<td>
@@ -81,7 +93,7 @@ else
 						</td>
 						<td class="text-muted"><del>@todo.Description</del></td>
 						<td>
-							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-circle-check"></i></button>
+							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-task"></i></button>
 						</td>
 					}
 					@if (Project == null)
@@ -100,14 +112,6 @@ else
 			}
 		</tbody>
 	</table>
-	@if (todos.Count > 0)
-	{
-		<div class="progress my-2">
-			<div class="progress-bar" role="progressbar" style="width:@(percentDone)%" aria-valuemin="0" aria-valuemax="100">
-				@(percentDone)%
-			</div>
-		</div>
-	}
 
 }
 <TemplatedDialog Show="ShowDialog">

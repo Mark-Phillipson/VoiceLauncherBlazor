@@ -40,7 +40,7 @@
 						}
 					</div>
 					<ValidationMessage For="@(() => Todo.Title)" />
-					<div class="input-group input-group">
+					<div class="input-group my-2">
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-infinity p-2"></i>
 						</div>
@@ -56,7 +56,7 @@
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-document p-2"></i>
 						</div>
-						<InputTextArea class="form-control" @bind-Value="Todo.Description" placeholder="Enter what needs to be done." @onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Description"))" id="@(Todo.Id.ToString() + "Description")" />
+						<InputTextArea rows="3" class="form-control" @bind-Value="Todo.Description" placeholder="Enter what needs to be done." @onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Description"))" id="@(Todo.Id.ToString() + "Description")" />
 						@if (Todo.Description?.Length > 0)
 						{
 							<div class="input-group-append bg-success">
@@ -99,7 +99,7 @@
 				</td>
 				<td>
 					<button type="submit" class="btn btn-success btn-sm">Submit</button>
-					<button type="button" class="btn btn-outline-primary btn-sm" @onclick="@Cancel">Cancel</button>
+					<button type="button" class="btn btn-outline-primary btn-sm my-2" @onclick="@Cancel">Cancel</button>
 				</td>
 			</tr>
 		</tbody>
