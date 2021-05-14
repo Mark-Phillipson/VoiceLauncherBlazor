@@ -45,3 +45,7 @@ section {
 	font-size:small;
 	float:right;
 }
+
+a {
+	cursor:pointer;
+}
