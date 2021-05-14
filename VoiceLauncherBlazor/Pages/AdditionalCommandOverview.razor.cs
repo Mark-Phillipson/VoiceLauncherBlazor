@@ -123,7 +123,6 @@ namespace VoiceLauncherBlazor.Pages
 			{
 				await LoadData();
 			}
-
 		}
 	}
 }

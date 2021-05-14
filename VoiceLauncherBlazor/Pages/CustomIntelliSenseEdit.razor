@@ -84,9 +84,9 @@ else
 							<ResultTemplate Context="category">
 								@category.CategoryName
 							</ResultTemplate>
-							@*<NotFoundTemplate>
+							<NotFoundTemplate Context="Category">
 								Sorry, no Category matched the search result.
-							</NotFoundTemplate>*@
+							</NotFoundTemplate>
 						</BlazoredTypeahead>
 					</div>
 					<ValidationMessage For="@(() => intellisense.CategoryId)" />

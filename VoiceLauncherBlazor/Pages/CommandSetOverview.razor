@@ -109,9 +109,9 @@ else
 							</tr>
 							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
 							@foreach (var voiceCommand in targetApplication.VoiceCommands
-							  .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
-								&& v.Name.Length > 0))
-							  .OrderBy(a => a.Name))
+							 .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
+							   && v.Name.Length > 0))
+							 .OrderBy(a => a.Name))
 							{
 								<tr>
 									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">

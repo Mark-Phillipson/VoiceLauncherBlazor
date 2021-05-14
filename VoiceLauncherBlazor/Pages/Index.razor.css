@@ -1,0 +1,7 @@
+﻿.upwork-logo {
+	animation:bounce;
+	animation-duration:5s;
+	animation-iteration-count:5;
+	animation-delay:5s;
+	float:right
+}

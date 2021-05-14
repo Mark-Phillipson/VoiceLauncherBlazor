@@ -41,3 +41,7 @@ section {
 		-webkit-filter: grayscale(1); /* Old WebKit */
 		filter: grayscale(1);
 	}
+.form-check-inline {
+	font-size:small;
+	float:right;
+}
