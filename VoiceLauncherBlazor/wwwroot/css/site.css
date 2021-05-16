@@ -277,10 +277,6 @@ input:disabled {
 	animation: spin 5s linear alternate;
 }
 
-.blazored-modal {
-	color: black;
-}
-
 .page-background {
 	background-color: azure;
 }
@@ -296,4 +292,9 @@ header > h3 {
 
 .table-dark {
 	background-color:black;
+}
+
+.blazored-modal {
+	background-color:black;
+	color:white;
 }

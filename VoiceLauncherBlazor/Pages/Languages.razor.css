@@ -1,0 +1,8 @@
+﻿
+.layout-as-cards {
+	display:flex;
+	flex-direction:column;
+	flex-flow:wrap;
+
+	color:white !important;
+}

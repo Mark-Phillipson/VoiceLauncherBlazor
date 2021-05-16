@@ -10,6 +10,7 @@ namespace VoiceLauncherBlazor.Pages
 	{
 		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
+		public bool ShowAsCards { get; set; } = true;
 		private int languageIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.Language> languages;
 		public string StatusMessage { get; set; }
