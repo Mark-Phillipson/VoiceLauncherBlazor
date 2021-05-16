@@ -1,10 +1,11 @@
-﻿using DataAccessLibrary.Services;
+﻿using Blazored.Toast.Services;
+using DataAccessLibrary.Models;
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace VoiceLauncherBlazor.Pages
@@ -12,13 +13,14 @@ namespace VoiceLauncherBlazor.Pages
 	public partial class Launchers
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; }
+		[Inject] IToastService ToastService { get; set; }
 		public bool ShowDialog { get; set; }
 		private int launcherIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.Launcher> launchers;
 		public string StatusMessage { get; set; }
 		public List<DataAccessLibrary.Models.Category> categories { get; set; }
 		public List<DataAccessLibrary.Models.Computer> computers { get; set; }
-		public int MaximumRows { get; set; } = 15;
+		public int MaximumRows { get; set; } = 26;
 		public bool ShowCreateNewOrEdit { get; set; }
 		private int _launcherId;
 #pragma warning disable 414
@@ -52,7 +54,7 @@ namespace VoiceLauncherBlazor.Pages
 		}
 		private async Task LoadData()
 		{
-			CategoryIdFilter =  await CheckForQueryStringAsync();
+			CategoryIdFilter = await CheckForQueryStringAsync();
 			if (CategoryIdFilter != null)
 			{
 				await FilterByCategory();
@@ -144,7 +146,7 @@ namespace VoiceLauncherBlazor.Pages
 
 		async Task SaveAllLaunchers()
 		{
-			if (Environment.MachineName!= "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
 				StatusMessage = "This demo application does not allow saving!";
 				return;
@@ -177,9 +179,11 @@ namespace VoiceLauncherBlazor.Pages
 			_launcherId = launcherId;
 			ShowCreateNewOrEdit = true;
 		}
-		private void CloseDialog()
+		private async Task CloseDialog()
 		{
 			ShowCreateNewOrEdit = false;
+			launchers = null;
+			await LoadData(); 
 		}
 		private void CreateRecord()
 		{
@@ -189,6 +193,20 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 			await ApplyFilter();
+		}
+		private async Task LaunchItemAsync(string commandLine)
+		{
+			if (commandLine.ToLower().StartsWith("http"))
+			{
+				await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync(
+					"clipboardCopy.copyText", commandLine);
+				var message = $"Copied Successfully: '{commandLine}'";
+				ToastService.ShowSuccess(message, "Copy Commandline");
+			}
 		}
 	}
 }

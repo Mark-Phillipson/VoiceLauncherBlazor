@@ -2,6 +2,8 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,10 +14,12 @@ namespace VoiceLauncherBlazor.Pages
 	{
 		[Parameter] public int launcherId { get; set; }
 		private EditContext _editContext;
+		[Inject] public IJSRuntime JSRuntime { get; set; }
 		[Inject] IToastService ToastService { get; set; }
 		public DataAccessLibrary.Models.Launcher launcher { get; set; }
 		public List<DataAccessLibrary.Models.Category> categories { get; set; }
 		public List<DataAccessLibrary.Models.Computer> computers { get; set; }
+		public string Message { get; set; }
 		[Parameter] public EventCallback OnClose { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
@@ -71,11 +75,19 @@ namespace VoiceLauncherBlazor.Pages
 			}
 		}
 
+		protected override async Task OnAfterRenderAsync(bool firstRender)
+		{
+			if (firstRender)
+			{
+				await JSRuntime.InvokeVoidAsync("setFocus", "LauncherName");
+			}
+		}
+
 		private async Task HandleValidSubmit()
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError( "This demo application does not allow editing of data!","Demo Only");
+				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
@@ -87,7 +99,12 @@ namespace VoiceLauncherBlazor.Pages
 				Console.WriteLine(exception.Message);
 				_loadFailed = true;
 			}
+			Message = $"Saved Successfully {DateTime.Now.ToLongTimeString()}";
 			NavigationManager.NavigateTo("launchers");
+		}
+		void HideMessage(MouseEventArgs args)
+		{
+			Message = null;
 		}
 
 	}
