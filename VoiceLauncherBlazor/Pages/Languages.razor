@@ -47,11 +47,8 @@ else
 			{
 			<div class="card m-1" style="width: 15rem;">
 				<a href="intellisensesL/@language.Id">
-					<div class="card-img-top text-center" style="font-size:large">
-						<i class="oi oi-flag"></i>
-					</div>
 					<div class="card-body">
-						<h4 class="card-title">@language.LanguageName</h4>
+						<h3 class="card-title">@language.LanguageName</h3>
 						<div class="card-text">
 							Active
 							@if (language.Active)
@@ -65,7 +62,7 @@ else
 						</div>
 						@if (language.CustomIntelliSense != null)
 						{
-							<span>Number of IntelliSense: @language.CustomIntelliSense.Count</span>
+							<span>Number of IntelliSense: <span class="badge badge-info">@language.CustomIntelliSense.Count</span></span>
 						}
 					</div>
 					</a>
@@ -113,12 +110,12 @@ else
 				<td>
 					@if (language.CustomIntelliSense != null)
 					{
-						<a href="intellisensesL/@language.Id">@language.CustomIntelliSense.Count</a>
+						<a class="btn btn-dark"  style="width:100%" href="intellisensesL/@language.Id">@language.CustomIntelliSense.Count</a>
 					}
 				</td>
 				<td>
 					@*<a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/language/@language.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>*@
-					<button accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(language.Id))">Delete @(counter< 10 ? "(" +  counter.ToString() + ")":"") <i class="oi oi-circle-x"></i></button>
+					<button accesskey="@(counter< 10 ? counter.ToString():"")" style="width:100%" class="btn btn-danger" @onclick="@(() => ConfirmDelete(language.Id))">Delete @(counter< 10 ? "(" +  counter.ToString() + ")":"") <i class="oi oi-circle-x"></i></button>
 				</td>
 			</tr>
 		}
