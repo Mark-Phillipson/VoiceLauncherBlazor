@@ -1,8 +1,16 @@
 ﻿
 .layout-as-cards {
-	display:flex;
-	flex-direction:column;
-	flex-flow:wrap;
+	display: flex;
+	flex-direction: column;
+	flex-flow: wrap;
+	text-decoration: none;
+}
+.card {
+	box-shadow: grey 2px 2px;
+}
 
-	color:white !important;
+a {
+	text-decoration: none;
+	text-transform: capitalize;
+	color: white;
 }
