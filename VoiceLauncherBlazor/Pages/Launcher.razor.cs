@@ -106,6 +106,10 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			Message = null;
 		}
+		private async Task CallChangeAsync(string elementId)
+		{
+			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+		}
 
 	}
 }

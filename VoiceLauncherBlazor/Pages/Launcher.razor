@@ -42,7 +42,7 @@ else
 				</div>
 				<div class="form-field row">
 					<label for="@launcher.Name" class="col-md-4"> Launcher Name (0)</label>
-					<InputText class="col-md-8 form-control" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="launcher.Name"></InputText>
+					<InputText class="col-md-8 form-control" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="launcher.Name" @onblur="@(e => CallChangeAsync("LauncherName"))" ></InputText >
 					<ValidationMessage For="@(() => launcher.Name)" />
 				</div>
 				<div class="form-field row">
