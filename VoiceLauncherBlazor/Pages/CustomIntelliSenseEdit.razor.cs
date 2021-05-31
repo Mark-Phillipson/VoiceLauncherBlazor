@@ -109,6 +109,7 @@ namespace VoiceLauncherBlazor.Pages
 			}
 			if (customValidationErrors.Count == 0)
 			{
+
 				var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
 				if (result.Contains("Successfully"))
 				{
@@ -122,8 +123,17 @@ namespace VoiceLauncherBlazor.Pages
 		{
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 		}
-		private void GoBack()
+		private async Task GoBackAsync()
 		{
+			if (intellisense.Language== null  && intellisense.LanguageId>0)
+			{
+				intellisense.Language = await LanguageService.GetLanguageAsync(intellisense.LanguageId);
+			}
+			if (intellisense.Category== null  && intellisense.CategoryId>0)
+			{
+				intellisense.Category = await CategoryService.GetCategoryAsync(intellisense.CategoryId);
+			}
+
 			if (intellisense.Language!= null  && intellisense.Category!= null )
 			{
 				NavigationManager.NavigateTo($"/intellisenses?language={intellisense.Language.LanguageName}&category={intellisense.Category.CategoryName}");
@@ -138,14 +148,14 @@ namespace VoiceLauncherBlazor.Pages
 			var result = await CategoryService.GetCategoriesAsync(searchText);
 			return result;
 		}
-		public int? GetLanguageId(Language language)
-		{
-			return language?.Id;
-		}
-		public int? GetCategoryId(Category category)
-		{
-			return category?.Id;
-		}
+		//public int? GetLanguageId(Language language)
+		//{
+		//	return language?.Id;
+		//}
+		//public int? GetCategoryId(Category category)
+		//{
+		//	return category?.Id;
+		//}
 		public Language LoadSelectedLanguage(int? languageId)
 		{
 			if (languageId != null && languages != null)

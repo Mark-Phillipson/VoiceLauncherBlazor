@@ -32,7 +32,6 @@ else
 {
 	<div class="row">
 		<div class="col-md-12">
-
 			<EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
 				<DataAnnotationsValidator />
 				@*<ValidationSummary />*@
@@ -45,68 +44,63 @@ else
 						}
 					</ul>
 				}
-				<div class="form-field row">
-					<label for="@intellisense.LanguageId" class="col-md-3"> Language Name</label>
-					<div class="col-md-9">
-						<BlazoredTypeahead SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="SelectedLanguageId" placeholder="filter language" @onblur="SetLanguage" ShowDropDownOnFocus="true">
-							<SelectedTemplate Context="languageId">
-								@{
-										if (languageId != null)
-										{
-											var selectedLanguage = LoadSelectedLanguage(languageId);
-										<text>@selectedLanguage?.LanguageName</text>
-										}
+			<div class="form-field row">
+				<label for="@intellisense.LanguageId" class="col-md-3"> Language Name (Alt+0)</label>
+					<InputSelect accesskey="0" class="form-control col-md-9" @bind-Value="intellisense.LanguageId">
+						<option value="">-</option>
+						@if (languages != null)
+							{
+							@foreach (var language in languages)
+								{
+								@if (intellisense.LanguageId== language.Id)
+									{
+									<option selected value="@language.Id">@language.LanguageName</option> }
+									else
+									{
+									<option value="@language.Id">@language.LanguageName</option>
+									}
 								}
-							</SelectedTemplate>
-							<ResultTemplate Context="language">
-								@language.LanguageName
-							</ResultTemplate>
-							@*<NotFoundTemplate>
-								Sorry, no language matched the search result.
-							</NotFoundTemplate>*@
-						</BlazoredTypeahead>
-					</div>
-					<ValidationMessage For="@(() => intellisense.LanguageId)" />
+							}
+					</InputSelect>
+
+				<ValidationMessage For="@(() => intellisense.LanguageId)" />
+			</div>
+				<div class="form-field row">
+					<label for="@intellisense.CategoryId" class="col-md-3"> Category (Alt+1)</label>
+						<InputSelect accesskey="1" class="form-control col-md-9" @bind-Value="intellisense.CategoryId">
+							<option value="">-</option>
+							@if (categories != null)
+								{
+								@foreach (var category in categories)
+									{
+									@if (intellisense.CategoryId== category.Id)
+										{
+										<option selected value="@category.Id">@category.CategoryName</option> }
+										else
+										{
+										<option value="@category.Id">@category.CategoryName</option>
+										}
+									}
+								}
+						</InputSelect>
+						<ValidationMessage For="@(() => intellisense.CategoryId)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.CategoryId" class="col-md-3"> Category</label>
-					<div class="col-md-9">
-						<BlazoredTypeahead SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="SelectedCategoryId" placeholder="select category" @onblur="SetCategory" ShowDropDownOnFocus="true">
-							<SelectedTemplate Context="categoryId">
-								@{
-										if (categoryId != null)
-										{
-											var selectedCategory = LoadSelectedCategory(categoryId);
-										<text>@selectedCategory?.CategoryName</text>
-										}
-								}
-							</SelectedTemplate>
-							<ResultTemplate Context="category">
-								@category.CategoryName
-							</ResultTemplate>
-							<NotFoundTemplate Context="Category">
-								Sorry, no Category matched the search result.
-							</NotFoundTemplate>
-						</BlazoredTypeahead>
-					</div>
-					<ValidationMessage For="@(() => intellisense.CategoryId)" />
-				</div>
-				<div class="form-field row">
-					<label for="@intellisense.DisplayValue" class="col-md-3"> Display Value (1)</label>
-					<InputText accesskey="1" class="col-md-9 form-control" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
+					<label for="@intellisense.DisplayValue" class="col-md-3"> Display Value (Alt+2)</label>
+					<InputText accesskey="2" class="col-md-9 form-control" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
 							   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "DisplayValue"))" id="@(intellisense.Id.ToString() + "DisplayValue")"></InputText>
 					<ValidationMessage For="@(() => intellisense.DisplayValue)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value (2)</label>
-					<InputTextArea accesskey="2" style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
+					<label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value (Alt+3)</label>
+					<InputTextArea accesskey="3" style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
 								   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "SendKeysValue"))" id="@(intellisense.Id.ToString() + "SendKeysValue")">
 					</InputTextArea>
 					<ValidationMessage For="@(() => intellisense.SendKeysValue)" />
 				</div>
 				<div class="form-field row">
-					<label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type (3)</label>
-					<InputSelect accesskey="3" class="form-control col-md-9" @bind-Value="intellisense.DeliveryType">
+					<label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type (Alt+4)</label>
+					<InputSelect accesskey="4" class="form-control col-md-9" @bind-Value="intellisense.DeliveryType">
 						<option value="">-</option>
 						@if (generalLookups != null)
 							{
@@ -134,7 +128,7 @@ else
 				<div class="form-field row">
 					<div class="col-md-12 btn-group">
 						<button accesskey="s" class="btn btn-lg btn-success" type="submit"><u>S</u>ave <i class="fas fa-save"></i></button>
-						<button accesskey="g" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@GoBack">
+						<button accesskey="g" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@GoBackAsync">
 							<u>G</u>o Back <i class="fas fa-arrow-left"></i>
 						</button>
 					</div>
