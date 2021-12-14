@@ -1,0 +1,145 @@
+@page "/commandsetoverview"
+@inject IJSRuntime JSRuntime
+@using VoiceLauncher.Components
+
+<div style="margin:4px">
+	<h6>
+		@Title / KnowBrainer: @CommandSet?.KBFilename <span class="badge badge-primary">@CommandSet?.KBScripts</span> <span class="badge badge-primary">@CommandSet?.KBLists</span>
+		/ Dragon: @CommandSet?.DragonFilename <span class="badge badge-info">@CommandSet?.DragonScripts</span> <span class="badge badge-info">@CommandSet?.DragonLists</span>
+	</h6>
+	<label class="control-label">Select KnowBrainer custom file</label>
+	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
+	<label class="control-label">Select Dragon custom file</label>
+	<InputFile OnChange="ImportFileAsync" class="btn btn-info btn-sm border border-info" @onclick="@(() => SetImportFlag(false))" />
+</div>
+<div class="form-inline">
+	<div style="margin:4px">	<label class="control-label">Show</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
+	</div>
+	<div style="margin:4px">	<label class="control-label">Show Lists</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
+	</div>
+	<div style="margin:4px">	<label class="control-label">Show Code</label></div>
+	<div style="margin:4px">
+		<input type="checkbox" class="form-control-lg" @bind="@ShowCode" title="Hide Code Only" />
+	</div>
+	<div style="margin:4px"><label class="control-label ml-4">Filter by Name</label></div>
+	<div style="margin:6px">
+		<input @ref="SearchInput" class="form-control mr-4" style="float:right" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by command name" />
+	</div>
+	<div style="margin:4px">
+		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Filter by Applications" />
+	</div>
+	<div style="margin:4px">
+		<button class="btn btn-success" type="button" @onclick="@( ( ) => BuildSearchUrl(  ) )">Build Search Url</button>
+	</div>
+</div>
+
+@if (FilteredTargetApplications == null && _loadFailed == true)
+{
+	<h1 class="text-danger">The data failed to load please try again in a little while..</h1>
+	<h6>@ExceptionMessage</h6>
+}
+else if (FilteredTargetApplications == null)
+{
+	<br>
+	<br>
+	<h5 class="text-info animate__animated animate__bounce animate__delay-5s text-center"> Please enter a search term (Command or Application)</h5>
+}
+else if (FilteredTargetApplications.Count == 0)
+{
+	<p>No Commands/scripts Found.</p>
+}
+else
+{
+	<table style="max-width:1500px" class="table table-responsive-sm table-dark table-condensed table-bordered table-sm" id="tableTargetApplications">
+		<thead>
+			<tr>
+				<th style="max-width:200px">Application/Global</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var targetApplication in FilteredTargetApplications.OrderBy(a => a.ModuleDescription))
+			{
+				var className = "info";
+				if (targetApplication.CommandSource == "KB")
+				{
+					className = "primary";
+				}
+				<tr>
+					<td>
+						<button class="btn btn-@className" type="button" @onclick="@( ( ) => ApplyApplicationFilter( targetApplication.Module ) )">
+							<span>Source @targetApplication.CommandSource | </span>
+							<span>Description @targetApplication.ModuleDescription | </span>
+							<span>Module @targetApplication.Module | </span>
+							<span>Scope @targetApplication.Scope | </span>
+							<span>Company @targetApplication.Company</span>
+							@if (targetApplication.WindowTitle != null)
+							{
+								<span> | Window Title @targetApplication.WindowTitle</span>
+							}
+							@if (targetApplication.WindowClass != null)
+							{
+								<span> | Window Class @targetApplication.WindowClass</span>
+							}
+						</button>
+					</td>
+				</tr>
+				<tr>
+					@if (ShowCommands)
+					{
+						@*<table class="table table-bordered table-striped table-condensed table-sm" id="tableCommands">
+							<thead>*@
+						<table style="background-color:slategrey">
+							<tr>
+								<th colspan="3">
+									Command Name
+								</th>
+								<th>
+									Description
+								</th>
+								<th>
+									Group
+								</th>
+								<th>
+									Enabled?
+								</th>
+							</tr>
+							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
+							@foreach (var voiceCommand in targetApplication.VoiceCommands
+							 .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
+							   && v.Name.Length > 0))
+							 .OrderBy(a => a.Name))
+							{
+								<tr>
+									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">
+										<button class="btn btn-primary btn-sm">@voiceCommand.Name</button>
+									</td>
+									<td>
+										@voiceCommand.Description
+									</td>
+									<td>
+										@voiceCommand.Group
+									</td>
+									<td>
+										@voiceCommand.Enabled
+									</td>
+								</tr>
+								@if (ShowLists)
+								{
+									<VoiceCommandListComponent CommandSet="@CommandSet" VoiceCommand="@voiceCommand" Show="@ShowLists" />
+								}
+								@if (ShowCode)
+								{
+									<VoiceCommandContentComponent VoiceCommandContent="@voiceCommand.VoiceCommandContents.FirstOrDefault()" />
+								}
+							}
+						</table>
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
+}

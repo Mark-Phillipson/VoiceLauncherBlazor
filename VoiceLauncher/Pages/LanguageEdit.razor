@@ -1,0 +1,44 @@
+﻿@page "/language/{languageId:int}";
+
+
+@inject LanguageService LanguageService
+@inject NavigationManager NavigationManager
+
+<h1>Language</h1>
+@if (language == null)
+{
+    <text>Loading.</text>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@language" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                @*<ValidationSummary />*@
+                <div class="form-field row">
+                    <label class="col-md-4">Id</label>
+                    @if (language.Id > 0)
+                    {
+                        <div class="col-md-8">@language.Id</div>
+                    }
+                    <input type="hidden" name="Id" id="Id" value="@language.Id" />
+                </div>
+                <div class="form-field row">
+                    <label for="@language.LanguageName" class="col-md-4"> Language Name (0)</label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter Language Name, must be unique" accesskey="0" id="LanguageName" @bind-Value="language.LanguageName"></InputText>
+                    <ValidationMessage For="@(() => language.LanguageName)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@language.Active" class="col-md-4"> Active (1)</label>
+                    <InputCheckbox accesskey="1" class="form-control-lg col-md-8" @bind-Value="language.Active">
+                    </InputCheckbox>
+                    <ValidationMessage For="@(() => language.Active)" />
+                </div>
+                <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
+            </EditForm>
+        </div>
+    </div>
+    <hr>
+}
+

@@ -1,0 +1,25 @@
+﻿@if (Show)
+{
+
+	@foreach (var listName in ListNames)
+	{
+		@if (!string.IsNullOrEmpty(listName) && CommandSet.SpeechLists.Where(l => l.Name == listName).Any())
+		{
+			<table class="table table-responsive-sm table-dark table-bordered">
+				<tr>
+					<th>
+						@listName
+					</th>
+				</tr>
+				<tr>
+					<td>
+						@foreach (var listValue in CommandSet.SpeechLists.Where(v => v.Name == listName).FirstOrDefault()?.ListValues)
+						{
+							@listValue?.Value_Text <span> | </span>
+						}
+					</td>
+				</tr>
+			</table>
+		}
+	}
+}

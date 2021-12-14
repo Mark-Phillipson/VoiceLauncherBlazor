@@ -1,0 +1,134 @@
+﻿@page "/todos"
+@inject ITodoData TodoData
+@inject IJSRuntime JSRuntime
+@if (Project == null)
+{
+
+	<header>
+		<h3>
+			Todos
+			<small>
+				<input placeholder="Filter by title/description (Alt+1)" style="min-width: 300px" class="form-control-sm" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
+				<button accesskey="2" class="btn btn-primary btn-sm mt-2 mx-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
+				@if (Project == null)
+				{
+					<select class="form-control-sm mr-2" @bind="ProjectFilter" @onblur="ApplyFilter">
+						<option value="">-Select to filter by project-</option>
+						@if (projects != null)
+						{
+							@foreach (var item in projects)
+							{
+								<option value="@item">@item</option>
+							}
+						}
+					</select>
+				}
+			</small>
+		</h3>
+		@if (StatusMessage != null)
+		{
+@*			<Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
+		}
+	</header>
+
+	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
+
+	<h4>Current Todos</h4>
+}
+@if (_loadFailed)
+{
+	<div class="text-danger">The data failed to load please try again later!</div>
+}
+else if (todos == null)
+{
+	<Loading />
+}
+else
+{
+	@if (todos.Count > 0)
+	{
+		<div class="progress my-2">
+			<div class="progress-bar" role="progressbar" style="width:@(percentDone)%" aria-valuemin="0" aria-valuemax="100">
+				@(percentDone)%
+			</div>
+		</div>
+	}
+
+	<table class="table table-bordered table-striped table-responsive table-sm" id="table1">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Description</th>
+				<th>Done</th>
+				@if (Project == null)
+				{
+					<th>Project</th>
+					<th>Action</th>
+				}
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var todo in todos)
+			{
+				<tr>
+					@if (todo.Completed != true)
+					{
+						<td>
+							@todo.Title
+							<br>
+							<div class="btn-group">
+								<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,true ) )"><i class="oi oi-arrow-circle-top"></i></button>
+								<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,false ) )"><i class="oi oi-arrow-circle-bottom"></i></button>
+							</div>
+						</td>
+						<td>@todo.Description</td>
+						<td>
+							<button class="btn btn-sm btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))"><i class="oi oi-circle-x"></i></button>
+						</td>
+					}
+					else
+					{
+						<td class="text-muted">
+							<del>@todo.Title</del>
+						</td>
+						<td class="text-muted"><del>@todo.Description</del></td>
+						<td>
+							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-task"></i></button>
+						</td>
+					}
+					@if (Project == null)
+					{
+						<td>@todo.Project</td>
+						<td class="btn-group">
+							<button class="btn btn-warning btn-sm" type="button" @onclick="() => EditTodo(todo)"><i class="oi oi-pencil"></i></button>
+							<button class="btn btn-danger btn-sm" type="button" @onclick="() => ConfirmDelete(todo.Id)"><i class="oi oi-delete"></i></button>
+							@if (todo.Completed)
+							{
+								<button class="btn btn-primary btn-sm" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
+							}
+						</td>
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
+
+}
+<TemplatedDialog Show="ShowDialog">
+	<ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
+				   Title="Confirmation Required"
+				   OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(todoIdDelete))">
+	</ConfirmDialog>
+</TemplatedDialog>
+<TemplatedDialog Show="ShowDialogArchive">
+	<ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
+				   Title="Confirmation Required"
+				   OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(todoIdArchive))">
+	</ConfirmDialog>
+</TemplatedDialog>
+
+@code {
+
+}
+
+

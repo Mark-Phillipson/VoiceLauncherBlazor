@@ -1,0 +1,127 @@
+﻿@page "/languages"
+
+
+@inject LanguageService LanguageService
+@inject NavigationManager NavigationManager
+
+<header>
+	<h3>
+		List of Languages
+		@if (SearchTerm != null)
+		{
+			<small class="text-warning"> Filter: @SearchTerm</small>
+		}
+	</h3>
+</header>
+
+<div class="form-field row">
+	<a accesskey="0" class="btn btn-success col-md-2" href="/language/0">Create (Alt+0) <i class="oi oi-plus"></i></a>
+	<label class="control-label col-md-1">Filter</label>
+	<input @bind="SearchTerm" @bind:event="oninput" class="form-control mx-2 col-md-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+	<button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (Alt+2) <i class="oi oi-magnifying-glass"></i></button>
+	<label class="control-label col-md-2">Cards/Table</label>
+	<input type="checkbox" class="form-control col-md-1" @bind="@ShowAsCards" />
+</div>
+@if (languages == null && _loadFailed)
+{
+	<h1 class="text-danger">The data failed to load please try again in a little bit..</h1>
+}
+else if (languages == null)
+{
+	<h1 class="text-success">Loading...</h1>
+	<Loading />
+}
+else if (languages.Count == 0)
+{
+	<text>No languages found</text> }
+else
+{
+	@if (ShowAsCards)
+	{
+		<div class="layout-as-cards">
+			@foreach (var language in languages)
+			{
+			<div class="card m-1" style="width: 15rem;">
+				<a href="intellisensesL/@language.Id">
+					<div class="card-body">
+						<h3 class="card-title">@language.LanguageName</h3>
+						<div class="card-text">
+							Active
+							@if (language.Active)
+							{
+								<span>Yes</span>
+							}
+							else
+							{
+								<span>No</span>
+							}
+						</div>
+						@if (language.CustomIntelliSense != null)
+						{
+							<span>Number of IntelliSense: <span class="badge badge-info">@language.CustomIntelliSense.Count</span></span>
+						}
+					</div>
+					</a>
+			</div>
+			}
+		</div>
+	}
+	else
+	{
+		<table class="table table-dark table-sm table-bordered table-striped" id="table1">
+	<thead>
+		<tr>
+			<th>
+				Language Name
+				<button @onclick="@(e  => SortLanguages("LanguageName","Ascending"))" accesskey="3" class="btn btn-sm btn-info">(3) <i class="oi oi-sort-ascending"></i></button>
+				<button @onclick="@(e => SortLanguages("LanguageName","Descending"))" accesskey="4" class="btn btn-sm btn-info">(4) <i class="oi oi-sort-descending"></i></button>
+			</th>
+			<th style="width: 350px">
+				<div class="row">
+					<div class="col-md-3">Active</div>
+					<button @onclick="@(e => ShowAll())" accesskey="5" class="btn btn-sm btn-info col-md-4">Show All (5) <i class="oi oi-eye"></i></button>
+					<input type="checkbox" class="form-control-sm col-md-5" style="width: 150px" @bind="activeFilter" @onblur="FilterActive" />
+				</div>
+			</th>
+			<th>
+				IntelliSense
+			</th>
+			<th>
+				<button accesskey="6" class="btn btn-sm btn-success" @onclick="SaveAllLanguages">Save All (6) <i class="oi oi-hard-drive"></i></button>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@{ var counter = 6;}
+		@foreach (var language in languages)
+		{
+			counter++;
+			<tr>
+				<td>
+					<input class="form-control" @bind="language.LanguageName" />
+				</td>
+				<td>
+					<input type="checkbox" class="form-control" @bind="language.Active" />
+				</td>
+				<td>
+					@if (language.CustomIntelliSense != null)
+					{
+						<a class="btn btn-dark"  style="width:100%" href="intellisensesL/@language.Id">@language.CustomIntelliSense.Count</a>
+					}
+				</td>
+				<td>
+					@*<a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/language/@language.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>*@
+					<button accesskey="@(counter< 10 ? counter.ToString():"")" style="width:100%" class="btn btn-danger" @onclick="@(() => ConfirmDelete(language.Id))">Delete @(counter< 10 ? "(" +  counter.ToString() + ")":"") <i class="oi oi-circle-x"></i></button>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+	}
+}
+<TemplatedDialog Show="ShowDialog">
+	<ConfirmDialog Message="Please confirm you wish to Delete this Language!"
+				   Title="Confirmation Required"
+				   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLanguage(languageIdDelete))">
+	</ConfirmDialog>
+</TemplatedDialog>

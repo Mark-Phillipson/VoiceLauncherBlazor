@@ -1,0 +1,44 @@
+﻿@page "/upload-files"
+
+<h1>Upload Files</h1>
+
+<p>
+	<label>
+		Upload up to @maxAllowedFiles files:
+		<InputFile OnChange="@OnInputFileChange" multiple />
+	</label>
+</p>
+
+@if (files.Count > 0)
+{
+	<div class="card">
+		<div class="card-body">
+			<ul>
+				@foreach (var file in files)
+				{
+					<li>
+						File: @file.Name
+						<br>
+						@if (FileUpload(uploadResults, file.Name, logger,
+						   out var result))
+						{
+							<span>
+								Stored File Name: @result.StoredFileName
+							</span>
+						}
+						else
+						{
+							<span>
+								There was an error uploading the file
+								(Error: @result.ErrorCode).
+							</span>
+						}
+					</li>
+				}
+			</ul>
+		</div>
+	</div>
+}
+
+@code {
+}
