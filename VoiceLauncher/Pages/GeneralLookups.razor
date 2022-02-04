@@ -1,0 +1,118 @@
+﻿@page "/generallookups"
+@inject GeneralLookupService GeneralLookupService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+<header>
+	<h3 class="mr-3">
+		List of General Lookups
+	</h3>
+	@if (SearchTerm != null)
+	{
+		<span class="text-warning"> Filter: @SearchTerm</span>
+	}
+	@if (StatusMessage != null)
+	{
+@*		<Alert Title="Last Action" Display="@StatusMessage" Duration="@AlertDuration" AlertType="@AlertType" Show="@ShowAlert" />*@
+	}
+</header>
+
+<div class="form-field row">
+	<a accesskey="0" class="btn btn-success col-md-2" href="/generallookup/0">Create (0) <i class="oi oi-plus"></i></a>
+	<label class="control-label col-md-1">Filter</label>
+	<input @bind="SearchTerm"
+		   @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+		   class="form-control col-md-5 mx-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+	<button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+</div>
+@if (generalLookups == null && _loadFailed)
+{
+	<h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+}
+else if (generalLookups == null)
+{
+	<Loading/>
+}
+else if (generalLookups.Count == 0)
+{
+	<text>No General Lookups found</text>
+}
+else
+{
+	<EditForm OnValidSubmit="SaveAllGeneralLookups" OnInvalidSubmit="NotifyInvalid" Model="generalLookups">
+		<table class="table table-dark table-sm table-bordered table-striped" id="table1">
+			<thead>
+				<tr>
+					<th>
+						Item Value
+						<button type="button" @onclick="@(e  => SortGeneralLookups("ItemValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+						<button type="button" @onclick="@(e => SortGeneralLookups("ItemValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+					</th>
+					<th style="width: 350px">
+						<div class="row">
+							<div class="col-md-6">Category</div>
+							<select class="form-control-sm col-md-5" style="width: 150px" @bind="categoryFilter" @onblur="FilterGeneralLookups">
+								<option value="">-Select to filter-</option>
+								@if (generalLookupsCategories != null)
+								{
+									@foreach (var item in generalLookupsCategories)
+									{
+										<option value="@item">@item</option>
+									}
+								}
+							</select>
+						</div>
+					</th>
+					<th style="width:100px">
+						Sort Order
+					</th>
+					<th> Display Value </th>
+					<th>
+						@*<button class="btn btn-sm btn-success" @onclick="SaveAllGeneralLookups">Save All <i class="oi oi-hard-drive"></i></button>*@
+						<button class="btn btn-sm btn-success" type="submit">Save All <i class="oi oi-hard-drive"></i></button>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				@{ var counter = 2;}
+				@foreach (var generalLookup in generalLookups)
+				@*@for (int i = 0; i < generalLookups.Count; i++)*@ {
+					counter++;
+					<tr>
+						<td>
+							<input required class="form-control" @bind="generalLookup.ItemValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "ItemValue"))" id="@generalLookup.Id.ToString()ItemValue" @bind:event="onchange" />
+						</td>
+						<td>
+							<input required class="form-control" @bind="generalLookup.Category" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "Category"))" @bind:event="onchange" id="@generalLookup.Id.ToString()Category" />
+						</td>
+						<td>
+							<input class="form-control" @bind="generalLookup.SortOrder" type="number" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "SortOrder"))" id="@generalLookup.Id.ToString()SortOrder" @bind:event="onchange" />
+						</td>
+						<td>
+							<input class="form-control" @bind="generalLookup.DisplayValue" @onblur="@(e => CallChangeAsync(generalLookup.Id.ToString() + "DisplayValue"))" id="@generalLookup.Id.ToString()DisplayValue" @bind:event="onchange" />
+						</td>
+						<td class="btn-group">
+							<a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/generallookup/@generalLookup.Id">@(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
+							<button class="btn btn-sm btn-danger" type="button" @onclick="@(() => ConfirmDelete(generalLookup.Id))"><i class="oi oi-circle-x"></i></button>
+							<button class="btn btn-sm btn-warning" type="button" @onclick="@(() => DuplicateRecord(generalLookup.Id))"><i class="oi oi-copywriting"></i></button>
+
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</EditForm>
+}
+<TemplatedDialog Show="ShowDialog">
+	<ConfirmDialog Message="Please confirm you wish to Delete this General Lookup!"
+				   Title="Confirmation Required"
+				   OnCancel="CancelDialog" OnConfirm="@(() => DeleteGeneralLookup(generalLookupIdDelete))">
+	</ConfirmDialog>
+</TemplatedDialog>
+
+<TemplatedDialog Show="ShowValidationWarning">
+	<ConfirmDialog Message="The current data is not valid please check and try again!"
+				   Title="Data Not Valid"
+				   OnCancel="CancelDialog" OnConfirm="CancelDialog">
+	</ConfirmDialog>
+</TemplatedDialog>
+

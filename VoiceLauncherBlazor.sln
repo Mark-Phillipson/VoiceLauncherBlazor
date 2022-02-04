@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29721.120
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceLauncherBlazor", "VoiceLauncherBlazor\VoiceLauncherBlazor.csproj", "{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTestProject\UnitTestProject.csproj", "{33894701-68D6-4EF5-8232-6EA8B072BD2B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}"
@@ -14,16 +12,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceLauncher", "VoiceLauncher\VoiceLauncher.csproj", "{38490DD4-6FE3-4C88-81DB-F129234ABBC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DEDAF24F-D6AD-4FB5-AD14-DCC7F94B4B63}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33894701-68D6-4EF5-8232-6EA8B072BD2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -32,6 +28,10 @@ Global
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38490DD4-6FE3-4C88-81DB-F129234ABBC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38490DD4-6FE3-4C88-81DB-F129234ABBC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38490DD4-6FE3-4C88-81DB-F129234ABBC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38490DD4-6FE3-4C88-81DB-F129234ABBC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,67 @@
+@page "/additionalcommandoverview"
+@attribute [Authorize]
+@inject IJSRuntime JSRuntime
+<div class="row">
+	<div class="col-md-6">
+		<h6>@Title</h6>
+	</div>
+	@*<div class="col-md-6">
+		<input @ref="SearchInput" class="form-control m-1" style="float:right" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Enter Search Term to Filter.." />
+	</div>*@
+</div>
+
+
+@if (FilteredAdditionalCommands == null && _loadFailed == true)
+{
+	<h1 class="text-danger">The data failed to load please try again in a little while..</h1>
+	<h6>@ExceptionMessage</h6>
+}
+else if (FilteredAdditionalCommands == null)
+{
+	<div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredAdditionalCommands.Count == 0)
+{
+	<p>No additional commands.</p>
+	<button @onclick="AddNewAdditionalCommandAsync" accesskey="5" class="btn btn-success">Create (Alt+5) 
+	<i class="fas fa-plus"></i>
+	</button>
+}
+else
+{
+	<table class="table table-bordered table-striped" id="table1">
+		<thead>
+			<tr>
+				<th>
+					Wait Before
+				</th>
+				<th>Command</th>
+				<th>Delivery Type</th>
+				<th>Remarks</th>
+				<th>
+					<button accesskey="5" @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create (Alt+5) <i class="fas fa-plus"></i>
+					</button>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var additionalcommand in FilteredAdditionalCommands)
+			{
+			<tr>
+				<td>@additionalcommand.WaitBefore</td>
+				<td>@additionalcommand.SendKeysValue</td>
+				<td>@additionalcommand.DeliveryType</td>
+				<td>@additionalcommand.Remarks</td>
+				<td class="btn-group">
+					<button class="btn btn-sm btn-warning" @onclick="@(() => EditAdditionalCommandAsync(additionalcommand.Id))">
+						Edit <i class="fas fa-edit"></i>
+					</button>
+					<button class="btn btn-sm btn-danger" @onclick="@(() => DeleteAdditionalCommandAsync(additionalcommand.Id))">
+						Delete <i class="fas fa-trash"></i>
+					</button>
+				</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+}

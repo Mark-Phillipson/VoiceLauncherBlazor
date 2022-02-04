@@ -1,0 +1,144 @@
+﻿@page "/intellisense/{customIntellisenseId:int}"
+@page "/intellisense"
+
+
+@inject CustomIntellisenseService CustomIntellisenseService
+@inject CategoryService CategoryService
+@inject LanguageService LanguageService
+@inject GeneralLookupService GeneralLookupService
+
+@inject IJSRuntime JSRuntime
+
+<div class="text-danger">
+	@Message
+</div>
+<div>
+	<strong>Custom IntelliSense (@intellisense?.Id)</strong>
+	@if (intellisense != null)
+	{
+		<span> Example Commands </span><code>@intellisense?.Language?.LanguageName @intellisense?.Category?.CategoryName ... or Show List @intellisense?.DisplayValue</code>
+	}
+</div>
+@if (intellisense == null && _loadFailed)
+{
+	<h1 class="text-danger">The data failed to load please try again :( </h1>
+}
+else if (intellisense == null)
+{
+	<text>Loading.</text>
+	<div style="display:normal;margin:auto" class="loader"></div>
+}
+else
+{
+	<div class="row">
+		<div class="col-md-12">
+			<EditForm Model="@intellisense" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				@*<ValidationSummary />*@
+				@if (customValidationErrors != null)
+				{
+					<ul class="text-danger">
+						@foreach (var item in customValidationErrors)
+						{
+							<li>@item</li>
+						}
+					</ul>
+				}
+			<div class="form-field row">
+				<label for="@intellisense.LanguageId" class="col-md-3"> Language Name (Alt+0)</label>
+					<InputSelect accesskey="0" class="form-control col-md-9" @bind-Value="intellisense.LanguageId">
+						<option value="">-</option>
+						@if (languages != null)
+							{
+							@foreach (var language in languages)
+								{
+								@if (intellisense.LanguageId== language.Id)
+									{
+									<option selected value="@language.Id">@language.LanguageName</option> }
+									else
+									{
+									<option value="@language.Id">@language.LanguageName</option>
+									}
+								}
+							}
+					</InputSelect>
+
+				<ValidationMessage For="@(() => intellisense.LanguageId)" />
+			</div>
+				<div class="form-field row">
+					<label for="@intellisense.CategoryId" class="col-md-3"> Category (Alt+1)</label>
+						<InputSelect accesskey="1" class="form-control col-md-9" @bind-Value="intellisense.CategoryId">
+							<option value="">-</option>
+							@if (categories != null)
+								{
+								@foreach (var category in categories)
+									{
+									@if (intellisense.CategoryId== category.Id)
+										{
+										<option selected value="@category.Id">@category.CategoryName</option> }
+										else
+										{
+										<option value="@category.Id">@category.CategoryName</option>
+										}
+									}
+								}
+						</InputSelect>
+						<ValidationMessage For="@(() => intellisense.CategoryId)" />
+				</div>
+				<div class="form-field row">
+					<label for="@intellisense.DisplayValue" class="col-md-3"> Display Value (Alt+2)</label>
+					<InputText accesskey="2" class="col-md-9 form-control" placeholder="Enter the Display Value" @bind-Value="intellisense.DisplayValue"
+							   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "DisplayValue"))" id="@(intellisense.Id.ToString() + "DisplayValue")"></InputText>
+					<ValidationMessage For="@(() => intellisense.DisplayValue)" />
+				</div>
+				<div class="form-field row">
+					<label for="@intellisense.SendKeysValue" class="col-md-3"> Sendkeys Value (Alt+3)</label>
+					<InputTextArea accesskey="3" style="min-height: 200px" class="col-md-9 form-control" placeholder="Enter Send Keys Value" @bind-Value="intellisense.SendKeysValue" rows="6"
+								   @onblur="@(e => CallChangeAsync(intellisense.Id.ToString()+ "SendKeysValue"))" id="@(intellisense.Id.ToString() + "SendKeysValue")">
+					</InputTextArea>
+					<ValidationMessage For="@(() => intellisense.SendKeysValue)" />
+				</div>
+				<div class="form-field row">
+					<label for="@intellisense.DeliveryType" class="col-md-3"> Delivery Type (Alt+4)</label>
+					<InputSelect accesskey="4" class="form-control col-md-9" @bind-Value="intellisense.DeliveryType">
+						<option value="">-</option>
+						@if (generalLookups != null)
+							{
+							@foreach (var lookup in generalLookups)
+								{
+								@if (intellisense.DeliveryType == lookup.ItemValue)
+									{
+									<option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+									}
+									else
+									{
+									<option value="@lookup.ItemValue">@lookup.ItemValue</option>
+									}
+								}
+							}
+					</InputSelect>
+					<ValidationMessage For="@(() => intellisense.DeliveryType)" />
+				</div>
+				<div class="form-field row">
+					<label for="@intellisense.Remarks" class="col-md-3"> Remarks</label>
+					<InputText class="col-md-9 form-control" placeholder="Enter the Remarks" id="Remarks" @bind-Value="intellisense.Remarks"></InputText>
+					<ValidationMessage For="@(() => intellisense.Remarks)" />
+				</div>
+
+				<div class="form-field row">
+					<div class="col-md-12 btn-group">
+						<button accesskey="s" class="btn btn-lg btn-success" type="submit"><u>S</u>ave <i class="fas fa-save"></i></button>
+						<button accesskey="g" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@GoBackAsync">
+							<u>G</u>o Back <i class="fas fa-arrow-left"></i>
+						</button>
+					</div>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+	@if (intellisense?.Id > 0)
+	{
+		<AdditionalCommandOverview CustomIntelliSenseId="intellisense.Id" />
+	}
+}
+
