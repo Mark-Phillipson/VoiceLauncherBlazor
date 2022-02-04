@@ -5,6 +5,7 @@
 		<UserSecretsId>a71df59a-e582-4e4f-9a75-14512ec2b2e6</UserSecretsId>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Blazored.Modal" Version="6.0.1" />
