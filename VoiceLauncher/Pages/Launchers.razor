@@ -36,6 +36,10 @@
 @if (launchers == null && _loadFailed)
 {
 	<h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+	<div class="text-danger">
+		@StatusMessage
+	</div>
+
 }
 else if (launchers == null)
 {

@@ -65,6 +65,7 @@ namespace VoiceLauncher.Pages
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
+					StatusMessage = exception.Message;
 					_loadFailed = true;
 				}
 			}
@@ -79,6 +80,7 @@ namespace VoiceLauncher.Pages
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
+					StatusMessage=exception.Message;
 					_loadFailed = true;
 				}
 			}
@@ -95,6 +97,7 @@ namespace VoiceLauncher.Pages
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
+					StatusMessage = exception.Message;
 					_loadFailed = true;
 				}
 				StateHasChanged();
