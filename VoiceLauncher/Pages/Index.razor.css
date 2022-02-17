@@ -5,3 +5,8 @@
 	animation-delay:5s;
 	float:right
 }
+.copyright {
+	color: grey;
+	font-size:xx-small;
+	float:left;
+}
