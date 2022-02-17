@@ -25,12 +25,12 @@
 </table>
 
 @code {
-    [Parameter] public DataAccessLibrary.Models.Category category { get; set; }
+    [Parameter] public DataAccessLibrary.Models.Category? Category { get; set; }
     private List<CustomIntelliSense> intelliSenses = new List<CustomIntelliSense>();
 
     protected override async Task OnInitializedAsync()
     {
-        intelliSenses = await IntellisenseService.GetCustomIntelliSensesAsync(categoryIdFilter: category.Id);
+        intelliSenses = await IntellisenseService.GetCustomIntelliSensesAsync(categoryIdFilter: Category!.Id);
     }
 
 

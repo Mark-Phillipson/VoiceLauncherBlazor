@@ -2,30 +2,30 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class GeneralLookup
 	{
-		[Inject] IToastService ToastService { get; set; }
-		[Parameter] public int generalLookupId { get; set; }
-		private EditContext _editContext;
-		public DataAccessLibrary.Models.GeneralLookup generalLookup { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
+		[Parameter] public int? GeneralLookupId { get; set; }
+        private EditContext? _editContext;
+        public DataAccessLibrary.Models.GeneralLookup? GeneralLookupModel { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
 
 		protected override async Task OnInitializedAsync()
 		{
-			if (generalLookupId > 0)
+			if (GeneralLookupId > 0)
 			{
 				try
 				{
-					generalLookup = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
+                    if (GeneralLookupId!= null )
+                    {
+                        GeneralLookupModel = await GeneralLookupService.GetGeneralLookupAsync((int)GeneralLookupId); 
+                    }
 				}
 				catch (Exception exception)
 				{
@@ -35,17 +35,20 @@ namespace VoiceLauncher.Pages
 			}
 			else
 			{
-				generalLookup = new DataAccessLibrary.Models.GeneralLookup
+				GeneralLookupModel = new DataAccessLibrary.Models.GeneralLookup
 				{
 					Category = "Default?",
 					SortOrder = 1
 
 				};
 			}
-			_editContext = new EditContext(generalLookup);
+            if (GeneralLookupModel!= null )
+            {
+                _editContext = new EditContext(GeneralLookupModel); 
+            }
 			try
 			{
-				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync(generalLookup.Category);
+				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync(GeneralLookupModel!.Category);
 			}
 			catch (Exception exception)
 			{
@@ -56,11 +59,11 @@ namespace VoiceLauncher.Pages
 
 		protected override async Task OnParametersSetAsync()
 		{
-			if (generalLookupId > 0)
+			if (GeneralLookupId > 0)
 			{
 				try
 				{
-					generalLookup = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
+					GeneralLookupModel = await GeneralLookupService.GetGeneralLookupAsync((int)GeneralLookupId);
 				}
 				catch (Exception exception)
 				{
@@ -74,12 +77,12 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
 			{
-				var result = await GeneralLookupService.SaveGeneralLookup(generalLookup);
+				var result = await GeneralLookupService.SaveGeneralLookup(GeneralLookupModel);
 			}
 			catch (Exception exception)
 			{

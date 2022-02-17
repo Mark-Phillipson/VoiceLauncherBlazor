@@ -1,28 +1,25 @@
 ﻿using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class Categories
 	{
-		[Inject] IToastService ToastService { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
-		private int categoryIdDelete { get; set; }
-		private List<DataAccessLibrary.Models.Category> categories;
-		public string StatusMessage { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
-		private string categoryTypeFilter { get; set; }
-		private string searchTerm;
+		private int? CategoryIdDelete { get; set; }
+		private List<DataAccessLibrary.Models.Category>? categories;
+		public string? StatusMessage { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
+		private string? CategoryTypeFilter { get; set; }
+		private string? searchTerm;
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
 
 
-		public string SearchTerm
+		public string? SearchTerm
 		{
 			get => searchTerm;
 			set
@@ -38,7 +35,7 @@ namespace VoiceLauncher.Pages
 			try
 			{
 				categories = await CategoryService.GetCategoriesAsync();
-				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Category Types");
+				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Category Types");
 			}
 			catch (Exception exception)
 			{
@@ -63,14 +60,10 @@ namespace VoiceLauncher.Pages
 			}
 		}
 
-		void HandleValidSubmit()
-		{
-			Console.WriteLine("OnValidSubmit");
-		}
 		void ConfirmDelete(int categoryId)
 		{
 			ShowDialog = true;
-			categoryIdDelete = categoryId;
+			CategoryIdDelete = categoryId;
 		}
 		void CancelDelete()
 		{
@@ -92,7 +85,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
@@ -111,11 +104,11 @@ namespace VoiceLauncher.Pages
 		}
 		async Task FilterCategoryType()
 		{
-			if (categoryTypeFilter != null)
+			if (CategoryTypeFilter != null)
 			{
 				try
 				{
-					categories = await CategoryService.GetCategoriesAsync(null, null, null, categoryTypeFilter);
+					categories = await CategoryService.GetCategoriesAsync(null, null, null, CategoryTypeFilter);
 				}
 				catch (Exception exception)
 				{
@@ -128,7 +121,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try

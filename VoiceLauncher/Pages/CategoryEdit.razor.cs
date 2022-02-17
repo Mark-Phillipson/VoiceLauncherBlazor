@@ -2,31 +2,28 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 
 namespace VoiceLauncher.Pages
 {
 	public partial class CategoryEdit
 	{
-		[Parameter] public int categoryId { get; set; }
-		[Inject] IToastService ToastService { get; set; }
-		private EditContext _editContext;
-		public DataAccessLibrary.Models.Category category { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
+		[Parameter] public int CategoryId { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
+		public DataAccessLibrary.Models.Category? Category { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 #pragma warning disable 414
+		private EditContext? _editContext;
 		private bool _loadFailed = false;
 #pragma warning restore 414
-		public string StatusMessage { get; set; }
+		public string? StatusMessage { get; set; }
 		protected override async Task OnInitializedAsync()
 		{
-			if (categoryId > 0)
+			if (CategoryId > 0)
 			{
 				try
 				{
-					category = await CategoryService.GetCategoryAsync(categoryId);
+					Category = await CategoryService.GetCategoryAsync(CategoryId);
 				}
 				catch (Exception exception)
 				{
@@ -36,15 +33,19 @@ namespace VoiceLauncher.Pages
 			}
 			else
 			{
-				category = new DataAccessLibrary.Models.Category
+				Category = new DataAccessLibrary.Models.Category
 				{
 					CategoryType = "IntelliSense Command"
 				};
 			}
-			_editContext = new EditContext(category);
+
+            if (Category!= null )
+            {
+                _editContext = new EditContext(Category); 
+            }
 			try
 			{
-				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Category Types");
+				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Category Types");
 			}
 			catch (Exception exception)
 			{
@@ -55,11 +56,11 @@ namespace VoiceLauncher.Pages
 
 		protected override async Task OnParametersSetAsync()
 		{
-			if (categoryId > 0)
+			if (CategoryId > 0)
 			{
 				try
 				{
-					category = await CategoryService.GetCategoryAsync(categoryId);
+					Category = await CategoryService.GetCategoryAsync(CategoryId);
 				}
 				catch (Exception exception)
 				{
@@ -73,12 +74,12 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
 			{
-				var result = await CategoryService.SaveCategory(category);
+				var result = await CategoryService.SaveCategory(Category);
 				if (result.ToLower().Contains("success"))
 				{
 					NavigationManager.NavigateTo("categories");

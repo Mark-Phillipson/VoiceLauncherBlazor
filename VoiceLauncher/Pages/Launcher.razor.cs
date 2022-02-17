@@ -4,22 +4,19 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class Launcher
 	{
-		[Parameter] public int launcherId { get; set; }
-		private EditContext _editContext;
-		[Inject] public IJSRuntime JSRuntime { get; set; }
-		[Inject] IToastService ToastService { get; set; }
-		public DataAccessLibrary.Models.Launcher launcher { get; set; }
-		public List<DataAccessLibrary.Models.Category> categories { get; set; }
-		public List<DataAccessLibrary.Models.Computer> computers { get; set; }
-		public string Message { get; set; }
+		[Parameter] public int LauncherId { get; set; }
+		private EditContext? _editContext;
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
+		public DataAccessLibrary.Models.Launcher? LauncherModel { get; set; }
+		public List<DataAccessLibrary.Models.Category>? Categories { get; set; }
+		public List<DataAccessLibrary.Models.Computer>? Computers { get; set; }
+		public string? Message { get; set; }
 		[Parameter] public EventCallback OnClose { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
@@ -27,11 +24,11 @@ namespace VoiceLauncher.Pages
 
 		protected override async Task OnInitializedAsync()
 		{
-			if (launcherId > 0)
+			if (LauncherId > 0)
 			{
 				try
 				{
-					launcher = await LauncherService.GetLauncherAsync(launcherId);
+					LauncherModel = await LauncherService.GetLauncherAsync(LauncherId);
 				}
 				catch (Exception exception)
 				{
@@ -41,16 +38,19 @@ namespace VoiceLauncher.Pages
 			}
 			else
 			{
-				launcher = new DataAccessLibrary.Models.Launcher
+				LauncherModel = new DataAccessLibrary.Models.Launcher
 				{
 					CommandLine = "http://"
 				};
 			}
-			_editContext = new EditContext(launcher);
+            if (LauncherModel!= null )
+            {
+                _editContext = new EditContext(LauncherModel); 
+            }
 			try
 			{
-				categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
-				computers = await ComputerService.GetComputersAsync();
+				Categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+				Computers = await ComputerService.GetComputersAsync();
 			}
 			catch (Exception exception)
 			{
@@ -61,11 +61,11 @@ namespace VoiceLauncher.Pages
 
 		protected override async Task OnParametersSetAsync()
 		{
-			if (launcherId > 0)
+			if (LauncherId > 0)
 			{
 				try
 				{
-					launcher = await LauncherService.GetLauncherAsync(launcherId);
+					LauncherModel = await LauncherService.GetLauncherAsync(LauncherId);
 				}
 				catch (Exception exception)
 				{
@@ -79,7 +79,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (firstRender)
 			{
-				await JSRuntime.InvokeVoidAsync("setFocus", "LauncherName");
+				await JSRuntime!.InvokeVoidAsync("setFocus", "LauncherName");
 			}
 		}
 
@@ -87,12 +87,12 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
 			{
-				var result = await LauncherService.SaveLauncher(launcher);
+				var result = await LauncherService.SaveLauncher(LauncherModel);
 			}
 			catch (Exception exception)
 			{
@@ -108,7 +108,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
-			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime!.InvokeVoidAsync("CallChange", elementId);
 		}
 
 	}

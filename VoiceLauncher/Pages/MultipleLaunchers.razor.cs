@@ -1,7 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
@@ -9,17 +6,17 @@ namespace VoiceLauncher.Pages
     {
         public bool ShowDialog { get; set; }
         public int MultipleLauncherIdDelete { get; set; }
-        public string SearchTerm { get; set; }
-        private List<DataAccessLibrary.Models.MultipleLauncher> multipleLaunchers;
-        private List<DataAccessLibrary.Models.Launcher> launchers;
-        private DataAccessLibrary.Models.MultipleLauncher multipleLauncher = new DataAccessLibrary.Models.MultipleLauncher();
-        private DataAccessLibrary.Models.LauncherMultipleLauncherBridge bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge();
-        public string StatusMessage { get; set; }
-        public string StatusClassName { get; set; }
+        public string? SearchTerm { get; set; }
+        private List<DataAccessLibrary.Models.MultipleLauncher>? multipleLaunchers;
+        private List<DataAccessLibrary.Models.Launcher>? launchers;
+        private DataAccessLibrary.Models.MultipleLauncher multipleLauncher = new();
+        private DataAccessLibrary.Models.LauncherMultipleLauncherBridge bridge = new();
+        public string? StatusMessage { get; set; }
+        public string? StatusClassName { get; set; }
 #pragma warning disable 414
         private bool _loadFailed = false;
 #pragma warning restore 414
-        private string LauncherFilter { get; set; }
+        private string? LauncherFilter { get; set; }
 
         protected override async Task OnInitializedAsync()
         {

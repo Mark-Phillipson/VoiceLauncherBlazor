@@ -19,20 +19,24 @@
 					<li>
 						File: @file.Name
 						<br>
-						@if (FileUpload(uploadResults, file.Name, logger,
+						@if (file!.Name!= null  && Logger!= null )
+						{
+
+						@if (FileUpload(uploadResults, file!.Name, Logger,
 						   out var result))
 						{
 							<span>
-								Stored File Name: @result.StoredFileName
+								Stored File Name: @result!.StoredFileName
 							</span>
 						}
 						else
 						{
 							<span>
 								There was an error uploading the file
-								(Error: @result.ErrorCode).
+								(Error: @result!.ErrorCode).
 							</span>
 						}
+				}
 					</li>
 				}
 			</ul>

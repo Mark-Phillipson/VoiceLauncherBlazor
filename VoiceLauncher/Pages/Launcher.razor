@@ -7,11 +7,11 @@
 <h1>
 	Launcher
 </h1>
-@if (launcher == null && _loadFailed)
+@if (LauncherModel == null && _loadFailed)
 {
 	<h1 class="text-danger">There was a problem loading the data. Please try again in a bit :-(</h1>
 }
-else if (launcher == null)
+else if (LauncherModel == null)
 {
 	<Loading />
 }
@@ -29,36 +29,36 @@ else
 
 		}
 		<div class="col-md-12">
-			<EditForm Model="@launcher" OnValidSubmit="HandleValidSubmit">
+			<EditForm Model="@LauncherModel" OnValidSubmit="HandleValidSubmit">
 				<DataAnnotationsValidator />
 				@*<ValidationSummary />*@
 				<div class="form-field row">
 					<label class="col-md-4">Id</label>
-					@if (launcher.Id > 0)
+					@if (LauncherModel.Id > 0)
 					{
-						<div class="col-md-8">@launcher.Id</div>
+						<div class="col-md-8">@LauncherModel.Id</div>
 					}
-					<input type="hidden" name="Id" id="Id" value="@launcher.Id" />
+					<input type="hidden" name="Id" id="Id" value="@LauncherModel.Id" />
 				</div>
 				<div class="form-field row">
-					<label for="@launcher.Name" class="col-md-4"> Launcher Name (0)</label>
-					<InputText class="col-md-8 form-control" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="launcher.Name" @onblur="@(e => CallChangeAsync("LauncherName"))" ></InputText >
-					<ValidationMessage For="@(() => launcher.Name)" />
+					<label for="@LauncherModel.Name" class="col-md-4"> Launcher Name (0)</label>
+					<InputText class="col-md-8 form-control" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="LauncherModel.Name" @onblur="@(e => CallChangeAsync("LauncherName"))" ></InputText >
+					<ValidationMessage For="@(() => LauncherModel.Name)" />
 				</div>
 				<div class="form-field row">
-					<label for="@launcher.CommandLine" class="col-md-4"> Command Line (1)</label>
-					<InputTextArea rows="3" class="col-md-8 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="launcher.CommandLine"></InputTextArea>
-					<ValidationMessage For="@(() => launcher.CommandLine)" />
+					<label for="@LauncherModel.CommandLine" class="col-md-4"> Command Line (1)</label>
+					<InputTextArea rows="3" class="col-md-8 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="LauncherModel.CommandLine"></InputTextArea>
+					<ValidationMessage For="@(() => LauncherModel.CommandLine)" />
 				</div>
 				<div class="form-field row">
-					<label for="@launcher.CategoryId" class="col-md-4"> Category</label>
-					<select class="form-control col-md-8" @bind="launcher.CategoryId">
+					<label for="@LauncherModel.CategoryId" class="col-md-4"> Category</label>
+					<select class="form-control col-md-8" @bind="LauncherModel.CategoryId">
 						<option value="">-</option>
-						@if (categories != null)
+						@if (Categories != null)
 						{
-							@foreach (var category in categories)
+							@foreach (var category in Categories)
 							{
-								@if (launcher.CategoryId == category.Id)
+								@if (LauncherModel.CategoryId == category.Id)
 								{
 									<option selected value="@category.Id">@category.CategoryName</option>
 								}
@@ -69,17 +69,17 @@ else
 							}
 						}
 					</select>
-					<ValidationMessage For="@(() => launcher.CategoryId)" />
+					<ValidationMessage For="@(() => LauncherModel.CategoryId)" />
 				</div>
 				<div class="form-field row">
-					<label for="@launcher.ComputerId" class="col-md-4"> Computer</label>
-					<select class="form-control col-md-8" @bind="launcher.ComputerId">
+					<label for="@LauncherModel.ComputerId" class="col-md-4"> Computer</label>
+					<select class="form-control col-md-8" @bind="LauncherModel.ComputerId">
 						<option value="">-</option>
-						@if (computers != null)
+						@if (Computers != null)
 						{
-							@foreach (var computer in computers)
+							@foreach (var computer in Computers)
 							{
-								@if (launcher.ComputerId == computer.Id)
+								@if (LauncherModel.ComputerId == computer.Id)
 								{
 									<option selected value="@computer.Id">@computer.ComputerName</option>
 								}
@@ -90,7 +90,7 @@ else
 							}
 						}
 					</select>
-					<ValidationMessage For="@(() => launcher.ComputerId)" />
+					<ValidationMessage For="@(() => LauncherModel.ComputerId)" />
 				</div>
 				<button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="fas fa-save"></i></button>
 				<button accesskey="3" class="btn btn-lg btn-success" @onclick="@OnClose" type="submit">Submit & Close (3) <i class="fas fa-save"></i></button>

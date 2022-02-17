@@ -3,7 +3,7 @@
 <h4>Insert/Edit Todos</h4>
 <EditForm Model="@Todo" OnValidSubmit="@Save">
 	<DataAnnotationsValidator />
-	@if (Todo.Id > 0)
+	@if (Todo!.Id > 0)
 	{
 		<div>@Todo.Id</div>
 	}
@@ -110,7 +110,7 @@
 
 
 @code {
-	[Parameter] public Todo Todo { get; set; }
+	[Parameter] public Todo? Todo { get; set; }
 	[Parameter] public EventCallback Save { get; set; }
 	[Parameter] public EventCallback Cancel { get; set; }
 	private async Task CallChangeAsync(string elementId)

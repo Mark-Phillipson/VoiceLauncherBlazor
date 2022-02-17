@@ -2,33 +2,29 @@
 using DataAccessLibrary.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class TodosPage
 	{
-		[Parameter] public string Project { get; set; }
-		private List<DataAccessLibrary.Models.Todo> todos;
-		[Inject] IToastService ToastService { get; set; }
-		private Todo todo = null;
+		[Parameter] public string? Project { get; set; }
+		private List<Todo>? todos;
+		[Inject] IToastService? ToastService { get; set; }
+		private Todo? todo = null;
 		public bool ShowDialog { get; set; }
 		public bool ShowDialogArchive { get; set; }
-		public int todoIdDelete { get; set; }
-		public int todoIdArchive { get; set; }
-		public string SearchTerm { get; set; } = null;
-		public bool _loadFailed { get; set; }
-		public List<string> projects { get; set; } = new List<string>();
-		public string ProjectFilter { get; set; }
-		public string StatusMessage { get; set; }
-		private int percentDone
+		public int TodoIdDelete { get; set; }
+		public int TodoIdArchive { get; set; }
+		public string SearchTerm { get; set; } = "";
+		private bool LoadFailed { get; set; }
+		public List<string> Projects { get; set; } = new List<string>();
+		public string? ProjectFilter { get; set; }
+		public string? StatusMessage { get; set; }
+		private int PercentDone
 		{
 			get
 			{
-				return (todos.Count(x => x.Completed) * 100) / todos.Count;
+				return todos!.Count(x => x.Completed) * 100 / todos!.Count;
 			}
 		}
 		protected override async Task OnInitializedAsync()
@@ -36,35 +32,35 @@ namespace VoiceLauncher.Pages
 			todo = new Todo { Project = Project };
 			await LoadData();
 		}
-		private void CancelEdit()
+		private async void CancelEdit()
 		{
 			todo = new Todo { Project = Project };
-			JSRuntime.InvokeVoidAsync("setFocus", $"SearchInput");
+			 await JSRuntime!.InvokeVoidAsync("setFocus", $"SearchInput");
 		}
-		private void EditTodo(Todo todoEdit)
+		private async void EditTodo(Todo todoEdit)
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
-			todo.Id = todoEdit.Id;
+			todo!.Id = todoEdit.Id;
 			todo.Title = todoEdit.Title;
 			todo.Description = todoEdit.Description;
 			todo.Completed = todoEdit.Completed;
 			todo.Project = todoEdit.Project;
 			todo.Archived = todoEdit.Archived;
-			JSRuntime.InvokeVoidAsync("setFocus", $"{todo.Id.ToString()}Title");
+			await JSRuntime!.InvokeVoidAsync("setFocus", $"{todo!.Id}Title");
 		}
 		void ConfirmArchive(int todoId)
 		{
 			ShowDialogArchive = true;
-			todoIdArchive = todoId;
+			TodoIdArchive = todoId;
 		}
 		void ConfirmDelete(int todoId)
 		{
 			ShowDialog = true;
-			todoIdDelete = todoId;
+			TodoIdDelete = todoId;
 		}
 		void CancelDialog()
 		{
@@ -76,7 +72,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			Todo todo = await TodoData.GetTodo(todoId);
@@ -89,7 +85,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			Todo todo = await TodoData.GetTodo(todoId);
@@ -116,23 +112,23 @@ namespace VoiceLauncher.Pages
 					ProjectFilter = Project;
 				}
 				todos = await TodoData.GetTodos(SearchTerm, ProjectFilter);
-				projects = await TodoData.GetProjects();
+				Projects = await TodoData.GetProjects();
 				StatusMessage = $"Data Loaded Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
 			}
 			catch (Exception exception)
 			{
 				Console.WriteLine(exception.Message);
-				_loadFailed = true;
+				LoadFailed = true;
 			}
 		}
 		private async Task InsertTodo()
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
-			await CallChangeAsync(todo.Id.ToString() + "Project");
+			await CallChangeAsync(todo!.Id.ToString() + "Project");
 			if (todo.Id > 0)
 			{
 				await SaveTodo();
@@ -149,11 +145,11 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
-			todo = todos.Where(v => v.Id == todoId).FirstOrDefault();
-			todo.Completed = completed;
+			todo = todos!.Where(v => v.Id == todoId).FirstOrDefault();
+			todo!.Completed = completed;
 			await TodoData.UpdateToDo(todo);
 			await LoadData();
 		}
@@ -161,7 +157,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			await TodoData.UpdateToDo(todo);
@@ -179,7 +175,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			todo =  await TodoData.GetTodo(todoId);

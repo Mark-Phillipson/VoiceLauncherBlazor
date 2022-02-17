@@ -14,9 +14,9 @@
 				{
 					<select class="form-control-sm mr-2" @bind="ProjectFilter" @onblur="ApplyFilter">
 						<option value="">-Select to filter by project-</option>
-						@if (projects != null)
+						@if (Projects != null)
 						{
-							@foreach (var item in projects)
+							@foreach (var item in Projects)
 							{
 								<option value="@item">@item</option>
 							}
@@ -35,7 +35,7 @@
 
 	<h4>Current Todos</h4>
 }
-@if (_loadFailed)
+@if (LoadFailed)
 {
 	<div class="text-danger">The data failed to load please try again later!</div>
 }
@@ -48,8 +48,8 @@ else
 	@if (todos.Count > 0)
 	{
 		<div class="progress my-2">
-			<div class="progress-bar" role="progressbar" style="width:@(percentDone)%" aria-valuemin="0" aria-valuemax="100">
-				@(percentDone)%
+			<div class="progress-bar" role="progressbar" style="width:@(PercentDone)%" aria-valuemin="0" aria-valuemax="100">
+				@(PercentDone)%
 			</div>
 		</div>
 	}
@@ -117,13 +117,13 @@ else
 <TemplatedDialog Show="ShowDialog">
 	<ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
 				   Title="Confirmation Required"
-				   OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(todoIdDelete))">
+				   OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(TodoIdDelete))">
 	</ConfirmDialog>
 </TemplatedDialog>
 <TemplatedDialog Show="ShowDialogArchive">
 	<ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
 				   Title="Confirmation Required"
-				   OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(todoIdArchive))">
+				   OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(TodoIdArchive))">
 	</ConfirmDialog>
 </TemplatedDialog>
 

@@ -6,10 +6,10 @@ namespace VoiceLauncher.Shared
 {
 	public partial class NavMenu
 	{
-		[Inject] NavigationManager NavigationManager { get; set; }
+		[Inject] NavigationManager? NavigationManager { get; set; }
 		private bool collapseNavMenu = true;
 
-		private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+		private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
 
 		private void ToggleNavMenu()
@@ -18,7 +18,7 @@ namespace VoiceLauncher.Shared
 		}
 		private void LoadScripts()
 		{
-			NavigationManager.NavigateTo($"commandsetoverview");
+			NavigationManager!.NavigateTo($"commandsetoverview");
 		}
 	}
 }

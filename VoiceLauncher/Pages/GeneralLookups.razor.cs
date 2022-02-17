@@ -2,24 +2,21 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class GeneralLookups
 	{
 		public bool ShowDialog { get; set; }
-		[Inject] IToastService ToastService { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowValidationWarning { get; set; }
-		private int generalLookupIdDelete { get; set; }
-		public string StatusMessage { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
-		public List<string> generalLookupsCategories { get; set; }
+		private int? GeneralLookupIdDelete { get; set; }
+		public string? StatusMessage { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookupsModel { get; set; }
+		public List<string>? GeneralLookupsCategories { get; set; }
 		public int AlertDuration { get; set; }
-		private string categoryFilter { get; set; }
-		private string searchTerm;
+		private string? CategoryFilter { get; set; }
+		private string searchTerm="";
 		public string AlertType { get; set; } = "success";
 		public bool ShowAlert { get; set; } = true;
 #pragma warning disable 414
@@ -41,8 +38,8 @@ namespace VoiceLauncher.Pages
 		{
 			try
 			{
-				generalLookups = await GeneralLookupService.GetGeneralLookupsAsync();
-				generalLookupsCategories = await GeneralLookupService.GetGeneralLookUpsCategoriesAsync();
+				GeneralLookupsModel = await GeneralLookupService.GetGeneralLookupsAsync();
+				GeneralLookupsCategories = await GeneralLookupService.GetGeneralLookUpsCategoriesAsync();
 				StatusMessage = "Welcome to the general lookups page!";
 				ShowAlert = true;
 				AlertDuration = 6000;
@@ -60,7 +57,7 @@ namespace VoiceLauncher.Pages
 			{
 				try
 				{
-					generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(SearchTerm.Trim());
+					GeneralLookupsModel = await GeneralLookupService.GetGeneralLookupsAsync(SearchTerm.Trim());
 				}
 				catch (Exception exception)
 				{
@@ -70,14 +67,10 @@ namespace VoiceLauncher.Pages
 			}
 		}
 
-		void HandleValidSubmit()
-		{
-			Console.WriteLine("OnValidSubmit");
-		}
 		void ConfirmDelete(int generalLookupId)
 		{
 			ShowDialog = true;
-			generalLookupIdDelete = generalLookupId;
+			GeneralLookupIdDelete = generalLookupId;
 		}
 		void CancelDialog()
 		{
@@ -87,7 +80,7 @@ namespace VoiceLauncher.Pages
 		{
 			try
 			{
-				generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm, column, sortType);
+				GeneralLookupsModel = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm, column, sortType);
 			}
 			catch (Exception exception)
 			{
@@ -99,7 +92,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
@@ -110,7 +103,7 @@ namespace VoiceLauncher.Pages
 				AlertType = "danger";
 				ShowAlert = true;
 				ShowDialog = false;
-				generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm);
+				GeneralLookupsModel = await GeneralLookupService.GetGeneralLookupsAsync(searchTerm);
 
 			}
 			catch (Exception exception)
@@ -121,11 +114,11 @@ namespace VoiceLauncher.Pages
 		}
 		async Task FilterGeneralLookups()
 		{
-			if (categoryFilter != null)
+			if (CategoryFilter != null)
 			{
 				try
 				{
-					generalLookups = await GeneralLookupService.GetGeneralLookupsAsync(null, null, null, categoryFilter);
+					GeneralLookupsModel = await GeneralLookupService.GetGeneralLookupsAsync(null, null, null, CategoryFilter);
 				}
 				catch (Exception exception)
 				{
@@ -138,12 +131,12 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
 			{
-				generalLookups = await GeneralLookupService.SaveAllGeneralLookups(generalLookups);
+				GeneralLookupsModel = await GeneralLookupService.SaveAllGeneralLookups(GeneralLookupsModel);
 			}
 			catch (Exception exception)
 			{
@@ -162,14 +155,14 @@ namespace VoiceLauncher.Pages
 		private async Task DuplicateRecord(int generalLookupId)
 		{
 			DataAccessLibrary.Models.GeneralLookup generalLookupSource = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
-			DataAccessLibrary.Models.GeneralLookup generalLookup = new DataAccessLibrary.Models.GeneralLookup
-			{
+			DataAccessLibrary.Models.GeneralLookup generalLookup = new()
+            {
 				Category = generalLookupSource?.Category,
 				DisplayValue = generalLookupSource?.DisplayValue,
 				ItemValue = "TBC!",
 				SortOrder = generalLookupSource?.SortOrder + 1
 			};
-			generalLookups.Add(generalLookup);
+			GeneralLookupsModel!.Add(generalLookup);
 			await JSRuntime.InvokeVoidAsync("setFocus", "0ItemValue");
 		}
 		private async Task CallChangeAsync(string elementId)

@@ -13,13 +13,13 @@ namespace VoiceLauncher.Pages
 			if (ShowVideo && youtubeUrl != null)
 			{
 				//NavigationManager.NavigateTo(youtubeUrl,true);
-				_ = await JSRuntime.InvokeAsync<object>("open", youtubeUrl, "_blank");
+				_ = await JSRuntime!.InvokeAsync<object>("open", youtubeUrl, "_blank");
 			}
 			else
 			{
 				var showListsString = showLists ? "true" : "false";
 				commandToFilter = commandToFilter.Replace(" ", "%20");
-				NavigationManager.NavigateTo($"commandsetoverview?name={commandToFilter}&application={applicationToFilter}&viewnew=false&showcommands=true&showlists={showListsString}&showcode=true");
+				NavigationManager!.NavigateTo($"commandsetoverview?name={commandToFilter}&application={applicationToFilter}&viewnew=false&showcommands=true&showlists={showListsString}&showcode=true");
 			}
 		}
 	}

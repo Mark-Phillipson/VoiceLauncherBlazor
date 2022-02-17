@@ -68,9 +68,9 @@ else
 					Category (Alt+3)
 					<select accesskey="3" class="form-control-sm col-md-5" style="min-width: 100%" @bind="CategoryIdFilter" @onblur="FilterByCategory">
 						<option value="">-Select to filter-</option>
-						@if (categories != null)
+						@if (Categories != null)
 						{
-							@foreach (var category in categories)
+							@foreach (var category in Categories)
 							{
 								<option value="@category.Id">@category.CategoryName</option>
 							}
@@ -126,7 +126,7 @@ else
 <TemplatedDialog Show="ShowDialog">
 	<ConfirmDialog Message="Please confirm you wish to Delete this Launcher Record!"
 				   Title="Confirmation Required"
-				   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLauncher(launcherIdDelete))">
+				   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLauncher(LauncherIdDelete))">
 	</ConfirmDialog>
 </TemplatedDialog>
 

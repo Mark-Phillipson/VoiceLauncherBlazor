@@ -2,11 +2,7 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Linq;
 
 namespace VoiceLauncher.Pages
 {
@@ -14,21 +10,21 @@ namespace VoiceLauncher.Pages
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
-		[Inject] public AdditionalCommandService AdditionalCommandService { get; set; }
-		[Inject] IToastService ToastService { get; set; }
+		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
-		private int customIntellisenseIdDelete { get; set; }
-		private List<DataAccessLibrary.Models.CustomIntelliSense> intellisenses;
-		public string StatusMessage { get; set; }
-		public List<DataAccessLibrary.Models.Category> categories { get; set; }
-		public List<DataAccessLibrary.Models.Language> languages { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
+		private int? CustomIntellisenseIdDelete { get; set; }
+		private List<DataAccessLibrary.Models.CustomIntelliSense>? intellisenses;
+		public string? StatusMessage { get; set; }
+		public List<DataAccessLibrary.Models.Category>? Categories { get; set; }
+		public List<DataAccessLibrary.Models.Language>? Languages { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 		public int MaximumRows { get; set; } = 100;
 #pragma warning disable 414
-		private bool showCreateNewOrEdit = false;
-		private bool _loadFailed = false;
+        readonly bool showCreateNewOrEdit = false;
+        private bool _loadFailed = false;
 #pragma warning restore 414
-		private string searchTerm;
+		private string searchTerm="";
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -44,9 +40,9 @@ namespace VoiceLauncher.Pages
 		{
 			try
 			{
-				categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
-				languages = await LanguageService.GetLanguagesAsync();
-				generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
+				Categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
+				Languages = await LanguageService.GetLanguagesAsync();
+				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
 
 			}
 			catch (Exception exception)
@@ -117,7 +113,7 @@ namespace VoiceLauncher.Pages
 		void ConfirmDelete(int customIntellisenseId)
 		{
 			ShowDialog = true;
-			customIntellisenseIdDelete = customIntellisenseId;
+			CustomIntellisenseIdDelete = customIntellisenseId;
 		}
 		void CancelDelete()
 		{
@@ -139,14 +135,14 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
-			var additionalCommands =  await AdditionalCommandService.GetAdditionalCommandsAsync(customIntellisenseId);
+			var additionalCommands =  await AdditionalCommandService!.GetAdditionalCommandsAsync(customIntellisenseId);
 			if (additionalCommands.Count>0)
 			{
 				ShowDialog = false;
-				ToastService.ShowWarning("Please remove additional commands before deleting this record!", "Delete Cancelled");
+				ToastService!.ShowWarning("Please remove additional commands before deleting this record!", "Delete Cancelled");
 				return;
 			}
 			try
@@ -155,8 +151,9 @@ namespace VoiceLauncher.Pages
 				StatusMessage = result;
 				ShowDialog = false;
 				//intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(searchTerm, maximumRows: MaximumRows);
-				var ci = intellisenses.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
-				intellisenses.Remove(ci);
+				var ci = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+				if (ci != null)
+				intellisenses!.Remove(ci);
 
 			}
 			catch (Exception exception)
@@ -170,7 +167,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
@@ -260,11 +257,11 @@ namespace VoiceLauncher.Pages
 		{
 			return language?.Id;
 		}
-		public DataAccessLibrary.Models.Language LoadSelectedLanguage(int? languageId)
+		public DataAccessLibrary.Models.Language? LoadSelectedLanguage(int? languageId)
 		{
-			if (languageId!= null  && languages!= null )
+			if (languageId!= null  && Languages!= null )
 			{
-				var language = languages.FirstOrDefault(l => l.Id == languageId);
+				var language = Languages.FirstOrDefault(l => l.Id == languageId);
 				return language;
 			}
 			return null;
@@ -278,11 +275,11 @@ namespace VoiceLauncher.Pages
 		{
 			return category?.Id;
 		}
-		public DataAccessLibrary.Models.Category LoadSelectedCategory(int? categoryId)
+		public DataAccessLibrary.Models.Category? LoadSelectedCategory(int? categoryId)
 		{
-			if (categoryId!= null  && categories!= null )
+			if (categoryId!= null  && Categories!= null )
 			{
-				var category = categories.FirstOrDefault(c => c.Id == categoryId);
+				var category = Categories.FirstOrDefault(c => c.Id == categoryId);
 				return category;
 			}
 			return null ;

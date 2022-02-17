@@ -10,7 +10,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in language.CustomIntelliSense.OrderBy(o => o.DisplayValue))
+        @foreach (var item in language!.CustomIntelliSense.OrderBy(o => o.DisplayValue))
         {
 <tr>
     <td>@item.Language.LanguageName</td>
@@ -22,4 +22,4 @@
     </tbody>
 </table>
 
-@code { [Parameter] public DataAccessLibrary.Models.Language language { get; set; } }
+@code { [Parameter] public DataAccessLibrary.Models.Language? language { get; set; } }

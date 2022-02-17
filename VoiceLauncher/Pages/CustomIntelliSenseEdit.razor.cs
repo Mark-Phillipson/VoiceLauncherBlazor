@@ -15,18 +15,20 @@ namespace VoiceLauncher.Pages
 {
 	public partial class CustomIntelliSenseEdit
 	{
-		[Parameter] public int customIntellisenseId { get; set; } = 0;
-		[Inject] NavigationManager NavigationManager { get; set; }
-		[Inject] IToastService ToastService { get; set; }
+		[Parameter] public int CustomIntellisenseId { get; set; } = 0;
+		[Inject] NavigationManager? NavigationManager { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
-		public DataAccessLibrary.Models.CustomIntelliSense intellisense { get; set; }
-		public List<DataAccessLibrary.Models.GeneralLookup> generalLookups { get; set; }
-		public List<DataAccessLibrary.Models.Language> languages { get; set; }
-		public List<DataAccessLibrary.Models.Category> categories { get; set; }
-		private List<string> customValidationErrors = new List<string>();
-		public string Message { get; set; }
+		public DataAccessLibrary.Models.CustomIntelliSense? Intellisense { get; set; }
+		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
+		public List<DataAccessLibrary.Models.Language>? Languages { get; set; }
+		public List<Category>? Categories { get; set; }
+
+        private static readonly List<string> list = new();
+        readonly List<string> customValidationErrors = list;
+        public string? Message { get; set; }
 		[Parameter]
 		public int? LanguageIdDefault { get; set; }
 		[Parameter]
@@ -35,27 +37,27 @@ namespace VoiceLauncher.Pages
 		public int? SelectedCategoryId { get; set; } = 0;
 		protected override async Task OnInitializedAsync()
 		{
-			if (customIntellisenseId > 0)
+			if (CustomIntellisenseId > 0)
 			{
 				try
 				{
-					intellisense = await CustomIntellisenseService.GetCustomIntelliSenseAsync(customIntellisenseId);
+					Intellisense = await CustomIntellisenseService.GetCustomIntelliSenseAsync(CustomIntellisenseId);
 				}
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
-				SelectedCategoryId = intellisense.CategoryId;
-				SelectedLanguageId = intellisense.LanguageId;
+				SelectedCategoryId = Intellisense!.CategoryId;
+				SelectedLanguageId = Intellisense.LanguageId;
 			}
 			else
 			{
-				intellisense = new DataAccessLibrary.Models.CustomIntelliSense
+				Intellisense = new DataAccessLibrary.Models.CustomIntelliSense
 				{
 					DeliveryType = "Send Keys"
 				};
-				var query = new Uri(NavigationManager.Uri).Query;
+				var query = new Uri(NavigationManager!.Uri).Query;
 				if (QueryHelpers.ParseQuery(query).TryGetValue("languageId", out var languageId))
 				{
 					LanguageIdDefault = Int32.Parse(languageId);
@@ -66,25 +68,25 @@ namespace VoiceLauncher.Pages
 				}
 				if (LanguageIdDefault != null)
 				{
-					intellisense.LanguageId = (int)LanguageIdDefault;
+					Intellisense.LanguageId = (int)LanguageIdDefault;
 					SelectedLanguageId = LanguageIdDefault;
 				}
 				if (CategoryIdDefault != null)
 				{
-					intellisense.CategoryId = (int)CategoryIdDefault;
+					Intellisense.CategoryId = (int)CategoryIdDefault;
 					SelectedCategoryId = CategoryIdDefault;
 				}
 			}
-			generalLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-			languages = (await LanguageService.GetLanguagesAsync(activeFilter: true));
-			categories = await CategoryService.GetCategoriesAsync();
+			GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
+			Languages = await LanguageService.GetLanguagesAsync(activeFilter: true);
+			Categories = await CategoryService.GetCategoriesAsync();
 		}
 
 		protected override async Task OnParametersSetAsync()
 		{
-			if (intellisense.Id > 0)
+			if (Intellisense!.Id > 0)
 			{
-				intellisense = await CustomIntellisenseService.GetCustomIntelliSenseAsync(intellisense.Id);
+				Intellisense = await CustomIntellisenseService.GetCustomIntelliSenseAsync(Intellisense.Id);
 			}
 		}
 
@@ -97,26 +99,26 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task HandleValidSubmit()
 		{
-			intellisense.SendKeysValue = CarriageReturn.ReplaceForCarriageReturnChar(intellisense.SendKeysValue);
+			Intellisense!.SendKeysValue = CarriageReturn.ReplaceForCarriageReturnChar(Intellisense.SendKeysValue);
 			customValidationErrors.Clear();
-			if (intellisense.LanguageId == 0)
+			if (Intellisense.LanguageId == 0)
 			{
 				customValidationErrors.Add("Language is required");
 			}
-			if (intellisense.CategoryId == 0)
+			if (Intellisense.CategoryId == 0)
 			{
 				customValidationErrors.Add("Category is required");
 			}
 			if (customValidationErrors.Count == 0)
 			{
 
-				var result = await CustomIntellisenseService.SaveCustomIntelliSense(intellisense);
+				var result = await CustomIntellisenseService.SaveCustomIntelliSense(Intellisense);
 				if (result.Contains("Successfully"))
 				{
-					ToastService.ShowSuccess(result, "Success");
+					ToastService!.ShowSuccess(result, "Success");
 					return;
 				}
-				ToastService.ShowError(result, "Failure");
+				ToastService!.ShowError(result, "Failure");
 			}
 		}
 		private async Task CallChangeAsync(string elementId)
@@ -125,18 +127,18 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task GoBackAsync()
 		{
-			if (intellisense.Language== null  && intellisense.LanguageId>0)
+			if (Intellisense!.Language== null  && Intellisense.LanguageId>0)
 			{
-				intellisense.Language = await LanguageService.GetLanguageAsync(intellisense.LanguageId);
+				Intellisense.Language = await LanguageService.GetLanguageAsync(Intellisense.LanguageId);
 			}
-			if (intellisense.Category== null  && intellisense.CategoryId>0)
+			if (Intellisense.Category== null  && Intellisense.CategoryId>0)
 			{
-				intellisense.Category = await CategoryService.GetCategoryAsync(intellisense.CategoryId);
+				Intellisense.Category = await CategoryService.GetCategoryAsync(Intellisense.CategoryId);
 			}
 
-			if (intellisense.Language!= null  && intellisense.Category!= null )
+			if (Intellisense.Language!= null  && Intellisense.Category!= null )
 			{
-				NavigationManager.NavigateTo($"/intellisenses?language={intellisense.Language.LanguageName}&category={intellisense.Category.CategoryName}");
+				NavigationManager!.NavigateTo($"/intellisenses?language={Intellisense.Language.LanguageName}&category={Intellisense.Category.CategoryName}");
 			}
 		}
 		public async Task<IEnumerable<Language>> FilterLanguages(string searchText)
@@ -156,11 +158,11 @@ namespace VoiceLauncher.Pages
 		//{
 		//	return category?.Id;
 		//}
-		public Language LoadSelectedLanguage(int? languageId)
+		public Language? LoadSelectedLanguage(int? languageId)
 		{
-			if (languageId != null && languages != null)
+			if (languageId != null && Languages != null)
 			{
-				var language = languages.FirstOrDefault(l => l.Id == languageId);
+				var language = Languages.FirstOrDefault(l => l.Id == languageId);
 				return language;
 			}
 			return null;
@@ -169,21 +171,21 @@ namespace VoiceLauncher.Pages
 		{
 			if (SelectedLanguageId != null)
 			{
-				intellisense.LanguageId = (int)SelectedLanguageId;
+				Intellisense!.LanguageId = (int)SelectedLanguageId;
 			}
 		}
 		void SetCategory(FocusEventArgs args)
 		{
 			if (SelectedCategoryId!= null )
 			{
-				intellisense.CategoryId = (int)SelectedCategoryId;
+				Intellisense!.CategoryId = (int)SelectedCategoryId;
 			}
 		}
-		public Category LoadSelectedCategory(int? categoryId)
+		public Category? LoadSelectedCategory(int? categoryId)
 		{
-			if (categoryId!= null  && categories!= null )
+			if (categoryId!= null  && Categories!= null )
 			{
-				var category = categories.FirstOrDefault(c => c.Id == categoryId);
+				var category = Categories.FirstOrDefault(c => c.Id == categoryId);
 				return category;
 			}
 			return null;

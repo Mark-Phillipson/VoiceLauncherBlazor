@@ -1,18 +1,17 @@
 ﻿using DataAccessLibrary.Models.KnowbrainerCommands;
 using Microsoft.AspNetCore.Components;
-using System.Collections.Generic;
 
 namespace VoiceLauncher.Components
 {
 	public partial class VoiceCommandListComponent
 	{
-		[Parameter] public CommandSet CommandSet { get; set; }
-		[Parameter] public VoiceCommand VoiceCommand { get; set; }
+		[Parameter] public CommandSet? CommandSet { get; set; }
+		[Parameter] public VoiceCommand? VoiceCommand { get; set; }
 		[Parameter] public bool Show { get; set; }
 		List<string> ListNames { get; set; } = new List<string>();
 		protected override void OnParametersSet()
 		{
-			var name = VoiceCommand.Name;
+			var name = VoiceCommand!.Name;
 			var startCharacter = "<";
 			var endCharacter = ">";
 			if (VoiceCommand.TargetApplication.CommandSource == "Dragon")

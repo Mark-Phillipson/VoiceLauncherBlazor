@@ -22,16 +22,16 @@
 	<label class="control-label col-md-2">Cards/Table</label>
 	<input type="checkbox" class="form-control col-md-1" @bind="@ShowAsCards" />
 </div>
-@if (languages == null && _loadFailed)
+@if (LanguagesModel == null && _loadFailed)
 {
 	<h1 class="text-danger">The data failed to load please try again in a little bit..</h1>
 }
-else if (languages == null)
+else if (LanguagesModel == null)
 {
 	<h1 class="text-success">Loading...</h1>
 	<Loading />
 }
-else if (languages.Count == 0)
+else if (LanguagesModel.Count == 0)
 {
 	<text>No languages found</text> }
 else
@@ -39,7 +39,7 @@ else
 	@if (ShowAsCards)
 	{
 		<div class="layout-as-cards">
-			@foreach (var language in languages)
+			@foreach (var language in LanguagesModel)
 			{
 			<div class="card m-1" style="width: 15rem;">
 				<a href="intellisensesL/@language.Id">
@@ -80,7 +80,7 @@ else
 				<div class="row">
 					<div class="col-md-3">Active</div>
 					<button @onclick="@(e => ShowAll())" accesskey="5" class="btn btn-sm btn-info col-md-4">Show All (5) <i class="oi oi-eye"></i></button>
-					<input type="checkbox" class="form-control-sm col-md-5" style="width: 150px" @bind="activeFilter" @onblur="FilterActive" />
+					<input type="checkbox" class="form-control-sm col-md-5" style="width: 150px" @bind="ActiveFilter" @onblur="FilterActive" />
 				</div>
 			</th>
 			<th>
@@ -93,7 +93,7 @@ else
 	</thead>
 	<tbody>
 		@{ var counter = 6;}
-		@foreach (var language in languages)
+		@foreach (var language in LanguagesModel)
 		{
 			counter++;
 			<tr>
@@ -122,6 +122,6 @@ else
 <TemplatedDialog Show="ShowDialog">
 	<ConfirmDialog Message="Please confirm you wish to Delete this Language!"
 				   Title="Confirmation Required"
-				   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLanguage(languageIdDelete))">
+				   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLanguage(LanguageIdDelete))">
 	</ConfirmDialog>
 </TemplatedDialog>

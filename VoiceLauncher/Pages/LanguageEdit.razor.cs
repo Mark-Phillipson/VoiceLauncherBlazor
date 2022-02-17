@@ -1,29 +1,27 @@
 ﻿using Blazored.Toast.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using System;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class LanguageEdit
 	{
-		[Parameter] public int languageId { get; set; }
-		[Inject] IToastService ToastService { get; set; }
-		private EditContext _editContext;
-		public DataAccessLibrary.Models.Language language { get; set; }
+		[Parameter] public int LanguageId { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
+		public DataAccessLibrary.Models.Language? LanguageModel { get; set; }
 #pragma warning disable 414
+		private EditContext? _editContext;
 		private bool _loadFailed = false;
 #pragma warning restore 414
 
 
 		protected override async Task OnInitializedAsync()
 		{
-			if (languageId > 0)
+			if (LanguageId > 0)
 			{
 				try
 				{
-					language = await LanguageService.GetLanguageAsync(languageId);
+					LanguageModel = await LanguageService.GetLanguageAsync(LanguageId);
 				}
 				catch (Exception exception)
 				{
@@ -33,22 +31,25 @@ namespace VoiceLauncher.Pages
 			}
 			else
 			{
-				language = new DataAccessLibrary.Models.Language
+				LanguageModel = new DataAccessLibrary.Models.Language
 				{
 					Active = true
 				};
 			}
-			_editContext = new EditContext(language);
+            if (LanguageModel!= null )
+            {
+                _editContext = new EditContext(LanguageModel); 
+            }
 
 		}
 
 		protected override async Task OnParametersSetAsync()
 		{
-			if (languageId > 0)
+			if (LanguageId > 0)
 			{
 				try
 				{
-					language = await LanguageService.GetLanguageAsync(languageId);
+					LanguageModel = await LanguageService.GetLanguageAsync(LanguageId);
 				}
 				catch (Exception exception)
 				{
@@ -61,12 +62,12 @@ namespace VoiceLauncher.Pages
 		{
 			if (Environment.MachineName != "DESKTOP-UROO8T1")
 			{
-				ToastService.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
 			}
 			try
 			{
-				var result = await LanguageService.SaveLanguage(language);
+				var result = await LanguageService.SaveLanguage(LanguageModel);
 			}
 			catch (Exception exception)
 			{

@@ -20,9 +20,9 @@
 		<label for="@AdditionalCommand.DeliveryType" class="col-md-3"> Delivery Type</label>
 		<InputSelect class="form-control col-md-9" @bind-Value="AdditionalCommand.DeliveryType">
 			<option value="">-</option>
-			@if (generalLookups != null)
+			@if (GeneralLookups != null)
 			{
-				@foreach (var lookup in generalLookups)
+				@foreach (var lookup in GeneralLookups)
 				{
 					@if (AdditionalCommand.DeliveryType == lookup.ItemValue)
 					{

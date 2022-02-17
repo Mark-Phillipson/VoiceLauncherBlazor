@@ -1,25 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Net.NetworkInformation;
-using System.Threading.Tasks;
 using VoiceLauncher.helpers;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class UploadFiles
 {
-		[Inject] HttpClient Http { get; set; }
-		[Inject] ILogger<UploadFiles> logger { get; set; }
-		private IList<File> files = new List<File>();
-		private IList<UploadResult> uploadResults = new List<UploadResult>();
-		private int maxAllowedFiles = 1;
-		private bool shouldRender;
+		[Inject] HttpClient? Http { get; set; }
+		[Inject] ILogger<UploadFiles>? Logger { get; set; }
+        readonly IList<File> files = new List<File>();
+        private IList<UploadResult> uploadResults = new List<UploadResult>();
+        readonly int maxAllowedFiles = 1;
+        private bool shouldRender;
 
 		protected override bool ShouldRender() => shouldRender;
 
@@ -55,7 +47,7 @@ namespace VoiceLauncher.Pages
 					}
 					else
 					{
-						logger.LogInformation("{FileName} not uploaded", file.Name);
+						Logger!.LogInformation("{FileName} not uploaded", file.Name);
 
 						uploadResults.Add(
 							new UploadResult()
@@ -70,27 +62,34 @@ namespace VoiceLauncher.Pages
 
 			if (upload)
 			{
-				var response = await Http.PostAsync("/Filesave", content);
+				var response = await Http!.PostAsync("/Filesave", content);
 
 				var newUploadResults = await response.Content
 					.ReadFromJsonAsync<IList<UploadResult>>();
 
-				uploadResults = uploadResults.Concat(newUploadResults).ToList();
+                if (newUploadResults!= null )
+                {
+                    uploadResults = uploadResults.Concat(newUploadResults).ToList(); 
+                }
 			}
 
 			shouldRender = true;
 		}
 
 		private static bool FileUpload(IList<UploadResult> uploadResults,
-			string fileName, ILogger<UploadFiles> logger, out UploadResult result)
+			string fileName, ILogger<UploadFiles> logger, out UploadResult? result)
 		{
-			result = uploadResults.SingleOrDefault(f => f.FileName == fileName);
+            if (fileName== null  )
+            {
+				result = null;
+				return false;
+            }
+			result = uploadResults!.SingleOrDefault(f => f.FileName == fileName);
 
 			if (result is null)
 			{
 				logger.LogInformation("{FileName} not uploaded", fileName);
-				result = new UploadResult();
-				result.ErrorCode = 5;
+				result = new UploadResult() { ErrorCode = 5 };
 			}
 
 			return result.Uploaded;
@@ -98,8 +97,8 @@ namespace VoiceLauncher.Pages
 
 		private class File
 		{
-			public string Name { get; set; }
+			public string? Name { get; set; }
 		}
-		public string Name { get; set; }
+		public string? Name { get; set; }
 	}
 }

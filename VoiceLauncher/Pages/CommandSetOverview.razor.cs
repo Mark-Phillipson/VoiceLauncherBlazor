@@ -4,30 +4,23 @@ using DataAccessLibrary.Models.KnowbrainerCommands;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class CommandSetOverview
 	{
-		public CommandSetService CommandSetService { get; set; }
-		[Inject] NavigationManager NavigationManager { get; set; }
-		[Inject] public ILogger<CommandSetOverview> Logger { get; set; }
-		[Inject] IWebHostEnvironment WebHostEnvironment { get; set; }
-		[Inject] public IToastService ToastService { get; set; }
-		[CascadingParameter] public IModalService Modal { get; set; }
+		public CommandSetService? CommandSetService { get; set; }
+		[Inject] NavigationManager? NavigationManager { get; set; }
+		[Inject] public ILogger<CommandSetOverview>? Logger { get; set; }
+		[Inject] IWebHostEnvironment? WebHostEnvironment { get; set; }
+		[Inject] public IToastService? ToastService { get; set; }
+		[CascadingParameter] public IModalService? Modal { get; set; }
 		public bool ViewNew { get; set; } = true;
 		public bool ShowCommands { get; set; } = true;
 		public bool ShowLists { get; set; } = false;
 		public string Title { get; set; } = "Command Set";
-		private string searchTerm =  null;
+		private string searchTerm =  "";
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -44,7 +37,7 @@ namespace VoiceLauncher.Pages
 				}
 			}
 		}
-		private string searchTermApplication;
+		private string searchTermApplication="";
 		public string SearchTermApplication { 
 			get => searchTermApplication; 
 			set { 
@@ -60,16 +53,16 @@ namespace VoiceLauncher.Pages
 			} 
 		}
 		public bool IsKnowbrainer { get; set; } = true;
-		public CommandSet CommandSet { get; set; }
-		public List<TargetApplication> TargetApplications { get; set; }
-		public List<TargetApplication> FilteredTargetApplications { get; set; }
-		public List<VoiceCommand> VoiceCommands { get; set; }
-		public List<VoiceCommand> FilteredVoiceCommands { get; set; }
+		public CommandSet? CommandSet { get; set; }
+		public List<TargetApplication>? TargetApplications { get; set; }
+		public List<TargetApplication>? FilteredTargetApplications { get; set; }
+		public List<VoiceCommand>? VoiceCommands { get; set; }
+		public List<VoiceCommand>? FilteredVoiceCommands { get; set; }
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
 #pragma warning restore 414, 649
 		ElementReference SearchInput;
-		public string ExceptionMessage { get; set; } = String.Empty;
+		public string ExceptionMessage { get; set; } = string.Empty;
 		public bool ShowCode { get; set; } = false;
 		protected override void OnInitialized()
 		{
@@ -88,10 +81,10 @@ namespace VoiceLauncher.Pages
 		}
 		void LoadData(string? knowbrainerScriptFileName = null,string? dragonScriptFileName = null )
 		{
-			var query = new Uri(NavigationManager.Uri).Query;
+			var query = new Uri(NavigationManager!.Uri).Query;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("viewnew", out var viewNew))
 			{
-				ViewNew = viewNew.ToString().ToLower() == "true" ? true : false;
+				ViewNew = viewNew.ToString().ToLower() == "true";
 			}
 			if (QueryHelpers.ParseQuery(query).TryGetValue("showcommands", out var showCommands))
 			{
@@ -112,12 +105,12 @@ namespace VoiceLauncher.Pages
 			}
 			catch (Exception e)
 			{
-				Logger.LogError("Exception occurred in on initialised  CommandSet Data Service", e);
+				Logger!.LogError("Exception occurred in on initialised  CommandSet Data Service", e);
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
-				ToastService.ShowError(e.Message, "Error Loading Command Set");
+				ToastService!.ShowError(e.Message, "Error Loading Command Set");
 			}
-			TargetApplications = CommandSet.TargetApplications;
+			TargetApplications = CommandSet!.TargetApplications;
 			FilteredTargetApplications = TargetApplications;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("name", out var name))
 			{
@@ -140,13 +133,13 @@ namespace VoiceLauncher.Pages
 		{
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
-				FilteredTargetApplications = TargetApplications.OrderBy(v => v.Module).ToList();
+				FilteredTargetApplications = TargetApplications!.OrderBy(v => v.Module).ToList();
 				Title = $"All Applications ({FilteredTargetApplications.Count})";
 			}
 			else
 			{
 				var searchTermRevised = SearchTerm.Trim().ToLower();
-				FilteredTargetApplications = TargetApplications
+				FilteredTargetApplications = TargetApplications!
 					.Where(v => (v.VoiceCommands.Any(c => c.Name.ToLower().Contains(searchTermRevised))))
 					.ToList();
 
@@ -171,7 +164,7 @@ namespace VoiceLauncher.Pages
 		{
 			if (sortColumn == "Company")
 			{
-				FilteredTargetApplications = FilteredTargetApplications.OrderBy(o => o.Company).ToList();
+				FilteredTargetApplications = FilteredTargetApplications!.OrderBy(o => o.Company).ToList();
 			}
 		}
 		public void CommandDrillDown(string name)
@@ -183,7 +176,7 @@ namespace VoiceLauncher.Pages
 			long maxFileSize=1024* 2048;
 			var file = arguments.File;
 			var reader = file.OpenReadStream(maxFileSize);
-			var path = $"{WebHostEnvironment.WebRootPath}\\{file.Name}";
+			var path = $"{WebHostEnvironment!.WebRootPath}\\{file.Name}";
 			FileStream fileStream = File.Create(path);
 			await reader.CopyToAsync(fileStream);
 			reader.Close();
@@ -209,7 +202,7 @@ namespace VoiceLauncher.Pages
 			commandName = commandName.Replace(">", "%3E");
 
 			var url = $"https://voicelauncherblazor.azurewebsites.net/commandsetoverview?name={commandName}&application={SearchTermApplication}&viewnew={ViewNew}&showcommands={ShowCommands}&showlists={ShowLists}&showcode={ShowCode}";
-			NavigationManager.NavigateTo(url);
+			NavigationManager!.NavigateTo(url);
 		}
 		void ApplyApplicationFilter(string module)
 		{

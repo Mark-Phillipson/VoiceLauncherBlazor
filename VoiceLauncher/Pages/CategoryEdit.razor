@@ -8,9 +8,9 @@
 <h1>
     Category
     <small>
-        @if (category != null)
+        @if (Category != null)
         {
-            @if (category.CategoryType == "Launch Applications")
+            @if (Category.CategoryType == "Launch Applications")
             {
                 <text> Launcher </text>
             }
@@ -18,7 +18,7 @@
             {
                 <text> Language </text>
             }
-            @category.CategoryName
+            @Category.CategoryName
         }
     </small>
 </h1>
@@ -26,7 +26,7 @@
 {
     <div class="text-danger">@StatusMessage</div>
 }
-@if (category == null)
+@if (Category == null)
 {
     <text>Loading.</text>
 }
@@ -34,33 +34,33 @@ else
 {
     <div class="row">
         <div class="col-md-6">
-            <EditForm Model="@category" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="@Category" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 @*<ValidationSummary />*@
                 <div class="form-field row">
                     <label class="col-md-4">Id</label>
-                    @if (category.Id > 0)
+                    @if (Category.Id > 0)
                     {
-                        <div class="col-md-8">@category.Id</div>
+                        <div class="col-md-8">@Category.Id</div>
                     }
-                    <input type="hidden" name="Id" id="Id" value="@category.Id" />
+                    <input type="hidden" name="Id" id="Id" value="@Category.Id" />
                 </div>
                 <div class="form-field row">
-                    <label for="@category.CategoryName" class="col-md-4"> Category Name (0)</label>
+                    <label for="@Category.CategoryName" class="col-md-4"> Category Name (0)</label>
                     <InputText class="col-md-8 form-control-lg" placeholder="Enter Category Name, must be unique" accesskey="0"
-                                   @onblur="@(e => CallChangeAsync(category.Id.ToString()+ "CategoryName"))" id="@(category.Id.ToString() + "CategoryName")"
-                               @bind-Value="category.CategoryName"></InputText>
-                    <ValidationMessage For="@(() => category.CategoryName)" />
+                                   @onblur="@(e => CallChangeAsync(Category.Id.ToString()+ "CategoryName"))" id="@(Category.Id.ToString() + "CategoryName")"
+                               @bind-Value="Category.CategoryName"></InputText>
+                    <ValidationMessage For="@(() => Category.CategoryName)" />
                 </div>
                 <div class="form-field row">
-                    <label for="@category.CategoryType" class="col-md-4"> Category Type (1)</label>
-                    <InputSelect accesskey="1" class="form-control-lg col-md-8" @bind-Value="category.CategoryType">
+                    <label for="@Category.CategoryType" class="col-md-4"> Category Type (1)</label>
+                    <InputSelect accesskey="1" class="form-control-lg col-md-8" @bind-Value="Category.CategoryType">
                         <option value="">-</option>
-                        @if (generalLookups != null)
+                        @if (GeneralLookups != null)
                             {
-                            @foreach (var lookup in generalLookups)
+                            @foreach (var lookup in GeneralLookups)
                                 {
-                                @if (category.CategoryType == lookup.ItemValue)
+                                @if (Category.CategoryType == lookup.ItemValue)
                                     {
                                     <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
                                     }
@@ -71,7 +71,7 @@ else
                                 }
                             }
                     </InputSelect>
-                    <ValidationMessage For="@(() => category.CategoryType)" />
+                    <ValidationMessage For="@(() => Category.CategoryType)" />
                 </div>
 
                 <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
@@ -79,13 +79,13 @@ else
         </div>
     </div>
     <hr>
-    @if (category.CategoryType == "IntelliSense Command")
+    @if (Category.CategoryType == "IntelliSense Command")
     {
-        <CustomIntellisenseList category=@category />
+        <CustomIntellisenseList category=@Category />
  }
     else
     {
-        <LauncherList category="@category" />
+        <LauncherList category="@Category" />
 }
 }
 

@@ -1,32 +1,28 @@
 ﻿using Blazored.Toast.Services;
-using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VoiceLauncher.Pages
 {
 	public partial class Launchers
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; }
-		[Inject] IToastService ToastService { get; set; }
+		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
-		private int launcherIdDelete { get; set; }
-		private List<DataAccessLibrary.Models.Launcher> launchers;
-		public string StatusMessage { get; set; }
-		public List<DataAccessLibrary.Models.Category> categories { get; set; }
-		public List<DataAccessLibrary.Models.Computer> computers { get; set; }
+		private int LauncherIdDelete { get; set; }
+		private List<DataAccessLibrary.Models.Launcher>? launchers;
+		public string? StatusMessage { get; set; }
+		public List<DataAccessLibrary.Models.Category>? Categories { get; set; }
+		public List<DataAccessLibrary.Models.Computer>? Computers { get; set; }
 		public int MaximumRows { get; set; } = 26;
 		public bool ShowCreateNewOrEdit { get; set; }
-		private int _launcherId;
 #pragma warning disable 414
+		private int? _launcherId;
 		private bool _loadFailed = false;
 #pragma warning restore 414
-		private string searchTerm;
+		private string searchTerm="";
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -60,7 +56,7 @@ namespace VoiceLauncher.Pages
 				await FilterByCategory();
 				try
 				{
-					categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+					Categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
 				}
 				catch (Exception exception)
 				{
@@ -75,7 +71,7 @@ namespace VoiceLauncher.Pages
 				{
 					_loadFailed = false;
 					launchers = await LauncherService.GetLaunchersAsync(maximumRows: MaximumRows);
-					categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+					Categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
 				}
 				catch (Exception exception)
 				{
@@ -107,7 +103,7 @@ namespace VoiceLauncher.Pages
 		void ConfirmDelete(int launcherId)
 		{
 			ShowDialog = true;
-			launcherIdDelete = launcherId;
+			LauncherIdDelete = launcherId;
 		}
 		void CancelDelete()
 		{
@@ -208,7 +204,7 @@ namespace VoiceLauncher.Pages
 				await JSRuntime.InvokeVoidAsync(
 					"clipboardCopy.copyText", commandLine);
 				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService.ShowSuccess(message, "Copy Commandline");
+				ToastService!.ShowSuccess(message, "Copy Commandline");
 			}
 		}
 	}
