@@ -3,6 +3,7 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using System;
 
 namespace VoiceLauncher.Pages
 {
@@ -11,15 +12,15 @@ namespace VoiceLauncher.Pages
 		[Parameter] public int? CategoryIdFilter { get; set; }
 		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
-		private int LauncherIdDelete { get; set; }
+		private int launcherIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.Launcher>? launchers;
 		public string? StatusMessage { get; set; }
-		public List<DataAccessLibrary.Models.Category>? Categories { get; set; }
-		public List<DataAccessLibrary.Models.Computer>? Computers { get; set; }
+		private List<DataAccessLibrary.Models.Category>? categories { get; set; }
+		public List<DataAccessLibrary.Models.Computer>? computers { get; set; }
 		public int MaximumRows { get; set; } = 26;
 		public bool ShowCreateNewOrEdit { get; set; }
 #pragma warning disable 414
-		private int? _launcherId;
+		private int _launcherId;
 		private bool _loadFailed = false;
 #pragma warning restore 414
 		private string searchTerm="";
@@ -56,12 +57,11 @@ namespace VoiceLauncher.Pages
 				await FilterByCategory();
 				try
 				{
-					Categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+					categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
 				}
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
-					StatusMessage = exception.Message;
 					_loadFailed = true;
 				}
 			}
@@ -71,12 +71,11 @@ namespace VoiceLauncher.Pages
 				{
 					_loadFailed = false;
 					launchers = await LauncherService.GetLaunchersAsync(maximumRows: MaximumRows);
-					Categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
+					categories = await CategoryService.GetCategoriesByTypeAsync("Launch Applications");
 				}
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
-					StatusMessage=exception.Message;
 					_loadFailed = true;
 				}
 			}
@@ -93,7 +92,6 @@ namespace VoiceLauncher.Pages
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
-					StatusMessage = exception.Message;
 					_loadFailed = true;
 				}
 				StateHasChanged();
@@ -103,7 +101,7 @@ namespace VoiceLauncher.Pages
 		void ConfirmDelete(int launcherId)
 		{
 			ShowDialog = true;
-			LauncherIdDelete = launcherId;
+			launcherIdDelete = launcherId;
 		}
 		void CancelDelete()
 		{
@@ -176,17 +174,17 @@ namespace VoiceLauncher.Pages
 		private void EditRecord(int launcherId)
 		{
 			_launcherId = launcherId;
-			ShowCreateNewOrEdit = true;
+			NavigationManager.NavigateTo($"/launcher/{_launcherId}");
 		}
 		private async Task CloseDialog()
 		{
 			ShowCreateNewOrEdit = false;
 			launchers = null;
-			await LoadData(); 
+			await LoadData();
 		}
 		private void CreateRecord()
 		{
-			ShowCreateNewOrEdit = true;
+			NavigationManager.NavigateTo("/launcher/0");
 		}
 		private async Task CallChangeAsync(string elementId)
 		{

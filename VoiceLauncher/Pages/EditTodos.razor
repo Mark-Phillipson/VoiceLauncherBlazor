@@ -25,7 +25,8 @@
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-text p-2"></i>
 						</div>
-						<InputText class="form-control" @bind-Value="Todo.Title" placeholder="Enter a Title" @onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Title"))" id="@(Todo.Id.ToString() + "Title")" />
+						<InputText class="form-control" accesskey="3" @bind-Value="Todo.Title" placeholder="Enter a Title (Alt+3)"
+						@onblur="@(e => CallChangeAsync(Todo.Id.ToString() + "Title"))" id="@(Todo.Id.ToString() + "Title")" />
 						@if (Todo.Title?.Length > 0)
 						{
 							<div class="input-group-append bg-success">

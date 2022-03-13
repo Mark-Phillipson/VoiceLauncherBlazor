@@ -38,10 +38,9 @@ namespace VoiceLauncher.Pages
             StatusClassName = "text-danger";
             multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
         }
-        private async Task CreateBridge(DataAccessLibrary.Models.MultipleLauncher multipleLauncher)
+        private void CreateBridge()
         {
-            bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge { MultipleLauncherId = multipleLauncher.Id };
-            await JSRuntime.InvokeVoidAsync("setFocus", "FilterLauncher");
+            NavigationManager.NavigateTo($"/multiplelauncherbridge");
         }
         private async Task ReloadLaunchers()
         {

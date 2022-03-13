@@ -31,6 +31,7 @@ builder.Services.AddScoped<ITodoData, TodoData>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<VisualStudioCommandService>();
 builder.Services.AddScoped<CommandSetService>();
+builder.Services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
 builder.Services.AddSingleton<NotifierService>();
 
 

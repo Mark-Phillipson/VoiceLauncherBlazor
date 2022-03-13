@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager
 
 <h1>
-	Launcher
+	🚀 Launcher
 </h1>
 @if (LauncherModel == null && _loadFailed)
 {
@@ -41,18 +41,18 @@ else
 					<input type="hidden" name="Id" id="Id" value="@LauncherModel.Id" />
 				</div>
 				<div class="form-field row">
-					<label for="@LauncherModel.Name" class="col-md-4"> Launcher Name (0)</label>
+					<label for="@LauncherModel.Name" class="col-md-4"> Launcher Name (0) *️⃣</label>
 					<InputText class="col-md-8 form-control" placeholder="Enter Launcher Name, must be unique" accesskey="0" id="LauncherName" @bind-Value="LauncherModel.Name" @onblur="@(e => CallChangeAsync("LauncherName"))" ></InputText >
 					<ValidationMessage For="@(() => LauncherModel.Name)" />
 				</div>
 				<div class="form-field row">
-					<label for="@LauncherModel.CommandLine" class="col-md-4"> Command Line (1)</label>
+					<label for="@LauncherModel.CommandLine" class="col-md-4"> Command Line (1) *️⃣</label>
 					<InputTextArea rows="3" class="col-md-8 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="LauncherModel.CommandLine"></InputTextArea>
 					<ValidationMessage For="@(() => LauncherModel.CommandLine)" />
 				</div>
 				<div class="form-field row">
-					<label for="@LauncherModel.CategoryId" class="col-md-4"> Category</label>
-					<select class="form-control col-md-8" @bind="LauncherModel.CategoryId">
+					<label for="@LauncherModel.CategoryId" class="col-md-4"> Category (2) *️⃣</label>
+					<select accesskey="2" class="form-control col-md-8" @bind="LauncherModel.CategoryId">
 						<option value="">-</option>
 						@if (Categories != null)
 						{
@@ -92,10 +92,10 @@ else
 					</select>
 					<ValidationMessage For="@(() => LauncherModel.ComputerId)" />
 				</div>
-				<button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="fas fa-save"></i></button>
-				<button accesskey="3" class="btn btn-lg btn-success" @onclick="@OnClose" type="submit">Submit & Close (3) <i class="fas fa-save"></i></button>
-				<button accesskey="c" class="btn btn-outline-primary btn-lg ml-auto" @onclick="@OnClose"><u>C</u>lose</button>
-			</EditForm>
+				<button accesskey="3" class="btn btn-lg btn-success" type="submit">Submit (3) <i class="fas fa-save"></i></button>
+@*				<button accesskey="3" class="btn btn-lg btn-success" @onclick="@OnClose" type="submit">Submit & Close (3) <i class="fas fa-save"></i></button>
+*@			</EditForm>
+<p class="text-info">If the launcher is no longer required, an alternative to deleting it will be to set the category to Seldom Used or Spare or setting the computer to Select to Hide.</p>
 		</div>
 	</div>
 

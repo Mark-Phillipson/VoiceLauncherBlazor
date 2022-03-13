@@ -100,7 +100,12 @@ namespace VoiceLauncher.Pages
 				_loadFailed = true;
 			}
 			Message = $"Saved Successfully {DateTime.Now.ToLongTimeString()}";
-			NavigationManager.NavigateTo("launchers");
+            if (LauncherModel?.Category!= null )
+            {
+				NavigationManager.NavigateTo($"/launchers?category={LauncherModel?.Category.CategoryName}");
+                return;
+            }
+			NavigationManager.NavigateTo($"/launchers");
 		}
 		void HideMessage(MouseEventArgs args)
 		{

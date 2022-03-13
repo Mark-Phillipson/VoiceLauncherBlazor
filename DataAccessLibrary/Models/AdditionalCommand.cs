@@ -16,6 +16,7 @@ namespace DataAccessLibrary.Models
 		public decimal WaitBefore { get; set; } = (decimal)0.1;
 		[Required(AllowEmptyStrings = false)]
 		[Column("SendKeys_Value")]
+		
 		[Display(Name ="Send Keys Value")]
 		public string SendKeysValue { get; set; }
 		[StringLength(255)]

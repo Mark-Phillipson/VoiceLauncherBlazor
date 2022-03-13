@@ -6,7 +6,7 @@
 
 	<header>
 		<h3>
-			Todos
+			☑️ Todos
 			<small>
 				<input placeholder="Filter by title/description (Alt+1)" style="min-width: 300px" class="form-control-sm" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
 				<button accesskey="2" class="btn btn-primary btn-sm mt-2 mx-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
@@ -77,13 +77,17 @@ else
 							@todo.Title
 							<br>
 							<div class="btn-group">
-								<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,true ) )"><i class="oi oi-arrow-circle-top"></i></button>
-								<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => SetPriorityAsync( todo.Id,false ) )"><i class="oi oi-arrow-circle-bottom"></i></button>
+								<button class="btn btn-danger btn-sm" type="button" @onclick="@( ( ) => 
+									SetPriorityAsync( todo.Id,true ) )"><i class="oi oi-arrow-circle-top"></i></button>
+								<button class="btn btn-info btn-sm" type="button" @onclick="@( ( ) => 
+									SetPriorityAsync( todo.Id,false ) )"><i class="oi oi-arrow-circle-bottom"></i></button>
 							</div>
 						</td>
 						<td>@todo.Description</td>
 						<td>
-							<button class="btn btn-sm btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))"><i class="oi oi-circle-x"></i></button>
+							<button class="btn btn-sm btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))">
+								<img src="/images/ToDo.png" width="25" />
+							</button>
 						</td>
 					}
 					else
@@ -93,7 +97,9 @@ else
 						</td>
 						<td class="text-muted"><del>@todo.Description</del></td>
 						<td>
-							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))"><i class="oi oi-task"></i></button>
+							<button class="btn btn-sm btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))">
+								☑️
+							</button>
 						</td>
 					}
 					@if (Project == null)
