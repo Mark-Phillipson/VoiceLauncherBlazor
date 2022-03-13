@@ -99,7 +99,7 @@ namespace VoiceLauncher.Pages
 			{
 				try
 				{
-					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm.Trim(), maximumRows: MaximumRows);
+					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm.Trim(),categoryIdFilter: CategoryIdFilter,languageIdFilter:LanguageIdFilter, maximumRows: MaximumRows);
 				}
 				catch (Exception exception)
 				{

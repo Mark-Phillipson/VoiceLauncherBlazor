@@ -87,7 +87,7 @@ namespace VoiceLauncher.Pages
 			{
 				try
 				{
-					launchers = await LauncherService.GetLaunchersAsync(SearchTerm.Trim(), maximumRows: MaximumRows);
+					launchers = await LauncherService.GetLaunchersAsync(SearchTerm.Trim(),categoryIdFilter: CategoryIdFilter, maximumRows: MaximumRows);
 				}
 				catch (Exception exception)
 				{
