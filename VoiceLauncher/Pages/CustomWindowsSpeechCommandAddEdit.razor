@@ -1,0 +1,83 @@
+@page "/customwindowsspeechcommand/{Id:int?}"
+<div style="min-width:80vw">
+    <EditForm Model="@CustomWindowsSpeechCommandDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (CustomWindowsSpeechCommandDTO.Id > 0)
+        {
+            <span class="text-info m-1">@CustomWindowsSpeechCommandDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="SpokenCommand">Spoken Command: </label> <i class="text-danger fa">*</i>
+                    <InputText   id="SpokenCommand" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.SpokenCommand"
+                               @oninput="@(() => CallChangeAsync("SpokenCommand"))" placeholder="Enter Spoken Command"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.SpokenCommand)" />
+                </div>
+                <div class="form-group">
+                    <label for="TextToEnter">Text To Enter: </label>
+                    <InputTextArea rows="2" id="TextToEnter" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.TextToEnter"
+                                   @oninput="@(() => CallChangeAsync("TextToEnter"))" placeholder="Enter Text To Enter"></InputTextArea>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.TextToEnter)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="KeyDownValue">Key Down Value: </label>
+                    <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.KeyDownValue" class="form-control">
+                    </InputSelectEnum>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyDownValue)" />
+                </div>
+                <div class="form-group">
+                    <label for="ModifierKey">Modifier Key: </label>
+                    <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.ModifierKey" class="form-control" />
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ModifierKey)" />
+                </div>
+                <div class="form-group">
+                    <label for="KeyPressValue">Key Press Value: </label>
+                    <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.KeyPressValue" class="form-control" />
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyPressValue)" />
+                </div>
+                <div class="form-group">
+                    <label for="MouseCommand">Mouse Command: </label>
+                    <InputSelect @bind-Value="CustomWindowsSpeechCommandDTO.MouseCommand" class="form-control">
+                        <option value="">-</option>
+                        @foreach (string  item in MouseMethods)
+                        {
+                            <option>@item</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.MouseCommand)" />
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="ProcessStart">Process Start: </label>
+                    <InputText id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
+                               @oninput="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ProcessStart)" />
+                </div>
+                <div class="form-group">
+                    <label for="CommandLineArguments">Command Line Arguments: </label>
+                    <InputText id="CommandLineArguments" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.CommandLineArguments"
+                               @oninput="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.CommandLineArguments)" />
+                </div>
+                <div class="form-group">
+                    <label for="Description">Description: </label>
+                    <InputTextArea rows="3" id="Description" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.Description"
+                                   @oninput="@(() => CallChangeAsync("Description"))" placeholder="Enter Description"></InputTextArea>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.Description)" />
+                </div>
+            </div>
+            <div class="col-6">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a accesskey="c" class="btn btn-lg btn-secondary" @onclick="@Close"><u>C</u>ancel</a>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

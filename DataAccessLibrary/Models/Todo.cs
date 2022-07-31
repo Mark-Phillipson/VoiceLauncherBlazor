@@ -8,6 +8,7 @@ namespace DataAccessLibrary.Models
 		public int Id { get; set; }
 		[StringLength(255)]
 		[Required]
+		
 		[MinLength(1, ErrorMessage = "Please enter a title between one and 255 characters!")]
 		public string Title { get; set; }
 		[StringLength(1000)]
@@ -22,5 +23,6 @@ namespace DataAccessLibrary.Models
 		[Range(- 99, 100,ErrorMessage ="Priority should be between -99 and 100 where 100 is most important")]
 		[Required(ErrorMessage ="Priority number is required")]
 		public int SortPriority { get; set; }
+		
 	}
 }

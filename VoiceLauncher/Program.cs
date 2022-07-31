@@ -4,10 +4,12 @@ using DataAccessLibrary;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Configuration;
-using VoiceLauncher.Data;
 using Blazored.Toast;
 using Blazored.Modal;
 using Microsoft.EntityFrameworkCore;
+using VoiceLauncher.Repositories;
+using VoiceLauncher.Services;
+using DataAccessLibrary.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +35,11 @@ builder.Services.AddScoped<VisualStudioCommandService>();
 builder.Services.AddScoped<CommandSetService>();
 builder.Services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
 builder.Services.AddSingleton<NotifierService>();
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<ISavedMousePositionRepository, SavedMousePositionRepository>();
+builder.Services.AddScoped<ISavedMousePositionDataService, SavedMousePositionDataService>();
+builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindowsSpeechCommandDataService>();
+builder.Services.AddScoped<ICustomWindowsSpeechCommandRepository, CustomWindowsSpeechCommandRepository>();
 
 var app = builder.Build();
 

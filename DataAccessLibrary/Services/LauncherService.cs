@@ -27,7 +27,7 @@ namespace DataAccessLibrary.Services
 			return await multipleLaunchers.ToListAsync();
 		}
 
-		public async Task<List<Launcher>> GetLaunchersAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int maximumRows = 200)
+		public async Task<List<Launcher>> GetLaunchersAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int maximumRows = 400)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			IQueryable<Launcher> launchers = null;

@@ -18,9 +18,12 @@
         <div class="form-group row">
             <label for="title" class="col-sm-3">Launcher Item: </label>
             <InputSelect id="LauncherId" class="form-select border border-warning col-sm-8" @bind-Value=@LauncherMultipleLauncherBridge.LauncherId>
-                @foreach (var launcher in Launchers)
+                @if (Launchers != null)
                 {
-                    <option value="@launcher.Id">@launcher.Name</option>
+                    @foreach (var launcher in Launchers)
+                    {
+                        <option value="@launcher.Id">@launcher.Name</option>
+                    }
                 }
             </InputSelect>
 
@@ -39,7 +42,7 @@
         <br />
         <div class="btn-group">
             <button type="submit" class="btn btn-primary btn-lg edit-btn">Save Multiple Launcher/Launcher Link</button>
-            @if (LauncherMultipleLauncherBridge.Id> 0)
+            @if (LauncherMultipleLauncherBridge.Id > 0)
             {
                 <button @onclick="ShowDeleteConfirmation" type="button" class="btn btn-danger btn-lg">Delete</button>
             }

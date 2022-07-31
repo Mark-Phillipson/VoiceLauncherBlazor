@@ -1,10 +1,15 @@
 ﻿using Blazored.Toast.Services;
+
 using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class Languages
+    public partial class Languages
 	{
+		public Languages()
+        {
+
+        }
 		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
 		public bool ShowAsCards { get; set; } = true;

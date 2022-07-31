@@ -1,0 +1,24 @@
+﻿@page "/counter"
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+
+<button class="btn btn-primary" accesskey="C" @onclick="IncrementCount">Click me (Alt+c)</button>
+<div class="form-group">
+    <label>Testing Dictation</label>
+    <input type="text" class="form-control" />
+</div>
+<div class="form-group">
+    <label> Testing Dictation TextArea</label>
+<textarea rows="5" class="form-control"></textarea>
+</div>
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

@@ -1,0 +1,20 @@
+﻿.dialog-title {
+    color: white;
+    background-color: green;
+    text-align: center;
+}
+
+.dialog {
+    background-color: brown;
+}
+
+.dialog-body {
+    background-color: green;
+    text-align: center;
+    border: solid;
+    border-width: thick;
+}
+
+.dialog-footer {
+    background-color: forestgreen;
+}
