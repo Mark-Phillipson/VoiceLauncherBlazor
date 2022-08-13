@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace VoiceLauncher.DTOs
+namespace DataAccessLibrary.DTO
 {
     public partial class SavedMousePositionDTO
     {
@@ -10,11 +10,11 @@ namespace VoiceLauncher.DTOs
         public int Id { get; set; }
         [Required]
         [StringLength(255)]
-        public string NamedLocation { get; set; } ="";
+        public string NamedLocation { get; set; } = "";
         [Required]
         public int X { get; set; }
         [Required]
         public int Y { get; set; }
         public DateTime? Created { get; set; }
-    }   
+    }
 }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
-using VoiceLauncher.DTOs;
 
 namespace DataAccessLibrary.Profiles
 {
@@ -11,6 +11,8 @@ namespace DataAccessLibrary.Profiles
         {
             CreateMap<SavedMousePosition, SavedMousePositionDTO>(); CreateMap<SavedMousePositionDTO, SavedMousePosition>();
             CreateMap<CustomWindowsSpeechCommand, CustomWindowsSpeechCommandDTO>(); CreateMap<CustomWindowsSpeechCommandDTO, CustomWindowsSpeechCommand>();
+            CreateMap<WindowsSpeechVoiceCommand, WindowsSpeechVoiceCommandDTO>(); CreateMap<WindowsSpeechVoiceCommandDTO, WindowsSpeechVoiceCommand>();
+
         }
     }
 }

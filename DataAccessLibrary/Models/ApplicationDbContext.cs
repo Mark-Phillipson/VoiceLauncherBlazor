@@ -10,12 +10,12 @@ namespace DataAccessLibrary.Models
         //{
         //}
 
+        private IConfiguration _configuration;
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
             : base(options)
         {
             _configuration = configuration;
         }
-        private IConfiguration _configuration;
         public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
@@ -23,7 +23,8 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-         public  virtual DbSet<CustomWindowsSpeechCommand> CustomWindowsSpeechCommands { get; set; }
+        public virtual DbSet<CustomWindowsSpeechCommand> CustomWindowsSpeechCommands { get; set; }
+        public virtual DbSet<WindowsSpeechVoiceCommand> WindowsSpeechVoiceCommands { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Computer> Computers { get; set; }
         public virtual DbSet<CurrentWindow> CurrentWindow { get; set; }

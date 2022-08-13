@@ -2,16 +2,15 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
-using VoiceLauncher.DTOs;
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using Microsoft.Extensions.Logging;
-using DataAccessLibrary.Repositories;
+using DataAccessLibrary.DTO;
 
-namespace VoiceLauncher.Repositories
+namespace DataAccessLibrary.Repositories
 {
     public class SavedMousePositionRepository : ISavedMousePositionRepository
     {
@@ -19,13 +18,13 @@ namespace VoiceLauncher.Repositories
         private readonly IMapper _mapper;
         private readonly ILoggerFactory _loggerFactory;
 
-        public SavedMousePositionRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper,ILoggerFactory loggerFactory)
+        public SavedMousePositionRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper, ILoggerFactory loggerFactory)
         {
             _contextFactory = contextFactory;
-            this._mapper = mapper;
+            _mapper = mapper;
             _loggerFactory = loggerFactory;
         }
-		        public async Task<IEnumerable<SavedMousePositionDTO>> GetAllSavedMousePositionsAsync(int maxRows= 400)
+        public async Task<IEnumerable<SavedMousePositionDTO>> GetAllSavedMousePositionsAsync(int maxRows = 400)
         {
             using var context = _contextFactory.CreateDbContext();
             List<SavedMousePosition> savedMousePositions;
@@ -40,7 +39,7 @@ namespace VoiceLauncher.Repositories
             }
             catch (Exception exception)
             {
-                var logger=_loggerFactory.CreateLogger<SavedMousePositionRepository>();
+                var logger = _loggerFactory.CreateLogger<SavedMousePositionRepository>();
                 logger.LogError(exception.Message);
                 throw;
             }
@@ -51,10 +50,10 @@ namespace VoiceLauncher.Repositories
         public async Task<SavedMousePositionDTO> GetSavedMousePositionByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.SavedMousePosition.AsNoTracking()
+            var result = await context.SavedMousePosition.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            SavedMousePositionDTO savedMousePositionDTO=_mapper.Map<SavedMousePosition,SavedMousePositionDTO>(result);
+            SavedMousePositionDTO savedMousePositionDTO = _mapper.Map<SavedMousePosition, SavedMousePositionDTO>(result);
             return savedMousePositionDTO;
         }
 
@@ -72,13 +71,13 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            SavedMousePositionDTO resultDTO=_mapper.Map<SavedMousePosition, SavedMousePositionDTO>(savedMousePosition);
+            SavedMousePositionDTO resultDTO = _mapper.Map<SavedMousePosition, SavedMousePositionDTO>(savedMousePosition);
             return resultDTO;
         }
 
         public async Task<SavedMousePositionDTO> UpdateSavedMousePositionAsync(SavedMousePositionDTO savedMousePositionDTO)
         {
-            SavedMousePosition savedMousePosition=_mapper.Map<SavedMousePositionDTO, SavedMousePosition>(savedMousePositionDTO);
+            SavedMousePosition savedMousePosition = _mapper.Map<SavedMousePositionDTO, SavedMousePosition>(savedMousePositionDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundSavedMousePosition = await context.SavedMousePosition.AsNoTracking().FirstOrDefaultAsync(e => e.Id == savedMousePosition.Id);

@@ -10,73 +10,118 @@
         <div class="row">
             <div class="col-6">
                 <div class="form-group">
-                    <label for="SpokenCommand">Spoken Command: </label> <i class="text-danger fa">*</i>
-                    <InputText   id="SpokenCommand" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.SpokenCommand"
-                               @oninput="@(() => CallChangeAsync("SpokenCommand"))" placeholder="Enter Spoken Command"></InputText>
-                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.SpokenCommand)" />
-                </div>
-                <div class="form-group">
-                    <label for="TextToEnter">Text To Enter: </label>
-                    <InputTextArea rows="2" id="TextToEnter" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.TextToEnter"
-                                   @oninput="@(() => CallChangeAsync("TextToEnter"))" placeholder="Enter Text To Enter"></InputTextArea>
-                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.TextToEnter)" />
+                    <label for="WaitTime">Wait Time (Alt+1)</label> <i class="text-danger fa">*</i>
+                    <InputNumber accesskey="1" id="WaitTime" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.WaitTime">
+                    </InputNumber>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.WaitTime)" />
                 </div>
 
                 <div class="form-group">
-                    <label for="KeyDownValue">Key Down Value: </label>
+                    <label for="TextToEnter">Text To Enter: (Alt+2) </label>
+                    <InputText accesskey="2" id="CommandTextToEnter" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.TextToEnter"
+                               @onblur="@(() => CallChangeAsync("CommandTextToEnter"))" placeholder="Enter Text To Enter"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.TextToEnter)" />
+                </div>
+                <div class="form-group">
+                    <label for="KeyDownValue">Key Down Value: (Alt+3)</label>
+                    <input accesskey="3" class="form-control" type="text" placeholder="Filter" @bind="@KeyDownFilter" @bind:event="oninput" />
                     <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.KeyDownValue" class="form-control">
                     </InputSelectEnum>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyDownValue)" />
                 </div>
                 <div class="form-group">
-                    <label for="ModifierKey">Modifier Key: </label>
-                    <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.ModifierKey" class="form-control" />
-                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ModifierKey)" />
+                    <label for="1"> Control Key (Alt+4)</label>
+                    <InputCheckbox accesskey="4" @bind-Value="CustomWindowsSpeechCommandDTO.ControlKey" class="form-control" />
                 </div>
                 <div class="form-group">
-                    <label for="KeyPressValue">Key Press Value: </label>
+                    <label for="1"> Alternate Key (Alt+5)</label>
+                    <InputCheckbox accesskey="5" @bind-Value="CustomWindowsSpeechCommandDTO.AlternateKey" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="1"> Shift Key (Alt+6)</label>
+                    <InputCheckbox accesskey="6" @bind-Value="CustomWindowsSpeechCommandDTO.ShiftKey" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="1"> Windows Key</label>
+                    <InputCheckbox @bind-Value="CustomWindowsSpeechCommandDTO.WindowsKey" class="form-control" />
+                </div>
+
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="KeyPressValue">Key Press Value: (Alt+7)</label>
+                    <input accesskey="7" class="form-control" type="text" placeholder="Filter" @bind="@KeyPressFilter" @bind:event="oninput" />
                     <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.KeyPressValue" class="form-control" />
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyPressValue)" />
                 </div>
                 <div class="form-group">
-                    <label for="MouseCommand">Mouse Command: </label>
-                    <InputSelect @bind-Value="CustomWindowsSpeechCommandDTO.MouseCommand" class="form-control">
+                    <label for="MouseCommand">Mouse Command: (Alt+8)</label>
+                    <InputSelect accesskey="8" @bind-Value="CustomWindowsSpeechCommandDTO.MouseCommand" class="form-control">
                         <option value="">-</option>
-                        @foreach (string  item in MouseMethods)
+                        @foreach (string item in MouseMethods)
                         {
                             <option>@item</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.MouseCommand)" />
                 </div>
-            </div>
-            <div class="col-6">
+                @if (CustomWindowsSpeechCommandDTO.MouseCommand == "MoveMouseBy")
+                {
+                    <div class="form-group">
+                        <label for="MouseMoveX">Move Mouse X</label> <i class="text-danger fa">*</i>
+                        <InputNumber id="MouseMoveX" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.MouseMoveX">
+                        </InputNumber>
+                        <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.MouseMoveX)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="MouseMoveY">Move Mouse Y</label> <i class="text-danger fa">*</i>
+                        <InputNumber id="MouseMoveY" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.MouseMoveY">
+                        </InputNumber>
+                        <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.MouseMoveY)" />
+                    </div>
+                }
+                else if (CustomWindowsSpeechCommandDTO.MouseCommand == "MoveMouseTo")
+                {
+                    <div class="form-group">
+                        <label for="AbsoluteX">Move Mouse To X</label> <i class="text-danger fa">*</i>
+                        <InputNumber id="AbsoluteX" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.AbsoluteX">
+                        </InputNumber>
+                        <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.AbsoluteX)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="AbsoluteY">Move Mouse To Y</label> <i class="text-danger fa">*</i>
+                        <InputNumber id="AbsoluteY" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.AbsoluteY">
+                        </InputNumber>
+                        <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.AbsoluteY)" />
+                    </div>
+                }
+                else if (CustomWindowsSpeechCommandDTO.MouseCommand == "HorizontalScroll" || CustomWindowsSpeechCommandDTO.MouseCommand == "VerticalScroll")
+                {
+                    <div class="form-group">
+                        <label for="ScrollAmount">Scroll Amount</label> <i class="text-danger fa">*</i>
+                        <InputNumber id="ScrollAmount" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ScrollAmount">
+                        </InputNumber>
+                        <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ScrollAmount)" />
+                    </div>
+                }
+
                 <div class="form-group">
-                    <label for="ProcessStart">Process Start: </label>
-                    <InputText id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
-                               @oninput="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
+                    <label for="ProcessStart">Process Start: (Alt+9)</label>
+                    <InputText accesskey="9" id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
+                               @onblur="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ProcessStart)" />
                 </div>
                 <div class="form-group">
                     <label for="CommandLineArguments">Command Line Arguments: </label>
                     <InputText id="CommandLineArguments" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.CommandLineArguments"
-                               @oninput="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
+                               @onblur="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.CommandLineArguments)" />
                 </div>
-                <div class="form-group">
-                    <label for="Description">Description: </label>
-                    <InputTextArea rows="3" id="Description" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.Description"
-                                   @oninput="@(() => CallChangeAsync("Description"))" placeholder="Enter Description"></InputTextArea>
-                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.Description)" />
-                </div>
-            </div>
-            <div class="col-6">
-                @* Move here for the next display column if required *@
             </div>
         </div>
         <hr>
         <div class="btn-group" style="float:right">
-            <a accesskey="c" class="btn btn-lg btn-secondary" @onclick="@Close"><u>C</u>ancel</a>
+            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
         </div>
     </EditForm>

@@ -17,41 +17,37 @@ using Blazored.Modal.Services;
 using Blazored.Toast;
 using Blazored.Toast.Services;
 using System.Security.Claims;
-using VoiceLauncher.Services;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Services;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class SavedMousePositionAddEdit : ComponentBase
+    public partial class WindowsSpeechVoiceCommandAddEdit : ComponentBase
     {
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
-        [Parameter] public ClaimsPrincipal? User { get; set; }
         [Parameter] public int? Id { get; set; }
-        public SavedMousePositionDTO SavedMousePositionDTO { get; set; } = new SavedMousePositionDTO();//{ };
-        [Inject] public ISavedMousePositionDataService? SavedMousePositionDataService { get; set; }
+        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO();//{ };
+        [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
         protected override async Task OnInitializedAsync()
         {
-            if (SavedMousePositionDataService == null)
+            if (WindowsSpeechVoiceCommandDataService == null)
             {
                 return;
             }
             if (Id > 0)
             {
-                var result = await SavedMousePositionDataService.GetSavedMousePositionById((int)Id);
+                var result = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById((int)Id);
                 if (result != null)
                 {
-                    SavedMousePositionDTO = result;
+                    WindowsSpeechVoiceCommandDTO = result;
                 }
             }
             else
-            {
-            }
-            if (User?.Identity?.Name != null)
             {
             }
         }
@@ -64,7 +60,7 @@ namespace VoiceLauncher.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "NamedLocation");
+                        await JSRuntime.InvokeVoidAsync("window.setFocus", "SpokenCommand");
                     }
                 }
                 catch (Exception exception)
@@ -82,22 +78,22 @@ namespace VoiceLauncher.Pages
         protected async Task HandleValidSubmit()
         {
             TaskRunning = "disabled";
-            if ((Id == 0 || Id == null) && SavedMousePositionDataService != null)
+            if ((Id == 0 || Id == null) && WindowsSpeechVoiceCommandDataService != null)
             {
-                SavedMousePositionDTO? result = await SavedMousePositionDataService.AddSavedMousePosition(SavedMousePositionDTO);
+                WindowsSpeechVoiceCommandDTO? result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Saved Mouse Position failed to add, please investigate", "Error Adding New Saved Mouse Position");
+                    ToastService?.ShowError("Windows Speech Voice Command failed to add, please investigate", "Error Adding New Windows Speech Voice Command");
                     return;
                 }
-                ToastService?.ShowSuccess("Saved Mouse Position added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Windows Speech Voice Command added successfully", "SUCCESS");
             }
             else
             {
-                if (SavedMousePositionDataService != null)
+                if (WindowsSpeechVoiceCommandDataService != null)
                 {
-                    await SavedMousePositionDataService!.UpdateSavedMousePosition(SavedMousePositionDTO, "MSP");
-                    ToastService?.ShowSuccess("The Saved Mouse Position updated successfully", "SUCCESS");
+                    await WindowsSpeechVoiceCommandDataService!.UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO, "TBC");
+                    ToastService?.ShowSuccess("The Windows Speech Voice Command updated successfully", "SUCCESS");
                 }
             }
             if (ModalInstance != null)
@@ -105,6 +101,13 @@ namespace VoiceLauncher.Pages
                 await ModalInstance.CloseAsync(ModalResult.Ok(true));
             }
             TaskRunning = "";
+        }
+        private async Task CallChangeAsync(string elementId)
+        {
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            }
         }
     }
 }

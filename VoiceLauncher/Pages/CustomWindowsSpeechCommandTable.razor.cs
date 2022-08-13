@@ -19,7 +19,7 @@ using Blazored.Toast.Services;
 using System.Security.Claims;
 using Ardalis.GuardClauses;
 using VoiceLauncher.Shared;
-using VoiceLauncher.Services;
+using DataAccessLibrary.Services;
 using DataAccessLibrary.DTO;
 
 namespace VoiceLauncher.Pages
@@ -27,6 +27,7 @@ namespace VoiceLauncher.Pages
     public partial class CustomWindowsSpeechCommandTable : ComponentBase
     {
         [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechCommandDataService { get; set; }
+        [Parameter] public int WindowsSpeechVoiceCommandId { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<CustomWindowsSpeechCommandTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
@@ -55,10 +56,9 @@ namespace VoiceLauncher.Pages
         {
             try
             {
-                if (CustomWindowsSpeechCommandDataService != null )
+                if (CustomWindowsSpeechCommandDataService != null && WindowsSpeechVoiceCommandId > 0)
                 {
-                    var result = await CustomWindowsSpeechCommandDataService!.GetAllCustomWindowsSpeechCommandsAsync();
-                    //var result = await CustomWindowsSpeechCommandDataService.SearchCustomWindowsSpeechCommandsAsync(ServerSearchTerm);
+                    var result = await CustomWindowsSpeechCommandDataService!.GetAllCustomWindowsSpeechCommandsAsync(WindowsSpeechVoiceCommandId);
                     if (result != null)
                     {
                         CustomWindowsSpeechCommandDTO = result.ToList();
@@ -73,7 +73,7 @@ namespace VoiceLauncher.Pages
                 ExceptionMessage = e.Message;
             }
             FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO;
-            Title = $"Custom Windows Speech Command ({FilteredCustomWindowsSpeechCommandDTO?.Count})";
+            Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -82,9 +82,9 @@ namespace VoiceLauncher.Pages
             {
                 try
                 {
-                    if (JSRuntime!= null )
+                    if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+                        await JSRuntime.InvokeVoidAsync("window.setFocus", "TextToEnter");
                     }
                 }
                 catch (Exception exception)
@@ -96,6 +96,7 @@ namespace VoiceLauncher.Pages
         protected async Task AddNewCustomWindowsSpeechCommandAsync()
         {
             var parameters = new ModalParameters();
+            parameters.Add(nameof(WindowsSpeechVoiceCommandId), WindowsSpeechVoiceCommandId);
             var formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>("Add Custom Windows Speech Command", parameters);
             if (formModal != null)
             {
@@ -115,34 +116,34 @@ namespace VoiceLauncher.Pages
             }
             if (string.IsNullOrEmpty(SearchTerm))
             {
-                FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO.OrderBy(v => v.SpokenCommand).ToList();
-                Title = $"All Custom Windows Speech Command ({FilteredCustomWindowsSpeechCommandDTO.Count})";
+                FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO.OrderBy(v => v.TextToEnter).ToList();
+                Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO.Count})";
             }
             else
             {
                 var temporary = SearchTerm.ToLower().Trim();
                 FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO
-                    .Where(v => 
-                    (v.SpokenCommand!= null  && v.SpokenCommand.ToLower().Contains(temporary))
+                    .Where(v =>
+                    (v.TextToEnter != null && v.TextToEnter.ToLower().Contains(temporary))
                     )
                     .ToList();
-                Title = $"Filtered Custom Windows Speech Commands ({FilteredCustomWindowsSpeechCommandDTO.Count})";
+                Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO.Count})";
             }
         }
         protected void SortCustomWindowsSpeechCommand(string sortColumn)
         {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-                        if (FilteredCustomWindowsSpeechCommandDTO == null)
+            if (FilteredCustomWindowsSpeechCommandDTO == null)
             {
                 return;
             }
-            if (sortColumn == "SpokenCommand")
+            if (sortColumn == "TextToEnter")
             {
-                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderBy(v => v.SpokenCommand).ToList();
+                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderBy(v => v.TextToEnter).ToList();
             }
-            else if (sortColumn == "SpokenCommand Desc")
+            else if (sortColumn == "TextToEnter Desc")
             {
-                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderByDescending(v => v.SpokenCommand).ToList();
+                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderByDescending(v => v.TextToEnter).ToList();
             }
         }
         async Task DeleteCustomWindowsSpeechCommandAsync(int Id)
@@ -159,10 +160,10 @@ namespace VoiceLauncher.Pages
             {
                 var customWindowsSpeechCommand = await CustomWindowsSpeechCommandDataService.GetCustomWindowsSpeechCommandById(Id);
                 parameters.Add("Title", "Please Confirm, Delete Custom Windows Speech Command");
-                parameters.Add("Message", $"SpokenCommand: {customWindowsSpeechCommand?.SpokenCommand}");
+                parameters.Add("Message", $"TextToEnter: {customWindowsSpeechCommand?.TextToEnter}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
-                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Custom Windows Speech Command ({customWindowsSpeechCommand?.SpokenCommand})?", parameters);
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Custom Windows Speech Command ({customWindowsSpeechCommand?.TextToEnter})?", parameters);
                 if (formModal != null)
                 {
                     var result = await formModal.Result;

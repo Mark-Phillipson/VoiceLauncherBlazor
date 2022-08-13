@@ -2,14 +2,12 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
-
-using DataAccessLibrary.DTO;
-using VoiceLauncher.Repositories;
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using DataAccessLibrary.DTO;
 
 namespace DataAccessLibrary.Repositories
 {
@@ -23,13 +21,11 @@ namespace DataAccessLibrary.Repositories
             _contextFactory = contextFactory;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<CustomWindowsSpeechCommandDTO>> GetAllCustomWindowsSpeechCommandsAsync(int maxRows = 400)
+        public async Task<IEnumerable<CustomWindowsSpeechCommandDTO>> GetAllCustomWindowsSpeechCommandsAsync(int windowsSpeechVoiceCommandId)
         {
             using var context = _contextFactory.CreateDbContext();
             var CustomWindowsSpeechCommands = await context.CustomWindowsSpeechCommands
-                //.Where(v => v.?==?)
-                //.OrderBy(v => v.?)
-                .Take(maxRows)
+                .Where(v => v.WindowsSpeechVoiceCommandId == windowsSpeechVoiceCommandId)
                 .ToListAsync();
             IEnumerable<CustomWindowsSpeechCommandDTO> CustomWindowsSpeechCommandsDTO = _mapper.Map<List<CustomWindowsSpeechCommand>, IEnumerable<CustomWindowsSpeechCommandDTO>>(CustomWindowsSpeechCommands);
             return CustomWindowsSpeechCommandsDTO;

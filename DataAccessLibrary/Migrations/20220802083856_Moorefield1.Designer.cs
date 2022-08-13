@@ -4,6 +4,7 @@ using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220802083856_Moorefield1")]
+    partial class Moorefield1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -443,12 +445,6 @@ namespace DataAccessLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("AbsoluteX")
-                        .HasColumnType("float");
-
-                    b.Property<double>("AbsoluteY")
-                        .HasColumnType("float");
-
                     b.Property<bool>("AlternateKey")
                         .HasColumnType("bit");
 
@@ -472,18 +468,9 @@ namespace DataAccessLibrary.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("MouseMoveX")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MouseMoveY")
-                        .HasColumnType("int");
-
                     b.Property<string>("ProcessStart")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ScrollAmount")
-                        .HasColumnType("int");
 
                     b.Property<bool>("ShiftKey")
                         .HasColumnType("bit");
@@ -494,9 +481,6 @@ namespace DataAccessLibrary.Migrations
 
                     b.Property<int>("WaitTime")
                         .HasColumnType("int");
-
-                    b.Property<bool>("WindowsKey")
-                        .HasColumnType("bit");
 
                     b.Property<int>("WindowsSpeechVoiceCommandId")
                         .HasColumnType("int");

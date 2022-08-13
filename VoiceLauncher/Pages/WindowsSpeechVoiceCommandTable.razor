@@ -1,0 +1,91 @@
+@page "/windowsspeechvoicecommands"
+<div class="row">
+    <div class="col-md-6">
+        <h5 class="page-title m-1">@Title</h5>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group form-inline">
+            <label for="HideActions">Hide Actions (Alt+1) </label>
+            <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" />
+        </div>
+    </div>
+    <div class="col-md-2">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
+    </div>
+</div>
+
+@if (FilteredWindowsSpeechVoiceCommandDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredWindowsSpeechVoiceCommandDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0)
+{
+    <p>No Windows Speech Voice Command match the criteria</p>
+    <button @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>
+                    <button class="btn btn-sm" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>
+                    <button class="btn btn-sm" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Spoken Command
+                </th>
+                <th>Description</th>
+                <th>
+                    <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO)
+            {
+                <tr>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                            @windowsSpeechVoiceCommand.Id
+                        </a>
+                    </td>
+                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
+                    <td>@windowsSpeechVoiceCommand.Description</td>
+                    <td class="btn-group">
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                @if (!_hideActions)
+                {
+                    <tr>
+                        <td></td>
+                        <td colspan="2">
+                            <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" />
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}

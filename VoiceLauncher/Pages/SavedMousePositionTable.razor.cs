@@ -20,7 +20,7 @@ using System.Security.Claims;
 using Ardalis.GuardClauses;
 using VoiceLauncher.Shared;
 using VoiceLauncher.Services;
-using VoiceLauncher.DTOs;
+using DataAccessLibrary.DTO;
 
 namespace VoiceLauncher.Pages
 {

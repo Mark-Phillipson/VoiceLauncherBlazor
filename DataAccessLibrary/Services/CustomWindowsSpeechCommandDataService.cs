@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VoiceLauncher.Repositories;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Repositories;
 
-namespace VoiceLauncher.Services
+namespace DataAccessLibrary.Services
 {
     public class CustomWindowsSpeechCommandDataService : ICustomWindowsSpeechCommandDataService
     {
@@ -16,11 +16,11 @@ namespace VoiceLauncher.Services
 
         public CustomWindowsSpeechCommandDataService(ICustomWindowsSpeechCommandRepository customWindowsSpeechCommandRepository)
         {
-            this._customWindowsSpeechCommandRepository = customWindowsSpeechCommandRepository;
+            _customWindowsSpeechCommandRepository = customWindowsSpeechCommandRepository;
         }
-        public async Task<List<CustomWindowsSpeechCommandDTO>> GetAllCustomWindowsSpeechCommandsAsync()
+        public async Task<List<CustomWindowsSpeechCommandDTO>> GetAllCustomWindowsSpeechCommandsAsync(int windowsSpeechVoiceCommandId)
         {
-            var CustomWindowsSpeechCommands = await _customWindowsSpeechCommandRepository.GetAllCustomWindowsSpeechCommandsAsync(300);
+            var CustomWindowsSpeechCommands = await _customWindowsSpeechCommandRepository.GetAllCustomWindowsSpeechCommandsAsync(windowsSpeechVoiceCommandId);
             return CustomWindowsSpeechCommands.ToList();
         }
         public async Task<List<CustomWindowsSpeechCommandDTO>> SearchCustomWindowsSpeechCommandsAsync(string serverSearchTerm)

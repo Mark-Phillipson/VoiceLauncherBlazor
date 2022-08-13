@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Blazored.Toast;
 using Blazored.Modal;
 using Microsoft.EntityFrameworkCore;
-using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using DataAccessLibrary.Repositories;
 
@@ -40,7 +39,8 @@ builder.Services.AddScoped<ISavedMousePositionRepository, SavedMousePositionRepo
 builder.Services.AddScoped<ISavedMousePositionDataService, SavedMousePositionDataService>();
 builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindowsSpeechCommandDataService>();
 builder.Services.AddScoped<ICustomWindowsSpeechCommandRepository, CustomWindowsSpeechCommandRepository>();
-
+builder.Services.AddScoped<IWindowsSpeechVoiceCommandRepository, WindowsSpeechVoiceCommandRepository>();
+builder.Services.AddScoped<IWindowsSpeechVoiceCommandDataService, WindowsSpeechVoiceCommandDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
