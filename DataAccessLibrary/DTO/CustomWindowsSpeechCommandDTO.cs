@@ -18,6 +18,7 @@ namespace DataAccessLibrary.DTO
         public bool AlternateKey { get; set; } = false;
         public bool WindowsKey { get; set; } = false;
         public VirtualKeyCode? KeyPressValue { get; set; } = VirtualKeyCode.NONAME;
+        public VirtualKeyCode? KeyUpValue { get; set; } = VirtualKeyCode.NONAME;
 
         [StringLength(100)]
         public string MouseCommand { get; set; }

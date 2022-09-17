@@ -24,8 +24,11 @@ namespace VoiceLauncher.Shared
             builder.AddMultipleAttributes(1, AdditionalAttributes);
             builder.AddAttribute(2, "class", CssClass);
             builder.AddAttribute(3, "value", BindConverter.FormatValue(CurrentValueAsString));
-            builder.AddAttribute(4, "onchange", EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString, null));
+            if (CurrentValueAsString!= null )
+            {
+                builder.AddAttribute(4, "onchange", EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString, null));
 
+            }
             // Add an option element per enum value
             var enumType = GetEnumType();
             foreach (var value in Enum.GetValues(enumType))
@@ -39,7 +42,7 @@ namespace VoiceLauncher.Shared
             builder.CloseElement(); // close the select element
         }
 
-        protected override bool TryParseValueFromString(string value, out TEnum result, out string validationErrorMessage)
+        protected override bool TryParseValueFromString(string value, out TEnum result, out string? validationErrorMessage)
         {
             // Let's Blazor convert the value for us 😊
             if (BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TEnum parsedValue))

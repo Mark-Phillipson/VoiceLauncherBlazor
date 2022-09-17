@@ -1,5 +1,6 @@
 @page "/windowsspeechvoicecommand/{Id:int?}"
 <div style="min-width:80vw">
+    
     <EditForm Model="@WindowsSpeechVoiceCommandDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -20,6 +21,12 @@
                     <InputTextArea rows="2" id="Description" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.Description"
                                    @onblur="@(() => CallChangeAsync("Description"))" placeholder="Enter Description"></InputTextArea>
                     <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.Description)" />
+                </div>
+                <div class="form-group">
+                    <label for="ApplicationName">Application Name: </label>
+                    <InputText id="ApplicationName" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.ApplicationName"
+                                   @onblur="@(() => CallChangeAsync("ApplicationName"))" placeholder="Enter ApplicationName"></InputText>
+                    <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.ApplicationName)" />
                 </div>
             </div>
         </div>

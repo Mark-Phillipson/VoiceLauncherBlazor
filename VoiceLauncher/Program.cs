@@ -9,6 +9,7 @@ using Blazored.Modal;
 using Microsoft.EntityFrameworkCore;
 using VoiceLauncher.Services;
 using DataAccessLibrary.Repositories;
+using VoiceLauncher.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ var config = builder.Configuration;
 string connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<CreateCommands>();
 builder.Services.AddScoped<AdditionalCommandService>();
 builder.Services.AddScoped<LanguageService>();
 builder.Services.AddScoped<LauncherService>();
@@ -41,6 +43,10 @@ builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindows
 builder.Services.AddScoped<ICustomWindowsSpeechCommandRepository, CustomWindowsSpeechCommandRepository>();
 builder.Services.AddScoped<IWindowsSpeechVoiceCommandRepository, WindowsSpeechVoiceCommandRepository>();
 builder.Services.AddScoped<IWindowsSpeechVoiceCommandDataService, WindowsSpeechVoiceCommandDataService>();
+builder.Services.AddScoped<IGrammarNameRepository, GrammarNameRepository>(); 
+builder.Services.AddScoped<IGrammarNameDataService, GrammarNameDataService>();
+builder.Services.AddScoped<IGrammarItemRepository, GrammarItemRepository>(); 
+builder.Services.AddScoped<IGrammarItemDataService, GrammarItemDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

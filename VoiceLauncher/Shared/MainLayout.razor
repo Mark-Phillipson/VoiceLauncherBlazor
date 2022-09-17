@@ -2,24 +2,46 @@
 @using Blazored.Toast.Configuration
 @using VoiceLauncher.Shared
 <BlazoredToasts Position="ToastPosition.BottomRight"
-				Timeout="5"
-				IconType="IconType.FontAwesome"
-				SuccessClass="success-toast-override"
-				SuccessIcon="fa fa-thumbs-up"
-				ErrorIcon="fa fa-bug" 
-				ShowProgressBar="true"
-				RemoveToastsOnNavigation="true"
-				InfoIcon="fa fa-info"
-				WarningIcon="fa fa-warning"/>
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-thumbs-up"
+                ErrorIcon="fa fa-bug"
+                ShowProgressBar="true"
+                RemoveToastsOnNavigation="true"
+                InfoIcon="fa fa-info"
+                WarningIcon="fa fa-warning" />
 
 <div class="page">
-	<div class="sidebar">
-		<NavMenu />
-	</div>
-	<div class="main">
-		<div class="content px-4">
-			@Body
-		</div>
-	</div>
+    @if (ShowNavMenu)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
+    <div class="top-row bg-dark">
+        <button class="btn btn-dark btn-sm" type="button" title="Toggle Navigation Menu" @onclick="@( ( ) => ToggleShowNavMenu(  ) )">
+            @if (ShowNavMenu)
+            {
+                <i class="fa-solid fa-eye-slash"></i>
+            }
+            else
+            {
+                <i class="fa-solid fa-eye"></i>
+            }
+        </button>
+    </div>
+    <div class="main">
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
 
 </div>
+@code {
+    private bool ShowNavMenu = true;
+    private void ToggleShowNavMenu()
+    {
+        ShowNavMenu = !ShowNavMenu;
+    }
+}

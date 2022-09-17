@@ -7,6 +7,7 @@
         <div class="form-group form-inline">
             <label for="HideActions">Hide Actions (Alt+1) </label>
             <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" />
+            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>
         </div>
     </div>
     <div class="col-md-2">
@@ -46,10 +47,12 @@ else
                     Spoken Command
                 </th>
                 <th>Description</th>
+                <th>Application</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i>
                     </button>
+                    <button class="btn btn-danger btn-sm" type="button" @onclick="@( () => LoadData() )"><i class="fa-solid fa-arrows-rotate"></i></button>
                 </th>
             </tr>
         </thead>
@@ -64,6 +67,7 @@ else
                     </td>
                     <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
+                    <td>@windowsSpeechVoiceCommand.ApplicationName</td>
                     <td class="btn-group">
                         <button class="btn btn-sm btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-copy"></i>
@@ -80,12 +84,12 @@ else
                 {
                     <tr>
                         <td></td>
-                        <td colspan="2">
-                            <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" />
+                        <td colspan="3">
+                            <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" Updated="Updated" />
                         </td>
                     </tr>
                 }
             }
         </tbody>
     </table>
-}
+    }

@@ -4,6 +4,7 @@ using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220907163904_MIGKeyUp")]
+    partial class MIGKeyUp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -571,50 +573,6 @@ namespace DataAccessLibrary.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GeneralLookups");
-                });
-
-            modelBuilder.Entity("DataAccessLibrary.Models.GrammarItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("GrammarNameId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GrammarNameId");
-
-                    b.ToTable("GrammarItems");
-                });
-
-            modelBuilder.Entity("DataAccessLibrary.Models.GrammarName", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("NameOfGrammar")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NameOfGrammar")
-                        .IsUnique();
-
-                    b.ToTable("GrammarNames");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.HtmlTags", b =>
@@ -1446,17 +1404,6 @@ namespace DataAccessLibrary.Migrations
                     b.Navigation("WindowsSpeechVoiceCommand");
                 });
 
-            modelBuilder.Entity("DataAccessLibrary.Models.GrammarItem", b =>
-                {
-                    b.HasOne("DataAccessLibrary.Models.GrammarName", "GrammarName")
-                        .WithMany("GrammarItems")
-                        .HasForeignKey("GrammarNameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GrammarName");
-                });
-
             modelBuilder.Entity("DataAccessLibrary.Models.Launcher", b =>
                 {
                     b.HasOne("DataAccessLibrary.Models.Category", "Category")
@@ -1530,11 +1477,6 @@ namespace DataAccessLibrary.Migrations
             modelBuilder.Entity("DataAccessLibrary.Models.CustomIntelliSense", b =>
                 {
                     b.Navigation("AdditionalCommands");
-                });
-
-            modelBuilder.Entity("DataAccessLibrary.Models.GrammarName", b =>
-                {
-                    b.Navigation("GrammarItems");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Language", b =>

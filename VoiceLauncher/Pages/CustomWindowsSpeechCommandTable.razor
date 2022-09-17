@@ -27,10 +27,9 @@ else
                 <th>Control</th>
                 <th>Alt</th>
                 <th>Shift</th>
+                <th>Window</th>
                 <th>Key Press</th>
-                <th>Mouse Command</th>
-                <th>Process Start</th>
-                <th>Command Line Args</th>
+                <th>Key Up</th>
                 <th>
                     <button accesskey="x" @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i>
@@ -80,14 +79,36 @@ else
                             <i class="fa-solid fa-square"></i>
                         }
                     </td>
+                    <td>
+                        @if (customWindowsSpeechCommand.WindowsKey)
+                        {
+                            <i class="fa-solid fa-square-check"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-square"></i>
+                        }
+                    </td>
 
                     <td>
                         @if (customWindowsSpeechCommand.KeyPressValue != WindowsInput.Native.VirtualKeyCode.NONAME)
                         {
                             @customWindowsSpeechCommand.KeyPressValue
                         }
-
                     </td>
+                    <td>
+                        @if (customWindowsSpeechCommand.KeyUpValue != WindowsInput.Native.VirtualKeyCode.NONAME)
+                        {
+                            @customWindowsSpeechCommand.KeyUpValue
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Mouse Command</th>
+                    <th>Process Start</th>
+                    <th>Command Line Args</th>
+                </tr>
+                <tr>
                     <td>@customWindowsSpeechCommand.MouseCommand</td>
                     <td>@customWindowsSpeechCommand.ProcessStart</td>
                     <td>@customWindowsSpeechCommand.CommandLineArguments</td>

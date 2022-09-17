@@ -19,24 +19,26 @@ using Blazored.Toast.Services;
 using System.Security.Claims;
 using Ardalis.GuardClauses;
 using VoiceLauncher.Shared;
-using DataAccessLibrary.Services;
-using DataAccessLibrary.DTO;
+using VoiceLauncher.Services;
+using VoiceLauncher.DTOs;
+using DataAccessLibrary.Models;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class CustomWindowsSpeechCommandTable : ComponentBase
+    public partial class GrammarNameLookUpTable : ComponentBase
     {
-        [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechCommandDataService { get; set; }
-        [Parameter] public int WindowsSpeechVoiceCommandId { get; set; }
-        [Parameter] public DateTime Updated { get; set; }
+        [Parameter] public EventCallback<string> OnSelectCallback { get; set; }
+        [Inject] public IGrammarNameDataService? GrammarNameDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
-        [Inject] public ILogger<CustomWindowsSpeechCommandTable>? Logger { get; set; }
+        [Inject] public ILogger<GrammarNameTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
         [CascadingParameter] public IModalService? Modal { get; set; }
-        public string Title { get; set; } = "CustomWindowsSpeechCommand Items (CustomWindowsSpeechCommands)";
-        public List<CustomWindowsSpeechCommandDTO>? CustomWindowsSpeechCommandDTO { get; set; }
-        public List<CustomWindowsSpeechCommandDTO>? FilteredCustomWindowsSpeechCommandDTO { get; set; }
-        protected CustomWindowsSpeechCommandAddEdit? CustomWindowsSpeechCommandAddEdit { get; set; }
+        public string Title { get; set; } = "GrammarName Items (GrammarNames)";
+        public List<GrammarNameDTO>? GrammarNameDTO { get; set; }
+        public List<GrammarNameDTO>? FilteredGrammarNameDTO { get; set; }
+        protected GrammarNameAddEdit? GrammarNameAddEdit { get; set; }
+        private bool _showItems = false;
+        ElementReference SearchInput;
 #pragma warning disable 414, 649
         private bool _loadFailed = false;
         private string? searchTerm = null;
@@ -56,12 +58,13 @@ namespace VoiceLauncher.Pages
         {
             try
             {
-                if (CustomWindowsSpeechCommandDataService != null && WindowsSpeechVoiceCommandId > 0)
+                if (GrammarNameDataService != null)
                 {
-                    var result = await CustomWindowsSpeechCommandDataService!.GetAllCustomWindowsSpeechCommandsAsync(WindowsSpeechVoiceCommandId);
+                    var result = await GrammarNameDataService!.GetAllGrammarNamesAsync();
+                    //var result = await GrammarNameDataService.SearchGrammarNamesAsync(ServerSearchTerm);
                     if (result != null)
                     {
-                        CustomWindowsSpeechCommandDTO = result.ToList();
+                        GrammarNameDTO = result.ToList();
                     }
                 }
 
@@ -72,8 +75,8 @@ namespace VoiceLauncher.Pages
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
-            FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO;
-            Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO?.Count})";
+            FilteredGrammarNameDTO = GrammarNameDTO;
+            Title = $"Grammar Names ({FilteredGrammarNameDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -84,7 +87,7 @@ namespace VoiceLauncher.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "TextToEnter");
+                        await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
                     }
                 }
                 catch (Exception exception)
@@ -93,16 +96,20 @@ namespace VoiceLauncher.Pages
                 }
             }
         }
-        protected async Task AddNewCustomWindowsSpeechCommandAsync()
+        protected async Task AddNewGrammarNameAsync()
         {
+            if (GrammarNameDataService == null)
+            {
+                return;
+            }
             var parameters = new ModalParameters();
-            parameters.Add(nameof(WindowsSpeechVoiceCommandId), WindowsSpeechVoiceCommandId);
-            var formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>("Add Custom Windows Speech Command", parameters);
+            var formModal = Modal?.Show<GrammarNameAddEdit>("Add Grammar Name", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
                 if (!result.Cancelled)
                 {
+                    _showItems = false;
                     await LoadData();
                 }
             }
@@ -110,77 +117,77 @@ namespace VoiceLauncher.Pages
 
         private void ApplyFilter()
         {
-            if (FilteredCustomWindowsSpeechCommandDTO == null || CustomWindowsSpeechCommandDTO == null)
+            if (FilteredGrammarNameDTO == null || GrammarNameDTO == null)
             {
                 return;
             }
             if (string.IsNullOrEmpty(SearchTerm))
             {
-                FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO.OrderBy(v => v.TextToEnter).ToList();
-                Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO.Count})";
+                FilteredGrammarNameDTO = GrammarNameDTO.OrderBy(v => v.NameOfGrammar).ToList();
+                Title = $"All Grammar Names ({FilteredGrammarNameDTO.Count})";
             }
             else
             {
                 var temporary = SearchTerm.ToLower().Trim();
-                FilteredCustomWindowsSpeechCommandDTO = CustomWindowsSpeechCommandDTO
+                FilteredGrammarNameDTO = GrammarNameDTO
                     .Where(v =>
-                    (v.TextToEnter != null && v.TextToEnter.ToLower().Contains(temporary))
+                    (v.NameOfGrammar != null && v.NameOfGrammar.ToLower().Contains(temporary))
                     )
                     .ToList();
-                Title = $"Actions ({FilteredCustomWindowsSpeechCommandDTO.Count})";
+                Title = $"Filtered Grammar Names ({FilteredGrammarNameDTO.Count})";
             }
         }
-        protected void SortCustomWindowsSpeechCommand(string sortColumn)
+        protected void SortGrammarName(string sortColumn)
         {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-            if (FilteredCustomWindowsSpeechCommandDTO == null)
+            if (FilteredGrammarNameDTO == null)
             {
                 return;
             }
-            if (sortColumn == "TextToEnter")
+            if (sortColumn == "NameOfGrammar")
             {
-                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderBy(v => v.TextToEnter).ToList();
+                FilteredGrammarNameDTO = FilteredGrammarNameDTO.OrderBy(v => v.NameOfGrammar).ToList();
             }
-            else if (sortColumn == "TextToEnter Desc")
+            else if (sortColumn == "NameOfGrammar Desc")
             {
-                FilteredCustomWindowsSpeechCommandDTO = FilteredCustomWindowsSpeechCommandDTO.OrderByDescending(v => v.TextToEnter).ToList();
+                FilteredGrammarNameDTO = FilteredGrammarNameDTO.OrderByDescending(v => v.NameOfGrammar).ToList();
             }
         }
-        async Task DeleteCustomWindowsSpeechCommandAsync(int Id)
+        async Task DeleteGrammarNameAsync(int Id)
         {
             //Optionally remove child records here or warn about their existence
-            //var ? = await ?DataService.GetAllCustomWindowsSpeechCommand(Id);
+            //var ? = await ?DataService.GetAllGrammarName(Id);
             //if (? != null)
             //{
-            //	ToastService.ShowWarning($"It is not possible to delete a customWindowsSpeechCommand that is linked to one or more companies! You would have to delete the companys first. {?.Count()}");
+            //	ToastService.ShowWarning($"It is not possible to delete a grammarName that is linked to one or more companies! You would have to delete the companys first. {?.Count()}");
             //	return;
             //}
             var parameters = new ModalParameters();
-            if (CustomWindowsSpeechCommandDataService != null)
+            if (GrammarNameDataService != null)
             {
-                var customWindowsSpeechCommand = await CustomWindowsSpeechCommandDataService.GetCustomWindowsSpeechCommandById(Id);
-                parameters.Add("Title", "Please Confirm, Delete Custom Windows Speech Command");
-                parameters.Add("Message", $"TextToEnter: {customWindowsSpeechCommand?.TextToEnter}");
+                var grammarName = await GrammarNameDataService.GetGrammarNameById(Id);
+                parameters.Add("Title", "Please Confirm, Delete Grammar Name");
+                parameters.Add("Message", $"NameOfGrammar: {grammarName?.NameOfGrammar}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
-                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Custom Windows Speech Command ({customWindowsSpeechCommand?.TextToEnter})?", parameters);
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Grammar Name ({grammarName?.NameOfGrammar})?", parameters);
                 if (formModal != null)
                 {
                     var result = await formModal.Result;
                     if (!result.Cancelled)
                     {
-                        await CustomWindowsSpeechCommandDataService.DeleteCustomWindowsSpeechCommand(Id);
-                        ToastService?.ShowSuccess(" Custom Windows Speech Command deleted successfully", "SUCCESS");
+                        await GrammarNameDataService.DeleteGrammarName(Id);
+                        ToastService?.ShowSuccess(" Grammar Name deleted successfully", "SUCCESS");
                         await LoadData();
                     }
                 }
             }
         }
-        async Task EditCustomWindowsSpeechCommandAsync(int Id)
+        async Task EditGrammarNameAsync(int Id)
         {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
-            var formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>("Edit Custom Windows Speech Command", parameters);
+            var formModal = Modal?.Show<GrammarNameAddEdit>("Edit Grammar Name", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -188,6 +195,14 @@ namespace VoiceLauncher.Pages
                 {
                     await LoadData();
                 }
+            }
+        }
+        private async Task SelectedItemAsync(int id)
+        {
+            if (GrammarNameDataService != null)
+            {
+                var grammar = await GrammarNameDataService.GetGrammarNameById(id);
+                 await OnSelectCallback.InvokeAsync(grammar.NameOfGrammar);
             }
         }
     }

@@ -47,6 +47,7 @@ namespace VoiceLauncher.Pages
                 }
             }
         }
+
         private string? _keyDownFilter = "";
         public string? KeyDownFilter
         {
@@ -59,6 +60,21 @@ namespace VoiceLauncher.Pages
                 }
             }
         }
+        private string? _keyUpFilter = "";
+        public string? KeyUpFilter
+        {
+            get => _keyUpFilter; set
+            {
+                _keyUpFilter = value;
+                if (_keyUpFilter != null)
+                {
+                    FilterKeyUpValue(_keyUpFilter);
+                }
+            }
+        }
+          
+
+
 #pragma warning disable 414, 649
 
 #pragma warning restore 414, 649
@@ -434,6 +450,154 @@ namespace VoiceLauncher.Pages
             else if (filter.ToLower() == "9")
             {
                 CustomWindowsSpeechCommandDTO.KeyDownValue = VirtualKeyCode.VK_9;
+            }
+
+        }
+        private void FilterKeyUpValue(string filter)
+        {
+            if (filter.ToLower() == "a")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_A;
+            }
+            else if (filter.ToLower() == "b")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_B;
+            }
+            else if (filter.ToLower() == "c")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_C;
+            }
+            else if (filter.ToLower() == "d")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_D;
+            }
+            else if (filter.ToLower() == "e")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_E;
+            }
+            else if (filter.ToLower() == "f")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_F;
+            }
+            else if (filter.ToLower() == "g")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_C;
+            }
+            else if (filter.ToLower() == "h")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_H;
+            }
+            else if (filter.ToLower() == "i")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_I;
+            }
+            else if (filter.ToLower() == "j")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_J;
+            }
+            else if (filter.ToLower() == "k")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_K;
+            }
+            else if (filter.ToLower() == "l")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_L;
+            }
+            else if (filter.ToLower() == "m")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_M;
+            }
+            else if (filter.ToLower() == "n")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_N;
+            }
+            else if (filter.ToLower() == "o")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_O;
+            }
+            else if (filter.ToLower() == "p")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_P;
+            }
+            else if (filter.ToLower() == "q")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_Q;
+            }
+            else if (filter.ToLower() == "r")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_R;
+            }
+            else if (filter.ToLower() == "s")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_S;
+            }
+            else if (filter.ToLower() == "t")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_T;
+            }
+            else if (filter.ToLower() == "u")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_U;
+            }
+            else if (filter.ToLower() == "v")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_V;
+            }
+            else if (filter.ToLower() == "w")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_W;
+            }
+            else if (filter.ToLower() == "x")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_X;
+            }
+            else if (filter.ToLower() == "y")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_Y;
+            }
+            else if (filter.ToLower() == "z")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_Z;
+            }
+            else if (filter.ToLower() == "0")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_0;
+            }
+            else if (filter.ToLower() == "1")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_1;
+            }
+            else if (filter.ToLower() == "2")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_2;
+            }
+            else if (filter.ToLower() == "3")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_3;
+            }
+            else if (filter.ToLower() == "4")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_4;
+            }
+            else if (filter.ToLower() == "5")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_5;
+            }
+            else if (filter.ToLower() == "6")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_6;
+            }
+            else if (filter.ToLower() == "7")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_7;
+            }
+            else if (filter.ToLower() == "8")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_8;
+            }
+            else if (filter.ToLower() == "9")
+            {
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_9;
             }
 
         }

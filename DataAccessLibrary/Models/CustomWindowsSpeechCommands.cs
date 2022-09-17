@@ -17,14 +17,15 @@ namespace DataAccessLibrary.Models
         public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
         [StringLength(100)]
         public string TextToEnter { get; set; } = "";
-        public VirtualKeyCode? KeyDownValue { get; set; }
+        public VirtualKeyCode? KeyDownValue { get; set; } = VirtualKeyCode.NONAME;
         //To be depreciated
-        public VirtualKeyCode? ModifierKey { get; set; }
+        public VirtualKeyCode? ModifierKey { get; set; } = VirtualKeyCode.NONAME;
         public bool ControlKey { get; set; } = false;
         public bool ShiftKey { get; set; } = false;
         public bool AlternateKey { get; set; } = false;
         public bool WindowsKey { get; set; } = false;
-        public VirtualKeyCode? KeyPressValue { get; set; }
+        public VirtualKeyCode? KeyPressValue { get; set; } = VirtualKeyCode.NONAME;
+        public VirtualKeyCode? KeyUpValue { get; set; } = VirtualKeyCode.NONAME;
         [StringLength(100)]
         public string MouseCommand { get; set; } = "";
         public int MouseMoveX { get; set; } = 0;

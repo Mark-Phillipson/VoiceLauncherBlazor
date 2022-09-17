@@ -55,8 +55,14 @@
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyPressValue)" />
                 </div>
                 <div class="form-group">
-                    <label for="MouseCommand">Mouse Command: (Alt+8)</label>
-                    <InputSelect accesskey="8" @bind-Value="CustomWindowsSpeechCommandDTO.MouseCommand" class="form-control">
+                    <label for="KeyUpValue">Key Up Value: (Alt+8)</label>
+                    <input accesskey="8" class="form-control" type="text" placeholder="Filter" @bind="@KeyUpFilter" @bind:event="oninput" />
+                    <InputSelectEnum @bind-Value="CustomWindowsSpeechCommandDTO.KeyUpValue" class="form-control" />
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyUpValue)" />
+                </div>
+                <div class="form-group">
+                    <label for="MouseCommand">Mouse Command: (Alt+9)</label>
+                    <InputSelect accesskey="9" @bind-Value="CustomWindowsSpeechCommandDTO.MouseCommand" class="form-control">
                         <option value="">-</option>
                         @foreach (string item in MouseMethods)
                         {
@@ -106,8 +112,8 @@
                 }
 
                 <div class="form-group">
-                    <label for="ProcessStart">Process Start: (Alt+9)</label>
-                    <InputText accesskey="9" id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
+                    <label for="ProcessStart">Process Start:</label>
+                    <InputText id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
                                @onblur="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ProcessStart)" />
                 </div>

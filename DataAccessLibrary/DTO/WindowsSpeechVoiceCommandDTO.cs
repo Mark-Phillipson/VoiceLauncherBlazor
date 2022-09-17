@@ -11,5 +11,7 @@ namespace DataAccessLibrary.DTO
         public string SpokenCommand { get; set; } = "";
         [StringLength(1000)]
         public string Description { get; set; }
+        public string ApplicationName { get; set; }="Global";
+
     }
 }

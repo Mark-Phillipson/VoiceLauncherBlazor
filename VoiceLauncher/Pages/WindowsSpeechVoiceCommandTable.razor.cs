@@ -22,11 +22,13 @@ using VoiceLauncher.Shared;
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Services;
 using DataAccessLibrary.Models;
+using DataAccessLibrary;
 
 namespace VoiceLauncher.Pages
 {
     public partial class WindowsSpeechVoiceCommandTable : ComponentBase
     {
+        [Inject] public CreateCommands? CreateCommands { get; set; }
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
@@ -37,6 +39,7 @@ namespace VoiceLauncher.Pages
         public List<WindowsSpeechVoiceCommandDTO>? WindowsSpeechVoiceCommandDTO { get; set; }
         public List<WindowsSpeechVoiceCommandDTO>? FilteredWindowsSpeechVoiceCommandDTO { get; set; }
         protected WindowsSpeechVoiceCommandAddEdit? WindowsSpeechVoiceCommandAddEdit { get; set; }
+        public DateTime Updated { get; set; } = DateTime.Now;
         ElementReference SearchInput;
 #pragma warning disable 414, 649
         private bool _loadFailed = false;
@@ -46,7 +49,7 @@ namespace VoiceLauncher.Pages
         [Parameter] public string? ServerSearchTerm { get; set; }
         public string ExceptionMessage { get; set; } = String.Empty;
         public List<string>? PropertyInfo { get; set; }
-        private bool _hideActions { get; set; } = false;
+        private bool _hideActions { get; set; } = true;
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         protected override async Task OnInitializedAsync()
         {
@@ -60,10 +63,13 @@ namespace VoiceLauncher.Pages
                 if (WindowsSpeechVoiceCommandDataService != null)
                 {
                     var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync();
+                    Updated = DateTime.Now;
                     //var result = await WindowsSpeechVoiceCommandDataService.SearchWindowsSpeechVoiceCommandsAsync(ServerSearchTerm);
                     if (result != null)
                     {
-                        WindowsSpeechVoiceCommandDTO = result.OrderByDescending(o => o.Id).ToList();
+                        WindowsSpeechVoiceCommandDTO = result
+                            .Where(v => v.ApplicationName == "Global" && v.Description!= null && v.Description.Contains("Auto created") == false)
+                            .OrderByDescending(o => o.Id).ToList();
                     }
                 }
 
@@ -137,7 +143,9 @@ namespace VoiceLauncher.Pages
                 var temporary = SearchTerm.ToLower().Trim();
                 FilteredWindowsSpeechVoiceCommandDTO = WindowsSpeechVoiceCommandDTO
                     .Where(v =>
-                    (v.SpokenCommand != null && v.SpokenCommand.ToLower().Contains(temporary))
+                    (v.SpokenCommand != null && v.SpokenCommand.ToLower().Contains(temporary)) ||
+                    (v.Description != null && v.Description.ToLower().Contains(temporary)) ||
+                    (v.ApplicationName != null && v.ApplicationName.ToLower().Contains(temporary))
                     )
                     .ToList();
                 Title = $"Filtered Windows Speech Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO.Count})";
@@ -206,7 +214,7 @@ namespace VoiceLauncher.Pages
         async Task CopyWindowsSpeechVoiceCommandAsync(int id)
         {
             WindowsSpeechVoiceCommandDTO? original = null;
-            if (WindowsSpeechVoiceCommandDataService == null || CustomWindowsSpeechVoiceCommandDataService== null ) { return; }
+            if (WindowsSpeechVoiceCommandDataService == null || CustomWindowsSpeechVoiceCommandDataService == null) { return; }
             original = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById(id);
             if (original == null) { return; }
             WindowsSpeechVoiceCommandDTO newCommand = new WindowsSpeechVoiceCommandDTO()
@@ -214,16 +222,23 @@ namespace VoiceLauncher.Pages
                 SpokenCommand = $"Copy of {original.SpokenCommand}",
                 Description = original.Description
             };
-            WindowsSpeechVoiceCommandDTO result= await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(newCommand);
+            WindowsSpeechVoiceCommandDTO result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(newCommand);
             List<CustomWindowsSpeechCommandDTO> originalChildren = await CustomWindowsSpeechVoiceCommandDataService.GetAllCustomWindowsSpeechCommandsAsync(original.Id);
             foreach (CustomWindowsSpeechCommandDTO item in originalChildren)
             {
                 item.Id = 0;
-                item.WindowsSpeechVoiceCommandId=result.Id;
+                item.WindowsSpeechVoiceCommandId = result.Id;
                 var resultChildren = await CustomWindowsSpeechVoiceCommandDataService.AddCustomWindowsSpeechCommand(item);
             }
             StateHasChanged();
 
+        }
+        private void CreateCommandsDirectly()
+        {
+            if (CreateCommands != null)
+            {
+                //CreateCommands.CreateCommandSqlCommands();
+            }
         }
     }
 }
