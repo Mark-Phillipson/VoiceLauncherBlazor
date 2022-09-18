@@ -21,12 +21,12 @@ namespace DataAccessLibrary.Repositories
             _contextFactory = contextFactory;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(int maxRows = 400)
+        public async Task<IEnumerable<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(int maxRows = 400, bool showAutoCreated= false )
         {
             using var context = _contextFactory.CreateDbContext();
             var WindowsSpeechVoiceCommands = await context.WindowsSpeechVoiceCommands
-                //.Where(v => v.?==?)
-                //.OrderBy(v => v.?)
+                .Where(v => v.ApplicationName=="Global" && v.AutoCreated==showAutoCreated)
+                .OrderByDescending(v => v.Id)
                 .Take(maxRows)
                 .ToListAsync();
             IEnumerable<WindowsSpeechVoiceCommandDTO> WindowsSpeechVoiceCommandsDTO = _mapper.Map<List<WindowsSpeechVoiceCommand>, IEnumerable<WindowsSpeechVoiceCommandDTO>>(WindowsSpeechVoiceCommands);

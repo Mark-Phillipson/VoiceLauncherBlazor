@@ -48,6 +48,7 @@ else
                 </th>
                 <th>Description</th>
                 <th>Application</th>
+                <th>Auto Created</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i>
@@ -68,6 +69,7 @@ else
                     <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
+                    <td>@windowsSpeechVoiceCommand.AutoCreated</td>
                     <td class="btn-group">
                         <button class="btn btn-sm btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-copy"></i>

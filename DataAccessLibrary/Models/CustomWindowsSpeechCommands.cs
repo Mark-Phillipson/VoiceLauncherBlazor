@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using WindowsInput.Native;
 
 namespace DataAccessLibrary.Models
-
 {
     public class CustomWindowsSpeechCommand
     {
@@ -17,6 +16,8 @@ namespace DataAccessLibrary.Models
         public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
         [StringLength(100)]
         public string TextToEnter { get; set; } = "";
+        [StringLength(40 )]
+        public string SendKeysValue { get; set; }
         public VirtualKeyCode? KeyDownValue { get; set; } = VirtualKeyCode.NONAME;
         //To be depreciated
         public VirtualKeyCode? ModifierKey { get; set; } = VirtualKeyCode.NONAME;

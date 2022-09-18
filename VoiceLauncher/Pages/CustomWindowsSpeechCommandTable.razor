@@ -107,11 +107,13 @@ else
                     <th>Mouse Command</th>
                     <th>Process Start</th>
                     <th>Command Line Args</th>
+                    <th>Send Keys Value</th>
                 </tr>
                 <tr>
                     <td>@customWindowsSpeechCommand.MouseCommand</td>
                     <td>@customWindowsSpeechCommand.ProcessStart</td>
                     <td>@customWindowsSpeechCommand.CommandLineArguments</td>
+                    <td>@customWindowsSpeechCommand.SendKeysValue</td>
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
                             <i class="fas fa-edit"></i>

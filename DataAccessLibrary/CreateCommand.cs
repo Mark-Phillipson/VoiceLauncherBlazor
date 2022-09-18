@@ -17,6 +17,25 @@ namespace DataAccessLibrary
         {
             _context = context;
         }
+        public void CreateCommandsFromList(string nameOfGrammar, string spokenFormPrefix)
+        {
+            var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == nameOfGrammar).FirstOrDefault();
+            var keywordItems = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            foreach (GrammarItem item in keywordItems)
+            {
+                WindowsSpeechVoiceCommand command = new();
+                command.ApplicationName = "Global";
+                command.SpokenCommand = $"{spokenFormPrefix} {item.Value}";
+                command.Description = $"Auto created: {DateTime.Now}";
+                _context.WindowsSpeechVoiceCommands.Add(command);
+                _context.SaveChanges();
+                CustomWindowsSpeechCommand action = new();
+                action.WindowsSpeechVoiceCommandId = command.Id;
+                action.TextToEnter = $"{item.Value}";
+                _context.CustomWindowsSpeechCommands.Add(action);
+                _context.SaveChanges();
+            }
+        }
         public void CreateCommandSqlCommands()
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == "Sequel").FirstOrDefault();

@@ -123,6 +123,12 @@
                                @onblur="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.CommandLineArguments)" />
                 </div>
+                <div class="form-group">
+                    <label for="SendKeysValue">Send Keys Value: (^=Ctrl %=Alt +=Shift)</label>
+                    <InputText id="SendKeysValue" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.SendKeysValue"
+                               @onblur="@(() => CallChangeAsync("SendKeysValue"))" placeholder="Enter Send Keys Values"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.SendKeysValue)" />
+                </div>
             </div>
         </div>
         <hr>

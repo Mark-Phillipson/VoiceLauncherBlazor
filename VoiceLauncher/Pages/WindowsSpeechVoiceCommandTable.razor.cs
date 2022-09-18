@@ -51,6 +51,7 @@ namespace VoiceLauncher.Pages
         public List<string>? PropertyInfo { get; set; }
         private bool _hideActions { get; set; } = true;
         [Inject] public IJSRuntime? JSRuntime { get; set; }
+        private bool _showAutoCreated { get; set; } = false;
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
@@ -62,13 +63,13 @@ namespace VoiceLauncher.Pages
             {
                 if (WindowsSpeechVoiceCommandDataService != null)
                 {
-                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync();
+                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated);
                     Updated = DateTime.Now;
                     //var result = await WindowsSpeechVoiceCommandDataService.SearchWindowsSpeechVoiceCommandsAsync(ServerSearchTerm);
                     if (result != null)
                     {
                         WindowsSpeechVoiceCommandDTO = result
-                            .Where(v => v.ApplicationName == "Global" && v.Description!= null && v.Description.Contains("Auto created") == false)
+                            .Where(v => v.ApplicationName == "Global" && v.AutoCreated== false)
                             .OrderByDescending(o => o.Id).ToList();
                     }
                 }

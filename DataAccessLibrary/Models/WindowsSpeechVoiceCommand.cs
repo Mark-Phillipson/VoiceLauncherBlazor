@@ -20,6 +20,7 @@ namespace DataAccessLibrary.Models
         public string Description { get; set; }
         [StringLength( 50 )]
         public string ApplicationName { get; set; }
+        public bool AutoCreated { get; set; }
 
     }
 }

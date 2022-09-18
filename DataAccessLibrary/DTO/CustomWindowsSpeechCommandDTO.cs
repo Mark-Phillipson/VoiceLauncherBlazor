@@ -10,6 +10,7 @@ namespace DataAccessLibrary.DTO
         public int Id { get; set; }
         [StringLength(100)]
         public string TextToEnter { get; set; }
+        public string SendKeysValue { get; set; }
         public VirtualKeyCode? KeyDownValue { get; set; } = VirtualKeyCode.NONAME;
         //[Depreciated]
         public VirtualKeyCode? ModifierKey { get; set; } = VirtualKeyCode.NONAME;

@@ -12,6 +12,7 @@ namespace DataAccessLibrary.DTO
         [StringLength(1000)]
         public string Description { get; set; }
         public string ApplicationName { get; set; }="Global";
+        public bool AutoCreated { get; set; }
 
     }
 }

@@ -8,7 +8,7 @@ namespace DataAccessLibrary.Services
 {
     public interface IWindowsSpeechVoiceCommandDataService
     {
-        Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync();
+        Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync( bool showAutoCreated);
         Task<List<WindowsSpeechVoiceCommandDTO>> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm);
         Task<WindowsSpeechVoiceCommandDTO> AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandById(int Id);
