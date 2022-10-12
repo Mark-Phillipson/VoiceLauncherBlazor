@@ -25,7 +25,7 @@ namespace DataAccessLibrary.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var WindowsSpeechVoiceCommands = await context.WindowsSpeechVoiceCommands
-                .Where(v => v.ApplicationName=="Global" && v.AutoCreated==showAutoCreated)
+                .Where(v =>  v.AutoCreated==showAutoCreated)
                 .OrderByDescending(v => v.Id)
                 .Take(maxRows)
                 .ToListAsync();

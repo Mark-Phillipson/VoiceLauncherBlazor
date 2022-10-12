@@ -1,12 +1,14 @@
 @page "/windowsspeechvoicecommands"
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h5 class="page-title m-1">@Title</h5>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="form-group form-inline">
             <label for="HideActions">Hide Actions (Alt+1) </label>
-            <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" />
+            <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" style="width:50px" />
+            <label for="ShowAutoCreated">Show Auto Created</label>
+            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" />
             <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>
         </div>
     </div>

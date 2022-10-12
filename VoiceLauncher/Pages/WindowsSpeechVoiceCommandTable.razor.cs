@@ -69,7 +69,6 @@ namespace VoiceLauncher.Pages
                     if (result != null)
                     {
                         WindowsSpeechVoiceCommandDTO = result
-                            .Where(v => v.ApplicationName == "Global" && v.AutoCreated== false)
                             .OrderByDescending(o => o.Id).ToList();
                     }
                 }
@@ -238,7 +237,8 @@ namespace VoiceLauncher.Pages
         {
             if (CreateCommands != null)
             {
-                //CreateCommands.CreateCommandSqlCommands();
+                CreateCommands.CreateCommandsFromList("1to30", "Move Down");
+               CreateCommands.CreateCommandsFromList("1to30", "Move Up");
             }
         }
     }

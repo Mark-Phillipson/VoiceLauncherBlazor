@@ -17,34 +17,34 @@ using Blazored.Modal.Services;
 using Blazored.Toast;
 using Blazored.Toast.Services;
 using System.Security.Claims;
-using DataAccessLibrary.DTO;
-using DataAccessLibrary.Services;
+using VoiceLauncher.DTOs;
+using VoiceLauncher.Services;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class WindowsSpeechVoiceCommandAddEdit : ComponentBase
+    public partial class HtmlTagAddEdit : ComponentBase
     {
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
-        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO(); //{ApplicationName="Global" };
-        [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
+        public HtmlTagDTO HtmlTagDTO { get; set; } = new HtmlTagDTO();//{ };
+        [Inject] public IHtmlTagDataService? HtmlTagDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
         protected override async Task OnInitializedAsync()
         {
-            if (WindowsSpeechVoiceCommandDataService == null)
+            if (HtmlTagDataService == null)
             {
                 return;
             }
             if (Id > 0)
             {
-                var result = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById((int)Id);
+                var result = await HtmlTagDataService.GetHtmlTagById((int)Id);
                 if (result != null)
                 {
-                    WindowsSpeechVoiceCommandDTO = result;
+                    HtmlTagDTO = result;
                 }
             }
             else
@@ -60,7 +60,7 @@ namespace VoiceLauncher.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "SpokenCommand");
+                        await JSRuntime.InvokeVoidAsync("window.setFocus", "Tag");
                     }
                 }
                 catch (Exception exception)
@@ -78,22 +78,22 @@ namespace VoiceLauncher.Pages
         protected async Task HandleValidSubmit()
         {
             TaskRunning = "disabled";
-            if ((Id == 0 || Id == null) && WindowsSpeechVoiceCommandDataService != null)
+            if ((Id == 0 || Id == null) && HtmlTagDataService != null)
             {
-                WindowsSpeechVoiceCommandDTO? result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO);
+                HtmlTagDTO? result = await HtmlTagDataService.AddHtmlTag(HtmlTagDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Windows Speech Voice Command failed to add, please investigate", "Error Adding New Windows Speech Voice Command");
+                    ToastService?.ShowError("Html Tag failed to add, please investigate", "Error Adding New Html Tag");
                     return;
                 }
-                ToastService?.ShowSuccess("Windows Speech Voice Command added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Html Tag added successfully", "SUCCESS");
             }
             else
             {
-                if (WindowsSpeechVoiceCommandDataService != null)
+                if (HtmlTagDataService != null)
                 {
-                    await WindowsSpeechVoiceCommandDataService!.UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO, "TBC");
-                    ToastService?.ShowSuccess("The Windows Speech Voice Command updated successfully", "SUCCESS");
+                    await HtmlTagDataService!.UpdateHtmlTag(HtmlTagDTO, "");
+                    ToastService?.ShowSuccess("The Html Tag updated successfully", "SUCCESS");
                 }
             }
             if (ModalInstance != null)
@@ -101,13 +101,6 @@ namespace VoiceLauncher.Pages
                 await ModalInstance.CloseAsync(ModalResult.Ok(true));
             }
             TaskRunning = "";
-        }
-        private async Task CallChangeAsync(string elementId)
-        {
-            if (JSRuntime != null)
-            {
-                await JSRuntime.InvokeVoidAsync("CallChange", elementId);
-            }
         }
     }
 }

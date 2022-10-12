@@ -32,7 +32,7 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<CurrentWindow> CurrentWindow { get; set; }
         public virtual DbSet<CustomIntelliSense> CustomIntelliSense { get; set; }
         public virtual DbSet<GeneralLookup> GeneralLookups { get; set; }
-        public virtual DbSet<HtmlTags> HtmlTags { get; set; }
+        public virtual DbSet<HtmlTag> HtmlTags { get; set; }
         public virtual DbSet<Language> Languages { get; set; }
         public virtual DbSet<Launcher> Launcher { get; set; }
         public virtual DbSet<LauncherMultipleLauncherBridge> LauncherMultipleLauncherBridge { get; set; }

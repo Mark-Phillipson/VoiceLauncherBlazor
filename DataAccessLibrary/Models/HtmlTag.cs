@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
-    public partial class HtmlTags
+    public partial class HtmlTag
     {
         [Key]
         [Column("ID")]

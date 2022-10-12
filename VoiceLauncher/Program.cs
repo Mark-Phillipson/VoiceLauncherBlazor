@@ -47,6 +47,8 @@ builder.Services.AddScoped<IGrammarNameRepository, GrammarNameRepository>();
 builder.Services.AddScoped<IGrammarNameDataService, GrammarNameDataService>();
 builder.Services.AddScoped<IGrammarItemRepository, GrammarItemRepository>(); 
 builder.Services.AddScoped<IGrammarItemDataService, GrammarItemDataService>();
+builder.Services.AddScoped<IHtmlTagRepository, HtmlTagRepository>(); 
+builder.Services.AddScoped<IHtmlTagDataService, HtmlTagDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

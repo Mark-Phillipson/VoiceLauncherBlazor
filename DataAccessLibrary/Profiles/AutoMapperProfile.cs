@@ -16,6 +16,7 @@ namespace DataAccessLibrary.Profiles
             CreateMap<WindowsSpeechVoiceCommand, WindowsSpeechVoiceCommandDTO>(); CreateMap<WindowsSpeechVoiceCommandDTO, WindowsSpeechVoiceCommand>();
             CreateMap<GrammarName, GrammarNameDTO>(); CreateMap<GrammarNameDTO, GrammarName>();
             CreateMap<GrammarItem, GrammarItemDTO>(); CreateMap<GrammarItemDTO, GrammarItem>();
+            CreateMap<HtmlTag, HtmlTagDTO>(); CreateMap<HtmlTagDTO, HtmlTag>();
         }
     }
 }

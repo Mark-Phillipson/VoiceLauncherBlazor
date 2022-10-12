@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WindowsInput.Native;
+
 namespace DataAccessLibrary
 {
     public class CreateCommands
@@ -20,18 +22,27 @@ namespace DataAccessLibrary
         public void CreateCommandsFromList(string nameOfGrammar, string spokenFormPrefix)
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == nameOfGrammar).FirstOrDefault();
-            var keywordItems = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
-            foreach (GrammarItem item in keywordItems)
+            var items = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            foreach (GrammarItem item in items)
             {
                 WindowsSpeechVoiceCommand command = new();
                 command.ApplicationName = "Global";
                 command.SpokenCommand = $"{spokenFormPrefix} {item.Value}";
                 command.Description = $"Auto created: {DateTime.Now}";
+                command.AutoCreated = true;
                 _context.WindowsSpeechVoiceCommands.Add(command);
                 _context.SaveChanges();
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
-                action.TextToEnter = $"{item.Value}";
+                if (spokenFormPrefix == "Move Down")
+                {
+                    action.SendKeysValue = "{Down " + item.Value + "}";
+                }
+                else
+                {
+                    action.SendKeysValue = "{Up " + item.Value + "}";
+                }
+                //action.TextToEnter = $"{item.Value}";
                 _context.CustomWindowsSpeechCommands.Add(action);
                 _context.SaveChanges();
             }
@@ -61,17 +72,17 @@ namespace DataAccessLibrary
             var keywordItems = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
             foreach (GrammarItem item in keywordItems)
             {
-                    WindowsSpeechVoiceCommand command = new();
-                    command.ApplicationName = "Global";
-                    command.SpokenCommand = $"Keyword {item.Value}";
-                    command.Description = $"Auto created: {DateTime.Now}";
-                    _context.WindowsSpeechVoiceCommands.Add(command);
-                    _context.SaveChanges();
-                    CustomWindowsSpeechCommand action = new();
-                    action.WindowsSpeechVoiceCommandId = command.Id;
-                    action.TextToEnter = $" {item.Value} ";
-                    _context.CustomWindowsSpeechCommands.Add(action);
-                    _context.SaveChanges();
+                WindowsSpeechVoiceCommand command = new();
+                command.ApplicationName = "Global";
+                command.SpokenCommand = $"Keyword {item.Value}";
+                command.Description = $"Auto created: {DateTime.Now}";
+                _context.WindowsSpeechVoiceCommands.Add(command);
+                _context.SaveChanges();
+                CustomWindowsSpeechCommand action = new();
+                action.WindowsSpeechVoiceCommandId = command.Id;
+                action.TextToEnter = $" {item.Value} ";
+                _context.CustomWindowsSpeechCommands.Add(action);
+                _context.SaveChanges();
             }
         }
         public void CreateCommandMoveMouseAndClick()
