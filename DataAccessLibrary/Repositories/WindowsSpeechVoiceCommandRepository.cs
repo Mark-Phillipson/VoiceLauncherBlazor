@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace DataAccessLibrary.Repositories
 {
@@ -15,11 +16,13 @@ namespace DataAccessLibrary.Repositories
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
+        private readonly ICustomWindowsSpeechCommandRepository _customWindowsSpeechCommandRepository;
 
-        public WindowsSpeechVoiceCommandRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
+        public WindowsSpeechVoiceCommandRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper,ICustomWindowsSpeechCommandRepository customWindowsSpeechCommandRepository)
         {
             _contextFactory = contextFactory;
             _mapper = mapper;
+            _customWindowsSpeechCommandRepository = customWindowsSpeechCommandRepository;
         }
         public async Task<IEnumerable<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(int maxRows = 400, bool showAutoCreated= false )
         {
@@ -69,6 +72,13 @@ namespace DataAccessLibrary.Repositories
             {
                 Console.WriteLine(exception.Message);
                 return null;
+            }
+            if (windowsSpeechVoiceCommandDTO.SendKeysValue!= null )
+            {
+                CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO= new CustomWindowsSpeechCommandDTO();
+                customWindowsSpeechCommandDTO.SendKeysValue= windowsSpeechVoiceCommandDTO.SendKeysValue;
+                customWindowsSpeechCommandDTO.WindowsSpeechVoiceCommandId = addedEntity.Entity.Id;
+                var result= await _customWindowsSpeechCommandRepository.AddCustomWindowsSpeechCommandAsync(customWindowsSpeechCommandDTO);
             }
             WindowsSpeechVoiceCommandDTO resultDTO = _mapper.Map<WindowsSpeechVoiceCommand, WindowsSpeechVoiceCommandDTO>(windowsSpeechVoiceCommand);
             return resultDTO;

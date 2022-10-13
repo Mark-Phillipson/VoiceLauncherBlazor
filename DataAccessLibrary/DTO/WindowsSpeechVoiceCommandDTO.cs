@@ -13,6 +13,7 @@ namespace DataAccessLibrary.DTO
         public string Description { get; set; }
         public string ApplicationName { get; set; }="Global";
         public bool AutoCreated { get; set; }
+        public string SendKeysValue { get; set; }
 
     }
 }
