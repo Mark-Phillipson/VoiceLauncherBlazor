@@ -4,6 +4,7 @@ using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLibrary.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221103102120_MIGStartProcessBigger")]
+    partial class MIGStartProcessBigger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +59,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("CustomIntelliSenseId");
 
-                    b.ToTable("AdditionalCommands", (string)null);
+                    b.ToTable("AdditionalCommands");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Appointment", b =>
@@ -104,7 +106,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Appointments", (string)null);
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetRoleClaims", b =>
@@ -129,7 +131,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("AspNetRoleClaims");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetRoles", b =>
@@ -155,7 +157,7 @@ namespace DataAccessLibrary.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("([NormalizedName] IS NOT NULL)");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("AspNetRoles");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetUserClaims", b =>
@@ -180,7 +182,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("AspNetUserClaims");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetUserLogins", b =>
@@ -204,7 +206,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("AspNetUserLogins");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetUserRoles", b =>
@@ -219,7 +221,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("AspNetUserRoles");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetUsers", b =>
@@ -283,7 +285,7 @@ namespace DataAccessLibrary.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("([NormalizedUserName] IS NOT NULL)");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AspNetUserTokens", b =>
@@ -304,7 +306,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("AspNetUserTokens");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Category", b =>
@@ -333,7 +335,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Computer", b =>
@@ -352,7 +354,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Computers", (string)null);
+                    b.ToTable("Computers");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.CurrentWindow", b =>
@@ -369,7 +371,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CurrentWindow", (string)null);
+                    b.ToTable("CurrentWindow");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.CustomIntelliSense", b =>
@@ -432,7 +434,7 @@ namespace DataAccessLibrary.Migrations
                     b.HasIndex("LanguageId")
                         .HasDatabaseName("IX_LanguageID");
 
-                    b.ToTable("CustomIntelliSense", (string)null);
+                    b.ToTable("CustomIntelliSense");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.CustomWindowsSpeechCommand", b =>
@@ -512,7 +514,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("WindowsSpeechVoiceCommandId");
 
-                    b.ToTable("CustomWindowsSpeechCommands", (string)null);
+                    b.ToTable("CustomWindowsSpeechCommands");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Example", b =>
@@ -542,7 +544,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Examples", (string)null);
+                    b.ToTable("Examples");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.GeneralLookup", b =>
@@ -574,7 +576,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GeneralLookups", (string)null);
+                    b.ToTable("GeneralLookups");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.GrammarItem", b =>
@@ -597,7 +599,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("GrammarNameId");
 
-                    b.ToTable("GrammarItems", (string)null);
+                    b.ToTable("GrammarItems");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.GrammarName", b =>
@@ -618,7 +620,7 @@ namespace DataAccessLibrary.Migrations
                     b.HasIndex("NameOfGrammar")
                         .IsUnique();
 
-                    b.ToTable("GrammarNames", (string)null);
+                    b.ToTable("GrammarNames");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.HtmlTag", b =>
@@ -651,7 +653,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HtmlTags", (string)null);
+                    b.ToTable("HtmlTags");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Language", b =>
@@ -674,7 +676,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages", (string)null);
+                    b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Launcher", b =>
@@ -711,7 +713,7 @@ namespace DataAccessLibrary.Migrations
                     b.HasIndex("ComputerId")
                         .HasDatabaseName("IX_ComputerID");
 
-                    b.ToTable("Launcher", (string)null);
+                    b.ToTable("Launcher");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.LauncherMultipleLauncherBridge", b =>
@@ -737,7 +739,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasIndex("MultipleLauncherId");
 
-                    b.ToTable("LauncherMultipleLauncherBridge", (string)null);
+                    b.ToTable("LauncherMultipleLauncherBridge");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Logins", b =>
@@ -768,7 +770,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logins", (string)null);
+                    b.ToTable("Logins");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.MigrationHistory", b =>
@@ -793,7 +795,7 @@ namespace DataAccessLibrary.Migrations
                     b.HasKey("MigrationId", "ContextKey")
                         .HasName("PK_dbo.__MigrationHistory");
 
-                    b.ToTable("__MigrationHistory", (string)null);
+                    b.ToTable("__MigrationHistory");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.MousePositions", b =>
@@ -830,7 +832,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MousePositions", (string)null);
+                    b.ToTable("MousePositions");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.MultipleLauncher", b =>
@@ -849,7 +851,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MultipleLauncher", (string)null);
+                    b.ToTable("MultipleLauncher");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.PropertyTabPositions", b =>
@@ -876,7 +878,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PropertyTabPositions", (string)null);
+                    b.ToTable("PropertyTabPositions");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.SavedMousePosition", b =>
@@ -904,7 +906,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SavedMousePosition", (string)null);
+                    b.ToTable("SavedMousePosition");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.Todo", b =>
@@ -943,7 +945,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Todos", (string)null);
+                    b.ToTable("Todos");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.ValuesToInsert", b =>
@@ -971,7 +973,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ValuesToInsert", (string)null);
+                    b.ToTable("ValuesToInsert");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.ViewCategories", b =>
@@ -1308,7 +1310,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VisualStudioCommands", (string)null);
+                    b.ToTable("VisualStudioCommands");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.WindowsSpeechVoiceCommand", b =>
@@ -1337,7 +1339,7 @@ namespace DataAccessLibrary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WindowsSpeechVoiceCommand", (string)null);
+                    b.ToTable("WindowsSpeechVoiceCommand");
                 });
 
             modelBuilder.Entity("DataAccessLibrary.Models.AdditionalCommand", b =>

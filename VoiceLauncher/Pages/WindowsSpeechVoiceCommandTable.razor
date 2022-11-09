@@ -9,8 +9,8 @@
             <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" style="width:50px" />
             <label for="ShowAutoCreated">Show Auto Created</label>
             <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" />
-            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>
-        </div>
+@*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>
+*@        </div>
     </div>
     <div class="col-md-2">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
@@ -38,7 +38,6 @@ else
     <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
-                <th>Id</th>
                 <th>
                     <button class="btn btn-sm" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand"))">
                         <i class="fas fa-sort-alpha-up"></i>
@@ -63,12 +62,12 @@ else
             @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO)
             {
                 <tr>
-                    <td>
+@*                    <td>
                         <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             @windowsSpeechVoiceCommand.Id
                         </a>
                     </td>
-                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
+*@                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
                     <td>@windowsSpeechVoiceCommand.AutoCreated</td>
@@ -87,8 +86,7 @@ else
                 @if (!_hideActions)
                 {
                     <tr>
-                        <td></td>
-                        <td colspan="3">
+                        <td colspan="4">
                             <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" Updated="Updated" />
                         </td>
                     </tr>

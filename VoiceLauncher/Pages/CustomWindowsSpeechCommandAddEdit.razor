@@ -124,11 +124,31 @@
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.CommandLineArguments)" />
                 </div>
                 <div class="form-group">
+                    <button class="btn btn-success" type="button" @onclick="@( ( ) => Control(  ) )">Control</button>
+                    <button class="btn btn-success" type="button" @onclick="@( ( ) => Alternate(  ) )">Alternate</button>
+                    <button class="btn btn-success" type="button" @onclick="@( ( ) => Shift(  ) )">Shift</button>
+
                     <label for="SendKeysValue">Send Keys Value: (^=Ctrl %=Alt +=Shift)</label>
                     <InputText id="SendKeysValue" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.SendKeysValue"
                                @onblur="@(() => CallChangeAsync("SendKeysValue"))" placeholder="Enter Send Keys Values"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.SendKeysValue)" />
                 </div>
+                <div class="form-group">
+                    <label for="AutoCreated">Format Dictation: </label>
+                    <InputSelect id="formatDictation" class="form-select border border-warning col-sm-8" @bind-Value="@CustomWindowsSpeechCommandDTO.HowToFormatDictation">
+
+                        @foreach (var formatDictation in FormatDictations)
+                        {
+                            @if (CustomWindowsSpeechCommandDTO.HowToFormatDictation==formatDictation)
+                            {
+                            <option  selected value="@formatDictation">@formatDictation</option>
+                            }
+                            <option  value="@formatDictation">@formatDictation</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.HowToFormatDictation)" />
+                </div>
+
             </div>
         </div>
         <hr>

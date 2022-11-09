@@ -30,12 +30,12 @@ namespace VoiceLauncher.Services
             return HtmlTags.ToList();
         }
 
-        public async Task<HtmlTagDTO?> GetHtmlTagById(int Id)
+        public async Task<HtmlTagDTO> GetHtmlTagById(int Id)
         {
             var htmlTag = await _htmlTagRepository.GetHtmlTagByIdAsync(Id);
             return htmlTag;
         }
-        public async Task<HtmlTagDTO?> AddHtmlTag(HtmlTagDTO htmlTagDTO)
+        public async Task<HtmlTagDTO> AddHtmlTag(HtmlTagDTO htmlTagDTO)
         {
             Guard.Against.Null(htmlTagDTO);
             var result = await _htmlTagRepository.AddHtmlTagAsync(htmlTagDTO);
@@ -45,7 +45,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<HtmlTagDTO> UpdateHtmlTag(HtmlTagDTO htmlTagDTO, string? username)
+        public async Task<HtmlTagDTO> UpdateHtmlTag(HtmlTagDTO htmlTagDTO, string username)
         {
             Guard.Against.Null(htmlTagDTO);
             Guard.Against.Null(username);

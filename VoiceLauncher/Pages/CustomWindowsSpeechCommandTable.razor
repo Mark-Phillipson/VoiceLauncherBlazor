@@ -17,103 +17,104 @@ else if (FilteredCustomWindowsSpeechCommandDTO.Count == 0)
 else
 {
     <table style="font-size:x-small" class="table table-bordered table-striped table-sm table-responsive-sm">
-        <thead>
-            <tr>
-                <th>Wait Time</th>
-                <th>
-                    Text To Enter
-                </th>
-                <th>Key Down</th>
-                <th>Control</th>
-                <th>Alt</th>
-                <th>Shift</th>
-                <th>Window</th>
-                <th>Key Press</th>
-                <th>Key Up</th>
-                <th>
-                    <button accesskey="x" @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </th>
-            </tr>
-        </thead>
+
+        <tr>
+            <th>
+                <button accesskey="x" @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus"></i> Add Action
+                </button>
+            </th>
+        </tr>
+
         <tbody>
             @foreach (var customWindowsSpeechCommand in FilteredCustomWindowsSpeechCommandDTO)
             {
                 <tr>
-                    <td>@customWindowsSpeechCommand.WaitTime</td>
-                    <td>@customWindowsSpeechCommand.TextToEnter</td>
+                    <th>Wait Time</th>
                     <td>
-                        @if (customWindowsSpeechCommand.KeyDownValue != WindowsInput.Native.VirtualKeyCode.NONAME)
-                        {
+                        @customWindowsSpeechCommand.WaitTime
+                    </td>
+                    @if (customWindowsSpeechCommand.TextToEnter != null)
+                    {
+                        <th> Text to Enter</th>
+                        <td>
+                            @customWindowsSpeechCommand.TextToEnter
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.KeyDownValue != WindowsInput.Native.VirtualKeyCode.NONAME)
+                    {
+                        <th>Key Down</th>
+                        <td>
                             @customWindowsSpeechCommand.KeyDownValue
-                        }
-                    </td>
-                    <td>
-                        @if (customWindowsSpeechCommand.ControlKey)
-                        {
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.ControlKey)
+                    {
+                        <th>Control</th>
+                        <td>
                             <i class="fa-solid fa-square-check"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-square"></i>
-                        }
-                    </td>
-                    <td>
-                        @if (customWindowsSpeechCommand.AlternateKey)
-                        {
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.AlternateKey)
+                    {
+                        <th>Alt</th>
+                        <td>
                             <i class="fa-solid fa-square-check"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-square"></i>
-                        }
-                    </td>
-                    <td>
-                        @if (customWindowsSpeechCommand.ShiftKey)
-                        {
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.ShiftKey)
+                    {
+                        <th>Shift</th>
+                        <td>
                             <i class="fa-solid fa-square-check"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-square"></i>
-                        }
-                    </td>
-                    <td>
-                        @if (customWindowsSpeechCommand.WindowsKey)
-                        {
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.WindowsKey)
+                    {
+                        <th>Window</th>
+                        <td>
                             <i class="fa-solid fa-square-check"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-square"></i>
-                        }
-                    </td>
+                        </td>
+                    }
 
-                    <td>
-                        @if (customWindowsSpeechCommand.KeyPressValue != WindowsInput.Native.VirtualKeyCode.NONAME)
-                        {
+                    @if (customWindowsSpeechCommand.KeyPressValue != WindowsInput.Native.VirtualKeyCode.NONAME)
+                    {
+                        <th>Key Press</th>
+                        <td>
                             @customWindowsSpeechCommand.KeyPressValue
-                        }
-                    </td>
-                    <td>
-                        @if (customWindowsSpeechCommand.KeyUpValue != WindowsInput.Native.VirtualKeyCode.NONAME)
-                        {
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.KeyUpValue != WindowsInput.Native.VirtualKeyCode.NONAME)
+                    {
+                        <th>Key Up</th>
+                        <td>
                             @customWindowsSpeechCommand.KeyUpValue
-                        }
-                    </td>
-                </tr>
-                <tr>
-                    <th>Mouse Command</th>
-                    <th>Process Start</th>
-                    <th>Command Line Args</th>
-                    <th>Send Keys Value</th>
-                </tr>
-                <tr>
-                    <td>@customWindowsSpeechCommand.MouseCommand</td>
-                    <td>@customWindowsSpeechCommand.ProcessStart</td>
-                    <td>@customWindowsSpeechCommand.CommandLineArguments</td>
-                    <td>@customWindowsSpeechCommand.SendKeysValue</td>
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.MouseCommand != null)
+                    {
+                        <th>Mouse Command</th>
+                        <td>
+                            @customWindowsSpeechCommand.MouseCommand
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.ProcessStart != null)
+                    {
+                        <th>Process Start</th>
+                        <td>
+                            @customWindowsSpeechCommand.ProcessStart
+                        </td>
+                    }
+                    @if (customWindowsSpeechCommand.CommandLineArguments != null)
+                    {
+                        <th>Command Line Args</th>
+                        <td>@customWindowsSpeechCommand.CommandLineArguments</td>
+                    }
+                    @if (customWindowsSpeechCommand.SendKeysValue != null)
+                    {
+                        <th>Send Keys Value</th>
+                        <td>@customWindowsSpeechCommand.SendKeysValue</td>
+                    }
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
                             <i class="fas fa-edit"></i>

@@ -109,5 +109,18 @@ namespace VoiceLauncher.Pages
                 await JSRuntime.InvokeVoidAsync("CallChange", elementId);
             }
         }
+        private void Control()
+        {
+            WindowsSpeechVoiceCommandDTO.SendKeysValue = WindowsSpeechVoiceCommandDTO.SendKeysValue + "^";
+        }
+        private void Alternate()
+        {
+            WindowsSpeechVoiceCommandDTO.SendKeysValue = WindowsSpeechVoiceCommandDTO.SendKeysValue + "%";
+        }
+        private void Shift()
+        {
+            WindowsSpeechVoiceCommandDTO.SendKeysValue = WindowsSpeechVoiceCommandDTO.SendKeysValue + "+";
+        }
     }
+
 }

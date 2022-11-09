@@ -18,9 +18,9 @@ namespace DataAccessLibrary.Services
         {
             _windowsSpeechVoiceCommandRepository = windowsSpeechVoiceCommandRepository;
         }
-        public async Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(bool showAutoCreated)
+        public async Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(bool showAutoCreated,int maxRows= 16)
         {
-            var WindowsSpeechVoiceCommands = await _windowsSpeechVoiceCommandRepository.GetAllWindowsSpeechVoiceCommandsAsync(300, showAutoCreated);
+            var WindowsSpeechVoiceCommands = await _windowsSpeechVoiceCommandRepository.GetAllWindowsSpeechVoiceCommandsAsync(maxRows, showAutoCreated);
             return WindowsSpeechVoiceCommands.ToList();
         }
         public async Task<List<WindowsSpeechVoiceCommandDTO>> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm)

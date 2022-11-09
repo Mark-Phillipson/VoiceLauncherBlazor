@@ -26,6 +26,7 @@ namespace VoiceLauncher.Pages
     public partial class CustomWindowsSpeechCommandAddEdit : ComponentBase
     {
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
+        List<string> FormatDictations { get; set; }=new List<string>() { "Do Nothing","Camel","Title","Variable","Upper","Lower"};
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
         [Parameter] public int? WindowsSpeechVoiceCommandId { get; set; }
@@ -185,7 +186,7 @@ namespace VoiceLauncher.Pages
             }
             else if (filter.ToLower() == "g")
             {
-                CustomWindowsSpeechCommandDTO.KeyPressValue = VirtualKeyCode.VK_C;
+                CustomWindowsSpeechCommandDTO.KeyPressValue = VirtualKeyCode.VK_G;
             }
             else if (filter.ToLower() == "h")
             {
@@ -333,7 +334,7 @@ namespace VoiceLauncher.Pages
             }
             else if (filter.ToLower() == "g")
             {
-                CustomWindowsSpeechCommandDTO.KeyDownValue = VirtualKeyCode.VK_C;
+                CustomWindowsSpeechCommandDTO.KeyDownValue = VirtualKeyCode.VK_G;
             }
             else if (filter.ToLower() == "h")
             {
@@ -481,7 +482,7 @@ namespace VoiceLauncher.Pages
             }
             else if (filter.ToLower() == "g")
             {
-                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_C;
+                CustomWindowsSpeechCommandDTO.KeyUpValue = VirtualKeyCode.VK_G;
             }
             else if (filter.ToLower() == "h")
             {
@@ -601,5 +602,18 @@ namespace VoiceLauncher.Pages
             }
 
         }
+        private void Control()
+        {
+            CustomWindowsSpeechCommandDTO.SendKeysValue = CustomWindowsSpeechCommandDTO.SendKeysValue + "^";
+        }
+        private void Alternate()
+        {
+            CustomWindowsSpeechCommandDTO.SendKeysValue = CustomWindowsSpeechCommandDTO.SendKeysValue + "%";
+        }
+        private void Shift()
+        {
+            CustomWindowsSpeechCommandDTO.SendKeysValue = CustomWindowsSpeechCommandDTO.SendKeysValue + "+";
+        }
+
     }
 }

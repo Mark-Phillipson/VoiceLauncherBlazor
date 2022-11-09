@@ -31,6 +31,7 @@ namespace VoiceLauncher.Pages
         [Inject] public CreateCommands? CreateCommands { get; set; }
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechVoiceCommandDataService { get; set; }
+
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<WindowsSpeechVoiceCommandTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
@@ -63,7 +64,7 @@ namespace VoiceLauncher.Pages
             {
                 if (WindowsSpeechVoiceCommandDataService != null)
                 {
-                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated);
+                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated, 16);
                     Updated = DateTime.Now;
                     //var result = await WindowsSpeechVoiceCommandDataService.SearchWindowsSpeechVoiceCommandsAsync(ServerSearchTerm);
                     if (result != null)
@@ -104,6 +105,8 @@ namespace VoiceLauncher.Pages
         protected async Task AddNewWindowsSpeechVoiceCommandAsync()
         {
             if (WindowsSpeechVoiceCommandDataService == null) return;
+            if (CustomWindowsSpeechVoiceCommandDataService == null) return;
+
             var parameters = new ModalParameters();
             var formModal = Modal?.Show<WindowsSpeechVoiceCommandAddEdit>("Add Windows Speech Voice Command", parameters);
             if (formModal != null)
@@ -112,6 +115,12 @@ namespace VoiceLauncher.Pages
                 if (!result.Cancelled)
                 {
                     var parentCommand = await WindowsSpeechVoiceCommandDataService.GetLatestAdded();
+                    var customWindowsSpeechCommands = await CustomWindowsSpeechVoiceCommandDataService.GetAllCustomWindowsSpeechCommandsAsync(parentCommand.Id);
+                    if (customWindowsSpeechCommands.Count()>0 )
+                    {
+                        await LoadData();
+                        return;
+                    }
                     parameters = new ModalParameters();
                     parameters.Add(("WindowsSpeechVoiceCommandId"), parentCommand.Id);
                     formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>("Add Action", parameters);
@@ -127,7 +136,7 @@ namespace VoiceLauncher.Pages
             }
         }
 
-        private void ApplyFilter()
+        private async void ApplyFilter( bool filterFromServer=true)
         {
             if (FilteredWindowsSpeechVoiceCommandDTO == null || WindowsSpeechVoiceCommandDTO == null)
             {
@@ -141,6 +150,11 @@ namespace VoiceLauncher.Pages
             else
             {
                 var temporary = SearchTerm.ToLower().Trim();
+                if (filterFromServer)
+                {
+                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated, 1000);
+                    WindowsSpeechVoiceCommandDTO = result;
+                }
                 FilteredWindowsSpeechVoiceCommandDTO = WindowsSpeechVoiceCommandDTO
                     .Where(v =>
                     (v.SpokenCommand != null && v.SpokenCommand.ToLower().Contains(temporary)) ||
@@ -149,6 +163,7 @@ namespace VoiceLauncher.Pages
                     )
                     .ToList();
                 Title = $"Filtered Windows Speech Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO.Count})";
+                StateHasChanged();
             }
         }
         protected void SortWindowsSpeechVoiceCommand(string sortColumn)
@@ -237,8 +252,9 @@ namespace VoiceLauncher.Pages
         {
             if (CreateCommands != null)
             {
-                CreateCommands.CreateCommandsFromList("1to30", "Move Down");
+                //CreateCommands.CreateCommandsFromList("1to30", "Move Down");
                CreateCommands.CreateCommandsFromList("1to30", "Move Up");
+
             }
         }
     }
