@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Models;
 
 namespace DataAccessLibrary.Services
 {
@@ -18,7 +19,7 @@ namespace DataAccessLibrary.Services
         {
             _windowsSpeechVoiceCommandRepository = windowsSpeechVoiceCommandRepository;
         }
-        public async Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(bool showAutoCreated,int maxRows= 16)
+        public async Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(bool showAutoCreated, int maxRows = 16)
         {
             var WindowsSpeechVoiceCommands = await _windowsSpeechVoiceCommandRepository.GetAllWindowsSpeechVoiceCommandsAsync(maxRows, showAutoCreated);
             return WindowsSpeechVoiceCommands.ToList();
@@ -63,6 +64,11 @@ namespace DataAccessLibrary.Services
         public async Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded()
         {
             var result = await _windowsSpeechVoiceCommandRepository.GetLatestAdded();
+            return result;
+        }
+        public async Task<List<ApplicationDetail>> GetAllApplicationDetails()
+        {
+            var result = await _windowsSpeechVoiceCommandRepository.GetAllApplicationDetails();
             return result;
         }
     }

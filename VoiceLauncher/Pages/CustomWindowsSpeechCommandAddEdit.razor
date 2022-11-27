@@ -8,7 +8,7 @@
             <span class="text-info m-1">@CustomWindowsSpeechCommandDTO.Id</span>
         }
         <div class="row">
-            <div class="col-6">
+            <div class="col-4">
                 <div class="form-group">
                     <label for="WaitTime">Wait Time (Alt+1)</label> <i class="text-danger fa">*</i>
                     <InputNumber accesskey="1" id="WaitTime" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.WaitTime">
@@ -29,25 +29,25 @@
                     </InputSelectEnum>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.KeyDownValue)" />
                 </div>
-                <div class="form-group">
-                    <label for="1"> Control Key (Alt+4)</label>
-                    <InputCheckbox accesskey="4" @bind-Value="CustomWindowsSpeechCommandDTO.ControlKey" class="form-control" />
+                <div class="form-group row">
+                    <label for="1" class="col-6"> Control Key (Alt+4)</label>
+                    <InputCheckbox accesskey="4" @bind-Value="CustomWindowsSpeechCommandDTO.ControlKey" class="form-control col-6" />
                 </div>
-                <div class="form-group">
-                    <label for="1"> Alternate Key (Alt+5)</label>
-                    <InputCheckbox accesskey="5" @bind-Value="CustomWindowsSpeechCommandDTO.AlternateKey" class="form-control" />
+                <div class="form-group row">
+                    <label for="1" class="col-6"> Alternate Key (Alt+5)</label>
+                    <InputCheckbox accesskey="5" @bind-Value="CustomWindowsSpeechCommandDTO.AlternateKey" class="form-control col-6" />
                 </div>
-                <div class="form-group">
-                    <label for="1"> Shift Key (Alt+6)</label>
-                    <InputCheckbox accesskey="6" @bind-Value="CustomWindowsSpeechCommandDTO.ShiftKey" class="form-control" />
+                <div class="form-group row">
+                    <label for="1" class="col-6"> Shift Key (Alt+6)</label>
+                    <InputCheckbox accesskey="6" @bind-Value="CustomWindowsSpeechCommandDTO.ShiftKey" class="form-control col-6" />
                 </div>
-                <div class="form-group">
-                    <label for="1"> Windows Key</label>
-                    <InputCheckbox @bind-Value="CustomWindowsSpeechCommandDTO.WindowsKey" class="form-control" />
+                <div class="form-group row">
+                    <label for="1" class="col-6"> Windows Key</label>
+                    <InputCheckbox @bind-Value="CustomWindowsSpeechCommandDTO.WindowsKey" class="form-control col-6" />
                 </div>
 
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 <div class="form-group">
                     <label for="KeyPressValue">Key Press Value: (Alt+7)</label>
                     <input accesskey="7" class="form-control" type="text" placeholder="Filter" @bind="@KeyPressFilter" @bind:event="oninput" />
@@ -110,17 +110,18 @@
                         <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ScrollAmount)" />
                     </div>
                 }
-
+            </div>
+            <div class="col-4">
                 <div class="form-group">
                     <label for="ProcessStart">Process Start:</label>
                     <InputText id="ProcessStart" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.ProcessStart"
-                               @onblur="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
+                    @onblur="@(() => CallChangeAsync("ProcessStart"))" placeholder="Enter Process Start"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.ProcessStart)" />
                 </div>
                 <div class="form-group">
                     <label for="CommandLineArguments">Command Line Arguments: </label>
                     <InputText id="CommandLineArguments" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.CommandLineArguments"
-                               @onblur="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
+                    @onblur="@(() => CallChangeAsync("CommandLineArguments"))" placeholder="Enter Command Line Arguments"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.CommandLineArguments)" />
                 </div>
                 <div class="form-group">
@@ -130,31 +131,36 @@
 
                     <label for="SendKeysValue">Send Keys Value: (^=Ctrl %=Alt +=Shift)</label>
                     <InputText id="SendKeysValue" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.SendKeysValue"
-                               @onblur="@(() => CallChangeAsync("SendKeysValue"))" placeholder="Enter Send Keys Values"></InputText>
+                    @onblur="@(() => CallChangeAsync("SendKeysValue"))" placeholder="Enter Send Keys Values"></InputText>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.SendKeysValue)" />
                 </div>
                 <div class="form-group">
-                    <label for="AutoCreated">Format Dictation: </label>
-                    <InputSelect id="formatDictation" class="form-select border border-warning col-sm-8" @bind-Value="@CustomWindowsSpeechCommandDTO.HowToFormatDictation">
+                    <label for="formatDictation">Format Dictation: </label>
+                    <InputSelect id="formatDictation" class="form-control border border-warning col-sm-8" @bind-Value="@CustomWindowsSpeechCommandDTO.HowToFormatDictation">
 
                         @foreach (var formatDictation in FormatDictations)
                         {
-                            @if (CustomWindowsSpeechCommandDTO.HowToFormatDictation==formatDictation)
+                            @if (CustomWindowsSpeechCommandDTO.HowToFormatDictation == formatDictation)
                             {
-                            <option  selected value="@formatDictation">@formatDictation</option>
+                                <option selected value="@formatDictation">@formatDictation</option>
                             }
-                            <option  value="@formatDictation">@formatDictation</option>
+                            <option value="@formatDictation">@formatDictation</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.HowToFormatDictation)" />
                 </div>
-
+                <div class="form-group">
+                    <label for="MethodToCall">Method to Call: </label>
+                    <InputText id="MethodToCall" class="form-control" @bind-Value="@CustomWindowsSpeechCommandDTO.MethodToCall"
+                    @onblur="@(() => CallChangeAsync("MethodToCall"))" placeholder="Enter Method to Call"></InputText>
+                    <ValidationMessage For="@(() => CustomWindowsSpeechCommandDTO.MethodToCall)" />
+                </div>
+                <div class="btn-group" style="float:right">
+                    <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
+                    <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+                </div>
             </div>
         </div>
-        <hr>
-        <div class="btn-group" style="float:right">
-            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
-            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
-        </div>
+
     </EditForm>
 </div>

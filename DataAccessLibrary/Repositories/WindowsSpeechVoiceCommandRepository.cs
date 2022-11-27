@@ -122,7 +122,15 @@ namespace DataAccessLibrary.Repositories
                 .FirstOrDefaultAsync();
             WindowsSpeechVoiceCommandDTO resultDTO = _mapper.Map<WindowsSpeechVoiceCommand, WindowsSpeechVoiceCommandDTO>(latestWindowSpeechVoiceCommand);
             return resultDTO;
-
         }
-    }
+        public async Task<List<ApplicationDetail>> GetAllApplicationDetails()
+        {
+             var context=_contextFactory.CreateDbContext();
+            var applicationDetails = await context.ApplicationDetails
+                .AsNoTracking()
+                .OrderBy(v => v.ApplicationTitle).ToListAsync();
+             return applicationDetails;
+        }
+
+	}
 }

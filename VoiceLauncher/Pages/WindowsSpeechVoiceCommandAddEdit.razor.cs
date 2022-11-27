@@ -19,6 +19,8 @@ using Blazored.Toast.Services;
 using System.Security.Claims;
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Services;
+using DataAccessLibrary.Models;
+using System.Diagnostics.Eventing.Reader;
 
 namespace VoiceLauncher.Pages
 {
@@ -30,6 +32,7 @@ namespace VoiceLauncher.Pages
         public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO(); //{ApplicationName="Global" };
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
+         private List<ApplicationDetail> ApplicationDetails { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
@@ -39,6 +42,7 @@ namespace VoiceLauncher.Pages
             {
                 return;
             }
+            ApplicationDetails = await WindowsSpeechVoiceCommandDataService.GetAllApplicationDetails(); 
             if (Id > 0)
             {
                 var result = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById((int)Id);

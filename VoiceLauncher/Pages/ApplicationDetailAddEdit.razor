@@ -1,0 +1,35 @@
+@page "/applicationdetail/{Id:int?}"
+<div style="min-width:80vw">
+    <EditForm Model="@ApplicationDetailDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (ApplicationDetailDTO.Id > 0)
+        {
+            <span class="text-info m-1">@ApplicationDetailDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="ProcessName">Process Name: </label> <i class="text-danger fa">*</i>
+                    <InputTextArea rows="2" id="ProcessName" class="form-control" @bind-Value="@ApplicationDetailDTO.ProcessName"
+                               placeholder="Enter Process Name"></InputTextArea>
+                    <ValidationMessage For="@(() => ApplicationDetailDTO.ProcessName)" />
+                </div>
+                <div class="form-group">
+                    <label for="ApplicationTitle">Application Title: </label> <i class="text-danger fa">*</i>
+                    <InputTextArea rows="2" id="ApplicationTitle" class="form-control" @bind-Value="@ApplicationDetailDTO.ApplicationTitle"
+                               placeholder="Enter Application Title"></InputTextArea>
+                    <ValidationMessage For="@(() => ApplicationDetailDTO.ApplicationTitle)" />
+                </div>
+            </div>
+            <div class="col-12">
+                 @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

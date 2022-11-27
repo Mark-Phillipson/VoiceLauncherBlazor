@@ -1,5 +1,6 @@
 
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Models;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,5 +16,6 @@ namespace DataAccessLibrary.Services
         Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO, string username);
         Task DeleteWindowsSpeechVoiceCommand(int Id);
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
+        Task<List<ApplicationDetail>> GetAllApplicationDetails();
     }
 }

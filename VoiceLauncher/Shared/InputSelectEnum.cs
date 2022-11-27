@@ -24,7 +24,7 @@ namespace VoiceLauncher.Shared
             builder.AddMultipleAttributes(1, AdditionalAttributes);
             builder.AddAttribute(2, "class", CssClass);
             builder.AddAttribute(3, "value", BindConverter.FormatValue(CurrentValueAsString));
-            if (CurrentValueAsString!= null )
+            if (CurrentValueAsString != null)
             {
                 builder.AddAttribute(4, "onchange", EventCallback.Factory.CreateBinder<string>(this, value => CurrentValueAsString = value, CurrentValueAsString, null));
 
@@ -69,14 +69,17 @@ namespace VoiceLauncher.Shared
             validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not valid.";
             return false;
         }
-
         // Get the display text for an enum value:
         // - Use the DisplayAttribute if set on the enum member, so this support localization
         // - Fallback on Humanizer to decamelize the enum member name
         private string GetDisplayName(object value)
         {
+            if (value== null )
+            {
+                return "";
+            }
             // Read the Display attribute name
-            var member = value.GetType().GetMember(value.ToString())[0];
+            var member = value.GetType().GetMember(value.ToString() ?? "")[0];
             var displayAttribute = member.GetCustomAttribute<DisplayAttribute>();
             if (displayAttribute != null)
                 return displayAttribute.GetName();

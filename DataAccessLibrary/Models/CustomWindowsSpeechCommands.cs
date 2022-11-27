@@ -13,7 +13,7 @@ namespace DataAccessLibrary.Models
     {
         public int Id { get; set; }
         public int WindowsSpeechVoiceCommandId { get; set; }
-        public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
+        public virtual WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
         [StringLength(255)]
         public string TextToEnter { get; set; } = "";
         [StringLength(40)]
@@ -41,6 +41,8 @@ namespace DataAccessLibrary.Models
         public int WaitTime { get; set; }
         [StringLength(55)]
         public string HowToFormatDictation { get; set; }="Do Nothing";
+        [StringLength(255)]
+        public string MethodToCall { get; set; }
 
     }
 }

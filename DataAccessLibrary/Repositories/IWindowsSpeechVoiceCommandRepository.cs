@@ -1,4 +1,5 @@
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Models;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,5 +15,6 @@ namespace DataAccessLibrary.Repositories
         Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandByIdAsync(int Id);
         Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
-    }
+		Task<List<ApplicationDetail>> GetAllApplicationDetails();
+	}
 }

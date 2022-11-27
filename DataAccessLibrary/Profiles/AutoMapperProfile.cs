@@ -17,6 +17,10 @@ namespace DataAccessLibrary.Profiles
             CreateMap<GrammarName, GrammarNameDTO>(); CreateMap<GrammarNameDTO, GrammarName>();
             CreateMap<GrammarItem, GrammarItemDTO>(); CreateMap<GrammarItemDTO, GrammarItem>();
             CreateMap<HtmlTag, HtmlTagDTO>(); CreateMap<HtmlTagDTO, HtmlTag>();
+            CreateMap<ApplicationDetail, ApplicationDetailDTO>(); CreateMap<ApplicationDetailDTO, ApplicationDetail>();
+            CreateMap<Idiosyncrasy, IdiosyncrasyDTO>(); CreateMap<IdiosyncrasyDTO, Idiosyncrasy>();
+            CreateMap<PhraseListGrammar, PhraseListGrammarDTO>(); CreateMap<PhraseListGrammarDTO, PhraseListGrammar>();
+
         }
     }
 }

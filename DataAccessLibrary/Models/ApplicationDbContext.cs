@@ -16,6 +16,9 @@ namespace DataAccessLibrary.Models
         {
             _configuration = configuration;
         }
+        public virtual DbSet<ApplicationDetail> ApplicationDetails { get; set; }
+        public virtual DbSet<Idiosyncrasy> Idiosyncrasies { get; set; }
+        public virtual DbSet<PhraseListGrammar> PhraseListGrammars { get; set; }
         public virtual DbSet<GrammarName> GrammarNames { get; set; }
         public virtual DbSet<GrammarItem> GrammarItems { get; set; }
         public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }

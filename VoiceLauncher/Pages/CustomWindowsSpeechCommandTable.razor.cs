@@ -47,6 +47,11 @@ namespace VoiceLauncher.Pages
         public List<string>? PropertyInfo { get; set; }
         [CascadingParameter] public ClaimsPrincipal? User { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
+        protected override async Task OnParametersSetAsync()
+        {
+            await LoadData();
+        }
+
         protected override async Task OnInitializedAsync()
         {
             await LoadData();

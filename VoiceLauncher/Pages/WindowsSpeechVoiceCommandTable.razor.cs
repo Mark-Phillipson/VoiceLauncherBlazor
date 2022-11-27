@@ -108,7 +108,7 @@ namespace VoiceLauncher.Pages
             if (CustomWindowsSpeechVoiceCommandDataService == null) return;
 
             var parameters = new ModalParameters();
-            var formModal = Modal?.Show<WindowsSpeechVoiceCommandAddEdit>("Add Windows Speech Voice Command", parameters);
+            var formModal = Modal?.Show<WindowsSpeechVoiceCommandAddEdit>("Add Voice Command", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -123,7 +123,7 @@ namespace VoiceLauncher.Pages
                     }
                     parameters = new ModalParameters();
                     parameters.Add(("WindowsSpeechVoiceCommandId"), parentCommand.Id);
-                    formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>("Add Action", parameters);
+                    formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>($"Add Action for {parentCommand.SpokenCommand}", parameters);
                     if (formModal != null)
                     {
                         result = await formModal.Result;
@@ -252,8 +252,8 @@ namespace VoiceLauncher.Pages
         {
             if (CreateCommands != null)
             {
-                //CreateCommands.CreateCommandsFromList("1to30", "Move Down");
-               CreateCommands.CreateCommandsFromList("1to30", "Move Up");
+                CreateCommands.CreateCommandsFromList("1to30", "Move Right");
+               //CreateCommands.CreateCommandsFromList("1to30", "Move Left");
 
             }
         }

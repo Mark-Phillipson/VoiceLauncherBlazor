@@ -34,13 +34,13 @@ namespace DataAccessLibrary
                 _context.SaveChanges();
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
-                if (spokenFormPrefix == "Move Down")
+                if (spokenFormPrefix == "Move Left")
                 {
-                    action.SendKeysValue = "{Down " + item.Value + "}";
+                    action.SendKeysValue = "{Left " + item.Value + "}";
                 }
                 else
                 {
-                    action.SendKeysValue = "{Up " + item.Value + "}";
+                    action.SendKeysValue = "{Right " + item.Value + "}";
                 }
                 //action.TextToEnter = $"{item.Value}";
                 _context.CustomWindowsSpeechCommands.Add(action);

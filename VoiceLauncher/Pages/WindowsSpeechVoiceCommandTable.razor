@@ -9,12 +9,12 @@
             <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" style="width:50px" />
             <label for="ShowAutoCreated">Show Auto Created</label>
             <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" />
-@*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>
-*@        </div>
+            @*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>*@
+        </div>
     </div>
     <div class="col-md-2">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
     </div>
 </div>
 
@@ -62,12 +62,13 @@ else
             @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO)
             {
                 <tr>
-@*                    <td>
-                        <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
-                            @windowsSpeechVoiceCommand.Id
-                        </a>
-                    </td>
-*@                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
+                    @*                    <td>
+            <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+            @windowsSpeechVoiceCommand.Id
+            </a>
+            </td>
+            *@
+                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
                     <td>@windowsSpeechVoiceCommand.AutoCreated</td>
@@ -94,4 +95,4 @@ else
             }
         </tbody>
     </table>
-    }
+}

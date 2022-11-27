@@ -49,6 +49,12 @@ builder.Services.AddScoped<IGrammarItemRepository, GrammarItemRepository>();
 builder.Services.AddScoped<IGrammarItemDataService, GrammarItemDataService>();
 builder.Services.AddScoped<IHtmlTagRepository, HtmlTagRepository>(); 
 builder.Services.AddScoped<IHtmlTagDataService, HtmlTagDataService>();
+builder.Services.AddScoped<IApplicationDetailRepository, ApplicationDetailRepository>(); 
+builder.Services.AddScoped<IApplicationDetailDataService, ApplicationDetailDataService>();
+builder.Services.AddScoped<IIdiosyncrasyRepository, IdiosyncrasyRepository>(); 
+builder.Services.AddScoped<IIdiosyncrasyDataService, IdiosyncrasyDataService>();
+builder.Services.AddScoped<IPhraseListGrammarRepository, PhraseListGrammarRepository>();
+builder.Services.AddScoped<IPhraseListGrammarDataService, PhraseListGrammarDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
