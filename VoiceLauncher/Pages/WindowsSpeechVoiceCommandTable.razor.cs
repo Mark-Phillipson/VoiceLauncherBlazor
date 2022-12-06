@@ -163,6 +163,15 @@ namespace VoiceLauncher.Pages
                     )
                     .ToList();
                 Title = $"Filtered Windows Speech Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO.Count})";
+                if (FilteredWindowsSpeechVoiceCommandDTO.Count < 4)
+                {
+                    _hideActions = false;
+                }
+                else
+                {
+                    _hideActions = true;
+                }
+
                 StateHasChanged();
             }
         }

@@ -98,6 +98,7 @@ namespace VoiceLauncher.Pages
 			else if (WindowsSpeechVoiceCommandId != null)
 			{
 				CustomWindowsSpeechCommandDTO.WindowsSpeechVoiceCommandId = (int)WindowsSpeechVoiceCommandId;
+
 			}
 			//if (WindowsSpeechVoiceCommandDataService != null && WindowsSpeechVoiceCommandId != null)
 			//{

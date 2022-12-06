@@ -131,6 +131,30 @@ namespace DataAccessLibrary.Repositories
                 .OrderBy(v => v.ApplicationTitle).ToListAsync();
              return applicationDetails;
         }
-
+        public async Task<IEnumerable<CommandsBreakdown>> GetBreakdown()
+        {
+            var context = _contextFactory.CreateDbContext();
+            List<WindowsSpeechVoiceCommand> result = await context.WindowsSpeechVoiceCommands.Where(v => v.ApplicationName.Length > 0).ToListAsync();
+            var breakdown =
+                result
+                //.Where(r => r.)
+                .ToList()
+                .GroupBy(a => new {
+                    a.ApplicationName,
+                })
+                //.OrderByDescending(a => a.Key.Year)
+                //.ThenByDescending(a => a.Key.Month)
+                .Select(g => new CommandsBreakdown
+                {
+                    ApplicationName = g.Key.ApplicationName,
+                    CountOfCommands = g.Count()
+                });
+            return breakdown;
+        }
+        public class CommandsBreakdown
+        {
+            public string ApplicationName { get; set; }
+            public int CountOfCommands { get; set; }
+        }
 	}
 }

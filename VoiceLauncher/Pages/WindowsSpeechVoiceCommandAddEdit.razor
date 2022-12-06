@@ -33,8 +33,14 @@
                                 <option value="@application.ApplicationTitle">@application.ApplicationTitle</option>
                             }
                         }
-                        <option value="">Global</option>
-
+                        @if (WindowsSpeechVoiceCommandDTO.ApplicationName == "Global")
+                        {
+                            <option value="Global" selected>Global</option>
+                        }
+                        else
+                        {
+                            <option value="Global">Global</option>
+                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.ApplicationName)" />
                 </div>

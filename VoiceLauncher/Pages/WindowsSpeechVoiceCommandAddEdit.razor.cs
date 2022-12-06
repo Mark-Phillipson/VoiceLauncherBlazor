@@ -29,10 +29,10 @@ namespace VoiceLauncher.Pages
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
-        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO(); //{ApplicationName="Global" };
+        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO() {ApplicationName="Global" };
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
-         private List<ApplicationDetail> ApplicationDetails { get; set; }
+         private List<ApplicationDetail>? ApplicationDetails { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
@@ -53,6 +53,7 @@ namespace VoiceLauncher.Pages
             }
             else
             {
+                WindowsSpeechVoiceCommandDTO.ApplicationName = "Global";
             }
         }
 
