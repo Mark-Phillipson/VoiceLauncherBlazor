@@ -1,0 +1,86 @@
+﻿
+@page "/launcherstable/{CategoryID:int}"
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="page-title m-1">@Title</h5>
+    </div>
+    <div class="col-md-1">
+        <a class="btn btn-primary btn-sm m-2" href="/category/@CategoryId"><i class="fas fa-arrow-left"></i></a>
+   </div>
+    <div class="col-md-4">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm" 
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Name/Command Line (Alt+I)" />
+    </div> 
+</div>
+
+@if (FilteredLauncherDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredLauncherDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredLauncherDTO.Count == 0)
+{
+    <p>No Launcher match the criteria</p>
+    <button @onclick="AddNewLauncherAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                <th>🚀</th>
+              <th>
+                    <button class="btn btn-sm" @onclick="@(() => SortLauncher("Name"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>
+                    <button class="btn btn-sm" @onclick="@(() => SortLauncher("Name Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Name
+                </th>
+              <th>
+                    <button class="btn btn-sm" @onclick="@(() => SortLauncher("CommandLine"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>
+                    <button class="btn btn-sm" @onclick="@(() => SortLauncher("CommandLine Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Command Line
+                </th>
+              <th>Computer</th>
+                <th>
+                    <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var launcher in FilteredLauncherDTO)
+            {
+                <tr>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))">🚀</button>
+                    </td>
+                    <td>@launcher.Name</td>
+                    <td>@launcher.CommandLine</td>
+                    <td>@launcher.ComputerId</td>
+                    <td class="btn-group">
+                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditLauncherAsync(launcher.Id))">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))">🚀</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

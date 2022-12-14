@@ -55,6 +55,10 @@ builder.Services.AddScoped<IIdiosyncrasyRepository, IdiosyncrasyRepository>();
 builder.Services.AddScoped<IIdiosyncrasyDataService, IdiosyncrasyDataService>();
 builder.Services.AddScoped<IPhraseListGrammarRepository, PhraseListGrammarRepository>();
 builder.Services.AddScoped<IPhraseListGrammarDataService, PhraseListGrammarDataService>();
+builder.Services.AddScoped<ILauncherRepository, LauncherRepository>();
+builder.Services.AddScoped<ILauncherDataService, LauncherDataService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryDataService, CategoryDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

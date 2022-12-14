@@ -167,7 +167,7 @@ namespace DataAccessLibrary.Models
                     .HasDatabaseName("IX_ComputerID");
 
                 entity.HasOne(d => d.Category)
-                    .WithMany(p => p.Launcher)
+                    .WithMany(p => p.Launchers)
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_dbo.Launcher_dbo.Categories_CategoryID");
 

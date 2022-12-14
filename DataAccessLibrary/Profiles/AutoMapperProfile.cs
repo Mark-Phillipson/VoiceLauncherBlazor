@@ -20,7 +20,8 @@ namespace DataAccessLibrary.Profiles
             CreateMap<ApplicationDetail, ApplicationDetailDTO>(); CreateMap<ApplicationDetailDTO, ApplicationDetail>();
             CreateMap<Idiosyncrasy, IdiosyncrasyDTO>(); CreateMap<IdiosyncrasyDTO, Idiosyncrasy>();
             CreateMap<PhraseListGrammar, PhraseListGrammarDTO>(); CreateMap<PhraseListGrammarDTO, PhraseListGrammar>();
-
+            CreateMap<Launcher, LauncherDTO>(); CreateMap<LauncherDTO, Launcher>();
+            CreateMap<Category, CategoryDTO>(); CreateMap<CategoryDTO, Category>();
         }
     }
 }

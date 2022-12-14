@@ -193,7 +193,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task LaunchItemAsync(string commandLine)
 		{
-			if (commandLine.ToLower().StartsWith("http"))
+			if (commandLine.Trim().ToLower().StartsWith("http"))
 			{
 				await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
 			}

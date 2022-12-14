@@ -13,7 +13,7 @@ namespace DataAccessLibrary.Models
         public Category()
         {
             CustomIntelliSense = new HashSet<CustomIntelliSense>();
-            Launcher = new HashSet<Launcher>();
+            Launchers = new HashSet<Launcher>();
         }
         [Key]
         [Column("ID")]
@@ -30,6 +30,6 @@ namespace DataAccessLibrary.Models
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
         [InverseProperty("Category")]
-        public virtual ICollection<Launcher> Launcher { get; set; }
+        public virtual ICollection<Launcher> Launchers { get; set; }
     }
 }

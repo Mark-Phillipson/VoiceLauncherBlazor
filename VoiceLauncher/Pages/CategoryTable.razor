@@ -1,0 +1,114 @@
+@page "/categoriestable"
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="page-title m-1">@Title</h5>
+    </div>
+    <div class="col-md-4">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Category/Category Type (Alt+I)" />
+    </div>
+</div>
+
+@if (FilteredCategoryDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredCategoryDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredCategoryDTO.Count == 0)
+{
+    <p>No Category match the criteria</p>
+    <button @onclick="AddNewCategoryAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+    @if (_ShowCards)
+    {
+        <div class="layout-as-cards">
+            @foreach (var category in FilteredCategoryDTO)
+            {
+                <a class="border border-danger" style="flex-wrap:wrap;display:flex" href="launcherstable/@category.Id">
+                    <div class="card-body">
+                        <h3 class="card-title">@category.CategoryName</h3>
+                        <div class="card-text">
+                            @if (category.Sensitive)
+                            {
+                                <span>Sensitive</span>
+                            }
+                        </div>
+                        <span>(@category.CountOfLaunchers)</span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Category"))">
+                            <i class="fas fa-sort-alpha-up"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Category Desc"))">
+                            <i class="fas fa-sort-alpha-up-alt"></i>
+                        </button>
+                        Category
+                    </th>
+                    <th>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("CategoryType"))">
+                            <i class="fas fa-sort-alpha-up"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("CategoryType Desc"))">
+                            <i class="fas fa-sort-alpha-up-alt"></i>
+                        </button>
+                        Category Type
+                    </th>
+                    <th>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Sensitive"))">
+                            <i class="fas fa-sort-alpha-up"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Sensitive Desc"))">
+                            <i class="fas fa-sort-alpha-up-alt"></i>
+                        </button>
+                        Sensitive
+                    </th>
+                    <th>
+                        <button accesskey="+" @onclick="       AddNewCategoryAsync" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in FilteredCategoryDTO)
+                {
+                    <tr>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditCategoryAsync(category.Id))">
+                                @category.Id
+                            </a>
+                        </td>
+                        <td>@category.CategoryName</td>
+                        <td>@category.CategoryType</td>
+                        <td>@category.Sensitive</td>
+                        <td class="btn-group-vertical">
+                            <button class="btn btn-sm btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

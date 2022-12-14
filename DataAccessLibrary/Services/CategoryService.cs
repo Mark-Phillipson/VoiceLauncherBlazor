@@ -28,7 +28,7 @@ namespace DataAccessLibrary.Services
 				try
 				{
 					//categories = context.Categories.OrderBy(v => v.CategoryName);
-					categories = context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launcher).OrderBy(v => v.CategoryName);
+					categories = context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launchers).OrderBy(v => v.CategoryName);
 				}
 				catch (Exception exception)
 				{
@@ -66,7 +66,9 @@ namespace DataAccessLibrary.Services
 		public async Task<Category> GetCategoryAsync(int categoryId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Category category = await context.Categories.Where(v => v.Id == categoryId).FirstOrDefaultAsync();
+			Category category = await context.Categories
+				.Include(i => i.Launchers)
+				.Where(v => v.Id == categoryId).FirstOrDefaultAsync();
 			return category;
 		}
 		public async Task<Category> GetCategoryAsync(int categoryId, string categoryType)

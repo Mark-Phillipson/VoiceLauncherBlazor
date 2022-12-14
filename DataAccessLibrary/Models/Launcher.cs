@@ -25,7 +25,7 @@ namespace DataAccessLibrary.Models
         public int? ComputerId { get; set; }
 
         [ForeignKey(nameof(CategoryId))]
-        [InverseProperty(nameof(Models.Category.Launcher))]
+        [InverseProperty(nameof(Models.Category.Launchers))]
         public virtual Category Category { get; set; }
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]
