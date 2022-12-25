@@ -57,7 +57,7 @@ namespace VoiceLauncher.Pages
             }
             if (CategoryDataService != null)
             {
-                _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications");
+                _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications",0);
             }
         }
 

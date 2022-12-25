@@ -42,8 +42,8 @@ else
 			@foreach (var language in LanguagesModel)
 			{
 			<div class="card m-1" style="width: 15rem;">
-				<a href="intellisensesL/@language.Id">
-					<div class="card-body">
+					<a href="categorieintellisensestable/@language.Id">
+						<div class="card-body" style="background-color:@language.Colour">
 						<h3 class="card-title">@language.LanguageName</h3>
 						<div class="card-text">
 							Active
@@ -89,6 +89,7 @@ else
 			<th>
 				<button accesskey="6" class="btn btn-sm btn-success" @onclick="SaveAllLanguages">Save All (6) <i class="oi oi-hard-drive"></i></button>
 			</th>
+			<th>Colour</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -112,6 +113,10 @@ else
 				<td>
 					@*<a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/language/@language.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>*@
 					<button accesskey="@(counter< 10 ? counter.ToString():"")" style="width:100%" class="btn btn-danger" @onclick="@(() => ConfirmDelete(language.Id))">Delete @(counter< 10 ? "(" +  counter.ToString() + ")":"") <i class="oi oi-circle-x"></i></button>
+				</td>
+				<td>
+							<span style="background-color:@language.Colour">Colour</span>
+							<button @onclick="@(() => EditLanguage(language.Id))" class="btn btn-warning btn-sm">Edit Language</button>
 				</td>
 			</tr>
 		}

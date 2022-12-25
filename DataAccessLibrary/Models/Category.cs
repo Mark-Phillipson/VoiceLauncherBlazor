@@ -27,6 +27,8 @@ namespace DataAccessLibrary.Models
         [Required(ErrorMessage = "The Category Type is required!")]
         public string CategoryType { get; set; }
         public bool Sensitive { get; set; } = false;
+        [StringLength(40)]
+        public string Colour { get; set; }
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
         [InverseProperty("Category")]

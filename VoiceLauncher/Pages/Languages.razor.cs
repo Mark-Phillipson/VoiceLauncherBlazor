@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class Languages
+	public partial class Languages
 	{
 		public Languages()
-        {
+		{
 
-        }
+		}
 		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }
 		public bool ShowAsCards { get; set; } = true;
@@ -18,7 +18,7 @@ namespace VoiceLauncher.Pages
 		public string? StatusMessage { get; set; }
 		//public List<VoiceLauncherBlazor.Models.GeneralLookup> generalLookups { get; set; }
 		private bool? ActiveFilter { get; set; } = null;
-		private string searchTerm="";
+		private string searchTerm = "";
 #pragma warning disable 414
 		private bool _loadFailed = false;
 #pragma warning restore 414
@@ -147,6 +147,12 @@ namespace VoiceLauncher.Pages
 			ActiveFilter = null;
 			await FilterActive();
 		}
-
+		public void EditLanguage(int languageId)
+		{
+			if (NavigationManager != null)
+			{
+				NavigationManager.NavigateTo($"language/{languageId}");
+			}
+		}
 	}
 }

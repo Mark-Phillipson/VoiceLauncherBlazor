@@ -30,6 +30,11 @@ else
                     <ValidationMessage For="@(() => LanguageModel.LanguageName)" />
                 </div>
                 <div class="form-field row">
+                    <label for="@LanguageModel.Colour" class="col-md-4"> Colour (0)</label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter Colour, must be unique" accesskey="0" id="Colour" @bind-Value="LanguageModel.Colour"></InputText>
+                    <ValidationMessage For="@(() => LanguageModel.Colour)" />
+                </div>
+                <div class="form-field row">
                     <label for="@LanguageModel.Active" class="col-md-4"> Active (1)</label>
                     <InputCheckbox accesskey="1" class="form-control-lg col-md-8" @bind-Value="LanguageModel.Active">
                     </InputCheckbox>

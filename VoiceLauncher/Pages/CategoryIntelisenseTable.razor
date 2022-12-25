@@ -1,14 +1,9 @@
-@page "/categoriestable"
+@page "/categorieintellisensestable/{LanguageId:int}"
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-7">
         <h5 class="page-title m-1">@Title</h5>
     </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <input title="Show Cards" class="form-control" type="checkbox" @bind="@_ShowCards" />
-        </div>
-    </div>
-
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
         @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Category/Category Type (Alt+I)" />
@@ -34,11 +29,11 @@ else
 {
     @if (_ShowCards)
     {
-        <div class="layout-as-cards">
+        <div class="layout-as-cards" >
             @foreach (var category in FilteredCategoryDTO)
             {
-                <a class="border border-danger" style="flex-wrap:wrap;display:flex" href="launcherstable/@category.Id">
-                    <div class="card-body" Style="background-color:@category.Colour">
+                <a class="border border-danger" style="flex-wrap:wrap;display:flex" href="intellisensesBoth/@LanguageId/@category.Id">
+                    <div class="card-body" style="background-color:@category.Colour">
                         <h3 class="card-title">@category.CategoryName</h3>
                         <div class="card-text">
                             @if (category.Sensitive)
@@ -46,7 +41,7 @@ else
                                 <span>Sensitive</span>
                             }
                         </div>
-                        <span>(@category.CountOfLaunchers)</span>
+                        <span>(@category.CountOfCustomIntellisense)</span>
                     </div>
                 </a>
             }

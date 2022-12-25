@@ -15,5 +15,6 @@ namespace VoiceLauncher.DTOs
         [Required]
         public int CategoryId { get; set; }
         public int? ComputerId { get; set; }
+
     }
 }

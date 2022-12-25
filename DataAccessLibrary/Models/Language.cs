@@ -20,7 +20,8 @@ namespace DataAccessLibrary.Models
         [Column("Language")]
         public string LanguageName { get; set; }
         public bool Active { get; set; }
-
+        [StringLength(40)]
+        public string Colour { get; set; }
         [InverseProperty("Language")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
     }

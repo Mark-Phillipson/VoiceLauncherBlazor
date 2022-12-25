@@ -26,6 +26,13 @@
                     </InputCheckbox>
                     <ValidationMessage For="@(() => CategoryDTO.Sensitive)" />
                 </div>
+                <div class="form-group">
+                    <label for="Colour">Colour:</label>
+                    <InputText id="Colour" class="form-control" @bind-Value="@CategoryDTO.Colour"
+                               placeholder="Enter Category"></InputText>
+                    <ValidationMessage For="@(() => CategoryDTO.Colour)" />
+                </div>
+
             </div>
             <div class="col-12">
                  @* Move here for the next display column if required *@

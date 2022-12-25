@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace VoiceLauncher.Repositories
 {
@@ -17,32 +18,58 @@ namespace VoiceLauncher.Repositories
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
 
-        public CategoryRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper)
+        public CategoryRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
             this._mapper = mapper;
         }
-		        public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows= 400, string categoryType="Launch Applications")
+        public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows = 400, string categoryType = "Launch Applications", int languageId = 0)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Categories= await context.Categories
-                .Include(i => i.Launchers)
-                .Where(v  => v.CategoryType==categoryType)
-                .OrderBy(v => v.CategoryName)
-                .Take(maxRows)
-                .ToListAsync();
-            IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
-            foreach (var category in CategoriesDTO)
+            List<Category> Categories = null;
+            if (languageId > 0)
             {
-                var tableCategory=Categories.Where(v => v.Id==category.Id).FirstOrDefault();
-                category.CountOfLaunchers= tableCategory.Launchers.Count;
+                Categories = await context.Categories
+                 .Include(i => i.CustomIntelliSense)
+                 .Where(v => v.CategoryType == categoryType && v.CustomIntelliSense.Count(c => c.LanguageId == languageId) > 0)
+                 .OrderBy(v => v.CategoryName)
+                 .Take(maxRows)
+                 .ToListAsync();
+
             }
-            return CategoriesDTO;
+            else
+            {
+                Categories = await context.Categories
+                    .Include(i => i.Launchers)
+                    .Where(v => v.CategoryType == categoryType )
+                    .OrderBy(v => v.CategoryName)
+                    .Take(maxRows)
+                    .ToListAsync();
+
+            }            
+            IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
+            if (languageId>0)
+            {
+                foreach (var category in CategoriesDTO)
+                {
+                    var tableCategory = Categories.Where(v => v.Id == category.Id).FirstOrDefault();
+                    category.CountOfCustomIntellisense=tableCategory.CustomIntelliSense.Where(v => v.LanguageId==languageId).Count();
+                }
+            }
+            else
+            {
+                foreach (var category in CategoriesDTO)
+                {
+                    var tableCategory = Categories.Where(v => v.Id == category.Id).FirstOrDefault();
+                    category.CountOfLaunchers = tableCategory.Launchers.Count;
+                }
+
+            }            return CategoriesDTO;
         }
         public async Task<IEnumerable<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Categories= await context.Categories
+            var Categories = await context.Categories
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
@@ -56,10 +83,10 @@ namespace VoiceLauncher.Repositories
         public async Task<CategoryDTO?> GetCategoryByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.Categories.AsNoTracking()
+            var result = await context.Categories.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            CategoryDTO categoryDTO=_mapper.Map<Category,CategoryDTO>(result);
+            CategoryDTO categoryDTO = _mapper.Map<Category, CategoryDTO>(result);
             return categoryDTO;
         }
 
@@ -77,13 +104,13 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            CategoryDTO resultDTO=_mapper.Map<Category, CategoryDTO>(category);
+            CategoryDTO resultDTO = _mapper.Map<Category, CategoryDTO>(category);
             return resultDTO;
         }
 
         public async Task<CategoryDTO?> UpdateCategoryAsync(CategoryDTO categoryDTO)
         {
-            Category category=_mapper.Map<CategoryDTO, Category>(categoryDTO);
+            Category category = _mapper.Map<CategoryDTO, Category>(categoryDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundCategory = await context.Categories.AsNoTracking().FirstOrDefaultAsync(e => e.Id == category.Id);

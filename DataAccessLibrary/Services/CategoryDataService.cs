@@ -19,9 +19,9 @@ namespace VoiceLauncher.Services
         {
             this._categoryRepository = categoryRepository;
         }
-        public async Task<List<CategoryDTO>> GetAllCategoriesAsync( string categoryType)
+        public async Task<List<CategoryDTO>> GetAllCategoriesAsync( string categoryType, int languageId)
         {
-            var Categories = await _categoryRepository.GetAllCategoriesAsync(300,categoryType);
+            var Categories = await _categoryRepository.GetAllCategoriesAsync(300,categoryType,languageId);
             return Categories.ToList();
         }
         public async Task<List<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm)

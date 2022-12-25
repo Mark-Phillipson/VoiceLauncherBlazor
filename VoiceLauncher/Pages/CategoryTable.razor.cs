@@ -61,7 +61,7 @@ namespace VoiceLauncher.Pages
             {
                 if (CategoryDataService != null)
                 {
-                    var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType);
+                    var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType,0);
                     //var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
                     if (result != null)
                     {

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 using System;
 using System.Collections.Generic;
@@ -23,23 +21,23 @@ using Ardalis.GuardClauses;
 using VoiceLauncher.Shared;
 using VoiceLauncher.Services;
 using VoiceLauncher.DTOs;
+using System.Diagnostics.Eventing.Reader;
+using Humanizer;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class LauncherTable : ComponentBase
+    public partial class CategoryIntelisenseTable : ComponentBase
     {
-        [Inject] public ILauncherDataService? LauncherDataService { get; set; }
+        [Parameter] public int LanguageId { get; set; } = 8;
         [Inject] public ICategoryDataService? CategoryDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
-        [Inject] public ILogger<LauncherTable>? Logger { get; set; }
+        [Inject] public ILogger<CategoryTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
         [CascadingParameter] public IModalService? Modal { get; set; }
-        public string Title { get; set; } = "Launcher Items (Launchers)";
-
-        [Parameter] public int CategoryId { get; set; }
-        public List<LauncherDTO>? LauncherDTO { get; set; }
-        public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
-        protected LauncherAddEdit? LauncherAddEdit { get; set; }
+        public string Title { get; set; } = "Category Items (Categories)";
+        public List<CategoryDTO>? CategoryDTO { get; set; }
+        public List<CategoryDTO>? FilteredCategoryDTO { get; set; }
+        protected CategoryAddEdit? CategoryAddEdit { get; set; }
         ElementReference SearchInput;
 #pragma warning disable 414, 649
         private bool _loadFailed = false;
@@ -51,6 +49,8 @@ namespace VoiceLauncher.Pages
         public List<string>? PropertyInfo { get; set; }
         [CascadingParameter] public ClaimsPrincipal? User { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
+        [Parameter] public string CategoryType { get; set; } = "IntelliSense Command";
+        private bool _ShowCards { get; set; } = true;
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
@@ -58,24 +58,18 @@ namespace VoiceLauncher.Pages
 
         private async Task LoadData()
         {
-            CategoryDTO? category = null;
             try
             {
-                if (LauncherDataService != null)
+                if (CategoryDataService != null)
                 {
-                    var result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
-                    //var result = await LauncherDataService.SearchLaunchersAsync(ServerSearchTerm);
+                    var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType,LanguageId);
+                    //var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
                     if (result != null)
                     {
-                        LauncherDTO = result.ToList();
+                        CategoryDTO = result.ToList();
                     }
                 }
 
-                if (CategoryDataService != null)
-                {
-                    category = await CategoryDataService.GetCategoryById(CategoryId);
-
-                }
             }
             catch (Exception e)
             {
@@ -83,8 +77,8 @@ namespace VoiceLauncher.Pages
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
-            FilteredLauncherDTO = LauncherDTO;
-            Title = $"Launcher Category: {category?.CategoryName} ({FilteredLauncherDTO?.Count})";
+            FilteredCategoryDTO = CategoryDTO;
+            Title = $"Category ({FilteredCategoryDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -93,7 +87,7 @@ namespace VoiceLauncher.Pages
             {
                 try
                 {
-                    if (JSRuntime != null)
+                    if (JSRuntime!= null )
                     {
                         await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
                     }
@@ -104,12 +98,10 @@ namespace VoiceLauncher.Pages
                 }
             }
         }
-        protected async Task AddNewLauncherAsync()
+        protected async Task AddNewCategoryAsync()
         {
             var parameters = new ModalParameters();
-
-            parameters.Add(nameof(CategoryId), CategoryId);
-            var formModal = Modal?.Show<LauncherAddEdit>("Add Launcher", parameters);
+            var formModal = Modal?.Show<CategoryAddEdit>("Add Category", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -122,86 +114,94 @@ namespace VoiceLauncher.Pages
 
         private void ApplyFilter()
         {
-            if (FilteredLauncherDTO == null || LauncherDTO == null)
+            if (FilteredCategoryDTO == null || CategoryDTO == null)
             {
                 return;
             }
             if (string.IsNullOrEmpty(SearchTerm))
             {
-                FilteredLauncherDTO = LauncherDTO.OrderBy(v => v.Name).ToList();
-                Title = $"All Launcher ({FilteredLauncherDTO.Count})";
+                FilteredCategoryDTO = CategoryDTO.OrderBy(v => v.CategoryName).ToList();
+                Title = $"All Category ({FilteredCategoryDTO.Count})";
             }
             else
             {
                 var temporary = SearchTerm.ToLower().Trim();
-                FilteredLauncherDTO = LauncherDTO
-                    .Where(v =>
-                    (v.Name != null && v.Name.ToLower().Contains(temporary))
-                     || (v.CommandLine != null && v.CommandLine.ToLower().Contains(temporary))
+                FilteredCategoryDTO = CategoryDTO
+                    .Where(v => 
+                    (v.CategoryName != null  && v.CategoryName.ToLower().Contains(temporary))
+                     || (v.CategoryType!= null  &&  v.CategoryType.ToLower().Contains(temporary))
                     )
                     .ToList();
-                Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
+                Title = $"Filtered Categorys ({FilteredCategoryDTO.Count})";
             }
         }
-        protected void SortLauncher(string sortColumn)
+        protected void SortCategory(string sortColumn)
         {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-            if (FilteredLauncherDTO == null)
+                        if (FilteredCategoryDTO == null)
             {
                 return;
             }
-            if (sortColumn == "Name")
+            if (sortColumn == "Category")
             {
-                FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(v => v.Name).ToList();
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderBy(v => v.CategoryName).ToList();
             }
-            else if (sortColumn == "Name Desc")
+            else if (sortColumn == "Category Desc")
             {
-                FilteredLauncherDTO = FilteredLauncherDTO.OrderByDescending(v => v.Name).ToList();
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderByDescending(v => v.CategoryName).ToList();
             }
-            if (sortColumn == "CommandLine")
+            if (sortColumn == "CategoryType")
             {
-                FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(v => v.CommandLine).ToList();
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderBy(v => v.CategoryType).ToList();
             }
-            else if (sortColumn == "CommandLine Desc")
+            else if (sortColumn == "CategoryType Desc")
             {
-                FilteredLauncherDTO = FilteredLauncherDTO.OrderByDescending(v => v.CommandLine).ToList();
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderByDescending(v => v.CategoryType).ToList();
+            }
+            if (sortColumn == "Sensitive")
+            {
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderBy(v => v.Sensitive).ToList();
+            }
+            else if (sortColumn == "Sensitive Desc")
+            {
+                FilteredCategoryDTO = FilteredCategoryDTO.OrderByDescending(v => v.Sensitive).ToList();
             }
         }
-        async Task DeleteLauncherAsync(int Id)
+        async Task DeleteCategoryAsync(int Id)
         {
             //Optionally remove child records here or warn about their existence
-            //var ? = await ?DataService.GetAllLauncher(Id);
+            //var ? = await ?DataService.GetAllCategory(Id);
             //if (? != null)
             //{
-            //	ToastService.ShowWarning($"It is not possible to delete a launcher that is linked to one or more companies! You would have to delete the companys first. {?.Count()}");
+            //	ToastService.ShowWarning($"It is not possible to delete a category that is linked to one or more companies! You would have to delete the companys first. {?.Count()}");
             //	return;
             //}
             var parameters = new ModalParameters();
-            if (LauncherDataService != null)
+            if (CategoryDataService != null)
             {
-                var launcher = await LauncherDataService.GetLauncherById(Id);
-                parameters.Add("Title", "Please Confirm, Delete Launcher");
-                parameters.Add("Message", $"Name: {launcher?.Name}");
+                var category = await CategoryDataService.GetCategoryById(Id);
+                parameters.Add("Title", "Please Confirm, Delete Category");
+                parameters.Add("Message", $"Category: {category?.CategoryName}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
-                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Launcher ({launcher?.Name})?", parameters);
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Category ({category?.CategoryName})?", parameters);
                 if (formModal != null)
                 {
                     var result = await formModal.Result;
                     if (!result.Cancelled)
                     {
-                        await LauncherDataService.DeleteLauncher(Id);
-                        ToastService?.ShowSuccess(" Launcher deleted successfully", "SUCCESS");
+                        await CategoryDataService.DeleteCategory(Id);
+                        ToastService?.ShowSuccess(" Category deleted successfully", "SUCCESS");
                         await LoadData();
                     }
                 }
             }
         }
-        async Task EditLauncherAsync(int Id)
+        async Task EditCategoryAsync(int Id)
         {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
-            var formModal = Modal?.Show<LauncherAddEdit>("Edit Launcher", parameters);
+            var formModal = Modal?.Show<CategoryAddEdit>("Edit Category", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -209,24 +209,6 @@ namespace VoiceLauncher.Pages
                 {
                     await LoadData();
                 }
-            }
-        }
-        private async Task LaunchItemAsync(string commandLine)
-        {
-            if (JSRuntime == null)
-            {
-                return;
-            }
-            if (commandLine.Trim().ToLower().StartsWith("http"))
-            {
-                await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
-            }
-            else
-            {
-                await JSRuntime.InvokeVoidAsync(
-                    "clipboardCopy.copyText", commandLine);
-                var message = $"Copied Successfully: '{commandLine}'";
-                ToastService!.ShowSuccess(message, "Copy Commandline");
             }
         }
     }

@@ -254,7 +254,11 @@ namespace VoiceLauncher.Pages
                 item.WindowsSpeechVoiceCommandId = result.Id;
                 var resultChildren = await CustomWindowsSpeechVoiceCommandDataService.AddCustomWindowsSpeechCommand(item);
             }
-            StateHasChanged();
+
+            if (NavigationManager != null )
+            {
+                NavigationManager.NavigateTo(NavigationManager.Uri, true);
+            }
 
         }
         private void CreateCommandsDirectly()

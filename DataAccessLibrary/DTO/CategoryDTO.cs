@@ -14,5 +14,7 @@ namespace VoiceLauncher.DTOs
         [Required]
         public bool Sensitive { get; set; }
          public int CountOfLaunchers { get; set; }
+        public int CountOfCustomIntellisense { get; set; }
+        public string Colour { get; set; }
     }
 }
