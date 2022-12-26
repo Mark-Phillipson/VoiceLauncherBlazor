@@ -74,7 +74,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<ApplicationDetailDTO?> UpdateApplicationDetailAsync(ApplicationDetailDTO applicationDetailDTO)
+        public async Task<ApplicationDetailDTO> UpdateApplicationDetailAsync(ApplicationDetailDTO applicationDetailDTO)
         {
             ApplicationDetail applicationDetail=_mapper.Map<ApplicationDetailDTO, ApplicationDetail>(applicationDetailDTO);
             using (var context = _contextFactory.CreateDbContext())

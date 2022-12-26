@@ -12,7 +12,7 @@ namespace VoiceLauncher.Repositories
         Task DeleteHtmlTagAsync(int Id);
         Task<IEnumerable<HtmlTagDTO>> GetAllHtmlTagsAsync(int maxRows);
         Task<IEnumerable<HtmlTagDTO>> SearchHtmlTagsAsync(string serverSearchTerm);
-        Task<HtmlTagDTO?> GetHtmlTagByIdAsync(int Id);
-        Task<HtmlTagDTO?> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO);
+        Task<HtmlTagDTO> GetHtmlTagByIdAsync(int Id);
+        Task<HtmlTagDTO> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO);
     }
 }

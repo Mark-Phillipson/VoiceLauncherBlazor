@@ -30,12 +30,12 @@ namespace VoiceLauncher.Services
             return GrammarNames.ToList();
         }
 
-        public async Task<GrammarNameDTO?> GetGrammarNameById(int Id)
+        public async Task<GrammarNameDTO> GetGrammarNameById(int Id)
         {
             var grammarName = await _grammarNameRepository.GetGrammarNameByIdAsync(Id);
             return grammarName;
         }
-        public async Task<GrammarNameDTO?> AddGrammarName(GrammarNameDTO grammarNameDTO)
+        public async Task<GrammarNameDTO> AddGrammarName(GrammarNameDTO grammarNameDTO)
         {
             Guard.Against.Null(grammarNameDTO);
             var result = await _grammarNameRepository.AddGrammarNameAsync(grammarNameDTO);
@@ -45,7 +45,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<GrammarNameDTO> UpdateGrammarName(GrammarNameDTO grammarNameDTO, string? username)
+        public async Task<GrammarNameDTO> UpdateGrammarName(GrammarNameDTO grammarNameDTO, string username)
         {
             Guard.Against.Null(grammarNameDTO);
             Guard.Against.Null(username);

@@ -12,7 +12,7 @@ namespace VoiceLauncher.Services
         Task<List<IdiosyncrasyDTO>> SearchIdiosyncrasiesAsync(string serverSearchTerm);
         Task<IdiosyncrasyDTO> AddIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO);
         Task<IdiosyncrasyDTO> GetIdiosyncrasyById(int Id);
-        Task<IdiosyncrasyDTO> UpdateIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO, string? username);
+        Task<IdiosyncrasyDTO> UpdateIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO, string username);
         Task DeleteIdiosyncrasy(int Id);
     }
 }

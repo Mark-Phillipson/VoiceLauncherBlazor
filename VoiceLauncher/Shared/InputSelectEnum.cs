@@ -42,10 +42,12 @@ namespace VoiceLauncher.Shared
             builder.CloseElement(); // close the select element
         }
 
-        protected override bool TryParseValueFromString(string value, out TEnum result, out string? validationErrorMessage)
+#pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
+        protected override bool TryParseValueFromString(string value, out TEnum? result, out string? validationErrorMessage)
+#pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
         {
             // Let's Blazor convert the value for us 😊
-            if (BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TEnum parsedValue))
+            if (BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TEnum? parsedValue))
             {
                 result = parsedValue;
                 validationErrorMessage = null;
@@ -72,7 +74,7 @@ namespace VoiceLauncher.Shared
         // Get the display text for an enum value:
         // - Use the DisplayAttribute if set on the enum member, so this support localization
         // - Fallback on Humanizer to decamelize the enum member name
-        private string GetDisplayName(object value)
+        private string? GetDisplayName(object value)
         {
             if (value== null )
             {

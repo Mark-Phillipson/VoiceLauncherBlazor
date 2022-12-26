@@ -33,7 +33,7 @@ else
     <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
-                <th>🚀</th>
+                <th class="text-center">🚀</th>
               <th>
                     <button class="btn btn-sm" @onclick="@(() => SortLauncher("Name"))">
                         <i class="fas fa-sort-alpha-up"></i>
@@ -63,11 +63,11 @@ else
         <tbody>
             @foreach (var launcher in FilteredLauncherDTO)
             {
-                <tr>
+                <tr >
                     <td>
                         <button class="btn btn-primary btn-sm" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))">🚀</button>
                     </td>
-                    <td>@launcher.Name</td>
+                    <td style="background-color:white;color:@RandomColour">@launcher.Name</td>
                     <td>@launcher.CommandLine</td>
                     <td>@launcher.ComputerId</td>
                     <td class="btn-group">

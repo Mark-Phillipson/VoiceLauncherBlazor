@@ -37,6 +37,6 @@ namespace DataAccessLibrary.DTO
         public int WaitTime { get; set; } = 100;
         [StringLength(55)]
         public string HowToFormatDictation { get; set; } = "Do Nothing";
-        public string? MethodToCall { get; set; }
+        public string MethodToCall { get; set; }
     }
 }

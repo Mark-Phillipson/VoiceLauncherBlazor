@@ -12,7 +12,7 @@ namespace VoiceLauncher.Services
         Task<List<GrammarNameDTO>> SearchGrammarNamesAsync(string serverSearchTerm);
         Task<GrammarNameDTO> AddGrammarName(GrammarNameDTO grammarNameDTO);
         Task<GrammarNameDTO> GetGrammarNameById(int Id);
-        Task<GrammarNameDTO> UpdateGrammarName(GrammarNameDTO grammarNameDTO, string? username);
+        Task<GrammarNameDTO> UpdateGrammarName(GrammarNameDTO grammarNameDTO, string username);
         Task DeleteGrammarName(int Id);
         Task<GrammarNameDTO> GetLatest();
     }

@@ -8,12 +8,17 @@
     
 }
 
-.card {
-    box-shadow: grey 2px 2px;
-}
 
-a {
+
+.layout-as-cards a {
     text-decoration: none;
     color: white;
-    margin:1rem;
+    margin: 1rem;
+    box-shadow: white 2px 2px;
+    border: solid;
+    border-color: ActiveBorder;
+    border-width: 1px;
+}
+.card-title {
+    color:#dcdde8;
 }

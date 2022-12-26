@@ -8,14 +8,14 @@ namespace VoiceLauncher.DTOs
         [Key]
         public int Id { get; set; }
         [StringLength(255)]
-        public string? Tag { get; set; }
+        public string Tag { get; set; }
         [StringLength(255)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
         [StringLength(255)]
-        public string? ListValue { get; set; }
+        public string ListValue { get; set; }
         [Required]
         public bool Include { get; set; }
         [StringLength(255)]
-        public string? SpokenForm { get; set; }
+        public string SpokenForm { get; set; }
     }
 }

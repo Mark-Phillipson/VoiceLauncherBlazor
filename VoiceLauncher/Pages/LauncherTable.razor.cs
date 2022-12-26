@@ -44,6 +44,7 @@ namespace VoiceLauncher.Pages
 #pragma warning disable 414, 649
         private bool _loadFailed = false;
         private string? searchTerm = null;
+        private string? _randomColor1;
 #pragma warning restore 414, 649
         public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
         [Parameter] public string? ServerSearchTerm { get; set; }
@@ -228,6 +229,13 @@ namespace VoiceLauncher.Pages
                 var message = $"Copied Successfully: '{commandLine}'";
                 ToastService!.ShowSuccess(message, "Copy Commandline");
             }
+        }
+         public  string RandomColour { get { _randomColor1 = GetColour(); return  _randomColor1; } set => _randomColor1 = value; }
+        public  string  GetColour()
+        {
+            var random = new Random();
+             return  String.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
+
         }
     }
 }

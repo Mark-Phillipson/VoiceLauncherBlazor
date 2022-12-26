@@ -114,11 +114,13 @@ namespace VoiceLauncher.Pages
 			FilteredTargetApplications = TargetApplications;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("name", out var name))
 			{
-				SearchTerm = name;
-			}
+                SearchTerm = $"{name}";
+            }
 			if (QueryHelpers.ParseQuery(query).TryGetValue("application", out var application))
 			{
-				SearchTermApplication = application;
+
+					SearchTermApplication = $"{application}" ; 
+
 			}
 			if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(SearchTermApplication))
 			{

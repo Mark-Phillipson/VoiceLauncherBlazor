@@ -77,7 +77,7 @@ namespace VoiceLauncher.Pages
                 ExceptionMessage = e.Message;
             }
             FilteredCategoryDTO = CategoryDTO;
-            Title = $"Category ({FilteredCategoryDTO?.Count})";
+            Title = $"Categories ({FilteredCategoryDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)

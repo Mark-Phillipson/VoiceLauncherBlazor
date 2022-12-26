@@ -95,7 +95,10 @@ namespace VoiceLauncher.Pages
         protected async Task AddNewSavedMousePositionAsync()
         {
             var parameters = new ModalParameters();
-            parameters.Add(nameof(User), User);
+            if (User != null )
+            {
+                parameters.Add(nameof(User), User); 
+            }
             var formModal = Modal?.Show<SavedMousePositionAddEdit>("Add Saved Mouse Position", parameters);
             if (formModal != null)
             {
@@ -179,7 +182,10 @@ namespace VoiceLauncher.Pages
         {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
-            parameters.Add(nameof(User), User);
+            if (User != null)
+            {
+                parameters.Add(nameof(User), User); 
+            }
             var formModal = Modal?.Show<SavedMousePositionAddEdit>("Edit Saved Mouse Position", parameters);
             if (formModal != null)
             {

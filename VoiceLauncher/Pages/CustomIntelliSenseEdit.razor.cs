@@ -60,11 +60,14 @@ namespace VoiceLauncher.Pages
 				var query = new Uri(NavigationManager!.Uri).Query;
 				if (QueryHelpers.ParseQuery(query).TryGetValue("languageId", out var languageId))
 				{
-					LanguageIdDefault = Int32.Parse(languageId);
+					LanguageIdDefault = Int32.Parse($"{languageId}");
 				}
 				if (QueryHelpers.ParseQuery(query).TryGetValue("categoryId", out var categoryId))
 				{
-					CategoryIdDefault = Int32.Parse(categoryId);
+					if (categoryId.ToString()!=  null )
+					{
+						CategoryIdDefault = Int32.Parse($"{categoryId}"); 
+					}
 				}
 				if (LanguageIdDefault != null)
 				{

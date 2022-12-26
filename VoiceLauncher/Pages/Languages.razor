@@ -41,9 +41,9 @@ else
 		<div class="layout-as-cards">
 			@foreach (var language in LanguagesModel)
 			{
-			<div class="card m-1" style="width: 15rem;">
+				<div class="card m-1" style="width: 15rem;background-color:@language.Colour">
 					<a href="categorieintellisensestable/@language.Id">
-						<div class="card-body" style="background-color:@language.Colour">
+						<div class="card-body" >
 						<h3 class="card-title">@language.LanguageName</h3>
 						<div class="card-text">
 							Active

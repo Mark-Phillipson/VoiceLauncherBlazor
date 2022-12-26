@@ -23,6 +23,7 @@ using DataAccessLibrary.DTO;
 using DataAccessLibrary.Services;
 using DataAccessLibrary.Models;
 using DataAccessLibrary;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace VoiceLauncher.Pages
 {
@@ -82,7 +83,7 @@ namespace VoiceLauncher.Pages
                 ExceptionMessage = e.Message;
             }
             FilteredWindowsSpeechVoiceCommandDTO = WindowsSpeechVoiceCommandDTO;
-            Title = $"Windows Speech Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO?.Count})";
+            Title = $"Windows Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)

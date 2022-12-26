@@ -80,7 +80,7 @@ namespace VoiceLauncher.Repositories
             return CategoriesDTO;
         }
 
-        public async Task<CategoryDTO?> GetCategoryByIdAsync(int Id)
+        public async Task<CategoryDTO> GetCategoryByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.Categories.AsNoTracking()
@@ -90,7 +90,7 @@ namespace VoiceLauncher.Repositories
             return categoryDTO;
         }
 
-        public async Task<CategoryDTO?> AddCategoryAsync(CategoryDTO categoryDTO)
+        public async Task<CategoryDTO> AddCategoryAsync(CategoryDTO categoryDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Category category = _mapper.Map<CategoryDTO, Category>(categoryDTO);
@@ -108,7 +108,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<CategoryDTO?> UpdateCategoryAsync(CategoryDTO categoryDTO)
+        public async Task<CategoryDTO> UpdateCategoryAsync(CategoryDTO categoryDTO)
         {
             Category category = _mapper.Map<CategoryDTO, Category>(categoryDTO);
             using (var context = _contextFactory.CreateDbContext())

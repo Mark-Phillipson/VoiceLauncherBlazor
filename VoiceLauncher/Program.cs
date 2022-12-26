@@ -19,7 +19,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredToast();
 builder.Services.AddBlazoredModal();
 var config = builder.Configuration;
-string connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
+string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CreateCommands>();

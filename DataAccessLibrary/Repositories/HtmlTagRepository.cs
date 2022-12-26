@@ -74,7 +74,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<HtmlTagDTO?> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO)
+        public async Task<HtmlTagDTO> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO)
         {
             HtmlTag htmlTag=_mapper.Map<HtmlTagDTO, HtmlTag>(htmlTagDTO);
             using (var context = _contextFactory.CreateDbContext())

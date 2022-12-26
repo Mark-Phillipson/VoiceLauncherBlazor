@@ -46,7 +46,7 @@ namespace VoiceLauncher.Repositories
             return LaunchersDTO;
         }
 
-        public async Task<LauncherDTO?> GetLauncherByIdAsync(int Id)
+        public async Task<LauncherDTO> GetLauncherByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result =await context.Launcher.AsNoTracking()
@@ -56,7 +56,7 @@ namespace VoiceLauncher.Repositories
             return launcherDTO;
         }
 
-        public async Task<LauncherDTO?> AddLauncherAsync(LauncherDTO launcherDTO)
+        public async Task<LauncherDTO> AddLauncherAsync(LauncherDTO launcherDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Launcher launcher = _mapper.Map<LauncherDTO, Launcher>(launcherDTO);
@@ -74,7 +74,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<LauncherDTO?> UpdateLauncherAsync(LauncherDTO launcherDTO)
+        public async Task<LauncherDTO> UpdateLauncherAsync(LauncherDTO launcherDTO)
         {
             Launcher launcher=_mapper.Map<LauncherDTO, Launcher>(launcherDTO);
             using (var context = _contextFactory.CreateDbContext())

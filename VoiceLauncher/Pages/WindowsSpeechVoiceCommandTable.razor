@@ -35,14 +35,14 @@ else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0)
 }
 else
 {
-    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+    <table style="" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
                 <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand"))">
+                    <button class="btn" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand Desc"))">
+                    <button class="btn" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
                     Spoken Command
@@ -52,7 +52,7 @@ else
                 <th>Auto Created</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-lg">
-                       Add <i class="fas fa-plus"></i>
+                        Add <i class="fas fa-plus"></i>
                     </button>
                     <button class="btn btn-danger btn-lg" type="button" @onclick="@( () => LoadData() )">Refresh <i class="fa-solid fa-arrows-rotate"></i></button>
                 </th>
@@ -63,23 +63,32 @@ else
             {
                 <tr>
                     @*                    <td>
-            <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+            <a href="#" class="btn btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
             @windowsSpeechVoiceCommand.Id
             </a>
             </td>
             *@
-                    <td>@windowsSpeechVoiceCommand.SpokenCommand</td>
+                    <td style="font-size:xx-large">@windowsSpeechVoiceCommand.SpokenCommand</td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
-                    <td>@windowsSpeechVoiceCommand.AutoCreated</td>
+                    <td style="font-size:xx-large;text-align:center">
+                        @if (windowsSpeechVoiceCommand.AutoCreated)
+                        {
+                            <i class="fa-regular fa-square-check"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-xmark"></i>
+                        }
+                    </td>
                     <td class="btn-group">
-                        <button class="btn btn-sm btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-warning" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-danger" @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>

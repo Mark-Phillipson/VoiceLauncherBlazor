@@ -37,7 +37,7 @@ else
         <div class="layout-as-cards">
             @foreach (var category in FilteredCategoryDTO)
             {
-                <a class="border border-danger" style="flex-wrap:wrap;display:flex" href="launcherstable/@category.Id">
+                <a href="launcherstable/@category.Id">
                     <div class="card-body" Style="background-color:@category.Colour">
                         <h3 class="card-title">@category.CategoryName</h3>
                         <div class="card-text">
@@ -59,34 +59,34 @@ else
                 <tr>
                     <th>ID</th>
                     <th>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Category"))">
+                        <button class="btn" @onclick="@(() => SortCategory("Category"))">
                             <i class="fas fa-sort-alpha-up"></i>
                         </button>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Category Desc"))">
+                        <button class="btn" @onclick="@(() => SortCategory("Category Desc"))">
                             <i class="fas fa-sort-alpha-up-alt"></i>
                         </button>
                         Category
                     </th>
                     <th>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("CategoryType"))">
+                        <button class="btn" @onclick="@(() => SortCategory("CategoryType"))">
                             <i class="fas fa-sort-alpha-up"></i>
                         </button>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("CategoryType Desc"))">
+                        <button class="btn" @onclick="@(() => SortCategory("CategoryType Desc"))">
                             <i class="fas fa-sort-alpha-up-alt"></i>
                         </button>
                         Category Type
                     </th>
                     <th>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Sensitive"))">
+                        <button class="btn" @onclick="@(() => SortCategory("Sensitive"))">
                             <i class="fas fa-sort-alpha-up"></i>
                         </button>
-                        <button class="btn btn-sm" @onclick="@(() => SortCategory("Sensitive Desc"))">
+                        <button class="btn" @onclick="@(() => SortCategory("Sensitive Desc"))">
                             <i class="fas fa-sort-alpha-up-alt"></i>
                         </button>
                         Sensitive
                     </th>
                     <th>
-                        <button accesskey="+" @onclick="       AddNewCategoryAsync" class="btn btn-success btn-sm">
+                        <button accesskey="+" @onclick="       AddNewCategoryAsync" class="btn btn-success">
                             <i class="fas fa-plus"></i>
                         </button>
                     </th>
@@ -97,7 +97,7 @@ else
                 {
                     <tr>
                         <td>
-                            <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditCategoryAsync(category.Id))">
+                            <a href="#" class="btn btn-link" @onclick="@(() => EditCategoryAsync(category.Id))">
                                 @category.Id
                             </a>
                         </td>
@@ -105,10 +105,10 @@ else
                         <td>@category.CategoryType</td>
                         <td>@category.Sensitive</td>
                         <td class="btn-group-vertical">
-                            <button class="btn btn-sm btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
+                            <button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
+                            <button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
