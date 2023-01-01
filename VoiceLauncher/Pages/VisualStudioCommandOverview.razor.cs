@@ -1,11 +1,16 @@
 ﻿using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
+
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.JSInterop;
+
 using System.Security.Claims;
+
 using VoiceLauncher.Shared;
 
 namespace VoiceLauncher.Pages
@@ -16,11 +21,12 @@ namespace VoiceLauncher.Pages
 		[Inject] NavigationManager? NavigationManager { get; set; }
 		[Inject] public ILogger<VisualStudioCommandOverview>? Logger { get; set; }
 		[Inject] public IToastService? ToastService { get; set; }
+		[Inject] public IJSRuntime? JSRuntime { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
 		ElementReference SearchInput;
 		public string Title { get; set; } = "Visual Studio Commands";
-		private string searchTerm="";
+		private string searchTerm = "";
 		public string SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
 
 		public List<VisualStudioCommand>? VisualStudioCommands { get; set; }
@@ -106,6 +112,18 @@ namespace VoiceLauncher.Pages
 			{
 				FilteredVisualStudioCommands = FilteredVisualStudioCommands!.OrderBy(o => o.Command).ToList();
 			}
+		}
+		public async Task CopyAsync(string value)
+		{
+			if (JSRuntime == null)
+			{
+				return;
+			}
+			await JSRuntime.InvokeVoidAsync(
+	"clipboardCopy.copyText", value);
+			var message = $"Copied Successfully: '{value}'";
+			ToastService!.ShowSuccess(message, "Copy Commandline");
+
 		}
 	}
 }

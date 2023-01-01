@@ -30,6 +30,7 @@ else
 	<table class="table table-bordered table-striped table-sm" id="table1">
 		<thead>
 			<tr>
+				<th></th>
 				<th>
 					Caption
 				</th>
@@ -44,6 +45,9 @@ else
 			@foreach (var visualstudiocommand in FilteredVisualStudioCommands)
 			{
 			<tr>
+				<td>
+						<button class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyAsync( visualstudiocommand.Caption ) )"><i class="fa-regular fa-copy"></i></button>
+				</td>
 				<td>@visualstudiocommand.Caption</td>
 				<td>@visualstudiocommand.Command</td>
 				@*<td class="btn-group">

@@ -23,7 +23,8 @@ namespace DataAccessLibrary.Models
         public int CategoryId { get; set; }
         [Column("ComputerID")]
         public int? ComputerId { get; set; }
-
+        [StringLength(30)]
+        public string Colour { get; set; } = "#000080";
         [ForeignKey(nameof(CategoryId))]
         [InverseProperty(nameof(Models.Category.Launchers))]
         public virtual Category Category { get; set; }

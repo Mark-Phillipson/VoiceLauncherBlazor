@@ -36,7 +36,7 @@
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" @oninput="LoadData" class="form-control col-md-1" />
     <div class="col-md-2">
-        <BlazoredTypeahead accesskey="3" SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="LanguageIdFilter" placeholder="filter language (3)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
+@*        <BlazoredTypeahead accesskey="3" SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="LanguageIdFilter" placeholder="filter language (3)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
             <SelectedTemplate Context="languageId">
                 @{
                     if (languageId != null)
@@ -53,9 +53,9 @@
                 Sorry, no language matched the search result.
             </NotFoundTemplate>
         </BlazoredTypeahead>
-    </div>
+*@    </div>
     <div class="col-md-2">
-        <BlazoredTypeahead accesskey="4" SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="CategoryIdFilter" placeholder="filter category (4)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
+  @*      <BlazoredTypeahead accesskey="4" SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="CategoryIdFilter" placeholder="filter category (4)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
             <SelectedTemplate Context="categoryId">
                 @{
                     var selectedCategory = LoadSelectedCategory(categoryId);
@@ -68,7 +68,7 @@
             <NotFoundTemplate>
                 Sorry, no categories matched the search result.
             </NotFoundTemplate>
-        </BlazoredTypeahead>
+        </BlazoredTypeahead>*@
     </div>
 
 </div>

@@ -218,9 +218,9 @@ namespace VoiceLauncher.Pages
             {
                 return;
             }
-            if (commandLine.Trim().ToLower().StartsWith("http"))
+            if (commandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
             {
-                await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
+                NavigationManager.NavigateTo(commandLine,true,false);
             }
             else
             {
