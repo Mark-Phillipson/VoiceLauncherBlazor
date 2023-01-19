@@ -59,6 +59,8 @@ builder.Services.AddScoped<ILauncherRepository, LauncherRepository>();
 builder.Services.AddScoped<ILauncherDataService, LauncherDataService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryDataService, CategoryDataService>();
+builder.Services.AddScoped<IValueToInsertRepository, ValueToInsertRepository>();
+builder.Services.AddScoped<IValueToInsertDataService, ValueToInsertDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

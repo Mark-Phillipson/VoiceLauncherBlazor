@@ -46,7 +46,7 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<MultipleLauncher> MultipleLauncher { get; set; }
         public virtual DbSet<PropertyTabPositions> PropertyTabPositions { get; set; }
         public virtual DbSet<SavedMousePosition> SavedMousePosition { get; set; }
-        public virtual DbSet<ValuesToInsert> ValuesToInsert { get; set; }
+        public virtual DbSet<ValueToInsert> ValuesToInsert { get; set; }
         public virtual DbSet<ViewCategories> ViewCategories { get; set; }
         public virtual DbSet<ViewComputers> ViewComputers { get; set; }
         public virtual DbSet<ViewCustomIntelliSense> ViewCustomIntelliSense { get; set; }

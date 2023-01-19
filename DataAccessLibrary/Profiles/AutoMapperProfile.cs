@@ -22,6 +22,7 @@ namespace DataAccessLibrary.Profiles
             CreateMap<PhraseListGrammar, PhraseListGrammarDTO>(); CreateMap<PhraseListGrammarDTO, PhraseListGrammar>();
             CreateMap<Launcher, LauncherDTO>(); CreateMap<LauncherDTO, Launcher>();
             CreateMap<Category, CategoryDTO>(); CreateMap<CategoryDTO, Category>();
+            CreateMap<ValueToInsert, ValueToInsertDTO>(); CreateMap<ValueToInsertDTO, ValueToInsert>();
         }
     }
 }
