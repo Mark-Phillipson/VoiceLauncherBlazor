@@ -93,7 +93,7 @@ namespace VoiceLauncher.Pages
 		}
 		async Task DeleteLanguage(int languageId)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -126,7 +126,7 @@ namespace VoiceLauncher.Pages
 		}
 		async Task SaveAllLanguages()
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;

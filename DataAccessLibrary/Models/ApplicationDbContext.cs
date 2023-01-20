@@ -74,7 +74,7 @@ namespace DataAccessLibrary.Models
                 }
                 else
                 {
-                    optionsBuilder.UseSqlServer("Data Source=DESKTOP-UROO8T1;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                    optionsBuilder.UseSqlServer("Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
                 }
             }
         }

@@ -155,11 +155,11 @@ namespace DataAccessLibrary.Services
 		{
 			if (isKB)
 			{
-				if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null && viewNew == false)
+				if (Environment.MachineName == "J40L4V3" && filename == null && viewNew == false)
 				{
 					filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml";
 				}
-				if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null && viewNew == true)
+				if (Environment.MachineName == "J40L4V3" && filename == null && viewNew == true)
 				{
 					filename = @"C:\Users\MPhil\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommandsNewCommands.xml";
 				}
@@ -184,7 +184,7 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				if (Environment.MachineName == "DESKTOP-UROO8T1" && filename == null)
+				if (Environment.MachineName == "J40L4V3" && filename == null)
 				{
 					filename = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\MyCommands.xml";
 				}

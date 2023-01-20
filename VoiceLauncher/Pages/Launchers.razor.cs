@@ -121,7 +121,7 @@ namespace VoiceLauncher.Pages
 		}
 		async Task DeleteLauncher(int launcherId)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				StatusMessage = "This demo application does not allow Deleting!";
 				return;
@@ -143,7 +143,7 @@ namespace VoiceLauncher.Pages
 
 		async Task SaveAllLaunchers()
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				StatusMessage = "This demo application does not allow saving!";
 				return;

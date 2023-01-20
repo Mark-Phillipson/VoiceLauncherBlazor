@@ -39,7 +39,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async void EditTodo(Todo todoEdit)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -70,7 +70,7 @@ namespace VoiceLauncher.Pages
 
 		private async Task DeleteTodo(int todoId)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -83,7 +83,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task ArchiveTodo(int todoId)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -123,7 +123,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task InsertTodo()
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -143,7 +143,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task ChangeCompleted(int todoId, bool completed)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -155,7 +155,7 @@ namespace VoiceLauncher.Pages
 		}
 		private async Task SaveTodo()
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;
@@ -173,7 +173,7 @@ namespace VoiceLauncher.Pages
 		}
 		async Task SetPriorityAsync(int todoId,bool increase)
 		{
-			if (Environment.MachineName != "DESKTOP-UROO8T1")
+			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
 				return;

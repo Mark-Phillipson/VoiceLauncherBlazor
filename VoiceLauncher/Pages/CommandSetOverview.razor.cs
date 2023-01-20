@@ -66,7 +66,7 @@ namespace VoiceLauncher.Pages
 		public bool ShowCode { get; set; } = false;
 		protected override void OnInitialized()
 		{
-			if (Environment.MachineName == "DESKTOP-UROO8T1")
+			if (Environment.MachineName == "J40L4V3")
 			{
 				ViewNew = false;
 			}

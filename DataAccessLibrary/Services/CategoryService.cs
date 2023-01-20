@@ -35,7 +35,7 @@ namespace DataAccessLibrary.Services
 					Console.WriteLine(exception.Message);
 					return null;
 				}
-				if (Environment.MachineName != "DESKTOP-UROO8T1")
+				if (Environment.MachineName != "J40L4V3")
 				{
 					categories = categories.Where(v => v.Sensitive == false);
 				}
