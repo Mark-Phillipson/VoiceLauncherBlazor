@@ -71,5 +71,9 @@ namespace DataAccessLibrary.Services
             var result = await _windowsSpeechVoiceCommandRepository.GetAllApplicationDetails();
             return result;
         }
+        public async Task<List<CommandsBreakdown>> GetCommandsBreakdown() {
+            var result = await _windowsSpeechVoiceCommandRepository.GetCommandsBreakdown();
+            return result;
+        }
     }
 }

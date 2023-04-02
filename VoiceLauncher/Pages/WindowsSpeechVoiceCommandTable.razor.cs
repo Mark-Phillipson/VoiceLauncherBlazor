@@ -1,34 +1,18 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using System.Net.Http;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
-using Microsoft.JSInterop;
+using Ardalis.GuardClauses;
 using Blazored.Modal;
 using Blazored.Modal.Services;
-using Blazored.Toast;
 using Blazored.Toast.Services;
-using System.Security.Claims;
-using Ardalis.GuardClauses;
-using VoiceLauncher.Shared;
+using DataAccessLibrary;
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Services;
-using DataAccessLibrary.Models;
-using DataAccessLibrary;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System.Diagnostics.Tracing;
+using System.Security.Cryptography;
+using VoiceLauncher.Shared;
 
-namespace VoiceLauncher.Pages
-{
-    public partial class WindowsSpeechVoiceCommandTable : ComponentBase
-    {
+namespace VoiceLauncher.Pages {
+    public partial class WindowsSpeechVoiceCommandTable : ComponentBase {
         [Inject] public CreateCommands? CreateCommands { get; set; }
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
         [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechVoiceCommandDataService { get; set; }
@@ -54,82 +38,76 @@ namespace VoiceLauncher.Pages
         private bool _hideActions { get; set; } = true;
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         private bool _showAutoCreated { get; set; } = false;
-        protected override async Task OnInitializedAsync()
-        {
+        private List<CommandsBreakdown>? _commandsBreakdown;
+        int commandCount=0;
+        protected override async Task OnInitializedAsync() {
             await LoadData();
         }
 
-        private async Task LoadData()
-        {
-            try
-            {
-                if (WindowsSpeechVoiceCommandDataService != null)
-                {
-                    var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated, 16);
-                    Updated = DateTime.Now;
-                    //var result = await WindowsSpeechVoiceCommandDataService.SearchWindowsSpeechVoiceCommandsAsync(ServerSearchTerm);
-                    if (result != null)
-                    {
+        private async Task LoadData() {
+            try {
+                if (WindowsSpeechVoiceCommandDataService != null) {
+                    List<WindowsSpeechVoiceCommandDTO> result;
+                    if (ServerSearchTerm != null ) {
+
+                        _hideActions = false;
+                        result = await WindowsSpeechVoiceCommandDataService.SearchWindowsSpeechVoiceCommandsAsync(ServerSearchTerm);
+                    }
+                    else {
+                        result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated, 16);
+                        Updated = DateTime.Now;
+                    }
+                    if (result != null) {
                         WindowsSpeechVoiceCommandDTO = result
                             .OrderByDescending(o => o.Id).ToList();
                     }
+                    _commandsBreakdown = await WindowsSpeechVoiceCommandDataService.GetCommandsBreakdown();
+                    commandCount = _commandsBreakdown.Sum(x => x.Number);
                 }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Logger?.LogError("Exception occurred in LoadData Method, Getting Records from the Service", e);
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
             FilteredWindowsSpeechVoiceCommandDTO = WindowsSpeechVoiceCommandDTO;
-            Title = $"Windows Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO?.Count})";
+            Title = $"Windows Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO?.Count}) of {commandCount}";
 
         }
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                try
-                {
-                    if (JSRuntime != null)
-                    {
+        protected override async Task OnAfterRenderAsync(bool firstRender) {
+            if (firstRender) {
+                try {
+                    if (JSRuntime != null) {
                         await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
                     }
                 }
-                catch (Exception exception)
-                {
+                catch (Exception exception) {
                     Console.WriteLine(exception.Message);
                 }
             }
         }
-        protected async Task AddNewWindowsSpeechVoiceCommandAsync()
-        {
+        protected async Task AddNewWindowsSpeechVoiceCommandAsync() {
             if (WindowsSpeechVoiceCommandDataService == null) return;
             if (CustomWindowsSpeechVoiceCommandDataService == null) return;
 
             var parameters = new ModalParameters();
             var formModal = Modal?.Show<WindowsSpeechVoiceCommandAddEdit>("Add Voice Command", parameters);
-            if (formModal != null)
-            {
+            if (formModal != null) {
                 var result = await formModal.Result;
-                if (!result.Cancelled)
-                {
+                if (!result.Cancelled) {
                     var parentCommand = await WindowsSpeechVoiceCommandDataService.GetLatestAdded();
                     var customWindowsSpeechCommands = await CustomWindowsSpeechVoiceCommandDataService.GetAllCustomWindowsSpeechCommandsAsync(parentCommand.Id);
-                    if (customWindowsSpeechCommands.Count()>0 )
-                    {
+                    if (customWindowsSpeechCommands.Count() > 0) {
                         await LoadData();
                         return;
                     }
                     parameters = new ModalParameters();
                     parameters.Add(("WindowsSpeechVoiceCommandId"), parentCommand.Id);
                     formModal = Modal?.Show<CustomWindowsSpeechCommandAddEdit>($"Add Action for {parentCommand.SpokenCommand}", parameters);
-                    if (formModal != null)
-                    {
+                    if (formModal != null) {
                         result = await formModal.Result;
-                        if (!result.Cancelled)
-                        {
+                        if (!result.Cancelled) {
                             await LoadData();
                         }
                     }
@@ -137,22 +115,17 @@ namespace VoiceLauncher.Pages
             }
         }
 
-        private async void ApplyFilter( bool filterFromServer=true)
-        {
-            if (FilteredWindowsSpeechVoiceCommandDTO == null || WindowsSpeechVoiceCommandDTO == null)
-            {
+        private async void ApplyFilter(bool filterFromServer = true) {
+            if (FilteredWindowsSpeechVoiceCommandDTO == null || WindowsSpeechVoiceCommandDTO == null) {
                 return;
             }
-            if (string.IsNullOrEmpty(SearchTerm))
-            {
+            if (string.IsNullOrEmpty(SearchTerm)) {
                 FilteredWindowsSpeechVoiceCommandDTO = WindowsSpeechVoiceCommandDTO.OrderBy(v => v.SpokenCommand).ToList();
                 Title = $"All Windows Speech Voice Command ({FilteredWindowsSpeechVoiceCommandDTO.Count})";
             }
-            else
-            {
+            else {
                 var temporary = SearchTerm.ToLower().Trim();
-                if (filterFromServer)
-                {
+                if (filterFromServer) {
                     var result = await WindowsSpeechVoiceCommandDataService!.GetAllWindowsSpeechVoiceCommandsAsync(_showAutoCreated, 1000);
                     WindowsSpeechVoiceCommandDTO = result;
                 }
@@ -164,36 +137,29 @@ namespace VoiceLauncher.Pages
                     )
                     .ToList();
                 Title = $"Filtered Windows Speech Voice Commands ({FilteredWindowsSpeechVoiceCommandDTO.Count})";
-                if (FilteredWindowsSpeechVoiceCommandDTO.Count < 4)
-                {
+                if (FilteredWindowsSpeechVoiceCommandDTO.Count < 4) {
                     _hideActions = false;
                 }
-                else
-                {
+                else {
                     _hideActions = true;
                 }
 
                 StateHasChanged();
             }
         }
-        protected void SortWindowsSpeechVoiceCommand(string sortColumn)
-        {
+        protected void SortWindowsSpeechVoiceCommand(string sortColumn) {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-            if (FilteredWindowsSpeechVoiceCommandDTO == null)
-            {
+            if (FilteredWindowsSpeechVoiceCommandDTO == null) {
                 return;
             }
-            if (sortColumn == "SpokenCommand")
-            {
+            if (sortColumn == "SpokenCommand") {
                 FilteredWindowsSpeechVoiceCommandDTO = FilteredWindowsSpeechVoiceCommandDTO.OrderBy(v => v.SpokenCommand).ToList();
             }
-            else if (sortColumn == "SpokenCommand Desc")
-            {
+            else if (sortColumn == "SpokenCommand Desc") {
                 FilteredWindowsSpeechVoiceCommandDTO = FilteredWindowsSpeechVoiceCommandDTO.OrderByDescending(v => v.SpokenCommand).ToList();
             }
         }
-        async Task DeleteWindowsSpeechVoiceCommandAsync(int Id)
-        {
+        async Task DeleteWindowsSpeechVoiceCommandAsync(int Id) {
             //Optionally remove child records here or warn about their existence
             //var ? = await ?DataService.GetAllWindowsSpeechVoiceCommand(Id);
             //if (? != null)
@@ -202,19 +168,16 @@ namespace VoiceLauncher.Pages
             //	return;
             //}
             var parameters = new ModalParameters();
-            if (WindowsSpeechVoiceCommandDataService != null)
-            {
+            if (WindowsSpeechVoiceCommandDataService != null) {
                 var windowsSpeechVoiceCommand = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById(Id);
                 parameters.Add("Title", "Please Confirm, Delete Windows Speech Voice Command");
                 parameters.Add("Message", $"SpokenCommand: {windowsSpeechVoiceCommand?.SpokenCommand}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
                 var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete  Windows Speech Voice Command ({windowsSpeechVoiceCommand?.SpokenCommand})?", parameters);
-                if (formModal != null)
-                {
+                if (formModal != null) {
                     var result = await formModal.Result;
-                    if (!result.Cancelled)
-                    {
+                    if (!result.Cancelled) {
                         await WindowsSpeechVoiceCommandDataService.DeleteWindowsSpeechVoiceCommand(Id);
                         ToastService?.ShowSuccess(" Windows Speech Voice Command deleted successfully", "SUCCESS");
                         await LoadData();
@@ -222,54 +185,51 @@ namespace VoiceLauncher.Pages
                 }
             }
         }
-        async Task EditWindowsSpeechVoiceCommandAsync(int Id)
-        {
+        async Task EditWindowsSpeechVoiceCommandAsync(int Id) {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
             var formModal = Modal?.Show<WindowsSpeechVoiceCommandAddEdit>("Edit Windows Speech Voice Command", parameters);
-            if (formModal != null)
-            {
+            if (formModal != null) {
                 var result = await formModal.Result;
-                if (!result.Cancelled)
-                {
+                if (!result.Cancelled) {
                     await LoadData();
                 }
             }
         }
-        async Task CopyWindowsSpeechVoiceCommandAsync(int id)
-        {
+        async Task CopyWindowsSpeechVoiceCommandAsync(int id) {
             WindowsSpeechVoiceCommandDTO? original = null;
             if (WindowsSpeechVoiceCommandDataService == null || CustomWindowsSpeechVoiceCommandDataService == null) { return; }
             original = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById(id);
             if (original == null) { return; }
-            WindowsSpeechVoiceCommandDTO newCommand = new WindowsSpeechVoiceCommandDTO()
-            {
+            WindowsSpeechVoiceCommandDTO newCommand = new WindowsSpeechVoiceCommandDTO() {
                 SpokenCommand = $"Copy of {original.SpokenCommand}",
                 Description = original.Description
             };
             WindowsSpeechVoiceCommandDTO result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(newCommand);
             List<CustomWindowsSpeechCommandDTO> originalChildren = await CustomWindowsSpeechVoiceCommandDataService.GetAllCustomWindowsSpeechCommandsAsync(original.Id);
-            foreach (CustomWindowsSpeechCommandDTO item in originalChildren)
-            {
+            foreach (CustomWindowsSpeechCommandDTO item in originalChildren) {
                 item.Id = 0;
                 item.WindowsSpeechVoiceCommandId = result.Id;
                 var resultChildren = await CustomWindowsSpeechVoiceCommandDataService.AddCustomWindowsSpeechCommand(item);
             }
 
-            if (NavigationManager != null )
-            {
+            if (NavigationManager != null) {
                 NavigationManager.NavigateTo(NavigationManager.Uri, true);
             }
 
         }
-        private void CreateCommandsDirectly()
-        {
-            if (CreateCommands != null)
-            {
+        private void CreateCommandsDirectly() {
+            if (CreateCommands != null) {
                 CreateCommands.CreateCommandsFromList("1to30", "Move Right");
-               //CreateCommands.CreateCommandsFromList("1to30", "Move Left");
+                //CreateCommands.CreateCommandsFromList("1to30", "Move Left");
 
             }
+        }
+        private async Task ResetServerFilterAsync()
+        {
+            ServerSearchTerm = null;
+            _hideActions = true;
+             await LoadData();
         }
     }
 }

@@ -5,13 +5,20 @@
     </div>
     <div class="col-md-4">
         <div class="form-group">
-            <input title="Show Cards" class="form-control" type="checkbox" @bind="@_ShowCards" />
+            <div class="row">
+                <div class="col-3">
+                    <label>Show Cards</label>
+                </div>
+                <div class="col-9">
+                    <input title="Show Cards" class="form-control" type="checkbox" @bind="@_ShowCards" />
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Category/Category Type (Alt+I)" />
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Category (Alt+I)" />
     </div>
 </div>
 
@@ -37,7 +44,7 @@ else
         <div class="layout-as-cards">
             @foreach (var category in FilteredCategoryDTO)
             {
-                <a href="launcherstable/@category.Id">
+                <a class="btn btn-lg btn-outline-dark" href="launcherstable/@category.Id">
                     <div class="card-body" Style="background-color:@category.Colour">
                         <h3 class="card-title">@category.CategoryName</h3>
                         <div class="card-text">

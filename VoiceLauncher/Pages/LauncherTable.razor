@@ -1,10 +1,11 @@
 ﻿@page "/launcherstable/{CategoryID:int}"
 <div class="row">
-    <div class="col-md-7">
+    <div class="col-md-4">
         <h5 class="page-title m-1">@Title</h5>
     </div>
-    <div class="col-md-1">
-        <a class="btn btn-primary btn-sm m-2" href="/category/@CategoryId"><i class="fas fa-arrow-left"></i></a>
+    <div class="col-md-4">
+        <a class="btn btn-primary m-2" href="/categoriestable/">Category Cards <i class="fas fa-arrow-left"></i></a>
+        <a class="btn btn-info m-2" href="/category/@CategoryId">Category <i class="fas fa-arrow-left"></i></a>
     </div>
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
@@ -67,11 +68,11 @@ else
                     <td>
                         @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
-                            <a class="btn btn-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
                         }
                         else
                         {
-                            <button class="btn btn-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
+                            <button class="btn btn-outline-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
                         }
                     </td>
                     <td>@launcher.Name</td>
@@ -86,11 +87,11 @@ else
                         </button>
                         @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
-                            <a class="btn btn-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
                         }
                         else
                         {
-                            <button class="btn btn-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
+                            <button class="btn btn-outline-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
                         }
                     </td>
                 </tr>

@@ -17,5 +17,6 @@ namespace DataAccessLibrary.Services
         Task DeleteWindowsSpeechVoiceCommand(int Id);
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
         Task<List<ApplicationDetail>> GetAllApplicationDetails();
+        Task<List<CommandsBreakdown>> GetCommandsBreakdown();
     }
 }

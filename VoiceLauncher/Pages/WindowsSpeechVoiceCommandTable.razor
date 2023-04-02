@@ -1,4 +1,5 @@
 @page "/windowsspeechvoicecommands"
+@page "/windowsspeechvoicecommands/{ServerSearchTerm}"
 <div class="row">
     <div class="col-md-4">
         <h5 class="page-title m-1">@Title</h5>
@@ -8,33 +9,29 @@
             <label for="HideActions">Hide Actions (Alt+1) </label>
             <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" style="width:50px" />
             <label for="ShowAutoCreated">Show Auto Created</label>
-            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" />
+            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" style="width:50px" />
             @*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>*@
         </div>
     </div>
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
+               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
     </div>
 </div>
 
-@if (FilteredWindowsSpeechVoiceCommandDTO == null && _loadFailed == true)
-{
+@if (FilteredWindowsSpeechVoiceCommandDTO == null && _loadFailed == true) {
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
     <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
-else if (FilteredWindowsSpeechVoiceCommandDTO == null)
-{
+else if (FilteredWindowsSpeechVoiceCommandDTO == null) {
     <div style="display:normal;margin:auto" class="loader"></div>
 }
-else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0)
-{
+else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0) {
     <p>No Windows Speech Voice Command match the criteria</p>
     <button @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
 }
-else
-{
+else {
     <table style="" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
@@ -54,13 +51,12 @@ else
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-lg">
                         Add <i class="fas fa-plus"></i>
                     </button>
-                    <button class="btn btn-danger btn-lg" type="button" @onclick="@( () => LoadData() )">Refresh <i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="btn btn-danger btn-lg" type="button" @onclick="@( () => ResetServerFilterAsync() )">Refresh <i class="fa-solid fa-arrows-rotate"></i></button>
                 </th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO)
-            {
+            @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO) {
                 <tr>
                     @*                    <td>
             <a href="#" class="btn btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
@@ -72,12 +68,10 @@ else
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
                     <td style="font-size:xx-large;text-align:center">
-                        @if (windowsSpeechVoiceCommand.AutoCreated)
-                        {
+                        @if (windowsSpeechVoiceCommand.AutoCreated) {
                             <i class="fa-regular fa-square-check"></i>
                         }
-                        else
-                        {
+                        else {
                             <i class="fa-solid fa-xmark"></i>
                         }
                     </td>
@@ -93,8 +87,7 @@ else
                         </button>
                     </td>
                 </tr>
-                @if (!_hideActions)
-                {
+                @if (!_hideActions) {
                     <tr>
                         <td colspan="4">
                             <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" Updated="Updated" />
@@ -104,4 +97,25 @@ else
             }
         </tbody>
     </table>
+}
+@if (_commandsBreakdown != null) {
+    <h2> Command Breakdown</h2>
+
+    <table class="table table-bordered table-striped" id="table1">
+        <tr>
+            <th> Application Name </th>
+            <th> Auto Created? </th>
+            <th> Count </th>
+        </tr>
+        @foreach (var item in _commandsBreakdown) {
+
+            <tr>
+                <td>@item.ApplicationName</td>
+                <td>@item.AutoCreated</td>
+                <td>@item.Number</td>
+
+            </tr>
+        }
+    </table>
+
 }

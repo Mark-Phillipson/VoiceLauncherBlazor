@@ -16,5 +16,6 @@ namespace DataAccessLibrary.Repositories
         Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
 		Task<List<ApplicationDetail>> GetAllApplicationDetails();
-	}
+        Task< List<CommandsBreakdown>> GetCommandsBreakdown();
+    }
 }

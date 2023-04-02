@@ -39,10 +39,10 @@ namespace DataAccessLibrary.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var WindowsSpeechVoiceCommands = await context.WindowsSpeechVoiceCommands
-                //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-                //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-                //)
-                //.OrderBy(v => v.?)
+                .Where(v => v.ApplicationName != null && v.ApplicationName.ToLower().Contains(serverSearchTerm.ToLower())
+                || v.SpokenCommand != null && v.SpokenCommand.ToLower().Contains(serverSearchTerm.ToLower())
+                )
+                .OrderBy(v => v.SpokenCommand)
                 .Take(1000)
                 .ToListAsync();
             IEnumerable<WindowsSpeechVoiceCommandDTO> WindowsSpeechVoiceCommandsDTO = _mapper.Map<List<WindowsSpeechVoiceCommand>, IEnumerable<WindowsSpeechVoiceCommandDTO>>(WindowsSpeechVoiceCommands);
@@ -131,30 +131,20 @@ namespace DataAccessLibrary.Repositories
                 .OrderBy(v => v.ApplicationTitle).ToListAsync();
              return applicationDetails;
         }
-        public async Task<IEnumerable<CommandsBreakdown>> GetBreakdown()
-        {
+        
+        public async Task<List<CommandsBreakdown>> GetCommandsBreakdown() {
             var context = _contextFactory.CreateDbContext();
-            List<WindowsSpeechVoiceCommand> result = await context.WindowsSpeechVoiceCommands.Where(v => v.ApplicationName.Length > 0).ToListAsync();
-            var breakdown =
-                result
-                //.Where(r => r.)
-                .ToList()
-                .GroupBy(a => new {
-                    a.ApplicationName,
-                })
-                //.OrderByDescending(a => a.Key.Year)
-                //.ThenByDescending(a => a.Key.Month)
-                .Select(g => new CommandsBreakdown
-                {
-                    ApplicationName = g.Key.ApplicationName,
-                    CountOfCommands = g.Count()
-                });
+            List<WindowsSpeechVoiceCommand> result = await context.WindowsSpeechVoiceCommands
+                .Where(v => v.ApplicationName.Length > 0).ToListAsync();
+            var breakdown = result
+               .GroupBy(a =>  new { a.ApplicationName,a.AutoCreated })
+               .Select(g => new CommandsBreakdown {
+                   ApplicationName = g.Key.ApplicationName,
+                   AutoCreated = g.Key.AutoCreated,
+                   Number = g.Count()
+               }).ToList();
             return breakdown;
         }
-        public class CommandsBreakdown
-        {
-            public string ApplicationName { get; set; }
-            public int CountOfCommands { get; set; }
-        }
+
 	}
 }

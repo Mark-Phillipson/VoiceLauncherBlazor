@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace DataAccessLibrary.Models
 {
@@ -76,6 +77,10 @@ namespace DataAccessLibrary.Models
                 {
                     optionsBuilder.UseSqlServer("Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
                 }
+#if DEBUG
+                optionsBuilder.LogTo(message => Debug.WriteLine(message));
+#endif
+
             }
         }
 

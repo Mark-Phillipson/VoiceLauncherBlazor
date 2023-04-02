@@ -61,7 +61,7 @@ namespace VoiceLauncher.Pages
             {
                 if (CategoryDataService != null)
                 {
-                    var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType,0);
+                    var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, 0);
                     //var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
                     if (result != null)
                     {
@@ -86,7 +86,7 @@ namespace VoiceLauncher.Pages
             {
                 try
                 {
-                    if (JSRuntime!= null )
+                    if (JSRuntime != null)
                     {
                         await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
                     }
@@ -126,9 +126,9 @@ namespace VoiceLauncher.Pages
             {
                 var temporary = SearchTerm.ToLower().Trim();
                 FilteredCategoryDTO = CategoryDTO
-                    .Where(v => 
-                    (v.CategoryName != null  && v.CategoryName.ToLower().Contains(temporary))
-                     || (v.CategoryType!= null  &&  v.CategoryType.ToLower().Contains(temporary))
+                    .Where(v =>
+                    (v.CategoryName != null && v.CategoryName.ToLower().Contains(temporary))
+                     || (v.CategoryType != null && v.CategoryType.ToLower().Contains(temporary))
                     )
                     .ToList();
                 Title = $"Filtered Categorys ({FilteredCategoryDTO.Count})";
@@ -137,7 +137,7 @@ namespace VoiceLauncher.Pages
         protected void SortCategory(string sortColumn)
         {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-                        if (FilteredCategoryDTO == null)
+            if (FilteredCategoryDTO == null)
             {
                 return;
             }

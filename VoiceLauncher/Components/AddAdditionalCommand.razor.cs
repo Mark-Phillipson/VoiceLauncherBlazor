@@ -43,7 +43,7 @@ namespace VoiceLauncher.Components
 		{
 			await AdditionalCommandService!.SaveAdditionalCommand(AdditionalCommand);
 			await ModalInstance!.CloseAsync(ModalResult.Ok(true));
-			ToastService!.ShowSuccess($"{AdditionalCommand.SendKeysValue} Saved successfully.", "Success");
+			ToastService!.ShowSuccess($"{AdditionalCommand.SendKeysValue} Saved successfully.","SUCCESS");
 		}
 	}
 }
