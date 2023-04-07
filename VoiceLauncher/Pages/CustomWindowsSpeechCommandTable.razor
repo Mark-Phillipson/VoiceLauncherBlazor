@@ -113,7 +113,7 @@ else
                     @if (customWindowsSpeechCommand.SendKeysValue != null)
                     {
                         <th>Send Keys Value</th>
-                        <td>@customWindowsSpeechCommand.SendKeysValue</td>
+                        <td style="font-size:large">@customWindowsSpeechCommand.SendKeysValue</td>
                     }
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">

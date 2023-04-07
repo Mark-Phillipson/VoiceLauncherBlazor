@@ -30,7 +30,7 @@ namespace DataAccessLibrary
 		}
 		public Task<List<string>> GetProjects()
 		{
-			string sql = $"SELECT Project FROM {table} WHERE Archived=0 And Project IS NOT NULL GROUP BY Project";
+			string sql = $"SELECT Project FROM {table} WHERE Archived=0 And Project IS NOT NULL AND Completed=0 GROUP BY Project";
 			return _db.LoadData<string, dynamic>(sql, new { });
 		}
 		public Task<Todo> GetTodo(int Id)
