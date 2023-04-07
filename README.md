@@ -10,10 +10,9 @@ An example screenshot of commands follows:
 
 * Also provided by the tables is the ability to launch any application, folder or website:
 
-![Launch by Category]()
-![Social Links]()
+![Launch by Category](VoiceLauncher/wwwroot/images/LauncherCategories.png)
+![Social Links](VoiceLauncher/wwwroot/images/LauncherSocialLinks.png)
 
-* Functionality also exist to Search and filter Visual Studio Menu commands. These can then be used with the following Visual Studio extension to activate by voice:
+ Application also has a Popular Commands page that lists all the main commands to code with voice in Visual Studio and Visual Studio Code:
 
-* https://marketplace.visualstudio.com/items?itemName=MadsKristensen.VoiceCommands
-
+ ![Popular Commands](VoiceLauncher/wwwroot/images/PopularCommands.png)
