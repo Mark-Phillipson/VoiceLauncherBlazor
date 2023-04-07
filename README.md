@@ -8,7 +8,10 @@ An example screenshot of commands follows:
 ![Voice Command Main Form](VoiceLauncher/wwwroot/images/VoiceCommandsScreenshot.png)
 ![Action Voice Command Edit Form](VoiceLauncher/wwwroot/images/ActionVoiceCommand.png)
 
-* Also provided by the tables is the ability to launch any application, folder or website.
+* Also provided by the tables is the ability to launch any application, folder or website:
+
+![Launch by Category]()
+![Social Links]()
 
 * Functionality also exist to Search and filter Visual Studio Menu commands. These can then be used with the following Visual Studio extension to activate by voice:
 
