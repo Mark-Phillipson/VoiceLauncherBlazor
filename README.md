@@ -16,3 +16,7 @@ An example screenshot of commands follows:
  Application also has a Popular Commands page that lists all the main commands to code with voice in Visual Studio and Visual Studio Code:
 
  ![Popular Commands](VoiceLauncher/wwwroot/images/PopularCommands.png)
+
+ * Custom intellisense is used to insert code at a specific location. It can be called by saying a language and a category or just searching a description:
+
+ ![List Of Languages](VoiceLauncher/wwwroot/images/ListOfLanguages.png)
