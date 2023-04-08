@@ -20,6 +20,7 @@ namespace VoiceLauncher.Pages
 		public List<string> Projects { get; set; } = new List<string>();
 		public string? ProjectFilter { get; set; }
 		public string? StatusMessage { get; set; }
+		public bool ShowProjects { get; set; } = false;
 		private int PercentDone
 		{
 			get
@@ -191,6 +192,15 @@ namespace VoiceLauncher.Pages
 			await LoadData();
 			StatusMessage = $"Priority Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
 			todo = new Todo { Project = Project };
+		}
+		void  ToggleShowProjects()
+		{
+			ShowProjects = !ShowProjects;
+		}
+		 async Task FilterByProjectAsync( string project)
+		{
+			ProjectFilter = project;
+			 await ApplyFilter();
 		}
 	}
 }
