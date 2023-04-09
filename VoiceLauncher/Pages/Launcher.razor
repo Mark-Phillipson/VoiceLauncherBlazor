@@ -46,6 +46,11 @@ else
 					<ValidationMessage For="@(() => LauncherModel.Name)" />
 				</div>
 				<div class="form-field row">
+					<label for="@LauncherModel.Icon" class="col-md-4"> Icon</label>
+					<InputText class="col-md-8 form-control" placeholder="Popular Icon" id="Icon" @bind-Value="LauncherModel.Icon" @onblur="@(e => CallChangeAsync("Icon"))" ></InputText >
+					<ValidationMessage For="@(() => LauncherModel.Icon)" />
+				</div>
+				<div class="form-field row">
 					<label for="@LauncherModel.CommandLine" class="col-md-4"> Command Line (1) *️⃣</label>
 					<InputTextArea rows="3" class="col-md-8 form-control" placeholder="Enter the Command Line" accesskey="1" id="CommandLine" @bind-Value="LauncherModel.CommandLine"></InputTextArea>
 					<ValidationMessage For="@(() => LauncherModel.CommandLine)" />

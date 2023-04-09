@@ -9,7 +9,7 @@
     </div>
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Name/Command Line (Alt+I)" />
+               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Name/Command Line (Alt+I)" />
     </div>
 </div>
 
@@ -54,7 +54,8 @@ else
                 </th>
                 <th>Computer</th>
                 <th>
-                    <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">Add 
+                    <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">
+                        Add
                         <i class="fas fa-plus"></i>
                     </button>
                 </th>
@@ -65,10 +66,17 @@ else
             {
                 var newColor = RandomColour;
                 <tr>
-                    <td>
+                    <td class="text-center align-middle">
                         @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
-                            <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                            {
+                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="25" src='/images/@launcher.Icon' /></a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            }
                         }
                         else
                         {
@@ -87,7 +95,14 @@ else
                         </button>
                         @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
-                            <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                            {
+                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="25" src='/images/@launcher.Icon' /></a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            }
                         }
                         else
                         {

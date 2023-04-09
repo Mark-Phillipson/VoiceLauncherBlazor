@@ -11,10 +11,15 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="Name">Name:</label> <i class="text-danger fa">*</i>
-
                     <InputText id="Name" class="form-control" @bind-Value="@LauncherDTO.Name"
                                placeholder="Enter Name"></InputText>
                     <ValidationMessage For="@(() => LauncherDTO.Name)" />
+                </div>
+                <div class="form-group">
+                    <label for="Icon">Icon:</label> 
+                    <InputText id="Icon" class="form-control" @bind-Value="@LauncherDTO.Icon"
+                               placeholder="Enter Icon"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Icon)" />
                 </div>
                 <div class="form-group">
                     <label for="CommandLine">Command Line: </label>                    <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
