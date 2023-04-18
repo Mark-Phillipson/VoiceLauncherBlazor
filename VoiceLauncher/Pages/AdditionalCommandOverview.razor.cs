@@ -17,7 +17,7 @@ using VoiceLauncher.Components;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class AdditionalCommandOverview
+    public partial class AdditionalCommandOverview:ComponentBase
     {
         [Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
         

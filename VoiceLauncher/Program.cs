@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using VoiceLauncher.Services;
 using DataAccessLibrary.Repositories;
 using VoiceLauncher.Repositories;
+using SampleApplication.Repositories;
+using SampleApplication.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryDataService, CategoryDataService>();
 builder.Services.AddScoped<IValueToInsertRepository, ValueToInsertRepository>();
 builder.Services.AddScoped<IValueToInsertDataService, ValueToInsertDataService>();
+builder.Services.AddScoped<ISpokenFormRepository, SpokenFormRepository>();
+builder.Services.AddScoped<ISpokenFormDataService, SpokenFormDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

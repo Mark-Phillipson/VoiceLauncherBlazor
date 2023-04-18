@@ -24,9 +24,9 @@ namespace DataAccessLibrary.Services
             var WindowsSpeechVoiceCommands = await _windowsSpeechVoiceCommandRepository.GetAllWindowsSpeechVoiceCommandsAsync(maxRows, showAutoCreated);
             return WindowsSpeechVoiceCommands.ToList();
         }
-        public async Task<List<WindowsSpeechVoiceCommandDTO>> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm)
+        public List<WindowsSpeechVoiceCommandDTO> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm)
         {
-            var WindowsSpeechVoiceCommands = await _windowsSpeechVoiceCommandRepository.SearchWindowsSpeechVoiceCommandsAsync(serverSearchTerm);
+            var WindowsSpeechVoiceCommands = _windowsSpeechVoiceCommandRepository.SearchWindowsSpeechVoiceCommandsAsync(serverSearchTerm);
             return WindowsSpeechVoiceCommands.ToList();
         }
 
@@ -74,6 +74,11 @@ namespace DataAccessLibrary.Services
         public async Task<List<CommandsBreakdown>> GetCommandsBreakdown() {
             var result = await _windowsSpeechVoiceCommandRepository.GetCommandsBreakdown();
             return result;
+        }
+        public async Task<List<SpokenForm>> GetSpokenFormsAsync(List<WindowsSpeechVoiceCommandDTO> result)
+        {
+             var returnValue= await _windowsSpeechVoiceCommandRepository.GetSpokenFormsAsync(result);
+            return returnValue;
         }
     }
 }

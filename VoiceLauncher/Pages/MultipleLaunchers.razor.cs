@@ -1,8 +1,9 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class MultipleLaunchers
+    public partial class MultipleLaunchers : ComponentBase
     {
         public bool ShowDialog { get; set; }
         public int MultipleLauncherIdDelete { get; set; }

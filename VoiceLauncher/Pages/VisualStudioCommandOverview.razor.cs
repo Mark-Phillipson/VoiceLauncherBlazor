@@ -15,7 +15,7 @@ using VoiceLauncher.Shared;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class VisualStudioCommandOverview
+	public partial class VisualStudioCommandOverview:ComponentBase
 	{
 		[Inject] public VisualStudioCommandService? VisualStudioCommandService { get; set; }
 		[Inject] NavigationManager? NavigationManager { get; set; }

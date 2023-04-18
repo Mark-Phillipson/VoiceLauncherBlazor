@@ -4,150 +4,153 @@
 @if (Project == null)
 {
 
-    <header>
-        <div class="row">
-            <div class="col-2">
-                <h3>☑️ Todos</h3>
-            </div>
-            <div class="col-2">
+	<header>
+		<div class="row">
+			<div class="col-2">
+				<h3>☑️ Todos</h3>
+			</div>
+			<div class="col-2">
 
-                <input placeholder="Filter by title/description (Alt+1)" class="form-control" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
-            </div>
-            <div class="col-8">
-                @if (Project == null)
-                {
-                    <button class="btn btn-success" type="button" @onclick="@( ( ) => ToggleShowProjects(  ) )">
-                        <i class="fa-solid fa-greater-than"></i>
-                    </button>
-                    @if (ShowProjects)
-                    {
-                        <div class="layout-as-cards">
-                            @foreach (var item in Projects)
-                            {
-                                <a class="btn btn-lg btn-outline-dark" @onclick="@(() => FilterByProjectAsync( item ))">
-                                    <div class="card-body">
-                                        <h5 class="card-title">@item</h5>
-                                        <div class="card-text">
-                                        </div>
-                                    </div>
-                                </a>
-                            }
-                        </div>
-                    }
-                }
-            </div>
+				<input placeholder="Filter by title/description (Alt+1)" class="form-control" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
+			</div>
+			<div class="col-8">
+				@if (Project == null)
+				{
+					<button class="btn btn-success" type="button" @onclick="@( ( ) => ToggleShowProjects(  ) )">
+						<i class="fa-solid fa-greater-than"></i>
+					</button>
+					@if (ShowProjects)
+					{
+						<div class="layout-as-cards">
+							@foreach (var item in Projects)
+							{
+								<a class="btn btn-lg btn-outline-dark" @onclick="@(() => FilterByProjectAsync( item ))">
+									<div class="card-body">
+										<h5 class="card-title">@item</h5>
+										<div class="card-text">
+										</div>
+									</div>
+								</a>
+							}
+						</div>
+					}
+				}
+			</div>
 
-        </div>
-        @if (StatusMessage != null)
-        {
-            @*			<Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
-        }
-    </header>
-    <a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
-    <EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
+		</div>
+		@if (StatusMessage != null)
+		{
+			@*			<Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
+		}
+	</header>
+	<a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
+	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
 
-    <h4>Current Todos</h4>
+	<h4>Current Todos</h4>
 }
 @if (LoadFailed)
 {
-    <div class="text-danger">The data failed to load please try again later!</div>
+	<div class="text-danger">The data failed to load please try again later!</div>
 }
 else if (todos == null)
 {
-    <Loading />
+	<Loading />
 }
 else
 {
-    @if (todos.Count > 0)
-    {
-        <div class="progress my-2">
-            <div class="progress-bar" role="progressbar" style="width:@(PercentDone)%" aria-valuemin="0" aria-valuemax="100">
-                @(PercentDone)%
-            </div>
-        </div>
-    }
+	@if (todos.Count > 0)
+	{
+		<div class="progress my-2">
+			<div class="progress-bar" role="progressbar" style="width:@(PercentDone)%" aria-valuemin="0" aria-valuemax="100">
+				@(PercentDone)%
+			</div>
+		</div>
+	}
 
-    <table class="table table-bordered table-striped table-responsive table-sm" id="table1">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Done</th>
-                @if (Project == null)
-                {
-                    <th>Project</th>
-                    <th>Action</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var todo in todos)
-            {
-                <tr>
-                    @if (todo.Completed != true)
-                    {
-                        <td>
-                            @todo.Title
-                            <br>
-                            <div class="btn-group">
-                                <button class="btn btn-danger btn-lg" type="button" @onclick="@( ( ) =>
+	<table class="table table-bordered table-striped table-responsive table-sm" id="table1">
+		<thead>
+			<tr>
+				<th>Priority</th>
+				<th>Title</th>
+				<th>Description</th>
+				<th>Done</th>
+				@if (Project == null)
+				{
+					<th>Project</th>
+					<th>Action</th>
+				}
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var todo in todos)
+			{
+				<tr>
+					@if (todo.Completed != true)
+					{
+						<td>
+							<div class="btn-group">
+								<button class="btn btn-outline-danger btn-lg" type="button" @onclick="@( ( ) =>
 									SetPriorityAsync( todo.Id,true ) )">
-                                    <i class="oi oi-arrow-circle-top"></i>
-                                </button>
-                                <button class="btn btn-info btn-lg" type="button" @onclick="@( ( ) =>
+									<i class="oi oi-arrow-circle-top"></i>
+								</button>
+								<button class="btn btn-outline-info btn-lg" type="button" @onclick="@( ( ) =>
 									SetPriorityAsync( todo.Id,false ) )">
-                                    <i class="oi oi-arrow-circle-bottom"></i>
-                                </button>
-                            </div>
-                        </td>
-                        <td>@todo.Description</td>
-                        <td>
-                            <button class="btn btn-lg btn-warning" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))">
-                                <img src="/images/ToDo.png" width="25" />
-                            </button>
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="text-muted">
-                            <del>@todo.Title</del>
-                        </td>
-                        <td class="text-muted"><del>@todo.Description</del></td>
-                        <td>
-                            <button class="btn btn-lg btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))">
-                                ☑️
-                            </button>
-                        </td>
-                    }
-                    @if (Project == null)
-                    {
-                        <td>@todo.Project</td>
-                        <td class="btn-group">
-                            <button class="btn btn-warning btn-lg" type="button" @onclick="() => EditTodo(todo)"><i class="oi oi-pencil"></i></button>
-                            <button class="btn btn-danger btn-lg" type="button" @onclick="() => ConfirmDelete(todo.Id)"><i class="oi oi-delete"></i></button>
-                            @if (todo.Completed)
-                            {
-                                <button class="btn btn-primary btn-lg" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
-                            }
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
+									<i class="oi oi-arrow-circle-bottom"></i>
+								</button>
+							</div>
+						</td>
+						<td>
+							@todo.Title
+						</td>
+						<td>@todo.Description</td>
+						<td>
+							<button class="btn btn-lg btn-outline-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))">
+								<img src="/images/ToDo.png" width="25" />
+							</button>
+						</td>
+					}
+					else
+					{
+						<td></td>
+						<td class="text-muted">
+							<del>@todo.Title</del>
+						</td>
+						<td class="text-muted"><del>@todo.Description</del></td>
+						<td>
+							<button class="btn btn-lg btn-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,false))">
+								☑️
+							</button>
+						</td>
+					}
+					@if (Project == null)
+					{
+						<td>@todo.Project</td>
+						<td class="btn-group">
+							<button class="btn btn-outline-warning btn-lg" type="button" @onclick="() => EditTodo(todo)"><i class="oi oi-pencil"></i></button>
+							<button class="btn btn-outline-danger btn-lg" type="button" @onclick="() => ConfirmDelete(todo.Id)"><i class="oi oi-delete"></i></button>
+							@if (todo.Completed)
+							{
+								<button class="btn btn-primary btn-lg" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
+							}
+						</td>
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
 
 }
 <TemplatedDialog Show="ShowDialog">
-    <ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
-                   Title="Confirmation Required"
-                   OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(TodoIdDelete))">
-    </ConfirmDialog>
+	<ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
+								 Title="Confirmation Required"
+								 OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(TodoIdDelete))">
+	</ConfirmDialog>
 </TemplatedDialog>
 <TemplatedDialog Show="ShowDialogArchive">
-    <ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
-                   Title="Confirmation Required"
-                   OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(TodoIdArchive))">
-    </ConfirmDialog>
+	<ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
+								 Title="Confirmation Required"
+								 OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(TodoIdArchive))">
+	</ConfirmDialog>
 </TemplatedDialog>
 
 @code {

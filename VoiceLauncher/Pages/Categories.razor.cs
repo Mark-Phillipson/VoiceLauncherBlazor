@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class Categories
+	public partial class Categories:ComponentBase
 	{
 		[Inject] IToastService? ToastService { get; set; }
 		public bool ShowDialog { get; set; }

@@ -27,11 +27,14 @@ namespace DataAccessLibrary
             {
                 WindowsSpeechVoiceCommand command = new();
                 command.ApplicationName = "Global";
-                command.SpokenCommand = $"{spokenFormPrefix} {item.Value}";
                 command.Description = $"Auto created: {DateTime.Now}";
                 command.AutoCreated = true;
                 _context.WindowsSpeechVoiceCommands.Add(command);
                 _context.SaveChanges();
+                SpokenForm spokenForm = new SpokenForm();
+                spokenForm.WindowsSpeechVoiceCommandId = command.Id;
+                spokenForm.SpokenFormText = $"{spokenFormPrefix} {item.Value}";
+                _context.SaveChanges(); 
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
                 if (spokenFormPrefix == "Move Left")
@@ -55,9 +58,12 @@ namespace DataAccessLibrary
             {
                 WindowsSpeechVoiceCommand command = new();
                 command.ApplicationName = "Global";
-                command.SpokenCommand = $"Sequel {item.Value}";
                 command.Description = $"Auto created: {DateTime.Now}";
                 _context.WindowsSpeechVoiceCommands.Add(command);
+                _context.SaveChanges();
+                SpokenForm spokenForm = new SpokenForm();
+                spokenForm.WindowsSpeechVoiceCommandId = command.Id;
+                spokenForm.SpokenFormText = $"Sequel {item.Value}";
                 _context.SaveChanges();
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
@@ -74,9 +80,12 @@ namespace DataAccessLibrary
             {
                 WindowsSpeechVoiceCommand command = new();
                 command.ApplicationName = "Global";
-                command.SpokenCommand = $"Keyword {item.Value}";
                 command.Description = $"Auto created: {DateTime.Now}";
                 _context.WindowsSpeechVoiceCommands.Add(command);
+                _context.SaveChanges();
+                SpokenForm speakerForm = new SpokenForm();
+                speakerForm.WindowsSpeechVoiceCommandId = command.Id;
+                speakerForm.SpokenFormText = $"Keyword {item.Value}";
                 _context.SaveChanges();
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
@@ -97,9 +106,12 @@ namespace DataAccessLibrary
                 {
                     WindowsSpeechVoiceCommand command = new();
                     command.ApplicationName = "Global";
-                    command.SpokenCommand = $"{item.Value} {number.Value} Click";
                     command.Description = $"Auto created: {DateTime.Now}";
                     _context.WindowsSpeechVoiceCommands.Add(command);
+                    _context.SaveChanges();
+                    SpokenForm spokenForm = new SpokenForm();
+                    spokenForm.WindowsSpeechVoiceCommandId = command.Id;
+                    spokenForm.SpokenFormText = $"{item.Value} {number.Value} Click";
                     _context.SaveChanges();
                     CustomWindowsSpeechCommand action = new();
                     action.WindowsSpeechVoiceCommandId = command.Id;

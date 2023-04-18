@@ -32,6 +32,7 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<CustomWindowsSpeechCommand> CustomWindowsSpeechCommands { get; set; }
         public virtual DbSet<WindowsSpeechVoiceCommand> WindowsSpeechVoiceCommands { get; set; }
+         public virtual DbSet<SpokenForm> SpokenForms { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Computer> Computers { get; set; }
         public virtual DbSet<CurrentWindow> CurrentWindow { get; set; }

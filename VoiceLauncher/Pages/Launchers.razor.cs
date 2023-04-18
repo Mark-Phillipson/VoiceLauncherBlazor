@@ -7,7 +7,7 @@ using System;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class Launchers
+	public partial class Launchers: ComponentBase
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; }
 		[Inject] IToastService? ToastService { get; set; }

@@ -15,23 +15,27 @@
     </div>
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
     </div>
 </div>
 
-@if (FilteredWindowsSpeechVoiceCommandDTO == null && _loadFailed == true) {
+@if (FilteredWindowsSpeechVoiceCommandDTO == null && _loadFailed == true)
+{
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
     <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
-else if (FilteredWindowsSpeechVoiceCommandDTO == null) {
+else if (FilteredWindowsSpeechVoiceCommandDTO == null)
+{
     <div style="display:normal;margin:auto" class="loader"></div>
 }
-else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0) {
+else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0)
+{
     <p>No Windows Speech Voice Command match the criteria</p>
     <button @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
 }
-else {
+else
+{
     <table style="" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
@@ -42,7 +46,7 @@ else {
                     <button class="btn" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
-                    Spoken Command
+                    Spoken Form
                 </th>
                 <th>Description</th>
                 <th>Application</th>
@@ -56,22 +60,27 @@ else {
             </tr>
         </thead>
         <tbody>
-            @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO) {
+            @foreach (var windowsSpeechVoiceCommand in FilteredWindowsSpeechVoiceCommandDTO)
+            {
                 <tr>
-                    @*                    <td>
-            <a href="#" class="btn btn-link" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
-            @windowsSpeechVoiceCommand.Id
-            </a>
-            </td>
-            *@
-                    <td style="font-size:xx-large">@windowsSpeechVoiceCommand.SpokenCommand</td>
+                    <td style="font-size:x-large">
+                        @if (SpokenForms != null)
+                        {
+                            @foreach (var spokenForm in windowsSpeechVoiceCommand.SpokenForms)
+                            {
+                                <div>@spokenForm.SpokenFormText</div>
+                            }
+                        }
+                    </td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
                     <td style="font-size:xx-large;text-align:center">
-                        @if (windowsSpeechVoiceCommand.AutoCreated) {
+                        @if (windowsSpeechVoiceCommand.AutoCreated)
+                        {
                             <i class="fa-regular fa-square-check"></i>
                         }
-                        else {
+                        else
+                        {
                             <i class="fa-solid fa-xmark"></i>
                         }
                     </td>
@@ -87,7 +96,8 @@ else {
                         </button>
                     </td>
                 </tr>
-                @if (!_hideActions) {
+                @if (!_hideActions)
+                {
                     <tr>
                         <td colspan="4">
                             <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" Updated="Updated" />
@@ -98,7 +108,8 @@ else {
         </tbody>
     </table>
 }
-@if (_commandsBreakdown != null) {
+@if (_commandsBreakdown != null)
+{
     <h2> Command Breakdown</h2>
 
     <table class="table table-bordered table-striped" id="table1">
@@ -107,7 +118,8 @@ else {
             <th> Auto Created? </th>
             <th> Count </th>
         </tr>
-        @foreach (var item in _commandsBreakdown) {
+        @foreach (var item in _commandsBreakdown)
+        {
 
             <tr>
                 <td>@item.ApplicationName</td>

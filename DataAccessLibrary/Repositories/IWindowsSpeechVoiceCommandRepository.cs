@@ -11,11 +11,12 @@ namespace DataAccessLibrary.Repositories
         Task<WindowsSpeechVoiceCommandDTO> AddWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task DeleteWindowsSpeechVoiceCommandAsync(int Id);
         Task<IEnumerable<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync(int maxRows, bool showAutoCreated);
-        Task<IEnumerable<WindowsSpeechVoiceCommandDTO>> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm);
+        IEnumerable<WindowsSpeechVoiceCommandDTO> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm);
         Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandByIdAsync(int Id);
         Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
 		Task<List<ApplicationDetail>> GetAllApplicationDetails();
         Task< List<CommandsBreakdown>> GetCommandsBreakdown();
+        Task<List<SpokenForm>> GetSpokenFormsAsync(List<WindowsSpeechVoiceCommandDTO> result);
     }
 }

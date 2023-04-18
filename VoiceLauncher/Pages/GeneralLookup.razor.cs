@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class GeneralLookup
+	public partial class GeneralLookup:ComponentBase
 	{
 		[Inject] IToastService? ToastService { get; set; }
 		[Parameter] public int? GeneralLookupId { get; set; }

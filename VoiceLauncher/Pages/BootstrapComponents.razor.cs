@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class BootstrapComponents
+    public partial class BootstrapComponents:ComponentBase
     {
         [Inject] IToastService? ToastService { get; set; }
 

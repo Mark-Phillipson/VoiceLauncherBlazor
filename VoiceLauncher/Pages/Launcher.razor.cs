@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class Launcher
+	public partial class Launcher:ComponentBase
 	{
 		[Parameter] public int LauncherId { get; set; }
 		private EditContext? _editContext;

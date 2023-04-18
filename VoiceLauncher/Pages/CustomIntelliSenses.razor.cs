@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class CustomIntelliSenses
+	public partial class CustomIntelliSenses:ComponentBase
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;

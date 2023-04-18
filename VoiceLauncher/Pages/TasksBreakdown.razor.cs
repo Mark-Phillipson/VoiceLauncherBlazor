@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class TasksBreakdown
+	public partial class TasksBreakdown:ComponentBase
 	{
 		[Inject] ITodoData? TodoData { get; set; }
 

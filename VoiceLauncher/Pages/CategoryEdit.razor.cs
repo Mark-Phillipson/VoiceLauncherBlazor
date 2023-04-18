@@ -6,7 +6,7 @@ using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class CategoryEdit
+	public partial class CategoryEdit:ComponentBase
 	{
 		[Parameter] public int CategoryId { get; set; }
 		[Inject] IToastService? ToastService { get; set; }

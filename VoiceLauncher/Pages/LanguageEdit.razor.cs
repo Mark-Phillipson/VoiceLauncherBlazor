@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class LanguageEdit
+	public partial class LanguageEdit:ComponentBase
 	{
 		[Parameter] public int LanguageId { get; set; }
 		[Inject] IToastService? ToastService { get; set; }

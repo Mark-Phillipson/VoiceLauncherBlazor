@@ -10,7 +10,7 @@ namespace DataAccessLibrary.Services
     public interface IWindowsSpeechVoiceCommandDataService
     {
         Task<List<WindowsSpeechVoiceCommandDTO>> GetAllWindowsSpeechVoiceCommandsAsync( bool showAutoCreated,int maxRows);
-        Task<List<WindowsSpeechVoiceCommandDTO>> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm);
+        List<WindowsSpeechVoiceCommandDTO> SearchWindowsSpeechVoiceCommandsAsync(string serverSearchTerm);
         Task<WindowsSpeechVoiceCommandDTO> AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO);
         Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandById(int Id);
         Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO, string username);
@@ -18,5 +18,6 @@ namespace DataAccessLibrary.Services
         Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded();
         Task<List<ApplicationDetail>> GetAllApplicationDetails();
         Task<List<CommandsBreakdown>> GetCommandsBreakdown();
+        Task<List<SpokenForm>> GetSpokenFormsAsync(List<WindowsSpeechVoiceCommandDTO> result);
     }
 }

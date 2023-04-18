@@ -13,7 +13,7 @@ using VoiceLauncher.helpers;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class CustomIntelliSenseEdit
+	public partial class CustomIntelliSenseEdit: ComponentBase
 	{
 		[Parameter] public int CustomIntellisenseId { get; set; } = 0;
 		[Inject] NavigationManager? NavigationManager { get; set; }

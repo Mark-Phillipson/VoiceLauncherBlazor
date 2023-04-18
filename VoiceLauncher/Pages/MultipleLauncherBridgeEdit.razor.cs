@@ -24,7 +24,7 @@ using VoiceLauncher.Shared;
 
 namespace VoiceLauncher.Pages
 {
-    public partial class MultipleLauncherBridgeEdit
+    public partial class MultipleLauncherBridgeEdit:ComponentBase
     {
         [Inject]
         public LauncherMultipleLauncherBridgeDataService? LauncherMultipleLauncherBridgeService { get; set; }

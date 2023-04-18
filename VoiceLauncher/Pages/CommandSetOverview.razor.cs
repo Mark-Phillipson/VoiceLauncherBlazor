@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class CommandSetOverview
+	public partial class CommandSetOverview:ComponentBase
 	{
 		public CommandSetService? CommandSetService { get; set; }
 		[Inject] NavigationManager? NavigationManager { get; set; }

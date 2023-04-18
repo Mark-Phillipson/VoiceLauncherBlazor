@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class Languages
+	public partial class Languages:ComponentBase
 	{
 		public Languages()
 		{

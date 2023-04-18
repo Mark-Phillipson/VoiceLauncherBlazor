@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Components
 {
-	public partial class VoiceCommandContentComponent
+	public partial class VoiceCommandContentComponent: ComponentBase
 	{
 		[Inject] public IJSRuntime? JavaScriptRuntime { get; set; }
 		[Parameter] public VoiceCommandContent? VoiceCommandContent { get; set; }

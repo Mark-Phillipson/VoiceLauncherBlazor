@@ -9,14 +9,13 @@ using System.Security.Claims;
 
 namespace VoiceLauncher.Components
 {
-	public partial class AddAdditionalCommand
+	public partial class AddAdditionalCommand: ComponentBase 
 	{
 		[CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
 		[Parameter] public ClaimsPrincipal? User { get; set; }
 		[Inject] public IToastService? ToastService { get; set; }
 		[Parameter] public int CustomIntelliSenseId { get; set; }
 		[Parameter] public int? AdditionalCommandId { get; set; }
-		//[Inject] public IJSRuntime JSRuntime { get; set; }
 		public AdditionalCommand AdditionalCommand { get; set; } = new AdditionalCommand();
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
 		[Inject] public GeneralLookupService? GeneralLookupService { get; set; }

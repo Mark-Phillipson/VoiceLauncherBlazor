@@ -5,7 +5,7 @@ using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class TodosPage
+	public partial class TodosPage:ComponentBase
 	{
 		[Parameter] public string? Project { get; set; }
 		private List<Todo>? todos;

@@ -4,7 +4,7 @@ using VoiceLauncher.helpers;
 
 namespace VoiceLauncher.Pages
 {
-	public partial class UploadFiles
+	public partial class UploadFiles:ComponentBase
 {
 		[Inject] HttpClient? Http { get; set; }
 		[Inject] ILogger<UploadFiles>? Logger { get; set; }

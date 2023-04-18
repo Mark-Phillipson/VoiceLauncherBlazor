@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace VoiceLauncher.Components
 {
-	public partial class VoiceCommandListComponent
+	public partial class VoiceCommandListComponent: ComponentBase 
 	{
 		[Parameter] public CommandSet? CommandSet { get; set; }
 		[Parameter] public VoiceCommand? VoiceCommand { get; set; }
