@@ -81,6 +81,11 @@ else
                         else
                         {
                             <button class="btn btn-outline-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
+                            @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                            {
+                                <img class="m-1" height="25" src='/images/@launcher.Icon' />
+                            }
+
                         }
                     </td>
                     <td>@launcher.Name</td>

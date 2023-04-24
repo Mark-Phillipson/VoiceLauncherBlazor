@@ -14,9 +14,7 @@ namespace DataAccessLibrary.Models
       CustomWindowsSpeechCommands = new HashSet<CustomWindowsSpeechCommand>();
     }
     public int Id { get; set; }
-    //[StringLength(100)]
-    //[Required]
-    //public string SpokenCommand { get; set; }// To be depreciated
+    public string SpokenCommand { get; set; }// To be depreciated But still used to create the first record
     [StringLength(1000)]
     public string Description { get; set; }
     [StringLength(50)]

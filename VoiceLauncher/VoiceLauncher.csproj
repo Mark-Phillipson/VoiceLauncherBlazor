@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Microsoft365_logo.png" />
 	  <_ContentIncludedByDefault Remove="wwwroot\images\RideWithGps.png" />
 	</ItemGroup>
 	<ItemGroup>

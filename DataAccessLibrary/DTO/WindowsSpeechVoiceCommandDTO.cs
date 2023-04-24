@@ -13,7 +13,7 @@ namespace DataAccessLibrary.DTO
     }
     [Key]
     public int Id { get; set; }
-    [Required]
+
     [StringLength(100)]
     public string SpokenCommand { get; set; } = "";
     [StringLength(1000)]

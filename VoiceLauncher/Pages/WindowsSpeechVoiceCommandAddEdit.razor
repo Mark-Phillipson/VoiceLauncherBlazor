@@ -7,18 +7,22 @@
         @if (WindowsSpeechVoiceCommandDTO.Id > 0)
         {
             <span class="text-info m-1">@WindowsSpeechVoiceCommandDTO.Id</span>
+            <SpokenFormTable WindowsSpeechVoiceCommandId="@WindowsSpeechVoiceCommandDTO.Id" />
         }
 
         <div class="row">
             <div class="col-12">
-                <div class="form-group">
-                    <label for="SpokenCommand">Spoken Command: </label> <i class="text-danger fa">*</i>
-@*                    <InputTextArea rows="2" id="SpokenCommand" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.SpokenCommand"
-                    @onblur="@(() => CallChangeAsync("SpokenCommand"))" placeholder="Enter Spoken Command"></InputTextArea>
-                    <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.SpokenCommand)" />
-*@
-          <SpokenFormTable  WindowsSpeechVoiceCommandId="@WindowsSpeechVoiceCommandDTO.Id"/>
-</div>
+                @if (WindowsSpeechVoiceCommandDTO.Id == 0)
+                {
+                    <div class="text-danger">For now just create a single spoken form, once the command has been created you can create more by editing the command.</div>
+                    <div class="form-group">
+                        <label for="SpokenCommand">Spoken Command: </label> <i class="text-danger fa">*</i>
+                        <InputTextArea rows="2" id="SpokenCommand" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.SpokenCommand"
+                        @onblur="@(() => CallChangeAsync("SpokenCommand"))" placeholder="Enter Spoken Command"></InputTextArea>
+                        <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.SpokenCommand)" />
+                    </div>
+                }
+
                 <div class="form-group">
                     <label for="Description">Description: </label>
                     <InputTextArea rows="2" id="Description" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.Description"

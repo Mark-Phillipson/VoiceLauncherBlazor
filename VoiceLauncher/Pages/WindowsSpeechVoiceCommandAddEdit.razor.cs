@@ -1,26 +1,11 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using System.Net.Http;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
-using Microsoft.JSInterop;
 using Blazored.Modal;
 using Blazored.Modal.Services;
-using Blazored.Toast;
 using Blazored.Toast.Services;
-using System.Security.Claims;
 using DataAccessLibrary.DTO;
-using DataAccessLibrary.Services;
 using DataAccessLibrary.Models;
-using System.Diagnostics.Eventing.Reader;
+using DataAccessLibrary.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
@@ -29,10 +14,11 @@ namespace VoiceLauncher.Pages
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
-        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO() {ApplicationName="Global" };
+        public WindowsSpeechVoiceCommandDTO WindowsSpeechVoiceCommandDTO { get; set; } = new WindowsSpeechVoiceCommandDTO() { ApplicationName = "Global" };
         [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
+        [Inject] public ISpokenFormDataService? SpokenFormDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
-         private List<ApplicationDetail>? ApplicationDetails { get; set; }
+        private List<ApplicationDetail>? ApplicationDetails { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
@@ -42,7 +28,7 @@ namespace VoiceLauncher.Pages
             {
                 return;
             }
-            ApplicationDetails = await WindowsSpeechVoiceCommandDataService.GetAllApplicationDetails(); 
+            ApplicationDetails = await WindowsSpeechVoiceCommandDataService.GetAllApplicationDetails();
             if (Id > 0)
             {
                 var result = await WindowsSpeechVoiceCommandDataService.GetWindowsSpeechVoiceCommandById((int)Id);
@@ -90,6 +76,14 @@ namespace VoiceLauncher.Pages
                 {
                     ToastService?.ShowError("Windows Speech Voice Command failed to add, please investigate", "Error Adding New Windows Speech Voice Command");
                     return;
+                }
+                if (SpokenFormDataService != null)
+                {
+                    SpokenFormDTO spokenFormDTO = new SpokenFormDTO();
+                    spokenFormDTO.SpokenFormText = result.SpokenCommand;
+                    spokenFormDTO.WindowsSpeechVoiceCommandId = result.Id;
+                    var spokenForResult = await SpokenFormDataService.AddSpokenForm(spokenFormDTO);
+                    if (spokenForResult == null) { ToastService?.ShowError("Spoken Form failed to create"); return; }
                 }
                 ToastService?.ShowSuccess("Windows Speech Voice Command added successfully", "SUCCESS");
             }
