@@ -120,6 +120,18 @@ namespace VoiceLauncher.Pages
         {
             WindowsSpeechVoiceCommandDTO.SendKeysValue = WindowsSpeechVoiceCommandDTO.SendKeysValue + "+";
         }
+        private void Enter()
+        {
+            WindowsSpeechVoiceCommandDTO.SendKeysValue = WindowsSpeechVoiceCommandDTO.SendKeysValue + "{Enter}";
+        }
+        private void Dictation()
+        {
+            WindowsSpeechVoiceCommandDTO.SpokenCommand=WindowsSpeechVoiceCommandDTO.SpokenCommand + " <dictation>";
+        }
+        private void Clipboard()
+        {
+            WindowsSpeechVoiceCommandDTO.SpokenCommand = WindowsSpeechVoiceCommandDTO.SpokenCommand + " <clipboard>";
+        }
     }
 
 }
