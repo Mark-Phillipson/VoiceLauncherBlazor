@@ -1,0 +1,21 @@
+﻿
+.layout-as-cards {
+	display: flex;
+	flex-direction: column;
+	flex-flow: wrap;
+	text-decoration: none;
+	justify-content: space-evenly;
+	
+		gap:10px 20px
+}
+
+.card {
+	box-shadow: grey 2px 2px;
+	background-color: darkblue;
+}
+
+a {
+	text-decoration: none;
+	color: white;
+	margin: 1rem;
+}

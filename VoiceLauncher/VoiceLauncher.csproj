@@ -30,6 +30,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Update="Pages\LauncherTableFavourites.razor">
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
 		<Content Update="Pages\SerenadeCommands.razor">
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>

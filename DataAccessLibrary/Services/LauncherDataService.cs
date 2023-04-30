@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.DTOs;
+using DataAccessLibrary.Models;
 
 
 namespace VoiceLauncher.Services
@@ -60,6 +61,12 @@ namespace VoiceLauncher.Services
         public async Task DeleteLauncher(int Id)
         {
             await _launcherRepository.DeleteLauncherAsync(Id);
+        }
+
+        public async Task<List<LauncherDTO>> GetFavoriteLaunchersAsync()
+        {
+            var Launchers = await _launcherRepository.GetFavoriteLaunchersAsync();
+            return Launchers.ToList();
         }
     }
 }

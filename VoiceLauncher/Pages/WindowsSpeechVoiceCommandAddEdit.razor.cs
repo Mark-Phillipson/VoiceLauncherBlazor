@@ -128,10 +128,6 @@ namespace VoiceLauncher.Pages
         {
             WindowsSpeechVoiceCommandDTO.SpokenCommand=WindowsSpeechVoiceCommandDTO.SpokenCommand + " <dictation>";
         }
-        private void Clipboard()
-        {
-            WindowsSpeechVoiceCommandDTO.SpokenCommand = WindowsSpeechVoiceCommandDTO.SpokenCommand + " <clipboard>";
-        }
     }
 
 }

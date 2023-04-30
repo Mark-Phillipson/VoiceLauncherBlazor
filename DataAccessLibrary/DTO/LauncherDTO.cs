@@ -16,6 +16,7 @@ namespace VoiceLauncher.DTOs
         public int CategoryId { get; set; }
         public int? ComputerId { get; set; }
         public string Icon { get; set; } = "";
+        public bool Favourite { get; set; }
 
     }
 }

@@ -103,5 +103,17 @@ namespace VoiceLauncher.Repositories
             context.Launcher.Remove(foundLauncher);
             await context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<LauncherDTO>> GetFavoriteLaunchersAsync()
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var Launchers = await context.Launcher
+                .Where(v => v.Favourite == true)
+                .OrderBy(v => v.Name)
+                .ToListAsync();
+            IEnumerable<LauncherDTO> LaunchersDTO = _mapper.Map<List<Launcher>, IEnumerable<LauncherDTO>>(Launchers);
+            return LaunchersDTO;
+
+        }
     }
 }

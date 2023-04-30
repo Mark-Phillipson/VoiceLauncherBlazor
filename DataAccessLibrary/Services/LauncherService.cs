@@ -116,6 +116,7 @@ namespace DataAccessLibrary.Services
 				existingLauncher.CommandLine = launcher.CommandLine;
 				existingLauncher.CategoryId = launcher.CategoryId;
 				existingLauncher.ComputerId = launcher.ComputerId;
+				existingLauncher.Favourite= launcher.Favourite;
 			}
 			else
 			{

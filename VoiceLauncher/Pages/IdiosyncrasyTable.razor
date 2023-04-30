@@ -49,6 +49,7 @@ else
                     </button>
                     Replace With
                 </th>
+                <th>String Formatting Method</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewIdiosyncrasyAsync" class="btn btn-success btn-sm">
                         <i class="fas fa-plus"></i>
@@ -67,6 +68,7 @@ else
                     </td>
                     <td>@idiosyncrasy.FindString</td>
                     <td>@idiosyncrasy.ReplaceWith</td>
+                    <td>@idiosyncrasy.StringFormattingMethod</td>
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditIdiosyncrasyAsync(idiosyncrasy.Id))">
                             <i class="fas fa-edit"></i>

@@ -22,7 +22,8 @@
                     <ValidationMessage For="@(() => LauncherDTO.Icon)" />
                 </div>
                 <div class="form-group">
-                    <label for="CommandLine">Command Line: </label>                    <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
+                    <label for="CommandLine">Command Line: </label>                   
+                    <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
                                placeholder="Enter Command Line"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.CommandLine)" />
                 </div>
@@ -37,9 +38,16 @@
                     <ValidationMessage For="@(() => LauncherDTO.CategoryId)" />
                 </div>
                 <div class="form-group">
-                    <label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@LauncherDTO.ComputerId"
+                    <label for="ComputerId">Computer ID: </label>                    
+                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@LauncherDTO.ComputerId"
                                  placeholder="Enter Computer ID"></InputNumber>
                     <ValidationMessage For="@(() => LauncherDTO.ComputerId)" />
+                </div>
+                <div class="form-group">
+                    <label for="Favourite">Favourite: </label>                    
+                    <InputCheckbox id="Favorite" class="form-control" @bind-Value="@LauncherDTO.Favourite"
+                                 placeholder="Enter Favourite"></InputCheckbox>
+                    <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
                 </div>
 
             </div>

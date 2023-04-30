@@ -10,18 +10,35 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <label for="FindString">Find String: </label>                    <InputTextArea rows="2" id="FindString" class="form-control" @bind-Value="@IdiosyncrasyDTO.FindString"
-                               placeholder="Enter Find String"></InputTextArea>
+                    <label for="FindString">Find String: </label>
+                    <InputTextArea rows="2" id="FindString" class="form-control" @bind-Value="@IdiosyncrasyDTO.FindString"
+                                   placeholder="Enter Find String"></InputTextArea>
                     <ValidationMessage For="@(() => IdiosyncrasyDTO.FindString)" />
                 </div>
                 <div class="form-group">
-                    <label for="ReplaceWith">Replace With: </label>                    <InputTextArea rows="2" id="ReplaceWith" class="form-control" @bind-Value="@IdiosyncrasyDTO.ReplaceWith"
-                               placeholder="Enter Replace With"></InputTextArea>
+                    <label for="ReplaceWith">Replace With: </label>
+                    <InputTextArea rows="2" id="ReplaceWith" class="form-control" @bind-Value="@IdiosyncrasyDTO.ReplaceWith"
+                                   placeholder="Enter Replace With"></InputTextArea>
                     <ValidationMessage For="@(() => IdiosyncrasyDTO.ReplaceWith)" />
                 </div>
+                <InputSelect id="StringFormattingMethod" class="form-control" @bind-Value="@IdiosyncrasyDTO.StringFormattingMethod">
+                    <option value="">( Select formatting method )</option>
+                    @foreach (string method in _stringFormattingMethods)
+                    {
+                        @if (IdiosyncrasyDTO.StringFormattingMethod == method)
+                        {
+                            <option selected value="@method">@method</option>
+                        }
+                        else
+                        {
+                            <option value="@method">@method</option>
+                        }
+                    }
+                </InputSelect>
+
             </div>
             <div class="col-12">
-                 @* Move here for the next display column if required *@
+                @* Move here for the next display column if required *@
             </div>
         </div>
         <hr>

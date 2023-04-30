@@ -11,5 +11,8 @@ namespace VoiceLauncher.DTOs
         public string FindString { get; set; }
         [StringLength(60)]
         public string ReplaceWith { get; set; }
+        [StringLength(60)]
+        public string StringFormattingMethod { get; set; } = "Just Replace";
+
     }
 }

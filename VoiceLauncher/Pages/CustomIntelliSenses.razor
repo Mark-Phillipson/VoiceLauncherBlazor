@@ -29,44 +29,48 @@
     <button class="btn btn-sm btn-outline-success" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm"
-           @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+    @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
            class="form-control col-md-2" accesskey="1" placeholder="Type to Filter (Alt+1)" />
     <button accesskey="2" class="btn btn-outline-primary btn-sm col-md-1 ml-2" type="button" @onclick="ApplyFilter">Filter (2) <i class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" @oninput="LoadData" class="form-control col-md-1" />
+    <label class="control-label col-md-1">Show Titles</label>
+    <input @bind="_showTiles" type="checkbox" class="form-control col-md-1" />
+
     <div class="col-md-2">
-@*        <BlazoredTypeahead accesskey="3" SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="LanguageIdFilter" placeholder="filter language (3)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
-            <SelectedTemplate Context="languageId">
-                @{
-                    if (languageId != null)
-                    {
-                        var selectedLanguage = LoadSelectedLanguage(languageId);
-                        <text>@selectedLanguage?.LanguageName</text>
-                    }
-                }
-            </SelectedTemplate>
-            <ResultTemplate>
-                @context.LanguageName
-            </ResultTemplate>
-            <NotFoundTemplate>
-                Sorry, no language matched the search result.
-            </NotFoundTemplate>
+        @*        <BlazoredTypeahead accesskey="3" SearchMethod="FilterLanguages" ConvertMethod="GetLanguageId" @bind-Value="LanguageIdFilter" placeholder="filter language (3)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
+        <SelectedTemplate Context="languageId">
+        @{
+        if (languageId != null)
+        {
+        var selectedLanguage = LoadSelectedLanguage(languageId);
+        <text>@selectedLanguage?.LanguageName</text>
+        }
+        }
+        </SelectedTemplate>
+        <ResultTemplate>
+        @context.LanguageName
+        </ResultTemplate>
+        <NotFoundTemplate>
+        Sorry, no language matched the search result.
+        </NotFoundTemplate>
         </BlazoredTypeahead>
-*@    </div>
+        *@
+    </div>
     <div class="col-md-2">
-  @*      <BlazoredTypeahead accesskey="4" SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="CategoryIdFilter" placeholder="filter category (4)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
-            <SelectedTemplate Context="categoryId">
-                @{
-                    var selectedCategory = LoadSelectedCategory(categoryId);
-                    <text>@selectedCategory?.CategoryName</text>
-                }
-            </SelectedTemplate>
-            <ResultTemplate>
-                @context.CategoryName
-            </ResultTemplate>
-            <NotFoundTemplate>
-                Sorry, no categories matched the search result.
-            </NotFoundTemplate>
+        @*      <BlazoredTypeahead accesskey="4" SearchMethod="FilterCategories" ConvertMethod="GetCategoryId" @bind-Value="CategoryIdFilter" placeholder="filter category (4)" @onblur="FilterByLanguageAndCategory" ShowDropDownOnFocus="true">
+        <SelectedTemplate Context="categoryId">
+        @{
+        var selectedCategory = LoadSelectedCategory(categoryId);
+        <text>@selectedCategory?.CategoryName</text>
+        }
+        </SelectedTemplate>
+        <ResultTemplate>
+        @context.CategoryName
+        </ResultTemplate>
+        <NotFoundTemplate>
+        Sorry, no categories matched the search result.
+        </NotFoundTemplate>
         </BlazoredTypeahead>*@
     </div>
 
@@ -85,98 +89,126 @@ else if (intellisenses.Count == 0)
 }
 else
 {
-    <table class="table table-dark table-sm table-bordered table-striped" id="table1">
-        <thead>
-            <tr>
-                <th style="width: 60px">
-                    Language
-                    <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-                    <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
-                </th>
-                <th style="width: 60px">
-                    <div class="row">
-                        <div class="col-md-12">Category</div>
-                    </div>
-                </th>
-                <th>
-                    Display Value
-                    <button @onclick="@(e  => SortCustomIntelliSenses("DisplayValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-                    <button @onclick="@(e => SortCustomIntelliSenses("DisplayValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
-
-                </th>
-                <th>SendKeys Value</th>
-                <th style="width: 30px">Delivery Type</th>
-                <th>
-                    <button accesskey="6" class="btn btn-sm btn-outline-success" @onclick="SaveAllCustomIntelliSenses">Save All (6) <i class="oi oi-hard-drive"></i></button>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                var counter = 6;
-            }
-            @foreach (var intellisense in intellisenses)
+    @if (_showTiles)
+    {
+        <div class="layout-as-cards">
+            @foreach (var intellisense in intellisenses.OrderBy(v => v.DisplayValue))
             {
-                if (counter > 0)
-                {
-                    counter++;
-                }
-                <tr>
-                    <td>
-                        <input type="hidden" @bind="intellisense.Id" />
-                        <input type="hidden" @bind="intellisense.LanguageId" />
-                        <input type="hidden" @bind="intellisense.CategoryId" />
-                        <input type="hidden" @bind="intellisense.CommandType" />
-                        <input type="hidden" @bind="intellisense.Remarks" />
-                        <input type="hidden" @bind="intellisense.ComputerId" />
-                        <input disabled="disabled" class="form-control-sm" @bind="intellisense.Language.LanguageName" />
-                    </td>
-                    <td>
-                        <input disabled="disabled" type="text" class="form-control-sm" @bind="intellisense.Category.CategoryName" />
-                    </td>
-                    <td>
-                        <input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
-                    </td>
-                    <td>
-                        <textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue" class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
-                    </td>
-                    <td>
-                        <select style="min-width: 130px" class="form-control-sm col-md-8" @bind="@intellisense.DeliveryType">
-                            @if (GeneralLookups != null)
-                            {
-                                @foreach (var lookup in GeneralLookups)
-                                {
-                                    @if (intellisense.DeliveryType == lookup.ItemValue)
-                                    {
-                                        <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
 
-                                    }
-                                    else
+                <div class="card-body card" >
+                    <div  style="Color:Yellow">@intellisense.DisplayValue</div>
+                    <div class="card-text">
+                        
+                        <div class="card-title">@intellisense.SendKeysValue</div>
+                    </div>
+                    <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))">
+                        <i class="fa-regular fa-copy"></i>
+
+                    </button>
+                </div>
+
+            }
+        </div>
+
+    }
+    else
+    {
+        <table class="table table-dark table-sm table-bordered table-striped" id="table1">
+            <thead>
+                <tr>
+                    <th style="width: 60px">
+                        Language
+                        <button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                        <button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                    </th>
+                    <th style="width: 60px">
+                        <div class="row">
+                            <div class="col-md-12">Category</div>
+                        </div>
+                    </th>
+                    <th>
+                        Display Value
+                        <button @onclick="@(e  => SortCustomIntelliSenses("DisplayValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                        <button @onclick="@(e => SortCustomIntelliSenses("DisplayValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+
+                    </th>
+                    <th>SendKeys Value</th>
+                    <th style="width: 30px">Delivery Type</th>
+                    <th>
+                        <button accesskey="6" class="btn btn-sm btn-outline-success" @onclick="SaveAllCustomIntelliSenses">Save All (6) <i class="oi oi-hard-drive"></i></button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var counter = 6;
+                }
+                @foreach (var intellisense in intellisenses)
+                {
+                    if (counter > 0)
+                    {
+                        counter++;
+                    }
+                    <tr>
+                        <td>
+                            <input type="hidden" @bind="intellisense.Id" />
+                            <input type="hidden" @bind="intellisense.LanguageId" />
+                            <input type="hidden" @bind="intellisense.CategoryId" />
+                            <input type="hidden" @bind="intellisense.CommandType" />
+                            <input type="hidden" @bind="intellisense.Remarks" />
+                            <input type="hidden" @bind="intellisense.ComputerId" />
+                            <input disabled="disabled" class="form-control-sm" @bind="intellisense.Language.LanguageName" />
+                        </td>
+                        <td>
+                            <input disabled="disabled" type="text" class="form-control-sm" @bind="intellisense.Category.CategoryName" />
+                        </td>
+                        <td>
+                            <input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
+                        </td>
+                        <td>
+                            <textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue" class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
+                        </td>
+                        <td>
+                            <select style="min-width: 130px" class="form-control-sm col-md-8" @bind="@intellisense.DeliveryType">
+                                @if (GeneralLookups != null)
+                                {
+                                    @foreach (var lookup in GeneralLookups)
                                     {
-                                        <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                        @if (intellisense.DeliveryType == lookup.ItemValue)
+                                        {
+                                            <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                        }
                                     }
                                 }
-                            }
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-outline-warning" @onclick="@(() => EditRecord(intellisense.Id))"><i class="oi oi-pencil"></i></button>
-                        <button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-warning" @onclick="@(() => EditRecord(intellisense.Id))"><i class="oi oi-pencil"></i></button>
+                            <button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
 
-                        <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))"><i class="fa-regular fa-copy"></i></button>
+                            <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))"><i class="fa-regular fa-copy"></i></button>
 
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+
 }
 @if (CustomIntellisenseIdDelete != null)
 {
     <TemplatedDialog Show="ShowDialog">
         <ConfirmDialog Message="Please confirm you wish to Delete this Customer IntelliSense!"
-                   Title="Confirmation Required"
-                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense((int)CustomIntellisenseIdDelete))">
+                       Title="Confirmation Required"
+                       OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense((int)CustomIntellisenseIdDelete))">
         </ConfirmDialog>
     </TemplatedDialog>
 }

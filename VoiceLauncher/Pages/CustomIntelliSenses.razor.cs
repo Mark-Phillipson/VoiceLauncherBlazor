@@ -3,6 +3,7 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Diagnostics.Eventing.Reader;
 
 namespace VoiceLauncher.Pages
 {
@@ -20,6 +21,7 @@ namespace VoiceLauncher.Pages
         public List<DataAccessLibrary.Models.Category>? Categories { get; set; }
         public List<DataAccessLibrary.Models.Language>? Languages { get; set; }
         public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
+        private bool _showTiles = true;
         public int MaximumRows { get; set; } = 100;
 #pragma warning disable 414
         readonly bool showCreateNewOrEdit = false;

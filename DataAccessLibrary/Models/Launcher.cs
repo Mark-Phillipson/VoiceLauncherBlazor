@@ -29,6 +29,7 @@ namespace DataAccessLibrary.Models
         [InverseProperty(nameof(Models.Category.Launchers))]
         [StringLength(100)]
         public string Icon { get; set; } = "";
+        public bool Favourite { get; set; }
         public virtual Category Category { get; set; }
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]
