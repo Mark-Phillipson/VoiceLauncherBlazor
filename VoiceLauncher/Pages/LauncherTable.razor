@@ -98,7 +98,7 @@ else
                         <button class="btn btn-outline-danger" @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
-                        @if (launcher.CommandLine.ToLower().StartsWith("http"))
+      @*                  @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
                             @if (launcher.Icon != null && launcher.Icon.Length > 0)
                             {
@@ -113,7 +113,7 @@ else
                         {
                             <button class="btn btn-outline-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
                         }
-                    </td>
+*@                    </td>
                 </tr>
             }
         </tbody>

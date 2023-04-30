@@ -29,6 +29,8 @@ namespace DataAccessLibrary.Models
         public bool Sensitive { get; set; } = false;
         [StringLength(40)]
         public string Colour { get; set; }
+        [StringLength(50)]
+        public string Icon { get; set; }
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
         [InverseProperty("Category")]

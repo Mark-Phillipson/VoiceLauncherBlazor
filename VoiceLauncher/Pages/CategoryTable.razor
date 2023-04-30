@@ -42,18 +42,22 @@ else
     @if (_ShowCards)
     {
         <div class="layout-as-cards">
-            @foreach (var category in FilteredCategoryDTO)
+            @foreach (var category in FilteredCategoryDTO.Where(v => v.CountOfLaunchers> 0))
             {
                 <a class="btn btn-lg btn-outline-dark" href="launcherstable/@category.Id">
                     <div class="card-body" Style="background-color:@category.Colour">
-                        <h3 class="card-title">@category.CategoryName</h3>
+                        @if (@category.Icon != null)
+                        {
+                           <h2> @((MarkupString)category.Icon) </h2>
+                        }
+                        <h4 class="card-title">@category.CategoryName <span>(@category.CountOfLaunchers)</span></h4>
                         <div class="card-text">
                             @if (category.Sensitive)
                             {
                                 <span>Sensitive</span>
                             }
                         </div>
-                        <span>(@category.CountOfLaunchers)</span>
+                        
                     </div>
                 </a>
             }

@@ -16,5 +16,8 @@ namespace VoiceLauncher.DTOs
          public int CountOfLaunchers { get; set; }
         public int CountOfCustomIntellisense { get; set; }
         public string Colour { get; set; }
+        [StringLength(50)]
+        public string Icon { get; set; }
+
     }
 }
