@@ -30,7 +30,7 @@ else if (FilteredLauncherDTO.Count == 0)
 }
 else
 {
-    <table style="font-size:small;border-width:2px;border-color:white" class="table table-bordered table-striped table-sm table-responsive-sm">
+    <table style="font-size:xx-large;border-width:2px;border-color:white" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
                 <th class="text-center">🚀</th>
@@ -43,7 +43,7 @@ else
                     </button>
                     Name
                 </th>
-                <th>
+@*                <th>
                     <button class="btn btn-sm" @onclick="@(() => SortLauncher("CommandLine"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
@@ -52,7 +52,7 @@ else
                     </button>
                     Command Line
                 </th>
-                <th>Computer</th>
+*@                <th>Computer</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">
                         Add
@@ -71,7 +71,7 @@ else
                         {
                             @if (launcher.Icon != null && launcher.Icon.Length > 0)
                             {
-                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="25" src='/images/@launcher.Icon' /></a>
+                                <a class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height=" 50" src='/images/@launcher.Icon' /></a>
                             }
                             else
                             {
@@ -89,7 +89,7 @@ else
                         }
                     </td>
                     <td>@launcher.Name</td>
-                    <td>@launcher.CommandLine</td>
+                    @*<td>@launcher.CommandLine</td>*@
                     <td>@launcher.ComputerId</td>
                     <td class="btn-group">
                         <button class="btn btn-outline-warning" @onclick="@(() => EditLauncherAsync(launcher.Id))">
