@@ -19,12 +19,12 @@
 </header>
 
 <div class="form-field row">
-    <a accesskey="0" class="btn btn-success col-md-2" href="/category/0">Create (0) <i class="oi oi-plus"></i></a>
+    <a class="btn btn-lg btn-outline-success col-md-2" href="/category/0">Create <i class="oi oi-plus"></i></a>
     <label class="control-label col-md-1">Filter</label>
     <input @bind="SearchTerm"
            @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-           class="form-control col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
-    <button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+           class="form-control form-control-lg col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+    <button accesskey="2" class="btn btn-lg btn-outline-primary col-md-2 mx-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
 
 </div>
 @if (categories == null && _loadFailed)
@@ -42,7 +42,7 @@ else if (categories.Count == 0)
 }
 else
 {
-    <table class="table table-dark table-sm table-bordered table-striped" id="table1">
+    <table style="font-size:x-large" class="table table-dark table-sm table-bordered table-striped" id="table1">
         <thead>
             <tr>
                 <th>
@@ -53,7 +53,7 @@ else
                 <th style="width: 350px">
                     <div class="row">
                         <div class="col-md-6">Category Type</div>
-                        <select class="form-control-sm col-md-5" style="width: 150px" @bind="CategoryTypeFilter" @onblur="FilterCategoryType">
+                        <select class="form-control form-control-lg col-md-5" style="width: 150px" @bind="CategoryTypeFilter" @onblur="FilterCategoryType">
                             <option value="">-Select to filter-</option>
                             @if (GeneralLookups != null)
                             {
@@ -69,8 +69,8 @@ else
                     Children
                 </th>
                 <th>
-                    <button class="btn btn-sm btn-success" @onclick="SaveAllCategories">Save All <i class="oi oi-hard-drive"></i></button>
-                </th>
+@*                    <button class="btn btn-sm btn-outline-success" @onclick="SaveAllCategories">Save All <i class="oi oi-hard-drive"></i></button>
+*@                </th>
             </tr>
         </thead>
         <tbody>
@@ -82,11 +82,16 @@ else
                 counter++;
                 <tr>
                     <td>
-                        <input class="form-control" @bind="category.CategoryName" />
-                        @*@category.CategoryName*@
+                        <span>
+                        
+                        @((MarkupString)category.Icon)&emsp;
+                        @*<input class="form-control" @bind="category.CategoryName" />*@
+                        @category.CategoryName
+                        </span>
                     </td>
                     <td>
-                        <input disabled="disabled" class="form-control" @bind="category.CategoryType" />
+                        @*<input disabled="disabled" class="form-control" @bind="category.CategoryType" />*@
+                        @category.CategoryType
                     </td>
                     <td>
                         @if (category.CategoryType == "Launch Applications")
@@ -99,8 +104,8 @@ else
                         }
                     </td>
                     <td>
-                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-sm btn-success" href="/category/@category.Id">Edit @(counter< 10 ? "(" + counter.ToString() + ")" : "") <i class="oi oi-pencil"></i></a>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(category.Id))">Delete <i class="oi oi-circle-x"></i></button>
+                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-lg btn-outline-success" href="/category/@category.Id">Edit <i class="oi oi-pencil"></i></a>
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => ConfirmDelete(category.Id))">Delete <i class="oi oi-circle-x"></i></button>
                     </td>
                 </tr>
             }

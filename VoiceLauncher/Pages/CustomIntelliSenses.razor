@@ -91,14 +91,20 @@ else
 {
     @if (_showTiles)
     {
+        string group = "";
         <div class="layout-as-cards">
-            @foreach (var intellisense in intellisenses.OrderBy(v => v.DisplayValue))
+            @foreach (var intellisense in intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(v => v.Category.CategoryName))
             {
-
-                <div class="card-body card" >
-                    <div  style="Color:Yellow">@intellisense.DisplayValue</div>
+                @if (group != intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName)
+                {
+                    <h3>@intellisense.Language.LanguageName / @intellisense.Category.CategoryName</h3>
+                    <hr>
+                    @group
+                }
+                <div class="card-body card">
+                    <div style="Color:Yellow">@intellisense.DisplayValue</div>
                     <div class="card-text">
-                        
+
                         <div class="card-title">@intellisense.SendKeysValue</div>
                     </div>
                     <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))">
@@ -106,7 +112,9 @@ else
 
                     </button>
                 </div>
-
+                
+                    group = intellisense.Language.LanguageName + " / "+ intellisense.Category.CategoryName;
+                
             }
         </div>
 
