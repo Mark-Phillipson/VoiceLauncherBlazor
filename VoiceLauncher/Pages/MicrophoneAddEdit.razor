@@ -11,14 +11,16 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <label for="MicrophoneName">Microphone Name: </label><span class="glyphicon glyphicon-asterisk text-danger" aria-hidden="true"></span>
+                    <label for="MicrophoneName">Microphone Name: </label>
+                    <i class="fa-solid fa-asterisk text-danger"></i>
                     <InputText id="MicrophoneName" class="form-control" @bind-Value="@MicrophoneDTO.MicrophoneName"
                                    placeholder="Enter Microphone Name"></InputText>
                     <ValidationMessage For="@(() => MicrophoneDTO.MicrophoneName)" />
                 </div>
                 <div class="form-group">
                     <label for="Default">Default: </label>
-                    <InputCheckbox id="Default" class="form-checkbox" @bind-Value="@MicrophoneDTO.Default">
+
+                    <InputCheckbox id="Default" class="form-checkbox big-checkbox" @bind-Value="@MicrophoneDTO.Default">
                     </InputCheckbox>
                     <ValidationMessage For="@(() => MicrophoneDTO.Default)" />
                 </div>
