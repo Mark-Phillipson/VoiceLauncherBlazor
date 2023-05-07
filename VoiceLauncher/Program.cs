@@ -65,6 +65,8 @@ builder.Services.AddScoped<IValueToInsertRepository, ValueToInsertRepository>();
 builder.Services.AddScoped<IValueToInsertDataService, ValueToInsertDataService>();
 builder.Services.AddScoped<ISpokenFormRepository, SpokenFormRepository>();
 builder.Services.AddScoped<ISpokenFormDataService, SpokenFormDataService>();
+builder.Services.AddScoped<IMicrophoneRepository, MicrophoneRepository>();
+builder.Services.AddScoped<IMicrophoneDataService, MicrophoneDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
