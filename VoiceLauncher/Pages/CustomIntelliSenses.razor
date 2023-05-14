@@ -107,10 +107,19 @@ else
 
                         <div class="card-title">@intellisense.SendKeysValue</div>
                     </div>
-                    <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))">
-                        <i class="fa-regular fa-copy"></i>
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))">
+                                <i class="fa-regular fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
 
-                    </button>
+                        </div>
+                    </div>
                 </div>
                 
                     group = intellisense.Language.LanguageName + " / "+ intellisense.Category.CategoryName;
@@ -196,7 +205,7 @@ else
                             </select>
                         </td>
                         <td>
-                            <button class="btn btn-outline-warning" @onclick="@(() => EditRecord(intellisense.Id))"><i class="oi oi-pencil"></i></button>
+                            <button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i class="oi oi-pencil"></i></button>
                             <button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
 
                             <button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))"><i class="fa-regular fa-copy"></i></button>

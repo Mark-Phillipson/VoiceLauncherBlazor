@@ -5,13 +5,13 @@
 	flex-flow: wrap;
 	text-decoration: none;
 	justify-content: space-evenly;
-	
+	color:white;
 		gap:10px 20px
 }
 
 .card {
 	box-shadow: grey 2px 2px;
-	background-color: darkblue;
+	background-color: #464646;
 }
 
 a {

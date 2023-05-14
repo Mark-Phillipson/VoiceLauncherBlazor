@@ -23,11 +23,11 @@ else if (FilteredPhraseListGrammarDTO == null)
 else if (FilteredPhraseListGrammarDTO.Count == 0)
 {
     <p>No Phrase List Grammar match the criteria</p>
-    <button @onclick="AddNewPhraseListGrammarAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewPhraseListGrammarAsync" class="btn btn-lg btn-success">Add Record <i class="fas fa-plus"></i></button>
 }
 else
 {
-    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+    <table style="font-size:large" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
               <th>Id</th>
@@ -41,7 +41,7 @@ else
                     Phrase List Grammar Value
                 </th>
                 <th>
-                    <button accesskey="+" @onclick="AddNewPhraseListGrammarAsync" class="btn btn-success btn-sm">
+                    <button accesskey="+" @onclick="AddNewPhraseListGrammarAsync" class="btn btn-outline-success btn-lg">
                         <i class="fas fa-plus"></i>
                     </button>
                 </th>
@@ -57,11 +57,11 @@ else
                         </a>
                     </td>
                     <td>@phraseListGrammar.PhraseListGrammarValue</td>
-                    <td class="btn-group-vertical">
-                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditPhraseListGrammarAsync(phraseListGrammar.Id))">
+                    <td class="btn-group">
+                        <button class="btn btn-lg btn-outline-warning" @onclick="@(() => EditPhraseListGrammarAsync(phraseListGrammar.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeletePhraseListGrammarAsync(phraseListGrammar.Id))">
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeletePhraseListGrammarAsync(phraseListGrammar.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>

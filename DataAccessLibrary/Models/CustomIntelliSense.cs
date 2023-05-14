@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
+	[Table("CustomIntelliSense")]
 	public partial class CustomIntelliSense
 	{
 		public CustomIntelliSense()

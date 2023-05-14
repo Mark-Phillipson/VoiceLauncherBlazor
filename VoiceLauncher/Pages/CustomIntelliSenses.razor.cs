@@ -1,9 +1,11 @@
-﻿using Blazored.Toast.Services;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Blazored.Toast.Services;
+using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Diagnostics.Eventing.Reader;
+using Microsoft.JSInterop;
 
 namespace VoiceLauncher.Pages
 {
@@ -12,6 +14,7 @@ namespace VoiceLauncher.Pages
         [Parameter] public int? CategoryIdFilter { get; set; } = 0;
         [Parameter] public int? LanguageIdFilter { get; set; } = 0;
         [Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
+        [CascadingParameter] public IModalService? Modal { get; set; }
         [Inject] IToastService? ToastService { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         public bool ShowDialog { get; set; }
@@ -28,6 +31,7 @@ namespace VoiceLauncher.Pages
         private bool _loadFailed = false;
 #pragma warning restore 414
         private string searchTerm = "";
+        int CustomIntelliSenseId;
         public string SearchTerm
         {
             get => searchTerm;
@@ -94,8 +98,9 @@ namespace VoiceLauncher.Pages
                     _loadFailed = true;
                 }
             }
+             await ApplyFilter();
         }
-
+        // 
         async Task ApplyFilter()
         {
             if (SearchTerm != null)
@@ -295,6 +300,22 @@ namespace VoiceLauncher.Pages
                 var message = $"Copied Successfully: '{itemToCopy}'";
                 ToastService!.ShowSuccess(message, "Copy Item");
             }
+        }
+        private async Task EditAsync(int id)
+        {
+            var parameters = new ModalParameters();
+            parameters.Add("Id", id);
+            var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters);
+            if (formModal != null)
+            {
+                var result = await formModal.Result;
+                if (!result.Cancelled)
+                {
+                    await LoadData();
+                }
+            }
+            CustomIntelliSenseId = id;
+
         }
     }
 }

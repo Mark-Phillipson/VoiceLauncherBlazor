@@ -20,7 +20,7 @@ namespace DataAccessLibrary.Services
 			IQueryable<CustomIntelliSense> intellisenses = null;
 			try
 			{
-				intellisenses = context.CustomIntelliSense.Include(i => i.Category).Include(i => i.Language).OrderBy(v => v.Category);
+				intellisenses = context.CustomIntelliSenses.Include(i => i.Category).Include(i => i.Language).OrderBy(v => v.Category);
 			}
 			catch (Exception exception)
 			{
@@ -71,7 +71,7 @@ namespace DataAccessLibrary.Services
 		public async Task<CustomIntelliSense> GetCustomIntelliSenseAsync(int intellisenseId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			CustomIntelliSense intellisense = await context.CustomIntelliSense.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
+			CustomIntelliSense intellisense = await context.CustomIntelliSenses.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
 			return intellisense;
 		}
 		public async Task<string> SaveCustomIntelliSense(CustomIntelliSense intellisense)
@@ -79,7 +79,7 @@ namespace DataAccessLibrary.Services
 			using var context = _contextFactory.CreateDbContext();
 			if (intellisense.Id > 0)
 			{
-				var existingIntellisense =  await context.CustomIntelliSense.FirstOrDefaultAsync(c => c.Id == intellisense.Id);
+				var existingIntellisense =  await context.CustomIntelliSenses.FirstOrDefaultAsync(c => c.Id == intellisense.Id);
 				if (existingIntellisense!= null )
 				{
 					existingIntellisense.LanguageId = intellisense.LanguageId;
@@ -94,7 +94,7 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				context.CustomIntelliSense.Add(intellisense);
+				context.CustomIntelliSenses.Add(intellisense);
 			}
 			try
 			{
@@ -109,11 +109,11 @@ namespace DataAccessLibrary.Services
 		public async Task<string> DeleteCustomIntelliSense(int customIntellisenseId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			var intellisense = await context.CustomIntelliSense.Where(v => v.Id == customIntellisenseId).FirstOrDefaultAsync();
+			var intellisense = await context.CustomIntelliSenses.Where(v => v.Id == customIntellisenseId).FirstOrDefaultAsync();
 			var result = $"Delete Custom IntelliSense Failed {DateTime.UtcNow:h:mm:ss tt zz}";
 			if (intellisense != null)
 			{
-				context.CustomIntelliSense.Remove(intellisense);
+				context.CustomIntelliSenses.Remove(intellisense);
 				try
 				{
 					await context.SaveChangesAsync();

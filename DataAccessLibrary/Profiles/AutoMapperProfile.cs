@@ -27,6 +27,8 @@ namespace DataAccessLibrary.Profiles
             CreateMap<SpokenFormDTO, SpokenForm>();
             CreateMap<Microphone, MicrophoneDTO>();
             CreateMap<MicrophoneDTO, Microphone>();
+            CreateMap<CustomIntelliSense, CustomIntelliSenseDTO>();
+            CreateMap<CustomIntelliSenseDTO, CustomIntelliSense>();
         }
     }
 }

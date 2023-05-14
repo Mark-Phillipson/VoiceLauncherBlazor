@@ -19,33 +19,33 @@ else if (FilteredApplicationDetailDTO == null) {
 }
 else if (FilteredApplicationDetailDTO.Count == 0) {
     <p>No Application Detail match the criteria</p>
-    <button @onclick="AddNewApplicationDetailAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewApplicationDetailAsync" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
 }
 else {
-    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+    <table style="font-size:xx-large" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortApplicationDetail("ProcessName"))">
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ProcessName"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortApplicationDetail("ProcessName Desc"))">
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ProcessName Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
                     Process Name
                 </th>
                 <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortApplicationDetail("ApplicationTitle"))">
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ApplicationTitle"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortApplicationDetail("ApplicationTitle Desc"))">
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ApplicationTitle Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
                     Application Title
                 </th>
                 <th>
-                    <button accesskey="+" @onclick="AddNewApplicationDetailAsync" class="btn btn-success btn-sm">
+                    <button accesskey="+" @onclick="AddNewApplicationDetailAsync" class="btn btn-outline-success btn-lg">
                         <i class="fas fa-plus"></i>
                     </button>
                 </th>
@@ -55,7 +55,7 @@ else {
             @foreach (var applicationDetail in FilteredApplicationDetailDTO) {
                 <tr>
                     <td>
-                        <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
+                        <a href="#" class="btn btn-lg btn-link" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
                             @applicationDetail.Id
                         </a>
                     </td>
@@ -63,11 +63,11 @@ else {
                     <td>
                         <a href="/windowsspeechvoicecommands/@applicationDetail.ApplicationTitle">@applicationDetail.ApplicationTitle</a>
                     </td>
-                    <td class="btn-group-vertical">
-                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
+                    <td class="btn-group">
+                        <button class="btn btn-lg btn-outline-warning" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteApplicationDetailAsync(applicationDetail.Id))">
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteApplicationDetailAsync(applicationDetail.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>

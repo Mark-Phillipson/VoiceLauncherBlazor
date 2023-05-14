@@ -11,6 +11,13 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="FindString">Find String: </label>
+                    @if (IdiosyncrasyDTO.FindString != null )
+                    {
+                   <span class="text-danger"  style="font-size:x-large">
+
+                    [@IdiosyncrasyDTO.FindString?.Replace(" ","•")]
+                   </span> 
+                    }
                     <InputTextArea rows="2" id="FindString" class="form-control" @bind-Value="@IdiosyncrasyDTO.FindString"
                                    placeholder="Enter Find String"></InputTextArea>
                     <ValidationMessage For="@(() => IdiosyncrasyDTO.FindString)" />

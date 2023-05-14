@@ -31,7 +31,7 @@ public partial class IdiosyncrasyAddEdit : ComponentBase
     public IdiosyncrasyDTO IdiosyncrasyDTO { get; set; } = new IdiosyncrasyDTO();//{ };
     [Inject] public IIdiosyncrasyDataService? IdiosyncrasyDataService { get; set; }
     [Inject] public IToastService? ToastService { get; set; }
-    private List<string> _stringFormattingMethods { get; set; }= new List<string>() { "Just Replace","Starts With","Ends With","Contains"};
+    private List<string> _stringFormattingMethods { get; set; }= new List<string>() { "Just Replace","Starts With","Ends With","Contains","Equals"};
 #pragma warning disable 414, 649
     string TaskRunning = "";
 #pragma warning restore 414, 649

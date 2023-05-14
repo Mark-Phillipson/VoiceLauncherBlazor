@@ -37,7 +37,7 @@ namespace DataAccessLibrary.Models
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Computer> Computers { get; set; }
         public virtual DbSet<CurrentWindow> CurrentWindow { get; set; }
-        public virtual DbSet<CustomIntelliSense> CustomIntelliSense { get; set; }
+        public virtual DbSet<CustomIntelliSense> CustomIntelliSenses { get; set; }
         public virtual DbSet<GeneralLookup> GeneralLookups { get; set; }
         public virtual DbSet<HtmlTag> HtmlTags { get; set; }
         public virtual DbSet<Language> Languages { get; set; }
