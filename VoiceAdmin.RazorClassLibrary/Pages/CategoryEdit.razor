@@ -1,0 +1,92 @@
+﻿@page "/category/{categoryId:int}";
+@inject IJSRuntime JSRuntime
+
+@inject CategoryService CategoryService
+@inject GeneralLookupService GeneralLookupService
+@inject NavigationManager NavigationManager
+
+<h1>
+    Category
+    <small>
+        @if (Category != null)
+        {
+            @if (Category.CategoryType == "Launch Applications")
+            {
+                <text> Launcher </text>
+            }
+            else
+            {
+                <text> Language </text>
+            }
+            @Category.CategoryName
+        }
+    </small>
+</h1>
+@if (StatusMessage!= null )
+{
+    <div class="text-danger">@StatusMessage</div>
+}
+@if (Category == null)
+{
+    <text>Loading.</text>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@Category" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                @*<ValidationSummary />*@
+                <div class="form-field row">
+                    <label class="col-md-4">Id</label>
+                    @if (Category.Id > 0)
+                    {
+                        <div class="col-md-8">@Category.Id</div>
+                    }
+                    <input type="hidden" name="Id" id="Id" value="@Category.Id" />
+                </div>
+                <div class="form-field row">
+                    <label for="@Category.CategoryName" class="col-md-4"> Category Name (0)</label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter Category Name, must be unique" accesskey="0"
+                                   @onblur="@(e => CallChangeAsync(Category.Id.ToString()+ "CategoryName"))" id="@(Category.Id.ToString() + "CategoryName")"
+                               @bind-Value="Category.CategoryName"></InputText>
+                    <ValidationMessage For="@(() => Category.CategoryName)" />
+                </div>
+                <div class="form-field row">
+                    <label for="@Category.CategoryType" class="col-md-4"> Category Type (1)</label>
+                    <InputSelect accesskey="1" class="form-control-lg col-md-8" @bind-Value="Category.CategoryType">
+                        <option value="">-</option>
+                        @if (GeneralLookups != null)
+                            {
+                            @foreach (var lookup in GeneralLookups)
+                                {
+                                @if (Category.CategoryType == lookup.ItemValue)
+                                    {
+                                    <option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                    }
+                                    else
+                                    {
+                                    <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                    }
+                                }
+                            }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Category.CategoryType)" />
+                </div>
+
+                <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
+            </EditForm>
+        </div>
+    </div>
+    <hr>
+    @if (Category.CategoryType == "IntelliSense Command")
+    {
+        <CustomIntellisenseList category=@Category />
+ }
+    else
+    {
+        <LauncherList category="@Category" />
+}
+}
+
+

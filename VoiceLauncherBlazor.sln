@@ -17,6 +17,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjectxUnit", "TestPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaywrightTests", "PlaywrightTests\PlaywrightTests.csproj", "{9E189910-1031-4AE3-844B-A94F7846DF20}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAdminMAUI", "VoiceAdminMAUI\VoiceAdminMAUI.csproj", "{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorClassLibrary", "VoiceAdmin.RazorClassLibrary\RazorClassLibrary.csproj", "{6F8BA9D4-96A6-4BD7-965E-809BD94E8799}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,16 @@ Global
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{6F8BA9D4-96A6-4BD7-965E-809BD94E8799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F8BA9D4-96A6-4BD7-965E-809BD94E8799}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F8BA9D4-96A6-4BD7-965E-809BD94E8799}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F8BA9D4-96A6-4BD7-965E-809BD94E8799}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

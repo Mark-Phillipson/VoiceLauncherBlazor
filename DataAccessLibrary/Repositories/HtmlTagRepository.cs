@@ -1,8 +1,8 @@
 
 using AutoMapper;
+using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
-using VoiceLauncher.DTOs;
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace VoiceLauncher.Repositories
             var result =await context.HtmlTags.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            HtmlTagDTO htmlTagDTO=_mapper.Map<HtmlTag,HtmlTagDTO>(result);
+            HtmlTagDTO htmlTagDTO =_mapper.Map<HtmlTag, HtmlTagDTO>(result);
             return htmlTagDTO;
         }
 
@@ -70,7 +70,7 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            HtmlTagDTO resultDTO=_mapper.Map<HtmlTag, HtmlTagDTO>(htmlTag);
+            HtmlTagDTO resultDTO =_mapper.Map<HtmlTag, HtmlTagDTO>(htmlTag);
             return resultDTO;
         }
 

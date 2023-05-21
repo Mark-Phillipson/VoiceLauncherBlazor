@@ -1,0 +1,49 @@
+@page "/htmltag/{Id:int?}"
+<div style="min-width:80vw">
+    <EditForm Model="@HtmlTagDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (HtmlTagDTO.Id > 0)
+        {
+            <span class="text-info m-1">@HtmlTagDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="Tag">Tag: </label>                    <InputTextArea rows="2" id="Tag" class="form-control" @bind-Value="@HtmlTagDTO.Tag"
+                               placeholder="Enter Tag"></InputTextArea>
+                    <ValidationMessage For="@(() => HtmlTagDTO.Tag)" />
+                </div>
+                <div class="form-group">
+                    <label for="Description">Description: </label>                    <InputTextArea rows="2" id="Description" class="form-control" @bind-Value="@HtmlTagDTO.Description"
+                               placeholder="Enter Description"></InputTextArea>
+                    <ValidationMessage For="@(() => HtmlTagDTO.Description)" />
+                </div>
+                <div class="form-group">
+                    <label for="ListValue">List Value: </label>                    <InputTextArea rows="2" id="ListValue" class="form-control" @bind-Value="@HtmlTagDTO.ListValue"
+                               placeholder="Enter List Value"></InputTextArea>
+                    <ValidationMessage For="@(() => HtmlTagDTO.ListValue)" />
+                </div>
+                <div class="form-group">
+                    <label for="Include">Include: </label>
+                    <InputCheckbox id="Include" class="form-checkbox" @bind-Value="@HtmlTagDTO.Include">
+                    </InputCheckbox>
+                    <ValidationMessage For="@(() => HtmlTagDTO.Include)" />
+                </div>
+                <div class="form-group">
+                    <label for="SpokenForm">Spoken Form: </label>                    <InputTextArea rows="2" id="SpokenForm" class="form-control" @bind-Value="@HtmlTagDTO.SpokenForm"
+                               placeholder="Enter Spoken Form"></InputTextArea>
+                    <ValidationMessage For="@(() => HtmlTagDTO.SpokenForm)" />
+                </div>
+            </div>
+            <div class="col-12">
+                 @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

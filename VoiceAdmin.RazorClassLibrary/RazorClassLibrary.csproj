@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<UserSecretsId>a71df59a-e582-4e4f-9a75-14512ec2b2e6</UserSecretsId>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Blazored.Modal" Version="7.1.0" />
+		<PackageReference Include="Blazored.Toast" Version="3.2.2" />
+		<PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
+		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
+		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+		<Content Update="wwwroot\images\VisualStudioLogo.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\images\VisualStudioLogoLarge.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\MyKBCommands.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\MyKBCommandsNewCommands.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\wwwroot\images\VisualStudioLogo.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\wwwroot\images\VisualStudioLogoLarge.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\wwwroot\MyKBCommands.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\wwwroot\MyKBCommandsNewCommands.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+	  <Folder Include="Areas\MyFeature\Pages\" />
+	</ItemGroup>
+
+
+
+</Project>

@@ -1,0 +1,125 @@
+﻿@page "/categories"
+
+@inject CategoryService CategoryService
+@inject GeneralLookupService GeneralLookupService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+<header>
+    <h3>
+        List of Categories
+        @if (SearchTerm != null)
+        {
+            <small class="text-warning"> Filter: @SearchTerm</small>
+        }
+    </h3>
+    @if (StatusMessage != null)
+    {
+        @*		<Alert Title="Last Action" Display="@StatusMessage" Duration="6000" AlertType="info" Show="true" />*@
+    }
+</header>
+
+<div class="form-field row">
+    <a class="btn btn-lg btn-outline-success col-md-2" href="/category/0">Create <i class="oi oi-plus"></i></a>
+    <label class="control-label col-md-1">Filter</label>
+    <input @bind="SearchTerm"
+           @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+           class="form-control form-control-lg col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+    <button accesskey="2" class="btn btn-lg btn-outline-primary col-md-2 mx-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+
+</div>
+@if (categories == null && _loadFailed)
+{
+    <h1 class="text-danger">The data has failed to load please try again in a little bit..</h1>
+}
+else if (categories == null)
+{
+    <h1 class="text-success">Loading...</h1>
+    <Loading />
+}
+else if (categories.Count == 0)
+{
+    <text>No categories found</text>
+}
+else
+{
+    <table style="font-size:x-large" class="table table-dark table-sm table-bordered table-striped" id="table1">
+        <thead>
+            <tr>
+                <th>
+                    Category Name
+                    <button @onclick="@(e  => SortCategories("CategoryName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortCategories("CategoryName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                </th>
+                <th style="width: 350px">
+                    <div class="row">
+                        <div class="col-md-6">Category Type</div>
+                        <select class="form-control form-control-lg col-md-5" style="width: 150px" @bind="CategoryTypeFilter" @onblur="FilterCategoryType">
+                            <option value="">-Select to filter-</option>
+                            @if (GeneralLookups != null)
+                            {
+                                @foreach (var lookup in GeneralLookups)
+                                {
+                                    <option value="@lookup.ItemValue">@lookup.ItemValue</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </th>
+                <th>
+                    Children
+                </th>
+                <th>
+@*                    <button class="btn btn-sm btn-outline-success" @onclick="SaveAllCategories">Save All <i class="oi oi-hard-drive"></i></button>
+*@                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var counter = 2;
+            }
+            @foreach (var category in categories)
+            {
+                counter++;
+                <tr>
+                    <td>
+                        <span>
+                        
+                        @((MarkupString)category.Icon)&emsp;
+                        @*<input class="form-control" @bind="category.CategoryName" />*@
+                        @category.CategoryName
+                        </span>
+                    </td>
+                    <td>
+                        @*<input disabled="disabled" class="form-control" @bind="category.CategoryType" />*@
+                        @category.CategoryType
+                    </td>
+                    <td>
+                        @if (category.CategoryType == "Launch Applications")
+                        {
+                            <a href="launchersbycategory/@category.Id">Launchers @category.Launchers.Count</a>
+                        }
+                        else
+                        {
+                            <a href="intellisensesC/@category.Id">IntelliSense @category.CustomIntelliSense.Count</a>
+                        }
+                    </td>
+                    <td>
+                        <a accesskey="@(counter< 10 ? counter.ToString():"")" class="btn btn-lg btn-outline-success" href="/category/@category.Id">Edit <i class="oi oi-pencil"></i></a>
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => ConfirmDelete(category.Id))">Delete <i class="oi oi-circle-x"></i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@if (CategoryIdDelete != null)
+{
+    <TemplatedDialog Show="ShowDialog">
+        <ConfirmDialog Message="Please confirm you wish to Delete this Category!"
+                   Title="Confirmation Required"
+                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteCategory((int)CategoryIdDelete))">
+        </ConfirmDialog>
+    </TemplatedDialog>
+
+}
+

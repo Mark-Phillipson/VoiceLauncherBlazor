@@ -1,8 +1,8 @@
 
 using AutoMapper;
+using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
-using VoiceLauncher.DTOs;
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace VoiceLauncher.Repositories
             var result =await context.Idiosyncrasies.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            IdiosyncrasyDTO idiosyncrasyDTO=_mapper.Map<Idiosyncrasy,IdiosyncrasyDTO>(result);
+            IdiosyncrasyDTO idiosyncrasyDTO =_mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(result);
             return idiosyncrasyDTO;
         }
 
@@ -70,7 +70,7 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            IdiosyncrasyDTO resultDTO=_mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(idiosyncrasy);
+            IdiosyncrasyDTO resultDTO =_mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(idiosyncrasy);
             return resultDTO;
         }
 

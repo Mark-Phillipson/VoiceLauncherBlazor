@@ -6,8 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VoiceLauncher.Repositories;
-using VoiceLauncher.DTOs;
-
+using DataAccessLibrary.DTO;
 
 namespace VoiceLauncher.Services
 {

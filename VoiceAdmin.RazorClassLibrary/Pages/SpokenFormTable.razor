@@ -1,0 +1,69 @@
+
+@page "/spokenforms/{WindowsSpeechVoiceCommandId:int}"
+<div class="row">
+<div class="col-md-12">
+    </div>
+    <div class="col-md-8">
+        <h5 class="m-1">@Title</h5>
+    </div>
+@*    <div class="col-md-1">
+        <a class="btn btn-primary btn-sm m-2" href="/ParentTable/@WindowsSpeechVoiceCommandId"><i class="fas fa-arrow-left"></i></a>
+   </div>*@
+    <div class="col-md-4">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm" 
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Form Text (Alt+I)" />
+    </div> 
+</div>
+
+@if (FilteredSpokenFormDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredSpokenFormDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredSpokenFormDTO.Count == 0)
+{
+    <p>No Spoken Form match the criteria</p>
+    <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+              <th>
+                    <button class="btn btn-sm" @onclick="@(() => SortSpokenForm("SpokenFormText"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>   
+                    <button class="btn btn-sm" @onclick="@(() => SortSpokenForm("SpokenFormText Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Spoken Form Text
+                </th>
+                <th>
+          <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var spokenForm in FilteredSpokenFormDTO)
+            {
+                <tr>
+                    <td>@spokenForm.SpokenFormText</td>
+                    <td class="btn-group-vertical">
+                        <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditSpokenForm(spokenForm.Id))">
+                           Edit <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSpokenForm(spokenForm.Id))">
+                           Delete <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

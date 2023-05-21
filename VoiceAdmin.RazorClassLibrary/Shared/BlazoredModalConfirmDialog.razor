@@ -1,0 +1,23 @@
+﻿<hr>
+<div class="dialog-title">
+    <h3>@Title</h3>
+</div>
+<hr>
+<form class="dialog-body">
+    <div class="font-weight-bold">
+        @Message
+    </div>
+</form>
+<hr>
+<div class="dialog-mp-footer">
+    <div class="dialog-buttons">
+            <i class="@Icon text-@ButtonColour m-3" style="font-size:xx-large"></i>
+        <div class="btn-group btn-group-lg" style="float:right">
+            <button accesskey="n" @ref="CancelButton" class="btn btn-secondary btn-lg mr-auto" style="float:right"
+                    @onclick="@OnCancel">
+                Ca<u>n</u>cel
+            </button>
+            <button accesskey="m" class="btn btn-@ButtonColour btn-lg ml-auto" style="float:right" @onclick="@OnConfirm">Confir<u>m</u></button>
+        </div>
+    </div>
+</div>

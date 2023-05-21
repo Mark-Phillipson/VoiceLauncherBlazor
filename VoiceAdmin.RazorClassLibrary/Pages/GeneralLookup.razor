@@ -1,0 +1,76 @@
+﻿@page "/generallookup/{generalLookupId:int}"
+
+
+@inject GeneralLookupService GeneralLookupService
+@inject NavigationManager NavigationManager
+
+<h1>General Lookup</h1>
+@if (GeneralLookupModel == null)
+{
+	<Loading />
+}
+else
+{
+	<div class="row">
+		<div class="col-md-6">
+			<EditForm Model="@GeneralLookupModel" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				@*<ValidationSummary />*@
+				<div class="form-field row">
+					<label class="col-md-4">Id</label>
+					@if (GeneralLookupModel.Id > 0)
+					{
+						<div class="col-md-8">@GeneralLookupModel.Id</div>
+					}
+					<input type="hidden" name="Id" id="Id" value="@GeneralLookupModel.Id" />
+				</div>
+				<div class="form-field row">
+					<label for="@GeneralLookupModel.ItemValue" class="col-md-4">Item Value (0)</label>
+					<InputText class="col-md-8 form-control-lg" placeholder="Enter Item Value" accesskey="0" id="ItemValue" @bind-Value="GeneralLookupModel.ItemValue"></InputText>
+					<div class="col-md-8 offset-md-4"><ValidationMessage For="@(() => GeneralLookupModel.ItemValue)" /></div>
+				</div>
+				<div class="form-field row">
+					<label for="@GeneralLookupModel.Category" class="col-md-4"> Category (1)</label>
+					<InputText class="form-control-lg col-md-8" @bind-Value="GeneralLookupModel.Category" />
+					<div class="col-md-8 offset-md-4"><ValidationMessage For="@(() => GeneralLookupModel.Category)" /></div>
+				</div>
+				<div class="form-field row">
+					<label for="@GeneralLookupModel.SortOrder" class="col-md-4">Sort Order (2)</label>
+					<InputNumber accesskey="2" class="form-control-lg col-md-8" @bind-Value="GeneralLookupModel.SortOrder" />
+					<div class="col-md-8 offset-md-4"><ValidationMessage For="@(() => GeneralLookupModel.SortOrder)" /></div>
+				</div>
+				<div class="form-field row">
+					<label for="@GeneralLookupModel.DisplayValue" class="col-md-4"> Display Value (3)</label>
+					<InputText class="col-md-8 form-control-lg" placeholder="Optionally enter a Display Value" accesskey="3" id="DisplayValue" @bind-Value="GeneralLookupModel.DisplayValue"></InputText>
+					<div class="col-md-8 offset-md-4"><ValidationMessage For="@(() => GeneralLookupModel.DisplayValue)" /></div>
+				</div>
+				<button accesskey="4" class="btn btn-lg btn-success" type="submit">Submit (4) <i class="oi oi-hard-drive"></i></button>
+			</EditForm>
+		</div>
+	</div>
+	<hr>
+	@if (GeneralLookups != null && GeneralLookups.Count > 0)
+	{
+		<table class="table table-bordered table-striped" id="table1">
+			<thead>
+				<tr>
+					<th>Item Value</th>
+					<th>Category</th>
+					<th>Sort Order</th>
+					<th>Displayed Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var lookup in GeneralLookups.Where(v => v.Category == GeneralLookupModel.Category))
+				{
+					<tr>
+						<td>@lookup.ItemValue</td>
+						<td>@lookup.Category</td>
+						<td>@lookup.SortOrder</td>
+						<td>@lookup.DisplayValue</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+}

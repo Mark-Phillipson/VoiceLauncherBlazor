@@ -1,8 +1,8 @@
 
 using AutoMapper;
+using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
-using VoiceLauncher.DTOs;
 using DataAccessLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -51,7 +51,7 @@ namespace VoiceLauncher.Repositories
             var result =await context.CustomIntelliSenses.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            CustomIntelliSenseDTO customIntelliSenseDTO=_mapper.Map<CustomIntelliSense,CustomIntelliSenseDTO>(result);
+            CustomIntelliSenseDTO customIntelliSenseDTO =_mapper.Map<CustomIntelliSense, CustomIntelliSenseDTO>(result);
             return customIntelliSenseDTO;
         }
 
@@ -69,7 +69,7 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            CustomIntelliSenseDTO resultDTO=_mapper.Map<CustomIntelliSense, CustomIntelliSenseDTO>(customIntelliSense);
+            CustomIntelliSenseDTO resultDTO =_mapper.Map<CustomIntelliSense, CustomIntelliSenseDTO>(customIntelliSense);
             return resultDTO;
         }
 

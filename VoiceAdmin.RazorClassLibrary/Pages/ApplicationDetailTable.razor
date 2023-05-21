@@ -1,0 +1,78 @@
+@page "/applicationdetails"
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="page-title m-1">@Title</h5>
+    </div>
+    <div class="col-md-4">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+               @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Process Name/Application Title (Alt+I)" />
+    </div>
+</div>
+
+@if (FilteredApplicationDetailDTO == null && _loadFailed == true) {
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredApplicationDetailDTO == null) {
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredApplicationDetailDTO.Count == 0) {
+    <p>No Application Detail match the criteria</p>
+    <button @onclick="AddNewApplicationDetailAsync" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else {
+    <table style="font-size:xx-large" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ProcessName"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ProcessName Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Process Name
+                </th>
+                <th>
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ApplicationTitle"))">
+                        <i class="fas fa-sort-alpha-up"></i>
+                    </button>
+                    <button class="btn btn-lg" @onclick="@(() => SortApplicationDetail("ApplicationTitle Desc"))">
+                        <i class="fas fa-sort-alpha-up-alt"></i>
+                    </button>
+                    Application Title
+                </th>
+                <th>
+                    <button accesskey="+" @onclick="AddNewApplicationDetailAsync" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var applicationDetail in FilteredApplicationDetailDTO) {
+                <tr>
+                    <td>
+                        <a href="#" class="btn btn-lg btn-link" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
+                            @applicationDetail.Id
+                        </a>
+                    </td>
+                    <td>@applicationDetail.ProcessName</td>
+                    <td>
+                        <a href="/windowsspeechvoicecommands/@applicationDetail.ApplicationTitle">@applicationDetail.ApplicationTitle</a>
+                    </td>
+                    <td class="btn-group">
+                        <button class="btn btn-lg btn-outline-warning" @onclick="@(() => EditApplicationDetailAsync(applicationDetail.Id))">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteApplicationDetailAsync(applicationDetail.Id))">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

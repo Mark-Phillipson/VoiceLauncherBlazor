@@ -1,0 +1,38 @@
+@page "/microphone/{Id:int?}"
+<div style="min-width:80vw">
+    <h1>@Title</h1>
+    <EditForm Model="@MicrophoneDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (MicrophoneDTO.Id > 0)
+        {
+            <span class="text-info m-1">@MicrophoneDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="MicrophoneName">Microphone Name: </label>
+                    <i class="fa-solid fa-asterisk text-danger"></i>
+                    <InputText id="MicrophoneName" class="form-control" @bind-Value="@MicrophoneDTO.MicrophoneName"
+                                   placeholder="Enter Microphone Name"></InputText>
+                    <ValidationMessage For="@(() => MicrophoneDTO.MicrophoneName)" />
+                </div>
+                <div class="form-group">
+                    <label for="Default">Default: </label>
+
+                    <InputCheckbox id="Default" class="form-checkbox big-checkbox" @bind-Value="@MicrophoneDTO.Default">
+                    </InputCheckbox>
+                    <ValidationMessage For="@(() => MicrophoneDTO.Default)" />
+                </div>
+            </div>
+            <div class="col-12">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

@@ -3,7 +3,6 @@
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
 
-using VoiceLauncher.DTOs;
 
 namespace DataAccessLibrary.Profiles
 {

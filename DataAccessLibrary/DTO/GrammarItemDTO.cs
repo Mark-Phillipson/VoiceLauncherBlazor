@@ -1,7 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace VoiceLauncher.DTOs
+namespace DataAccessLibrary.DTO
 {
     public partial class GrammarItemDTO
     {

@@ -1,8 +1,8 @@
 
 using AutoMapper;
+using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
 
-using VoiceLauncher.DTOs;
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace VoiceLauncher.Repositories
             var result =await context.PhraseListGrammars.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            PhraseListGrammarDTO phraseListGrammarDTO=_mapper.Map<PhraseListGrammar,PhraseListGrammarDTO>(result);
+            PhraseListGrammarDTO phraseListGrammarDTO =_mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(result);
             return phraseListGrammarDTO;
         }
 
@@ -70,7 +70,7 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            PhraseListGrammarDTO resultDTO=_mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(phraseListGrammar);
+            PhraseListGrammarDTO resultDTO =_mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(phraseListGrammar);
             return resultDTO;
         }
 

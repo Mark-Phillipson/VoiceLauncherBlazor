@@ -1,0 +1,22 @@
+
+.layout-as-cards {
+    display: flex;
+    flex-direction: column;
+    flex-flow: wrap;
+    text-decoration: none;
+}
+
+
+
+.layout-as-cards a {
+    text-decoration: none;
+    color: white;
+
+
+
+
+
+}
+.card-title {
+    color:#dcdde8;
+}
