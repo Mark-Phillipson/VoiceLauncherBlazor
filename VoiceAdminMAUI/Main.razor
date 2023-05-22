@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="@typeof(VoiceAdminMAUI.Main).Assembly">
+﻿<CascadingBlazoredModal Class="blazored-modal-custom">
+
+
+
+<Router AppAssembly="@typeof(VoiceAdminMAUI.Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(VoiceAdminMAUI.Shared.MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -9,3 +13,4 @@
         </LayoutView>
     </NotFound>
 </Router>
+  </CascadingBlazoredModal>

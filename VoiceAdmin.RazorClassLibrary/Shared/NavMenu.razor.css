@@ -38,7 +38,7 @@
 		display: flex;
 		align-items: center;
 		line-height: 3rem;
-		max-width:230px;
+		max-width: 230px;
 	}
 
 		.nav-item ::deep a.active {
@@ -52,10 +52,11 @@
 		}
 
 .nav-item {
-	min-width:290px;
+	min-width: 290px;
 }
+
 .nav-link {
-	min-width:240px;
+	min-width: 240px;
 }
 
 @media (min-width: 768px) {
@@ -68,7 +69,8 @@
 		display: block;
 	}
 }
+
 .sidebar {
-	width:290px;
-	min-width:290px;
+	width: 290px;
+	min-width: 290px;
 }

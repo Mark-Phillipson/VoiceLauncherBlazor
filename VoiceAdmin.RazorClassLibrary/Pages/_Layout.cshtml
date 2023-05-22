@@ -1,41 +1,41 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
-@namespace RazorClassLibrary.Pages
+@namespace RazorClassLibraryMore.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<base href="~/" />
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 	@*<link href="_content/Blazored.Typeahead/blazored-typeahead.css" rel="stylesheet" />*@
 
-    <link href="_content/Blazored.Toast/blazored-toast.min.css" rel="stylesheet" />
+	<link href="_content/Blazored.Toast/blazored-toast.min.css" rel="stylesheet" />
 
 	<link href="RazorClassLibrary.styles.css" rel="stylesheet">
-    <link href="css/site.css" rel="stylesheet" />
-	<link href="RazorClassLibrary.styles.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-	<link rel="stylesheet" href="/css/prism.css"/>
-    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+	<link href="css/site.css" rel="stylesheet" />
+	<link href="VoiceLauncher.styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+	<link rel="stylesheet" href="/css/prism.css" />
+	<component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
-    @RenderBody()
+	@RenderBody()
 
-    <div id="blazor-error-ui">
-        <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
-        </environment>
-        <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
-        </environment>
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
+	<div id="blazor-error-ui">
+		<environment include="Staging,Production">
+			An error has occurred. This application may no longer respond until reloaded.
+		</environment>
+		<environment include="Development">
+			An unhandled exception has occurred. See browser dev tools for details.
+		</environment>
+		<a href="" class="reload">Reload</a>
+		<a class="dismiss">🗙</a>
+	</div>
 
-    <script src="_framework/blazor.server.js"></script>
-    @*<script src="_content/Blazored.Modal/blazored.modal.js"></script>*@
+	<script src="_framework/blazor.server.js"></script>
+	@*<script src="_content/Blazored.Modal/blazored.modal.js"></script>*@
 	@*<script src="_content/Blazored.Typeahead/blazored-typeahead.js"></script>*@
 	@*<script src="https://kit.fontawesome.com/273d0585ea.js" crossorigin="anonymous"></script>*@
 	<script src="https://kit.fontawesome.com/4ec6a2fd0a.js" crossorigin="anonymous"></script>
