@@ -105,7 +105,15 @@ namespace RazorClassLibrary.Pages
     {
       if (firstRender)
       {
-        await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
+                }
+                catch (Exception exception)
+                {
+                    await Console.Out.WriteLineAsync(exception.Message);
+
+                }
       }
     }
     private async Task HandleValidSubmit()

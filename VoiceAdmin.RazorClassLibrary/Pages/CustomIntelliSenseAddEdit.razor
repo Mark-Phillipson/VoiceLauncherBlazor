@@ -1,6 +1,6 @@
 @page "/customintellisense/{Id:int?}"
 <div style="min-width:80vw">
-    <h1>@Title</h1>
+    <h4>@Title</h4>
     <EditForm Model="@CustomIntelliSenseDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -9,7 +9,7 @@
             <span class="text-info m-1">@CustomIntelliSenseDTO.Id</span>
         }
         <div class="row">
-            <div class="col-6">
+            <div class="col-4">
                 <div class="form-group">
                     <label for="LanguageId">Language: </label> <i class="text-danger fa">*</i>
                     <InputSelect id="LanguageId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
@@ -26,10 +26,12 @@
                                placeholder="Enter Display Value"></InputText>
                     <ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
                 </div>
+            </div>
+            <div class="col-4">
                 <div class="form-group">
                     <label for="SendKeysValue">Send Keys Value: </label>
-                    <span  class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
-                    <InputTextArea rows="8" id="SendKeysValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
+                    <span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
+                    <InputTextArea rows="11" id="SendKeysValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
                                    placeholder="Enter Send Keys Value"></InputTextArea>
                     <ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
                 </div>
@@ -58,8 +60,11 @@
                         </div>
                     </div>
                 }
+
             </div>
-            <div class="col-6">
+
+
+            <div class="col-4">
                 <div class="form-group">
                     <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
                     <InputSelect id="CategoryId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
@@ -107,4 +112,9 @@
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
         </div>
     </EditForm>
+    @if (CustomIntelliSenseDTO?.Id > 0)
+    {
+        <AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
+    }
+
 </div>
