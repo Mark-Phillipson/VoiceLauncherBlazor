@@ -7,6 +7,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\images\OpenAI_Logo.svg.png" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Blazored.Modal" Version="7.1.0" />
 		<PackageReference Include="Blazored.Toast" Version="3.2.2" />

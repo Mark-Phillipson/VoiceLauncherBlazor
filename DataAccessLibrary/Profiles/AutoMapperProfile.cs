@@ -28,6 +28,8 @@ namespace DataAccessLibrary.Profiles
             CreateMap<MicrophoneDTO, Microphone>();
             CreateMap<CustomIntelliSense, CustomIntelliSenseDTO>();
             CreateMap<CustomIntelliSenseDTO, CustomIntelliSense>();
+            CreateMap<Prompt, PromptDTO>();
+            CreateMap<PromptDTO, Prompt>();
         }
     }
 }
