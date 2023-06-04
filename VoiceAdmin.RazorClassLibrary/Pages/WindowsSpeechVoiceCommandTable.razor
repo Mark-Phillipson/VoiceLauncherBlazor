@@ -42,12 +42,6 @@ else
         <thead>
             <tr>
                 <th>
-                    <button class="btn" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand"))">
-                        <i class="fas fa-sort-alpha-up"></i>
-                    </button>
-                    <button class="btn" @onclick="@(() => SortWindowsSpeechVoiceCommand("SpokenCommand Desc"))">
-                        <i class="fas fa-sort-alpha-up-alt"></i>
-                    </button>
                     Spoken Form
                 </th>
                 <th>Description</th>
@@ -76,14 +70,14 @@ else
                     </td>
                     <td>@windowsSpeechVoiceCommand.Description</td>
                     <td>@windowsSpeechVoiceCommand.ApplicationName</td>
-                    <td style="font-size:xx-large;text-align:center">
+                    <td style="font-size:large;text-align:center">
                         @if (windowsSpeechVoiceCommand.AutoCreated)
                         {
-                            <i class="fa-regular fa-square-check"></i>
+                            <span>Yes</span>
                         }
                         else
                         {
-                            <i class="fa-solid fa-xmark"></i>
+                            <span>No</span>
                         }
                     </td>
                     <td class="btn-group">

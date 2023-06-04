@@ -1,3 +1,25 @@
-﻿td {
-    border-color:white;
+﻿
+.layout-as-cards {
+	display: flex;
+	flex-direction: row;
+	flex-flow: wrap;
+	text-decoration: none;
+}
+
+
+
+	.layout-as-cards a {
+		text-decoration: none;
+		color: white;
+		/*width: 500px;*/
+		/*height:100px;*/
+		margin: 10px;
+	}
+
+.card-title {
+	color: #dcdde8;
+}
+
+.btn-narrow {
+	max-width: 40px;
 }

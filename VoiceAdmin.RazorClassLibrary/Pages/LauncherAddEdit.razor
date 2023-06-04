@@ -26,7 +26,20 @@
                     <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
                                placeholder="Enter Command Line"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.CommandLine)" />
+                </div>               
+                <div class="form-group">
+                    <label for="WorkingDirectory">Working Directory:</label>
+                    <InputText id="WorkingDirectory" class="form-control" @bind-Value="@LauncherDTO.WorkingDirectory"
+                               placeholder="Enter Working Directory"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.WorkingDirectory)" />
                 </div>
+                <div class="form-group">
+                    <label for="Arguments">Arguments:</label> 
+                    <InputText id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
+                               placeholder="Enter Arguments"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Arguments)" />
+                </div>
+
                 <div class="form-group">
                     <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
                     <InputSelect id="category" class="form-control col-sm-8" @bind-Value="@LauncherDTO.CategoryId">
@@ -49,17 +62,11 @@
                                  placeholder="Enter Favourite"></InputCheckbox>
                     <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
                 </div>
-
-            </div>
-            
-            <div class="col-12">
-                 @* Move here for the next display column if required *@
             </div>
         </div>
-        <hr>
         <div class="btn-group" style="float:right">
-            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@Close"><u>C</u>ancel</a>
-            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+            <button accesskey="c" class="btn btn-sm btn-outline-primary m-1" @onclick="@Close"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary m-1"><u>S</u>ave Record</button>
         </div>
     </EditForm>
 </div>

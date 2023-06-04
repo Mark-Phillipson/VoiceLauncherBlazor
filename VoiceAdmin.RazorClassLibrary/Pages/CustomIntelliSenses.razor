@@ -199,6 +199,7 @@ else
                                 }
                             </select>
                         </td>
+                        
                         <td>
                             <button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i class="oi oi-pencil"></i></button>
                             <button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
@@ -212,8 +213,7 @@ else
         </table>
     }
 
-
-
+    
 }
 @if (CustomIntellisenseIdDelete != null)
 {

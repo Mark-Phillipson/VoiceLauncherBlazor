@@ -19,9 +19,9 @@ namespace RazorClassLibrary.Pages
     public partial class WindowsSpeechVoiceCommandTable : ComponentBase
     {
         [Inject] public CreateCommands? CreateCommands { get; set; }
-        [Inject] public IWindowsSpeechVoiceCommandDataService? WindowsSpeechVoiceCommandDataService { get; set; }
-        [Inject] public ICustomWindowsSpeechCommandDataService? CustomWindowsSpeechVoiceCommandDataService { get; set; }
-
+        [Inject] public  required IWindowsSpeechVoiceCommandDataService WindowsSpeechVoiceCommandDataService { get; set; }
+        [Inject] public required  ICustomWindowsSpeechCommandDataService CustomWindowsSpeechVoiceCommandDataService { get; set; }
+        [Inject] public  required ISpokenFormDataService SpokenFormDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<WindowsSpeechVoiceCommandTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
@@ -246,6 +246,7 @@ namespace RazorClassLibrary.Pages
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    ApplyFilter(true);
                 }
             }
         }
@@ -258,7 +259,8 @@ namespace RazorClassLibrary.Pages
             WindowsSpeechVoiceCommandDTO newCommand = new WindowsSpeechVoiceCommandDTO()
             {
                 SpokenCommand = $"Copy of {original.SpokenCommand}",
-                Description = original.Description
+                Description = original.Description,
+                ApplicationName = original.ApplicationName
             };
             WindowsSpeechVoiceCommandDTO result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(newCommand);
             List<CustomWindowsSpeechCommandDTO> originalChildren = await CustomWindowsSpeechVoiceCommandDataService.GetAllCustomWindowsSpeechCommandsAsync(original.Id);
@@ -268,7 +270,13 @@ namespace RazorClassLibrary.Pages
                 item.WindowsSpeechVoiceCommandId = result.Id;
                 var resultChildren = await CustomWindowsSpeechVoiceCommandDataService.AddCustomWindowsSpeechCommand(item);
             }
-
+            List<SpokenFormDTO> originalSpokenForms = await SpokenFormDataService.GetAllSpokenFormsAsync(original.Id);
+            foreach (SpokenFormDTO item in originalSpokenForms)
+            {
+                item.Id = 0;
+                item.WindowsSpeechVoiceCommandId = result.Id;
+                var resultSpokenForms = await SpokenFormDataService.AddSpokenForm(item);
+            }
             if (NavigationManager != null)
             {
                 NavigationManager.NavigateTo(NavigationManager.Uri, true);

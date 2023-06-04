@@ -1,6 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using System.Diagnostics;
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">VoiceAdminMAUI</a>
+        <a class="navbar-brand" href="">Desktop Voice Admin</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -15,13 +16,29 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-      <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Custom IntelliSense
+            <NavLink accesskey="l" class="nav-link" href="languages">
+                <span class="oi oi-flag" aria-hidden="true"></span> <u>L</u>anguages
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            <NavLink class="nav-link" href="launchersfavourites">
+                <i class="oi fa-solid fa-star"></i> Favourites
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="categoriestable">
+                <span class="oi oi-media-play" aria-hidden="true"></span>Launcher Categories
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="categories">
+                <span class="oi oi-tags" aria-hidden="true"></span> Categories
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link"  @onclick="@( ( ) => LaunchVoiceAdmin(  ) )">
+                <i class="oi fa-solid fa-rocket"></i> Web
             </NavLink>
         </div>
     </nav>
@@ -35,5 +52,20 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    private void LaunchVoiceAdmin()
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo();
+        psi.UseShellExecute = true;
+        psi.FileName = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\bin\Release\net7.0\publish\VoiceLauncher.exe";
+        psi.WorkingDirectory = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\bin\Release\net7.0\publish\";
+        psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
+        Process.Start(psi);
+        string commandIdParameter = "";
+        var uri = $"http://localhost:5000/windowsspeechvoicecommands{commandIdParameter}";
+        psi = new System.Diagnostics.ProcessStartInfo();
+        psi.UseShellExecute = true;
+        psi.FileName = uri;
+        Process.Start(psi);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Routing.Matching;
 
 namespace RazorClassLibrary.Pages
 {

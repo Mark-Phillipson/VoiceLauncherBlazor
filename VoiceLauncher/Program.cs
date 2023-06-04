@@ -1,17 +1,14 @@
-using DataAccessLibrary.Models;
-using DataAccessLibrary.Services;
-using DataAccessLibrary;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Configuration;
-using Blazored.Toast;
 using Blazored.Modal;
-using Microsoft.EntityFrameworkCore;
-using VoiceLauncher.Services;
+using Blazored.Toast;
+using DataAccessLibrary;
+using DataAccessLibrary.Models;
 using DataAccessLibrary.Repositories;
-using VoiceLauncher.Repositories;
+using DataAccessLibrary.Services;
+using Microsoft.EntityFrameworkCore;
 using SampleApplication.Repositories;
 using SampleApplication.Services;
+using VoiceLauncher.Repositories;
+using VoiceLauncher.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,15 +42,15 @@ builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindows
 builder.Services.AddScoped<ICustomWindowsSpeechCommandRepository, CustomWindowsSpeechCommandRepository>();
 builder.Services.AddScoped<IWindowsSpeechVoiceCommandRepository, WindowsSpeechVoiceCommandRepository>();
 builder.Services.AddScoped<IWindowsSpeechVoiceCommandDataService, WindowsSpeechVoiceCommandDataService>();
-builder.Services.AddScoped<IGrammarNameRepository, GrammarNameRepository>(); 
+builder.Services.AddScoped<IGrammarNameRepository, GrammarNameRepository>();
 builder.Services.AddScoped<IGrammarNameDataService, GrammarNameDataService>();
-builder.Services.AddScoped<IGrammarItemRepository, GrammarItemRepository>(); 
+builder.Services.AddScoped<IGrammarItemRepository, GrammarItemRepository>();
 builder.Services.AddScoped<IGrammarItemDataService, GrammarItemDataService>();
-builder.Services.AddScoped<IHtmlTagRepository, HtmlTagRepository>(); 
+builder.Services.AddScoped<IHtmlTagRepository, HtmlTagRepository>();
 builder.Services.AddScoped<IHtmlTagDataService, HtmlTagDataService>();
-builder.Services.AddScoped<IApplicationDetailRepository, ApplicationDetailRepository>(); 
+builder.Services.AddScoped<IApplicationDetailRepository, ApplicationDetailRepository>();
 builder.Services.AddScoped<IApplicationDetailDataService, ApplicationDetailDataService>();
-builder.Services.AddScoped<IIdiosyncrasyRepository, IdiosyncrasyRepository>(); 
+builder.Services.AddScoped<IIdiosyncrasyRepository, IdiosyncrasyRepository>();
 builder.Services.AddScoped<IIdiosyncrasyDataService, IdiosyncrasyDataService>();
 builder.Services.AddScoped<IPhraseListGrammarRepository, PhraseListGrammarRepository>();
 builder.Services.AddScoped<IPhraseListGrammarDataService, PhraseListGrammarDataService>();
@@ -76,9 +73,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();

@@ -12,6 +12,10 @@ namespace DataAccessLibrary.DTO
         public string Name { get; set; } = "";
         [StringLength(255)]
         public string CommandLine { get; set; }
+        [StringLength(255)]
+        public string WorkingDirectory { get; set; }
+        [StringLength(255)]
+        public string Arguments { get; set; }
         [Required]
         public int CategoryId { get; set; }
         public int? ComputerId { get; set; }

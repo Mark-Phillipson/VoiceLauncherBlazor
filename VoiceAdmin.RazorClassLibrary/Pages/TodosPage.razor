@@ -44,6 +44,7 @@
 		}
 	</header>
 	<a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
+	<button class="btn btn-outline-success btn-sm" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive Completed</button>
 	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
 
 	<h4>Current Todos</h4>

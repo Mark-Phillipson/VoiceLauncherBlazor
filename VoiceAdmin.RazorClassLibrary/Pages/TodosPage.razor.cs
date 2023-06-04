@@ -202,5 +202,13 @@ namespace RazorClassLibrary.Pages
             ProjectFilter = project;
             await ApplyFilter();
         }
+        private async Task ArchiveCompleted()
+        {
+            foreach (var todo in todos!.Where(x => x.Completed))
+			{
+				todo.Archived = true;
+				await TodoData.UpdateToDo(todo);
+			}
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,6 +18,10 @@ namespace DataAccessLibrary.Models
         public string Name { get; set; }
         [StringLength(255)]
         public string CommandLine { get; set; }
+        [StringLength(255)]
+        public string WorkingDirectory { get; set; }
+        [StringLength(255)]
+        public string Arguments { get; set; }
         [Column("CategoryID")]
         public int CategoryId { get; set; }
         [Column("ComputerID")]
