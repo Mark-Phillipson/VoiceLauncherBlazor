@@ -216,7 +216,7 @@ namespace RazorClassLibrary.Pages
             }
             else
             {
-                var psi = new System.Diagnostics.ProcessStartInfo();
+                var psi = new ProcessStartInfo();
                 psi.UseShellExecute = true;
                 psi.FileName = launcher.CommandLine;
                 psi.WorkingDirectory = launcher.WorkingDirectory;

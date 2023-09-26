@@ -33,86 +33,92 @@ else if (FilteredCustomIntelliSenseDTO.Count == 0)
 }
 else
 {
-    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
-        <thead>
-            <tr>
-              <th>ID</th>
-              <th>Language ID</th>
-              <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
-                        <i class="fas fa-sort-alpha-up"></i>
-                    </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
-                        <i class="fas fa-sort-alpha-up-alt"></i>
-                    </button>
-                    Display Value
-                </th>
-              <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("SendKeysValue"))">
-                        <i class="fas fa-sort-alpha-up"></i>
-                    </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("SendKeysValue Desc"))">
-                        <i class="fas fa-sort-alpha-up-alt"></i>
-                    </button>
-                    Send Keys Value
-                </th>
-              <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("CommandType"))">
-                        <i class="fas fa-sort-alpha-up"></i>
-                    </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("CommandType Desc"))">
-                        <i class="fas fa-sort-alpha-up-alt"></i>
-                    </button>
-                    Command Type
-                </th>
-              <th>Category ID</th>
-              <th>Remarks</th>
-              <th>Search</th>
-              <th>Computer ID</th>
-              <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DeliveryType"))">
-                        <i class="fas fa-sort-alpha-up"></i>
-                    </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DeliveryType Desc"))">
-                        <i class="fas fa-sort-alpha-up-alt"></i>
-                    </button>
-                    Delivery Type
-                </th>
-                <th>
-                    <button accesskey="+" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
-            {
-                <tr>
-                    <td>
-                        <button class="btn btn-sm btn-link" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
-                            @customIntelliSense.Id
-                        </button>
-                    </td>
-                    <td>@customIntelliSense.LanguageId</td>
-                    <td>@customIntelliSense.DisplayValue</td>
-                    <td>@customIntelliSense.SendKeysValue</td>
-                    <td>@customIntelliSense.CommandType</td>
-                    <td>@customIntelliSense.CategoryId</td>
-                    <td>@customIntelliSense.Remarks</td>
-                    <td>@customIntelliSense.Search</td>
-                    <td>@customIntelliSense.ComputerId</td>
-                    <td>@customIntelliSense.DeliveryType</td>
-                    <td class="btn-group-vertical">
-                        <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div style="height:500px;overflow-y:scroll">
+        <Virtualize Items="@FilteredCustomIntelliSenseDTO" Context="item">
+            <CustomIntellisenseSummary @key="item.Id" Item="item" />
+        </Virtualize>
+    </div>
+
+     @* <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+         <thead>
+             <tr>
+                 <th>ID</th>
+                 <th>Language ID</th>
+                 <th>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
+                         <i class="fas fa-sort-alpha-up"></i>
+                     </button>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
+                         <i class="fas fa-sort-alpha-up-alt"></i>
+                     </button>
+                     Display Value
+                 </th>
+                 <th>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("SendKeysValue"))">
+                         <i class="fas fa-sort-alpha-up"></i>
+                     </button>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("SendKeysValue Desc"))">
+                         <i class="fas fa-sort-alpha-up-alt"></i>
+                     </button>
+                     Send Keys Value
+                 </th>
+                 <th>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("CommandType"))">
+                         <i class="fas fa-sort-alpha-up"></i>
+                     </button>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("CommandType Desc"))">
+                         <i class="fas fa-sort-alpha-up-alt"></i>
+                     </button>
+                     Command Type
+                 </th>
+                 <th>Category ID</th>
+                 <th>Remarks</th>
+                 <th>Search</th>
+                 <th>Computer ID</th>
+                 <th>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DeliveryType"))">
+                         <i class="fas fa-sort-alpha-up"></i>
+                     </button>
+                     <button class="btn btn-sm" @onclick="@(() => SortCustomIntelliSense("DeliveryType Desc"))">
+                         <i class="fas fa-sort-alpha-up-alt"></i>
+                     </button>
+                     Delivery Type
+                 </th>
+                 <th>
+                     <button accesskey="+" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success btn-sm">
+                         <i class="fas fa-plus"></i>
+                     </button>
+                 </th>
+             </tr>
+         </thead>
+         <tbody>
+             @foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
+             {
+                 <tr>
+                     <td>
+                         <button class="btn btn-sm btn-link" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+                             @customIntelliSense.Id
+                         </button>
+                     </td>
+                     <td>@customIntelliSense.LanguageId</td>
+                     <td>@customIntelliSense.DisplayValue</td>
+                     <td>@customIntelliSense.SendKeysValue</td>
+                     <td>@customIntelliSense.CommandType</td>
+                     <td>@customIntelliSense.CategoryId</td>
+                     <td>@customIntelliSense.Remarks</td>
+                     <td>@customIntelliSense.Search</td>
+                     <td>@customIntelliSense.ComputerId</td>
+                     <td>@customIntelliSense.DeliveryType</td>
+                     <td class="btn-group-vertical">
+                         <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </td>
+                 </tr>
+             }
+         </tbody>
+     </table> *@
 }

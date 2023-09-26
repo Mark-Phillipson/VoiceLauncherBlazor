@@ -4,13 +4,14 @@
 	flex-direction: column;
 	flex-flow: wrap;
 	text-decoration: none;
-	justify-content: space-evenly;
+	justify-content: stretch;
 	color:white;
-		gap:10px 20px
+		gap:3px 
+
 }
 
 .card {
-	box-shadow: grey 2px 2px;
+	/*box-shadow: grey 2px 2px;*/
 	background-color: #464646;
 }
 

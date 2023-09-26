@@ -1,120 +1,137 @@
 @page "/customintellisense/{Id:int?}"
-<div style="min-width:80vw">
-    <h4>@Title</h4>
-    <EditForm Model="@CustomIntelliSenseDTO" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        @*<ValidationSummary />*@
-        @if (CustomIntelliSenseDTO.Id > 0)
-        {
-            <span class="text-info m-1">@CustomIntelliSenseDTO.Id</span>
-        }
-        <div class="row">
-            <div class="col-4">
-                <div class="form-group">
-                    <label for="LanguageId">Language: </label> <i class="text-danger fa">*</i>
-                    <InputSelect id="LanguageId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
-                        @foreach (var item in languages)
-                        {
-                            <option value="@item.Id">@item.LanguageName</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.LanguageId)" />
-                </div>
-                <div class="form-group">
-                    <label for="DisplayValue">Display Value: </label> <i class="text-danger fa">*</i>
-                    <InputText id="DisplayValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DisplayValue"
-                               placeholder="Enter Display Value"></InputText>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="form-group">
-                    <label for="SendKeysValue">Send Keys Value: </label>
-                    <span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
-                    <InputTextArea rows="11" id="SendKeysValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
-                                   placeholder="Enter Send Keys Value"></InputTextArea>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
-                </div>
-                @if (CustomIntelliSenseDTO.SendKeysValue != null)
-                {
-                    <div class="row">
-                        <div class="col-6">
-                            @if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable1`"))
-                            {
-                                <input type="text" class="form-control" @bind="variable1" placeholder="Enter for Variable 1" />
-                            }
-                            @if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable2`"))
-                            {
-                                <input type="text" class="form-control" @bind="variable2" placeholder="Enter for Variable 2" />
-                            }
-                            @if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable3`"))
-                            {
-                                <input type="text" class="form-control" @bind="variable3" placeholder="Enter for Variable 3" />
-                            }
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
+<div style="min-width:95vw">
+	<h4>@Title</h4>
+	<EditForm Model="@CustomIntelliSenseDTO" OnValidSubmit="HandleValidSubmit">
+		<DataAnnotationsValidator />
+		@*<ValidationSummary />*@
+		@if (CustomIntelliSenseDTO.Id > 0)
+		{
+			<span class="text-info m-1">@CustomIntelliSenseDTO.Id</span>
+		}
+		<div class="row">
+			<div class="col-2">
+				<div class="form-group">
+					<label for="LanguageId">Language: </label> <i class="text-danger fa">*</i>
+					<InputSelect id="LanguageId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
+						@foreach (var item in languages)
+						{
+							<option value="@item.Id">@item.LanguageName</option>
+						}
+					</InputSelect>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.LanguageId)" />
+				</div>
+				<div class="form-group">
+					<label for="DisplayValue">Display Value: </label> <i class="text-danger fa">*</i>
+					<InputText id="DisplayValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DisplayValue"
+								  placeholder="Enter Display Value"></InputText>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
+				</div>
+			</div>
+			<div class="col-7">
+				<div class="form-group">
+					<label for="SendKeysValue">Send Keys Value: </label>
+					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
+					<InputTextArea rows="11" id="SendKeysValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
+										placeholder="Enter Send Keys Value"></InputTextArea>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
+				</div>
+				@if (CustomIntelliSenseDTO.SendKeysValue != null)
+				{
+					<div class="row g-1">
+						<div class="col-6">
+							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable1`"))
+							{
+								<div class="form-group">
+									<label>Variable1:</label>
+									<input type="text" id="Variable1" @oninput="@(() => CallChangeAsync("Variable1"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
+								</div>
+							}
+							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable2`"))
+							{
+								<div class="form-group">
+									<label>Variable2:</label>
+									<input type="text" id="Variable2" @oninput="@(() => CallChangeAsync("Variable2"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable2" placeholder="Enter for Variable 2" />
+								</div>
+							}
+							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable3`"))
+							{
+								<div class="form-group">
+									<label>Variable3:</label>
+									<input type="text" id="Variable3" @oninput="@(() => CallChangeAsync("Variable3"))" class="form-control" @bind="CustomIntelliSenseDTO.Variable3" placeholder="Enter for Variable 3" />
+								</div>
+							}
+						</div>
+						<div class="col-6">
+							<button type="button" class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
+								<i class="fa-regular fa-copy"></i>
+							</button>
+							<button type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
+								<i class="fa-solid fa-paste"></i>
+							</button>
+						</div>
+						<div class="col-12 ">
+							@if (!string.IsNullOrWhiteSpace(example))
+							{
+								<textarea @bind="@example" class="form-control" rows="7"></textarea>
+							}
+						</div>
+					</div>
+				}
 
-                        </div>
-                    </div>
-                }
-
-            </div>
+			</div>
 
 
-            <div class="col-4">
-                <div class="form-group">
-                    <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
-                    <InputSelect id="CategoryId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
-                        @foreach (var item in categories)
-                        {
-                            <option value="@item.Id">@item.CategoryName</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.CategoryId)" />
-                </div>
-                <div class="form-group">
-                    <label for="Remarks">Remarks: </label>
-                    <InputTextArea rows="2" id="Remarks" class="form-control" @bind-Value="@CustomIntelliSenseDTO.Remarks"
-                                   placeholder="Enter Remarks"></InputTextArea>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.Remarks)" />
-                </div>
-                <div class="form-group">
-                    <label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.ComputerId"
-                                                                                                  placeholder="Enter Computer ID"></InputNumber>
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.ComputerId)" />
-                </div>
-                <div class="form-group">
-                    <label for="DeliveryType">Delivery Type:</label> <i class="text-danger fa">*</i>
-                    @if (generalLookups != null)
-                    {
+			<div class="col-3">
+				<div class="form-group">
+					<label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
+					<InputSelect id="CategoryId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
+						@foreach (var item in categories)
+						{
+							<option value="@item.Id">@item.CategoryName</option>
+						}
+					</InputSelect>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.CategoryId)" />
+				</div>
+				<div class="form-group">
+					<label for="Remarks">Remarks: </label>
+					<InputTextArea rows="6" id="Remarks" class="form-control" @bind-Value="@CustomIntelliSenseDTO.Remarks"
+										placeholder="Enter Remarks"></InputTextArea>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.Remarks)" />
+				</div>
+				<div class="form-group">
+					<label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.ComputerId"
+																											  placeholder="Enter Computer ID"></InputNumber>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.ComputerId)" />
+				</div>
+				<div class="form-group">
+					<label for="DeliveryType">Delivery Type:</label> <i class="text-danger fa">*</i>
+					@if (generalLookups != null)
+					{
 
-                        <InputSelect id="DeliveryType" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DeliveryType">
-                            @foreach (var item in generalLookups)
-                            {
-                                <option value="@item.ItemValue">@item.ItemValue</option>
-                            }
+						<InputSelect id="DeliveryType" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DeliveryType">
+							@foreach (var item in generalLookups)
+							{
+								<option value="@item.ItemValue">@item.ItemValue</option>
+							}
 
-                        </InputSelect>
-                    }
-                    <ValidationMessage For="@(() => CustomIntelliSenseDTO.DeliveryType)" />
-                </div>
-            </div>
-            <div class="col-6">
-                @* Move here for the next display column if required *@
-            </div>
-        </div>
-        <hr>
-        <div class="btn-group" style="float:right">
-            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
-            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
-        </div>
-    </EditForm>
-    @if (CustomIntelliSenseDTO?.Id > 0)
-    {
-        <AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
-    }
+						</InputSelect>
+					}
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DeliveryType)" />
+				</div>
+			</div>
+			<div class="col-6">
+				@* Move here for the next display column if required *@
+			</div>
+		</div>
+		<hr>
+		<div class="btn-group" style="float:right">
+			<a accesskey="c" class="btn btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
+			<button @TaskRunning accesskey="s" type="submit" class="btn  btn-primary"><u>S</u>ave Record</button>
+		</div>
+	</EditForm>
+	@if (CustomIntelliSenseDTO?.Id > 0)
+	{
+		<AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
+	}
 
 </div>

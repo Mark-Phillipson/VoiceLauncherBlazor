@@ -4,9 +4,8 @@
 	flex-direction: row;
 	flex-flow: wrap;
 	text-decoration: none;
+	gap: 3px;
 }
-
-
 
 	.layout-as-cards a {
 		text-decoration: none;
