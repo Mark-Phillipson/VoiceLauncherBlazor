@@ -6,6 +6,9 @@ namespace DataAccessLibrary.DTO
    public partial class CustomIntelliSenseDTO
    {
       [Key]
+
+
+
       public int Id { get; set; }
       [Required]
       public int LanguageId { get; set; }

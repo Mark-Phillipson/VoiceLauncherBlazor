@@ -37,9 +37,6 @@
 	  <Content Update="wwwroot\images\VisualStudioLogoLarge.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
-	  <Content Update="wwwroot\MyKBCommands.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
 	  <Content Update="wwwroot\MyKBCommandsNewCommands.xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>

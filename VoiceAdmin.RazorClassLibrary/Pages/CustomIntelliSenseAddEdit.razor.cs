@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
+using RazorClassLibrary.helpers;
+
 using VoiceLauncher.Services;
 
 using WindowsInput;
@@ -20,6 +22,7 @@ namespace RazorClassLibrary.Pages
 	{
 		[Inject] IToastService? ToastService { get; set; }
 		[CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
+		[Inject] public required NavigationManager NavigationManager { get; set; }
 		[Parameter] public string? Title { get; set; }
 		[Inject] public ILogger<CustomIntelliSenseAddEdit>? Logger { get; set; }
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
@@ -37,9 +40,13 @@ namespace RazorClassLibrary.Pages
 		private List<DataAccessLibrary.Models.GeneralLookup>? generalLookups { get; set; }
 		private string example { get; set; } = "";
 		[Inject] public required GeneralLookupService GeneralLookupDataService { get; set; }
+
+
+
 #pragma warning disable 414, 649
 		bool TaskRunning = false;
 #pragma warning restore 414, 649
+		 string Message = "";
 		protected override async Task OnInitializedAsync()
 		{
 			if (CustomIntelliSenseDataService == null)
@@ -174,6 +181,25 @@ namespace RazorClassLibrary.Pages
 			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
 			example = FillInVariables(CustomIntelliSenseDTO.SendKeysValue);
 		}
-
+		private async Task DeleteRecord()
+		{
+			if (Id>0)
+			{
+				await CustomIntelliSenseDataService!.DeleteCustomIntelliSense((int)Id); 
+				NavigationManager.NavigateTo("/intellisenses");
+			}
+		}
+		private void CreateSnippet()
+		{
+			var result = ManageSnippets.CreateSnippet(CustomIntelliSenseDTO);
+			if (result)
+			{
+				Message = "Snippet Created Successfully";
+			}
+			else
+			{
+				Message = "Snippet Creation Failed";
+			}
+		}
 	}
 }

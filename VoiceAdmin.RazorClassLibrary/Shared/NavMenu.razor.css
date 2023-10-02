@@ -52,11 +52,11 @@
 		}
 
 .nav-item {
-	min-width: 290px;
+	min-width: 230px;
 }
 
 .nav-link {
-	min-width: 240px;
+	min-width: 230px;
 }
 
 @media (min-width: 768px) {

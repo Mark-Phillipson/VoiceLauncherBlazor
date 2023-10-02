@@ -8,6 +8,8 @@ namespace RazorClassLibrary.Pages
         void GoHome()
         {
             NavigationManager!.NavigateTo("/");
+
+
         }
     }
 }

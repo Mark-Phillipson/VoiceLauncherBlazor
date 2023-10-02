@@ -1,12 +1,22 @@
 @page "/customintellisense/{Id:int?}"
 <div style="min-width:95vw">
 	<h4>@Title</h4>
+
 	<EditForm Model="@CustomIntelliSenseDTO" OnValidSubmit="HandleValidSubmit">
 		<DataAnnotationsValidator />
 		@*<ValidationSummary />*@
 		@if (CustomIntelliSenseDTO.Id > 0)
 		{
 			<span class="text-info m-1">@CustomIntelliSenseDTO.Id</span>
+		}
+		@if (!string.IsNullOrWhiteSpace(Message))
+		{
+			<div class="alert alert-info alert-dismissible fade show" role="alert">
+				<strong>Please Note</strong> @Message
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
 		}
 		<div class="row">
 			<div class="col-2">
@@ -43,7 +53,7 @@
 							{
 								<div class="form-group">
 									<label>Variable1:</label>
-									<input type="text" id="Variable1" @oninput="@(() => CallChangeAsync("Variable1"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
+									<input autofocus="true" type="text" id="Variable1" @oninput="@(() => CallChangeAsync("Variable1"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
 								</div>
 							}
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable2`"))
@@ -68,6 +78,7 @@
 							<button type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-solid fa-paste"></i>
 							</button>
+							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Snippet</button>
 						</div>
 						<div class="col-12 ">
 							@if (!string.IsNullOrWhiteSpace(example))
@@ -77,11 +88,8 @@
 						</div>
 					</div>
 				}
-
 			</div>
-
-
-			<div class="col-3">
+			<div class="col-2">
 				<div class="form-group">
 					<label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="CategoryId" class="form-control" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
@@ -126,6 +134,7 @@
 		<hr>
 		<div class="btn-group" style="float:right">
 			<a accesskey="c" class="btn btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
+			<button class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">Delete Record</button>
 			<button @TaskRunning accesskey="s" type="submit" class="btn  btn-primary"><u>S</u>ave Record</button>
 		</div>
 	</EditForm>

@@ -14,7 +14,7 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 200)
+		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter= null , string categoryFilter= null )
 		{
 			using var context = _contextFactory.CreateDbContext();
 			IQueryable<CustomIntelliSense> intellisenses = null;
@@ -26,6 +26,7 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
+			intellisenses = intellisenses.Where(v => v.Language.Active);
 			if (Environment.MachineName != "J40L4V3")
 			{
 				intellisenses = intellisenses.Where(v => v.Category.Sensitive == false);
@@ -33,6 +34,14 @@ namespace DataAccessLibrary.Services
 			if (searchTerm != null && searchTerm.Length > 0)
 			{
 				intellisenses = intellisenses.Where(v => v.DisplayValue.Contains(searchTerm) || v.SendKeysValue.Contains(searchTerm));
+			}
+			if (!string.IsNullOrWhiteSpace(languageFilter))
+			{
+				intellisenses = intellisenses.Where(v => v.Language.LanguageName.Contains(languageFilter) );
+			}
+			if (!string.IsNullOrWhiteSpace(categoryFilter))
+			{
+				intellisenses = intellisenses.Where(v => v.Category.CategoryName.Contains(categoryFilter));
 			}
 			if (sortType != null && sortColumn != null)
 			{
