@@ -20,7 +20,7 @@ namespace DataAccessLibrary.Services
 			IQueryable<CustomIntelliSense> intellisenses = null;
 			try
 			{
-				intellisenses = context.CustomIntelliSenses.Include(i => i.Category).Include(i => i.Language).OrderBy(v => v.Category);
+				intellisenses = context.CustomIntelliSenses.Include(i => i.Category).AsSingleQuery().Include(i => i.Language).AsSingleQuery().OrderBy(v => v.Category);
 			}
 			catch (Exception exception)
 			{

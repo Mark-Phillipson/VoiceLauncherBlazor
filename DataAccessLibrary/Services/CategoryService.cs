@@ -28,7 +28,7 @@ namespace DataAccessLibrary.Services
 				try
 				{
 					//categories = context.Categories.OrderBy(v => v.CategoryName);
-					categories = context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launchers).OrderBy(v => v.CategoryName);
+					categories = context.Categories.Include(i => i.CustomIntelliSense).Include(i => i.Launchers).AsSingleQuery().OrderBy(v => v.CategoryName);
 				}
 				catch (Exception exception)
 				{
