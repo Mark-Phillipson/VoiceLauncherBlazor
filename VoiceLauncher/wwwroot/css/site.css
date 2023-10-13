@@ -320,3 +320,12 @@ header > h3 {
 	width: 30px;
 	height: 30px;
 }
+.layout-as-cards {
+	display: flex;
+	flex-direction: column;
+	flex-flow: wrap;
+	text-decoration: none;
+	justify-content: stretch;
+	color: white;
+	gap: 3px
+}

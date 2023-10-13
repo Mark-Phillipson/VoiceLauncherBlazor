@@ -25,7 +25,7 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required NavigationManager NavigationManager { get; set; }
 		[Parameter] public string? Title { get; set; }
 		[Inject] public ILogger<CustomIntelliSenseAddEdit>? Logger { get; set; }
-		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		[Inject] public  required IJSRuntime JSRuntime { get; set; }
 		[Parameter] public int? Id { get; set; }
 		[Parameter] public int CategoryID { get; set; }
 		public CustomIntelliSenseDTO CustomIntelliSenseDTO { get; set; } = new CustomIntelliSenseDTO();//{ };
@@ -83,7 +83,7 @@ namespace RazorClassLibrary.Pages
 				{
 					if (JSRuntime != null)
 					{
-						await JSRuntime.InvokeVoidAsync("window.setFocus", "DisplayValue");
+						await JSRuntime.InvokeVoidAsync("window.setFocus", "CopyButton");
 					}
 				}
 				catch (Exception exception)

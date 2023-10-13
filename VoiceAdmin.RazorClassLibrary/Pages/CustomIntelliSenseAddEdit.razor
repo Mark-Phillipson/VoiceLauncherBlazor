@@ -41,7 +41,7 @@
 				<div class="form-group">
 					<label for="SendKeysValue">Send Keys Value: </label>
 					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
-					<InputTextArea rows="11" id="SendKeysValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
+					<InputTextArea rows="11" id="SendKeysValue" style="font-family: 'Cascadia Code', monospace; font-size: 19px; line-height: 1.5; padding: 10px; width: 100%; display: block;" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
 										placeholder="Enter Send Keys Value"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
 				</div>
@@ -72,7 +72,7 @@
 							}
 						</div>
 						<div class="col-6">
-							<button type="button" class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
+							<button  id="CopyButton" type="button" class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-regular fa-copy"></i>
 							</button>
 							<button type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
