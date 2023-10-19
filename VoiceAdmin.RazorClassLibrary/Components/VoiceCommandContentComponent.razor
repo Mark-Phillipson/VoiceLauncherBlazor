@@ -2,6 +2,7 @@
 	<tr>
 		<td>
 			@VoiceCommandContent!.Type
+			<button class="btn btn-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent!.Content) )">Copy Code</button>
 		</td>
 		<td>
 			@{
@@ -12,9 +13,6 @@
 				}
 			}
 			<pre><code class="@languageClass">@VoiceCommandContent?.Content</code></pre>
-		</td>
-		<td>
-			<button class="btn btn-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent!.Content) )">Copy Code</button>
 		</td>
 	</tr>
 </table>
