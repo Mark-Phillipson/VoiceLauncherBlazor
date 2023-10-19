@@ -1,11 +1,11 @@
 @page "/commandsetoverview"
-@inject IJSRuntime JSRuntime
+
 @using RazorClassLibrary.Components
 
 <div style="margin:4px">
 	<h6>
-		@Title / KnowBrainer: @CommandSet?.KBFilename <span class="badge badge-primary">@CommandSet?.KBScripts</span> <span class="badge badge-primary">@CommandSet?.KBLists</span>
-		/ Dragon: @CommandSet?.DragonFilename <span class="badge badge-info">@CommandSet?.DragonScripts</span> <span class="badge badge-info">@CommandSet?.DragonLists</span>
+		@Title / KnowBrainer: @CommandSet?.KBFilename <span class="badge badge-primary" title="Number of scripts">@CommandSet?.KBScripts</span> <span class="badge badge-primary" title="Number of Lists">@CommandSet?.KBLists</span>
+		/ Dragon: @CommandSet?.DragonFilename <span class="badge badge-info" title="Number of Commands">@CommandSet?.DragonScripts</span> <span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
 	</h6>
 	<label class="control-label">Select KnowBrainer custom file</label>
 	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
@@ -13,17 +13,17 @@
 	<InputFile OnChange="ImportFileAsync" class="btn btn-info btn-sm border border-info" @onclick="@(() => SetImportFlag(false))" />
 </div>
 <div class="form-inline">
-	<div style="margin:4px">	<label class="control-label">Show</label></div>
+	<div style="margin:4px">	<label for="ShowCommands" class="control-label">Show</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
+		<input id="ShowCommands" type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
 	</div>
-	<div style="margin:4px">	<label class="control-label">Show Lists</label></div>
+	<div style="margin:4px">	<label for="ShowLists" class="control-label">Show Lists</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
+		<input type="checkbox" id="ShowLists" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
 	</div>
-	<div style="margin:4px">	<label class="control-label">Show Code</label></div>
+	<div style="margin:4px">	<label for="ShowCode" class="control-label">Show Code</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" class="form-control-lg" @bind="@ShowCode" title="Hide Code Only" />
+		<input type="checkbox" id="ShowCode" class="form-control-lg" @bind="@ShowCode" title="Hide Code Only" />
 	</div>
 	<div style="margin:4px"><label class="control-label ml-4">Filter by Name</label></div>
 	<div style="margin:6px">
@@ -114,8 +114,8 @@ else
 							 .OrderBy(a => a.Name))
 							{
 								<tr>
-									<td colspan="3" @onclick="@(() => CommandDrillDown(voiceCommand.Name))">
-										<button class="btn btn-primary btn-sm">@voiceCommand.Name</button>
+										<td title="Click to filter and copy" @onclick="@(() => CommandDrillDownAsync(voiceCommand.Name))">
+											<button class="btn btn-success">@voiceCommand.Name</button>
 									</td>
 									<td>
 										@voiceCommand.Description

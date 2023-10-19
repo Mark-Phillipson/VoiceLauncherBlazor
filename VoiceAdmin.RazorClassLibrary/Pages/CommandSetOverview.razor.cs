@@ -8,17 +8,20 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting; 
+using Microsoft.JSInterop;
 namespace RazorClassLibrary.Pages
 {
   public partial class CommandSetOverview : ComponentBase
   {
     public CommandSetService? CommandSetService { get; set; }
+
     [Inject] NavigationManager? NavigationManager { get; set; }
     [Inject] public ILogger<CommandSetOverview>? Logger { get; set; }
     [Inject] Microsoft.AspNetCore.Hosting.IWebHostEnvironment? WebHostEnvironment { get; set; }
     [Inject] public IToastService? ToastService { get; set; }
     [CascadingParameter] public IModalService? Modal { get; set; }
+		[Inject] public IJSRuntime? JavaScriptRuntime { get; set; }
+		private string? _result { get; set; }
     public bool ViewNew { get; set; } = true;
     public bool ShowCommands { get; set; } = true;
     public bool ShowLists { get; set; } = false;
@@ -174,9 +177,13 @@ namespace RazorClassLibrary.Pages
         FilteredTargetApplications = FilteredTargetApplications!.OrderBy(o => o.Company).ToList();
       }
     }
-    public void CommandDrillDown(string name)
+		public async Task CommandDrillDownAsync(string name)
     {
       SearchTerm = name;
+			await JavaScriptRuntime!.InvokeVoidAsync(
+	 "clipboardCopy.copyText", name);
+			_result = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
+			ToastService!.ShowSuccess(_result);
     }
     async Task ImportFileAsync(InputFileChangeEventArgs arguments)
     {

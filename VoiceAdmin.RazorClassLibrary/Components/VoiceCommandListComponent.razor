@@ -18,7 +18,9 @@
 						.First().ListValues) 
 						{
 							@listValue?.Value_Text <span> | </span>
+							_listContents=_listContents+listValue?.Value_Text + Environment.NewLine;
 						}
+						<button class="btn btn-outline-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(_listContents ) )">Copy List</button>
 					</td>
 				</tr>
 			</table>
