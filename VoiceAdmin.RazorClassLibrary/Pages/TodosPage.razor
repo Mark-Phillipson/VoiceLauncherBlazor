@@ -24,12 +24,8 @@
 						<div class="layout-as-cards">
 							@foreach (var item in Projects)
 							{
-								<a class="btn btn-lg btn-outline-dark" @onclick="@(() => FilterByProjectAsync( item ))">
-									<div class="card-body">
-										<h5 class="card-title">@item</h5>
-										<div class="card-text">
-										</div>
-									</div>
+								<a class="btn btn-sm btn-outline-dark" @onclick="@(() => FilterByProjectAsync( item ))">
+										<span class="text-danger">@item</span>
 								</a>
 							}
 						</div>

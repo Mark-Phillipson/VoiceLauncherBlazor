@@ -20,7 +20,7 @@ namespace RazorClassLibrary.Pages
         public List<string> Projects { get; set; } = new List<string>();
         public string? ProjectFilter { get; set; }
         public string? StatusMessage { get; set; }
-        public bool ShowProjects { get; set; } = false;
+        public bool ShowProjects { get; set; } = true;
         private int PercentDone
         {
             get
@@ -201,6 +201,7 @@ namespace RazorClassLibrary.Pages
         {
             ProjectFilter = project;
             await ApplyFilter();
+
         }
         private async Task ArchiveCompleted()
         {

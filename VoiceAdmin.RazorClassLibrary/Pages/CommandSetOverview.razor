@@ -1,11 +1,20 @@
 @page "/commandsetoverview"
 
 @using RazorClassLibrary.Components
-
+@if (!string.IsNullOrEmpty(Message))
+{
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<strong>Warning</strong> @Message
+	</div>
+}
 <div style="margin:4px">
 	<h6>
-		@Title / KnowBrainer:  @CommandSet?.KBFilename <span class="badge badge-primary" title="Number of scripts">@CommandSet?.KBScripts</span> <span class="badge badge-primary" title="Number of Lists">@CommandSet?.KBLists</span>
-		/ Dragon: @CommandSet?.DragonFilename <span class="badge badge-info" title="Number of Commands">@CommandSet?.DragonScripts</span> <span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
+		@Title / <span class="text-primary">KnowBrainer</span>:
+		<button class="btn btn-sm btn-outline-primary" type="button" @onclick="@(() => OpenFileKb())">  @CommandSet?.KBFilename </button>
+		Commands <span class="badge badge-primary" title="Number of scripts">@CommandSet?.KBScripts</span> Lists <span class="badge badge-primary" title="Number of Lists">@CommandSet?.KBLists</span>
+		/ <span class="text-info">Dragon</span>:
+		<button class="btn btn-sm btn-outline-info" type="button" @onclick="@(() => OpenFileDragon())">@CommandSet?.DragonFilename</button>
+		Commands <span class="badge badge-info" title="Number of Commands">@CommandSet?.DragonScripts</span> Lists <span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
 	</h6>
 	<label class="control-label">Select KnowBrainer custom file</label>
 	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
@@ -32,6 +41,24 @@
 	<div style="margin:4px">
 		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Filter by Applications" />
 	</div>
+	@{
+		string partialClass = "primary";
+	}
+	@if (FilteredTargetApplications != null)
+	{
+		@foreach (var item in FilteredTargetApplications.OrderBy(v => v.ModuleDescription))
+		{
+			if (item.CommandSource == "KB")
+			{
+				partialClass = "primary";
+			}
+			else
+			{
+				partialClass = "info";
+			}
+			<button type="button" class="btn btn-sm btn-outline-@partialClass m-1" @onclick="@(() => SetApplicationFilter(item.ModuleDescription))">@item.ModuleDescription <span class="badge badge-@partialClass">@item.VoiceCommands.Count</span></button>
+		}
+	}
 	<div style="margin:4px">
 		<button class="btn btn-success" type="button" @onclick="@( ( ) => BuildSearchUrl(  ) )">Build Search Url</button>
 	</div>
@@ -70,31 +97,33 @@ else
 				}
 				<tr>
 					<td>
-						<button class="btn btn-@className" type="button" @onclick="@( ( ) => ApplyApplicationFilter( targetApplication.Module ) )">
-							<span>Source @targetApplication.CommandSource | </span>
-							<span>Description @targetApplication.ModuleDescription | </span>
-							<span>Module @targetApplication.Module | </span>
-							<span>Scope @targetApplication.Scope | </span>
-							<span>Company @targetApplication.Company</span>
+						<button class="btn btn-outline-@className" type="button" @onclick="@( ( ) => ApplyApplicationFilter( targetApplication.Module ) )">
+							<span class="m-1">Source</span><span class="text-warning"> @targetApplication.CommandSource </span>
+							<span class="m-1">Description</span><span class="text-danger"> @targetApplication.ModuleDescription </span>
+							<span class="m-1">Module</span><span class="text-secondary"> @targetApplication.Module </span>
+							<span class="m-1">Scope</span><span class="text-secondary"> @targetApplication.Scope </span>
+							<span class="m-1">Company</span><span class="text-secondary"> @targetApplication.Company</span>
 							@if (targetApplication.WindowTitle != null)
 							{
-								<span> | Window Title @targetApplication.WindowTitle</span>
+								<span class="m-1" >  Window Title </span><span class="text-secondary" >@targetApplication.WindowTitle</span>
 							}
 							@if (targetApplication.WindowClass != null)
 							{
-								<span> | Window Class @targetApplication.WindowClass</span>
+								<span class="m-1">  Window Class </span><span class="text-secondary" >@targetApplication.WindowClass</span>
 							}
+							<span class="m-1">Commands</span><span class="text-secondary">
+								<span class="badge badge-@className">@targetApplication.VoiceCommands.Count(c => c.Name.ToLower().Contains(SearchTerm.ToLower()))</span>
+								
+							</span>
 						</button>
 					</td>
 				</tr>
 				<tr>
-					@if (ShowCommands)
+					@if (ShowCommands && recordsReturned < 20)
 					{
-						@*<table class="table table-bordered table-striped table-condensed table-sm" id="tableCommands">
-							<thead>*@
 						<table style="background-color:slategrey">
 							<tr>
-								<th colspan="3">
+								<th>
 									Command Name
 								</th>
 								<th>
@@ -107,15 +136,18 @@ else
 									Enabled?
 								</th>
 							</tr>
-							@*@foreach (var voiceCommand in targetApplication.VoiceCommands.OrderBy(a => a.Name))*@
+							@{
+								var voiceCommands = targetApplication.VoiceCommands?.Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
+								&& v.Name.Length > 0)).Count();
+							}
 							@foreach (var voiceCommand in targetApplication.VoiceCommands
-							 .Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
-							   && v.Name.Length > 0))
-							 .OrderBy(a => a.Name))
+										.Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
+										&& v.Name.Length > 0))
+										.OrderBy(a => a.Name))
 							{
 								<tr>
-										<td title="Click to filter and copy" @onclick="@(() => CommandDrillDownAsync(voiceCommand.Name))">
-											<button class="btn btn-success">@voiceCommand.Name</button>
+									<td title="Click to filter and copy" @onclick="@(() => CommandDrillDownAsync(voiceCommand.Name))">
+										<button class="btn btn-success">@voiceCommand.Name</button>
 									</td>
 									<td>
 										@voiceCommand.Description
@@ -127,13 +159,16 @@ else
 										@voiceCommand.Enabled
 									</td>
 								</tr>
-								@if (ShowLists)
+								@if (voiceCommands < 50) // Anymore and the page will crash
 								{
-									<VoiceCommandListComponent CommandSet="@CommandSet" VoiceCommand="@voiceCommand" Show="@ShowLists" />
-								}
-								@if (ShowCode)
-								{
-									<VoiceCommandContentComponent VoiceCommandContent="@voiceCommand.VoiceCommandContents.FirstOrDefault()" />
+									@if (ShowLists)
+									{
+										<VoiceCommandListComponent CommandSet="@CommandSet" VoiceCommand="@voiceCommand" Show="@ShowLists" />
+									}
+									@if (ShowCode)
+									{
+										<VoiceCommandContentComponent VoiceCommandContent="@voiceCommand.VoiceCommandContents.FirstOrDefault()" />
+									}
 								}
 							}
 						</table>
