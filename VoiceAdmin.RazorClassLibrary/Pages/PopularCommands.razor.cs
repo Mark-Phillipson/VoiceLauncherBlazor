@@ -7,7 +7,7 @@ namespace RazorClassLibrary.Pages
     {
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Inject] NavigationManager? NavigationManager { get; set; }
-        public bool ShowVideo { get; set; } = true;
+        public bool ShowVideo { get; set; } = false;
         async Task FilterCommandAsync(string commandToFilter, string applicationToFilter = "devenv", bool showLists = false, string? youtubeUrl = null)
         {
             if (ShowVideo && youtubeUrl != null)
