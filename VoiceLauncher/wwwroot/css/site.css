@@ -329,3 +329,23 @@ header > h3 {
 	color: white;
 	gap: 3px
 }
+/* CSS code */
+.circle {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	border: 10px solid transparent;
+	border-top-color: blue;
+	border-bottom-color: red;
+	animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}

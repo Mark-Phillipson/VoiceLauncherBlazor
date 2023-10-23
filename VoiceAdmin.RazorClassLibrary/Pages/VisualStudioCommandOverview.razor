@@ -34,6 +34,7 @@ else
 				<th>
 					Caption
 				</th>
+				<th></th>
 				<th>Command</th>
 				@*<th>
 					<button accesskey="4" @onclick="AddNewVisualStudioCommandAsync" class="btn btn-success">Create (4) <i class="fas fa-plus"></i>
@@ -49,6 +50,10 @@ else
 						<button class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyAsync( visualstudiocommand.Caption ) )"><i class="fa-regular fa-copy"></i></button>
 				</td>
 				<td>@visualstudiocommand.Caption</td>
+					<td>
+						<button class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyAsync( visualstudiocommand.Command ) )"><i class="fa-regular fa-copy"></i></button>
+					</td>
+
 				<td>@visualstudiocommand.Command</td>
 				@*<td class="btn-group">
 					<button class="btn btn-sm btn-warning" @onclick="@(() => EditVisualStudioCommandAsync(visualstudiocommand.Id))">

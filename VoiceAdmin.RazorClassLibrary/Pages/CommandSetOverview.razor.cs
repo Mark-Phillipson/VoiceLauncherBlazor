@@ -15,7 +15,7 @@ namespace RazorClassLibrary.Pages
 	public partial class CommandSetOverview : ComponentBase
 	{
 		public CommandSetService? CommandSetService { get; set; }
-
+		private bool _showInfo { get; set; } = false;
 		[Inject] NavigationManager? NavigationManager { get; set; }
 		[Inject] public ILogger<CommandSetOverview>? Logger { get; set; }
 		[Inject] Microsoft.AspNetCore.Hosting.IWebHostEnvironment? WebHostEnvironment { get; set; }
@@ -171,8 +171,8 @@ namespace RazorClassLibrary.Pages
 			recordsReturned = FilteredTargetApplications.Count;
 			Title = $"Filtered Applications ({recordsReturned})";
 			ShowCommands = recordsReturned < 8;
-			ShowCode = recordsReturned < 8;
 			ShowLists = false;
+			ShowCode = false;
 		}
 		protected void SortTargetApplications(string sortColumn)
 		{
@@ -187,6 +187,8 @@ namespace RazorClassLibrary.Pages
 			await JavaScriptRuntime!.InvokeVoidAsync(
 	 "clipboardCopy.copyText", name);
 			_result = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
+			ShowLists = true;
+			ShowCode = true;
 			ToastService!.ShowSuccess(_result);
 		}
 		async Task ImportFileAsync(InputFileChangeEventArgs arguments)

@@ -13,6 +13,9 @@ using Microsoft.JSInterop;
 using System.Security.Claims;
 
 using RazorClassLibrary.Shared;
+using RazorClassLibrary.helpers;
+using WindowsInput;
+using WindowsInput.Native;
 
 namespace RazorClassLibrary.Pages
 {
@@ -37,7 +40,10 @@ namespace RazorClassLibrary.Pages
         private bool _loadFailed = false;
 #pragma warning restore 414, 649
         public string ExceptionMessage { get; set; } = string.Empty;
-        protected override async Task OnInitializedAsync()
+		private readonly IEnumerable<VirtualKeyCode> controlAndAlt = new List<VirtualKeyCode>()
+				{ VirtualKeyCode.CONTROL, VirtualKeyCode.MENU };
+
+		protected override async Task OnInitializedAsync()
         {
             await LoadData();
         }
@@ -124,7 +130,17 @@ namespace RazorClassLibrary.Pages
     "clipboardCopy.copyText", value);
             var message = $"Copied Successfully: '{value}'";
             ToastService!.ShowSuccess(message, "Copy Commandline");
-
-        }
+         //SwitchApplication.SwitchToApplication("devenv");
+         // In Windows 11 the focus does not complete it just makes the Taskbar icon flash
+         // So we need to use the WindowsInput Nuget package to send the keys
+         InputSimulator inputSimulator = new InputSimulator();
+         inputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
+         Thread.Sleep(100);
+         inputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+         Thread.Sleep(100);
+         inputSimulator.Keyboard.ModifiedKeyStroke(controlAndAlt, VirtualKeyCode.VK_A);
+         Thread.Sleep(100);
+         inputSimulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+      }
     }
 }

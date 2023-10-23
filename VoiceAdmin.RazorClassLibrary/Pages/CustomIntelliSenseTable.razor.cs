@@ -192,7 +192,6 @@ namespace RazorClassLibrary.Pages
         }
         private async Task DeleteCustomIntelliSense(int Id)
         {
-            //TODO Optionally remove child records here or warn about their existence
             var parameters = new ModalParameters();
             if (CustomIntelliSenseDataService != null)
             {

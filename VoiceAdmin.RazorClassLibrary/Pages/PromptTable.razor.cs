@@ -167,7 +167,6 @@ namespace RazorClassLibrary.Pages
         }
         private async Task DeletePrompt(int Id)
         {
-            //TODO Optionally remove child records here or warn about their existence
             var parameters = new ModalParameters();
             if (PromptDataService != null)
             {

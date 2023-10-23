@@ -8,31 +8,50 @@
 	</div>
 }
 <div style="margin:4px">
-	<h6>
-		@Title / <span class="text-primary">KnowBrainer</span>:
-		<button class="btn btn-sm btn-outline-primary" type="button" @onclick="@(() => OpenFileKb())">  @CommandSet?.KBFilename </button>
-		Commands <span class="badge badge-primary" title="Number of scripts">@CommandSet?.KBScripts</span> Lists <span class="badge badge-primary" title="Number of Lists">@CommandSet?.KBLists</span>
-		/ <span class="text-info">Dragon</span>:
-		<button class="btn btn-sm btn-outline-info" type="button" @onclick="@(() => OpenFileDragon())">@CommandSet?.DragonFilename</button>
-		Commands <span class="badge badge-info" title="Number of Commands">@CommandSet?.DragonScripts</span> Lists <span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
-	</h6>
-	<label class="control-label">Select KnowBrainer custom file</label>
+	<div class="row form-inline">
+		<div class="col-5">
+			@Title <span class="text-primary">KnowBrainer</span>:
+			<button class="btn btn-sm btn-outline-primary" type="button" @onclick="@(() => OpenFileKb())">  @CommandSet?.KBFilename </button>
+		</div>
+		<div class="col-2">
+			<div class="form-group">
+				<label for="ShowInfo"  class="control-label">More Info</label>
+				<input type="checkbox" id="ShowInfo"  class="form-control form-control-sm m-1" @bind="@_showInfo" />
+			</div>
+		</div>
+		<div class="col-4">
+			<span class="text-info">Dragon</span>:
+			<button class="btn btn-sm btn-outline-info" type="button" @onclick="@(() => OpenFileDragon())">@CommandSet?.DragonFilename</button>
+		</div>
+		@if (_showInfo)
+		{
+			<div class="col-6">
+				<span>			Commands</span>
+				<span class="badge badge-primary" title="Number of scripts">@CommandSet?.KBScripts</span> <span>Lists</span> <span class="badge badge-primary" title="Number of Lists">@CommandSet?.KBLists</span>
+			</div>
+			<div class="col-6">
+				<span>Commands</span> <span class="badge badge-info" title="Number of Commands">@CommandSet?.DragonScripts</span>
+				<span>Lists</span>
+				<span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
+			</div>
+		}
+	</div>
+	<label class="control-label">Custom files</label>
 	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
-	<label class="control-label">Select Dragon custom file</label>
 	<InputFile OnChange="ImportFileAsync" class="btn btn-info btn-sm border border-info" @onclick="@(() => SetImportFlag(false))" />
 </div>
 <div class="form-inline">
-	<div style="margin:4px">	<label for="ShowCommands" class="control-label">Show</label></div>
+	<div style="margin:4px">	<label for="ShowCommands" class="control-label">Show Commands</label></div>
 	<div style="margin:4px">
 		<input id="ShowCommands" type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
 	</div>
-	<div style="margin:4px">	<label for="ShowLists" class="control-label">Show Lists</label></div>
+	<div style="margin:4px">	<label for="ShowLists" class="control-label">Lists</label></div>
 	<div style="margin:4px">
 		<input type="checkbox" id="ShowLists" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
 	</div>
-	<div style="margin:4px">	<label for="ShowCode" class="control-label">Show Code</label></div>
+	<div style="margin:4px">	<label for="ShowCode" class="control-label">Code</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" id="ShowCode" class="form-control-lg" @bind="@ShowCode" title="Hide Code Only" />
+		<input type="checkbox" id="ShowCode" class="form-control" @bind="@ShowCode" title="Hide Code Only" />
 	</div>
 	<div style="margin:4px"><label class="control-label ml-4">Filter by Name</label></div>
 	<div style="margin:6px">
@@ -105,15 +124,19 @@ else
 							<span class="m-1">Company</span><span class="text-secondary"> @targetApplication.Company</span>
 							@if (targetApplication.WindowTitle != null)
 							{
-								<span class="m-1" >  Window Title </span><span class="text-secondary" >@targetApplication.WindowTitle</span>
+								<span class="m-1">  Window Title </span>
+
+								<span class="text-secondary">@targetApplication.WindowTitle</span>
 							}
 							@if (targetApplication.WindowClass != null)
 							{
-								<span class="m-1">  Window Class </span><span class="text-secondary" >@targetApplication.WindowClass</span>
+								<span class="m-1">  Window Class </span>
+
+								<span class="text-secondary">@targetApplication.WindowClass</span>
 							}
 							<span class="m-1">Commands</span><span class="text-secondary">
 								<span class="badge badge-@className">@targetApplication.VoiceCommands.Count(c => c.Name.ToLower().Contains(SearchTerm.ToLower()))</span>
-								
+
 							</span>
 						</button>
 					</td>
