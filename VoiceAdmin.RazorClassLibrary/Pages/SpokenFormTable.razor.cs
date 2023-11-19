@@ -165,7 +165,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await SpokenFormDataService.DeleteSpokenForm(Id);
-                        ToastService?.ShowSuccess("Spoken Form deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess("Spoken Form deleted successfully");
                         await LoadData();
                     }
                 }

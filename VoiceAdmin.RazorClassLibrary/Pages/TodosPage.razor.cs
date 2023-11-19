@@ -43,7 +43,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
 			todo!.Id = todoEdit.Id;
@@ -76,7 +76,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!");
 				return;
 			}
 			Todo todo = await TodoData.GetTodo(todoId);
@@ -89,7 +89,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!");
 				return;
 			}
 			Todo todo = await TodoData.GetTodo(todoId);
@@ -129,7 +129,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
 			await CallChangeAsync(todo!.Id.ToString() + "Project");
@@ -149,7 +149,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data! dDemo Only");
 				return;
 			}
 			todo = todos!.Where(v => v.Id == todoId).FirstOrDefault();
@@ -161,7 +161,8 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				
+				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
 			await TodoData.UpdateToDo(todo);
@@ -179,7 +180,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
 			todo = await TodoData.GetTodo(todoId);

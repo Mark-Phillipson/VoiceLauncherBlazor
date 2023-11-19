@@ -46,19 +46,19 @@
 		<input id="ShowCommands" type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
 	</div>
 	<div style="margin:4px">	<label for="ShowLists" class="control-label">Lists</label></div>
-	<div style="margin:4px">
+	<div style="margin:4px">valuestoinsert
 		<input type="checkbox" id="ShowLists" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
 	</div>
 	<div style="margin:4px">	<label for="ShowCode" class="control-label">Code</label></div>
 	<div style="margin:4px">
 		<input type="checkbox" id="ShowCode" class="form-control" @bind="@ShowCode" title="Hide Code Only" />
 	</div>
-	<div style="margin:4px"><label class="control-label ml-4">Filter by Name</label></div>
+	<div style="margin:4px"><label class="control-label ml-4">Filter</label></div>
 	<div style="margin:6px">
-		<input @ref="SearchInput" class="form-control mr-4" style="float:right" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by command name" />
+		<input @ref="SearchInput" class="form-control mr-4" style="float:right" accesskey="1" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Command Name (Alt+1)" />
 	</div>
 	<div style="margin:4px">
-		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Filter by Applications" />
+		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" accesskey="2" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Applications (Alt+2)" />
 	</div>
 	@{
 		string partialClass = "primary";

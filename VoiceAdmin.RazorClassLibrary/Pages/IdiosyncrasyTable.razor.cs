@@ -170,7 +170,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await IdiosyncrasyDataService.DeleteIdiosyncrasy(Id);
-                        ToastService?.ShowSuccess(" Idiosyncrasy deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Idiosyncrasy deleted successfully");
                         await LoadData();
                     }
                 }

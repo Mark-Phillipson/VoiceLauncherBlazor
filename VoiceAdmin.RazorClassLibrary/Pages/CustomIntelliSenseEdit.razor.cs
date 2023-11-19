@@ -134,10 +134,10 @@ namespace RazorClassLibrary.Pages
         var result = await CustomIntellisenseService.SaveCustomIntelliSense(Intellisense);
         if (result.Contains("Successfully"))
         {
-          ToastService!.ShowSuccess(result, "Success");
+          ToastService!.ShowSuccess(result+ "Success");
           return;
         }
-        ToastService!.ShowError(result, "Failure");
+        ToastService!.ShowError(result+"Failure");
       }
     }
     private async Task CallChangeAsync(string elementId)

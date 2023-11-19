@@ -170,7 +170,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await ApplicationDetailDataService.DeleteApplicationDetail(Id);
-                        ToastService?.ShowSuccess(" Application Detail deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Application Detail deleted successfully");
                         await LoadData();
                     }
                 }

@@ -188,7 +188,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await HtmlTagDataService.DeleteHtmlTag(Id);
-                        ToastService?.ShowSuccess(" Html Tag deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Html Tag deleted successfully");
                         await LoadData();
                     }
                 }

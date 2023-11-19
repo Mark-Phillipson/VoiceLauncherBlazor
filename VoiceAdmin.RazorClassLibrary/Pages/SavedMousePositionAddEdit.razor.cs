@@ -78,17 +78,17 @@ namespace RazorClassLibrary.Pages
                 SavedMousePositionDTO? result = await SavedMousePositionDataService.AddSavedMousePosition(SavedMousePositionDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Saved Mouse Position failed to add, please investigate", "Error Adding New Saved Mouse Position");
+                    ToastService?.ShowError("Saved Mouse Position failed to add, please investigate Error Adding New Saved Mouse Position");
                     return;
                 }
-                ToastService?.ShowSuccess("Saved Mouse Position added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Saved Mouse Position added successfully");
             }
             else
             {
                 if (SavedMousePositionDataService != null)
                 {
                     await SavedMousePositionDataService!.UpdateSavedMousePosition(SavedMousePositionDTO, "MSP");
-                    ToastService?.ShowSuccess("The Saved Mouse Position updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Saved Mouse Position updated successfully");
                 }
             }
             if (ModalInstance != null)

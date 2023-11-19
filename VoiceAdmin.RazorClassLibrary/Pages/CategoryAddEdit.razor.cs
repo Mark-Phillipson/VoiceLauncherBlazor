@@ -82,17 +82,17 @@ namespace RazorClassLibrary.Pages
                 CategoryDTO? result = await CategoryDataService.AddCategory(CategoryDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Category failed to add, please investigate", "Error Adding New Category");
+                    ToastService?.ShowError("Category failed to add, please investigate Error Adding New Category");
                     return;
                 }
-                ToastService?.ShowSuccess("Category added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Category added successfully");
             }
             else
             {
                 if (CategoryDataService != null)
                 {
                     await CategoryDataService!.UpdateCategory(CategoryDTO, "");
-                    ToastService?.ShowSuccess("The Category updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Category updated successfully");
                 }
             }
             if (ModalInstance != null)

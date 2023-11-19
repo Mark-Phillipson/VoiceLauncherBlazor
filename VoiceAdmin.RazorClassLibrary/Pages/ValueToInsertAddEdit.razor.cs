@@ -81,7 +81,7 @@ namespace RazorClassLibrary.Pages
                     ToastService?.ShowError("Value To Insert failed to add, please investigate Error Adding New Value To Insert");
                     return;
                 }
-                ToastService?.ShowSuccess("Value To Insert added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Value To Insert added successfully");
 
             }
             else
@@ -89,7 +89,7 @@ namespace RazorClassLibrary.Pages
                 if (ValueToInsertDataService != null)
                 {
                     await ValueToInsertDataService!.UpdateValueToInsert(ValueToInsertDTO, "");
-                    ToastService?.ShowSuccess("The Value To Insert updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Value To Insert updated successfully");
                 }
             }
             //if (ModalInstance != null)

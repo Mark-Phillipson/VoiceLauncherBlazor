@@ -6,7 +6,10 @@ using System.Runtime.CompilerServices;
 
 namespace DataAccessLibrary.Models
 {
-    public partial class ValueToInsert
+
+[Table("ValuesToInsert")]
+    public partial class ValuesToInsert
+
     {
         [Key]
         [Column("ID")]

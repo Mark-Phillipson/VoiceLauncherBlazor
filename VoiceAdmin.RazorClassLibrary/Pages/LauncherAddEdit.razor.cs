@@ -80,17 +80,17 @@ namespace RazorClassLibrary.Pages
                 LauncherDTO? result = await LauncherDataService.AddLauncher(LauncherDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Launcher failed to add, please investigate", "Error Adding New Launcher");
+                    ToastService?.ShowError("Launcher failed to add, please investigate Error Adding New Launcher");
                     return;
                 }
-                ToastService?.ShowSuccess("Launcher added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Launcher added successfully");
             }
             else
             {
                 if (LauncherDataService != null)
                 {
                     await LauncherDataService!.UpdateLauncher(LauncherDTO, "");
-                    ToastService?.ShowSuccess("The Launcher updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Launcher updated successfully");
                 }
             }
             if (ModalInstance != null)

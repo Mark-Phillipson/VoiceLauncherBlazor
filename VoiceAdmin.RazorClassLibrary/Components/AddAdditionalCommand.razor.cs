@@ -47,7 +47,7 @@ namespace RazorClassLibrary.Components
 		{
 			await AdditionalCommandService!.SaveAdditionalCommand(AdditionalCommand);
 			await ModalInstance!.CloseAsync(ModalResult.Ok(true));
-			ToastService!.ShowSuccess($"{AdditionalCommand.SendKeysValue} Saved successfully.", "SUCCESS");
+			ToastService!.ShowSuccess($"{AdditionalCommand.SendKeysValue} Saved successfully.");
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{

@@ -48,10 +48,10 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception e)
             {
-                Logger!.LogError("Exception occurred in on initialised async AdditionalCommand Data Service", e);
+                Logger!.LogError(e,"Exception occurred in on initialised async AdditionalCommand Data Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
-                ToastService!.ShowError(e.Message, "Error Loading AdditionalCommand");
+                ToastService!.ShowError(e.Message+" Error Loading AdditionalCommand");
             }
             FilteredAdditionalCommands = AdditionalCommands;
 
@@ -110,7 +110,7 @@ namespace RazorClassLibrary.Pages
                 {
                     throw;
                 }
-                ToastService!.ShowSuccess($"{additionalCommand!.SendKeysValue} Successfully deleted.", "Delete AdditionalCommand");
+                ToastService!.ShowSuccess($"{additionalCommand!.SendKeysValue} Successfully deleted. Delete AdditionalCommand");
                 await LoadData();
             }
         }

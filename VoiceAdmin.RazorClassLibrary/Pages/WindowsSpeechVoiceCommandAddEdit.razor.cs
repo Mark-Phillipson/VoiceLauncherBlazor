@@ -74,7 +74,7 @@ namespace RazorClassLibrary.Pages
                 WindowsSpeechVoiceCommandDTO? result = await WindowsSpeechVoiceCommandDataService.AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Windows Speech Voice Command failed to add, please investigate", "Error Adding New Windows Speech Voice Command");
+                    ToastService?.ShowError("Windows Speech Voice Command failed to add, please investigate Error Adding New Windows Speech Voice Command");
                     return;
                 }
                 if (SpokenFormDataService != null)
@@ -85,14 +85,14 @@ namespace RazorClassLibrary.Pages
                     var spokenForResult = await SpokenFormDataService.AddSpokenForm(spokenFormDTO);
                     if (spokenForResult == null) { ToastService?.ShowError("Spoken Form failed to create"); return; }
                 }
-                ToastService?.ShowSuccess("Windows Speech Voice Command added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Windows Speech Voice Command added successfully");
             }
             else
             {
                 if (WindowsSpeechVoiceCommandDataService != null)
                 {
                     await WindowsSpeechVoiceCommandDataService!.UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO, "TBC");
-                    ToastService?.ShowSuccess("The Windows Speech Voice Command updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Windows Speech Voice Command updated successfully");
                 }
             }
             if (ModalInstance != null)

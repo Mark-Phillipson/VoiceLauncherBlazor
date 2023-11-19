@@ -166,7 +166,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await GrammarItemDataService.DeleteGrammarItem(Id);
-                        ToastService?.ShowSuccess(" Grammar Item deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Grammar Item deleted successfully");
                         await LoadData();
                     }
                 }
@@ -195,11 +195,11 @@ namespace RazorClassLibrary.Pages
             var result = await GrammarItemDataService.SaveAllAsync(FilteredGrammarItemDTO);
             if (result == false)
             {
-                ToastService?.ShowError(" Error saving! ", "Error");
+                ToastService?.ShowError(" Error saving! ");
             }
             else
             {
-                ToastService?.ShowSuccess(" Grammar Items Updated! ", "Success");
+                ToastService?.ShowSuccess(" Grammar Items Updated! ");
             }
         }
         private async Task CallChangeAsync(string elementId)

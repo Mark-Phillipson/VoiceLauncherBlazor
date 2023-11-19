@@ -207,7 +207,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await CustomIntelliSenseDataService.DeleteCustomIntelliSense(Id);
-                        ToastService?.ShowSuccess("Custom Intelli Sense deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess("Custom Intelli Sense deleted successfully");
                         await LoadData();
                     }
                 }

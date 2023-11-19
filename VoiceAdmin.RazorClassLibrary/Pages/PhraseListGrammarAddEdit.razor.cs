@@ -72,17 +72,17 @@ namespace RazorClassLibrary.Pages
                 PhraseListGrammarDTO? result = await PhraseListGrammarDataService.AddPhraseListGrammar(PhraseListGrammarDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Phrase List Grammar failed to add, please investigate", "Error Adding New Phrase List Grammar");
+                    ToastService?.ShowError("Phrase List Grammar failed to add, please investigate Error Adding New Phrase List Grammar");
                     return;
                 }
-                ToastService?.ShowSuccess("Phrase List Grammar added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Phrase List Grammar added successfully");
             }
             else
             {
                 if (PhraseListGrammarDataService != null)
                 {
                     await PhraseListGrammarDataService!.UpdatePhraseListGrammar(PhraseListGrammarDTO, "");
-                    ToastService?.ShowSuccess("The Phrase List Grammar updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Phrase List Grammar updated successfully");
                 }
             }
             if (ModalInstance != null)

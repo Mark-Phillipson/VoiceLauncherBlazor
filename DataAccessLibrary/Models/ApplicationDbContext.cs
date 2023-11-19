@@ -12,8 +12,13 @@ namespace DataAccessLibrary.Models
 		//public ApplicationDbContext()
 		//{
 		//}
+		//public ApplicationDbContext(string connectionString)
+		//{
+		//	_connectionString = connectionString;
+		//}
 
 		private IConfiguration _configuration;
+		string _connectionString;
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
 			 : base(options)
 		{
@@ -27,13 +32,6 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<PhraseListGrammar> PhraseListGrammars { get; set; }
 		public virtual DbSet<GrammarName> GrammarNames { get; set; }
 		public virtual DbSet<GrammarItem> GrammarItems { get; set; }
-		public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
-		public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
-		public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
-		public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
-		public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
-		public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
-		public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 		public virtual DbSet<CustomWindowsSpeechCommand> CustomWindowsSpeechCommands { get; set; }
 		public virtual DbSet<WindowsSpeechVoiceCommand> WindowsSpeechVoiceCommands { get; set; }
 		public virtual DbSet<SpokenForm> SpokenForms { get; set; }
@@ -50,9 +48,9 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
 		public virtual DbSet<MousePositions> MousePositions { get; set; }
 		public virtual DbSet<MultipleLauncher> MultipleLauncher { get; set; }
+		 public  virtual DbSet<PhraseListGrammar> PhraseListGrammarStorages { get; set; }
 		public virtual DbSet<PropertyTabPositions> PropertyTabPositions { get; set; }
 		public virtual DbSet<SavedMousePosition> SavedMousePosition { get; set; }
-		public virtual DbSet<ValueToInsert> ValuesToInsert { get; set; }
 		public virtual DbSet<ViewCategories> ViewCategories { get; set; }
 		public virtual DbSet<ViewComputers> ViewComputers { get; set; }
 		public virtual DbSet<ViewCustomIntelliSense> ViewCustomIntelliSense { get; set; }
@@ -69,6 +67,7 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<Todo> Todos { get; set; }
 		public virtual DbSet<Appointment> Appointments { get; set; }
 		public virtual DbSet<AdditionalCommand> AdditionalCommands { get; set; }
+		 public  virtual DbSet<ValuesToInsert> ValuesToInserts { get; set; }
 		public virtual DbSet<VisualStudioCommand> VisualStudioCommands { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
@@ -93,54 +92,6 @@ namespace DataAccessLibrary.Models
 		{
 			modelBuilder.Entity<AdditionalCommand>()
 				 .Property(c => c.WaitBefore).HasColumnType("decimal(10,2)");
-
-			modelBuilder.Entity<AspNetRoleClaims>(entity =>
-			{
-				entity.HasIndex(e => e.RoleId);
-			});
-
-			modelBuilder.Entity<AspNetRoles>(entity =>
-			{
-				entity.HasIndex(e => e.NormalizedName)
-						 .HasDatabaseName("RoleNameIndex")
-						 .IsUnique()
-						 .HasFilter("([NormalizedName] IS NOT NULL)");
-			});
-
-			modelBuilder.Entity<AspNetUserClaims>(entity =>
-			{
-				entity.HasIndex(e => e.UserId);
-			});
-
-			modelBuilder.Entity<AspNetUserLogins>(entity =>
-			{
-				entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
-
-				entity.HasIndex(e => e.UserId);
-			});
-
-			modelBuilder.Entity<AspNetUserRoles>(entity =>
-			{
-				entity.HasKey(e => new { e.UserId, e.RoleId });
-
-				entity.HasIndex(e => e.RoleId);
-			});
-
-			modelBuilder.Entity<AspNetUserTokens>(entity =>
-			{
-				entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
-			});
-
-			modelBuilder.Entity<AspNetUsers>(entity =>
-			{
-				entity.HasIndex(e => e.NormalizedEmail)
-						 .HasDatabaseName("EmailIndex");
-
-				entity.HasIndex(e => e.NormalizedUserName)
-						 .HasDatabaseName("UserNameIndex")
-						 .IsUnique()
-						 .HasFilter("([NormalizedUserName] IS NOT NULL)");
-			});
 
 			modelBuilder.Entity<CustomIntelliSense>(entity =>
 			{

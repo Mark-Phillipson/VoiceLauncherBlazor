@@ -163,7 +163,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await MicrophoneDataService.DeleteMicrophone(Id);
-                        ToastService?.ShowSuccess("Microphone deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess("Microphone deleted successfully");
                         await LoadData();
                     }
                 }

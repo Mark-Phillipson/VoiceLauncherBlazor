@@ -182,7 +182,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await LauncherDataService.DeleteLauncher(Id);
-                        ToastService?.ShowSuccess(" Launcher deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Launcher deleted successfully");
                         await LoadData();
                     }
                 }
@@ -217,7 +217,7 @@ namespace RazorClassLibrary.Pages
                 await JSRuntime.InvokeVoidAsync(
                     "clipboardCopy.copyText", commandLine);
                 var message = $"Copied Successfully: '{commandLine}'";
-                ToastService!.ShowSuccess(message, "Copy Commandline");
+                ToastService!.ShowSuccess(message+"Copy Commandline");
             }
         }
         public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }

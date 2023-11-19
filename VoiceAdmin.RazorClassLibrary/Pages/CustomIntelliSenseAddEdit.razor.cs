@@ -109,14 +109,14 @@ namespace RazorClassLibrary.Pages
 					ToastService?.ShowError("Custom Intelli Sense failed to add, please investigate Error Adding New Custom Intelli Sense");
 					return;
 				}
-				ToastService?.ShowSuccess("Custom Intelli Sense added successfully", "SUCCESS");
+				ToastService?.ShowSuccess("Custom Intelli Sense added successfully");
 			}
 			else
 			{
 				if (CustomIntelliSenseDataService != null)
 				{
 					await CustomIntelliSenseDataService!.UpdateCustomIntelliSense(CustomIntelliSenseDTO, "");
-					ToastService?.ShowSuccess("The Custom Intelli Sense updated successfully", "SUCCESS");
+					ToastService?.ShowSuccess("The Custom Intelli Sense updated successfully");
 				}
 			}
 			if (ModalInstance != null)
@@ -133,7 +133,7 @@ namespace RazorClassLibrary.Pages
 			{
 				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
 				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message, "Copy Item");
+				ToastService!.ShowSuccess(message+" Copy Item");
 			}
 
 		}
@@ -169,7 +169,7 @@ namespace RazorClassLibrary.Pages
 				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				ToastService!.ShowSuccess(message, "Success");
+				ToastService!.ShowSuccess(message+" Success");
 			}
 		}
 		private async Task CallChangeAsync(string elementId)

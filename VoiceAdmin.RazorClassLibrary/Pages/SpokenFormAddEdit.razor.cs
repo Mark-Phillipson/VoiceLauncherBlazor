@@ -81,14 +81,14 @@ namespace RazorClassLibrary.Pages
                     ToastService?.ShowError("Spoken Form failed to add, please investigate Error Adding New Spoken Form");
                     return;
                 }
-                ToastService?.ShowSuccess("Spoken Form added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Spoken Form added successfully");
             }
             else
             {
                 if (SpokenFormDataService != null)
                 {
                     await SpokenFormDataService!.UpdateSpokenForm(SpokenFormDTO, "");
-                    ToastService?.ShowSuccess("The Spoken Form updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Spoken Form updated successfully");
                 }
             }
             if (ModalInstance != null)

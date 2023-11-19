@@ -70,17 +70,17 @@ namespace RazorClassLibrary.Pages
                 ApplicationDetailDTO? result = await ApplicationDetailDataService.AddApplicationDetail(ApplicationDetailDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Application Detail failed to add, please investigate", "Error Adding New Application Detail");
+                    ToastService?.ShowError("Application Detail failed to add, please investigate Error Adding New Application Detail");
                     return;
                 }
-                ToastService?.ShowSuccess("Application Detail added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Application Detail added successfully");
             }
             else
             {
                 if (ApplicationDetailDataService != null)
                 {
                     await ApplicationDetailDataService!.UpdateApplicationDetail(ApplicationDetailDTO, "");
-                    ToastService?.ShowSuccess("The Application Detail updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Application Detail updated successfully");
                 }
             }
             if (ModalInstance != null)

@@ -90,14 +90,14 @@ namespace RazorClassLibrary.Pages
                     ToastService?.ShowError("Prompt failed to add, please investigate Error Adding New Prompt");
                     return;
                 }
-                ToastService?.ShowSuccess("Prompt added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Prompt added successfully");
             }
             else
             {
                 if (PromptDataService != null)
                 {
                     await PromptDataService!.UpdatePrompt(PromptDTO, "");
-                    ToastService?.ShowSuccess("The Prompt updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Prompt updated successfully");
                 }
             }
             if (ModalInstance != null)

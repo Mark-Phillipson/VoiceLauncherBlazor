@@ -25,43 +25,43 @@ namespace DataAccessLibrary.Repositories
 		        public async Task<IEnumerable<ValueToInsertDTO>> GetAllValuesToInsertAsync(int maxRows= 400)
         {
             using var context = _contextFactory.CreateDbContext();
-            var ValuesToInsert= await context.ValuesToInsert
+            var ValuesToInsert= await context.ValuesToInserts
                 //.Where(v => v.?==?)
                 //.OrderBy(v => v.?)
                 .Take(maxRows)
                 .ToListAsync();
-            IEnumerable<ValueToInsertDTO> ValuesToInsertDTO = _mapper.Map<List<ValueToInsert>, IEnumerable<ValueToInsertDTO>>(ValuesToInsert);
+            IEnumerable<ValueToInsertDTO> ValuesToInsertDTO = _mapper.Map<List<ValuesToInsert>, IEnumerable<ValueToInsertDTO>>(ValuesToInsert);
             return ValuesToInsertDTO;
         }
         public async Task<IEnumerable<ValueToInsertDTO>> SearchValuesToInsertAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var ValuesToInsert= await context.ValuesToInsert
+            var ValuesToInsert= await context.ValuesToInserts
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
                 //.OrderBy(v => v.?)
                 .Take(1000)
                 .ToListAsync();
-            IEnumerable<ValueToInsertDTO> ValuesToInsertDTO = _mapper.Map<List<ValueToInsert>, IEnumerable<ValueToInsertDTO>>(ValuesToInsert);
+            IEnumerable<ValueToInsertDTO> ValuesToInsertDTO = _mapper.Map<List<ValuesToInsert>, IEnumerable<ValueToInsertDTO>>(ValuesToInsert);
             return ValuesToInsertDTO;
         }
 
         public async Task<ValueToInsertDTO> GetValueToInsertByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.ValuesToInsert.AsNoTracking()
+            var result =await context.ValuesToInserts.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            ValueToInsertDTO valueToInsertDTO =_mapper.Map<ValueToInsert, ValueToInsertDTO>(result);
+            ValueToInsertDTO valueToInsertDTO =_mapper.Map<ValuesToInsert, ValueToInsertDTO>(result);
             return valueToInsertDTO;
         }
 
         public async Task<ValueToInsertDTO> AddValueToInsertAsync(ValueToInsertDTO valueToInsertDTO)
         {
             using var context = _contextFactory.CreateDbContext();
-            ValueToInsert valueToInsert = _mapper.Map<ValueToInsertDTO, ValueToInsert>(valueToInsertDTO);
-            var addedEntity = context.ValuesToInsert.Add(valueToInsert);
+            ValuesToInsert valueToInsert = _mapper.Map<ValueToInsertDTO, ValuesToInsert>(valueToInsertDTO);
+            var addedEntity = context.ValuesToInserts.Add(valueToInsert);
             try
             {
                 await context.SaveChangesAsync();
@@ -71,23 +71,23 @@ namespace DataAccessLibrary.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            ValueToInsertDTO resultDTO =_mapper.Map<ValueToInsert, ValueToInsertDTO>(valueToInsert);
+            ValueToInsertDTO resultDTO =_mapper.Map<ValuesToInsert, ValueToInsertDTO>(valueToInsert);
             return resultDTO;
         }
 
-        public async Task<ValueToInsertDTO?> UpdateValueToInsertAsync(ValueToInsertDTO valueToInsertDTO)
+        public async Task<ValueToInsertDTO> UpdateValueToInsertAsync(ValueToInsertDTO valueToInsertDTO)
         {
-            ValueToInsert valueToInsert=_mapper.Map<ValueToInsertDTO, ValueToInsert>(valueToInsertDTO);
-            using (var context = _contextFactory.CreateDbContext())
+            ValuesToInsert valueToInsert=_mapper.Map<ValueToInsertDTO, ValuesToInsert>(valueToInsertDTO);
+               using (var context = _contextFactory.CreateDbContext())
             {
-                var foundValueToInsert = await context.ValuesToInsert.AsNoTracking().FirstOrDefaultAsync(e => e.Id == valueToInsert.Id);
+                var foundValueToInsert = await context.ValuesToInserts.AsNoTracking().FirstOrDefaultAsync(e => e.Id == valueToInsert.Id);
 
                 if (foundValueToInsert != null)
                 {
-                    var mappedValueToInsert = _mapper.Map<ValueToInsert>(valueToInsert);
-                    context.ValuesToInsert.Update(mappedValueToInsert);
+                    var mappedValueToInsert = _mapper.Map<ValuesToInsert>(valueToInsert);
+                    context.ValuesToInserts.Update(mappedValueToInsert);
                     await context.SaveChangesAsync();
-                    ValueToInsertDTO resultDTO = _mapper.Map<ValueToInsert, ValueToInsertDTO>(mappedValueToInsert);
+                    ValueToInsertDTO resultDTO = _mapper.Map<ValuesToInsert, ValueToInsertDTO>(mappedValueToInsert);
                     return resultDTO;
                 }
             }
@@ -96,12 +96,12 @@ namespace DataAccessLibrary.Repositories
         public async Task DeleteValueToInsertAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var foundValueToInsert = context.ValuesToInsert.FirstOrDefault(e => e.Id == Id);
+            var foundValueToInsert = context.ValuesToInserts.FirstOrDefault(e => e.Id == Id);
             if (foundValueToInsert == null)
             {
                 return;
             }
-            context.ValuesToInsert.Remove(foundValueToInsert);
+            context.ValuesToInserts.Remove(foundValueToInsert);
             await context.SaveChangesAsync();
         }
     }

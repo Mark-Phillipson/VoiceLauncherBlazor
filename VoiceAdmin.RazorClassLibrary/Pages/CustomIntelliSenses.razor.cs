@@ -188,14 +188,14 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!");
 				return;
 			}
 			var additionalCommands = await AdditionalCommandService!.GetAdditionalCommandsAsync(customIntellisenseId);
 			if (additionalCommands.Count > 0)
 			{
 				ShowDialog = false;
-				ToastService!.ShowWarning("Please remove additional commands before deleting this record!", "Delete Cancelled");
+				ToastService!.ShowWarning("Please remove additional commands before deleting this record!");
 				return;
 			}
 			try
@@ -220,7 +220,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+				ToastService!.ShowError("This demo application does not allow editing of data!");
 				return;
 			}
 			try
@@ -341,7 +341,7 @@ namespace RazorClassLibrary.Pages
 			{
 				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
 				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message, "Copy Item");
+				ToastService!.ShowSuccess(message);
 			}
 		}
 		private async Task CopyAndPasteAsync(string itemToCopyAndPaste)
@@ -356,7 +356,7 @@ namespace RazorClassLibrary.Pages
 				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				ToastService!.ShowSuccess(message, "Success");
+				ToastService!.ShowSuccess(message);
 			}
 		}
 		private async Task EditAsync(int id)

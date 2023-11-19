@@ -72,17 +72,17 @@ namespace RazorClassLibrary.Pages
                 HtmlTagDTO? result = await HtmlTagDataService.AddHtmlTag(HtmlTagDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Html Tag failed to add, please investigate", "Error Adding New Html Tag");
+                    ToastService?.ShowError("Html Tag failed to add, please investigate Error Adding New Html Tag");
                     return;
                 }
-                ToastService?.ShowSuccess("Html Tag added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Html Tag added successfully");
             }
             else
             {
                 if (HtmlTagDataService != null)
                 {
                     await HtmlTagDataService!.UpdateHtmlTag(HtmlTagDTO, "");
-                    ToastService?.ShowSuccess("The Html Tag updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Html Tag updated successfully");
                 }
             }
             if (ModalInstance != null)

@@ -182,7 +182,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await PromptDataService.DeletePrompt(Id);
-                        ToastService?.ShowSuccess("Prompt deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess("Prompt deleted successfully");
                         await LoadData();
                     }
                 }

@@ -166,7 +166,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await CustomWindowsSpeechCommandDataService.DeleteCustomWindowsSpeechCommand(Id);
-                        ToastService?.ShowSuccess(" Custom Windows Speech Command deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Custom Windows Speech Command deleted successfully");
                         await LoadData();
                     }
                 }

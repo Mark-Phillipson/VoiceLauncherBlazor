@@ -75,17 +75,17 @@ namespace RazorClassLibrary.Pages
                 GrammarItemDTO? result = await GrammarItemDataService.AddGrammarItem(GrammarItemDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Grammar Item failed to add, please investigate", "Error Adding New Grammar Item");
+                    ToastService?.ShowError("Grammar Item failed to add, please investigate Error Adding New Grammar Item");
                     return;
                 }
-                ToastService?.ShowSuccess("Grammar Item added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Grammar Item added successfully");
             }
             else
             {
                 if (GrammarItemDataService != null)
                 {
                     await GrammarItemDataService!.UpdateGrammarItem(GrammarItemDTO, "");
-                    ToastService?.ShowSuccess("The Grammar Item updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Grammar Item updated successfully");
                 }
             }
             if (ModalInstance != null)

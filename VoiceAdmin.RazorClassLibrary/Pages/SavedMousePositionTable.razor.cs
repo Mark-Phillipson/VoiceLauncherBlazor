@@ -164,7 +164,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await SavedMousePositionDataService.DeleteSavedMousePosition(Id);
-                        ToastService?.ShowSuccess(" Saved Mouse Position deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Saved Mouse Position deleted successfully");
                         await LoadData();
                     }
                 }

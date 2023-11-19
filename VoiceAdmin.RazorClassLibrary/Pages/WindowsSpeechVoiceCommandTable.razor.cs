@@ -229,7 +229,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await WindowsSpeechVoiceCommandDataService.DeleteWindowsSpeechVoiceCommand(Id);
-                        ToastService?.ShowSuccess(" Windows Speech Voice Command deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Windows Speech Voice Command deleted successfully");
                         await LoadData();
                     }
                 }

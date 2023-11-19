@@ -167,7 +167,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await GrammarNameDataService.DeleteGrammarName(Id);
-                        ToastService?.ShowSuccess(" Grammar Name deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Grammar Name deleted successfully");
                         await LoadData();
                     }
                 }

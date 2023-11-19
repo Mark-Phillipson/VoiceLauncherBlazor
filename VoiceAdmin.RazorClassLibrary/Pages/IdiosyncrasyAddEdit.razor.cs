@@ -73,17 +73,17 @@ public partial class IdiosyncrasyAddEdit : ComponentBase
             IdiosyncrasyDTO? result = await IdiosyncrasyDataService.AddIdiosyncrasy(IdiosyncrasyDTO);
             if (result == null)
             {
-                ToastService?.ShowError("Idiosyncrasy failed to add, please investigate", "Error Adding New Idiosyncrasy");
+                ToastService?.ShowError("Idiosyncrasy failed to add, please investigate Error Adding New Idiosyncrasy");
                 return;
             }
-            ToastService?.ShowSuccess("Idiosyncrasy added successfully", "SUCCESS");
+            ToastService?.ShowSuccess("Idiosyncrasy added successfully");
         }
         else
         {
             if (IdiosyncrasyDataService != null)
             {
                 await IdiosyncrasyDataService!.UpdateIdiosyncrasy(IdiosyncrasyDTO, "");
-                ToastService?.ShowSuccess("The Idiosyncrasy updated successfully", "SUCCESS");
+                ToastService?.ShowSuccess("The Idiosyncrasy updated successfully");
             }
         }
         if (ModalInstance != null)

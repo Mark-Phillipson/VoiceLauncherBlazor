@@ -78,6 +78,9 @@ else
                         <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteValueToInsertAsync(valueToInsert.Id))">
                            Delete <i class="fas fa-trash"></i>
                         </button>
+                        <button class="btn btn-lg btn-outline-primary" @onclick="@(() => CopyValueAsync(valueToInsert.ValueToInsertValue))">
+                           Copy <i class="fas fa-copy"></i>
+                        </button>
                     </td>
                 </tr>
             }

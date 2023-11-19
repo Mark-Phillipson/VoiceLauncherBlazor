@@ -13,10 +13,10 @@ namespace RazorClassLibrary.Pages
             {
                 if (ToastService != null)
                 {
-                    ToastService.ShowInfo("To Blazor Server demo app", "Hello and Welcome");
-                    ToastService.ShowError("Demonstration of an error Toast Message", "Error Occurred");
-                    ToastService.ShowSuccess(" Demonstration of a success toast message ", "Success");
-                    ToastService.ShowWarning("demonstration of a warning toast message", "Warning");
+                    ToastService.ShowInfo("To Blazor Server demo app");
+                    ToastService.ShowError("Demonstration of an error Toast Message");
+                    ToastService.ShowSuccess(" Demonstration of a success toast message ");
+                    ToastService.ShowWarning("demonstration of a warning toast message");
                 }
             }
         }

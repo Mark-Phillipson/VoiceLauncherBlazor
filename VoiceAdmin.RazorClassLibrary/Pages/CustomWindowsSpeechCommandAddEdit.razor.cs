@@ -133,17 +133,17 @@ namespace RazorClassLibrary.Pages
                 CustomWindowsSpeechCommandDTO? result = await CustomWindowsSpeechCommandDataService.AddCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Custom Windows Speech Command failed to add, please investigate", "Error Adding New Custom Windows Speech Command");
+                    ToastService?.ShowError("Custom Windows Speech Command failed to add, please investigate Error Adding New Custom Windows Speech Command");
                     return;
                 }
-                ToastService?.ShowSuccess("Custom Windows Speech Command added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Custom Windows Speech Command added successfully");
             }
             else
             {
                 if (CustomWindowsSpeechCommandDataService != null)
                 {
                     await CustomWindowsSpeechCommandDataService!.UpdateCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO, "");
-                    ToastService?.ShowSuccess("The Custom Windows Speech Command updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Custom Windows Speech Command updated successfully");
                 }
             }
             if (ModalInstance != null)

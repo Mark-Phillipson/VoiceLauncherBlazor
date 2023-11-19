@@ -17,7 +17,7 @@ namespace RazorClassLibrary.Pages
         public string? StatusMessage { get; set; }
         private List<DataAccessLibrary.Models.Category>? categories { get; set; }
         public List<DataAccessLibrary.Models.Computer>? computers { get; set; }
-        public int MaximumRows { get; set; } = 26;
+        public int MaximumRows { get; set; } = 300;
         public bool ShowCreateNewOrEdit { get; set; }
 #pragma warning disable 414
         private int _launcherId;
@@ -202,7 +202,7 @@ namespace RazorClassLibrary.Pages
                 await JSRuntime.InvokeVoidAsync(
                     "clipboardCopy.copyText", commandLine);
                 var message = $"Copied Successfully: '{commandLine}'";
-                ToastService!.ShowSuccess(message, "Copy Commandline");
+                ToastService!.ShowSuccess(message+"Copy Commandline");
             }
         }
     }

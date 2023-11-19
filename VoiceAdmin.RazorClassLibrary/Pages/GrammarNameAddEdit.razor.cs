@@ -72,17 +72,17 @@ namespace RazorClassLibrary.Pages
                 GrammarNameDTO? result = await GrammarNameDataService.AddGrammarName(GrammarNameDTO);
                 if (result == null)
                 {
-                    ToastService?.ShowError("Grammar Name failed to add, please investigate", "Error Adding New Grammar Name");
+                    ToastService?.ShowError("Grammar Name failed to add, please investigate Error Adding New Grammar Name");
                     return;
                 }
-                ToastService?.ShowSuccess("Grammar Name added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Grammar Name added successfully");
             }
             else
             {
                 if (GrammarNameDataService != null)
                 {
                     await GrammarNameDataService!.UpdateGrammarName(GrammarNameDTO, "");
-                    ToastService?.ShowSuccess("The Grammar Name updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Grammar Name updated successfully");
                 }
             }
             if (ModalInstance != null)

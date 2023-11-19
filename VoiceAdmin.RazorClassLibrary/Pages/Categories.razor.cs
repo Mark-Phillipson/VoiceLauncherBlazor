@@ -27,6 +27,7 @@ namespace RazorClassLibrary.Pages
                 if (searchTerm != value)
                 {
                     searchTerm = value;
+                    ApplyFilter();
                 }
             }
         }
@@ -85,7 +86,7 @@ namespace RazorClassLibrary.Pages
         {
             if (Environment.MachineName != "J40L4V3")
             {
-                ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+                ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
                 return;
             }
             try
@@ -121,7 +122,7 @@ namespace RazorClassLibrary.Pages
         {
             if (Environment.MachineName != "J40L4V3")
             {
-                ToastService!.ShowError("This demo application does not allow editing of data!", "Demo Only");
+                ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
                 return;
             }
             try

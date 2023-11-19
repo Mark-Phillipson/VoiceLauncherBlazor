@@ -31,7 +31,6 @@ namespace VoiceLauncher.Repositories
 			if (CategoryId == 0)
 			{
 				launchers = await context.Launcher
-					.Where(v => v.Favourite)
 					.OrderBy(v => v.Name)
 					.ToListAsync();
 				launchersDTO = _mapper.Map<List<Launcher>, IEnumerable<LauncherDTO>>(launchers);
@@ -48,10 +47,6 @@ namespace VoiceLauncher.Repositories
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var Launchers = await context.Launcher
-					//.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-					//||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-					//)
-					//.OrderBy(v => v.?)
 					.Take(1000)
 					.ToListAsync();
 			IEnumerable<LauncherDTO> LaunchersDTO = _mapper.Map<List<Launcher>, IEnumerable<LauncherDTO>>(Launchers);

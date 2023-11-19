@@ -161,7 +161,7 @@ namespace RazorClassLibrary.Pages
                     if (!result.Cancelled)
                     {
                         await PhraseListGrammarDataService.DeletePhraseListGrammar(Id);
-                        ToastService?.ShowSuccess(" Phrase List Grammar deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Phrase List Grammar deleted successfully");
                         await LoadData();
                     }
                 }

@@ -118,7 +118,7 @@ namespace RazorClassLibrary.Pages
 				Logger!.LogError("Exception occurred in on initialised  CommandSet Data Service", e);
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
-				ToastService!.ShowError(e.Message, "Error Loading Command Set");
+				ToastService!.ShowError(e.Message + " Error Loading Command Set");
 			}
 			TargetApplications = CommandSet!.TargetApplications;
 			FilteredTargetApplications = TargetApplications;
@@ -172,7 +172,7 @@ namespace RazorClassLibrary.Pages
 			Title = $"Filtered Applications ({recordsReturned})";
 			ShowCommands = recordsReturned < 8;
 			ShowLists = false;
-			ShowCode = false;
+			ShowCode = recordsReturned<8;
 		}
 		protected void SortTargetApplications(string sortColumn)
 		{

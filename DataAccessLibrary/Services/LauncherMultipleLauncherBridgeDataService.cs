@@ -22,6 +22,7 @@ namespace DataAccessLibrary.Services
 			{
 				bridges = context.LauncherMultipleLauncherBridge.Include(i => i.Launcher)
 					.Include(i => i.MultipleLauncher)
+					.Where(v => v.LauncherId == launcherId || v.MultipleLauncherId == multipleLauncherId)
 					.OrderBy(v => v.Launcher.Name);
 			}
 			catch (Exception exception)

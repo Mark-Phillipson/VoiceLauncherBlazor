@@ -79,14 +79,14 @@ namespace RazorClassLibrary.Pages
                     ToastService?.ShowError("Microphone failed to add, please investigate Error Adding New Microphone");
                     return;
                 }
-                ToastService?.ShowSuccess("Microphone added successfully", "SUCCESS");
+                ToastService?.ShowSuccess("Microphone added successfully");
             }
             else
             {
                 if (MicrophoneDataService != null)
                 {
                     await MicrophoneDataService!.UpdateMicrophone(MicrophoneDTO, "");
-                    ToastService?.ShowSuccess("The Microphone updated successfully", "SUCCESS");
+                    ToastService?.ShowSuccess("The Microphone updated successfully");
                 }
             }
             if (ModalInstance != null)
