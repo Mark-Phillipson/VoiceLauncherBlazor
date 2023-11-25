@@ -7,70 +7,144 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
 	<ul class="nav flex-column">
-		<li class="nav-item px-3">
-			<NavLink accesskey="h" class="nav-link" href="" Match="NavLinkMatch.All">
-				<span class="oi oi-home" aria-hidden="true"></span> <u>H</u>ome
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="categoriestable">
-				<span class="oi oi-media-play" aria-hidden="true"></span>Launcher Categories
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="a" class="nav-link" href="launcherstable/0">
-				<i class="oi fa-solid fa-rocket"></i> L<u>a</u>unchers
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="launchersfavourites" accesskey="v">
-				<i class="oi fa-solid fa-star"></i> Fa<u>v</u>ourites
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="overspill">
-				<span class="oi oi-menu" aria-hidden="true"></span> More ...
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="o" class="nav-link" href="todos">
-				<span class="oi oi-task" aria-hidden="true"></span> Tod<u>o</u>s
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="l" class="nav-link" href="languages">
-				<span class="oi oi-flag" aria-hidden="true"></span> <u>L</u>anguages
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink  class="nav-link" href="categories">
-				<span class="oi oi-tags" aria-hidden="true"></span> Categories
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="i" class="nav-link" href="intellisenses">
-				<span class="oi oi-spreadsheet" aria-hidden="true"></span> <u>I</u>ntelliSense
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="commands">
-				<span class="oi oi-microphone" aria-hidden="true"></span> Commands
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="loading" @onclick="@(() => LoadScripts())">
-				<span class="oi oi-script" aria-hidden="true"></span> Scripts
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="w" class="nav-link" href="windowsspeechvoicecommands">
-				<i class="oi fa-solid fa-database"></i> <u>W</u>indows Commands
-			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="googlecalendar">
-				<span class="oi oi-calendar" aria-hidden="true"></span>Calendar
-			</NavLink>
-		</li>
+		@if (enableAccessKeys)
+		{
+			<li class="nav-item px-3">
+				<NavLink accesskey="h" class="nav-link" href="" Match="NavLinkMatch.All" @onclick="MenuItemSelected">
+					<span class="oi oi-home" aria-hidden="true"></span> <u>H</u>ome
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="categoriestable" accesskey="c" @onclick="MenuItemSelected">
+					<span class="oi oi-media-play" aria-hidden="true"></span><span>Launcher <u>C</u>ategories</span>
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink accesskey="a" class="nav-link" href="launcherstable/0" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-rocket"></i> L<u>a</u>unchers
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="launchersfavourites" accesskey="v" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-star"></i> Fa<u>v</u>ourites
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="overspill" accesskey="r" @onclick="MenuItemSelected">
+					<span class="oi oi-menu" aria-hidden="true"></span> <span>Mo<u>r</u>e ...</span>
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink accesskey="o" class="nav-link" href="todos" @onclick="MenuItemSelected">
+					<span class="oi oi-task" aria-hidden="true"></span> Tod<u>o</u>s
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink accesskey="l" class="nav-link" href="languages" @onclick="MenuItemSelected">
+					<span class="oi oi-flag" aria-hidden="true"></span> <u>L</u>anguages
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="categories" accesskey="g" @onclick="MenuItemSelected">
+					<span class="oi oi-tags" aria-hidden="true"></span> Cate<u>g</u>ories
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink accesskey="i" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
+					<span class="oi oi-spreadsheet" aria-hidden="true"></span> <u>I</u>ntelliSense
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="commands" accesskey="m" @onclick="MenuItemSelected">
+					<span class="oi oi-microphone" aria-hidden="true"></span> Com<u>m</u>ands
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="loading" @onclick="@(() => LoadScripts())" accesskey="p">
+					<span class="oi oi-script" aria-hidden="true"></span> Scri<u>p</u>ts
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink accesskey="w" class="nav-link" href="windowsspeechvoicecommands" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-database"></i> <u>W</u>indows Commands
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="googlecalendar" accesskey="n" @onclick="MenuItemSelected">
+					<span class="oi oi-calendar" aria-hidden="true"></span>Cale<u>n</u>dar
+				</NavLink>
+			</li>
+
+		}
+		else
+		{
+			<li class="nav-item px-3">
+				<NavLink  class="nav-link" href="" Match="NavLinkMatch.All" @onclick="MenuItemSelected">
+					<span class="oi oi-home" aria-hidden="true"></span> Home
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="categoriestable" @onclick="MenuItemSelected">
+					<span class="oi oi-media-play" aria-hidden="true"></span><span>Launcher Categories</span>
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="launcherstable/0" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-rocket"></i> Launchers
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="launchersfavourites" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-star"></i> Favourites
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="overspill" @onclick="MenuItemSelected">
+					<span class="oi oi-menu" aria-hidden="true"></span> <span>More ...</span>
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="todos" @onclick="MenuItemSelected">
+					<span class="oi oi-task" aria-hidden="true"></span> Todos
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="languages" @onclick="MenuItemSelected">
+					<span class="oi oi-flag" aria-hidden="true"></span> Languages
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="categories" @onclick="MenuItemSelected">
+					<span class="oi oi-tags" aria-hidden="true"></span> Categories
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
+					<span class="oi oi-spreadsheet" aria-hidden="true"></span> IntelliSense
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="commands" @onclick="MenuItemSelected">
+					<span class="oi oi-microphone" aria-hidden="true"></span> Commands
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="loading" @onclick="@(() => LoadScripts())" >
+					<span class="oi oi-script" aria-hidden="true"></span> Scripts
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="windowsspeechvoicecommands" @onclick="MenuItemSelected">
+					<i class="oi fa-solid fa-database"></i> Windows Commands
+				</NavLink>
+			</li>
+			<li class="nav-item px-3">
+				<NavLink class="nav-link" href="googlecalendar" @onclick="MenuItemSelected">
+					<span class="oi oi-calendar" aria-hidden="true"></span>Calendar
+				</NavLink>
+			</li>
+			<button class='btn btn-sm btn-outline-secondary' accesskey="?" @onclick="EnableAccessKeys">Enable Menu Access Keys <u>?</u></button>
+		}
+		
 	</ul>
 </div>

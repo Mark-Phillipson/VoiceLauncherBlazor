@@ -18,8 +18,8 @@ namespace RazorClassLibrary.Pages
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
-		 private  string ? _languageFilter;
-		 private  string ? _categoryFilter;
+		private string? _languageFilter = "Blazor";
+		private string? _categoryFilter = "Snippet";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		[Inject] IToastService? ToastService { get; set; }
@@ -48,6 +48,9 @@ namespace RazorClassLibrary.Pages
 		int CustomIntelliSenseId;
 		Category? category;
 		Language? language;
+		private CustomIntelliSense? customIntelliSenseCurrent;
+		 private  string temporaryAccessKey = string.Empty;
+		 private  int counter = 0;
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -74,13 +77,25 @@ namespace RazorClassLibrary.Pages
 				Console.WriteLine(exception.Message);
 				_loadFailed = true;
 			}
+			if (language != null && category != null)
+			{
+				_languageFilter = language.LanguageName;
+				_categoryFilter = category.CategoryName;
+			}
 			await LoadData();
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
 			if (firstRender && JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+				try
+				{
+					await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+				}
+				catch (Exception exception)
+				{
+					Console.WriteLine(exception.Message);
+				}
 			}
 		}
 		private async Task RemoveFilter()
@@ -141,11 +156,11 @@ namespace RazorClassLibrary.Pages
 		// 
 		async Task ApplyFilter()
 		{
-			if (SearchTerm != null||_languageFilter != null ||_categoryFilter != null )
+			if (SearchTerm != null || _languageFilter != null || _categoryFilter != null)
 			{
 				try
 				{
-					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm?.Trim(), categoryIdFilter: CategoryIdFilter, languageIdFilter: LanguageIdFilter, maximumRows: MaximumRows,languageFilter: _languageFilter,categoryFilter: _categoryFilter);
+					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm?.Trim(), categoryIdFilter: CategoryIdFilter, languageIdFilter: LanguageIdFilter, maximumRows: MaximumRows, languageFilter: _languageFilter, categoryFilter: _categoryFilter);
 				}
 				catch (Exception exception)
 				{
@@ -158,7 +173,7 @@ namespace RazorClassLibrary.Pages
 		private async Task ApplySpecialFilter(int languageId, int categoryId)
 		{
 			CategoryIdFilter = categoryId;
-			category= await CategoryService.GetCategoryAsync(categoryId);
+			category = await CategoryService.GetCategoryAsync(categoryId);
 			LanguageIdFilter = languageId;
 			language = await LanguageService.GetLanguageAsync(languageId);
 			await ApplyFilter();
@@ -335,8 +350,13 @@ namespace RazorClassLibrary.Pages
 			}
 			return null;
 		}
-		private async Task CopyItemAsync(string itemToCopy)
+		private async Task CopyItemAsync(string itemToCopy, int customIntellisenseId)
 		{
+			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+			if (customIntelliSenseCurrent != null)
+			{
+				itemToCopy = FillInVariables(itemToCopy, customIntelliSenseCurrent);
+			}
 			if (JSRuntime != null)
 			{
 				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
@@ -344,8 +364,13 @@ namespace RazorClassLibrary.Pages
 				ToastService!.ShowSuccess(message);
 			}
 		}
-		private async Task CopyAndPasteAsync(string itemToCopyAndPaste)
+		private async Task CopyAndPasteAsync(string itemToCopyAndPaste,  int customIntellisenseId)
 		{
+			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+			if (customIntelliSenseCurrent != null)
+			{
+				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
+			}
 			if (JSRuntime != null)
 			{
 				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
@@ -374,6 +399,31 @@ namespace RazorClassLibrary.Pages
 			}
 			CustomIntelliSenseId = id;
 
+		}
+		private void ShowValue(int customInTeleSenseId)
+		{
+			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customInTeleSenseId).FirstOrDefault();
+			if (customIntelliSenseCurrent != null)
+			{
+				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+			}
+		}
+		private string FillInVariables(string itemToCopy, CustomIntelliSense CustomIntelliSenseDTO)
+		{
+			if (itemToCopy.Contains("`Variable1`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable1))
+			{
+				itemToCopy = itemToCopy.Replace("`Variable1`", CustomIntelliSenseDTO.Variable1);
+			}
+			if (itemToCopy.Contains("`Variable2`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable2))
+			{
+				itemToCopy = itemToCopy.Replace("`Variable2`", CustomIntelliSenseDTO.Variable2);
+			}
+			if (itemToCopy.Contains("`Variable3`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable3))
+			{
+				itemToCopy = itemToCopy.Replace("`Variable3`", CustomIntelliSenseDTO.Variable3);
+			}
+
+			return itemToCopy;
 		}
 	}
 }

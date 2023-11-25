@@ -4,44 +4,41 @@
 @page "/intellisensesBoth/{languageIdFilter:int}/{categoryIdFilter:int}"
 <header class="form-inline mx-1">
 	<h4 style="display:inline-block">
-		Custom IntelliSenses
+		Snippets
 	</h4>
-	@if (!string.IsNullOrWhiteSpace(SearchTerm))
-	{
-		<span class="mx-1"> General Filter:</span>
-		<span class="text-warning mx-1"> @SearchTerm</span>
-	}
-	@if (language != null)
-	{
-		<span class="mx-1"> Language Filter: </span>
-		<span class="text-warning mx-1"> @language.LanguageName</span>
-	}
-	@if (category != null)
-	{
-		<span class="mx-1"> Category Filter: </span>
-		<span class="text-warning mx-1"> @category.CategoryName</span>
-	}
-	<input style="display:inline" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter" class="mx-1 form-control" />
-	<input style="display:inline" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control" />
-
-	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
-	{
-		<button class="btn btn-outline-primary mx-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter</button>
-	}
-	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">Reload</button>
 </header>
 <div class="form-field row">
-	<button class="btn btn-sm btn-outline-success" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
-	<label class="control-label col-md-1">Filter</label>
+	<button class="btn btn-sm btn-outline-success mx-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
+	<span class="mx-1"> Filter Language (Alt+1): </span>
+	<input accesskey="1" style="display:inline" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter (1)" class="mx-1 form-control col-md-1" />
+	<span class="mx-1"> Category (Alt+2): </span>
+	<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control col-md-1" />
+	<label class="control-label mt-1 col-md-1">Filter (Alt+3):</label>
 	<input @bind="SearchTerm"
-	@oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-			 class="form-control col-md-2" accesskey="1" placeholder="Type to Filter (Alt+1)" />
-	<label class="control-label col-md-1" for="_showTiles">Show Tiles</label>
-	<input id="_showTiles" @bind="_showTiles" type="checkbox" class="form-control col-md-1" />
-	<label for="_showOnlyLanguageAndCategory" class="control-label col-md-3">Show only language and category</label>
-	<input id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control col-md-1" />
-
+			 @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter" />
+	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+	{
+		<button accesskey="4" class="btn btn-sm btn-outline-primary mx-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter (Alt+4)</button>
+	}
+	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">Reload</button>
+	<div class='col-md-1'>
+		<label class="control-label mt-1 mx-1" for="_showTiles">Show Tiles</label>
+		<input id="_showTiles" @bind="_showTiles" type="checkbox" class="form-control" />
+	</div>
+	<div class='col-md-1'>
+		<label for="_showOnlyLanguageAndCategory" class="control-label mt-1">Hide Snippets</label>
+		<input id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" />
+	</div>
 </div>
+<code>
+	@if (customIntelliSenseCurrent != null)
+	{
+		<textarea rows="3" style='width:100%'>
+			@customIntelliSenseCurrent.SendKeysValue
+					</textarea>
+	}
+</code>
 @if (intellisenses == null && _loadFailed)
 {
 	<h1 class="text-danger">The data failed to load please try again in a little while..</h1>
@@ -59,14 +56,18 @@ else
 	@if (_showTiles)
 	{
 		string group = "";
+		counter = 0;
 		<div class="layout-as-cards">
 			@foreach (var intellisense in intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(v => v.Category.CategoryName))
 			{
 				@if (group != intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName)
 				{
+					counter++;
+					@if (counter == 1) { temporaryAccessKey = "5"; } else { temporaryAccessKey = ""; }
 					<div class="card p-2">
-						<button class="btn" style="color:black;background-color:@intellisense.Language.Colour" @onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
+						<button accesskey="@temporaryAccessKey" class="btn" style="color:black;background-color:@intellisense.Language.Colour" @onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
 							@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
+							@if (temporaryAccessKey == "5") {<span>&nbsp;</span><u>5</u> }
 						</button>
 					</div>
 				}
@@ -76,14 +77,14 @@ else
 						<div class="row">
 							<div class="col-12">
 								<div class="button-group"></div>
-								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))">
+								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))" @onfocus="@(()=> ShowValue(intellisense.Id))">
 									@intellisense.DisplayValue
 									<i class="fa-regular fa-edit"></i>
 								</button>
-								<button class="btn btn-sm btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))">
+								<button class="btn btn-sm btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))">
 									<i class="fa-regular fa-copy"></i>
 								</button>
-								<button title="Copy and switch and paste" class="btn btn-sm btn-danger" @onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue))">
+								<button title="Copy and switch and paste" class="btn btn-sm btn-danger" @onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue,intellisense.Id))">
 									<i class="fa-solid fa-paste"></i>
 								</button>
 							</div>
@@ -175,7 +176,7 @@ else
 							<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i class="oi oi-pencil"></i></button>
 							<button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
 
-							<button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue))"><i class="fa-regular fa-copy"></i></button>
+							<button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))"><i class="fa-regular fa-copy"></i></button>
 
 						</td>
 					</tr>

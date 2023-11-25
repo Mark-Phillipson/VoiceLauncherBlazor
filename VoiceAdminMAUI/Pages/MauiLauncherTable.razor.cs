@@ -79,7 +79,7 @@ namespace VoiceAdminMAUI.Pages
             }
             catch (Exception e)
             {
-                Logger?.LogError("Exception occurred in LoadData Method, Getting Records from the Service", e);
+                Logger?.LogError(e,"Exception occurred in LoadData Method, Getting Records from the Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
@@ -191,7 +191,7 @@ namespace VoiceAdminMAUI.Pages
                     if (!result.Cancelled)
                     {
                         await LauncherDataService.DeleteLauncher(Id);
-                        ToastService?.ShowSuccess(" Launcher deleted successfully", "SUCCESS");
+                        ToastService?.ShowSuccess(" Launcher deleted successfully");
                         await LoadData();
                     }
                 }
@@ -252,7 +252,7 @@ namespace VoiceAdminMAUI.Pages
                 await JSRuntime.InvokeVoidAsync(
                         "clipboardCopy.copyText", commandLine);
                 var message = $"Copied Successfully: '{commandLine}'";
-                ToastService!.ShowSuccess(message, "Copy Commandline");
+                ToastService!.ShowSuccess(message+" - Copy Commandline");
             }
         }
         public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }
