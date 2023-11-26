@@ -1,0 +1,15 @@
+﻿@page "/"
+@using System.Diagnostics;
+@using RazorClassLibrary.Pages
+@* @message
+@foreach (var item in arguments)
+{
+	@counter
+	<div>@item</div>
+	counter++;
+}
+ *@
+
+<CascadingBlazoredModal>
+	<CustomIntelliSenses CategoryIdFilter="categoryNameId" LanguageIdFilter="languageNameId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" />
+</CascadingBlazoredModal>

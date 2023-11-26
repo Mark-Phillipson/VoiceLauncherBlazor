@@ -19,7 +19,12 @@ namespace DataAccessLibrary.Models
 
 		private IConfiguration _configuration;
 		string _connectionString;
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+		//public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+		//	 : base(options)
+		//{
+		//	_configuration =  null ;
+		//}
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration= null )
 			 : base(options)
 		{
 			_configuration = configuration;

@@ -18,12 +18,15 @@ namespace RazorClassLibrary.Pages
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
-		private string? _languageFilter = "Blazor";
-		private string? _categoryFilter = "Snippet";
+		[Parameter] public  string SearchTermParameter { get; set; } = string.Empty;
+		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+		private string? _languageFilter = "";
+		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		[Inject] IToastService? ToastService { get; set; }
 		[Inject] public required IJSRuntime? JSRuntime { get; set; }
+		private int currentAcceleratorKey = 0;
 		[Inject] public required CustomIntellisenseService CustomIntellisenseService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }
 		[Inject] public required LanguageService LanguageService { get; set; }
@@ -49,8 +52,9 @@ namespace RazorClassLibrary.Pages
 		Category? category;
 		Language? language;
 		private CustomIntelliSense? customIntelliSenseCurrent;
-		 private  string temporaryAccessKey = string.Empty;
-		 private  int counter = 0;
+		private string temporaryAccessKey = string.Empty;
+		private int counter = 0;
+		string? userAgent;
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -70,7 +74,6 @@ namespace RazorClassLibrary.Pages
 				Categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
 				Languages = await LanguageService.GetLanguagesAsync();
 				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-
 			}
 			catch (Exception exception)
 			{
@@ -81,6 +84,10 @@ namespace RazorClassLibrary.Pages
 			{
 				_languageFilter = language.LanguageName;
 				_categoryFilter = category.CategoryName;
+			}
+			if (!string.IsNullOrWhiteSpace(SearchTermParameter))
+			{
+				SearchTerm = SearchTermParameter;
 			}
 			await LoadData();
 		}
@@ -174,8 +181,10 @@ namespace RazorClassLibrary.Pages
 		{
 			CategoryIdFilter = categoryId;
 			category = await CategoryService.GetCategoryAsync(categoryId);
+			_categoryFilter=category.CategoryName;
 			LanguageIdFilter = languageId;
 			language = await LanguageService.GetLanguageAsync(languageId);
+			_languageFilter = language.LanguageName;
 			await ApplyFilter();
 		}
 		void ConfirmDelete(int customIntellisenseId)
@@ -364,7 +373,7 @@ namespace RazorClassLibrary.Pages
 				ToastService!.ShowSuccess(message);
 			}
 		}
-		private async Task CopyAndPasteAsync(string itemToCopyAndPaste,  int customIntellisenseId)
+		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 			if (customIntelliSenseCurrent != null)

@@ -14,7 +14,7 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter= null , string categoryFilter= null )
+		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter = null, string categoryFilter = null)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			IQueryable<CustomIntelliSense> intellisenses = null;
@@ -37,7 +37,7 @@ namespace DataAccessLibrary.Services
 			}
 			if (!string.IsNullOrWhiteSpace(languageFilter))
 			{
-				intellisenses = intellisenses.Where(v => v.Language.LanguageName.Contains(languageFilter) );
+				intellisenses = intellisenses.Where(v => v.Language.LanguageName.Contains(languageFilter));
 			}
 			if (!string.IsNullOrWhiteSpace(categoryFilter))
 			{
@@ -66,11 +66,11 @@ namespace DataAccessLibrary.Services
 			{
 				intellisenses = intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(t => t.Category.CategoryName).ThenBy(b => b.DisplayValue);
 			}
-			if (languageIdFilter != null)
+			if (languageIdFilter != null && languageIdFilter != 0)
 			{
 				intellisenses = intellisenses.Where(v => v.LanguageId == languageIdFilter);
 			}
-			if (categoryIdFilter != null)
+			if (categoryIdFilter != null && categoryIdFilter != 0)
 			{
 				intellisenses = intellisenses.Where(v => v.CategoryId == categoryIdFilter);
 			}
@@ -88,17 +88,17 @@ namespace DataAccessLibrary.Services
 			using var context = _contextFactory.CreateDbContext();
 			if (intellisense.Id > 0)
 			{
-				var existingIntellisense =  await context.CustomIntelliSenses.FirstOrDefaultAsync(c => c.Id == intellisense.Id);
-				if (existingIntellisense!= null )
+				var existingIntellisense = await context.CustomIntelliSenses.FirstOrDefaultAsync(c => c.Id == intellisense.Id);
+				if (existingIntellisense != null)
 				{
 					existingIntellisense.LanguageId = intellisense.LanguageId;
-					existingIntellisense.CategoryId= intellisense.CategoryId;
-					existingIntellisense.CommandType= intellisense.CommandType;
-					existingIntellisense.Remarks= intellisense.Remarks;
-					existingIntellisense.ComputerId= intellisense.ComputerId;
-					existingIntellisense.DeliveryType= intellisense.DeliveryType;
-					existingIntellisense.DisplayValue= intellisense.DisplayValue;
-					existingIntellisense.SendKeysValue= intellisense.SendKeysValue;
+					existingIntellisense.CategoryId = intellisense.CategoryId;
+					existingIntellisense.CommandType = intellisense.CommandType;
+					existingIntellisense.Remarks = intellisense.Remarks;
+					existingIntellisense.ComputerId = intellisense.ComputerId;
+					existingIntellisense.DeliveryType = intellisense.DeliveryType;
+					existingIntellisense.DisplayValue = intellisense.DisplayValue;
+					existingIntellisense.SendKeysValue = intellisense.SendKeysValue;
 				}
 			}
 			else

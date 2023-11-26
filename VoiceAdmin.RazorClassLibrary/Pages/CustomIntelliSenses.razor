@@ -8,13 +8,23 @@
 	</h4>
 </header>
 <div class="form-field row">
-	<button class="btn btn-sm btn-outline-success mx-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
-	<span class="mx-1"> Filter Language (Alt+1): </span>
-	<input accesskey="1" style="display:inline" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter (1)" class="mx-1 form-control col-md-1" />
-	<span class="mx-1"> Category (Alt+2): </span>
-	<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control col-md-1" />
-	<label class="control-label mt-1 col-md-1">Filter (Alt+3):</label>
-	<input @bind="SearchTerm"
+	@if (!RunningInBlazorHybrid)
+	{
+		<button class="btn btn-sm btn-outline-success mx-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
+		<span class="mx-1"> Filter Language (Alt+1): </span>
+	}
+
+	<input accesskey="1" style="display:inline;min-width:200px" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter (1)" class="mx-1 form-control col-md-1" />
+	@if (!RunningInBlazorHybrid)
+	{
+		<span class="mx-1"> Category (Alt+2): </span>
+	}
+	<input accesskey="2" style="display:inline;min-width:200px" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control col-md-1" />
+	@if (!RunningInBlazorHybrid)
+	{
+		<label class="control-label mt-1 col-md-1">Filter (Alt+3):</label>
+	}
+	<input @bind="SearchTerm" style='min-width:200px'
 			 @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
 			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter" />
 	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
@@ -22,23 +32,20 @@
 		<button accesskey="4" class="btn btn-sm btn-outline-primary mx-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter (Alt+4)</button>
 	}
 	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">Reload</button>
-	<div class='col-md-1'>
-		<label class="control-label mt-1 mx-1" for="_showTiles">Show Tiles</label>
-		<input id="_showTiles" @bind="_showTiles" type="checkbox" class="form-control" />
-	</div>
-	<div class='col-md-1'>
-		<label for="_showOnlyLanguageAndCategory" class="control-label mt-1">Hide Snippets</label>
-		<input id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" />
-	</div>
-</div>
-<code>
-	@if (customIntelliSenseCurrent != null)
+	@if (!RunningInBlazorHybrid)
 	{
-		<textarea rows="3" style='width:100%'>
-			@customIntelliSenseCurrent.SendKeysValue
-					</textarea>
+		<div class='col-md-1'>
+
+			<label class="control-label mt-1 mx-1" for="_showTiles">Show Tiles</label>
+			<input id="_showTiles" @bind="_showTiles" type="checkbox" class="form-control" />
+		</div>
+		<div class='col-md-1'>
+			<label for="_showOnlyLanguageAndCategory" class="control-label mt-1">Hide Snippets</label>
+			<input id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" />
+		</div>
 	}
-</code>
+</div>
+
 @if (intellisenses == null && _loadFailed)
 {
 	<h1 class="text-danger">The data failed to load please try again in a little while..</h1>
@@ -63,11 +70,24 @@ else
 				@if (group != intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName)
 				{
 					counter++;
-					@if (counter == 1) { temporaryAccessKey = "5"; } else { temporaryAccessKey = ""; }
+					@if (counter < 10)
+					{
+						currentAcceleratorKey = counter + 4;
+						temporaryAccessKey = currentAcceleratorKey.ToString();
+					}
+					else
+					{
+						temporaryAccessKey = "";
+					}
 					<div class="card p-2">
 						<button accesskey="@temporaryAccessKey" class="btn" style="color:black;background-color:@intellisense.Language.Colour" @onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
 							@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
-							@if (temporaryAccessKey == "5") {<span>&nbsp;</span><u>5</u> }
+							@if (temporaryAccessKey !="")
+							{
+								<span>&nbsp;</span>
+
+								<u>@temporaryAccessKey</u>
+							}
 						</button>
 					</div>
 				}
@@ -185,7 +205,16 @@ else
 		</table>
 	}
 
-
+	<pre class='mt-2' >
+	<code class='m-2'>
+			@if (customIntelliSenseCurrent != null)
+			{
+		<textarea rows="7" style='width:95%;color:white;background:black'>
+					@customIntelliSenseCurrent.SendKeysValue
+										</textarea>
+			}
+	</code>
+	</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
