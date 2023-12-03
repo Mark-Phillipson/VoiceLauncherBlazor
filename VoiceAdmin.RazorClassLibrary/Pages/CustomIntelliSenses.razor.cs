@@ -18,7 +18,7 @@ namespace RazorClassLibrary.Pages
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
-		[Parameter] public  string SearchTermParameter { get; set; } = string.Empty;
+		[Parameter] public string SearchTermParameter { get; set; } = string.Empty;
 		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
@@ -181,7 +181,7 @@ namespace RazorClassLibrary.Pages
 		{
 			CategoryIdFilter = categoryId;
 			category = await CategoryService.GetCategoryAsync(categoryId);
-			_categoryFilter=category.CategoryName;
+			_categoryFilter = category.CategoryName;
 			LanguageIdFilter = languageId;
 			language = await LanguageService.GetLanguageAsync(languageId);
 			_languageFilter = language.LanguageName;
@@ -397,7 +397,12 @@ namespace RazorClassLibrary.Pages
 		{
 			var parameters = new ModalParameters();
 			parameters.Add("Id", id);
-			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters);
+			var options = new ModalOptions()
+			{
+				Class = "blazored-modal-custom",
+				Size = ModalSize.ExtraLarge
+			};
+			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters,options);
 			if (formModal != null)
 			{
 				var result = await formModal.Result;
@@ -412,9 +417,13 @@ namespace RazorClassLibrary.Pages
 		private void ShowValue(int customInTeleSenseId)
 		{
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customInTeleSenseId).FirstOrDefault();
-			if (customIntelliSenseCurrent != null)
+			if (customIntelliSenseCurrent != null && !customIntelliSenseCurrent.Category.CategoryName.ToLower().Contains("password") && !customIntelliSenseCurrent.DisplayValue.ToLower().Contains("password"))
 			{
 				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+			}
+			else if (customIntelliSenseCurrent != null)
+			{ 
+				customIntelliSenseCurrent.SendKeysValue= "********";
 			}
 		}
 		private string FillInVariables(string itemToCopy, CustomIntelliSense CustomIntelliSenseDTO)

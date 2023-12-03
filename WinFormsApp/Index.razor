@@ -9,7 +9,13 @@
 	counter++;
 }
  *@
-
 <CascadingBlazoredModal>
-	<CustomIntelliSenses CategoryIdFilter="categoryNameId" LanguageIdFilter="languageNameId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" />
+	@if (languageAndCategoryListing) // filtering by language and category and listing only ten at a time with paging sported
+	{
+		<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"  />
+	}
+	else // filtering by display value mostly
+	{
+		<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" />
+	}
 </CascadingBlazoredModal>

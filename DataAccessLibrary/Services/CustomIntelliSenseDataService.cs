@@ -1,17 +1,17 @@
 using Ardalis.GuardClauses;
 using AutoMapper;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VoiceLauncher.Repositories;
 
 
 namespace VoiceLauncher.Services
 {
-    public class CustomIntelliSenseDataService : ICustomIntelliSenseDataService
+   public class CustomIntelliSenseDataService : ICustomIntelliSenseDataService
     {
         private readonly ICustomIntelliSenseRepository _customIntelliSenseRepository;
 
@@ -19,9 +19,9 @@ namespace VoiceLauncher.Services
         {
             _customIntelliSenseRepository = customIntelliSenseRepository;
         }
-        public async Task<List<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int CategoryID)
+        public async Task<List<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int LanguageId, int CategoryId, int pageNumber, int pageSize)
         {
-            var CustomIntelliSenses = await _customIntelliSenseRepository.GetAllCustomIntelliSensesAsync(CategoryID);
+            var CustomIntelliSenses = await _customIntelliSenseRepository.GetAllCustomIntelliSensesAsync(LanguageId,CategoryId,pageNumber,pageSize);
             return CustomIntelliSenses.ToList();
         }
         public async Task<List<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)

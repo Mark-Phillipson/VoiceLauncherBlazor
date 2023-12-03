@@ -8,13 +8,14 @@ namespace WinFormsApp
 	{
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }
-		
-		private int languageNameId;
-		private int categoryNameId;
-		private string message="";
-		private string[] arguments;
+
+		private int languageId;
+		private int categoryId;
+		private string message = "";
+		private string[]? arguments;
 		private int counter = 0;
-		string searchTerm="";
+		string searchTerm = "";
+		private bool languageAndCategoryListing = false;
 		protected override async Task OnInitializedAsync()
 		{
 			arguments = Environment.GetCommandLineArgs();
@@ -24,7 +25,7 @@ namespace WinFormsApp
 			}
 			if (arguments.Count() < 2)
 			{
-				arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Snippet" };
+				arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 			}
 			if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
 			{
@@ -34,8 +35,9 @@ namespace WinFormsApp
 				categoryName = arguments[3].Replace("/", "").Trim();
 				var language = await LanguageService.GetLanguageAsync(languageName);
 				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
-				languageNameId = language.Id;
-				categoryNameId = category.Id;
+				languageId = language.Id;
+				categoryId = category.Id;
+				languageAndCategoryListing = true;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
 			else if (arguments.Length == 3)

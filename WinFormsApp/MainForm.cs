@@ -1,6 +1,7 @@
 using Blazored.Modal;
 using Blazored.Toast;
 using DataAccessLibrary.Models;
+using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ using VoiceLauncher.Services;
 
 namespace WinFormsApp
 {
-	public partial class MainForm : Form
+   public partial class MainForm : Form
 	{
 		public MainForm()
 		{
@@ -21,11 +22,16 @@ namespace WinFormsApp
          var services = new ServiceCollection();
          //services.AddScoped(IConfiguration, Configuration > ();
          services.AddWindowsFormsBlazorWebView();
-         services.AddScoped<LanguageService>();
+#if DEBUG
+			services.AddBlazorWebViewDeveloperTools();
+#endif
+			services.AddScoped<LanguageService>();
          services.AddScoped<ILauncherRepository, LauncherRepository>();
          services.AddScoped<ILauncherDataService, LauncherDataService>();
          services.AddScoped<ICategoryRepository, CategoryRepository>();
          services.AddScoped<ICategoryDataService, CategoryDataService>();
+         services.AddScoped<ILanguageDataService, LanguageDataService>();
+         services.AddScoped<ILanguageRepository, LanguageRepository>();
          services.AddBlazoredModal();
 			services.AddBlazoredToast();
          string connectionString = "Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";

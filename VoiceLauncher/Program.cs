@@ -70,8 +70,12 @@ builder.Services.AddScoped<IMicrophoneRepository, MicrophoneRepository>();
 builder.Services.AddScoped<IMicrophoneDataService, MicrophoneDataService>();
 builder.Services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
 builder.Services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
+builder.Services.AddScoped<ITalonAlphabetRepository, TalonAlphabetRepository>();
+builder.Services.AddScoped<ITalonAlphabetDataService, TalonAlphabetDataService>();
 builder.Services.AddScoped<IPromptRepository, PromptRepository>();
 builder.Services.AddScoped<IPromptDataService, PromptDataService>();
+builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
+builder.Services.AddScoped<ILanguageDataService, LanguageDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

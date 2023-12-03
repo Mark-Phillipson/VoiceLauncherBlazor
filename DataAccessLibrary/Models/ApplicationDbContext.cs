@@ -24,12 +24,13 @@ namespace DataAccessLibrary.Models
 		//{
 		//	_configuration =  null ;
 		//}
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration= null )
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration? configuration= null )
 			 : base(options)
 		{
 			_configuration = configuration;
 		}
 		public virtual DbSet<CssProperty> CssProperties { get; set; }
+		public virtual DbSet<TalonAlphabet> TalonAlphabets { get; set; }
 		public virtual DbSet<Prompt> Prompts { get; set; }
 		public virtual DbSet<Microphone> Microphones { get; set; }
 		public virtual DbSet<ApplicationDetail> ApplicationDetails { get; set; }
