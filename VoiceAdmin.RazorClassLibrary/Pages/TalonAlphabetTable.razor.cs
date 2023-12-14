@@ -1,27 +1,14 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using System.Net.Http;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
-using Microsoft.JSInterop;
+using Ardalis.GuardClauses;
 using Blazored.Modal;
 using Blazored.Modal.Services;
-using Blazored.Toast;
 using Blazored.Toast.Services;
-using System.Security.Claims;
-using Ardalis.GuardClauses;
-using DataAccessLibrary.Services;
-using Microsoft.Extensions.Logging;
-using RazorClassLibrary.Shared;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
+using RazorClassLibrary.Shared;
+using System.Security.Claims;
 
 namespace RazorClassLibrary.Pages
 {
@@ -30,12 +17,12 @@ namespace RazorClassLibrary.Pages
 		[Inject] public ITalonAlphabetDataService? TalonAlphabetDataService { get; set; }
 		[Inject] public NavigationManager? NavigationManager { get; set; }
 		[Inject] public ILogger<TalonAlphabetTable>? Logger { get; set; }
-
 		[Inject] public IToastService? ToastService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		public string Title { get; set; } = "TalonAlphabet Items (TalonAlphabets)";
 		public string EditTitle { get; set; } = "Edit TalonAlphabet Item (TalonAlphabets)";
 		[Parameter] public int ParentId { get; set; }
+		[Parameter] public bool ReportView { get; set; } = false;
 		public List<TalonAlphabetDTO>? TalonAlphabetDTO { get; set; }
 		public List<TalonAlphabetDTO>? FilteredTalonAlphabetDTO { get; set; }
 		protected TalonAlphabetAddEdit? TalonAlphabetAddEdit { get; set; }
@@ -68,8 +55,8 @@ namespace RazorClassLibrary.Pages
 					//var result = await TalonAlphabetDataService.SearchTalonAlphabetsAsync(ServerSearchTerm);
 					if (result != null)
 					{
-						TalonAlphabetDTO = result.ToList();
-						FilteredTalonAlphabetDTO = result.ToList();
+						TalonAlphabetDTO = result.OrderBy(x => x.RandomSort).ToList();
+						FilteredTalonAlphabetDTO = TalonAlphabetDTO;
 						StateHasChanged();
 					}
 				}

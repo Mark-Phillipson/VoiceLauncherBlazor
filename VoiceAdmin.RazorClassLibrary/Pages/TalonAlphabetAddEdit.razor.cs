@@ -80,6 +80,11 @@ namespace RazorClassLibrary.Pages
 		}
 		protected async Task HandleValidSubmit()
 		{
+			if (Environment.MachineName != "J40L4V3")
+			{
+				ToastService?.ShowWarning("This is a demo application and editing is not allowed");
+				return;
+			}
 			TaskRunning = true;
 			if ((Id == 0 || Id == null) && TalonAlphabetDataService != null)
 			{

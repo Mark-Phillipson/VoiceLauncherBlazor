@@ -68,30 +68,41 @@ else
 {
 
     <div class="layout-as-cards">
-        @foreach (var launcher in FilteredLauncherDTO)
+      @{
+         counter = -1;
+      }
+      @foreach (var launcher in FilteredLauncherDTO)
         {
+         @if (counter < 9)
+         {
+            counter++;
+         }
+         else
+         {
+            counter = null;
+         }
             <div class="card">
                 <div class="card-header" title="@launcher.CommandLine">
                     @if (launcher.CommandLine.ToLower().StartsWith("http"))
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <a style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="50" src='/images/@launcher.Icon' /> @launcher.Name</a>
+                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</a>
                         }
                         else
                         {
-                            <a style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> @launcher.Name</a>
+                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@counter</u> @launcher.Name</a>
                         }
                     }
                     else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <button style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )"><img class="m-1" height="50" src='/images/@launcher.Icon' /> @launcher.Name</button>
+                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )"><img class="m-1" height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</button>
                         }
                         else
                         {
-                            <button style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )">🚀 @launcher.Name</button>
+                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )">🚀 <u>@counter</u> @launcher.Name</button>
 
                         }
                     }

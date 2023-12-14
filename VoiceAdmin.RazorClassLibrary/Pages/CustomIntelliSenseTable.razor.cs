@@ -302,7 +302,7 @@ namespace RazorClassLibrary.Pages
             {
                await JSRuntime.InvokeVoidAsync("window.close");
                simulator.Keyboard.Sleep(100);
-               simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.F4);
+               simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.VK_C);
                // unable at the moment to work out how to close the bloody window!
             }
 			}

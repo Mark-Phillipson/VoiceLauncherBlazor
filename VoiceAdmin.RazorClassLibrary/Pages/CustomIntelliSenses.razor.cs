@@ -55,6 +55,7 @@ namespace RazorClassLibrary.Pages
 		private string temporaryAccessKey = string.Empty;
 		private int counter = 0;
 		string? userAgent;
+		private bool showExtras = false;
 		public string SearchTerm
 		{
 			get => searchTerm;
@@ -123,17 +124,21 @@ namespace RazorClassLibrary.Pages
 			{
 				language = await LanguageService.GetLanguageAsync(languageName);
 				LanguageIdFilter = language?.Id;
+				_languageFilter = language?.LanguageName;
 			}
 			if (QueryHelpers.ParseQuery(query).TryGetValue("category", out var categoryName))
 			{
 				category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
 				CategoryIdFilter = category?.Id;
+				_categoryFilter = category?.CategoryName;
 			}
 			if (CategoryIdFilter != null && LanguageIdFilter != null)
 			{
 				await FilterByLanguageAndCategory();
 				category = await CategoryService.GetCategoryAsync(CategoryIdFilter.Value);
+				_categoryFilter = category?.CategoryName;
 				language = await LanguageService.GetLanguageAsync(LanguageIdFilter.Value);
+				_languageFilter = language?.LanguageName;
 			}
 			else if (CategoryIdFilter != null)
 			{

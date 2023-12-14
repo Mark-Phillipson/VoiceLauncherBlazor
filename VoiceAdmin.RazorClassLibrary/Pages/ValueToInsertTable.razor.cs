@@ -43,6 +43,7 @@ namespace RazorClassLibrary.Pages
 		public bool ShowEdit { get; set; } = false;
 		private bool ShowDeleteConfirm { get; set; }
 		private int ValueToInsertId { get; set; }
+		private int? counter = 0;
 		protected override async Task OnInitializedAsync()
 		{
 			await LoadData();

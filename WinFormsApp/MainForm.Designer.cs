@@ -29,6 +29,7 @@
 		private void InitializeComponent()
 		{
 			blazorWebView1 = new Microsoft.AspNetCore.Components.WebView.WindowsForms.BlazorWebView();
+			button1 = new Button();
 			SuspendLayout();
 			// 
 			// blazorWebView1
@@ -41,11 +42,23 @@
 			blazorWebView1.TabIndex = 0;
 			blazorWebView1.Text = "blazorWebView1";
 			// 
+			// button1
+			// 
+			button1.Dock = DockStyle.Bottom;
+			button1.Location = new Point(0, 647);
+			button1.Name = "button1";
+			button1.Size = new Size(805, 23);
+			button1.TabIndex = 1;
+			button1.Text = "&Close Application";
+			button1.UseVisualStyleBackColor = true;
+			button1.Click += button1_Click;
+			// 
 			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(805, 670);
+			Controls.Add(button1);
 			Controls.Add(blazorWebView1);
 			Name = "MainForm";
 			Text = "Voice Admin";
@@ -55,5 +68,6 @@
 		#endregion
 
 		private Microsoft.AspNetCore.Components.WebView.WindowsForms.BlazorWebView blazorWebView1;
-   }
+		private Button button1;
+	}
 }

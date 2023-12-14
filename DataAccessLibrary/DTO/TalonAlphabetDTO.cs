@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLibrary.DTO
@@ -16,5 +17,6 @@ namespace DataAccessLibrary.DTO
 		public string DefaultLetter { get; set; } = "";
 		[StringLength(255)]
 		public string DefaultPictureUrl { get; set; }
+		 public Guid RandomSort { get; set; }= Guid.NewGuid();
 	}
 }

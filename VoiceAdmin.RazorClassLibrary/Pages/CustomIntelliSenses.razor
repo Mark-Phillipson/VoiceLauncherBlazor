@@ -4,45 +4,42 @@
 @page "/intellisensesBoth/{languageIdFilter:int}/{categoryIdFilter:int}"
 <header class="form-inline mx-1">
 	<h4 style="display:inline-block">
+		<i class="fa-solid fa-file-code"></i>
 		Snippets
 	</h4>
 </header>
-<div class="form-field row">
+<div class="form-field row">1rc
 	@if (!RunningInBlazorHybrid)
 	{
 		<button class="btn btn-sm btn-outline-success mx-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
-		<span class="mx-1"> Filter Language (Alt+1): </span>
 	}
-
 	<input accesskey="1" style="display:inline;min-width:200px" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter (1)" class="mx-1 form-control col-md-1" />
-	@if (!RunningInBlazorHybrid)
-	{
-		<span class="mx-1"> Category (Alt+2): </span>
-	}
 	<input accesskey="2" style="display:inline;min-width:200px" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control col-md-1" />
-	@if (!RunningInBlazorHybrid)
-	{
-		<label class="control-label mt-1 col-md-1">Filter (Alt+3):</label>
-	}
 	<input @bind="SearchTerm" style='min-width:200px'
 			 @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter" />
+			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter (Alt+3)" />
 	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 	{
 		<button accesskey="4" class="btn btn-sm btn-outline-primary mx-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter (Alt+4)</button>
 	}
-	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">Reload</button>
+	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
+		<i class="fas fa-sync"></i>
+	</button>
 	@if (!RunningInBlazorHybrid)
 	{
-		<div class='col-md-1'>
-
-			<label class="control-label mt-1 mx-1" for="_showTiles">Show Tiles</label>
-			<input id="_showTiles" @bind="_showTiles" type="checkbox" class="form-control" />
-		</div>
-		<div class='col-md-1'>
-			<label for="_showOnlyLanguageAndCategory" class="control-label mt-1">Hide Snippets</label>
-			<input id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" />
-		</div>
+		@if (showExtras)
+		{
+			<div class='col-md-4'>
+				<label class="control-label mt-1 mx-1" for="_showTiles">Show <u>T</u>iles</label>
+				<input accesskey="t" id="_showTiles" style='width:30px'  @bind="_showTiles" type="checkbox" class="form-control" />
+			</div>
+			<div class='col-md-4'>
+				<label for="_showOnlyLanguageAndCategory" class="control-label mt-1"><u>H</u>ide</label>
+				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px'  @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" title='Hide Snippets' />
+			</div>
+		}
+		<label class="control-label mt-1 mx-1" for="showExtras">Show E<u>x</u>tras</label>
+		<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-control" style='width:30px' />
 	}
 </div>
 
@@ -82,7 +79,7 @@ else
 					<div class="card p-2">
 						<button accesskey="@temporaryAccessKey" class="btn" style="color:black;background-color:@intellisense.Language.Colour" @onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
 							@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
-							@if (temporaryAccessKey !="")
+							@if (temporaryAccessKey != "")
 							{
 								<span>&nbsp;</span>
 
@@ -204,17 +201,17 @@ else
 			</tbody>
 		</table>
 	}
-	
-	<pre class='mt-2' >
+
+	<pre class='mt-2'>
 	<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
 		<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-										</textarea>
+																				</textarea>
 			}
-	</code>
-	</pre>
+						</code>
+						</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {

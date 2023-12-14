@@ -325,7 +325,7 @@ header > h3 {
 	flex-direction: column;
 	flex-flow: wrap;
 	text-decoration: none;
-	justify-content: stretch;
+	justify-content: center;
 	color: white;
 	gap: 3px
 }

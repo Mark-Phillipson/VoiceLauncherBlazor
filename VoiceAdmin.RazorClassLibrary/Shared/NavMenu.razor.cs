@@ -29,5 +29,9 @@ namespace RazorClassLibrary.Shared
 			StateHasChanged();
 			NavigationManager!.NavigateTo($"commandsetoverview");
 		}
+		private void LoadCategories(string categoryType) { 
+			NavigationManager!.NavigateTo($"/categoriestable?categorytype={categoryType}",true);
+			MenuItemSelected();
+		}
 	}
 }

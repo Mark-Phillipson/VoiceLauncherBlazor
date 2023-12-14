@@ -41,6 +41,7 @@ namespace RazorClassLibrary.Pages
 		private string? _randomColor1;
 		string Message = "";
 #pragma warning restore 414, 649
+		private  int ? counter = 0;
 		public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
 		[Parameter] public string? ServerSearchTerm { get; set; }
 		public string ExceptionMessage { get; set; } = string.Empty;

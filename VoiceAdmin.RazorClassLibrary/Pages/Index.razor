@@ -1,18 +1,15 @@
 ﻿@page "/"
 @{
-	var sentence1 = "I am currently unavailable (09/03/2022) for consultation and software development work:";
-	//var sentence1 = "I am available for consultation and software development work:";
 }
 <PageTitle>Voice Admin</PageTitle>
 <section>
-	<h1 class="d-none d-lg-block">
-		<i class="oi oi-microphone"></i>
-		Voice Admin
-	</h1>
-	<br>
-	<h6 class="d-lg-none">@sentence1</h6>
-	<h4 class="d-none d-lg-block">@sentence1</h4>
-
+    <h1 class="d-none d-lg-block text-center ml-3">
+        <i class="oi oi-microphone"></i>
+        Voice Admin
+    </h1>
+	
+	
+	<TalonAlphabetTable ReportView="true" />
 	<article class="d-lg-none" style="display:flex;flex-direction:column">
 		<div class="card m-1" style="width: 15rem;">
 			<div class="card-img-top text-center">
