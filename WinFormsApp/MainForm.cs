@@ -3,6 +3,7 @@ using Blazored.Toast;
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,12 +51,13 @@ namespace WinFormsApp
 
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
-			blazorWebView1.RootComponents.Add<Index>("#app");
-		}
 
-		private void button1_Click(object sender, EventArgs e)
-		{
-			Application.Exit();
+			blazorWebView1.RootComponents.Add<Index>("#app",
+			 new Dictionary<string, object?>
+			 {
+				  {"Callback", new EventCallback(null, ()=>{ Application.Exit(); }) }
+			 });
+
 		}
 	}
 }

@@ -1,21 +1,13 @@
 ﻿@page "/"
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
-@* @message
-@foreach (var item in arguments)
-{
-	@counter
-	<div>@item</div>
-	counter++;
-}
- *@
 <CascadingBlazoredModal>
 	@if (languageAndCategoryListing) // filtering by language and category and listing only ten at a time with paging sported
 	{
-		<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"  />
+		<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"  CloseApplication="CloseWindow" />
 	}
 	else // filtering by display value mostly
 	{
-		<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" />
+		<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm"  CloseApplication="CloseWindow"/>
 	}
 </CascadingBlazoredModal>

@@ -30,6 +30,7 @@ namespace RazorClassLibrary.Pages
       [Parameter] public int CategoryId { get; set; }
       [Parameter] public int LanguageId { get; set; }
 		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+		[Parameter] public EventCallback CloseApplication{ get; set; }
 		private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
       public List<CustomIntelliSenseDTO>? CustomIntelliSenseDTO { get; set; }
@@ -261,6 +262,11 @@ namespace RazorClassLibrary.Pages
 				var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
 				ToastService!.ShowSuccess(message);
 			}
+         if (RunningInBlazorHybrid)
+         {
+            await CloseApplication.InvokeAsync();
+
+			}
 
 		}
 		private string FillInVariables(string itemToCopy, CustomIntelliSenseDTO CustomIntelliSenseDTO)
@@ -298,13 +304,10 @@ namespace RazorClassLibrary.Pages
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
 				ToastService!.ShowSuccess(message);
-            if (RunningInBlazorHybrid)
+				if (RunningInBlazorHybrid)
             {
-               await JSRuntime.InvokeVoidAsync("window.close");
-               simulator.Keyboard.Sleep(100);
-               simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.VK_C);
-               // unable at the moment to work out how to close the bloody window!
-            }
+               await CloseApplication.InvokeAsync();
+				}
 			}
 		}
 	}

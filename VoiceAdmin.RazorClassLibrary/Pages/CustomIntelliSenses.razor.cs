@@ -20,6 +20,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
 		[Parameter] public string SearchTermParameter { get; set; } = string.Empty;
 		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+		[Parameter] public EventCallback CloseApplication { get; set; }
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
@@ -377,6 +378,7 @@ namespace RazorClassLibrary.Pages
 				var message = $"Copied Successfully: '{itemToCopy}'";
 				ToastService!.ShowSuccess(message);
 			}
+			await CloseApplication.InvokeAsync();
 		}
 		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
@@ -396,6 +398,7 @@ namespace RazorClassLibrary.Pages
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
 				ToastService!.ShowSuccess(message);
+				await CloseApplication.InvokeAsync();
 			}
 		}
 		private async Task EditAsync(int id)

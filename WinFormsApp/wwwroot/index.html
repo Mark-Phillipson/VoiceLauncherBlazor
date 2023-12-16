@@ -67,6 +67,10 @@
 		window.getPageYOffset = function () {
 			return window.pageYOffset;
 		}
+		window.closeForm = function () {
+			DotNet.invokeMethodAsync('WinFormsApp', 'CloseForm');
+		}
+
 	</script>
 
 </body>

@@ -1,6 +1,6 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
-
+using Microsoft.JSInterop;
 
 namespace WinFormsApp
 {
@@ -8,6 +8,7 @@ namespace WinFormsApp
 	{
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }
+		[Inject] public required IJSRuntime JSRuntime { get; set; }
 
 		private int languageId;
 		private int categoryId;
@@ -44,9 +45,14 @@ namespace WinFormsApp
 			{
 				searchTerm = arguments[2].Replace("/", "");
 			}
-
-
-
 		}
+		private async void CloseWindow()
+		{
+			await Callback.InvokeAsync();
+		}
+
+		[Parameter]
+		public EventCallback Callback { get; set; }
+		
 	}
 }
