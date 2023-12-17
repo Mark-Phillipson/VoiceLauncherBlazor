@@ -321,6 +321,7 @@ header > h3 {
 	height: 30px;
 }
 .layout-as-cards {
+	margin:2px;
 	display: flex;
 	flex-direction: column;
 	flex-flow: wrap;

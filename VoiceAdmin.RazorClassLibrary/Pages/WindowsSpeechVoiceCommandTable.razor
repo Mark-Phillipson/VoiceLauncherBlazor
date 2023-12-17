@@ -9,9 +9,9 @@
     <div class="col-md-4">
         <div class="form-group form-inline">
             <label for="HideActions">Hide Actions (Alt+1) </label>
-            <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-control mx-2" style="width:50px" />
+            <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-checkbox mx-2" style="width:50px" />
             <label for="ShowAutoCreated">Show Auto Created</label>
-            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-control mx-2" style="width:50px" />
+            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-checkbox mx-2" style="width:50px" />
             @*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>*@
         </div>
     </div>

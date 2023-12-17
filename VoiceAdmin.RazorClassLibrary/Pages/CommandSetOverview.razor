@@ -8,16 +8,14 @@
 	</div>
 }
 <div style="margin:4px">
-	<div class="row form-inline">
-		<div class="col-5">
-			@Title <span class="text-primary">KnowBrainer</span>:
+	<div class="row">
+		<div class="col-4">
+			@Title <span class="text-primary">KB</span>:
 			<button class="btn btn-sm btn-outline-primary" type="button" @onclick="@(() => OpenFileKb())">  @CommandSet?.KBFilename </button>
 		</div>
 		<div class="col-2">
-			<div class="form-group">
 				<label for="ShowInfo"  class="control-label">More Info</label>
-				<input type="checkbox" id="ShowInfo"  class="form-control form-control-sm m-1" @bind="@_showInfo" />
-			</div>
+				<input type="checkbox" id="ShowInfo"  class="form-checkbox form-checkbox-sm m-1" @bind="@_showInfo" />
 		</div>
 		<div class="col-4">
 			<span class="text-info">Dragon</span>:
@@ -35,30 +33,52 @@
 				<span class="badge badge-info" title="Number of Lists">@CommandSet?.DragonLists</span>
 			</div>
 		}
-	</div>
-	<label class="control-label">Custom files</label>
-	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
-	<InputFile OnChange="ImportFileAsync" class="btn btn-info btn-sm border border-info" @onclick="@(() => SetImportFlag(false))" />
 </div>
-<div class="form-inline">
-	<div style="margin:4px">	<label for="ShowCommands" class="control-label">Show Commands</label></div>
-	<div style="margin:4px">
-		<input id="ShowCommands" type="checkbox" class="form-control" @bind="@ShowCommands" title="Show Commands" />
+</div>
+<div>
+	<div class='row' >
+<div class='col-md-2'>
+	<label class="control-label">Custom files</label>
 	</div>
+	<div class='col-md-5'>
+	<InputFile class="btn btn-sm btn-primary border border-primary" OnChange="ImportFileAsync" @onclick="@(() => SetImportFlag(true))" />
+		</div>
+		<div class='col-md-5' >
+	<InputFile OnChange="ImportFileAsync" class="btn btn-info btn-sm border border-info" @onclick="@(() => SetImportFlag(false))" />
+		</div>
+</div>
+	</div>
+<div class="row">
+	<div class='col-md-1'>
+		<div style="margin:4px">	<label for="ShowCommands" class="control-label">Commands</label></div>
+		<div style="margin:4px">
+			<input id="ShowCommands" type="checkbox" class="form-checkbox" @bind="@ShowCommands" title="Show Commands" />
+		</div>
+	</div>
+	<div class='col-md-1' >
 	<div style="margin:4px">	<label for="ShowLists" class="control-label">Lists</label></div>
-	<div style="margin:4px">valuestoinsert
-		<input type="checkbox" id="ShowLists" class="form-control" @bind="@ShowLists" title="Hide Code Only" />
+	<div style="margin:4px">
+		<input type="checkbox" id="ShowLists" class="form-checkbox" @bind="@ShowLists" title="Hide Code Only" />
 	</div>
+	</div>
+	<div class='col-md-1'>
 	<div style="margin:4px">	<label for="ShowCode" class="control-label">Code</label></div>
 	<div style="margin:4px">
-		<input type="checkbox" id="ShowCode" class="form-control" @bind="@ShowCode" title="Hide Code Only" />
+		<input type="checkbox" id="ShowCode" class="form-checkbox" @bind="@ShowCode" title="Hide Code Only" />
 	</div>
+	</div>
+	<div class='col-md-1'>
 	<div style="margin:4px"><label class="control-label ml-4">Filter</label></div>
+	</div>
+	<div class='col-md-2' >
 	<div style="margin:6px">
 		<input @ref="SearchInput" class="form-control mr-4" style="float:right" accesskey="1" @bind="@SearchTerm" @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Command Name (Alt+1)" />
 	</div>
+	</div>
+	<div class='col-md-2' >
 	<div style="margin:4px">
 		<input class="form-control m-1" style="float:right" @bind="@SearchTermApplication" accesskey="2" @bind:event="oninput" id="SearchInputApplication" name="SearchTermApplication" placeholder="Applications (Alt+2)" />
+	</div>
 	</div>
 	@{
 		string partialClass = "primary";
@@ -75,11 +95,15 @@
 			{
 				partialClass = "info";
 			}
+			<div class='col-md-1'>
 			<button type="button" class="btn btn-sm btn-outline-@partialClass m-1" @onclick="@(() => SetApplicationFilter(item.ModuleDescription))">@item.ModuleDescription <span class="badge badge-@partialClass">@item.VoiceCommands.Count</span></button>
+</div>
 		}
 	}
+	<div class='col-md-2'>
 	<div style="margin:4px">
 		<button class="btn btn-success" type="button" @onclick="@( ( ) => BuildSearchUrl(  ) )">Build Search Url</button>
+	</div>
 	</div>
 </div>
 

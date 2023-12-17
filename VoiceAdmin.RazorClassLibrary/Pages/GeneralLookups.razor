@@ -6,23 +6,23 @@
 	<h3 class="mr-3">
 		List of General Lookups
 	</h3>
-	@if (SearchTerm != null)
-	{
-		<span class="text-warning"> Filter: @SearchTerm</span>
-	}
-	@if (StatusMessage != null)
-	{
-@*		<Alert Title="Last Action" Display="@StatusMessage" Duration="@AlertDuration" AlertType="@AlertType" Show="@ShowAlert" />*@
-	}
 </header>
 
-<div class="form-field row">
-	<a accesskey="0" class="btn btn-success col-md-2" href="/generallookup/0">Create (0) <i class="oi oi-plus"></i></a>
-	<label class="control-label col-md-1">Filter</label>
+<div class="row">
+	<div class='col-md-2'>
+	<a accesskey="0" class="btn btn-success" href="/generallookup/0">Create (0) <i class="oi oi-plus"></i></a>
+</div>
+<div class='col-md-1' >
+	<label class="control-label">Filter</label>
+</div>
+<div class='col-md-2' >
 	<input @bind="SearchTerm"
 		   @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-		   class="form-control col-md-5 mx-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
-	<button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+		   class="form-control mx-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+</div>
+<div class='col-md-2' >
+	<button accesskey="2" class="btn btn-primary" type="button" @onclick="ApplyFilter">Filter <i class="oi oi-magnifying-glass"></i></button>
+		</div>
 </div>
 @if (GeneralLookupsModel == null && _loadFailed)
 {

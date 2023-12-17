@@ -8,38 +8,52 @@
 		Snippets
 	</h4>
 </header>
-<div class="form-field row">1rc
+<div class="row">
 	@if (!RunningInBlazorHybrid)
 	{
-		<button class="btn btn-sm btn-outline-success mx-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
+		<div class='col-md-2' >
+		<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
+		</div>
 	}
+	<div class='col-md-2' >
 	<input accesskey="1" style="display:inline;min-width:200px" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Contains Filter (1)" class="mx-1 form-control col-md-1" />
+	</div>
+	<div class='col-md-2' >
 	<input accesskey="2" style="display:inline;min-width:200px" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Contains Filter" class="mx-1 form-control col-md-1" />
+	</div>
+	<div class='col-md-2' >
 	<input @bind="SearchTerm" style='min-width:200px'
 			 @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
 			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter (Alt+3)" />
+</div>
 	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 	{
-		<button accesskey="4" class="btn btn-sm btn-outline-primary mx-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter (Alt+4)</button>
+		<div class='col-md-2' >
+		<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )">Remove Filter (Alt+4)</button>
+		</div>
 	}
+	<div class='col-md-2' >
 	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
 		<i class="fas fa-sync"></i>
 	</button>
+</div>
 	@if (!RunningInBlazorHybrid)
 	{
 		@if (showExtras)
 		{
 			<div class='col-md-4'>
 				<label class="control-label mt-1 mx-1" for="_showTiles">Show <u>T</u>iles</label>
-				<input accesskey="t" id="_showTiles" style='width:30px'  @bind="_showTiles" type="checkbox" class="form-control" />
+				<input accesskey="t" id="_showTiles" style='width:30px'  @bind="_showTiles" type="checkbox" class="form-checkbox" />
 			</div>
 			<div class='col-md-4'>
 				<label for="_showOnlyLanguageAndCategory" class="control-label mt-1"><u>H</u>ide</label>
-				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px'  @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-control" title='Hide Snippets' />
+				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px'  @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-checkbox" title='Hide Snippets' />
 			</div>
 		}
+		<div class='col-md-2' >
 		<label class="control-label mt-1 mx-1" for="showExtras">Show E<u>x</u>tras</label>
-		<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-control" style='width:30px' />
+		<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox" style='width:30px' />
+</div>
 	}
 </div>
 

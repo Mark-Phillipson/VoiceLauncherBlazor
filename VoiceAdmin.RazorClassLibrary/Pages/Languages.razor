@@ -6,21 +6,24 @@
 
 <header>
 	<h3>
-		List of Languages
-		@if (SearchTerm != null)
-		{
-			<small class="text-warning"> Filter: @SearchTerm</small>
-		}
+		Languages
 	</h3>
 </header>
 
-<div class="form-field row">
-	<a accesskey="0" class="btn btn-success col-md-2" href="/language/0">Create (Alt+0) <i class="oi oi-plus"></i></a>
-	<label class="control-label col-md-1">Filter</label>
-	<input @bind="SearchTerm" @bind:event="oninput" class="form-control mx-2 col-md-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
-	<button accesskey="2" class="btn btn-primary col-md-2" type="button" @onclick="ApplyFilter">Filter (Alt+2) <i class="oi oi-magnifying-glass"></i></button>
-	<label class="control-label col-md-2">Cards/Table</label>
-	<input type="checkbox" class="form-control col-md-1" @bind="@ShowAsCards" />
+<div class="row m-2">
+	<div class='col-md-2'>
+		<a accesskey="0" class="btn btn-success" href="/language/0">Create (Alt+0) <i class="oi oi-plus"></i></a>
+	</div>
+	<div class='col-md-1'>
+		<label class="control-label col-md-1">Filter</label>
+	</div>
+	<div class='col-md-2'>
+		<input @bind="SearchTerm"@onblur="ApplyFilter" @bind:event="oninput" class="form-control mx-2 col-md-3" accesskey="1" placeholder="Type to Filter (Alt+1)" />
+	</div>
+	<div class='col-md-2'>
+	<label  for='ShowAsCards' class="control-label">Cards/Table</label>
+	<input type="checkbox"  id='ShowAsCards' class="form-checkbox" @bind="@ShowAsCards" />
+	</div>
 </div>
 @if (LanguagesModel == null && _loadFailed)
 {
@@ -80,7 +83,7 @@ else
 				<div class="row">
 					<div class="col-md-3">Active</div>
 					<button @onclick="@(e => ShowAll())" accesskey="5" class="btn btn-sm btn-info col-md-4">Show All (5) <i class="oi oi-eye"></i></button>
-					<input type="checkbox" class="form-control-sm col-md-5" style="width: 150px" @bind="ActiveFilter" @onblur="FilterActive" />
+					<input type="checkbox" class="form-checkbox col-md-5" style="width: 150px" @bind="ActiveFilter" @onblur="FilterActive" />
 				</div>
 			</th>
 			<th>
@@ -102,7 +105,7 @@ else
 					<input class="form-control" @bind="language.LanguageName" />
 				</td>
 				<td>
-					<input type="checkbox" class="form-control" @bind="language.Active" />
+					<input type="checkbox" class="form-checkbox" @bind="language.Active" />
 				</td>
 				<td>
 					@if (language.CustomIntelliSense != null)
@@ -115,7 +118,7 @@ else
 					<button accesskey="@(counter< 10 ? counter.ToString():"")" style="width:100%" class="btn btn-danger" @onclick="@(() => ConfirmDelete(language.Id))">Delete @(counter< 10 ? "(" +  counter.ToString() + ")":"") <i class="oi oi-circle-x"></i></button>
 				</td>
 				<td>
-							<span style="background-color:@language.Colour">Colour</span>
+							<span class='p-2'  style="background-color:@language.Colour">Colour</span>
 							<button @onclick="@(() => EditLanguage(language.Id))" class="btn btn-warning btn-sm">Edit Language</button>
 				</td>
 			</tr>

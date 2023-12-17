@@ -30,7 +30,6 @@ else
     <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
-              <th>ID</th>
               <th>
                     <button class="btn btn-sm" @onclick="@(() => SortHtmlTag("Tag"))">
                         <i class="fas fa-sort-alpha-up"></i>
@@ -79,11 +78,6 @@ else
             @foreach (var htmlTag in FilteredHtmlTagDTO)
             {
                 <tr>
-                    <td>
-                        <a href="#" class="btn btn-sm btn-link" @onclick="@(() => EditHtmlTagAsync(htmlTag.Id))">
-                            @htmlTag.Id
-                        </a>
-                    </td>
                     <td>@htmlTag.Tag</td>
                     <td>@htmlTag.Description</td>
                     <td>@htmlTag.ListValue</td>

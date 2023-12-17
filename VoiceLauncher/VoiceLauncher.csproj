@@ -20,11 +20,13 @@
 	  </Content>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Azure.Identity" Version="1.10.4" />
 		<PackageReference Include="Blazored.Modal" Version="7.1.0" />
 		<PackageReference Include="Blazored.Toast" Version="4.1.0" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
 			<PrivateAssets>all</PrivateAssets>

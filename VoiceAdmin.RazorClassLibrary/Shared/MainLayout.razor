@@ -15,12 +15,10 @@
 <div class="page">
     @if (ShowNavMenu)
     {
-        <div class="sidebar1">
             <NavMenu />
-        </div>
     }
     <div class="top-row bg-dark">
-        <button class="btn btn-dark btn-sm" type="button" title="Toggle Navigation Menu" @onclick="@( ( ) => ToggleShowNavMenu(  ) )">
+        <button  style='border-bottom:0;margin-top:2px' class="btn btn-dark btn-sm" type="button" title="Toggle Navigation Menu" @onclick="@( ( ) => ToggleShowNavMenu(  ) )">
             @if (!ShowNavMenu)
             {
                 <i class="fa-solid fa-up-right-from-square"></i>

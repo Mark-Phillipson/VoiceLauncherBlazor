@@ -10,20 +10,19 @@
         </button>
 
     </div>
-    <div class="col-md-3">
-        @*        <a class="btn btn-primary m-2" href="/categoriestable/">Category Cards <i class="fas fa-arrow-left"></i></a>
-        <a class="btn btn-info m-2" href="/category/@CategoryId">Category <i class="fas fa-arrow-left"></i></a>
-        *@
-        <InputSelect ValueExpression="@(()=>CategoryId)"
+ <div class="col-md-1">   
+   <label for="CategoryId" class='label-control mt-1'>Categories</label>
+ </div>
+    <div class="col-md-2">
+        <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' 
                      Value="@CategoryId"
-                     ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-control">
+                     ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select">
             <option value="">-</option>
             @foreach (var item in _categories)
             {
                 <option style="font-size:xx-large" value="@item.Id">@item.CategoryName</option>
             }
         </InputSelect>
-
     </div>
     <div class="col-md-2">
         <button class="btn btn-outline-danger" type="button" @onclick="@( ( ) => LoadData(  ) )">
@@ -33,12 +32,10 @@
             Add
             <i class="fas fa-plus"></i>
         </button>
-
-
     </div>
     <div class="col-md-2">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Name/Command Line (Alt+I)" />
+        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
     </div>
 </div>
 @if (Message.Length > 0)
@@ -91,18 +88,18 @@ else
                         }
                         else
                         {
-                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@counter</u> @launcher.Name</a>
+                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@counter</u> @launcher.Name</a>
                         }
                     }
                     else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )"><img class="m-1" height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</button>
+                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )"><img class="" height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</button>
                         }
                         else
                         {
-                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )">🚀 <u>@counter</u> @launcher.Name</button>
+                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )">🚀 <u>@counter</u> @launcher.Name</button>
 
                         }
                     }

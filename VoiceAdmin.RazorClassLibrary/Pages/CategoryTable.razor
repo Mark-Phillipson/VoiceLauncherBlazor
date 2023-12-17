@@ -6,11 +6,11 @@
 	<div class="col-md-4">
 		<div class="form-group">
 			<div class="row">
-				<div class="col-3">
+				<div class="col-4">
 					<label for='show-cards'>Show Cards</label>
 				</div>
-				<div class="col-9">
-					<input id='show-cards' title="Show Cards" class="form-control form-control-sm" type="checkbox" @bind="@_ShowCards" />
+				<div class="col-8">
+					<input id='show-cards' title="Show Cards" class="form-checkbox" type="checkbox" @bind="@_ShowCards" />
 				</div>
 			</div>
 		</div>
@@ -18,7 +18,7 @@
 
 	<div class="col-md-4">
 		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Category (Alt+I)" />
+				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
 	</div>
 </div>
 
@@ -55,8 +55,9 @@ else
 				{
 					counter = null;
 				}
-				<a class="btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
-					<div accesskey="@counter" class="card-body" Style="background-color:@category.Colour">
+			<div  class='btn btn-outline-danger' >
+				<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
+					<div accesskey="@counter" class="card-body" Style="background-color:@category.Colour;height:100px;align-content:center">
 						@if (@category.Icon != null)
 						{
 							<h2> @((MarkupString)category.Icon) </h2>
@@ -67,17 +68,18 @@ else
 						}
 						else
 						{
-							<h6 class="card-title"><u>@counter</u> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
+							<h6><u>@counter</u></h6>
+							<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
 						}
 						<div class="card-text">
 							@if (category.Sensitive)
 							{
-								<span>Sensitive</span>
+								<h6 class='text-danger' >Sensitive</h6>
 							}
 						</div>
-
 					</div>
 				</a>
+					</div>
 			}
 		</div>
 	}
@@ -86,7 +88,6 @@ else
 		<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
 			<thead>
 				<tr>
-					<th>ID</th>
 					<th>
 						<button class="btn" @onclick="@(() => SortCategory("Category"))">
 							<i class="fas fa-sort-alpha-up"></i>
@@ -125,12 +126,7 @@ else
 				@foreach (var category in FilteredCategoryDTO)
 				{
 					<tr>
-						<td>
-							<a href="#" class="btn btn-link" @onclick="@(() => EditCategoryAsync(category.Id))">
-								@category.Id
-							</a>
-						</td>
-						<td>@category.CategoryName</td>
+						<td style='font-size:30px' >@category.CategoryName</td>
 						<td>@category.CategoryType</td>
 						<td>@category.Sensitive</td>
 						<td class="btn-group-vertical">

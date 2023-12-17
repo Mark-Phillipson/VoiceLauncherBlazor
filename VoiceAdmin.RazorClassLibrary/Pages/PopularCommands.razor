@@ -9,15 +9,15 @@
     <div class="col-md-6">
         <span class="form-check-inline">
             <label class="control-label">Check to see a YouTube video of the command in action or leave as is to view the VB code</label>
-            <input type="checkbox" class="form-control" @bind="@ShowVideo" />
+            <input type="checkbox" class="form-checkbox my-2" @bind="@ShowVideo" />
         </span>
     </div>
     <div class="row">
         <div class="col-md-6 background-logo">
             <h4><a class="" target="_blank" href="https://visualstudio.microsoft.com/">Visual Studio</a></h4>
             <h6>Navigation</h6>
-            <ul>
-                <li>
+            <ul >
+            <li>
                     <a @onclick="@(() => FilterCommandAsync("Last","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=70"))" class="">Last</a>
                     [ Edit | Position ] /
                     <a @onclick="@(() => FilterCommandAsync("Go To Containing Block","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=105"))" class="">Go To Containing Block</a>

@@ -41,7 +41,7 @@ else
 			@foreach (var talonAlphabet in FilteredTalonAlphabetDTO)
 			{
 				<div class="card m-1" style="width: 15rem;">
-					<button @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))"  class='btn btn-lg btn-outline-primary' >
+					<button  style='height:100%' @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))"  class='btn btn-lg btn-outline-primary' >
 						<div class='card-body'>
 							<h3 class="card-title">@talonAlphabet.Letter</h3>
 						</div>
@@ -49,12 +49,12 @@ else
 							<div class="card-text">
 								@if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
 								{
-                                    @if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
-                                    {
-                                        <div style="display: flex; justify-content: center;">
-                                            <img src='@talonAlphabet.PictureUrl' width="200" />
-                                        </div>
-                                    }
+                           @if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
+                           {
+                                 <div style="display: flex; justify-content: center;">
+                                    <img src='@talonAlphabet.PictureUrl' width="200" />
+                                 </div>
+                           }
 								}
 							</div>
 						</div>
@@ -68,7 +68,6 @@ else
 		<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
 			<thead>
 				<tr>
-					<th>Id</th>
 					<th>
 						<button class="btn btn-sm" @onclick="@(() => SortTalonAlphabet("Letter"))">
 							<i class="fas fa-sort-alpha-up"></i>
@@ -92,19 +91,14 @@ else
 				@foreach (var talonAlphabet in FilteredTalonAlphabetDTO)
 				{
 					<tr>
-						<td>
-							<button class="btn btn-sm btn-link" @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))">
-								@talonAlphabet.Id
-							</button>
-						</td>
-						<td style='font-size:30px'>@talonAlphabet.Letter</td>
+						<td style='font-size:50px'>@talonAlphabet.Letter</td>
 						<td>
 							@if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
 							{
 								<img src='@talonAlphabet.PictureUrl' width="200" />
 							}
 						</td>
-						<td style='font-size:30px'>@talonAlphabet.DefaultLetter</td>
+						<td style='font-size:50px'>@talonAlphabet.DefaultLetter</td>
 						<td>
 							@if (!string.IsNullOrWhiteSpace(talonAlphabet.DefaultPictureUrl))
 							{

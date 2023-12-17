@@ -24,20 +24,20 @@
 							</button>
 							@foreach (var item in Projects)
 							{
-								<button class="btn btn-sm btn-outline-dark" @onclick="@(() => FilterByProjectAsync( item ))">
-									<span class="text-danger">@item</span>
+								<button class="btn btn-sm btn-outline-light" @onclick="@(() => FilterByProjectAsync( item ))">
+									@item
 								</button>
 							}
 						}
 						else
 						{
-							<button class="btn btn-success btn-sm" type="button" @onclick="@( ( ) => ToggleShowProjects(  ) )">
+							<button class="btn btn-success my-1 btn-sm" type="button" @onclick="@( ( ) => ToggleShowProjects(  ) )">
 								Show Projects <i class="fa-regular fa-eye"></i>
 							</button>
 						}
 						@if (ProjectFilter != null)
 						{
-							<button class="btn btn-outline-success btn-sm" type="button" @onclick="@( ( ) => ShowAll(  ) )">Show All</button>
+							<button class="btn btn-outline-success my-1 btn-sm" type="button" @onclick="@( ( ) => ShowAll(  ) )">Show All</button>
 						}
 					</div>
 				}
@@ -49,8 +49,8 @@
 			@*			<Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
 		}
 	</header>
-	<a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
-	<button class="btn btn-outline-success btn-sm" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive Completed</button>
+	<a class="btn btn-sm btn-outline-primary my-1" href="/tasksbreakdown">Tasks Breakdown</a>
+	<button class="btn btn-outline-success btn-sm my-1" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive Completed</button>
 	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
 
 	<h4>Current Todos</h4>
