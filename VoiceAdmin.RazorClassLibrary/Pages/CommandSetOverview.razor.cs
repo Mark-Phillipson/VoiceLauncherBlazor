@@ -115,7 +115,7 @@ namespace RazorClassLibrary.Pages
 			}
 			catch (Exception e)
 			{
-				Logger!.LogError("Exception occurred in on initialised  CommandSet Data Service", e);
+				Logger!.LogError(e,"Exception occurred in on initialised  CommandSet Data Service");
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
 				ToastService!.ShowError(e.Message + " Error Loading Command Set");

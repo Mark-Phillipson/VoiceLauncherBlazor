@@ -1,4 +1,5 @@
 @page "/windowsspeechvoicecommand/{Id:int?}"
+@using Microsoft.AspNetCore.Components.Forms
 <div style="min-width:80vw">
 
     <EditForm Model="@WindowsSpeechVoiceCommandDTO" OnValidSubmit="HandleValidSubmit">
@@ -61,13 +62,14 @@
                     <button class="btn btn-outline-success" type="button" @onclick="@( ( ) => Enter(  ) )">Enter</button>
 
                     <label for="SendKeysValue">Send Keys Value: </label>
+                    
                     <InputText id="SendkeysValue" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.SendKeysValue"
                     @onblur="@(() => CallChangeAsync("SendkeysValue"))" placeholder="Enter Sendkeys Value"></InputText>
                     <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.SendKeysValue)" />
                 </div>
                 <div class="form-group">
-                    <label for="AutoCreated">Auto Created : </label>
-                    <InputCheckbox  disabled id="AutoCreated" class="form-control" @bind-Value="@WindowsSpeechVoiceCommandDTO.AutoCreated"> </InputCheckbox>
+                    <label for="AutoCreated">Auto Created: </label>
+                    <InputCheckbox  disabled id="AutoCreated" class="form-checkbox" @bind-Value="@WindowsSpeechVoiceCommandDTO.AutoCreated"> </InputCheckbox>
                     <ValidationMessage For="@(() => WindowsSpeechVoiceCommandDTO.AutoCreated)" />
                 </div>
             </div>

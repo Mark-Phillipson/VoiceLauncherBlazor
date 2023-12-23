@@ -58,7 +58,7 @@
                 </div>
                 <div class="form-group">
                     <label for="Favourite">Favourite: </label>                    
-                    <InputCheckbox id="Favorite" class="form-control" @bind-Value="@LauncherDTO.Favourite"
+                    <InputCheckbox id="Favorite" class="form-checkbox" @bind-Value="@LauncherDTO.Favourite"
                                  placeholder="Enter Favourite"></InputCheckbox>
                     <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
                 </div>

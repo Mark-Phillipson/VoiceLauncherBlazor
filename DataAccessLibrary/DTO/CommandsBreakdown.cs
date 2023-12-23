@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DataAccessLibrary.DTO; 
  public  class CommandsBreakdown {
 
-    public string? ApplicationName { get; set; }
+    public string ApplicationName { get; set; }
     public bool AutoCreated { get; set; }
     public int Number { get; set; }
 }

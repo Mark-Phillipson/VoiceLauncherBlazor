@@ -24,7 +24,7 @@ namespace DataAccessLibrary.Models
 		//{
 		//	_configuration =  null ;
 		//}
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration? configuration= null )
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration= null )
 			 : base(options)
 		{
 			_configuration = configuration;

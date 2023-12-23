@@ -28,14 +28,17 @@
 		</PackageReference>
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
 	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-	</ItemGroup>
 
 
 
 	<ItemGroup>
 	  <Folder Include="Areas\MyFeature\Pages\" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
 	</ItemGroup>
 
 

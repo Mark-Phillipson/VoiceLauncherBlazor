@@ -16,7 +16,6 @@ namespace WinFormsApp
 {
 	public partial class MainForm : Form
 	{
-		private readonly IUiState? _uiState;
 		public MainForm()
 		{
 			InitializeComponent();

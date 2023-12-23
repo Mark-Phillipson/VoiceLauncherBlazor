@@ -77,7 +77,7 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception e)
             {
-                Logger?.LogError("Exception occurred in LoadData Method, Getting Records from the Service", e);
+                Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }

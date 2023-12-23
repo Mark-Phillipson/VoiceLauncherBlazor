@@ -1,7 +1,7 @@
-﻿
+﻿.
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.1.31911.260
+VisualStudioVersion = 171.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}"
 EndProject

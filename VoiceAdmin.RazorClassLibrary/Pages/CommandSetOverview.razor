@@ -185,11 +185,12 @@ else
 							</tr>
 							@{
 								var voiceCommands = targetApplication.VoiceCommands?.Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
-								&& v.Name.Length > 0)).Count();
+											&& v.Name.Length > 0)).Count();
 							}
+							@if (targetApplication != null ) { }
 							@foreach (var voiceCommand in targetApplication.VoiceCommands
-										.Where(v => (SearchTerm != null && v.Name.ToLower().Contains(SearchTerm.ToLower())
-										&& v.Name.Length > 0))
+										.Where(v => (SearchTerm != null && v.Name != null  && v.Name.Length>0 && v.Name.ToLower().Contains(SearchTerm.ToLower())
+										))
 										.OrderBy(a => a.Name))
 							{
 								<tr>
@@ -217,6 +218,7 @@ else
 										<VoiceCommandContentComponent VoiceCommandContent="@voiceCommand.VoiceCommandContents.FirstOrDefault()" />
 									}
 								}
+							}
 							}
 						</table>
 					}

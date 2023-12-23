@@ -12,12 +12,12 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.Modal" Version="7.1.0" />
-    <PackageReference Include="bunit" Version="1.25.3" />
-    <PackageReference Include="bunit.web" Version="1.25.3" />
+    <PackageReference Include="bunit" Version="1.26.64" />
+    <PackageReference Include="bunit.web" Version="1.26.64" />
     <PackageReference Include="InputSimulatorCore" Version="1.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
+    <PackageReference Include="xunit" Version="2.6.4" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -14,7 +14,6 @@ namespace WinFormsApp
 		private int categoryId;
 		private string message = "";
 		private string[]? arguments;
-		private int counter = 0;
 		string searchTerm = "";
 		private bool languageAndCategoryListing = false;
 		protected override async Task OnInitializedAsync()
