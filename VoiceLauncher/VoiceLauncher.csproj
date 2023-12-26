@@ -40,6 +40,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Update="wwwroot\images\pit.jpg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\images\trap.jpeg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="wwwroot\images\VisualStudioLogo.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
