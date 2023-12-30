@@ -27,7 +27,6 @@ namespace WinFormsApp
 			services.AddBlazorWebViewDeveloperTools();
 #endif
 
-			services.AddSingleton<IUiState, UiState>();
 			services.AddScoped<LanguageService>();
 			services.AddScoped<ILauncherRepository, LauncherRepository>();
 			services.AddScoped<ILauncherDataService, LauncherDataService>();

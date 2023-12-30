@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration
+@using RazorClassLibrary.Shared
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-thumbs-up"
+                ErrorIcon="fa fa-bug"
+                ShowProgressBar="true"
+                RemoveToastsOnNavigation="true"
+                InfoIcon="fa fa-info"
+                WarningIcon="fa fa-warning" />
+
+<div class="page">
+    @if (ShowNavMenu)
+    {
+            <NavMenu />
+    }
+    <div class="top-row bg-dark">
+        <button  style='border-bottom:0;margin-top:2px' class="btn btn-dark btn-sm" type="button" title="Toggle Navigation Menu" @onclick="@( ( ) => ToggleShowNavMenu(  ) )">
+            @if (!ShowNavMenu)
+            {
+                <i class="fa-solid fa-up-right-from-square"></i>
+            }
+            else
+            {
+                <i class="fa-solid fa-bars"></i>
+            }
+        </button>
+    </div>
+    <div class="main">
+        <div class="content px-1">
+            @Body
+        </div>
+    </div>
+
+</div>
+@code {
+    private bool ShowNavMenu = true;
+    private void ToggleShowNavMenu()
+    {
+        ShowNavMenu = !ShowNavMenu;
+    }
+}

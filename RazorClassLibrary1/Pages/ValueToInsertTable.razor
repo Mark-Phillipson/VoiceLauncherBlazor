@@ -1,0 +1,104 @@
+@page "/valuestoinsert"
+<div class="row">
+	<div class="col-md-4">
+		<h5 class="page-title m-1">@Title</h5>
+	</div>
+	<div class="col-md-4">
+	</div>
+	<div class="col-md-4">
+		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Value To Insert/Lookup/Description (Alt+I)" />
+	</div>
+</div>
+
+@if (FilteredValueToInsertDTO == null && _loadFailed == true)
+{
+	<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+	<button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+	<h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredValueToInsertDTO == null)
+{
+	<div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredValueToInsertDTO.Count == 0)
+{
+	<p>No Value To Insert match the criteria</p>
+	<button @onclick="AddNewValueToInsert" class="btn btn-lg btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+	<table style="font-size:small" class="table table-bordered table-striped table table-responsive">
+		<thead>
+			<tr>
+				<th>
+					<button class="btn btn-sm" @onclick="@(() => SortValueToInsert("ValueToInsert"))">
+						<i class="fas fa-sort-alpha-up"></i>
+					</button>
+					<button class="btn btn-sm" @onclick="@(() => SortValueToInsert("ValueToInsert Desc"))">
+						<i class="fas fa-sort-alpha-up-alt"></i>
+					</button>
+					Value To Insert
+				</th>
+				<th>
+					<button class="btn btn-sm" @onclick="@(() => SortValueToInsert("Lookup"))">
+						<i class="fas fa-sort-alpha-up"></i>
+					</button>
+					<button class="btn btn-sm" @onclick="@(() => SortValueToInsert("Lookup Desc"))">
+						<i class="fas fa-sort-alpha-up-alt"></i>
+					</button>
+					Lookup
+				</th>
+				<th>Description</th>
+				<th>
+					<button accesskey="+" @onclick="AddNewValueToInsert" class="btn btn-outline-success btn-lg">
+						Add <i class="fas fa-plus"></i>
+					</button>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@{
+				counter = -1;
+			}
+			@foreach (var valueToInsert in FilteredValueToInsertDTO)
+			{
+				if (counter < 9)
+				{
+					counter++;
+				}
+				else
+				{
+					counter = null;
+				}
+				<tr>
+					<td>**********SECRET*************</td>
+					<td>@valueToInsert.Lookup</td>
+					<td>@valueToInsert.Description</td>
+					<td class="btn-group">
+						<button class="btn btn-outline-warning" @onclick="@(() => EditValueToInsert(valueToInsert.Id))">
+							Edit <i class="fas fa-edit"></i>
+						</button>
+						<button class="btn btn-outline-danger" @onclick="@(() => DeleteValueToInsertAsync(valueToInsert.Id))">
+							Delete <i class="fas fa-trash"></i>
+						</button>
+						<button accesskey="@counter" class="btn btn-outline-primary" @onclick="@(() => CopyValueAsync(valueToInsert.ValueToInsertValue))">
+						<u>@counter</u>	Copy <i class="fas fa-copy"></i>
+						</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+@if (ShowEdit)
+{
+	<dialog open="true" style="color:white;background-color:black;position:absolute;left: 0px;top: 200px;z-index: 900" class="border border-danger">
+		<button class="btn btn-outline-secondary m-2" style="float:right" type="submit" @onclick="@( ( ) => ToggleModal(  ) )">x</button>
+		<div>
+			<ValueToInsertAddEdit Title="@EditTitle" Id="@ValueToInsertId" CloseModal="@CloseModalAsync" ParentId="@ParentId" />
+		</div>
+	</dialog>
+
+}
+

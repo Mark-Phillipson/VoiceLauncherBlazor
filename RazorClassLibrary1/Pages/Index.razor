@@ -1,0 +1,75 @@
+﻿@page "/"
+@{
+}
+<PageTitle>Voice Admin</PageTitle>
+<section>
+    <h1 class="d-none d-lg-block text-center ml-3">
+        <i class="oi oi-microphone"></i>
+        Voice Admin
+    </h1>
+	
+	
+	<TalonAlphabetTable ReportView="true" />
+	<article class="d-lg-none" style="display:flex;flex-direction:column">
+		<div class="card m-1" style="width: 15rem;">
+			<div class="card-img-top text-center">
+				<i class="oi oi-microphone"></i>
+			</div>
+			<div class="card-body">
+				<h5 class="card-title">Speech Recognition</h5>
+				<p class="card-text">Setting up bespoke speech recognition environments.</p>
+				@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
+			</div>
+		</div>
+		<div class="card m-2 p-2" style="width: 15rem;">
+			<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img src="/images/BlazorIcon.png" class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px" alt="Blazor Logo"></a>
+			<div class="card-body">
+				<h5 class="card-title">Blazor</h5>
+				<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
+			</div>
+		</div>
+		<div class="card m-2 p-2" style="width: 15rem;">
+			<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png" class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px" alt="Dot Net Logo"></a>
+			<div class="card-body">
+				<h5 class="card-title">MVC ASP.NET</h5>
+				<p class="card-text">MVC ASP.NET Web Applications</p>
+			</div>
+		</div>
+	</article>
+
+	<div class="d-none d-lg-block">
+		<article style="display:flex;flex-direction:row">
+			<div class="card m-2 p-2" style="width: 18rem;text-align:center;">
+				<div class="card-img-top d-none d-lg-block mb-2">
+					<i class="oi oi-microphone text-danger" style="font-size:260px;"></i>
+				</div>
+				<div class="card-body">
+					<h5 class="card-title">Speech Recognition</h5>
+					<p class="card-text">Setting up bespoke speech recognition environments.</p>
+					@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 18rem;">
+				<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img src="/images/BlazorIcon.png" class="card-img-top" alt="Blazor Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">Blazor</h5>
+					<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 18rem;">
+				<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png" class="card-img-top" alt="Dot Net Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">MVC ASP.NET</h5>
+					<p class="card-text">MVC ASP.NET Web Applications</p>
+				</div>
+			</div>
+		</article>
+	</div>
+	<h5>If interested please click the logo:</h5>
+	<div class="upwork-logo">
+		<a title="Click to View Profile" target="_blank" href="https://www.upwork.com/fl/markp2" class="btn btn-lg btn-outline-primary">
+		<img src="https://res-3.cloudinary.com/crunchbase-production/image/upload/c_lpad,h_256,w_256,f_auto,q_auto:eco/v1458909923/jv1y1vzf06gt64m50lll.png" alt="Upwork Logo" class="d-block mx-auto img-responsive" width="50"/>
+		</a>
+	</div>
+</section>
+<div class="copyright text-center">&copy; Voice Admin @DateTime.Now.Year, Powered by @System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription</div>

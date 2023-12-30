@@ -1,0 +1,233 @@
+﻿@page "/commands"
+
+<section class="row">
+    <div class="col-md-6">
+        <h3>
+            Popular <span class="oi oi-microphone" aria-hidden="true"></span> Commands
+        </h3>
+    </div>
+    <div class="col-md-6">
+        <span class="form-check-inline">
+            <label class="control-label">Check to see a YouTube video of the command in action or leave as is to view the VB code</label>
+            <input type="checkbox" class="form-checkbox my-2" @bind="@ShowVideo" />
+        </span>
+    </div>
+    <div class="row">
+        <div class="col-md-6 background-logo">
+            <h4><a class="" target="_blank" href="https://visualstudio.microsoft.com/">Visual Studio</a></h4>
+            <h6>Navigation</h6>
+            <ul >
+            <li>
+                    <a @onclick="@(() => FilterCommandAsync("Last","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=70"))" class="">Last</a>
+                    [ Edit | Position ] /
+                    <a @onclick="@(() => FilterCommandAsync("Go To Containing Block","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=105"))" class="">Go To Containing Block</a>
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Navigation","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=114"))" class="">Navigation Menu</a> /
+                    Navigate {
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Backwards","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=145"))" class="">Backwards</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Forwards","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=145"))" class="">Forwards</a>
+                    }
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Navigate To","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=158"))" class="">Navigate To</a>
+                    [ &lt;dictation&gt; ] / Navigate
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Blazor Component","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=171"))" class="">Blazor Component</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Controller","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=171"))" class="">Controller</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Type","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=212"))" class="">Type</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Members","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=229"))" class="">Members</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Navigate Recent Files","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=244"))" class="">Recent Files</a>
+                    ]
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Go to","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=288"))" class="">Go to</a>
+                    { Definition | Implementation }
+                </li>
+                <li>
+                    Following / Previous {
+                    <a @onclick="@(() => FilterCommandAsync("Issue","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=353"))" class="">Issue</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Highlight","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=370"))" class="">Highlight</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Bookmark","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=391"))" class="">Bookmark</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Method","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=400"))" class="">Method</a>
+                    }
+                </li>
+                <li>
+                    {Drop | Swap | Collect}
+                    <a @onclick="@(() => FilterCommandAsync("Marker","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=419"))" class="">Marker</a>
+                    (<a target="_blank" href="https://www.devexpress.com/products/coderush/">CodeRush</a> only)
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Jump to","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=489"))" class="">Jump to</a>
+                    [Symbol | File] / [Next | Previous]
+                    <a @onclick="@(() => FilterCommandAsync("Tab","devenv"))" class="">Tab</a>
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Find","devenv",true,"https://youtu.be/iT-7yMQoPyg?t=514"))" class="">Find {Following/Previous} &lt;dictation&gt;</a> /
+                    <a @onclick="@(() => FilterCommandAsync("Search Code Location","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=548"))" class="">Search Code Location</a>
+                    <br>
+                    <a @onclick="@(() => FilterCommandAsync("Use Regular Expression","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=565"))" class="">Use Regular Expressions</a> /
+                    <a @onclick="@(() => FilterCommandAsync("Match Whole word","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=588"))" class="">Match Whole Word</a>
+
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Select Tag","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=548"))" class="">Select Tag</a>&lt;htmltags&gt;
+                </li>
+
+            </ul>
+            <h6> Debugging</h6>
+            <ul>
+                <li>
+                    Toggle {
+                    <a @onclick="@(() => FilterCommandAsync("Toggle Bookmark","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=641"))" class="">Toggle Bookmark</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Breakpoint","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=647"))" class="">Breakpoint</a> }
+                </li>
+                <li>
+                    [Show/View]  |
+                    <a @onclick="@(() => FilterCommandAsync("Bookmark Window","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=663"))" class="">Bookmark Window</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Show Error List","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=680"))" class="">Show Error List</a> |
+
+                    <a @onclick="@(() => FilterCommandAsync("Immediate Window","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=690"))" class="">Immediate Window</a> |
+
+                    <a @onclick="@(() => FilterCommandAsync("Command Window","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=699"))" class="">Command Window</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Close Tool Window","devenv",false,"https://youtu.be/iT-7yMQoPyg?t=673"))" class="">Close Tool Window</a> |
+                    <a @onclick="@(() => FilterCommandAsync("Auto Hide","devenv"))" class="">Auto Hide</a>
+                </li>
+                <li>
+                    <a @onclick="@(() => FilterCommandAsync("Start Application","devenv",false,"https://youtu.be/mhekwurGktc?t=4"))" class="">Start Application (Shift+F5)</a>
+                    / Press F5 / {
+                    <a @onclick="@(() => FilterCommandAsync("Build","devenv",false,"https://youtu.be/mhekwurGktc?t=184"))">Build</a>
+
+                    | <a @onclick="@(() => FilterCommandAsync("Clean","devenv",false,"https://youtu.be/mhekwurGktc?t=184"))" class="">Clean</a>
+                    } {Project |
+                    <a @onclick="@(() => FilterCommandAsync("Solution Confirm","devenv",false,"https://youtu.be/mhekwurGktc?t=184"))" class="">Solution Confirm</a>}
+                </li>
+            </ul>
+            <h6>Creating/Editing</h6>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("New Empty File","devenv",false,"https://youtu.be/mhekwurGktc?t=248"))">New Empty File</a>
+                    / <a class="" @onclick="@(() => FilterCommandAsync("Add Existing Item","devenv",false,"https://youtu.be/mhekwurGktc?t=304"))">Add Existing Item</a>
+                    / <a class="" @onclick="@(() => FilterCommandAsync("Add New Scaffolding","devenv",false,"https://youtu.be/mhekwurGktc?t=341"))">Add New Scaffolding</a>
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Move into Brackets","devenv",false,"https://youtu.be/mhekwurGktc?t=430"))">Move into Brackets</a>
+                    /<a class="" @onclick="@(() => FilterCommandAsync("Move into Blank Line","devenv",false,"https://youtu.be/mhekwurGktc?t=430"))">Blank Line</a>
+                </li>
+                <li><a class="" @onclick="@(() => FilterCommandAsync("Move Line","devenv",false,"https://youtu.be/mhekwurGktc?t=501"))">Move Line </a>[Up/Down]</li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Expand Selection","devenv",false,"https://youtu.be/mhekwurGktc?t=547"))">Expand Selection</a>
+                    [&lt;#&gt;] /
+                    <a class="" @onclick="@(() => FilterCommandAsync("Select Matching","devenv",false,"https://youtu.be/mhekwurGktc?t=583"))">Select Matching</a>
+                    [&lt;#&gt;]
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Add Class","devenv",false,"https://youtu.be/mhekwurGktc?t=623"))">Add Class</a> &lt;scope&gt; &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Add Method","devenv",false,"https://youtu.be/mhekwurGktc?t=623"))">Add Method</a> [ &lt;scope&gt; &lt;DataType&gt; ] &lt;dictation&gt;
+                </li>
+                <li>
+                    Add {
+                    <a class="" @onclick="@(() => FilterCommandAsync("Add Parameter","devenv",false,"https://youtu.be/mhekwurGktc?t=623"))">Parameter</a>
+                    | <a class="" @onclick="@(() => FilterCommandAsync("Add Variable","devenv",false,"https://youtu.be/mhekwurGktc?t=623"))">Variable</a>
+                    } &lt;DataType&gt; &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Add Button","devenv",false,"https://youtu.be/mhekwurGktc?t=684"))">Add Button</a> &lt;ButtonClass&gt; &lt;dictation&gt;
+                </li>
+                <li>
+                    Add { <a class="" @onclick="@(() => FilterCommandAsync("Add Label","devenv",false,"https://youtu.be/mhekwurGktc?t=772"))">Label</a>
+                    | <a class="" @onclick="@(() => FilterCommandAsync("Add Link","devenv",false,"https://youtu.be/mhekwurGktc?t=840"))">Link</a>
+                    } &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Add Input","devenv",false,"https://youtu.be/mhekwurGktc?t=772"))">Add Input</a> &lt;InputType&gt; &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Generic","global",false,"https://youtu.be/mhekwurGktc?t=875"))">Generic</a> &lt;GenericsCollection&gt; e.g. Generic I collection
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Quick Actions","devenv",false,"https://youtu.be/mhekwurGktc?t=943"))">Quick Actions</a> (Ctrl+.)
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+
+            <h4>Global</h4>
+            <h6> Search/Create Scripts</h6>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Browse ","global",false,"https://youtu.be/mhekwurGktc?t=957" ))">Browse</a> [App Name] Scripts &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Dragon Script ","global",false,"https://youtu.be/mhekwurGktc?t=1008"))">Dragon Script</a> &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Browse All Scripts","global",false,"https://youtu.be/mhekwurGktc?t=1008"))">Browse All Scripts </a> &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Show Studio Commands","global",false,""))">Show Studio Commands</a> 
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("New Dragon Command","global",false,"https://youtu.be/mhekwurGktc?t=1039"))">New Dragon Command</a> &lt;dictation&gt;
+                </li>
+                <li>
+                    New [ <a class="" @onclick="@(() => FilterCommandAsync("New Application","global",false,"https://youtu.be/mhekwurGktc?t=1064"))">Application</a>
+                    | <a class="" @onclick="@(() => FilterCommandAsync("New Global","global",false,"https://youtu.be/mhekwurGktc?t=1064"))">Global</a>
+                    | <a class="" @onclick="@(() => FilterCommandAsync("New Window","global",false,"https://youtu.be/mhekwurGktc?t=1064"))">Window</a>
+                    ] [ <a class="" @onclick="@(() => FilterCommandAsync("New Mouse","global",false,"https://youtu.be/mhekwurGktc?t=1064"))">Mouse</a>
+                    | <a class="" @onclick="@(() => FilterCommandAsync("New Listing ","global",false,"https://youtu.be/mhekwurGktc?t=1064"))">Listing</a>
+                    ] Command [&lt;dictation&gt;]
+                </li>
+            </ul>
+            <h6> Voice Launcher/Custom IntelliSense Database</h6>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Launcher <launcher_categories>","global",false,"https://youtu.be/mhekwurGktc?t=1129"))">Launcher</a> &lt;Categories&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Create Custom IntelliSense","global",false,"https://youtu.be/mhekwurGktc?t=1186"))">Create Custom IntelliSense</a>
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Edit to Do","global",false,"https://youtu.be/mhekwurGktc?t=1309"))">Edit to Do</a> &lt;dictation&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Search Everything","global",false,"https://youtu.be/mhekwurGktc?t=1337"))">Search Everything</a> &lt;dictation&gt;
+                </li>
+                <li>
+                    &lt;<a class="" @onclick="@(() => FilterCommandAsync("programminglanguage","global",false,"https://youtu.be/mhekwurGktc?t=1282"))">Language</a>&gt; &lt;Category&gt; [&lt;dictation&gt;] /
+                    <a class="" @onclick="@(() => FilterCommandAsync("<categories> <dictation>","global",false,"https://youtu.be/mhekwurGktc?t=248"))">Words</a> &lt;dictation&gt;
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("DragonBar","global",false,"https://youtu.be/mhekwurGktc?t=1417"))">Modern Mode/Tray Icon Mode</a>
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Command <commands>","global",false,"https://youtu.be/mhekwurGktc?t=1433"))">Command Close</a> &lt;Explorer/Word/Excel/Access/Windows Speech&gt;
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Cycle Open Apps","global",false,"https://youtu.be/mhekwurGktc?t=1450"))">Cycle Open Apps</a> /
+                    <a class="" @onclick="@(() => FilterCommandAsync("Switch","global",false,"https://youtu.be/mhekwurGktc?t=1450"))">Switch</a>
+                </li>
+            </ul>
+            <h6> Internet Browsers</h6>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("Overlay Hints","msedge",false,"https://youtu.be/mhekwurGktc?t=1472"))">Overlay Hints</a>
+                    / <a class="" @onclick="@(() => FilterCommandAsync("Show Hints","msedge",false,"https://youtu.be/mhekwurGktc?t=1472"))">Show Hints</a>
+                    / <a class="" @onclick="@(() => FilterCommandAsync("Hide Hints","msedge",false,"https://youtu.be/mhekwurGktc?t=1472"))">Hide Hints</a> [Permanent] / Click &lt;1to200&gt;
+                </li>
+            </ul>
+            <h6> Mouse Control</h6>
+            <ul>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("<screen>","global",false,"https://youtu.be/mhekwurGktc?t=1500"))">{Left | Right | (Double|Right) Click | Touch} &lt;Alpha-Zulu/1-7&gt; &lt;Alpha-Tango&gt;</a>
+                </li>
+                <li>
+                    <a class="" @onclick="@(() => FilterCommandAsync("<screenlocation>","global",false,"https://youtu.be/mhekwurGktc?t=1500"))">Taskbar | Ribbon | Menu</a> &lt;Alpha-Zulu/1-7&gt; [&lt;1-9&gt;]
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>

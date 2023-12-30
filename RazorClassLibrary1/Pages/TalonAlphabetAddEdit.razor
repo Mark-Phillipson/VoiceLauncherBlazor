@@ -1,0 +1,48 @@
+@page "/talonalphabet/{Id:int?}"
+<div style="min-width:80vw">
+<h1>@Title</h1>
+    <EditForm Model="@TalonAlphabetDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (TalonAlphabetDTO.Id > 0)
+        {
+            <span class="text-info m-1">@TalonAlphabetDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="Letter">Letter:</label> <i class="text-danger fa">*</i>
+
+                    <InputText id="Letter" class="form-control" @bind-Value="@TalonAlphabetDTO.Letter"
+                               placeholder="Enter Letter"></InputText>
+                    <ValidationMessage For="@(() => TalonAlphabetDTO.Letter)" />
+                </div>
+                <div class="form-group">
+                    <label for="PictureUrl">Picture Url: </label>                    <InputTextArea rows="2" id="PictureUrl" class="form-control" @bind-Value="@TalonAlphabetDTO.PictureUrl"
+                               placeholder="Enter Picture Url"></InputTextArea>
+                    <ValidationMessage For="@(() => TalonAlphabetDTO.PictureUrl)" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultLetter">Default Letter:</label> <i class="text-danger fa">*</i>
+
+                    <InputText id="DefaultLetter" class="form-control" @bind-Value="@TalonAlphabetDTO.DefaultLetter"
+                               placeholder="Enter Default Letter"></InputText>
+                    <ValidationMessage For="@(() => TalonAlphabetDTO.DefaultLetter)" />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultPictureUrl">Default Picture Url: </label>                    <InputTextArea rows="2" id="DefaultPictureUrl" class="form-control" @bind-Value="@TalonAlphabetDTO.DefaultPictureUrl"
+                               placeholder="Enter Default Picture Url"></InputTextArea>
+                    <ValidationMessage For="@(() => TalonAlphabetDTO.DefaultPictureUrl)" />
+                </div>
+            </div>
+            <div class="col-12">
+                 @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync">Cancel</a>
+            <button @TaskRunning type="submit" class="btn btn-lg btn-primary">Save Record</button>
+        </div>
+    </EditForm>
+</div>

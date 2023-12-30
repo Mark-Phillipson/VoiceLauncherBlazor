@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VoiceAdmin.RazorClassLibrary\RazorClassLibrary.csproj" />
+    <ProjectReference Include="..\RazorClassLibrary1\RazorClassLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

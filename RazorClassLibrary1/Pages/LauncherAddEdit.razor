@@ -1,0 +1,72 @@
+@*@page "/launcher/{Id:int?}"*@
+<div style="min-width:80vw">
+    <EditForm Model="@LauncherDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (LauncherDTO.Id > 0)
+        {
+            <span class="text-info m-1">@LauncherDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="Name">Name:</label> <i class="text-danger fa">*</i>
+                    <InputText id="Name" class="form-control" @bind-Value="@LauncherDTO.Name"
+                               placeholder="Enter Name"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Name)" />
+                </div>
+                <div class="form-group">
+                    <label for="Icon">Icon:</label> 
+                    <InputText id="Icon" class="form-control" @bind-Value="@LauncherDTO.Icon"
+                               placeholder="Enter Icon"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Icon)" />
+                </div>
+                <div class="form-group">
+                    <label for="CommandLine">Command Line: </label>                   
+                    <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
+                               placeholder="Enter Command Line"></InputTextArea>
+                    <ValidationMessage For="@(() => LauncherDTO.CommandLine)" />
+                </div>               
+                <div class="form-group">
+                    <label for="WorkingDirectory">Working Directory:</label>
+                    <InputText id="WorkingDirectory" class="form-control" @bind-Value="@LauncherDTO.WorkingDirectory"
+                               placeholder="Enter Working Directory"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.WorkingDirectory)" />
+                </div>
+                <div class="form-group">
+                    <label for="Arguments">Arguments:</label> 
+                    <InputText id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
+                               placeholder="Enter Arguments"></InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Arguments)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
+                    <InputSelect id="category" class="form-control col-sm-8" @bind-Value="@LauncherDTO.CategoryId">
+                        @foreach (var category in _categories)
+                        {
+                            <option value="@category.Id">@category.CategoryName</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => LauncherDTO.CategoryId)" />
+                </div>
+                <div class="form-group">
+                    <label for="ComputerId">Computer ID: </label>                    
+                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@LauncherDTO.ComputerId"
+                                 placeholder="Enter Computer ID"></InputNumber>
+                    <ValidationMessage For="@(() => LauncherDTO.ComputerId)" />
+                </div>
+                <div class="form-group">
+                    <label for="Favourite">Favourite: </label>                    
+                    <InputCheckbox id="Favorite" class="form-checkbox" @bind-Value="@LauncherDTO.Favourite"
+                                 placeholder="Enter Favourite"></InputCheckbox>
+                    <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
+                </div>
+            </div>
+        </div>
+        <div class="btn-group" style="float:right">
+            <button accesskey="c" class="btn btn-sm btn-outline-primary m-1" @onclick="@Close"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary m-1"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

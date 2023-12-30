@@ -1,0 +1,29 @@
+﻿@if (Show)
+{
+	@foreach (var listName in ListNames)
+	{
+		@if (!string.IsNullOrEmpty(listName) && CommandSet!.SpeechLists!.Where(l => l.Name == listName).Any())
+		{
+			<tr>
+				<th colspan="6">
+					@listName
+				</th>
+			</tr>
+			<tr>
+				<td colspan="6">
+					@foreach (var listValue in CommandSet.SpeechLists
+						.Where(v => v.Name == listName)
+						.First().ListValues)
+					{
+						@listValue?.Value_Text <span> | </span>
+						_listContents = _listContents + listValue?.Value_Text + Environment.NewLine;
+					}
+					@if (listName.ToLower() != "dictation")
+					{
+						<button class="btn btn-outline-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(_listContents ) )">Copy List</button>
+					}
+				</td>
+			</tr>
+		}
+	}
+}

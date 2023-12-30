@@ -36,7 +36,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
-		<ProjectReference Include="..\VoiceAdmin.RazorClassLibrary\RazorClassLibrary.csproj" />
+		<ProjectReference Include="..\RazorClassLibrary1\RazorClassLibrary.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

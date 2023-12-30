@@ -1,0 +1,121 @@
+@page "/talonalphabets"
+@if (ReportView)
+{
+	<h5 class="m-1">@Title</h5>
+}
+else
+{
+	<div class="row">
+		<div class="col-md-12">
+		</div>
+		<div class="col-md-8">
+			<h5 class="m-1">@Title</h5>
+		</div>
+		<div class="col-md-4">
+			<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+					 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Letter (Alt+I)" />
+		</div>
+	</div>
+}
+
+@if (FilteredTalonAlphabetDTO == null && _loadFailed == true)
+{
+	<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+	<button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+	<h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredTalonAlphabetDTO == null)
+{
+	<div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredTalonAlphabetDTO.Count == 0)
+{
+	<p>No Talon Alphabet match the criteria</p>
+	<button @onclick="AddNewTalonAlphabet" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+}
+else
+{
+	if (ReportView)
+	{
+		<div class="layout-as-cards">
+			@foreach (var talonAlphabet in FilteredTalonAlphabetDTO)
+			{
+				<div class="card m-1" style="width: 15rem;">
+					<button  style='height:100%' @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))"  class='btn btn-lg btn-outline-primary' >
+						<div class='card-body'>
+							<h3 class="card-title">@talonAlphabet.Letter</h3>
+						</div>
+						<div class="card-body">
+							<div class="card-text">
+								@if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
+								{
+                           @if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
+                           {
+                                 <div style="display: flex; justify-content: center;">
+                                    <img src='@talonAlphabet.PictureUrl' width="200" />
+                                 </div>
+                           }
+								}
+							</div>
+						</div>
+					</button>
+				</div>
+			}
+		</div>
+	}
+	else
+	{
+		<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+			<thead>
+				<tr>
+					<th>
+						<button class="btn btn-sm" @onclick="@(() => SortTalonAlphabet("Letter"))">
+							<i class="fas fa-sort-alpha-up"></i>
+						</button>
+						<button class="btn btn-sm" @onclick="@(() => SortTalonAlphabet("Letter Desc"))">
+							<i class="fas fa-sort-alpha-up-alt"></i>
+						</button>
+						Letter
+					</th>
+					<th>Picture Url</th>
+					<th>Default Letter</th>
+					<th>Default Picture Url</th>
+					<th>
+						<button accesskey="+" @onclick="AddNewTalonAlphabet" class="btn btn-outline-success btn-sm">
+							<i class="fas fa-plus"></i>
+						</button>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var talonAlphabet in FilteredTalonAlphabetDTO)
+				{
+					<tr>
+						<td style='font-size:50px'>@talonAlphabet.Letter</td>
+						<td>
+							@if (!string.IsNullOrWhiteSpace(talonAlphabet.PictureUrl))
+							{
+								<img src='@talonAlphabet.PictureUrl' width="200" />
+							}
+						</td>
+						<td style='font-size:50px'>@talonAlphabet.DefaultLetter</td>
+						<td>
+							@if (!string.IsNullOrWhiteSpace(talonAlphabet.DefaultPictureUrl))
+							{
+								<img src='@talonAlphabet.DefaultPictureUrl' width="600" />
+							}
+						</td>
+						<td class="btn-group">
+							<button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))">
+								<i class="fas fa-edit"></i>
+							</button>
+							<button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteTalonAlphabet(talonAlphabet.Id))">
+								<i class="fas fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+}
