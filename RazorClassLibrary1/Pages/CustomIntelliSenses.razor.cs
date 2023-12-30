@@ -33,7 +33,7 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
-		private AlphabetHelper alphabet { get; set; }= new AlphabetHelper();
+		private AlphabetHelper? alphabet { get; set; }= new AlphabetHelper();
 		private int alphabetCounter = 0;
 		private string? currentLetter="";
 		public bool ShowDialog { get; set; }
@@ -57,7 +57,6 @@ namespace RazorClassLibrary.Pages
 		private CustomIntelliSense? customIntelliSenseCurrent;
 		private string temporaryAccessKey = string.Empty;
 		private int counter = 0;
-		string? userAgent;
 		private bool showExtras = false;
 		public string SearchTerm
 		{
