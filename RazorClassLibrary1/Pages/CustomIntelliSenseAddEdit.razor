@@ -54,7 +54,7 @@
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.Remarks)" />
 				</div>
 				@* 				<div class="form-group">
-				<label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-££" @bind-Value="@CustomIntelliSenseDTO.ComputerId"
+				<label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-ï¿½ï¿½" @bind-Value="@CustomIntelliSenseDTO.ComputerId"
 				placeholder="Enter Computer ID"></InputNumber>
 				<ValidationMessage For="@(() => CustomIntelliSenseDTO.ComputerId)" />
 				</div>
@@ -116,6 +116,7 @@
 								<i class="fa-solid fa-paste"></i>
 							</button>
 							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Snippet</button>
+							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create Visual Studio Code Snippet </button>
 						</div>
 						<div class="col-12 ">
 							@if (!string.IsNullOrWhiteSpace(example))

@@ -193,6 +193,12 @@ namespace RazorClassLibrary.Pages
 			var result = ManageSnippets.CreateSnippet(CustomIntelliSenseDTO);
 			Message = result;
 		}
+		private async Task CreateVisualStudioCodeSnippetAsync()
+		{
+			var result = ManageSnippets.CreateVisualStudioCodeSnippet(CustomIntelliSenseDTO);
+			await CopyItemAsync(result);
+			Message = result;
+		}
 		private void ResetMessage()
 		{
 			Message = string.Empty;

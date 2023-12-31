@@ -6,7 +6,6 @@ using Microsoft.JSInterop;
 using VoiceLauncher.Services;
 using DataAccessLibrary.DTO;
 
-
 namespace RazorClassLibrary.Pages
 {
     public partial class ApplicationDetailAddEdit : ComponentBase
@@ -15,7 +14,7 @@ namespace RazorClassLibrary.Pages
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
         public ApplicationDetailDTO ApplicationDetailDTO { get; set; } = new ApplicationDetailDTO();//{ };
-        [Inject] public IApplicationDetailDataService? ApplicationDetailDataService { get; set; }
+        [Inject] public required IApplicationDetailDataService ApplicationDetailDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
