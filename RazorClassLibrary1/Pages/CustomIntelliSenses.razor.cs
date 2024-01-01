@@ -33,9 +33,9 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
-		private AlphabetHelper? alphabet { get; set; }= new AlphabetHelper();
+		private AlphabetHelper? alphabet { get; set; } = new AlphabetHelper();
 		private int alphabetCounter = 0;
-		private string? currentLetter="";
+		private string? currentLetter = "";
 		public bool ShowDialog { get; set; }
 		private int? CustomIntellisenseIdDelete { get; set; }
 		private List<CustomIntelliSense>? intellisenses;
@@ -182,7 +182,20 @@ namespace RazorClassLibrary.Pages
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
+				await PopulateFilters();
 				StateHasChanged();
+			}
+		}
+		async Task PopulateFilters() {
+			if (_languageFilter != null )
+			{
+				language=await LanguageService.GetLanguageAsync(_languageFilter);
+				LanguageIdFilter = language?.Id;
+			}
+			if (_categoryFilter != null)
+			{
+				category = await CategoryService.GetCategoryAsync(_categoryFilter,"IntelliSense Command");
+				CategoryIdFilter = category?.Id;
 			}
 		}
 		private async Task ApplySpecialFilter(int languageId, int categoryId)
@@ -302,26 +315,32 @@ namespace RazorClassLibrary.Pages
 				_loadFailed = true;
 			}
 		}
-		private void CreateNew()
+		private async Task CreateNew()
 		{
-			// By default set the language and category defaults to whatever is filtered
-			if (LanguageIdFilter != null && CategoryIdFilter != null)
-			{
-				NavigationManager.NavigateTo($"/intellisense?languageId={LanguageIdFilter}&categoryId={CategoryIdFilter}");
-				return;
-			}
+			var parameters = new ModalParameters();
 			if (LanguageIdFilter != null)
 			{
-				NavigationManager.NavigateTo($"/intellisense?languageId={LanguageIdFilter}");
-				return;
+				parameters.Add("LanguageId", LanguageIdFilter);
 			}
 			if (CategoryIdFilter != null)
 			{
-				NavigationManager.NavigateTo($"/intellisense?categoryId={CategoryIdFilter}");
-				return;
+				parameters.Add("CategoryId", CategoryIdFilter);
 			}
-
-			NavigationManager.NavigateTo($"/intellisense");
+			parameters.Add("Title", "Add Snippet");
+			var options = new ModalOptions()
+			{
+				Class = "blazored-modal-custom",
+				Size = ModalSize.ExtraLarge
+			};
+			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Add Snippet", parameters, options);
+			if (formModal != null)
+			{
+				var result = await formModal.Result;
+				if (!result.Cancelled)
+				{
+					await LoadData();
+				}
+			}
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
@@ -412,7 +431,7 @@ namespace RazorClassLibrary.Pages
 				Class = "blazored-modal-custom",
 				Size = ModalSize.ExtraLarge
 			};
-			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters,options);
+			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters, options);
 			if (formModal != null)
 			{
 				var result = await formModal.Result;
@@ -432,8 +451,8 @@ namespace RazorClassLibrary.Pages
 				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
 			}
 			else if (customIntelliSenseCurrent != null)
-			{ 
-				customIntelliSenseCurrent.SendKeysValue= "********";
+			{
+				customIntelliSenseCurrent.SendKeysValue = "********";
 			}
 		}
 		private string FillInVariables(string itemToCopy, CustomIntelliSense CustomIntelliSenseDTO)

@@ -24,6 +24,7 @@
 				<div class="form-group">
 					<label for="LanguageId">Language: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="LanguageId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
+						<option value="">Select Language</option>
 						@foreach (var item in languages)
 						{
 							<option value="@item.Id">@item.LanguageName</option>
@@ -40,6 +41,7 @@
 				<div class="form-group">
 					<label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="CategoryId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
+					<option value="">Select Category</option>
 						@foreach (var item in categories)
 						{
 							<option value="@item.Id">@item.CategoryName</option>
@@ -74,7 +76,7 @@
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DeliveryType)" />
 				</div>
 			</div>
-			<div class="col-10">
+			<div class="col-9">
 				<div class="form-group">
 					<label for="SendKeysValue">Send Keys Value: </label>
 					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
@@ -118,7 +120,7 @@
 							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
 							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create Visual Studio Code Snippet </button>
 						</div>
-						<div class="col-12 ">
+						<div class="col-9 ">
 							@if (!string.IsNullOrWhiteSpace(example))
 							{
 								<textarea @bind="@example" class="form-control" rows="7"></textarea>

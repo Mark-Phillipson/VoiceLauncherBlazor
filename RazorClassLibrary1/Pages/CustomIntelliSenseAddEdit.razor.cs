@@ -21,13 +21,14 @@ namespace RazorClassLibrary.Pages
 	public partial class CustomIntelliSenseAddEdit : ComponentBase
 	{
 		[Inject] public required IToastService ToastService { get; set; }
-		[CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; } 
+		[CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
 		[Parameter] public string? Title { get; set; }
 		[Inject] public ILogger<CustomIntelliSenseAddEdit>? Logger { get; set; }
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
 		[Parameter] public int? Id { get; set; }
 		[Parameter] public int CategoryID { get; set; }
+		[Parameter] public int LanguageId { get; set; }
 		public CustomIntelliSenseDTO CustomIntelliSenseDTO { get; set; } = new CustomIntelliSenseDTO();//{ };
 		[Inject] public required ICategoryDataService CategoryDataService { get; set; }
 
@@ -67,6 +68,11 @@ namespace RazorClassLibrary.Pages
 				{
 					CustomIntelliSenseDTO.CategoryId = CategoryID;
 				}
+				if (LanguageId > 0)
+				{
+					CustomIntelliSenseDTO.LanguageId = LanguageId;
+				}
+				CustomIntelliSenseDTO.DeliveryType = "Copy and Paste";
 				CustomIntelliSenseDTO.CommandType = "SendKeys";
 			}
 			categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", 0);
@@ -82,7 +88,7 @@ namespace RazorClassLibrary.Pages
 				{
 					if (JSRuntime != null)
 					{
-						await JSRuntime.InvokeVoidAsync("window.setFocus", "CopyButton");
+						await JSRuntime.InvokeVoidAsync("window.setFocus", "LanguageId");
 					}
 				}
 				catch (Exception exception)
