@@ -115,7 +115,7 @@
 							<button type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-solid fa-paste"></i>
 							</button>
-							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Snippet</button>
+							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
 							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create Visual Studio Code Snippet </button>
 						</div>
 						<div class="col-12 ">
@@ -124,6 +124,7 @@
 								<textarea @bind="@example" class="form-control" rows="7"></textarea>
 							}
 						</div>
+						
 					</div>
 
 				}

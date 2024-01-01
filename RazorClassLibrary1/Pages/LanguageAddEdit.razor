@@ -1,6 +1,6 @@
 @page "/language/{Id:int?}"
 <div style="min-width:80vw">
-<h1>@Title</h1>
+    <h1>@Title</h1>
     <EditForm Model="@LanguageDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -12,9 +12,8 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="Language">Language:</label> <i class="text-danger fa">*</i>
-
                     <InputText id="Language" class="form-control" @bind-Value="@LanguageDTO.LanguageName"
-                               placeholder="Enter Language"></InputText>
+                        placeholder="Enter Language"></InputText>
                     <ValidationMessage For="@(() => LanguageDTO.LanguageName)" />
                 </div>
                 <div class="form-group">
@@ -26,12 +25,12 @@
                 <div class="form-group">
                     <label for="Colour">Colour:</label>
                     <InputText id="Colour" class="form-control" @bind-Value="@LanguageDTO.Colour"
-                               placeholder="Enter Colour"></InputText>
+                        placeholder="Enter Colour"></InputText>
                     <ValidationMessage For="@(() => LanguageDTO.Colour)" />
                 </div>
             </div>
             <div class="col-12">
-                 @* Move here for the next display column if required *@
+                @* Move here for the next display column if required *@
             </div>
         </div>
         <hr>
