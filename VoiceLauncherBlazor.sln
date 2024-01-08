@@ -17,13 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjectxUnit", "TestPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaywrightTests", "PlaywrightTests\PlaywrightTests.csproj", "{9E189910-1031-4AE3-844B-A94F7846DF20}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAdminMAUI", "VoiceAdminMAUI\VoiceAdminMAUI.csproj", "{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsApp", "WinFormsApp\WinFormsApp.csproj", "{F107E689-2BE8-4A6F-8A05-D75AEED3214E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorServerVSCode", "BlazorServerVSCode\BlazorServerVSCode.csproj", "{1092C53B-86C2-4CFD-ACAB-BDF662E4EDF8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorClassLibrary", "RazorClassLibrary\RazorClassLibrary.csproj", "{335CA1A7-13D4-4571-902B-39D016018226}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "WinFormsApp\WinFormsApp.csproj", "{21948236-3380-4D01-934B-AC3A48CED897}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,26 +63,6 @@ Global
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Release|x64.ActiveCfg = Release|x64
 		{9E189910-1031-4AE3-844B-A94F7846DF20}.Release|x64.Build.0 = Release|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|x64.ActiveCfg = Debug|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|x64.Build.0 = Debug|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Debug|x64.Deploy.0 = Debug|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|x64.ActiveCfg = Release|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|x64.Build.0 = Release|x64
-		{6DC05528-6BD0-4B19-BC20-5D7B41A14F8E}.Release|x64.Deploy.0 = Release|x64
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Debug|x64.ActiveCfg = Debug|x64
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Debug|x64.Build.0 = Debug|x64
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Release|x64.ActiveCfg = Release|x64
-		{F107E689-2BE8-4A6F-8A05-D75AEED3214E}.Release|x64.Build.0 = Release|x64
 		{1092C53B-86C2-4CFD-ACAB-BDF662E4EDF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1092C53B-86C2-4CFD-ACAB-BDF662E4EDF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1092C53B-86C2-4CFD-ACAB-BDF662E4EDF8}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -101,6 +79,14 @@ Global
 		{335CA1A7-13D4-4571-902B-39D016018226}.Release|Any CPU.Build.0 = Release|Any CPU
 		{335CA1A7-13D4-4571-902B-39D016018226}.Release|x64.ActiveCfg = Release|x64
 		{335CA1A7-13D4-4571-902B-39D016018226}.Release|x64.Build.0 = Release|x64
+		{21948236-3380-4D01-934B-AC3A48CED897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21948236-3380-4D01-934B-AC3A48CED897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21948236-3380-4D01-934B-AC3A48CED897}.Debug|x64.ActiveCfg = Debug|x64
+		{21948236-3380-4D01-934B-AC3A48CED897}.Debug|x64.Build.0 = Debug|x64
+		{21948236-3380-4D01-934B-AC3A48CED897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21948236-3380-4D01-934B-AC3A48CED897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21948236-3380-4D01-934B-AC3A48CED897}.Release|x64.ActiveCfg = Release|x64
+		{21948236-3380-4D01-934B-AC3A48CED897}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
