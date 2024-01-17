@@ -2,11 +2,20 @@
 @page "/customintellisenses"
 <div class="row">
 	<div class="col-md-7">
-		<div class="m-1" style='font-size:15px' >
-			<span class='ml-1' >@Title </span>
+		<div class="m-1" style='font-size:15px'>
+			<span class='ml-1'>@Title </span>&nbsp;
 			@if (currentLanguage != null && currentCategory != null)
 			{
-				<span class='ml-1 text-warning' > @currentLanguage.LanguageName / @currentCategory.CategoryName</span>
+				<span class='ml-1 text-warning'>
+					@if (currentLanguage.LanguageName == "Not Applicable")
+					{
+						<text>IntelliSense</text>
+					}
+					else
+					{
+						@currentLanguage.LanguageName
+					}
+					/ @currentCategory.CategoryName</span>
 			}
 		</div>
 	</div>
@@ -15,7 +24,7 @@
 	</div>
 	<div class="col-md-3">
 		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+			@bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
 	</div>
 </div>
 
@@ -32,7 +41,8 @@ else if (FilteredCustomIntelliSenseDTO == null)
 else if (FilteredCustomIntelliSenseDTO.Count == 0)
 {
 	<p>No Custom Intelli Sense match the criteria</p>
-	<button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+	<button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success">Add Record <i
+			class="fas fa-plus"></i></button>
 }
 else
 {
@@ -62,20 +72,38 @@ else
 			@foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
 			{
 				counter++;
+				@if (counter == 10)
+				{
+					shortcutValue = 0;
+				}
+				else
+				{
+					shortcutValue = counter;
+				}
 				<tr>
 					<td>
-						<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
+						<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary"
+							type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
 							@customIntelliSense.DisplayValue</button>
 					</td>
 					<td class="btn-group">
-						<button accesskey="@counter" title="Copy and switch and paste" class="btn  btn-danger" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
-							<u>@counter.ToString()</u>
+						<button accesskey="@shortcutValue" title="Copy and switch and paste" class="btn btn-info"
+							@onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
+							@if (counter == 10)
+							{
+								<text>1</text>
+							}
+							<u>
+								@shortcutValue.ToString()
+							</u>
 							<i class="fa-solid fa-paste"></i>
 						</button>
-						<button class="btn  btn-outline-warning" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+						<button class="btn  btn-outline-warning"
+							@onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
 							<i class="fas fa-edit"></i>
 						</button>
-						<button class="btn  btn-outline-danger" @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+						<button class="btn  btn-outline-danger"
+							@onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
 							<i class="fas fa-trash"></i>
 						</button>
 					</td>
@@ -84,5 +112,7 @@ else
 		</tbody>
 	</table>
 }
-<button accesskey="p" class="btn btn-outline-success" type="button" @onclick="@( ( ) => PreviousPageAsync(  ) )"><u>P</u>revious Page</button>
-<button accesskey="n" class="btn btn-outline-success" type="button" @onclick="@( ( ) => NextPageAsync(  ) )"><u>N</u>ext Page</button>
+<button accesskey="p" class="btn btn-outline-success" type="button"
+	@onclick="@( ( ) => PreviousPageAsync(  ) )"><u>P</u>revious Page</button>
+<button accesskey="n" class="btn btn-outline-success" type="button" @onclick="@( ( ) => NextPageAsync(  ) )"><u>N</u>ext
+	Page</button>

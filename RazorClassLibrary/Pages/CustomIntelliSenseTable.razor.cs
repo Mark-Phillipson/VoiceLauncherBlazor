@@ -29,9 +29,9 @@ namespace RazorClassLibrary.Pages
       public string EditTitle { get; set; } = "Edit CustomIntelliSense Item (CustomIntelliSenses)";
       [Parameter] public int CategoryId { get; set; }
       [Parameter] public int LanguageId { get; set; }
-		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
-		[Parameter] public EventCallback CloseApplication{ get; set; }
-		private LanguageDTO? currentLanguage { get; set; }
+      [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+      [Parameter] public EventCallback CloseApplication { get; set; }
+      private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
       public List<CustomIntelliSenseDTO>? CustomIntelliSenseDTO { get; set; }
       public List<CustomIntelliSenseDTO>? FilteredCustomIntelliSenseDTO { get; set; }
@@ -53,6 +53,7 @@ namespace RazorClassLibrary.Pages
       private int pageNumber = 1;
       private int pageSize = 10;
       private int counter = 0;
+       private  int shortcutValue=0;
       protected override async Task OnInitializedAsync()
       {
          await LoadData();
@@ -74,12 +75,16 @@ namespace RazorClassLibrary.Pages
                }
                currentLanguage = await LanguageDataService.GetLanguageById(LanguageId);
                currentCategory = await CategoryDataService.GetCategoryById(CategoryId);
+               //Not paging here, just getting all records
                var result = await CustomIntelliSenseDataService!.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
+
                //var result = await CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(ServerSearchTerm);
                if (result != null)
                {
                   CustomIntelliSenseDTO = result.ToList();
-                  FilteredCustomIntelliSenseDTO = result.ToList();
+                  //Paging Here instead
+                  FilteredCustomIntelliSenseDTO = result.Skip(pageNumber * pageSize)
+                  .Take(pageSize).ToList();
                   StateHasChanged();
                }
             }
@@ -90,7 +95,6 @@ namespace RazorClassLibrary.Pages
             _loadFailed = true;
             ExceptionMessage = e.Message;
          }
-         FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO;
          Title = $"Snippets ({FilteredCustomIntelliSenseDTO?.Count})";
 
       }
@@ -152,7 +156,10 @@ namespace RazorClassLibrary.Pages
          }
          if (string.IsNullOrEmpty(SearchTerm))
          {
-            FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO.OrderBy(v => v.DisplayValue).ToList();
+            FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO.OrderBy(v => v.DisplayValue)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
+            .ToList();
             Title = $"All Snippets ({FilteredCustomIntelliSenseDTO.Count})";
          }
          else
@@ -249,66 +256,66 @@ namespace RazorClassLibrary.Pages
          }
          CustomIntelliSenseId = Id;
       }
-		private async Task CopyItemAsync( int customIntellisenseId)
-		{
-			 var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
-			if (customIntelliSenseCurrent != null)
-			{
-				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
-			}
-			if (JSRuntime != null && customIntelliSenseCurrent != null )
-			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-				var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
-				ToastService!.ShowSuccess(message);
-			}
+      private async Task CopyItemAsync(int customIntellisenseId)
+      {
+         var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+         if (customIntelliSenseCurrent != null)
+         {
+            customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+         }
+         if (JSRuntime != null && customIntelliSenseCurrent != null)
+         {
+            await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
+            var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+            ToastService!.ShowSuccess(message);
+         }
          if (RunningInBlazorHybrid)
          {
             await CloseApplication.InvokeAsync();
 
-			}
+         }
 
-		}
-		private string FillInVariables(string itemToCopy, CustomIntelliSenseDTO CustomIntelliSenseDTO)
-		{
-			if (itemToCopy.Contains("`Variable1`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable1))
-			{
-				itemToCopy = itemToCopy.Replace("`Variable1`", CustomIntelliSenseDTO.Variable1);
-			}
-			if (itemToCopy.Contains("`Variable2`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable2))
-			{
-				itemToCopy = itemToCopy.Replace("`Variable2`", CustomIntelliSenseDTO.Variable2);
-			}
-			if (itemToCopy.Contains("`Variable3`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable3))
-			{
-				itemToCopy = itemToCopy.Replace("`Variable3`", CustomIntelliSenseDTO.Variable3);
-			}
+      }
+      private string FillInVariables(string itemToCopy, CustomIntelliSenseDTO CustomIntelliSenseDTO)
+      {
+         if (itemToCopy.Contains("`Variable1`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable1))
+         {
+            itemToCopy = itemToCopy.Replace("`Variable1`", CustomIntelliSenseDTO.Variable1);
+         }
+         if (itemToCopy.Contains("`Variable2`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable2))
+         {
+            itemToCopy = itemToCopy.Replace("`Variable2`", CustomIntelliSenseDTO.Variable2);
+         }
+         if (itemToCopy.Contains("`Variable3`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable3))
+         {
+            itemToCopy = itemToCopy.Replace("`Variable3`", CustomIntelliSenseDTO.Variable3);
+         }
 
-			return itemToCopy;
-		}
-		private async Task CopyAndPasteAsync(int customIntellisenseId)
-		{
-			 var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
-			if (customIntelliSenseCurrent != null)
-			{
-				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
-			}
-			if (JSRuntime != null && customIntelliSenseCurrent != null)
-			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-				var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
-				InputSimulator simulator = new InputSimulator();
-				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-				simulator.Keyboard.Sleep(100);
-				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-				simulator.Keyboard.Sleep(100);
-				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				ToastService!.ShowSuccess(message);
-				if (RunningInBlazorHybrid)
+         return itemToCopy;
+      }
+      private async Task CopyAndPasteAsync(int customIntellisenseId)
+      {
+         var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+         if (customIntelliSenseCurrent != null)
+         {
+            customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+         }
+         if (JSRuntime != null && customIntelliSenseCurrent != null)
+         {
+            await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
+            var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+            InputSimulator simulator = new InputSimulator();
+            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
+            simulator.Keyboard.Sleep(100);
+            simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+            simulator.Keyboard.Sleep(100);
+            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+            ToastService!.ShowSuccess(message);
+            if (RunningInBlazorHybrid)
             {
                await CloseApplication.InvokeAsync();
-				}
-			}
-		}
-	}
+            }
+         }
+      }
+   }
 }

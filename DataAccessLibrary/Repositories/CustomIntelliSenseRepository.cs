@@ -29,8 +29,6 @@ namespace VoiceLauncher.Repositories
          var CustomIntelliSenses = await context.CustomIntelliSenses
              .Where(v => v.CategoryId == CategoryId && v.LanguageId == LanguageId)
              .OrderBy(x => x.DisplayValue)
-            .Skip(pageNumber * pageSize)
-            .Take(pageSize)
              .ToListAsync();
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
          return CustomIntelliSensesDTO;
