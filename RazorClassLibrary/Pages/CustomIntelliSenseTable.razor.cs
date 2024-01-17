@@ -31,6 +31,7 @@ namespace RazorClassLibrary.Pages
       [Parameter] public int LanguageId { get; set; }
       [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
       [Parameter] public EventCallback CloseApplication { get; set; }
+      [Parameter] public EventCallback MaximizeApplication { get; set; }
       private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
       public List<CustomIntelliSenseDTO>? CustomIntelliSenseDTO { get; set; }
@@ -53,7 +54,7 @@ namespace RazorClassLibrary.Pages
       private int pageNumber = 1;
       private int pageSize = 10;
       private int counter = 0;
-       private  int shortcutValue=0;
+      private int shortcutValue = 0;
       protected override async Task OnInitializedAsync()
       {
          await LoadData();
@@ -83,7 +84,7 @@ namespace RazorClassLibrary.Pages
                {
                   CustomIntelliSenseDTO = result.ToList();
                   //Paging Here instead
-                  FilteredCustomIntelliSenseDTO = result.Skip(pageNumber * pageSize)
+                  FilteredCustomIntelliSenseDTO = result.Skip((pageNumber - 1) * pageSize)
                   .Take(pageSize).ToList();
                   StateHasChanged();
                }
@@ -95,7 +96,7 @@ namespace RazorClassLibrary.Pages
             _loadFailed = true;
             ExceptionMessage = e.Message;
          }
-         Title = $"Snippets ({FilteredCustomIntelliSenseDTO?.Count})";
+         Title = $"Snippets ({FilteredCustomIntelliSenseDTO?.Count}) of {CustomIntelliSenseDTO?.Count}";
 
       }
       private async Task NextPageAsync()
@@ -132,10 +133,17 @@ namespace RazorClassLibrary.Pages
       }
       private async Task AddNewCustomIntelliSense()
       {
+         await MaximizeApplication.InvokeAsync();
          var parameters = new ModalParameters();
 
          parameters.Add(nameof(CategoryId), CategoryId);
-         var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Add Custom Intelli Sense", parameters);
+         var options = new ModalOptions()
+         {
+            Class = "blazored-modal-custom",
+            Size = ModalSize.ExtraLarge
+         };
+
+         var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Add Custom Intelli Sense", parameters, options);
          if (formModal != null)
          {
             var result = await formModal.Result;
@@ -160,7 +168,7 @@ namespace RazorClassLibrary.Pages
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
             .ToList();
-            Title = $"All Snippets ({FilteredCustomIntelliSenseDTO.Count})";
+            Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {CustomIntelliSenseDTO.Count}";
          }
          else
          {
@@ -243,9 +251,15 @@ namespace RazorClassLibrary.Pages
 
       private async void EditCustomIntelliSense(int Id)
       {
+         await MaximizeApplication.InvokeAsync();
          var parameters = new ModalParameters();
          parameters.Add("Id", Id);
-         var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom Intelli Sense", parameters);
+         var options = new ModalOptions()
+         {
+            Class = "blazored-modal-custom",
+            Size = ModalSize.ExtraLarge
+         };
+         var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom Intelli Sense", parameters, options);
          if (formModal != null)
          {
             var result = await formModal.Result;

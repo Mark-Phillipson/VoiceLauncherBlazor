@@ -53,7 +53,10 @@ namespace WinFormsApp
 			blazorWebView1.RootComponents.Add<Index>("#app",
 			 new Dictionary<string, object?>
 			 {
-				  {"Callback", new EventCallback(null, ()=>{ Application.Exit(); }) }
+				  {"CloseWindowCallback", new EventCallback(null, ()=>{ Application.Exit(); }) },
+				  {"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
+				  {"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
+				  {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) }
 			 });
 
 		}

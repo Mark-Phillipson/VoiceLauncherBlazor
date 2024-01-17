@@ -46,73 +46,74 @@ else if (FilteredCustomIntelliSenseDTO.Count == 0)
 }
 else
 {
-	<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
-		<thead>
-			<tr>
-				<th>
-					<button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
-						<i class="fas fa-sort-alpha-up"></i>
-					</button>
-					<button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
-						<i class="fas fa-sort-alpha-up-alt"></i>
-					</button>
-					Display Value
-				</th>
-				<th>
-					<button accesskey="+" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success ">
-						<i class="fas fa-plus"></i>
-					</button>
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			@{
-				counter = 0;
-			}
-			@foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
-			{
-				counter++;
-				@if (counter == 10)
-				{
-					shortcutValue = 0;
-				}
-				else
-				{
-					shortcutValue = counter;
-				}
+		<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+			<thead>
 				<tr>
-					<td>
-						<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary"
-							type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
-							@customIntelliSense.DisplayValue</button>
-					</td>
-					<td class="btn-group">
-						<button accesskey="@shortcutValue" title="Copy and switch and paste" class="btn btn-info"
-							@onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
-							@if (counter == 10)
-							{
-								<text>1</text>
-							}
-							<u>
-								@shortcutValue.ToString()
-							</u>
-							<i class="fa-solid fa-paste"></i>
+					<th>
+						<button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
+							<i class="fas fa-sort-alpha-up"></i>
 						</button>
-						<button class="btn  btn-outline-warning"
-							@onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
-							<i class="fas fa-edit"></i>
+						<button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
+							<i class="fas fa-sort-alpha-up-alt"></i>
 						</button>
-						<button class="btn  btn-outline-danger"
-							@onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
-							<i class="fas fa-trash"></i>
+						Display Value
+					</th>
+					<th>
+						<button accesskey="+" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success ">
+							<i class="fas fa-plus"></i>
 						</button>
-					</td>
+					</th>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				@{
+					counter = 0;
+				}
+				@foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
+				{
+					counter++;
+					@if (counter == 10)
+					{
+						shortcutValue = 0;
+					}
+					else
+					{
+						shortcutValue = counter;
+					}
+					<tr>
+						<td>
+							<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary"
+								type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
+								@customIntelliSense.DisplayValue</button>
+						</td>
+						<td class="btn-group">
+							<button accesskey="@shortcutValue" title="Copy and switch and paste" style='min-width:80px'
+								class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
+								@if (counter == 10)
+								{
+									<text>1</text>
+								}
+								<u>
+									@shortcutValue.ToString()
+								</u>
+								<i class="fa-solid fa-paste"></i>
+							</button>
+							<button class="btn  btn-outline-warning"
+								@onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+								<i class="fas fa-edit"></i>
+							</button>
+							<button class="btn  btn-outline-danger"
+								@onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+								<i class="fas fa-trash"></i>
+							</button>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<button accesskey="p" class="btn btn-outline-success" type="button"
+			@onclick="@( ( ) => PreviousPageAsync(  ) )"><u>P</u>revious Page</button>
+		<button accesskey="n" class="btn btn-outline-success" type="button"
+			@onclick="@( ( ) => NextPageAsync(  ) )"><u>N</u>ext
+			Page</button>
 }
-<button accesskey="p" class="btn btn-outline-success" type="button"
-	@onclick="@( ( ) => PreviousPageAsync(  ) )"><u>P</u>revious Page</button>
-<button accesskey="n" class="btn btn-outline-success" type="button" @onclick="@( ( ) => NextPageAsync(  ) )"><u>N</u>ext
-	Page</button>

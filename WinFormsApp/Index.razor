@@ -2,12 +2,23 @@
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
 <CascadingBlazoredModal>
-	@if (languageAndCategoryListing) // filtering by language and category and listing only ten at a time with paging sported
-	{
-		<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"  CloseApplication="CloseWindow" />
-	}
-	else // filtering by display value mostly
-	{
-		<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm"  CloseApplication="CloseWindow"/>
-	}
-</CascadingBlazoredModal>
+	<div class='m-2'>
+		@if (languageAndCategoryListing) // filtering by language and category and listing only ten at a time with
+		{
+			<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"
+				CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+			}
+			else // filtering by display value mostly
+			{
+			<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true"
+				SearchTermParameter="@searchTerm" CloseApplication="CloseWindow" />
+			}
+			<span class='mx-1'></span>
+			<button accesskey="m" class="btn btn-sm btn-outline-secondary"
+				@onclick="@(() => MaximizeWindow())"><u>M</u>aximize</button>
+			<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
+				Minimize</button>
+			<button accesskey="r" class="btn btn-sm btn-outline-secondary"
+				@onclick="@(() => RestoreWindow())"><u>R</u>estore</button>
+		</div>
+	</CascadingBlazoredModal>

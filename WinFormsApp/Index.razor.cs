@@ -48,11 +48,24 @@ namespace WinFormsApp
 		}
 		private async void CloseWindow()
 		{
-			await Callback.InvokeAsync();
+			await CloseWindowCallback.InvokeAsync();
 		}
-
+		 private async void MaximizeWindow()
+		{
+			await MaximizeWindowCallback.InvokeAsync();
+		}
+		 private async void MinimizeWindow()
+		{
+			await MinimizeWindowCallback.InvokeAsync();
+		}
+		 private async void RestoreWindow()
+		{
+			await RestoreWindowCallback.InvokeAsync();
+		}
 		[Parameter]
-		public EventCallback Callback { get; set; }
-		
+		public EventCallback CloseWindowCallback { get; set; }
+		[Parameter]  public EventCallback MaximizeWindowCallback { get; set; }
+		[Parameter]  public EventCallback MinimizeWindowCallback { get; set; }
+		[Parameter]  public EventCallback RestoreWindowCallback { get; set; } 
 	}
 }
