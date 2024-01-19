@@ -25,17 +25,18 @@ using Microsoft.Extensions.Logging;
 
 namespace RazorClassLibrary.Pages
 {
-   public partial class LanguageTable : ComponentBase
+    public partial class LanguageTable : ComponentBase
     {
-        [Inject] public ILanguageDataService? LanguageDataService { get; set; }
+        [Inject] public required ILanguageDataService LanguageDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<LanguageTable>? Logger { get; set; }
-        
+
         [Inject] public IToastService? ToastService { get; set; }
         [CascadingParameter] public IModalService? Modal { get; set; }
         public string Title { get; set; } = "Language Items (Languages)";
         public string EditTitle { get; set; } = "Edit Language Item (Languages)";
         [Parameter] public int ParentId { get; set; }
+        [Parameter] public string GlobalSearchTerm { get; set; } = "";
         public List<LanguageDTO>? LanguageDTO { get; set; }
         public List<LanguageDTO>? FilteredLanguageDTO { get; set; }
         protected LanguageAddEdit? LanguageAddEdit { get; set; }
@@ -52,31 +53,38 @@ namespace RazorClassLibrary.Pages
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         public bool ShowEdit { get; set; } = false;
         private bool ShowDeleteConfirm { get; set; }
-        private int LanguageId  { get; set; }
+        private int LanguageId { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
         }
-
+        protected override async Task OnParametersSetAsync()
+        {
+            await LoadData();
+        }
         private async Task LoadData()
         {
             try
             {
-                if (LanguageDataService != null)
+                List<LanguageDTO> result;
+                if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
                 {
-                    var result = await LanguageDataService!.GetAllLanguagesAsync();
-                    //var result = await LanguageDataService.SearchLanguagesAsync(ServerSearchTerm);
-                    if (result != null)
-                    {
-                        LanguageDTO = result.ToList();
-                        FilteredLanguageDTO = result.ToList();
-                        StateHasChanged();
-                    }
+                    result = await LanguageDataService!.GetAllLanguagesAsync();
+                }
+                else
+                {
+                    result = await LanguageDataService!.SearchLanguagesAsync(GlobalSearchTerm);
+                }
+                if (result != null)
+                {
+                    LanguageDTO = result.ToList();
+                    FilteredLanguageDTO = result.ToList();
+                    StateHasChanged();
                 }
             }
             catch (Exception e)
             {
-                Logger?.LogError(e,"Exception occurred in LoadData Method, Getting Records from the Service");
+                Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
@@ -90,7 +98,7 @@ namespace RazorClassLibrary.Pages
             {
                 try
                 {
-                    if (JSRuntime!= null )
+                    if (JSRuntime != null)
                     {
                         await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
                     }
@@ -103,17 +111,17 @@ namespace RazorClassLibrary.Pages
         }
         private async Task AddNewLanguage()
         {
-              var parameters = new ModalParameters();
-              var formModal = Modal?.Show<LanguageAddEdit>("Add Language", parameters);
-              if (formModal != null)
-              {
-                  var result = await formModal.Result;
-                  if (!result.Cancelled)
-                  {
-                      await LoadData();
-                  }
-              }
-              LanguageId=0;
+            var parameters = new ModalParameters();
+            var formModal = Modal?.Show<LanguageAddEdit>("Add Language", parameters);
+            if (formModal != null)
+            {
+                var result = await formModal.Result;
+                if (!result.Cancelled)
+                {
+                    await LoadData();
+                }
+            }
+            LanguageId = 0;
         }
 
 
@@ -132,8 +140,8 @@ namespace RazorClassLibrary.Pages
             {
                 var temporary = SearchTerm.ToLower().Trim();
                 FilteredLanguageDTO = LanguageDTO
-                    .Where(v => 
-                    (v.LanguageName!= null  && v.LanguageName.ToLower().Contains(temporary))
+                    .Where(v =>
+                    (v.LanguageName != null && v.LanguageName.ToLower().Contains(temporary))
                     )
                     .ToList();
                 Title = $"Filtered Languages ({FilteredLanguageDTO.Count})";
@@ -142,7 +150,7 @@ namespace RazorClassLibrary.Pages
         protected void SortLanguage(string sortColumn)
         {
             Guard.Against.Null(sortColumn, nameof(sortColumn));
-                        if (FilteredLanguageDTO == null)
+            if (FilteredLanguageDTO == null)
             {
                 return;
             }
@@ -158,29 +166,29 @@ namespace RazorClassLibrary.Pages
         private async Task DeleteLanguage(int Id)
         {
             //TODO Optionally remove child records here or warn about their existence
-              var parameters = new ModalParameters();
-              if (LanguageDataService != null)
-              {
-                  var language = await LanguageDataService.GetLanguageById(Id);
-                  parameters.Add("Title", "Please Confirm, Delete Language");
-                  parameters.Add("Message", $"Language: {language?.LanguageName}");
-                  parameters.Add("ButtonColour", "danger");
-                  parameters.Add("Icon", "fa fa-trash");
-                  var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Language ({language?.LanguageName})?", parameters);
-                  if (formModal != null)
-                  {
-                      var result = await formModal.Result;
-                      if (!result.Cancelled)
-                      {
-                          await LanguageDataService.DeleteLanguage(Id);
-                          ToastService?.ShowSuccess("Language deleted successfully");
-                          await LoadData();
-                      }
-                  }
-             }
-             LanguageId = Id;
+            var parameters = new ModalParameters();
+            if (LanguageDataService != null)
+            {
+                var language = await LanguageDataService.GetLanguageById(Id);
+                parameters.Add("Title", "Please Confirm, Delete Language");
+                parameters.Add("Message", $"Language: {language?.LanguageName}");
+                parameters.Add("ButtonColour", "danger");
+                parameters.Add("Icon", "fa fa-trash");
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Language ({language?.LanguageName})?", parameters);
+                if (formModal != null)
+                {
+                    var result = await formModal.Result;
+                    if (!result.Cancelled)
+                    {
+                        await LanguageDataService.DeleteLanguage(Id);
+                        ToastService?.ShowSuccess("Language deleted successfully");
+                        await LoadData();
+                    }
+                }
+            }
+            LanguageId = Id;
         }
-                  
+
         private async void EditLanguage(int Id)
         {
             var parameters = new ModalParameters();
@@ -196,6 +204,6 @@ namespace RazorClassLibrary.Pages
             }
             LanguageId = Id;
         }
-            
+
     }
 }

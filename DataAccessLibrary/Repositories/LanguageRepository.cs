@@ -36,11 +36,8 @@ public class LanguageRepository : ILanguageRepository
    {
       using var context = _contextFactory.CreateDbContext();
       var Languages = await context.Languages
-          //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-          //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-          //)
-          //.OrderBy(v => v.?)
-          .Take(1000)
+         .Where(x => x.LanguageName.ToLower().Contains(serverSearchTerm.ToLower()))
+         .OrderBy(x => x.LanguageName)
           .ToListAsync();
       IEnumerable<LanguageDTO> LanguagesDTO = _mapper.Map<List<Language>, IEnumerable<LanguageDTO>>(Languages);
       return LanguagesDTO;

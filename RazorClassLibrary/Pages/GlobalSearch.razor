@@ -1,0 +1,21 @@
+﻿@page "/globalsearch"
+<h3>Global Search</h3>
+<div class='row'>
+    <div class='col-12'>
+        <label for="searchTerm" accesskey="s" ><u>S</u>earch</label>
+        <input  id='searchTerm' type="text" @bind-value="@searchTerm" placeholder="Enter a Search Value Here :)" class='form-control'
+            @bind-value:event="oninput" />
+    </div>
+    <div class='col-6'>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <LanguageTable GlobalSearchTerm="@searchTerm" />
+        }
+    </div>
+    <div class='col-6'>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <CategoryTable GlobalSearchTerm="@searchTerm" />
+        }
+    </div>
+</div>

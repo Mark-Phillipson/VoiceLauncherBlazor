@@ -29,25 +29,21 @@ namespace RazorClassLibrary.Pages
 		private bool _loadFailed = false;
 		private string? searchTerm = null;
 #pragma warning restore 414, 649
-		 private  int ? counter = 0;
+		private int? counter = 0;
 		public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
-		[Parameter] public string? ServerSearchTerm { get; set; }
+		[Parameter] public string GlobalSearchTerm { get; set; } = "";
 		public string ExceptionMessage { get; set; } = string.Empty;
 		public List<string>? PropertyInfo { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
-		[Parameter] public required string CategoryType { get; set; }
+		[Parameter] public required string CategoryType { get; set; } = "Launch Applications";
 		private string drillDownUrl { get; set; } = "/intellisensesC";
 		private bool _ShowCards { get; set; } = true;
 		protected override async Task OnInitializedAsync()
 		{
 			await LoadData();
 		}
-		//public override async Task SetParametersAsync(ParameterView parameters)
-		//{
-		//	await LoadData();
-		//}
-
+		protected override async Task OnParametersSetAsync() { await LoadData(); }
 		private async Task LoadData()
 		{
 			try
@@ -63,8 +59,16 @@ namespace RazorClassLibrary.Pages
 				}
 				if (CategoryDataService != null)
 				{
-					var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, 0);
-					//var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
+					List<CategoryDTO> result;
+					if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+					{
+						result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, 0);
+					}
+					else
+					{
+						_ShowCards = false;
+						result = await CategoryDataService.SearchCategoriesAsync(GlobalSearchTerm);
+					}
 					if (result != null)
 					{
 						CategoryDTO = result.ToList();

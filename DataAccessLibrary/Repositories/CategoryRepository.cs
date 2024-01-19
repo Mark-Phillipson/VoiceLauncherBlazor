@@ -80,10 +80,8 @@ namespace VoiceLauncher.Repositories
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var Categories = await context.Categories
-				 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-				 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-				 //)
-				 //.OrderBy(v => v.?)
+				 .Where(x => x.CategoryName.ToLower().Contains(serverSearchTerm.ToLower()))
+				 .OrderBy(x => x.CategoryName)
 				 .Take(1000)
 				 .ToListAsync();
 			IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
