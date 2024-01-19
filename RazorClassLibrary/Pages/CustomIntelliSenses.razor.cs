@@ -33,7 +33,7 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
-		private AlphabetHelper? alphabet { get; set; } = new AlphabetHelper();
+		public required AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
 		private int alphabetCounter = 0;
 		private string? currentLetter = "";
 		public bool ShowDialog { get; set; }
@@ -77,7 +77,10 @@ namespace RazorClassLibrary.Pages
 				Categories = await CategoryService.GetCategoriesAsync(categoryTypeFilter: "IntelliSense Command");
 				Languages = await LanguageService.GetLanguagesAsync();
 				GeneralLookups = await GeneralLookupService.GetGeneralLookUpsAsync("Delivery Type");
-				alphabet.BuildAlphabet();
+				if (Alphabet != null)
+				{
+					Alphabet.BuildAlphabet();
+				}
 			}
 			catch (Exception exception)
 			{
@@ -186,15 +189,16 @@ namespace RazorClassLibrary.Pages
 				StateHasChanged();
 			}
 		}
-		async Task PopulateFilters() {
-			if (_languageFilter != null )
+		async Task PopulateFilters()
+		{
+			if (_languageFilter != null)
 			{
-				language=await LanguageService.GetLanguageAsync(_languageFilter);
+				language = await LanguageService.GetLanguageAsync(_languageFilter);
 				LanguageIdFilter = language?.Id;
 			}
 			if (_categoryFilter != null)
 			{
-				category = await CategoryService.GetCategoryAsync(_categoryFilter,"IntelliSense Command");
+				category = await CategoryService.GetCategoryAsync(_categoryFilter, "IntelliSense Command");
 				CategoryIdFilter = category?.Id;
 			}
 		}

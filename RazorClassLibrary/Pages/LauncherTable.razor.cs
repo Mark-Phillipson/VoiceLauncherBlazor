@@ -9,7 +9,7 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-
+using RazorClassLibrary.helpers;
 using RazorClassLibrary.Shared;
 
 using System.Diagnostics;
@@ -31,6 +31,12 @@ namespace RazorClassLibrary.Pages
 		public string Title { get; set; } = "Launcher Items (Launchers)";
 		private List<CategoryDTO> _categories = new List<CategoryDTO>();
 		[Parameter] public int CategoryId { get; set; } = 0;
+		[Parameter] public EventCallback CloseApplication { get; set; }
+		[Parameter] public bool RunningInBlazorHybrid { get; set; }
+		 public  required  AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
+		private int alphabetCounter = 0;
+		private string? currentLetter = "";
+
 		public List<LauncherDTO>? LauncherDTO { get; set; }
 		public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
 		protected LauncherAddEdit? LauncherAddEdit { get; set; }
@@ -41,7 +47,6 @@ namespace RazorClassLibrary.Pages
 		private string? _randomColor1;
 		string Message = "";
 #pragma warning restore 414, 649
-		private  int ? counter = 0;
 		public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
 		[Parameter] public string? ServerSearchTerm { get; set; }
 		public string ExceptionMessage { get; set; } = string.Empty;
@@ -50,6 +55,7 @@ namespace RazorClassLibrary.Pages
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 		protected override async Task OnInitializedAsync()
 		{
+			Alphabet.BuildAlphabet();
 			await LoadData();
 		}
 
@@ -182,9 +188,9 @@ namespace RazorClassLibrary.Pages
 				parameters.Add("Message", $"Name: {launcher?.Name}");
 				parameters.Add("ButtonColour", "danger");
 				parameters.Add("Icon", "fa fa-trash");
-				if (LauncherMultipleLauncherBridgeDataService != null )
+				if (LauncherMultipleLauncherBridgeDataService != null)
 				{
-					var multiple = await LauncherMultipleLauncherBridgeDataService.GetLMLBsAsync(launcher?.Id, null); 
+					var multiple = await LauncherMultipleLauncherBridgeDataService.GetLMLBsAsync(launcher?.Id, null);
 					if (multiple != null && multiple.Count > 0)
 					{
 						parameters.Add("Message", $"Name: {launcher?.Name} is linked to {multiple.Count} Multiple Launchers. Please delete the links first.");
@@ -229,7 +235,7 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
-		private void MAUILaunching(int id)
+		private async Task ProcessLaunching(int id)
 		{
 			var launcher = LauncherDTO?.FirstOrDefault(l => l.Id == id);
 			if (launcher == null) { return; }
@@ -253,6 +259,7 @@ namespace RazorClassLibrary.Pages
 				{
 					Message = exception.Message;
 				}
+				await CloseApplication.InvokeAsync();
 			}
 		}
 
@@ -272,7 +279,7 @@ namespace RazorClassLibrary.Pages
 				await JSRuntime.InvokeVoidAsync(
 					 "clipboardCopy.copyText", commandLine);
 				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService!.ShowSuccess(message+"Copy Commandline");
+				ToastService!.ShowSuccess(message + "Copy Commandline");
 			}
 		}
 		public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }

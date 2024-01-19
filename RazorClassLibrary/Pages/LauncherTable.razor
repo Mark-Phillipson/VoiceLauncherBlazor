@@ -1,22 +1,24 @@
 ﻿@page "/launcherstable/{CategoryID:int}"
 <div class="row">
-    <div class="col-md-5">
-        <span style="font-weight:600;font-size:x-large">@Title</span>
-        <button class="btn btn-sm btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
-            <i class="fas fa-sort-alpha-up"></i>
-        </button>
-        <button class="btn btn-sm btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
-            <i class="fas fa-sort-alpha-up-alt"></i>
-        </button>
-
-    </div>
- <div class="col-md-1">   
-   <label for="CategoryId" class='label-control mt-1'>Categories</label>
- </div>
-    <div class="col-md-2">
-        <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' 
-                     Value="@CategoryId"
-                     ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select">
+    @if (!RunningInBlazorHybrid)
+    {
+        <div class="col-md-5">
+            <span style="font-weight:600;font-size:x-large">@Title</span>
+            <button class="btn btn-sm btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
+                <i class="fas fa-sort-alpha-up"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
+                <i class="fas fa-sort-alpha-up-alt"></i>
+            </button>
+        </div>
+    }
+    <div class="col-md-3">
+        @if (!RunningInBlazorHybrid)
+        {
+            <label accesskey="c" for="CategoryId" class='fs-15 m-1'><u>C</u>ategories</label>
+        }
+        <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
+            ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select form-select-sm my-1">
             <option value="">-</option>
             @foreach (var item in _categories)
             {
@@ -24,18 +26,21 @@
             }
         </InputSelect>
     </div>
-    <div class="col-md-2">
-        <button class="btn btn-outline-danger" type="button" @onclick="@( ( ) => LoadData(  ) )">
-            <i class="fa-solid fa-arrows-rotate"></i>
-        </button>
-        <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">
-            Add
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
+    @if (!RunningInBlazorHybrid)
+    {
+        <div class="col-md-2">
+            <button class="btn btn-outline-danger" type="button" @onclick="@( ( ) => LoadData(  ) )">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">
+                Add
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    }
     <div class="col-md-2">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+            @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
     </div>
 </div>
 @if (Message.Length > 0)
@@ -63,59 +68,58 @@ else if (FilteredLauncherDTO.Count == 0)
 }
 else
 {
-
     <div class="layout-as-cards">
-      @{
-         counter = -1;
-      }
-      @foreach (var launcher in FilteredLauncherDTO)
+        @{
+            alphabetCounter = 0;
+        }
+        @foreach (var launcher in FilteredLauncherDTO)
         {
-         @if (counter < 9)
-         {
-            counter++;
-         }
-         else
-         {
-            counter = null;
-         }
+            alphabetCounter++;
+            currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
             <div class="card">
                 <div class="card-header" title="@launcher.CommandLine">
                     @if (launcher.CommandLine.ToLower().StartsWith("http"))
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine"><img height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</a>
+                            <a accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success" target="_blank"
+                                href="@launcher.CommandLine"><img height="50" src='/images/@launcher.Icon' /> <u>@currentLetter</u>
+                                @launcher.Name</a>
                         }
                         else
                         {
-                            <a accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@counter</u> @launcher.Name</a>
+                            <a accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2" target="_blank"
+                                href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@currentLetter</u> @launcher.Name</a>
                         }
                     }
                     else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )"><img class="" height="50" src='/images/@launcher.Icon' /> <u>@counter</u> @launcher.Name</button>
+                            <button accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2" type="button"
+                                @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )"><img class="" height="50"
+                                    src='/images/@launcher.Icon' /> <u>@currentLetter</u> @launcher.Name</button>
                         }
                         else
                         {
-                            <button accesskey="@counter" style="font-size:xx-large" class="btn btn-outline-success mx-2" type="button" @onclick="@( ( ) => MAUILaunching(launcher.Id  ) )">🚀 <u>@counter</u> @launcher.Name</button>
+                            <button accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2" type="button"
+                                @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">🚀 <u>@currentLetter</u> @launcher.Name</button>
 
                         }
                     }
+                    @if (!RunningInBlazorHybrid)
+                    {
 
-                    <button class="btn-narrow btn btn-lg btn-outline-warning m-1" @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
-                        <i class="fas fa-trash"></i>
-                    </button>
-
-
+                        <button class="btn-narrow btn btn-lg btn-outline-warning m-1"
+                            @onclick="@(() => EditLauncherAsync(launcher.Id))">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    }
                 </div>
             </div>
         }
     </div>
-
-
 }

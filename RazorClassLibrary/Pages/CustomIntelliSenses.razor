@@ -103,10 +103,10 @@ else
 						</button>
 					</div>
 				}
-				@if (!_showOnlyLanguageAndCategory && alphabet != null )
+				@if (!_showOnlyLanguageAndCategory && Alphabet != null )
 				{
 					alphabetCounter++;
-					currentLetter = alphabet?.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
+					currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
 					<div class="card p-2" title="@intellisense.SendKeysValue">
 						<div class="row">
 							<div class="col-12">

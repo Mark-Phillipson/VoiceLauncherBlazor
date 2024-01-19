@@ -11,7 +11,7 @@ namespace RazorClassLibrary.Shared
 		private bool enableAccessKeys = true;
 		private void MenuItemSelected()
 		{
-			enableAccessKeys = false;
+			//enableAccessKeys = false;
 			StateHasChanged();
 		}
 		private void EnableAccessKeys()

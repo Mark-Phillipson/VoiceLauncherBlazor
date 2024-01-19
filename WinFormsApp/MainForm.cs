@@ -46,6 +46,8 @@ namespace WinFormsApp
 			services.AddScoped<AdditionalCommandService>();
 			services.AddScoped<CustomIntellisenseService>();
 			services.AddScoped<CategoryService>();
+			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
+			services.AddScoped<LauncherDataService>();
 
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
@@ -56,7 +58,8 @@ namespace WinFormsApp
 				  {"CloseWindowCallback", new EventCallback(null, ()=>{ Application.Exit(); }) },
 				  {"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
 				  {"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
-				  {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) }
+				  {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
+				  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
 			 });
 
 		}
