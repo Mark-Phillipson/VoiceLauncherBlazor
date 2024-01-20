@@ -21,6 +21,7 @@ namespace DataAccessLibrary.DTO
         public int? ComputerId { get; set; }
         public string Icon { get; set; } = "";
         public bool Favourite { get; set; }
+        public int SortOrder { get; set; }
 
     }
 }

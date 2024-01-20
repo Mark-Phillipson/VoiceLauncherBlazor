@@ -26,6 +26,7 @@ namespace RazorClassLibrary.Pages
 		public string Title { get; set; } = "ValueToInsert Items (ValuesToInsert)";
 		public string EditTitle { get; set; } = "Edit ValueToInsert Item (ValuesToInsert)";
 		[Parameter] public int ParentId { get; set; }
+		[Parameter] public string GlobalSearchTerm { get; set; } = string.Empty;
 		public List<ValueToInsertDTO>? ValueToInsertDTO { get; set; }
 		public List<ValueToInsertDTO>? FilteredValueToInsertDTO { get; set; }
 		protected ValueToInsertAddEdit? ValueToInsertAddEdit { get; set; }
@@ -48,15 +49,25 @@ namespace RazorClassLibrary.Pages
 		{
 			await LoadData();
 		}
-
+		protected override async Task OnParametersSetAsync()
+		{
+			await LoadData();
+		}
 		private async Task LoadData()
 		{
 			try
 			{
+				List<ValueToInsertDTO> result;
 				if (ValueToInsertDataService != null)
 				{
-					var result = await ValueToInsertDataService!.GetAllValuesToInsertAsync();
-					//var result = await ValueToInsertDataService.SearchValuesToInsertAsync(ServerSearchTerm);
+                    if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+					{
+						result = await ValueToInsertDataService!.GetAllValuesToInsertAsync();
+					}
+					else
+					{
+						result = await ValueToInsertDataService.SearchValuesToInsertAsync(GlobalSearchTerm);
+					}
 					if (result != null)
 					{
 						ValueToInsertDTO = result.ToList();
@@ -66,7 +77,7 @@ namespace RazorClassLibrary.Pages
 			}
 			catch (Exception e)
 			{
-				Logger?.LogError(e,"Exception occurred in LoadData Method, Getting Records from the Service");
+				Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
 			}
@@ -234,7 +245,7 @@ namespace RazorClassLibrary.Pages
 			{
 				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
 				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message +" Copy Item");
+				ToastService!.ShowSuccess(message + " Copy Item");
 			}
 		}
 	}

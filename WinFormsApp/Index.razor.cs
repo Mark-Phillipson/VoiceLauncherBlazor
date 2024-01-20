@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace WinFormsApp
 {
-	public partial class Index
+	public partial class Index : ComponentBase
 	{
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }

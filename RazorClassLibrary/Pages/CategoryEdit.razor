@@ -1,9 +1,4 @@
 ﻿@page "/category/{categoryId:int}";
-@inject IJSRuntime JSRuntime
-
-@inject CategoryService CategoryService
-@inject GeneralLookupService GeneralLookupService
-@inject NavigationManager NavigationManager
 
 <h1>
     Category
@@ -48,7 +43,7 @@ else
                 <div class="form-field row">
                     <label for="@Category.CategoryName" class="col-md-4"> Category Name (0)</label>
                     <InputText class="col-md-8 form-control-lg" placeholder="Enter Category Name, must be unique" accesskey="0"
-                                   @onblur="@(e => CallChangeAsync(Category.Id.ToString()+ "CategoryName"))" id="@(Category.Id.ToString() + "CategoryName")"
+                                   id="@(Category.Id.ToString() + "CategoryName")"
                                @bind-Value="Category.CategoryName"></InputText>
                     <ValidationMessage For="@(() => Category.CategoryName)" />
                 </div>

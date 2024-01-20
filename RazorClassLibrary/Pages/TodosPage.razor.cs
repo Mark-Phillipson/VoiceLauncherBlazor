@@ -1,5 +1,8 @@
 ﻿using Blazored.Toast.Services;
+
+using DataAccessLibrary;
 using DataAccessLibrary.Models;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -10,6 +13,9 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public string? Project { get; set; }
 		private List<Todo>? todos;
 		[Inject] IToastService? ToastService { get; set; }
+		[Inject] public required IJSRuntime JSRuntime { get; set; }
+		[Inject] public required ITodoData TodoData { get; set; }
+
 		private Todo? todo = null;
 		public bool ShowDialog { get; set; }
 		public bool ShowDialogArchive { get; set; }
@@ -21,7 +27,7 @@ namespace RazorClassLibrary.Pages
 		public string? ProjectFilter { get; set; }
 		public string? StatusMessage { get; set; }
 		public bool ShowProjects { get; set; } = true;
-		private  int  PageYOffset { get; set; } = 0;
+		private int PageYOffset { get; set; } = 0;
 		private int PercentDone
 		{
 			get
@@ -161,7 +167,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (Environment.MachineName != "J40L4V3")
 			{
-				
+
 				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
@@ -220,11 +226,11 @@ namespace RazorClassLibrary.Pages
 				await TodoData.UpdateToDo(todo);
 			}
 		}
-		private async Task< int > GetPageYOffset()
+		private async Task<int> GetPageYOffset()
 		{
 			var yOffset = await JSRuntime.InvokeAsync<double>("getPageYOffset");
 			Console.WriteLine($"Page Y Offset: {yOffset}");
-			 return ( int )yOffset;
+			return (int)yOffset;
 		}
 	}
 }

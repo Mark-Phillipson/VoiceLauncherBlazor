@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using DataAccessLibrary.Services;
+
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace RazorClassLibrary.Pages
 {
     public partial class MultipleLaunchers : ComponentBase
     {
-        public bool ShowDialog { get; set; }
+      [Inject] public  required LauncherService LauncherService { get; set; }
+      [Inject] public  required NavigationManager NavigationManager { get; set; }
+      [Inject] public  required IJSRuntime JSRuntime { get; set; }
+
+public bool ShowDialog { get; set; }
         public int MultipleLauncherIdDelete { get; set; }
         public string? SearchTerm { get; set; }
         private List<DataAccessLibrary.Models.MultipleLauncher>? multipleLaunchers;

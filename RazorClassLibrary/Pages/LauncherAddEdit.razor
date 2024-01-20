@@ -57,6 +57,12 @@
                     <ValidationMessage For="@(() => LauncherDTO.ComputerId)" />
                 </div>
                 <div class="form-group">
+                    <label for="SortOrder">Sort Orderc: </label>                    
+                    <InputNumber id="SortOrder" class="form-control" @bind-Value="@LauncherDTO.SortOrder"
+                                 placeholder="Enter Sort Order"></InputNumber>
+                    <ValidationMessage For="@(() => LauncherDTO.SortOrder)" />
+                </div>
+                <div class="form-group">
                     <label for="Favourite">Favourite: </label>                    
                     <InputCheckbox id="Favorite" class="form-checkbox" @bind-Value="@LauncherDTO.Favourite"
                                  placeholder="Enter Favourite"></InputCheckbox>

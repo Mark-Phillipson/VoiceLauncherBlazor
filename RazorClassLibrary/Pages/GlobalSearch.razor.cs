@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 
 namespace RazorClassLibrary.Pages
 {
-    public partial class GlobalSearch
+    public partial class GlobalSearch : ComponentBase
     {
     [Inject] public required IJSRuntime JSRuntime { get; set; }
          private  string searchTerm { get; set; } = "";

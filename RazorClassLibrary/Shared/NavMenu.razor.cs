@@ -2,7 +2,7 @@
 
 namespace RazorClassLibrary.Shared
 {
-	public partial class NavMenu
+	public partial class NavMenu : ComponentBase
 	{
 		[Inject] NavigationManager? NavigationManager { get; set; }
 		private bool collapseNavMenu = true;

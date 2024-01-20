@@ -33,6 +33,7 @@ namespace DataAccessLibrary.Models
         [StringLength(100)]
         public string Icon { get; set; } = "";
         public bool Favourite { get; set; }
+        public int SortOrder { get; set; }
         public virtual Category Category { get; set; }
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]

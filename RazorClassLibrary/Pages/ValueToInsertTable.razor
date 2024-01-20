@@ -6,8 +6,12 @@
 	<div class="col-md-4">
 	</div>
 	<div class="col-md-4">
-		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Value To Insert/Lookup/Description (Alt+I)" />
+		@if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+		{
+			<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+				@bind:event="oninput" id="SearchInput" name="SearchTerm"
+				placeholder="Filter by Value To Insert/Lookup/Description (Alt+I)" />
+		}
 	</div>
 </div>
 
@@ -24,7 +28,8 @@ else if (FilteredValueToInsertDTO == null)
 else if (FilteredValueToInsertDTO.Count == 0)
 {
 	<p>No Value To Insert match the criteria</p>
-	<button @onclick="AddNewValueToInsert" class="btn btn-lg btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+	<button @onclick="AddNewValueToInsert" class="btn btn-lg btn-outline-success">Add Record <i
+			class="fas fa-plus"></i></button>
 }
 else
 {
@@ -82,8 +87,9 @@ else
 						<button class="btn btn-outline-danger" @onclick="@(() => DeleteValueToInsertAsync(valueToInsert.Id))">
 							Delete <i class="fas fa-trash"></i>
 						</button>
-						<button accesskey="@counter" class="btn btn-outline-primary" @onclick="@(() => CopyValueAsync(valueToInsert.ValueToInsertValue))">
-						<u>@counter</u>	Copy <i class="fas fa-copy"></i>
+						<button accesskey="@counter" class="btn btn-outline-primary"
+							@onclick="@(() => CopyValueAsync(valueToInsert.ValueToInsertValue))">
+							<u>@counter</u> Copy <i class="fas fa-copy"></i>
 						</button>
 					</td>
 				</tr>
@@ -93,12 +99,14 @@ else
 }
 @if (ShowEdit)
 {
-	<dialog open="true" style="color:white;background-color:black;position:absolute;left: 0px;top: 200px;z-index: 900" class="border border-danger">
-		<button class="btn btn-outline-secondary m-2" style="float:right" type="submit" @onclick="@( ( ) => ToggleModal(  ) )">x</button>
+	<dialog open="true" style="color:white;background-color:black;position:absolute;left: 0px;top: 200px;z-index: 900"
+		class="border border-danger">
+		<button class="btn btn-outline-secondary m-2" style="float:right" type="submit"
+			@onclick="@( ( ) => ToggleModal(  ) )">x</button>
 		<div>
-			<ValueToInsertAddEdit Title="@EditTitle" Id="@ValueToInsertId" CloseModal="@CloseModalAsync" ParentId="@ParentId" />
+			<ValueToInsertAddEdit Title="@EditTitle" Id="@ValueToInsertId" CloseModal="@CloseModalAsync"
+				ParentId="@ParentId" />
 		</div>
 	</dialog>
 
 }
-

@@ -19,15 +19,21 @@
         }
     </div>
     <div class='col-7'>
-        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        @if (!string.IsNullOrWhiteSpace(searchTerm) && searchTerm.Length > 4)
         {
             <CustomIntelliSenseTable GlobalSearchTerm="@searchTerm" />
         }
     </div>
     <div class='col-5'>
-        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        @if (!string.IsNullOrWhiteSpace(searchTerm) && searchTerm.Length > 4)
         {
             <LauncherTable GlobalSearchTerm="@searchTerm" />
+        }
+    </div>
+    <div class='col-6'>
+        @if (!string.IsNullOrWhiteSpace(searchTerm) && searchTerm.Length > 4)
+        {
+            <ValueToInsertTable GlobalSearchTerm="@searchTerm" />
         }
     </div>
 </div>

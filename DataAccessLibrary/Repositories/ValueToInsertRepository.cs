@@ -37,10 +37,8 @@ namespace DataAccessLibrary.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var ValuesToInsert= await context.ValuesToInserts
-                //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-                //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-                //)
-                //.OrderBy(v => v.?)
+                .Where(x => x.Lookup.ToLower().Contains(serverSearchTerm.ToLower()))
+                .OrderBy(x => x.Lookup)
                 .Take(1000)
                 .ToListAsync();
             IEnumerable<ValueToInsertDTO> ValuesToInsertDTO = _mapper.Map<List<ValuesToInsert>, IEnumerable<ValueToInsertDTO>>(ValuesToInsert);
