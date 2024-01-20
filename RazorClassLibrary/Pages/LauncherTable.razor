@@ -15,7 +15,9 @@
     else
     {
         <div class="col-md-12">
-            Launches
+            <div class="text-center">
+                Launch Search Results: @GlobalSearchTerm
+            </div>
         </div>
     }
     <div class="col-md-3">
@@ -76,7 +78,7 @@ else if (FilteredLauncherDTO == null)
 }
 else if (FilteredLauncherDTO.Count == 0)
 {
-    <p>No Launcher match the criteria</p>
+    <p>No Launcher match the criteria @GlobalSearchTerm</p>
     <button @onclick="AddNewLauncherAsync" class="btn btn-lg btn-success">Add Record <i class="fas fa-plus"></i></button>
 }
 else
