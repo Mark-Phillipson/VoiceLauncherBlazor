@@ -37,10 +37,8 @@ namespace VoiceLauncher.Repositories
       {
          using var context = _contextFactory.CreateDbContext();
          var CustomIntelliSenses = await context.CustomIntelliSenses
-             //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-             //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
-             //)
-             //.OrderBy(v => v.?)
+             .Where(x => x.DisplayValue.ToLower().Contains(serverSearchTerm.ToLower()))
+             .OrderBy(v => v.DisplayValue)
              .Take(1000)
              .ToListAsync();
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);

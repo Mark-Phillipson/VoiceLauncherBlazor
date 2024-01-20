@@ -18,4 +18,16 @@
             <CategoryTable GlobalSearchTerm="@searchTerm" />
         }
     </div>
+    <div class='col-7'>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <CustomIntelliSenseTable GlobalSearchTerm="@searchTerm" />
+        }
+    </div>
+    <div class='col-5'>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <LauncherTable GlobalSearchTerm="@searchTerm" />
+        }
+    </div>
 </div>

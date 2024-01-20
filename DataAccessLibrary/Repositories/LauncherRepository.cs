@@ -47,7 +47,9 @@ namespace VoiceLauncher.Repositories
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var Launchers = await context.Launcher
-					.Take(1000)
+					.Where(x => x.Name.ToLower().Contains(serverSearchTerm.ToLower()))
+					.OrderBy(v => v.Name)
+					.Take(500)
 					.ToListAsync();
 			IEnumerable<LauncherDTO> LaunchersDTO = _mapper.Map<List<Launcher>, IEnumerable<LauncherDTO>>(Launchers);
 			return LaunchersDTO;

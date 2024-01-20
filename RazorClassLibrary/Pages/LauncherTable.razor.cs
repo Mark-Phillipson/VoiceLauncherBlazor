@@ -33,7 +33,8 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public int CategoryId { get; set; } = 0;
 		[Parameter] public EventCallback CloseApplication { get; set; }
 		[Parameter] public bool RunningInBlazorHybrid { get; set; }
-		 public  required  AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
+		[Parameter] public string GlobalSearchTerm { get; set; } = "";
+		public required AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
 		private int alphabetCounter = 0;
 		private string? currentLetter = "";
 
@@ -58,16 +59,26 @@ namespace RazorClassLibrary.Pages
 			Alphabet.BuildAlphabet();
 			await LoadData();
 		}
-
+		protected override async Task OnParametersSetAsync()
+		{
+			await LoadData();
+		}
 		private async Task LoadData()
 		{
 			CategoryDTO? category = null;
 			try
 			{
+				List<LauncherDTO> result;
 				if (LauncherDataService != null)
 				{
-					var result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
-					//var result = await LauncherDataService.SearchLaunchersAsync(ServerSearchTerm);
+					if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+					{
+						result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
+					}
+					else
+					{
+						result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
+					}
 					if (result != null)
 					{
 						LauncherDTO = result.ToList();

@@ -27,6 +27,7 @@ namespace RazorClassLibrary.Pages
       [CascadingParameter] public IModalService? Modal { get; set; }
       public string Title { get; set; } = "CustomIntelliSense Items (CustomIntelliSenses)";
       public string EditTitle { get; set; } = "Edit CustomIntelliSense Item (CustomIntelliSenses)";
+      [Parameter] public string GlobalSearchTerm { get; set; } = "";
       [Parameter] public int CategoryId { get; set; }
       [Parameter] public int LanguageId { get; set; }
       [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
@@ -43,7 +44,6 @@ namespace RazorClassLibrary.Pages
       private string? searchTerm = null;
 #pragma warning restore 414, 649
       public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
-      [Parameter] public string? ServerSearchTerm { get; set; }
       public string ExceptionMessage { get; set; } = string.Empty;
       public List<string>? PropertyInfo { get; set; }
       [CascadingParameter] public ClaimsPrincipal? User { get; set; }
@@ -59,8 +59,11 @@ namespace RazorClassLibrary.Pages
       {
          await LoadData();
       }
-
-      private async Task LoadData()
+        protected override  async Task OnParametersSetAsync()
+        {
+             await LoadData();
+        }
+        private async Task LoadData()
       {
          try
          {
@@ -77,9 +80,16 @@ namespace RazorClassLibrary.Pages
                currentLanguage = await LanguageDataService.GetLanguageById(LanguageId);
                currentCategory = await CategoryDataService.GetCategoryById(CategoryId);
                //Not paging here, just getting all records
-               var result = await CustomIntelliSenseDataService!.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
-
-               //var result = await CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(ServerSearchTerm);
+               List<CustomIntelliSenseDTO> result;
+               if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+               {
+                  result = await CustomIntelliSenseDataService!.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
+               }
+               else
+               {
+                  result = await CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+                  pageSize = result.Count;
+               }
                if (result != null)
                {
                   CustomIntelliSenseDTO = result.ToList();
