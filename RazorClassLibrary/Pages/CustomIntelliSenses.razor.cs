@@ -187,7 +187,7 @@ namespace RazorClassLibrary.Pages
 					_loadFailed = true;
 				}
 				await PopulateFilters();
-				Title = $"Snippets (zh{intellisenses?.Count})";
+				Title = $"Snippets ({intellisenses?.Count})";
 				StateHasChanged();
 			}
 		}
