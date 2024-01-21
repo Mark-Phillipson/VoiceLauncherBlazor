@@ -5,55 +5,64 @@
 <header class="form-inline mx-1">
 	<h4 style="display:inline-block">
 		<i class="fa-solid fa-file-code"></i>
-		Snippets
+		@Title
 	</h4>
 </header>
 <div class="row">
 	@if (!RunningInBlazorHybrid)
 	{
-		<div class='col-md-2' >
-			<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew">Create New (0) <i class="fas fa-plus"></i></button>
+		<div class='col-md-1'>
+			<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew"><i
+					class="fas fa-plus"></i> (0)</button> 
 		</div>
 	}
-	<div class='col-md-3' >
-		<input accesskey="1" style="display:inline" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
+	<div class='col-md-2'>
+		<input accesskey="1" style="display:inline" id="languageFilter"
+			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
+			placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
 	</div>
-	<div class='col-md-3' >
-		<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)" class="mx-1 form-control col-md-1" />
+	<div class='col-md-2'>
+		<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
+			@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
+			class="mx-1 form-control col-md-1" />
 	</div>
-	<div class='col-md-3' >
-		<input @bind="SearchTerm"
-			 @oninput="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-			 class="form-control col-md-1" accesskey="3" placeholder="Type to Filter (3)" />
+	<div class='col-md-2'>
+		<input  title='Filter Display and Send Keys'  @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
+			class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
 	</div>
-	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) || !string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
+			!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 	{
-		<div class='col-md-2'>
-			<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button" @onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+		<div class='col-md-1'>
+			<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
+				@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
 		</div>
 	}
 	<div class='col-md-1'>
-	<button class="btn btn-outline-secondary mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
-		<i class="fas fa-sync"></i>
-	</button>
-</div>
+		<button class="btn btn-outline-secondary btn-sm mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
+			<i class="fas fa-sync"></i>
+		</button>
+	</div>
 	@if (!RunningInBlazorHybrid)
 	{
 		@if (showExtras)
 		{
 			<div class='col-md-4'>
 				<label class="control-label mt-1 mx-1" for="_showTiles">Show <u>T</u>iles</label>
-				<input accesskey="t" id="_showTiles" style='width:30px'  @bind="_showTiles" type="checkbox" class="form-checkbox" />
+				<input accesskey="t" id="_showTiles" style='width:30px' @bind="_showTiles" type="checkbox"
+					class="form-checkbox" />
 			</div>
 			<div class='col-md-4'>
 				<label for="_showOnlyLanguageAndCategory" class="control-label mt-1"><u>H</u>ide</label>
-				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px'  @bind="_showOnlyLanguageAndCategory" type="checkbox" class="form-checkbox" title='Hide Snippets' />
+				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px' @bind="_showOnlyLanguageAndCategory"
+					type="checkbox" class="form-checkbox" title='Hide Snippets' />
 			</div>
 		}
-		<div class='col-md-2' >
-		<label class="control-label mt-1 mx-1" for="showExtras">Show E<u>x</u>tras</label>
-		<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox" style='width:30px' />
-</div>
+		<div class='col-md-2'>
+			<label class="control-label mt-1 mx-1" for="showExtras">Show E<u>x</u>tras</label>
+			<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox"
+				style='width:30px' />
+		</div>
 	}
 </div>
 
@@ -63,11 +72,19 @@
 }
 else if (intellisenses == null)
 {
-	<Loading />
+	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(_languageFilter) ||
+			!string.IsNullOrWhiteSpace(_categoryFilter))
+	{
+		<Loading />
+	}
+	else
+	{
+		<p class='text-danger fs-1'>Please Enter a Filter above</p>
+	}
 }
 else if (intellisenses.Count == 0)
 {
-	<text>No Custom IntelliSenses found</text>
+	<text>No Snippets found</text>
 }
 else
 {
@@ -77,7 +94,8 @@ else
 		counter = 0;
 		alphabetCounter = 0;
 		<div class="layout-as-cards">
-			@foreach (var intellisense in intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(v => v.Category.CategoryName))
+			@foreach (var intellisense in intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(v =>
+					v.Category.CategoryName))
 			{
 				@if (group != intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName)
 				{
@@ -92,7 +110,9 @@ else
 						temporaryAccessKey = "";
 					}
 					<div class="card p-2">
-						<button accesskey="@temporaryAccessKey" class="btn" style="color:black;background-color:@intellisense.Language.Colour" @onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
+						<button accesskey="@temporaryAccessKey" class="btn"
+							style="color:black;background-color:@intellisense.Language.Colour"
+							@onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
 							@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
 							@if (temporaryAccessKey != "")
 							{
@@ -103,7 +123,7 @@ else
 						</button>
 					</div>
 				}
-				@if (!_showOnlyLanguageAndCategory && Alphabet != null )
+				@if (!_showOnlyLanguageAndCategory && Alphabet != null)
 				{
 					alphabetCounter++;
 					currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
@@ -111,14 +131,17 @@ else
 						<div class="row">
 							<div class="col-12">
 								<div class="button-group"></div>
-								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))" @onfocus="@(()=> ShowValue(intellisense.Id))">
+								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"
+									@onfocus="@(()=> ShowValue(intellisense.Id))">
 									@intellisense.DisplayValue
 									<i class="fa-regular fa-edit"></i>
 								</button>
-								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))">
+								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-primary"
+									@onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))">
 									<u>@currentLetter</u> <i class="fa-regular fa-copy"></i>
 								</button>
-								<button title="Copy and switch and paste" class="btn btn-sm btn-danger" @onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue,intellisense.Id))">
+								<button title="Copy and switch and paste" class="btn btn-sm btn-danger"
+									@onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue,intellisense.Id))">
 									<i class="fa-solid fa-paste"></i>
 								</button>
 							</div>
@@ -136,8 +159,10 @@ else
 				<tr>
 					<th style="width: 60px">
 						Language
-						<button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-						<button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+						<button @onclick="@(e  => SortCustomIntelliSenses("LanguageName","Ascending"))"
+							class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+						<button @onclick="@(e => SortCustomIntelliSenses("LanguageName","Descending"))"
+							class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
 					</th>
 					<th style="width: 60px">
 						<div class="row">
@@ -146,14 +171,17 @@ else
 					</th>
 					<th>
 						Display Value
-						<button @onclick="@(e  => SortCustomIntelliSenses("DisplayValue","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-						<button @onclick="@(e => SortCustomIntelliSenses("DisplayValue","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+						<button @onclick="@(e  => SortCustomIntelliSenses("DisplayValue","Ascending"))"
+							class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
+						<button @onclick="@(e => SortCustomIntelliSenses("DisplayValue","Descending"))"
+							class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
 
 					</th>
 					<th>SendKeys Value</th>
 					<th style="width: 30px">Delivery Type</th>
 					<th>
-						<button accesskey="6" class="btn btn-sm btn-outline-success" @onclick="SaveAllCustomIntelliSenses">Save All (6) <i class="oi oi-hard-drive"></i></button>
+						<button accesskey="6" class="btn btn-sm btn-outline-success" @onclick="SaveAllCustomIntelliSenses">Save
+							All (6) <i class="oi oi-hard-drive"></i></button>
 					</th>
 				</tr>
 			</thead>
@@ -178,13 +206,15 @@ else
 							<input disabled="disabled" class="form-control-sm" @bind="intellisense.Language.LanguageName" />
 						</td>
 						<td>
-							<input disabled="disabled" type="text" class="form-control-sm" @bind="intellisense.Category.CategoryName" />
+							<input disabled="disabled" type="text" class="form-control-sm"
+								@bind="intellisense.Category.CategoryName" />
 						</td>
 						<td>
 							<input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
 						</td>
 						<td>
-							<textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue" class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
+							<textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue"
+								class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
 						</td>
 						<td>
 							<select style="min-width: 130px" class="form-control-sm col-md-8" @bind="@intellisense.DeliveryType">
@@ -207,10 +237,14 @@ else
 						</td>
 
 						<td>
-							<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i class="oi oi-pencil"></i></button>
-							<button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i class="oi oi-circle-x"></i></button>
+							<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i
+									class="oi oi-pencil"></i></button>
+							<button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i
+									class="oi oi-circle-x"></i></button>
 
-							<button class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))"><i class="fa-regular fa-copy"></i></button>
+							<button class="btn btn-outline-primary"
+								@onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))"><i
+									class="fa-regular fa-copy"></i></button>
 
 						</td>
 					</tr>
@@ -220,26 +254,26 @@ else
 	}
 
 	<pre class='mt-2'>
-	<code class='m-2'>
+			<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-		<textarea rows="7" style='width:95%;color:white;background:black'>
+						<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																				</textarea>
+																								</textarea>
 			}
-						</code>
-						</pre>
+								</code>
+								</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
 	<TemplatedDialog Show="ShowDialog">
-		<ConfirmDialog Message="Please confirm you wish to Delete this Customer IntelliSense!"
-							Title="Confirmation Required"
-							OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense((int)CustomIntellisenseIdDelete))">
+		<ConfirmDialog Message="Please confirm you wish to Delete this Snippet!" Title="Confirmation Required"
+			OnCancel="CancelDelete" OnConfirm="@(() => DeleteCustomIntelliSense((int)CustomIntellisenseIdDelete))">
 		</ConfirmDialog>
 	</TemplatedDialog>
 }
 
 @*<TemplatedDialog Show="showCreateNewOrEdit">
-	<CustomIntelliSense OnClose="CloseCreateNew" customIntellisenseId="_customIntellisenseId" />
-	</TemplatedDialog>*@
+<CustomIntelliSense OnClose="CloseCreateNew" customIntellisenseId="_customIntellisenseId" />
+</TemplatedDialog>*@
+

@@ -21,12 +21,13 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public string SearchTermParameter { get; set; } = string.Empty;
 		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
 		[Parameter] public EventCallback CloseApplication { get; set; }
+		private string Title { get; set; } = "Snippets";
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		[Inject] IToastService? ToastService { get; set; }
-		[Inject] public required IJSRuntime? JSRuntime { get; set; }
+		[Inject] public required IJSRuntime JSRuntime { get; set; }
 		private int currentAcceleratorKey = 0;
 		[Inject] public required CustomIntellisenseService CustomIntellisenseService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }
@@ -174,7 +175,7 @@ namespace RazorClassLibrary.Pages
 		// 
 		async Task ApplyFilter()
 		{
-			if (SearchTerm != null || _languageFilter != null || _categoryFilter != null)
+			if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(_languageFilter) || !string.IsNullOrWhiteSpace(_categoryFilter))
 			{
 				try
 				{
@@ -186,6 +187,7 @@ namespace RazorClassLibrary.Pages
 					_loadFailed = true;
 				}
 				await PopulateFilters();
+				Title = $"Snippets (zh{intellisenses?.Count})";
 				StateHasChanged();
 			}
 		}

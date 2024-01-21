@@ -5,7 +5,7 @@ using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 
 using DataAccessLibrary.DTO;
-
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -19,6 +19,7 @@ namespace RazorClassLibrary.Pages
     public partial class CategoryIntelisenseTable : ComponentBase
     {
         [Parameter] public int LanguageId { get; set; } = 8;
+        [Inject] public required ILanguageDataService LanguageDataService { get; set; }
         [Inject] public ICategoryDataService? CategoryDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<CategoryTable>? Logger { get; set; }
@@ -39,6 +40,8 @@ namespace RazorClassLibrary.Pages
         public List<string>? PropertyInfo { get; set; }
         [CascadingParameter] public ClaimsPrincipal? User { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
+         private LanguageDTO? language { get; set; }
+         
         [Parameter] public string CategoryType { get; set; } = "IntelliSense Command";
         private bool _ShowCards { get; set; } = true;
         protected override async Task OnInitializedAsync()
@@ -53,6 +56,7 @@ namespace RazorClassLibrary.Pages
                 if (CategoryDataService != null)
                 {
                     var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, LanguageId);
+                    language = await LanguageDataService.GetLanguageById(LanguageId);
                     //var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
                     if (result != null)
                     {
@@ -63,7 +67,7 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception e)
             {
-                Logger?.LogError(e,"Exception occurred in LoadData Method, Getting Records from the Service");
+                Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }

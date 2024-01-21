@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore;
 
 namespace VoiceLauncher.Repositories
 {
@@ -57,12 +58,16 @@ namespace VoiceLauncher.Repositories
 			}
 			IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
 			if (categoryType == "IntelliSense Command")
+			
+			// Add the missing using directive above
+
 			{
 				foreach (var category in CategoriesDTO)
 				{
 					var tableCategory = Categories
-				 .Where(v => v.Id == category.Id).FirstOrDefault();
-					category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense.Count();
+						.Where(v => v.Id == category.Id)
+						.FirstOrDefault();
+					category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense.Count(c => c.LanguageId == languageId);
 				}
 			}
 			else
