@@ -31,6 +31,11 @@ namespace VoiceLauncher.Repositories
              .OrderBy(x => x.DisplayValue)
              .ToListAsync();
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
+         foreach (var item in CustomIntelliSensesDTO)
+         {
+            item.LanguageName= context.Languages.Where(x => x.Id == item.LanguageId).Select(x => x.LanguageName).FirstOrDefault();
+            item.CategoryName = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.CategoryName).FirstOrDefault();
+         }
          return CustomIntelliSensesDTO;
       }
       public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)
@@ -42,6 +47,11 @@ namespace VoiceLauncher.Repositories
              .Take(1000)
              .ToListAsync();
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
+         foreach (var item in CustomIntelliSensesDTO)
+         {
+            item.LanguageName = context.Languages.Where(x => x.Id == item.LanguageId).Select(x => x.LanguageName).FirstOrDefault();
+            item.CategoryName = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.CategoryName).FirstOrDefault();
+         }
          return CustomIntelliSensesDTO;
       }
 

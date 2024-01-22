@@ -9,6 +9,7 @@ namespace DataAccessLibrary.DTO
       public int Id { get; set; }
       [Required]
       public int LanguageId { get; set; }
+      public string LanguageName { get; set; } = "";
       [Required]
       [StringLength(255)]
       public string DisplayValue { get; set; } = "";
@@ -17,6 +18,7 @@ namespace DataAccessLibrary.DTO
       public string CommandType { get; set; }
       [Required]
       public int CategoryId { get; set; }
+      public string CategoryName { get; set; } = "";
       [StringLength(255)]
       public string Remarks { get; set; }
       public string Search { get; set; }

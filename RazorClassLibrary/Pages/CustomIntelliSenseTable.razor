@@ -30,9 +30,10 @@
 		</div>
 	}
 	else
-{
-	<div class='ml-1'>@Title </div>;
-}
+	{
+		<div class='ml-1'>@Title </div>
+		;
+	}
 </div>
 
 @if (FilteredCustomIntelliSenseDTO == null && _loadFailed == true)
@@ -93,6 +94,23 @@ else
 							type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
 							@customIntelliSense.DisplayValue</button>
 					</td>
+					<td>
+						<div>
+							<code>
+								@if (customIntelliSense.SendKeysValue?.Length > 50)
+								{
+									@customIntelliSense.SendKeysValue.Substring(0, 47) <text>...</text>
+								}
+								else
+								{
+									@customIntelliSense.SendKeysValue
+								}
+							</code>
+						</div>
+						@if (!string.IsNullOrWhiteSpace(GlobalSearchTerm)) { 
+							<text>@customIntelliSense.LanguageName / @customIntelliSense.CategoryName</text>
+						}
+					</td>
 					<td class="btn-group">
 						<button accesskey="@shortcutValue" title="Copy and switch and paste" style='min-width:80px'
 							class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
@@ -114,6 +132,7 @@ else
 							<i class="fas fa-trash"></i>
 						</button>
 					</td>
+
 				</tr>
 			}
 		</tbody>

@@ -1,0 +1,28 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "dotnet build --configuration Release",
+			"group": "build",
+			"problemMatcher": [
+				"error",
+				"warning"
+			],
+			"label": "Run dotnet build Release"
+		},
+		{
+			"type": "shell",
+			"command": "dotnet watch",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "dotnet: watch VoiceLauncher"
+		},
+		{
+			"label": "Run dotnet publish",
+			"type": "shell",
+			"command": "dotnet publish --configuration Release",
+			"problemMatcher": []
+		}
+	]
+}

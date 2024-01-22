@@ -26,9 +26,9 @@ namespace WinFormsApp
 			}
 			if (arguments.Count() < 2)
 			{
-				//arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor" };
+				arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor" };
 				//arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
-				arguments = new string[] { arguments[0], "Launcher", "Folders" };
+				//arguments = new string[] { arguments[0], "Launcher", "Folders" };
 			}
 			string categoryName = "";
 			if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
