@@ -30,8 +30,22 @@ namespace RazorClassLibrary.Pages
 		private string? searchTerm = null;
 #pragma warning restore 414, 649
 		private int? counter = 0;
-		public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
-		[Parameter] public string GlobalSearchTerm { get; set; } = "";
+		public string? SearchTerm
+		{
+			get => searchTerm; set
+			{
+				searchTerm = value;
+				if (searchTerm != null)
+				{
+					if (searchTerm.Length > 4)
+					{
+						ApplyFilter();
+					}
+				}
+			}
+		}
+			[Parameter]
+			public string GlobalSearchTerm { get; set; } = "";
 		public string ExceptionMessage { get; set; } = string.Empty;
 		public List<string>? PropertyInfo { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }

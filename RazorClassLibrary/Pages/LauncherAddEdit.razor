@@ -42,7 +42,7 @@
 
                 <div class="form-group">
                     <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
-                    <InputSelect id="category" class="form-control col-sm-8" @bind-Value="@LauncherDTO.CategoryId">
+                    <InputSelect id="category" class="form-select col-sm-8" @bind-Value="@LauncherDTO.CategoryId">
                         @foreach (var category in _categories)
                         {
                             <option value="@category.Id">@category.CategoryName</option>
@@ -71,8 +71,8 @@
             </div>
         </div>
         <div class="btn-group" style="float:right">
-            <button accesskey="c" class="btn btn-sm btn-outline-primary m-1" @onclick="@Close"><u>C</u>ancel</button>
-            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary m-1"><u>S</u>ave Record</button>
+            <button accesskey="2" class="btn btn-sm btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
+            <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save  Record (4)</button>
         </div>
     </EditForm>
 </div>

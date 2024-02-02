@@ -51,8 +51,9 @@ namespace VoiceLauncher.Repositories
          {
             item.LanguageName = context.Languages.Where(x => x.Id == item.LanguageId).Select(x => x.LanguageName).FirstOrDefault();
             item.CategoryName = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.CategoryName).FirstOrDefault();
+            item.Sensitive= context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.Sensitive).FirstOrDefault();
          }
-         return CustomIntelliSensesDTO;
+      return CustomIntelliSensesDTO;
       }
 
       public async Task<CustomIntelliSenseDTO?> GetCustomIntelliSenseByIdAsync(int Id)

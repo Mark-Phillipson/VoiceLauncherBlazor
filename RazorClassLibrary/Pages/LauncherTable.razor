@@ -23,11 +23,11 @@
     <div class="col-md-3">
         @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <label accesskey="c" for="CategoryId" class='fs-15 m-1'><u>C</u>ategories</label>
+            <label accesskey="1" for="CategoryId" class='fs-15 m-1'>Categories (Alt+1)</label>
         }
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
+            <InputSelect  ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
                 ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select form-select-sm my-1">
                 <option value="">-</option>
                 @foreach (var item in _categories)
@@ -45,7 +45,7 @@
             </button>
             <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-outline-success">
                 Add
-                <i class="fas fa-plus"></i>
+                (<i class="fas fa-plus"></i>)
             </button>
         </div>
     }
@@ -53,8 +53,8 @@
     {
 
         <div class="col-md-2">
-            <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-                @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+            <input @ref="SearchInput" accesskey="3" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+                @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
         </div>
     }
 </div>

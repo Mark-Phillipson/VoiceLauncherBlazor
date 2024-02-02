@@ -96,18 +96,22 @@ else
 					</td>
 					<td>
 						<div>
-							<code>
-								@if (customIntelliSense.SendKeysValue?.Length > 50)
-								{
-									@customIntelliSense.SendKeysValue.Substring(0, 47) <text>...</text>
-								}
-								else
-								{
-									@customIntelliSense.SendKeysValue
-								}
-							</code>
+							@if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) || (currentCategory != null  &&  !currentCategory!.Sensitive && string.IsNullOrWhiteSpace(GlobalSearchTerm)))
+							{
+								<code>
+									@if (customIntelliSense.SendKeysValue?.Length > 50)
+									{
+										@customIntelliSense.SendKeysValue.Substring(0, 47) <text>...</text>
+									}
+									else
+									{
+										@customIntelliSense.SendKeysValue
+									}
+								</code>
+							}
 						</div>
-						@if (!string.IsNullOrWhiteSpace(GlobalSearchTerm)) { 
+						@if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+						{
 							<text>@customIntelliSense.LanguageName / @customIntelliSense.CategoryName</text>
 						}
 					</td>

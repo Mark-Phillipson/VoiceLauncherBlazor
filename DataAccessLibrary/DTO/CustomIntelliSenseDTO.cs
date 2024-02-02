@@ -19,6 +19,7 @@ namespace DataAccessLibrary.DTO
       [Required]
       public int CategoryId { get; set; }
       public string CategoryName { get; set; } = "";
+      public bool Sensitive { get; set; }
       [StringLength(255)]
       public string Remarks { get; set; }
       public string Search { get; set; }
