@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Models;
 
 
@@ -32,8 +33,10 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<PromptDTO, Prompt>();
 			CreateMap<TalonAlphabet, TalonAlphabetDTO>();
 			CreateMap<TalonAlphabetDTO, TalonAlphabet>();
-         CreateMap<Language, LanguageDTO>();
-         CreateMap<LanguageDTO, Language>();
-      }
+			CreateMap<Language, LanguageDTO>();
+			CreateMap<LanguageDTO, Language>();
+			CreateMap<CursorlessCheatsheetItem, CursorlessCheatsheetItemDTO>();
+			CreateMap<CursorlessCheatsheetItemDTO, CursorlessCheatsheetItem>();
+		}
 	}
 }

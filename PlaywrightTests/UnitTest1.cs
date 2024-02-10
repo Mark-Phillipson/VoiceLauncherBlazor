@@ -32,25 +32,25 @@ public class Tests : PageTest
     }
 
     [Test]
-    public async Task VoiceAdminIntoBlazorSite()
+    public async Task CheckTalonLink()
     {
-        await Page.PauseAsync();
         await Page.GotoAsync("http://localhost:5000/");
 
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Launcher Categories" }).ClickAsync();
+        await Page.Locator("a").Filter(new() { HasText = "Launch Categories [£]" }).ClickAsync();
 
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Learning" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Talon (8)" }).ClickAsync();
 
-        var page2 = await Page.RunAndWaitForPopupAsync(async () =>
+        var Page1 = await Page.RunAndWaitForPopupAsync(async () =>
         {
-            await Page.GetByRole(AriaRole.Row, new() { Name = " Blazor Site https://Blazor.net " }).GetByRole(AriaRole.Link, new() { Name = "" }).First.ClickAsync();
+            await Page.GetByRole(AriaRole.Link, new() { Name = "I Talon Main Website" }).ClickAsync();
         });
-        await Expect(page2).ToHaveTitleAsync(new Regex("Build client web apps"));
+
+        await Expect(Page.GetByText("Talon").First).ToBeVisibleAsync();
+
     }
-    //Create a method test using playwright to check the homepage Has a h1 title of Voice Admin
 
 
 
 
-    //dotnet test --filter "Name~VoiceAdminIntoBlazorSite" -- Playwright.LaunchOptions.Headless=false
+    //dotnet test --filter "Name~CheckTalonLink" -- Playwright.LaunchOptions.Headless=false
 }

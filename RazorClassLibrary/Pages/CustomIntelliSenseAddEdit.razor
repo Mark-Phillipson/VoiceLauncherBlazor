@@ -16,11 +16,12 @@
 					<strong>Please Note</strong> @Message
 				</div>
 				<div class='col-1'>
-					<button class="btn btn-outline-info btn-sm" type="button" @onclick="@( ( ) => ResetMessage(  ) )">X</button>
+					<button class="btn btn-outline-info btn-sm" type="button"
+						@onclick="@( ( ) => ResetMessage(  ) )">X</button>
 				</div>
 				<div class='col-2'></div>
 			}
-			<div class="col-2">
+			<div class="col-3">
 				<div class="form-group">
 					<label for="LanguageId">Language: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="LanguageId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
@@ -35,13 +36,13 @@
 				<div class="form-group">
 					<label for="DisplayValue">Display Value: </label> <i class="text-danger fa">*</i>
 					<InputText id="DisplayValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DisplayValue"
-								  placeholder="Enter Display Value"></InputText>
+						placeholder="Enter Display Value"></InputText>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
 				</div>
 				<div class="form-group">
 					<label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="CategoryId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
-					<option value="">Select Category</option>
+						<option value="">Select Category</option>
 						@foreach (var item in categories)
 						{
 							<option value="@item.Id">@item.CategoryName</option>
@@ -51,21 +52,23 @@
 				</div>
 				<div class="form-group">
 					<label for="Remarks">Remarks: </label>
-					<InputTextArea rows="4" id="Remarks" class="form-control" @bind-Value="@CustomIntelliSenseDTO.Remarks"
-										placeholder="Enter Remarks"></InputTextArea>
+					<InputTextArea rows="4" id="Remarks" class="form-control"
+						@bind-Value="@CustomIntelliSenseDTO.Remarks" placeholder="Enter Remarks"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.Remarks)" />
 				</div>
-				@* 				<div class="form-group">
-				<label for="ComputerId">Computer ID: </label>                    <InputNumber id="ComputerId" class="form-��" @bind-Value="@CustomIntelliSenseDTO.ComputerId"
+				@* <div class="form-group">
+				<label for="ComputerId">Computer ID: </label> <InputNumber id="ComputerId" class="form-��"
+				@bind-Value="@CustomIntelliSenseDTO.ComputerId"
 				placeholder="Enter Computer ID"></InputNumber>
 				<ValidationMessage For="@(() => CustomIntelliSenseDTO.ComputerId)" />
 				</div>
-				*@				<div class="form-group">
+				*@ <div class="form-group">
 					<label for="DeliveryType">Delivery Type:</label> <i class="text-danger fa">*</i>
 					@if (generalLookups != null)
 					{
 
-						<InputSelect id="DeliveryType" class="form-select" @bind-Value="@CustomIntelliSenseDTO.DeliveryType">
+						<InputSelect id="DeliveryType" class="form-select"
+							@bind-Value="@CustomIntelliSenseDTO.DeliveryType">
 							@foreach (var item in generalLookups)
 							{
 								<option value="@item.ItemValue">@item.ItemValue</option>
@@ -76,57 +79,69 @@
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DeliveryType)" />
 				</div>
 			</div>
-			<div class="col-9">
+			<div class="col-8">
 				<div class="form-group">
-					<label for="SendKeysValue">Send Keys Value: </label>
+					<label accesskey='-' for="SendKeysValue"><u>-</u> Send Keys Value: </label>
 					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
-					<InputTextArea rows="7" id="SendKeysValue" style="font-family: 'Cascadia Code', monospace; font-size: 19px; line-height: 1.5; padding: 10px; width: 95%; display: block;" class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
-										placeholder="Enter Send Keys Value"></InputTextArea>
+					<InputTextArea rows="10" id="SendKeysValue"
+						style="font-family: 'Cascadia Code', monospace; font-size: 19px; line-height: 1.5; padding: 10px;display: block;"
+						class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
+						placeholder="Enter Send Keys Value"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
 				</div>
 				@if (CustomIntelliSenseDTO.SendKeysValue != null)
 				{
 					<div class="row g-1">
-						<div class="col-6">
+						<div class="col-3">
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable1`"))
 							{
 								<div class="form-group">
 									<label>Variable1:</label>
-									<input autofocus="true" type="text" id="Variable1" @oninput="@(() => CallChangeAsync("Variable1"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
+									<input autofocus="true" type="text" id="Variable1"
+										@oninput="@(() => CallChangeAsync("Variable1"))" class="form-control"
+										@bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
 								</div>
 							}
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable2`"))
 							{
 								<div class="form-group">
 									<label>Variable2:</label>
-									<input type="text" id="Variable2" @oninput="@(() => CallChangeAsync("Variable2"))" class="form-control" @bind="@CustomIntelliSenseDTO.Variable2" placeholder="Enter for Variable 2" />
+									<input type="text" id="Variable2" @oninput="@(() => CallChangeAsync("Variable2"))"
+										class="form-control" @bind="@CustomIntelliSenseDTO.Variable2"
+										placeholder="Enter for Variable 2" />
 								</div>
 							}
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable3`"))
 							{
 								<div class="form-group">
 									<label>Variable3:</label>
-									<input type="text" id="Variable3" @oninput="@(() => CallChangeAsync("Variable3"))" class="form-control" @bind="CustomIntelliSenseDTO.Variable3" placeholder="Enter for Variable 3" />
+									<input type="text" id="Variable3" @oninput="@(() => CallChangeAsync("Variable3"))"
+										class="form-control" @bind="CustomIntelliSenseDTO.Variable3"
+										placeholder="Enter for Variable 3" />
 								</div>
 							}
 						</div>
-						<div class="col-9 m-1">
-							<button id="CopyButton" type="button" class="btn btn-outline-primary" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
+						<div class="col-8 m-1">
+							<button id="CopyButton" type="button" class="btn btn-outline-primary"
+								@onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-regular fa-copy"></i>
 							</button>
-							<button type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
+							<button type="button" title="Copy and switch and paste" class="btn btn-danger"
+								@onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-solid fa-paste"></i>
 							</button>
-							<button class="btn btn-outline-success" type="button" @onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
-							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create Visual Studio Code Snippet </button>
+							<button class="btn btn-outline-success" type="button"
+								@onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
+							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create
+								Visual Studio Code Snippet </button>
 						</div>
 						<div class="col-9 ">
 							@if (!string.IsNullOrWhiteSpace(example))
 							{
-								<textarea @bind="@example" class="form-control" rows="7"></textarea>
+								<textarea @bind="@example" class="form-control mb-2" rows="7"></textarea>
 							}
 						</div>
-						
+
 					</div>
 
 				}
@@ -134,15 +149,19 @@
 			<div class="col-10">
 				<div class="btn-group" style="float:right">
 					<a class="btn btn-outline-primary" @onclick="@CloseAsync">Cancel</a>
-					<button class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">Delete Record</button>
+					<label class='form-label' for='save-only'>Save Only?</label>
+					<input type='checkbox' class='form-checkbox' @bind='_saveOnly' id='save-only' />
+					<button class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">Delete
+						Record</button>
 					<button @TaskRunning type="submit" class="btn  btn-primary">Save Record</button>
 				</div>
 			</div>
 		</div>
 	</EditForm>
-	@if (CustomIntelliSenseDTO?.Id > 0)
+	@* Don't think we need this anymore with Talon *@
+	@* @if (CustomIntelliSenseDTO?.Id > 0)
 	{
-		<AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
-	}
+	<AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
+	} *@
 
 </div>

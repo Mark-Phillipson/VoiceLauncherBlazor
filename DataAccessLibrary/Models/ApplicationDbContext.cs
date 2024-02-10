@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
-
 using System.Diagnostics;
 
 namespace DataAccessLibrary.Models
@@ -24,11 +23,12 @@ namespace DataAccessLibrary.Models
 		//{
 		//	_configuration =  null ;
 		//}
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration= null )
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration = null)
 			 : base(options)
 		{
 			_configuration = configuration;
 		}
+		public virtual DbSet<CursorlessCheatsheetItem> CursorlessCheatsheetItems { get; set; }
 		public virtual DbSet<CssProperty> CssProperties { get; set; }
 		public virtual DbSet<TalonAlphabet> TalonAlphabets { get; set; }
 		public virtual DbSet<Prompt> Prompts { get; set; }
@@ -54,7 +54,7 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<MigrationHistory> MigrationHistory { get; set; }
 		public virtual DbSet<MousePositions> MousePositions { get; set; }
 		public virtual DbSet<MultipleLauncher> MultipleLauncher { get; set; }
-		 public  virtual DbSet<PhraseListGrammar> PhraseListGrammarStorages { get; set; }
+		public virtual DbSet<PhraseListGrammar> PhraseListGrammarStorages { get; set; }
 		public virtual DbSet<PropertyTabPositions> PropertyTabPositions { get; set; }
 		public virtual DbSet<SavedMousePosition> SavedMousePosition { get; set; }
 		public virtual DbSet<ViewCategories> ViewCategories { get; set; }
@@ -73,7 +73,7 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<Todo> Todos { get; set; }
 		public virtual DbSet<Appointment> Appointments { get; set; }
 		public virtual DbSet<AdditionalCommand> AdditionalCommands { get; set; }
-		 public  virtual DbSet<ValuesToInsert> ValuesToInserts { get; set; }
+		public virtual DbSet<ValuesToInsert> ValuesToInserts { get; set; }
 		public virtual DbSet<VisualStudioCommand> VisualStudioCommands { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{

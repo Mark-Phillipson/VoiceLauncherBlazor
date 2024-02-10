@@ -1,0 +1,46 @@
+@page "/cursorlesscheatsheetitem/{Id:int?}"
+<div style="min-width:80vw">
+    <h1>@Title</h1>
+    <EditForm Model="@CursorlessCheatsheetItemDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (CursorlessCheatsheetItemDTO.Id > 0)
+        {
+            <span class="text-info m-1">@CursorlessCheatsheetItemDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="SpokenForm">Spoken Form:</label> <i class="text-danger fa">*</i>
+
+                    <InputText id="SpokenForm" class="form-control"
+                        @bind-Value="@CursorlessCheatsheetItemDTO.SpokenForm" placeholder="Enter Spoken Form">
+                    </InputText>
+                    <ValidationMessage For="@(() => CursorlessCheatsheetItemDTO.SpokenForm)" />
+                </div>
+                <div class="form-group">
+                    <label for="Meaning">Meaning:</label>
+                    <InputText id="Meaning" class="form-control" @bind-Value="@CursorlessCheatsheetItemDTO.Meaning"
+                        placeholder="Enter Meaning">
+                    </InputText>
+                    <ValidationMessage For="@(() => CursorlessCheatsheetItemDTO.Meaning)" />
+                </div>
+                <div class="form-group">
+                    <label for="CursorlessType">Cursorless Type:</label>
+                    <InputText id="CursorlessType" class="form-control"
+                        @bind-Value="@CursorlessCheatsheetItemDTO.CursorlessType" placeholder="Enter Cursorless Type">
+                    </InputText>
+                    <ValidationMessage For="@(() => CursorlessCheatsheetItemDTO.CursorlessType)" />
+                </div>
+            </div>
+            <div class="col-12">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div class="btn-group" style="float:right">
+            <a accesskey="0" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>0</u> Cancel</a>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

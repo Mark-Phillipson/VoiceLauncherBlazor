@@ -42,7 +42,7 @@ namespace RazorClassLibrary.Pages
 		private List<DataAccessLibrary.Models.GeneralLookup>? generalLookups { get; set; }
 		private string example { get; set; } = "";
 		[Inject] public required GeneralLookupService GeneralLookupDataService { get; set; }
-
+		bool _saveOnly = false;
 #pragma warning disable 414, 649
 		bool TaskRunning = false;
 #pragma warning restore 414, 649
@@ -75,7 +75,7 @@ namespace RazorClassLibrary.Pages
 				CustomIntelliSenseDTO.DeliveryType = "Copy and Paste";
 				CustomIntelliSenseDTO.CommandType = "SendKeys";
 			}
-			categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", 0);
+			categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
 			languages = await LanguageService.GetLanguagesAsync();
 			generalLookups = await GeneralLookupDataService.GetGeneralLookUpsAsync("Delivery Type");
 		}
@@ -124,10 +124,11 @@ namespace RazorClassLibrary.Pages
 					ToastService?.ShowSuccess("The Custom Intelli Sense updated successfully");
 				}
 			}
-			if (ModalInstance != null)
+			if (ModalInstance != null && !_saveOnly)
 			{
 				await ModalInstance.CloseAsync(ModalResult.Ok(true));
 			}
+			_saveOnly = false;
 			TaskRunning = false;
 		}
 		private async Task CopyItemAsync(string itemToCopy)
@@ -208,6 +209,10 @@ namespace RazorClassLibrary.Pages
 		private void ResetMessage()
 		{
 			Message = string.Empty;
+		}
+		private void ToggleSaveOnly()
+		{
+			_saveOnly = !_saveOnly;
 		}
 	}
 }

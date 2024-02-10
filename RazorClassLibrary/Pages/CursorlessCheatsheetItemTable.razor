@@ -1,0 +1,118 @@
+@page "/cursorlesscheatsheetitems"
+<div class="row">
+    <div class="col-md-2">
+        <h6 class="m-1">@Title</h6>
+    </div>
+    <div class='col-md-8'>
+        @if (cursorlessTypeFilterList != null)
+        {
+            counter = 0;
+            @foreach (var cursorlessType in cursorlessTypeFilterList)
+            {
+                counter++;
+                <button accesskey='@counter.ToString()' class="btn btn-outline-primary btn-sm m-1"
+                    @onclick="@(() => FilterByCursorlessType(cursorlessType))">
+                    @cursorlessType <u>@counter.ToString()</u>
+                </button>
+            }
+        }
+    </div>
+    <div class='col-md-1'>
+        <label accesskey='c' class='label-control my-1' for='showCards'><u>C</u>ards?</label>
+        <input id='showCards' type="checkbox" @bind="showCards" class='form-checkbox my-1' title='Toggle Cards' />
+    </div>
+    <div class="col-md-1">
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+            @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+    </div>
+</div>
+
+@if (FilteredCursorlessCheatsheetItemDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredCursorlessCheatsheetItemDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredCursorlessCheatsheetItemDTO.Count == 0)
+{
+    <p>No Cursorless Cheatsheet Item match the criteria</p>
+    <button @onclick="AddNewCursorlessCheatsheetItem" class="btn btn-outline-success">Add Record <i
+            class="fas fa-plus"></i></button>
+}
+else
+{
+    @if (showCards)
+    {
+        <div class="layout-as-cards">
+            @foreach (var item in FilteredCursorlessCheatsheetItemDTO)
+            {
+                <div class='card'>
+                    <div class="card-body p-3">
+                        <h3 class="card-title">@item.SpokenForm</h3>
+                        <div class="card-text">
+                            <span style='color:grey'>@item.Meaning</span>
+                            <div>(@item.CursorlessType)</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="btn btn-sm" @onclick="@(() => SortCursorlessCheatsheetItem("SpokenForm"))">
+                            <i class="fas fa-sort-alpha-up"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="@(() => SortCursorlessCheatsheetItem("SpokenForm Desc"))">
+                            <i class="fas fa-sort-alpha-up-alt"></i>
+                        </button>
+                        Spoken Form
+                    </th>
+                    <th>Meaning</th>
+                    <th>
+                        <button class="btn btn-sm" @onclick="@(() => SortCursorlessCheatsheetItem("CursorlessType"))">
+                            <i class="fas fa-sort-alpha-up"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="@(() => SortCursorlessCheatsheetItem("CursorlessType Desc"))">
+                            <i class="fas fa-sort-alpha-up-alt"></i>
+                        </button>
+                        Cursorless Type
+                    </th>
+                    <th>
+                        <button accesskey="+" @onclick="AddNewCursorlessCheatsheetItem" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cursorlessCheatsheetItem in FilteredCursorlessCheatsheetItemDTO)
+                {
+                    <tr>
+                        <td style='font-size:20px'>@cursorlessCheatsheetItem.SpokenForm</td>
+                        <td>@cursorlessCheatsheetItem.Meaning</td>
+                        <td style='font-size:18px'>@cursorlessCheatsheetItem.CursorlessType</td>
+                        <td class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning"
+                                @onclick="@(() => EditCursorlessCheatsheetItem(cursorlessCheatsheetItem.Id))">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                @onclick="@(() => DeleteCursorlessCheatsheetItem(cursorlessCheatsheetItem.Id))">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

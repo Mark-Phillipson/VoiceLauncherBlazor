@@ -24,6 +24,16 @@ namespace VoiceLauncher.Repositories
 			_contextFactory = contextFactory;
 			this._mapper = mapper;
 		}
+		 public  async Task<IEnumerable<CategoryDTO>> GetAllCategoriesByTypeAsync(string categoryType )
+		 {
+			 using var context = _contextFactory.CreateDbContext();
+			 var Categories = await context.Categories
+				 .Where(v => v.CategoryType.ToLower() == categoryType.ToLower())
+				 .OrderBy(v => v.CategoryName)
+				 .ToListAsync();
+			 IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
+			 return CategoriesDTO;
+		 }
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows = 400, string categoryType = "Launch Applications", int languageId = 0)
 		{
 			using var context = _contextFactory.CreateDbContext();

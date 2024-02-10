@@ -76,6 +76,8 @@ builder.Services.AddScoped<IPromptRepository, PromptRepository>();
 builder.Services.AddScoped<IPromptDataService, PromptDataService>();
 builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
 builder.Services.AddScoped<ILanguageDataService, LanguageDataService>();
+builder.Services.AddScoped<ICursorlessCheatsheetItemRepository, CursorlessCheatsheetItemRepository>();
+builder.Services.AddScoped<ICursorlessCheatsheetItemDataService, CursorlessCheatsheetItemDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
