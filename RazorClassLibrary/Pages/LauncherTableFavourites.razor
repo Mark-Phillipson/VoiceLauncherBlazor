@@ -7,10 +7,17 @@
 	</div>
 	<div class="col-md-4">
 		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Name/Command Line (Alt+I)" />
+			@bind:event="oninput" id="SearchInput" name="SearchTerm"
+			placeholder="Filter by Name/Command Line (Alt+I)" />
 	</div>
 </div>
-
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<strong>Warning!</strong> @Message
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
 @if (FilteredLauncherDTO == null && _loadFailed == true)
 {
 	<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
@@ -54,20 +61,30 @@ else
 					}
 					else
 					{
-						<a accesskey="@counter" class="btn btn-lg btn-outline-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i><u>@counter</u> @launcher.Name </a>
+						<a accesskey="@counter" class="btn btn-lg btn-outline-success my-2" target="_blank"
+							href="@launcher.CommandLine"><i style='font-size:70px' class="fa-solid fa-rocket mt-1 text-danger"></i>
+							<u>@counter</u>
+							<span class='p-3'>@launcher.Name </span>
+						</a>
 					}
 				}
 				else
 				{
-					<button accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i> <u>@counter</u></button>
-					@if (launcher.Icon != null && launcher.Icon.Length > 0)
-					{
-						<img class="m-1" height="75" src='/images/@launcher.Icon' />
-					}
-
+					<button accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success"
+						@onclick="@(() => LaunchItem(launcher))">
+						@if (launcher.Icon != null && launcher.Icon.Length > 0)
+						{
+							<img class="m-1" height="75" src='/images/@launcher.Icon' />
+						}
+						else
+						{
+							<i style='font-size:70px' class="fa-solid fa-rocket"></i>
+						}
+						<u>@counter</u>
+						<span>@launcher.Name</span>
+					</button>
 				}
 			</div>
 		}
 	</div>
-
 }

@@ -27,7 +27,7 @@
         }
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <InputSelect  ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
+            <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
                 ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select form-select-sm my-1">
                 <option value="">-</option>
                 @foreach (var item in _categories)
@@ -112,7 +112,7 @@ else
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
                             <button accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2"
-                                type="button" @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )"><img class="" height="50"
+                                type="button" @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )"><img class="" height="35"
                                     src='/images/@launcher.Icon' /> <u>@currentLetter</u> @launcher.Name</button>
                         }
                         else

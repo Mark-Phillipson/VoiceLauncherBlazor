@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
+using System.Diagnostics;
 using System.Security.Claims;
 
 using VoiceLauncher.Services;
@@ -30,6 +31,7 @@ namespace RazorClassLibrary.Pages
 		public List<LauncherDTO>? LauncherDTO { get; set; }
 		public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
 		protected LauncherAddEdit? LauncherAddEdit { get; set; }
+		public string Message { get; set; } = "";
 		ElementReference SearchInput;
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
@@ -202,22 +204,32 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
-		private async Task LaunchItemAsync(string commandLine)
+		private void LaunchItem(LauncherDTO launcher)
 		{
 			if (JSRuntime == null)
 			{
 				return;
 			}
-			if (commandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
+			if (launcher.CommandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
 			{
-				NavigationManager.NavigateTo(commandLine, true, false);
+				NavigationManager.NavigateTo(launcher.CommandLine, true, false);
 			}
 			else
 			{
-				await JSRuntime.InvokeVoidAsync(
-					 "clipboardCopy.copyText", commandLine);
-				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService!.ShowSuccess(message + "Copy Commandline");
+				var psi = new ProcessStartInfo();
+				psi.UseShellExecute = true;
+				psi.FileName = launcher.CommandLine;
+				psi.WorkingDirectory = launcher.WorkingDirectory;
+				psi.Arguments = launcher.Arguments;
+				psi.UseShellExecute = true;
+				try
+				{
+					Process.Start(psi);
+				}
+				catch (Exception exception)
+				{
+					Message = exception.Message;
+				}
 			}
 		}
 		public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }

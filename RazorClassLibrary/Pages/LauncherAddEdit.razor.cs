@@ -25,6 +25,19 @@ namespace RazorClassLibrary.Pages
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
+        string[] filenameList = new string[0];
+        List<string> imageUlrs = new List<string>();
+        private void LoadImages()
+        {
+            string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
+            filenameList = Directory.GetFiles(directoryPath);
+            foreach (string item in filenameList)
+            {
+                string imageUrl = item.Replace(@"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images\", "");
+                imageUlrs.Add(imageUrl);
+            }
+        }
+
         protected override async Task OnInitializedAsync()
         {
             if (LauncherDataService == null)
@@ -47,6 +60,7 @@ namespace RazorClassLibrary.Pages
             {
                 _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
             }
+            LoadImages();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
