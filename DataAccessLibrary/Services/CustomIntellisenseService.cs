@@ -33,7 +33,8 @@ namespace DataAccessLibrary.Services
 			}
 			if (searchTerm != null && searchTerm.Length > 0)
 			{
-				intellisenses = intellisenses.Where(v => v.DisplayValue.Contains(searchTerm) || v.SendKeysValue.Contains(searchTerm));
+				var searchTerms = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+				intellisenses = intellisenses.Where(v => searchTerms.All(term => v.DisplayValue.Contains(term) || v.SendKeysValue.Contains(term)));
 			}
 			if (!string.IsNullOrWhiteSpace(languageFilter))
 			{

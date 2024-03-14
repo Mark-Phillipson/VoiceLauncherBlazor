@@ -3,12 +3,12 @@
 @using RazorClassLibrary.Pages
 <CascadingBlazoredModal>
 	<div class='m-2'>
-		<button accesskey="m" class="btn btn-sm btn-outline-secondary"
-			@onclick="@(() => MaximizeWindow())"><u>M</u>aximize</button>
+		<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
+			Maximize</button>
 		<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
 			Minimize</button>
-		<button accesskey="r" class="btn btn-sm btn-outline-secondary"
-			@onclick="@(() => RestoreWindow())"><u>R</u>estore</button>
+		<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
+			Restore</button>
 
 		@* filtering by language and category and listing only ten at a time with paging *@
 		@if (languageAndCategoryListing)
@@ -23,7 +23,7 @@
 		else // filtering by display value mostly
 		{
 			<CustomIntelliSenses CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true"
-				SearchTermParameter="@searchTerm" CloseApplication="CloseWindow" />
+				SearchTermParameter="@searchTerm" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
 		}
 	</div>
 </CascadingBlazoredModal>

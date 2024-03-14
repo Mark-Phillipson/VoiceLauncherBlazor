@@ -21,6 +21,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public string SearchTermParameter { get; set; } = string.Empty;
 		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
 		[Parameter] public EventCallback CloseApplication { get; set; }
+		[Parameter] public EventCallback MaximizeApplication { get; set; }
 		private string Title { get; set; } = "Snippets";
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
@@ -430,6 +431,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task EditAsync(int id)
 		{
+			await MaximizeApplication.InvokeAsync();
 			var parameters = new ModalParameters();
 			parameters.Add("Id", id);
 			var options = new ModalOptions()
