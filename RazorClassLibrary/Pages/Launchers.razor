@@ -16,12 +16,13 @@
 
 <div class="form-field row">
     @*<a accesskey="0" class="btn btn-success col-md-2" href="/launcher/0">Create (0) <i class="oi oi-plus"></i></a>*@
-    <button accesskey="0" class="btn btn-sm btn-success" @onclick="CreateRecord">Create New (Alt+0) <i class="oi oi-plus"></i></button>
+    <button accesskey="0" class="btn btn-sm btn-success" @onclick="CreateRecord">Create New (Alt+0) <i
+            class="oi oi-plus"></i></button>
     <label class="control-label col-md-1">Filter</label>
-    <input @bind="SearchTerm"
-           @oninput="@(e => CallChangeAsync("SearchInput"))" id="@("SearchInput")"
-           class="form-control mr-2 col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1) " />
-    <button accesskey="2" class="btn btn-primary btn-sm col-md-2" type="button" @onclick="ApplyFilter">Filter (Alt+2) <i class="oi oi-magnifying-glass"></i></button>
+    <input @bind="SearchTerm" @oninput="@(e => CallChangeAsync("SearchInput"))" id="@("SearchInput")"
+        class="form-control mr-2 col-md-5" accesskey="1" placeholder="Type to Filter (Alt+1) " />
+    <button accesskey="2" class="btn btn-primary btn-sm col-md-2" type="button" @onclick="ApplyFilter">Filter (Alt+2) <i
+            class="oi oi-magnifying-glass"></i></button>
     <label class="control-label col-md-1">Max Rows</label>
     <input @bind="MaximumRows" class="form-control col-md-1" />
 
@@ -49,8 +50,10 @@ else
             <tr>
                 <th>
                     Launcher Name
-                    <button @onclick="@(e  => SortLaunchers("CategoryName","Ascending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-ascending"></i></button>
-                    <button @onclick="@(e => SortLaunchers("CategoryName","Descending"))" class="btn btn-sm btn-info"><i class="oi oi-sort-descending"></i></button>
+                    <button @onclick="@(e  => SortLaunchers("CategoryName","Ascending"))" class="btn btn-sm btn-info"><i
+                            class="oi oi-sort-ascending"></i></button>
+                    <button @onclick="@(e => SortLaunchers("CategoryName","Descending"))" class="btn btn-sm btn-info"><i
+                            class="oi oi-sort-descending"></i></button>
                 </th>
                 <th style="width: 40%">
                     <div class="row">
@@ -59,7 +62,8 @@ else
                 </th>
                 <th>
                     Category (Alt+3)
-                    <select accesskey="3" class="form-control-sm col-md-5" style="min-width: 100%" @bind="CategoryIdFilter" @onblur="FilterByCategory">
+                    <select accesskey="3" class="form-select form-select-sm col-md-5" style="min-width: 100%"
+                        @bind="CategoryIdFilter" @onblur="FilterByCategory">
                         <option value="">-Select to filter-</option>
                         @if (categories != null)
                         {
@@ -74,7 +78,8 @@ else
             Computer
             </th>*@
                 <th>
-                    <button accesskey="4" class="btn btn-sm btn-success" @onclick="SaveAllLaunchers">Save All (Alt+4) <i class="oi oi-hard-drive"></i></button>
+                    <button accesskey="4" class="btn btn-sm btn-success" @onclick="SaveAllLaunchers">Save All (Alt+4) <i
+                            class="oi oi-hard-drive"></i></button>
                 </th>
             </tr>
         </thead>
@@ -93,10 +98,12 @@ else
                         <input class="form-control" @bind="launcher.Name" />
                     </td>
                     <td>
-                        <input style="width:100%" class="form-control-sm" @bind="launcher.CommandLine" title="@launcher.CommandLine" />
+                        <input style="width:100%" class="form-control-sm" @bind="launcher.CommandLine"
+                            title="@launcher.CommandLine" />
                     </td>
                     <td>
-                        <input style="width:100%" disabled="disabled" type="text" class="form-control-sm" @bind="launcher.Category.CategoryName" />
+                        <input style="width:100%" disabled="disabled" type="text" class="form-control-sm"
+                            @bind="launcher.Category.CategoryName" />
                     </td>
                     @*<td>
             @if (launcher.Computer != null)
@@ -108,16 +115,20 @@ else
             <h6>Not applicable</h6>}
             </td>*@
                     <td class="btn-group">
-                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditRecord(launcher.Id))"><i class="oi oi-pencil"></i></button>
+                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditRecord(launcher.Id))"><i
+                                class="oi oi-pencil"></i></button>
                         @if (launcher.CommandLine.ToLower().StartsWith("http"))
                         {
-                            <a class="btn btn-success" target="_blank" href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i></a>
+                            <a class="btn btn-success" target="_blank" href="@launcher.CommandLine"><i
+                                    class="fa-solid fa-rocket"></i></a>
                         }
                         else
                         {
-                            <button class="btn btn-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i class="fa-regular fa-copy"></i></button>
+                            <button class="btn btn-primary" @onclick="@(() => LaunchItemAsync(launcher.CommandLine))"><i
+                                    class="fa-regular fa-copy"></i></button>
                         }
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(launcher.Id))"><i class="oi oi-circle-x"></i></button>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => ConfirmDelete(launcher.Id))"><i
+                                class="oi oi-circle-x"></i></button>
 
                     </td>
                 </tr>
@@ -126,9 +137,8 @@ else
     </table>
 }
 <TemplatedDialog Show="ShowDialog">
-    <ConfirmDialog Message="Please confirm you wish to Delete this Launcher Record!"
-                   Title="Confirmation Required"
-                   OnCancel="CancelDelete" OnConfirm="@(() => DeleteLauncher(launcherIdDelete))">
+    <ConfirmDialog Message="Please confirm you wish to Delete this Launcher Record!" Title="Confirmation Required"
+        OnCancel="CancelDelete" OnConfirm="@(() => DeleteLauncher(launcherIdDelete))">
     </ConfirmDialog>
 </TemplatedDialog>
 

@@ -13,7 +13,7 @@
 	{
 		<div class='col-md-1'>
 			<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew"><i
-					class="fas fa-plus"></i> (0)</button> 
+					class="fas fa-plus"></i> (0)</button>
 		</div>
 	}
 	<div class='col-md-2'>
@@ -27,8 +27,8 @@
 			class="mx-1 form-control col-md-1" />
 	</div>
 	<div class='col-md-2'>
-		<input  title='Filter Display and Send Keys'  @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput"
-			class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
+		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+			id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
 	</div>
 	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 			!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
@@ -217,7 +217,7 @@ else
 								class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
 						</td>
 						<td>
-							<select style="min-width: 130px" class="form-control-sm col-md-8" @bind="@intellisense.DeliveryType">
+							<select style="min-width: 130px" class="form-select-sm col-md-8" @bind="@intellisense.DeliveryType">
 								@if (GeneralLookups != null)
 								{
 									@foreach (var lookup in GeneralLookups)
@@ -254,15 +254,15 @@ else
 	}
 
 	<pre class='mt-2'>
-			<code class='m-2'>
+				<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-						<textarea rows="7" style='width:95%;color:white;background:black'>
+								<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																								</textarea>
+																										</textarea>
 			}
-								</code>
-								</pre>
+									</code>
+									</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
@@ -276,4 +276,3 @@ else
 @*<TemplatedDialog Show="showCreateNewOrEdit">
 <CustomIntelliSense OnClose="CloseCreateNew" customIntellisenseId="_customIntellisenseId" />
 </TemplatedDialog>*@
-

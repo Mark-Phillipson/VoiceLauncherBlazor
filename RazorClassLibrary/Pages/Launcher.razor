@@ -53,7 +53,7 @@ else
 				</div>
 				<div class="form-field row">
 					<label for="@LauncherModel.CategoryId" class="col-md-4"> Category (2) *️⃣</label>
-					<select accesskey="2" class="form-control col-md-8" @bind="LauncherModel.CategoryId">
+					<select accesskey="2" class="form-select col-md-8" @bind="LauncherModel.CategoryId">
 						<option value="">-</option>
 						@if (Categories != null)
 						{
@@ -74,7 +74,7 @@ else
 				</div>
 				<div class="form-field row">
 					<label for="@LauncherModel.ComputerId" class="col-md-4"> Computer</label>
-					<select class="form-control col-md-8" @bind="LauncherModel.ComputerId">
+					<select class="form-select col-md-8" @bind="LauncherModel.ComputerId">
 						<option value="">-</option>
 						@if (Computers != null)
 						{
