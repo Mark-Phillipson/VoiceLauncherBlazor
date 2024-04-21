@@ -121,7 +121,7 @@ namespace RazorClassLibrary.Pages
 			}
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
-				FilteredLauncherDTO = LauncherDTO.OrderBy(v => v.Name).ToList();
+				FilteredLauncherDTO = LauncherDTO.OrderBy(v => v.SortOrder).ThenBy(x => x.Name).ToList();
 				Title = $"All Favourites ({FilteredLauncherDTO.Count})";
 			}
 			else

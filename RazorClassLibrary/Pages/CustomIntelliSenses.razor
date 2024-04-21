@@ -2,6 +2,7 @@
 @page "/intellisensesC/{categoryIdFilter:int}"
 @page "/intellisensesL/{languageIdFilter:int}"
 @page "/intellisensesBoth/{languageIdFilter:int}/{categoryIdFilter:int}"
+@using RazorClassLibrary.Shared
 <header class="form-inline mx-1">
 	<h4 style="display:inline-block">
 		<i class="fa-solid fa-file-code"></i>
@@ -13,36 +14,62 @@
 	{
 		<div class='col-md-1'>
 			<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew"><i
-					class="fas fa-plus"></i> (0)</button>
+					class="fas fa-plus"></i> Add (0)</button>
 		</div>
 	}
-	<div class='col-md-2'>
-		<input accesskey="1" style="display:inline" id="languageFilter"
-			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
-			placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
-	</div>
-	<div class='col-md-2'>
-		<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
-			@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
-			class="mx-1 form-control col-md-1" />
-	</div>
-	<div class='col-md-2'>
-		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-			id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
-	</div>
-	@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
-			!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+	@if (!RunningInBlazorHybrid)
 	{
+		<div class='col-md-2'>
+			<input accesskey="1" style="display:inline" id="languageFilter"
+				@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
+				placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
+		</div>
+		<div class='col-md-2'>
+			<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
+				@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
+				class="mx-1 form-control col-md-1" />
+		</div>
+		<div class='col-md-3'>
+			<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+				id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
+		</div>
 		<div class='col-md-1'>
-			<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
-				@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
+					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+			{
+				<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
+					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+			}
+			<button class="btn btn-outline-secondary btn-sm mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
+				<i class="fas fa-sync"></i>
+			</button>
 		</div>
 	}
-	<div class='col-md-1'>
-		<button class="btn btn-outline-secondary btn-sm mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
-			<i class="fas fa-sync"></i>
-		</button>
-	</div>
+	else
+	{
+		<div class='col-md-3'>
+			<input accesskey="1" style="display:inline" id="languageFilter"
+				@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
+				placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
+		</div>
+		<div class='col-md-3'>
+			<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
+				@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
+				class="mx-1 form-control col-md-1" />
+		</div>
+		<div class='col-md-3'>
+			<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+				id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
+		</div>
+		<div class='col-md-3'>
+			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
+					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+			{
+				<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
+					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+			}
+		</div>
+	}
 	@if (!RunningInBlazorHybrid)
 	{
 		@if (showExtras)
@@ -254,15 +281,15 @@ else
 	}
 
 	<pre class='mt-2'>
-				<code class='m-2'>
+													<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-								<textarea rows="7" style='width:95%;color:white;background:black'>
+																										<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																										</textarea>
+																																												</textarea>
 			}
-									</code>
-									</pre>
+																		</code>
+																		</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
