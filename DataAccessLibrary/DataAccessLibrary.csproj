@@ -34,7 +34,7 @@
 		<PackageReference Include="Ardalis.GuardClauses" Version="4.3.0" />
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-		<PackageReference Include="Azure.Identity" Version="1.10.4" />
+		<PackageReference Include="Azure.Identity" Version="1.12.0" />
 		<PackageReference Include="Blazored.Modal" Version="7.1.0" />
 		<PackageReference Include="Dapper" Version="2.1.24" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
