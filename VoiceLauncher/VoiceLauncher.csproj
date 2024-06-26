@@ -22,8 +22,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.12.0" />
-		<PackageReference Include="Blazored.Modal" Version="7.1.0" />
-		<PackageReference Include="Blazored.Toast" Version="4.1.0" />
+		<PackageReference Include="Blazored.Modal" Version="7.3.1" />
+		<PackageReference Include="Blazored.Toast" Version="4.2.1" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
