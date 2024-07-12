@@ -50,15 +50,32 @@ else
         <div class="layout-as-cards">
             @foreach (var item in FilteredCursorlessCheatsheetItemDTO)
             {
-                <div class='card'>
-                    <div class="card-body p-3">
-                        <h3 class="card-title">@item.SpokenForm</h3>
-                        <div class="card-text">
-                            <span style='color:grey'>@item.Meaning</span>
-                            <div>(@item.CursorlessType)</div>
+                @if (!string.IsNullOrWhiteSpace(item.YoutubeLink))
+                {
+                    <a href="@item.YoutubeLink">
+                        <div class='card'>
+                            <div class="card-body p-3">
+                                <h3 class="card-title">@item.SpokenForm</h3>
+                                <div class="card-text">
+                                    <span style='color:grey'>@item.Meaning</span>
+                                    <div>(@item.CursorlessType)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                }
+                else
+                {
+                    <div class='card'>
+                        <div class="card-body p-3">
+                            <h3 class="card-title">@item.SpokenForm</h3>
+                            <div class="card-text">
+                                <span style='color:grey'>@item.Meaning</span>
+                                <div>(@item.CursorlessType)</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
         </div>
     }

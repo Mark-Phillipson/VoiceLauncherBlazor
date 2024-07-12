@@ -32,6 +32,13 @@
                     </InputText>
                     <ValidationMessage For="@(() => CursorlessCheatsheetItemDTO.CursorlessType)" />
                 </div>
+                <div class="form-group">
+                    <label for="YoutubeLink">YouTube Link:</label>
+                    <InputText id="YoutubeLink" class="form-control"
+                        @bind-Value="@CursorlessCheatsheetItemDTO.YoutubeLink" placeholder="Enter YouTube Link">
+                    </InputText>
+                    <ValidationMessage For="@(() => CursorlessCheatsheetItemDTO.YoutubeLink)" />
+                </div>
             </div>
             <div class="col-12">
                 @* Move here for the next display column if required *@

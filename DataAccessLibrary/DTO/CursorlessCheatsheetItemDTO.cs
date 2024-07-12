@@ -5,6 +5,8 @@ namespace DataAccessLibrary.DTOs
 {
     public partial class CursorlessCheatsheetItemDTO
     {
+        [Key]
+        public int Id { get; set; }
         [Required]
         [StringLength(50)]
         public string SpokenForm { get; set; } = "";
@@ -12,7 +14,6 @@ namespace DataAccessLibrary.DTOs
         public string Meaning { get; set; }
         [StringLength(255)]
         public string CursorlessType { get; set; }
-        [Key]
-        public int Id { get; set; }
+        public string YoutubeLink { get; set; }
     }
 }
