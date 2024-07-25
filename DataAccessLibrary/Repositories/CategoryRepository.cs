@@ -52,7 +52,7 @@ namespace VoiceLauncher.Repositories
 			{
 				Categories = await context.Categories
 				 .Include(i => i.CustomIntelliSense)
-				 .Where(v => v.CategoryType == categoryType && v.CustomIntelliSense.Count() > 0)
+				 .Where(v => v.CategoryType == categoryType)
 				 .OrderBy(v => v.CategoryName)
 				 .Take(maxRows)
 				 .ToListAsync();
