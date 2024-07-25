@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-	
+
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -11,14 +11,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <_ContentIncludedByDefault Remove="wwwroot\images\OpenAI_Logo.svg.png" />
+		<_ContentIncludedByDefault Remove="wwwroot\images\OpenAI_Logo.svg.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="..\..\..\..\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml" Link="wwwroot\MyKBCommands.xml" />
-	  <Content Include="..\..\..\..\OneDrive\Documents\MyCommands.xml" Link="wwwroot\MyCommands.xml">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+		<Content
+			Include="..\..\..\..\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml"
+			Link="wwwroot\MyKBCommands.xml" />
+		<Content Include="..\..\..\..\OneDrive\Documents\MyCommands.xml"
+			Link="wwwroot\MyCommands.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.12.0" />
@@ -34,6 +37,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+		<PackageReference Include="SmartComponents.AspNetCore" Version="0.1.0-preview10148" />
+		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -42,23 +47,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Update="wwwroot\images\pit.jpg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\images\trap.jpeg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\images\VisualStudioLogo.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\images\VisualStudioLogoLarge.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Update="wwwroot\MyKBCommandsNewCommands.xml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
+		<Content Update="wwwroot\images\pit.jpg">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\images\trap.jpeg">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\images\VisualStudioLogo.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\images\VisualStudioLogoLarge.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\MyKBCommandsNewCommands.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
-
 
 
 </Project>

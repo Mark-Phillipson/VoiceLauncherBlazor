@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 using SampleApplication.Repositories;
 using SampleApplication.Services;
-
+using SmartComponents.LocalEmbeddings;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 
@@ -24,6 +24,8 @@ builder.Services.AddBlazoredToast();
 var config = builder.Configuration;
 string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddSmartComponents();
+builder.Services.AddSingleton<LocalEmbedder>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CreateCommands>();
 builder.Services.AddScoped<AdditionalCommandService>();
@@ -96,6 +98,11 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+// Compute the embeddings once up front
+var embedder = app.Services.GetRequiredService<LocalEmbedder>();
+var embeddings = embedder.EmbedRange(new[] { "indent", "inspect", "move", "paste ", "phones", "post", "pour", "pre", "puff", "quick fix", "reference", "rename", "reverse", "scout", "scout all", "shuffle", "snippet", "snippet make", "sort", "swap", "take", "type deaf", "unfold", "after", "before", "to", "form", "chuck", "crown", "centre", "bottom", "drink", "repack", "wrap", "break", "breakpoint", "bring", "carve", "change", "clone", "clone up", "comment", "concrete", "copy", "decrement", "increment", "dedent", "define", "drop", "extract", "float", "fold" });
 
+app.MapSmartComboBox("api/cursorless-spokenforms",
+	request => embedder.FindClosest(request.Query, embeddings));
 app.Run();
 
