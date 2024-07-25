@@ -79,13 +79,13 @@ namespace RazorClassLibrary.Pages
             TaskRunning = "disabled";
             if ((Id == 0 || Id == null) && CategoryDataService != null)
             {
-                CategoryDTO? result = await CategoryDataService.AddCategory(CategoryDTO);
-                if (result == null)
+                string result = await CategoryDataService.AddCategory(CategoryDTO);
+                if (!result.ToLower().Contains("success"))
                 {
-                    ToastService?.ShowError("Category failed to add, please investigate Error Adding New Category");
+                    ToastService?.ShowError(result);
                     return;
                 }
-                ToastService?.ShowSuccess("Category added successfully");
+                ToastService?.ShowSuccess(result);
             }
             else
             {

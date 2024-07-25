@@ -40,7 +40,7 @@ namespace VoiceLauncher.Services
             var category = await _categoryRepository.GetCategoryByIdAsync(Id);
             return category;
         }
-        public async Task<CategoryDTO> AddCategory(CategoryDTO categoryDTO)
+        public async Task<string> AddCategory(CategoryDTO categoryDTO)
         {
             Guard.Against.Null(categoryDTO);
             var result = await _categoryRepository.AddCategoryAsync(categoryDTO);

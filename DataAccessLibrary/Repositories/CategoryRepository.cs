@@ -24,16 +24,16 @@ namespace VoiceLauncher.Repositories
 			_contextFactory = contextFactory;
 			this._mapper = mapper;
 		}
-		 public  async Task<IEnumerable<CategoryDTO>> GetAllCategoriesByTypeAsync(string categoryType )
-		 {
-			 using var context = _contextFactory.CreateDbContext();
-			 var Categories = await context.Categories
-				 .Where(v => v.CategoryType.ToLower() == categoryType.ToLower())
-				 .OrderBy(v => v.CategoryName)
-				 .ToListAsync();
-			 IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
-			 return CategoriesDTO;
-		 }
+		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesByTypeAsync(string categoryType)
+		{
+			using var context = _contextFactory.CreateDbContext();
+			var Categories = await context.Categories
+				.Where(v => v.CategoryType.ToLower() == categoryType.ToLower())
+				.OrderBy(v => v.CategoryName)
+				.ToListAsync();
+			IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
+			return CategoriesDTO;
+		}
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows = 400, string categoryType = "Launch Applications", int languageId = 0)
 		{
 			using var context = _contextFactory.CreateDbContext();
@@ -68,7 +68,7 @@ namespace VoiceLauncher.Repositories
 			}
 			IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
 			if (categoryType == "IntelliSense Command")
-			
+
 			// Add the missing using directive above
 
 			{
@@ -113,7 +113,7 @@ namespace VoiceLauncher.Repositories
 			return categoryDTO;
 		}
 
-		public async Task<CategoryDTO> AddCategoryAsync(CategoryDTO categoryDTO)
+		public async Task<string> AddCategoryAsync(CategoryDTO categoryDTO)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			Category category = _mapper.Map<CategoryDTO, Category>(categoryDTO);
@@ -124,11 +124,19 @@ namespace VoiceLauncher.Repositories
 			}
 			catch (Exception exception)
 			{
-				Console.WriteLine(exception.Message);
-				return null;
+				if (exception.InnerException != null)
+				{
+					Console.WriteLine(exception.InnerException.Message);
+					return exception.InnerException.Message;
+				}
+				else
+				{
+					Console.WriteLine(exception.Message);
+					return exception.Message;
+				}
 			}
 			CategoryDTO resultDTO = _mapper.Map<Category, CategoryDTO>(category);
-			return resultDTO;
+			return $"{category.CategoryName} added successfully";
 		}
 
 		public async Task<CategoryDTO> UpdateCategoryAsync(CategoryDTO categoryDTO)
