@@ -80,6 +80,10 @@ builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
 builder.Services.AddScoped<ILanguageDataService, LanguageDataService>();
 builder.Services.AddScoped<ICursorlessCheatsheetItemRepository, CursorlessCheatsheetItemRepository>();
 builder.Services.AddScoped<ICursorlessCheatsheetItemDataService, CursorlessCheatsheetItemDataService>();
+// Register configuration
+builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
+
+builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceLauncher.CursorlessCheatsheetItemJsonRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

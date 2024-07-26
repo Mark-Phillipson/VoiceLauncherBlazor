@@ -15,11 +15,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content
-			Include="..\..\..\..\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml"
-			Link="wwwroot\MyKBCommands.xml" />
-		<Content Include="..\..\..\..\OneDrive\Documents\MyCommands.xml"
-			Link="wwwroot\MyCommands.xml">
+		<Content Include="..\..\..\..\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml" Link="wwwroot\MyKBCommands.xml" />
+		<Content Include="..\..\..\..\OneDrive\Documents\MyCommands.xml" Link="wwwroot\MyCommands.xml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
@@ -31,11 +28,14 @@
 		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
 		<PackageReference Include="SmartComponents.AspNetCore" Version="0.1.0-preview10148" />
 		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />

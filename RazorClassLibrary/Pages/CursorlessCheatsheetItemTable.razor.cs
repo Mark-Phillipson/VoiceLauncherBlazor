@@ -29,7 +29,7 @@ namespace RazorClassLibrary.Pages
 {
     public partial class CursorlessCheatsheetItemTable : ComponentBase
     {
-        [Inject] public ICursorlessCheatsheetItemDataService? CursorlessCheatsheetItemDataService { get; set; }
+        [Inject] public required ICursorlessCheatsheetItemDataService CursorlessCheatsheetItemDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<CursorlessCheatsheetItemTable>? Logger { get; set; }
 
@@ -60,6 +60,8 @@ namespace RazorClassLibrary.Pages
         private List<string> cursorlessTypeFilterList = new List<string> { "Action", "Compound Targets", "Destination", "Modifier", "Paired Delimiters", "Scope", "Scope visualizer", "Special Mark" };
         private int counter = 0;
         private bool showCards = true;
+        private bool getFromJson = true;
+
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
@@ -71,7 +73,7 @@ namespace RazorClassLibrary.Pages
             {
                 if (CursorlessCheatsheetItemDataService != null)
                 {
-                    var result = await CursorlessCheatsheetItemDataService!.GetAllCursorlessCheatsheetItemsAsync();
+                    var result = await CursorlessCheatsheetItemDataService!.GetAllCursorlessCheatsheetItemsAsync(getFromJson);
                     //var result = await CursorlessCheatsheetItemDataService.SearchCursorlessCheatsheetItemsAsync(ServerSearchTerm);
                     if (result != null)
                     {
@@ -234,6 +236,19 @@ namespace RazorClassLibrary.Pages
                     .ToList();
                 Title = $"Filtered Cheatsheet ({FilteredCursorlessCheatsheetItemDTO.Count})";
             }
+        }
+        private async Task ShowCards()
+        {
+            if (!showCards)
+            {
+                getFromJson = false;
+                await LoadData();
+                StateHasChanged();
+            }
+        }
+        private async Task ExportAsJson()
+        {
+            var result = await CursorlessCheatsheetItemDataService.ExportToJsonAsync();
         }
     }
 }

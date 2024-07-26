@@ -14,19 +14,34 @@ namespace DataAccessLibrary.Services
     public class CursorlessCheatsheetItemDataService : ICursorlessCheatsheetItemDataService
     {
         private readonly ICursorlessCheatsheetItemRepository _cursorlessCheatsheetItemRepository;
+        private readonly ICursorlessCheatsheetItemJsonRepository cursorlessCheatsheetItemJsonRepository;
 
-        public CursorlessCheatsheetItemDataService(ICursorlessCheatsheetItemRepository cursorlessCheatsheetItemRepository)
+        public CursorlessCheatsheetItemDataService(ICursorlessCheatsheetItemRepository cursorlessCheatsheetItemRepository, ICursorlessCheatsheetItemJsonRepository cursorlessCheatsheetItemJsonRepository)
         {
             this._cursorlessCheatsheetItemRepository = cursorlessCheatsheetItemRepository;
+            this.cursorlessCheatsheetItemJsonRepository = cursorlessCheatsheetItemJsonRepository;
         }
-        public async Task<List<CursorlessCheatsheetItemDTO>> GetAllCursorlessCheatsheetItemsAsync()
+        public async Task<List<CursorlessCheatsheetItemDTO>> GetAllCursorlessCheatsheetItemsAsync(bool getFromJson = false)
         {
-            var CursorlessCheatsheetItems = await _cursorlessCheatsheetItemRepository.GetAllCursorlessCheatsheetItemsAsync(300);
+
+            IEnumerable<CursorlessCheatsheetItemDTO> CursorlessCheatsheetItems;
+            if (getFromJson)
+            {
+                CursorlessCheatsheetItems = cursorlessCheatsheetItemJsonRepository.GetAllCursorlessCheatsheetItemsAsync(300);
+                return CursorlessCheatsheetItems.ToList();
+            }
+            CursorlessCheatsheetItems = await _cursorlessCheatsheetItemRepository.GetAllCursorlessCheatsheetItemsAsync(300);
             return CursorlessCheatsheetItems.ToList();
         }
-        public async Task<List<CursorlessCheatsheetItemDTO>> SearchCursorlessCheatsheetItemsAsync(string serverSearchTerm)
+        public async Task<List<CursorlessCheatsheetItemDTO>> SearchCursorlessCheatsheetItemsAsync(string serverSearchTerm, bool getFromJson = false)
         {
-            var CursorlessCheatsheetItems = await _cursorlessCheatsheetItemRepository.SearchCursorlessCheatsheetItemsAsync(serverSearchTerm);
+            IEnumerable<CursorlessCheatsheetItemDTO> CursorlessCheatsheetItems;
+            if (getFromJson)
+            {
+                CursorlessCheatsheetItems = await cursorlessCheatsheetItemJsonRepository.SearchCursorlessCheatsheetItemsAsync(serverSearchTerm);
+                return CursorlessCheatsheetItems.ToList();
+            }
+            CursorlessCheatsheetItems = await _cursorlessCheatsheetItemRepository.SearchCursorlessCheatsheetItemsAsync(serverSearchTerm);
             return CursorlessCheatsheetItems.ToList();
         }
 
@@ -60,6 +75,12 @@ namespace DataAccessLibrary.Services
         public async Task DeleteCursorlessCheatsheetItem(int id)
         {
             await _cursorlessCheatsheetItemRepository.DeleteCursorlessCheatsheetItemAsync(id);
+        }
+
+        public Task<bool> ExportToJsonAsync()
+        {
+            var result = cursorlessCheatsheetItemJsonRepository.ExportToJsonAsync();
+            return result;
         }
     }
 }

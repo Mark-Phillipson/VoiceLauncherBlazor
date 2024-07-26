@@ -21,12 +21,21 @@
         <form class=''>
             <SmartComboBox accesskey="s" placeholder='Action AI Semantic Search (Alt+S)'
                 Url="api/cursorless-spokenforms" @bind-Value="@SearchTerm" class='form-control m-1' />
+            <label accesskey='j' class='label-control my-1' for='getFromJson'><u>J</u>son?</label>
+            <input id='getFromJson' type="checkbox" @bind="getFromJson" class='form-checkbox my-1'
+                title='Get from Json' />
+            <button class="btn btn-outline-primary btn-sm" type="button" @onclick="@( ( ) => LoadData(  ) )">
+                <i class="fas fa-refresh"></i>
+            </button>
+            <button title='Export to JSON Format' class="btn btn-outline-danger btn-sm" type="button"
+                @onclick="@( ( ) => ExportAsJson(  ) )">Export</button>
         </form>
 
     </div>
     <div class='col-md-1'>
         <label accesskey='c' class='label-control my-1' for='showCards'><u>C</u>ards?</label>
-        <input id='showCards' type="checkbox" @bind="showCards" class='form-checkbox my-1' title='Toggle Cards' />
+        <input id='showCards' type="checkbox" @bind="showCards" class='form-checkbox my-1' title='Toggle Cards'
+            @onblur="ShowCards" />
     </div>
     <div class="col-md-2">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
