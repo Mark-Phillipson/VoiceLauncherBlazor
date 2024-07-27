@@ -339,3 +339,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /VoiceLauncher/appsettings.json
+VoiceLauncher/Constants.cs

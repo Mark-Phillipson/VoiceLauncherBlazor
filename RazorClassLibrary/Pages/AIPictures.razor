@@ -1,0 +1,19 @@
+﻿@page "/aipictures"
+<h3>AI Pictures</h3>
+<textarea autofocus accesskey='p' placeholder='Please Describe a Picture, Then Click on Generate (Alt-P)'
+    @bind='@imagePrompt' class='form-control m-1'></textarea>
+@if (!string.IsNullOrWhiteSpace(imagePrompt))
+{
+    <button accesskey='g' class='btn btn-outline-primary m-1' @onclick="GenerateImage"> <u>G</u>enerate </button>
+}
+<hr />
+@if (generatingImage && string.IsNullOrWhiteSpace(imageUrl) && !string.IsNullOrWhiteSpace(imagePrompt))
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+@if (!string.IsNullOrWhiteSpace(imageUrl))
+{
+    <img src='@imageUrl' width='1000' />
+}
