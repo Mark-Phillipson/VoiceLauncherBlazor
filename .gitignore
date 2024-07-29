@@ -340,5 +340,6 @@ ASALocalRun/
 healthchecksdb
 /VoiceLauncher/appsettings.json
 VoiceLauncher/Constants.cs
+appsettings.Development.json
 RazorClassLibrary/Constants.cs
 /RazorClassLibrary/Constants.cs
