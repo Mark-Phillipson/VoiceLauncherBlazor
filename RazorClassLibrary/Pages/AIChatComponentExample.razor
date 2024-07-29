@@ -1,6 +1,20 @@
 ﻿@page "/chat"
 <h3>AI Chat Component Example</h3>
-
+@if (prompts != null)
+{
+    <label>Select a Predefined Prompt</label>
+    <InputSelect ValueExpression="@(()=>selectedPromptId)" Value="@selectedPromptId"
+        ValueChanged="@(( int  value) => OnValueChangedMethodName(value))" class="form-select">
+        @foreach (var item in prompts)
+        {
+            <option value="@item.Id">@item.Description</option>
+        }
+    </InputSelect>
+}
+@if (selectedPrompt != null)
+{
+    <label>Included Data:</label> @selectedPrompt?.Description
+}
 <textarea @oninput='ResizeTextAreaPrompt' @ref="inputElement" class='form-control m-1' @bind='@prompt'
     placeholder='Enter some text to chat'>
     @prompt
@@ -11,19 +25,31 @@
     @onclick="@( ( ) => Clear(  ) )">C<u>l</u>ear</button>
 <button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
     @onclick="@( ( ) => Forget(  ) )">Forge<u>t</u></button>
+@if (processing)
+{
+    <div class="spinner-border text-primary m-2ay" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
 <hr>
 @if (response != null && response.Value != null)
 {
     <label>Latest Response</label>
+    <button class="btn btn-outline-success btn-sm m-1" type="button"
+        @onclick="@( ( ) => ResizeResponse(  ) )">Resize</button>
     <textarea @ref="textAreaRefResponse" class=' form-control' width='100%'>@response.Value.ToString() </textarea>
 }
-@if (responseHistory != null && responseHistory.Length > 0)
+<button class="btn btn-primary m-1" @onclick="@( ( ) => ToggleHistory(  ) )">Toggle History</button>
+@if (showHistory)
 {
-    <label>Response History</label>
-    <textarea @ref="textAreaRefResponseHistory" class='form-control' width='100%'>@responseHistory </textarea>
-}
-@if (history != null && history.Length > 0)
-{
-    <label>Prompt History</label>
-    <textarea @ref="textAreaRefPromptHistory" class='form-control' width='100%'>@history </textarea>
+    @if (responseHistory != null && responseHistory.Length > 0)
+    {
+        <label>Response History</label>
+        <textarea @ref="textAreaRefResponseHistory" class='form-control' width='100%'>@responseHistory </textarea>
+    }
+    @if (history != null && history.Length > 0)
+    {
+        <label>Prompt History</label>
+        <textarea @ref="textAreaRefPromptHistory" class='form-control' width='100%'>@history </textarea>
+    }
 }

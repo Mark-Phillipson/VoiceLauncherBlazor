@@ -1,11 +1,19 @@
 using OpenAI.Chat;
+using System.Collections.Generic;
+using DataAccessLibrary.DTO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using SampleApplication.Services;
+
 namespace RazorClassLibrary.Pages
 {
     public partial class AIChatComponentExample : ComponentBase
     {
-        string prompt = "What is the capital of the Peru?";
+        [Inject] public required IPromptDataService PromptDataService { get; set; }
+        private List<PromptDTO> prompts;
+        private PromptDTO? selectedPrompt = null;
+        private int selectedPromptId = 0;
+        string prompt = "";
         string? history = "";
         System.ClientModel.ClientResult<ChatCompletion>? response;
         string? responseHistory;
@@ -14,7 +22,17 @@ namespace RazorClassLibrary.Pages
         private ElementReference textAreaRefResponse;
         private ElementReference textAreaRefResponseHistory;
         private ElementReference textAreaRefPromptHistory;
+        string predefinedPrompt = "";
         [Inject] public required IJSRuntime JSRuntime { get; set; }
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadData();
+        }
+
+        private async Task LoadData()
+        {
+            prompts = await PromptDataService.GetAllPromptsAsync();
+        }
 
         private async Task Chat()
         {
@@ -22,7 +40,13 @@ namespace RazorClassLibrary.Pages
             {
                 return;
             }
-            response = await openAI.CompleteChatAsync(history, prompt);
+            processing = true;
+            if (!string.IsNullOrWhiteSpace(selectedPrompt?.PromptText))
+            {
+                predefinedPrompt = selectedPrompt.PromptText;
+            }
+            response = await openAI.CompleteChatAsync(predefinedPrompt, history, prompt);
+            processing = false;
             responseHistory = responseHistory + "\n" + response.Value.ToString();
             history = history + "\n" + prompt;
             try
@@ -62,9 +86,21 @@ namespace RazorClassLibrary.Pages
                 System.Console.WriteLine(exception.Message);
             }
         }
+        private void ResizeResponse()
+        {
+            try
+            {
+                JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefResponse);
+            }
+            catch (System.Exception exception)
+            {
+                System.Console.WriteLine(exception.Message);
+            }
+        }
         private async Task Clear()
         {
             prompt = "";
+
             await inputElement.FocusAsync();
         }
         private void Forget()
@@ -72,6 +108,19 @@ namespace RazorClassLibrary.Pages
             history = "";
             responseHistory = "";
             response = null;
+            selectedPrompt = null;
         }
+        private async Task OnValueChangedMethodName(int id)
+        {
+            selectedPrompt = await PromptDataService.GetPromptById(id);
+            await inputElement.FocusAsync();
+        }
+        bool showHistory = false;
+        bool processing = false;
+        void ToggleHistory()
+        {
+            showHistory = !showHistory;
+        }
+
     }
 }
