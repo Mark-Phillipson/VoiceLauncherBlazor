@@ -1,4 +1,5 @@
 @page "/language/{Id:int?}"
+@using SmartComponents
 <div style="min-width:80vw">
     <h1>@Title</h1>
     <EditForm Model="@LanguageDTO" OnValidSubmit="HandleValidSubmit">
@@ -34,9 +35,11 @@
             </div>
         </div>
         <hr>
-        <div class="btn-group" style="float:right">
+        <div class="" style="float:right">
             <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+            <SmartPasteButton accesskey='p' class='btn btn-lg btn-outline-danger' DefaultIcon>Smart <u>P</u>asty
+            </SmartPasteButton>
         </div>
     </EditForm>
 </div>

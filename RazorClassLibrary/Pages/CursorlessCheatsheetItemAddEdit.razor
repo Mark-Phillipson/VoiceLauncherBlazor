@@ -1,4 +1,5 @@
 @page "/cursorlesscheatsheetitem/{Id:int?}"
+@using SmartComponents
 <div style="min-width:80vw">
     <h1>@Title</h1>
     <EditForm Model="@CursorlessCheatsheetItemDTO" OnValidSubmit="HandleValidSubmit">
@@ -45,9 +46,11 @@
             </div>
         </div>
         <hr>
-        <div class="btn-group" style="float:right">
-            <a accesskey="0" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>0</u> Cancel</a>
+        <div class="" style="float:right">
+            <button type="button" accesskey="0" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>0</u>
+                Cancel</button>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+            <SmartPasteButton type='button' class='btn btn-lg btn-outline-danger' DefaultIcon />
         </div>
     </EditForm>
 </div>

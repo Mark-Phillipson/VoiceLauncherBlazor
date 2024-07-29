@@ -2,42 +2,53 @@
 @using SmartComponents
 <h3>AI Smart Paste Example</h3>
 <p>
-    The Smartpaste functionality can be used to speed up data entry all you need is to have the information in a
-    clipboard, by not necessarily in the same order or even mixed in with other text like my name is and my email
-    address
-    is etc.
+    The Smartpaste functionality can be used to speed up data entry all you need is the information in the
+    clipboard, but not necessarily in the same order or even mixed in with other text like my name is and my email
+    address is etc.
 </p>
 <form>
-    <p>Name:
-        <InputText class='form-control' @bind-Value="@name" />
-    </p>
-    <p>Address line 1:
-        <InputText class='form-control' @bind-Value="@addr1" />
-    </p>
-    <p>City:
-        <InputText class='form-control' @bind-Value="@city" />
-    </p>
-    <p>Zip/postal code:
-        <InputText class='form-control' @bind-Value="@zip" />
-    </p>
-    <p>
-        Phone:
-        <InputText class='form-control' @bind-Value="@phone" />
-    </p>
-    <p>
-        Email:
-        <InputText class='form-control' @bind-Value="@email" />
-    </p>
-    <p>
-        Website:
-        <InputText class='form-control' @bind-Value="@website" />
-    </p>
-    <p>
-        Notes:
-        <InputTextArea class='form-control' @bind-Value="@notes" />
-    </p>
+    <div class='row'>
+        <div class='col-md-6'>
+            <p>Name:
+                <InputText class='form-control' @bind-Value="@name" />
+            </p>
+            <p>Address line 1:
+                <InputText class='form-control' @bind-Value="@addr1" />
+            </p>
+            <p>City:
+                <InputText class='form-control' @bind-Value="@city" />
+            </p>
+            <p>Zip/postal code:
+                <InputText class='form-control' @bind-Value="@zip" />
+            </p>
+            <p>
+                Phone:
+                <InputText class='form-control' @bind-Value="@phone" />
+            </p>
+
+        </div>
+        <div class='col-md-6'>
+            <p>
+                Email:
+                <InputText class='form-control' @bind-Value="@email" />
+            </p>
+            <p>
+                Website:
+                <InputText class='form-control' @bind-Value="@website" />
+            </p>
+            <p>
+                Notes:
+                <InputTextArea rows='8' class='form-control' @bind-Value="@notes" />
+            </p>
+
+        </div>
+    </div>
     <button class='btn btn-lg btn-outline-primary' type="submit">Submit</button>
     <SmartPasteButton class='btn btn-lg btn-outline-primary' DefaultIcon />
+    <p>Try copying the text below and then clicking Smart Paste, you may have to allow the web page to access the
+        clipboard.</p>
+    <textarea class='form-control' width='100%'
+        row='3'>Please create a new smartpaste example with the name of Donald Duck and the address is 1 Florida way in Florida and the ZIP code is 007 the phone number is 333 659 and the email address is Donald@Disney.com the website is Disney.com and for the notes please add Ducks can do lots</textarea>
 </form>
 
 @code {

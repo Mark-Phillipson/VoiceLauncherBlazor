@@ -1,4 +1,5 @@
 @*@page "/launcher/{Id:int?}"*@
+@using SmartComponents
 <div style="min-width:80vw">
     <EditForm Model="@LauncherDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
@@ -84,9 +85,10 @@
                 </div>
             </div>
         </div>
-        <div class="btn-group" style="float:right">
-            <button accesskey="2" class="btn btn-sm btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
+        <div class="" style="float:right">
+            <button accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
             <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save Record (4)</button>
+            <SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
         </div>
     </EditForm>
 </div>

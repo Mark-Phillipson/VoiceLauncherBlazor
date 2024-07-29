@@ -1,6 +1,7 @@
 @page "/valuetoinsert/{Id:int?}"
+@using SmartComponents
 <div style="min-width:80vw">
-<h1>@Title</h1>
+    <h1>@Title</h1>
     <EditForm Model="@ValueToInsertDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -12,30 +13,34 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="ValueToInsert">Value To Insert: </label> <i class="text-danger fa">*</i>
-                    <InputTextArea rows="2" id="ValueToInsert" class="form-control" @bind-Value="@ValueToInsertDTO.ValueToInsertValue"
-                               placeholder="Enter Value To Insert"></InputTextArea>
+                    <InputTextArea rows="2" id="ValueToInsert" class="form-control"
+                        @bind-Value="@ValueToInsertDTO.ValueToInsertValue" placeholder="Enter Value To Insert">
+                    </InputTextArea>
                     <ValidationMessage For="@(() => ValueToInsertDTO.ValueToInsertValue)" />
                 </div>
                 <div class="form-group">
                     <label for="Lookup">Lookup: </label> <i class="text-danger fa">*</i>
                     <InputTextArea rows="2" id="Lookup" class="form-control" @bind-Value="@ValueToInsertDTO.Lookup"
-                               placeholder="Enter Lookup"></InputTextArea>
+                        placeholder="Enter Lookup"></InputTextArea>
                     <ValidationMessage For="@(() => ValueToInsertDTO.Lookup)" />
                 </div>
                 <div class="form-group">
-                    <label for="Description">Description: </label>                    <InputTextArea rows="2" id="Description" class="form-control" @bind-Value="@ValueToInsertDTO.Description"
-                               placeholder="Enter Description"></InputTextArea>
+                    <label for="Description">Description: </label>
+                    <InputTextArea rows="2" id="Description" class="form-control"
+                        @bind-Value="@ValueToInsertDTO.Description" placeholder="Enter Description"></InputTextArea>
                     <ValidationMessage For="@(() => ValueToInsertDTO.Description)" />
                 </div>
             </div>
             <div class="col-12">
-                 @* Move here for the next display column if required *@
+                @* Move here for the next display column if required *@
             </div>
         </div>
         <hr>
-        <div class="btn-group" style="float:right">
-            <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
+        <div class="" style="float:right">
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                @onclick="@CloseAsync"><u>C</u>ancel</button>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+            <SmartPasteButton type='button' class='btn btn-lg btn-outline-danger' DefaultIcon />
         </div>
     </EditForm>
 </div>

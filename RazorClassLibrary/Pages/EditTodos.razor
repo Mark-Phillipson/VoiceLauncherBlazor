@@ -1,5 +1,5 @@
 ﻿@inject IJSRuntime JSRuntime
-
+@using SmartComponents
 <h4>Insert/Edit Todos</h4>
 <EditForm Model="@Todo" OnValidSubmit="@Save">
 	<DataAnnotationsValidator />
@@ -25,8 +25,10 @@
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-text p-2"></i>
 						</div>
-						<InputText class="form-control" accesskey="3" @bind-Value="Todo.Title" placeholder="Enter a Title (Alt+3)"
-						@onblur="@(e => CallChangeAsync(Todo.Id.ToString() + "Title"))" id="@(Todo.Id.ToString() + "Title")" />
+						<InputText class="form-control" accesskey="3" @bind-Value="Todo.Title"
+							placeholder="Enter a Title (Alt+3)"
+							@onblur="@(e => CallChangeAsync(Todo.Id.ToString() + "Title"))"
+							id="@(Todo.Id.ToString() + "Title")" />
 						@if (Todo.Title?.Length > 0)
 						{
 							<div class="input-group-append bg-success">
@@ -45,10 +47,11 @@
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-infinity p-2"></i>
 						</div>
-						<InputNumber class="form-control" @bind-Value="Todo.SortPriority" title="Higher the number, higher the priority"  />
-							<div class="input-group-append bg-info">
-								<i class="oi oi-arrow-circle-top p-2"></i>
-							</div>
+						<InputNumber class="form-control" @bind-Value="Todo.SortPriority"
+							title="Higher the number, higher the priority" />
+						<div class="input-group-append bg-info">
+							<i class="oi oi-arrow-circle-top p-2"></i>
+						</div>
 					</div>
 				</td>
 				<td>
@@ -57,7 +60,10 @@
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-document p-2"></i>
 						</div>
-						<InputTextArea rows="3" class="form-control" @bind-Value="Todo.Description" placeholder="Enter what needs to be done." @onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Description"))" id="@(Todo.Id.ToString() + "Description")" />
+						<InputTextArea rows="3" class="form-control" @bind-Value="Todo.Description"
+							placeholder="Enter what needs to be done."
+							@onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Description"))"
+							id="@(Todo.Id.ToString() + "Description")" />
 						@if (Todo.Description?.Length > 0)
 						{
 							<div class="input-group-append bg-success">
@@ -74,14 +80,17 @@
 					<ValidationMessage For="@(() => Todo.Description)" />
 				</td>
 				<td>
-					<InputCheckbox class="form-checkbox w-100"  @bind-Value="Todo.Completed" />
+					<InputCheckbox class="form-checkbox w-100" @bind-Value="Todo.Completed" />
 				</td>
 				<td>
 					<div class="input-group input-group">
 						<div class="input-group-prepend bg-info">
 							<i class="oi oi-badge p-2"></i>
 						</div>
-						<InputText class="form-control" @bind-Value="Todo.Project" placeholder="Optionally Enter a Project" @onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Project"))" id="@(Todo.Id.ToString() + "Project")" />
+						<InputText class="form-control" @bind-Value="Todo.Project"
+							placeholder="Optionally Enter a Project"
+							@onblur="@(e => CallChangeAsync(Todo.Id.ToString()+ "Project"))"
+							id="@(Todo.Id.ToString() + "Project")" />
 						@if (Todo.Project?.Length > 0)
 						{
 							<div class="input-group-append bg-success">
@@ -101,6 +110,7 @@
 				<td class="btn-group">
 					<button type="submit" class="btn btn-success btn-lg">Submit</button>
 					<button type="button" class="btn btn-outline-primary btn-lg" @onclick="@Cancel">Cancel</button>
+					<SmartPasteButton accesskey='s' class='btn btn-lg btn-outline-danger' DefaultIcon />
 				</td>
 			</tr>
 		</tbody>

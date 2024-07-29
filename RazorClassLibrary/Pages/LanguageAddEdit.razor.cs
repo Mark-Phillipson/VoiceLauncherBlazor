@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 
 namespace RazorClassLibrary.Pages
 {
-   public partial class LanguageAddEdit : ComponentBase
+    public partial class LanguageAddEdit : ComponentBase
     {
         [Inject] IToastService? ToastService { get; set; }
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
@@ -33,7 +33,7 @@ namespace RazorClassLibrary.Pages
         [Parameter] public int? Id { get; set; }
         public LanguageDTO LanguageDTO { get; set; } = new LanguageDTO();//{ };
         [Inject] public ILanguageDataService? LanguageDataService { get; set; }
-        
+
         [Parameter] public int ParentId { get; set; }
 #pragma warning disable 414, 649
         bool TaskRunning = false;
@@ -76,8 +76,10 @@ namespace RazorClassLibrary.Pages
         }
         public async Task CloseAsync()
         {
-              if (ModalInstance != null)
-                  await ModalInstance.CancelAsync();
+            LanguageDTO.LanguageName = "";
+            LanguageDTO.Colour = "";
+            if (ModalInstance != null)
+                await ModalInstance.CancelAsync();
         }
         protected async Task HandleValidSubmit()
         {
@@ -85,7 +87,7 @@ namespace RazorClassLibrary.Pages
             if ((Id == 0 || Id == null) && LanguageDataService != null)
             {
                 LanguageDTO? result = await LanguageDataService.AddLanguage(LanguageDTO);
-                if (result == null && Logger!= null)
+                if (result == null && Logger != null)
                 {
                     Logger.LogError("Language failed to add, please investigate Error Adding New Language");
                     ToastService?.ShowError("Language failed to add, please investigate Error Adding New Language");

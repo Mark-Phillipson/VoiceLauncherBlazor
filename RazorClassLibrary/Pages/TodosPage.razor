@@ -9,7 +9,8 @@
 			</div>
 			<div class="col-3">
 
-				<input placeholder="Filter by title/description (Alt+1)" class="form-control form-control-sm" accesskey="1" @bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
+				<input placeholder="Filter by title/description (Alt+1)" class="form-control form-control-sm" accesskey="1"
+					@bind-value="SearchTerm" @oninput="@(() => CallChangeAsync("SearchInput"))" id="SearchInput" />
 			</div>
 			<div class="col-8">
 				@if (Project == null)
@@ -35,7 +36,8 @@
 						}
 						@if (ProjectFilter != null)
 						{
-							<button class="btn btn-outline-success my-1 btn-sm" type="button" @onclick="@( ( ) => ShowAll(  ) )">Show All</button>
+							<button class="btn btn-outline-success my-1 btn-sm" type="button"
+								@onclick="@( ( ) => ShowAll(  ) )">Show All</button>
 						}
 					</div>
 				}
@@ -44,11 +46,12 @@
 		</div>
 		@if (StatusMessage != null)
 		{
-			@*			<Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
+			@* <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
 		}
 	</header>
 	<a class="btn btn-sm btn-outline-primary my-1" href="/tasksbreakdown">Tasks Breakdown</a>
-	<button class="btn btn-outline-success btn-sm my-1" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive Completed</button>
+	<button class="btn btn-outline-success btn-sm my-1" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive
+		Completed</button>
 	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
 
 	<h4>Current Todos</h4>
@@ -109,7 +112,8 @@ else
 						</td>
 						<td>@todo.Description</td>
 						<td>
-							<button class="btn btn-lg btn-outline-success" type="button" @onclick="@(() => ChangeCompleted(todo.Id,true))">
+							<button class="btn btn-lg btn-outline-success" type="button"
+								@onclick="@(() => ChangeCompleted(todo.Id,true))">
 								<img src="/images/ToDo.png" width="25" />
 							</button>
 						</td>
@@ -131,11 +135,14 @@ else
 					{
 						<td>@todo.Project</td>
 						<td class="btn-group">
-							<button class="btn btn-outline-warning btn-lg" type="button" @onclick="() => EditTodo(todo)"><i class="oi oi-pencil"></i></button>
-							<button class="btn btn-outline-danger btn-lg" type="button" @onclick="() => ConfirmDeleteAsync(todo.Id)"><i class="oi oi-delete"></i></button>
+							<button class="btn btn-outline-warning btn-lg" type="button" @onclick="() => EditTodo(todo)"><i
+									class="oi oi-pencil"></i></button>
+							<button class="btn btn-outline-danger btn-lg" type="button"
+								@onclick="() => ConfirmDeleteAsync(todo.Id)"><i class="oi oi-delete"></i></button>
 							@if (todo.Completed)
 							{
-								<button class="btn btn-primary btn-lg" type="button" @onclick="() => ConfirmArchive(todo.Id)">Archive</button>
+								<button class="btn btn-primary btn-lg" type="button"
+									@onclick="() => ConfirmArchive(todo.Id)">Archive</button>
 							}
 						</td>
 					}
@@ -146,20 +153,16 @@ else
 
 }
 <TemplatedDialog Show="ShowDialog" PageYOffset="@PageYOffset">
-	<ConfirmDialog Message="Please confirm you wish to Delete this Todo!"
-						Title="Confirmation Required"
-						OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(TodoIdDelete))">
+	<ConfirmDialog Message="Please confirm you wish to Delete this Todo!" Title="Confirmation Required"
+		OnCancel="CancelDialog" OnConfirm="@(() => DeleteTodo(TodoIdDelete))">
 	</ConfirmDialog>
 </TemplatedDialog>
 <TemplatedDialog Show="ShowDialogArchive">
-	<ConfirmDialog Message="Please confirm you wish to archive the current to do item!"
-						Title="Confirmation Required"
-						OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(TodoIdArchive))">
+	<ConfirmDialog Message="Please confirm you wish to archive the current to do item!" Title="Confirmation Required"
+		OnCancel="CancelDialog" OnConfirm="@(() => ArchiveTodo(TodoIdArchive))">
 	</ConfirmDialog>
 </TemplatedDialog>
 
 @code {
 
 }
-
-
