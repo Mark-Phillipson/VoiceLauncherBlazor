@@ -1,0 +1,45 @@
+﻿@page "/smartpaste"
+@using SmartComponents
+<h3>AI Smart Paste Example</h3>
+<p>
+    The Smartpaste functionality can be used to speed up data entry all you need is to have the information in a
+    clipboard, by not necessarily in the same order or even mixed in with other text like my name is and my email
+    address
+    is etc.
+</p>
+<form>
+    <p>Name:
+        <InputText class='form-control' @bind-Value="@name" />
+    </p>
+    <p>Address line 1:
+        <InputText class='form-control' @bind-Value="@addr1" />
+    </p>
+    <p>City:
+        <InputText class='form-control' @bind-Value="@city" />
+    </p>
+    <p>Zip/postal code:
+        <InputText class='form-control' @bind-Value="@zip" />
+    </p>
+    <p>
+        Phone:
+        <InputText class='form-control' @bind-Value="@phone" />
+    </p>
+    <p>
+        Email:
+        <InputText class='form-control' @bind-Value="@email" />
+    </p>
+    <p>
+        Website:
+        <InputText class='form-control' @bind-Value="@website" />
+    </p>
+    <p>
+        Notes:
+        <InputTextArea class='form-control' @bind-Value="@notes" />
+    </p>
+    <button class='btn btn-lg btn-outline-primary' type="submit">Submit</button>
+    <SmartPasteButton class='btn btn-lg btn-outline-primary' DefaultIcon />
+</form>
+
+@code {
+    string? name, addr1, city, zip, phone, email, website, notes;
+}

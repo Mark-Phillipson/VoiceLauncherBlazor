@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 using SampleApplication.Repositories;
 using SampleApplication.Services;
+using SmartComponents.Inference.OpenAI;
 using SmartComponents.LocalEmbeddings;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
@@ -24,7 +25,8 @@ builder.Services.AddBlazoredToast();
 var config = builder.Configuration;
 string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddSmartComponents();
+builder.Services.AddSmartComponents()
+	.WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CreateCommands>();

@@ -1,0 +1,29 @@
+﻿@page "/chat"
+<h3>AI Chat Component Example</h3>
+
+<textarea @oninput='ResizeTextAreaPrompt' @ref="inputElement" class='form-control m-1' @bind='@prompt'
+    placeholder='Enter some text to chat'>
+    @prompt
+</textarea>
+<button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
+    @onclick="@( ( ) => Chat(  ) )"><u>C</u>hat</button>
+<button accesskey='l' class="btn btn-outline-danger btn-lg m-1" type="button"
+    @onclick="@( ( ) => Clear(  ) )">C<u>l</u>ear</button>
+<button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
+    @onclick="@( ( ) => Forget(  ) )">Forge<u>t</u></button>
+<hr>
+@if (response != null && response.Value != null)
+{
+    <label>Latest Response</label>
+    <textarea @ref="textAreaRefResponse" class=' form-control' width='100%'>@response.Value.ToString() </textarea>
+}
+@if (responseHistory != null && responseHistory.Length > 0)
+{
+    <label>Response History</label>
+    <textarea @ref="textAreaRefResponseHistory" class='form-control' width='100%'>@responseHistory </textarea>
+}
+@if (history != null && history.Length > 0)
+{
+    <label>Prompt History</label>
+    <textarea @ref="textAreaRefPromptHistory" class='form-control' width='100%'>@history </textarea>
+}

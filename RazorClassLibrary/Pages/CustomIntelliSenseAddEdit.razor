@@ -1,4 +1,5 @@
 @page "/customintellisense/{Id:int?}"
+@using SmartComponents
 <div style="min-width:99vw" class='m-2 p-2'>
 	<h4>@Title</h4>
 
@@ -34,12 +35,6 @@
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.LanguageId)" />
 				</div>
 				<div class="form-group">
-					<label for="DisplayValue">Display Value: </label> <i class="text-danger fa">*</i>
-					<InputText id="DisplayValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DisplayValue"
-						placeholder="Enter Display Value"></InputText>
-					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
-				</div>
-				<div class="form-group">
 					<label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="CategoryId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
 						<option value="">Select Category</option>
@@ -49,6 +44,12 @@
 						}
 					</InputSelect>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.CategoryId)" />
+				</div>
+				<div class="form-group">
+					<label for="DisplayValue">Display Value: </label> <i class="text-danger fa">*</i>
+					<InputText id="DisplayValue" class="form-control" @bind-Value="@CustomIntelliSenseDTO.DisplayValue"
+						placeholder="Enter Display Value"></InputText>
+					<ValidationMessage For="@(() => CustomIntelliSenseDTO.DisplayValue)" />
 				</div>
 				<div class="form-group">
 					<label for="Remarks">Remarks: </label>
@@ -147,21 +148,20 @@
 				}
 			</div>
 			<div class="col-10">
-				<div class="btn-group" style="float:right">
+				<div class="" style='float:right'>
 					<a class="btn btn-outline-primary" @onclick="@CloseAsync">Cancel</a>
 					<label class='form-label m-2' for='save-only'>Save Only?</label>
 					<input type='checkbox' class='form-checkbox m-2' @bind='_saveOnly' id='save-only' />
-					<button class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">Delete
-						Record</button>
-					<button @TaskRunning type="submit" class="btn  btn-primary">Save Record</button>
+					@if (CustomIntelliSenseDTO.Id > 0)
+					{
+						<button class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">Delete
+							Record</button>
+						<button @TaskRunning type="submit" class="btn btn-primary">Save Record</button>
+					}
+					<SmartPasteButton accesskey='s' class='btn btn-lg btn-outline-danger' DefaultIcon />
 				</div>
 			</div>
 		</div>
 	</EditForm>
-	@* Don't think we need this anymore with Talon *@
-	@* @if (CustomIntelliSenseDTO?.Id > 0)
-	{
-	<AdditionalCommandOverview CustomIntelliSenseId="CustomIntelliSenseDTO.Id" />
-	} *@
 
 </div>

@@ -4,22 +4,24 @@
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<base href="~/" />
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-	<link href="RazorClassLibrary.styles.css" rel="stylesheet"> 
+	<link href="RazorClassLibrary.styles.css" rel="stylesheet">
 	<link href="css/site.css" rel="stylesheet" />
 	<link href="VoiceLauncher.styles.css" rel="stylesheet" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 	<link rel="stylesheet" href="/css/prism.css" />
 	<component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
+
 <body>
 	@RenderBody()
-<div>
-</div>
+	<div>
+	</div>
 	<div id="blazor-error-ui">
 		<environment include="Staging,Production">
 			An error has occurred. This application may no longer respond until reloaded.
@@ -77,7 +79,12 @@
 		window.getPageYOffset = function () {
 			return window.pageYOffset;
 		}
+		function adjustTextArea(textArea) {
+			textArea.style.height = 'auto'; // Reset the height
+			textArea.style.height = (textArea.scrollHeight) + 'px'; // Set the height to the scroll height
+		}
 	</script>
 
 </body>
+
 </html>
