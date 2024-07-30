@@ -110,5 +110,18 @@ var embeddings = embedder.EmbedRange(new[] { "indent", "inspect", "move", "paste
 
 app.MapSmartComboBox("api/cursorless-spokenforms",
 	request => embedder.FindClosest(request.Query, embeddings));
+
+var expenseCategories = embedder.EmbedRange(
+	["Groceries", "Utilities", "Rent", "Mortgage", "Car Payment", "Car Insurance", "Health Insurance", "Life Insurance", "Home Insurance", "Gas", "Public Transportation", "Dining Out", "Entertainment", "Travel", "Clothing", "Electronics", "Home Improvement", "Gifts", "Charity", "Education", "Childcare", "Pet Care", "Other"]);
+var issueLabels = embedder.EmbedRange(
+	["Bug", "Docs", "Enhancement", "Question", "UI (Android)", "UI (iOS)", "UI (Windows)", "UI (Mac)", "Performance", "Security", "Authentication", "Accessibility"]);
+
+app.MapSmartComboBox("/api/suggestions/expense-category",
+	request => embedder.FindClosest(request.Query, expenseCategories));
+
+app.MapSmartComboBox("/api/suggestions/issue-label",
+	request => embedder.FindClosest(request.Query, issueLabels));
+
+
 app.Run();
 

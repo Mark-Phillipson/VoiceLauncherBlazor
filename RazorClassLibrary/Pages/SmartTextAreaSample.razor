@@ -1,0 +1,38 @@
+﻿@page "/smarttextareasample"
+<PageTitle>Smart TextArea</PageTitle>
+<h3 class="mb-2">Smart Textarea Completions; Employee Enquiry</h3>
+<p>So just start typing one of the phrases below and it should complete for you pressing tab will confirm the
+    completion.</p>
+<form class="">
+    <div class="form-group mb-5">
+
+        <label for="comment">Response:</label>
+
+        <SmartTextArea class='form-control' rows='10' UserRole="@userRole" UserPhrases="@userPhrases"
+            @bind-Value="@comment" placeholder="Type your HR response here..." autofocus />
+    </div>
+</form>
+<h3>Role: @userRole</h3>
+<h4>These are the configured phrases which, along with the role, can be changed as required:</h4>
+@foreach (var phrase in userPhrases)
+{
+    <p>@phrase</p>
+}
+<a class='btn-link' href="/smart-components">Back to List of Smart Components</a>
+
+@code {
+    private string? comment;
+    private readonly string userRole = "HR administrator replying to an employee enquiry";
+    private readonly string[] userPhrases =
+    [
+    "Thankyou for your message.",
+"Full-time employees have 28 days paid vacation per year.",
+"We have no further information about the company sale at this time.",
+"We always welcome your feedback about this system. Please fill out our survey at https://example.com/hrsurvey",
+"Full details about the vacation policy can be found at https://example.com/policies/vacation",
+"Information about the company car scheme is at https://example.com/benefits/car",
+"Pets are not allowed in the office, as detailed at https://example.com/policies/pets.",
+"If you have further questions, you can always email us at hr@example.com or ask your manager.",
+"Could you provide further details about NEED_INFO",
+];
+}

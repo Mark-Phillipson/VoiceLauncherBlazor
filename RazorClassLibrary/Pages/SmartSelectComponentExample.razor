@@ -1,0 +1,24 @@
+﻿@page "/smart-select-component-example"
+
+<PageTitle>Smart ComboBox</PageTitle>
+<h3 class="mb-2">Smart ComboBox Completions</h3>
+<form class="">
+    <p>Start typing for example a "plane tickets" the drop down should give you a semantic match</p>
+    <div class="" data-permanent="">
+        <label for="expense-category">Expense category</label>
+        <SmartComboBox class='form-select' Url="api/suggestions/expense-category" id="expense-category"
+            @bind-Value="@expenseCategory" placeholder=" " />
+    </div>
+    <hr />
+    <p>Start typing for example getting an error on login and the drop down should give you a semantic match.</p>
+    <div class="" data-permanent="combo-box-example">
+        <label for="issue-label">IT Issue label</label>
+        <SmartComboBox class='form-select' Url="api/suggestions/issue-label" id="issue-label" @bind-Value="@issueLabel"
+            placeholder=" " />
+    </div>
+</form>
+<a class='btn-link' href="/smart-components">Back to List of Smart Components</a>
+@code {
+    string? expenseCategory;
+    string? issueLabel;
+}
