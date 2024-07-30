@@ -1,18 +1,35 @@
 ﻿@page "/smart-components"
 <h1>AI Smart Components Available</h1>
-
-<a class='btn-link' href="/smartpaste">Smart Paste</a>
+<p>The following Smart Components are available to be added to any Blazor application or even Microsoft MVC applications
+    .NET 6 and above.</p>
+<p>Please note that a subscription to Open AI is required for everything apart from Smart Combo boxes. Please click the
+    links to try them out.</p>
+<a class='btn btn-link m-1' href="/smartpaste">Smart Paste</a> "Boost your efficiency with faster data entry—say goodbye
+to tedious copying and pasting of multiple text items!"
 <br />
-<a class='btn-link' href="/smart-select-component-example">Combo Box Semantic Matching</a>
+<a class='btn btn-link m-1' href="/smart-select-component-example">Combo Box Semantic Matching</a> "Discover the perfect
+choice effortlessly with AI-powered recommendations!"
 <br />
-<a class='btn-link' href="/smarttextareasample">Text Area Completions</a>
+<a class='btn btn-link m-1' href="/smarttextareasample">Text Area Completions</a> "Start typing something and let AI
+intelligently suggest the rest of the paragraph."
 <br />
+<img src='/images/ArtificialIntelligence.png' width="30%" />
 @if (Environment.MachineName == "J40L4V3")
 {
     <h3>Other AI Enhancements Available</h3>
 
-    <a class='btn-link' href="/chat">AI Chatbot</a>
+    <a class='btn btn-link m-1' href="/chat">AI Chatbot</a>
     <br />
-    <a class='btn-link' href="/aipictures">AI Pictures</a>
+    <a class='btn btn-link m-1' href="/aipictures">AI Pictures</a>
     <br />
+}
+else
+{
+    <h3>Other AI Enhancements Available</h3>
+    <h4>AI Powered Chatbot</h4>
+    <p>Specific to Certain Business Information.</p>
+    <br />
+    <h4>AI Powered Pictures</h4>
+
+    <p>Generate Images Based on a Prompt.</p>
 }
