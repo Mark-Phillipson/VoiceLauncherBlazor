@@ -1,5 +1,5 @@
 ﻿@page "/smart-components"
-<h3>AI Smart Components Available</h3>
+<h1>AI Smart Components Available</h1>
 
 <a class='btn-link' href="/smartpaste">Smart Paste</a>
 <br />
@@ -7,13 +7,12 @@
 <br />
 <a class='btn-link' href="/smarttextareasample">Text Area Completions</a>
 <br />
-<h3>Other AI Enhancements Available</h3>
-<a class='btn-link' href="/chat">AI Chatbot</a>
-<br />
-<a class='btn-link' href="/aipictures">AI Pictures</a>
-<br />
+@if (Environment.MachineName == "J40L4V3")
+{
+    <h3>Other AI Enhancements Available</h3>
 
-
-@code {
-
+    <a class='btn-link' href="/chat">AI Chatbot</a>
+    <br />
+    <a class='btn-link' href="/aipictures">AI Pictures</a>
+    <br />
 }
