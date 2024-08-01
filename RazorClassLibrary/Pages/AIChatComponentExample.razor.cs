@@ -32,6 +32,12 @@ namespace RazorClassLibrary.Pages
         private async Task LoadData()
         {
             prompts = await PromptDataService.GetAllPromptsAsync();
+            var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
+            if (prompt != null)
+            {
+                selectedPromptId = prompt.Id;
+                selectedPrompt = await PromptDataService.GetPromptById(prompt.Id);
+            }
         }
 
         private async Task Chat()
@@ -119,7 +125,9 @@ namespace RazorClassLibrary.Pages
         bool processing = false;
         void ToggleHistory()
         {
-            showHistory = !showHistory;
+            {
+                showHistory = !showHistory;
+            }
         }
 
     }

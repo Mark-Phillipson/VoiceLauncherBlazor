@@ -2,7 +2,8 @@
 <h3>AI Chat Component Example</h3>
 @if (prompts != null)
 {
-    <label>Select a Predefined Prompt</label>
+    <label for='selectedPromptId'>Select a Predefined Prompt</label>
+    <a class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
     <InputSelect ValueExpression="@(()=>selectedPromptId)" Value="@selectedPromptId"
         ValueChanged="@(( int  value) => OnValueChangedMethodName(value))" class="form-select">
         @foreach (var item in prompts)

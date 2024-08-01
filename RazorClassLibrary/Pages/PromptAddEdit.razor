@@ -13,14 +13,14 @@
             <div class="col-12">
                 <div class="form-group">
                     <label for="PromptText">Prompt Text: </label> <i class="text-danger fa">*</i>
-                    <InputTextArea rows="2" id="PromptText" class="form-control" @bind-Value="@PromptDTO.PromptText"
+                    <InputTextArea rows="20" id="PromptText" class="form-control" @bind-Value="@PromptDTO.PromptText"
                         placeholder="Enter Prompt Text"></InputTextArea>
                     <ValidationMessage For="@(() => PromptDTO.PromptText)" />
                 </div>
                 <div class="form-group">
                     <label for="Description">Description: </label>
-                    <InputTextArea rows="2" id="Description" class="form-control" @bind-Value="@PromptDTO.Description"
-                        placeholder="Enter Description"></InputTextArea>
+                    <InputText id="Description" class="form-control" @bind-Value="@PromptDTO.Description"
+                        placeholder="Enter Description"></InputText>
                     <ValidationMessage For="@(() => PromptDTO.Description)" />
                 </div>
                 <div class="form-group">
