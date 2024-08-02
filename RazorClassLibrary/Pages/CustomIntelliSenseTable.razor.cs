@@ -264,6 +264,7 @@ namespace RazorClassLibrary.Pages
          await MaximizeApplication.InvokeAsync();
          var parameters = new ModalParameters();
          parameters.Add("Id", Id);
+         parameters.Add("RunningInBlazorHybrid", RunningInBlazorHybrid);
          var options = new ModalOptions()
          {
             Class = "blazored-modal-custom",

@@ -24,6 +24,7 @@ namespace RazorClassLibrary.Pages
 		[CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
 		[Parameter] public string? Title { get; set; }
+		[Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
 		[Inject] public ILogger<CustomIntelliSenseAddEdit>? Logger { get; set; }
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
 		[Parameter] public int? Id { get; set; }
