@@ -33,7 +33,7 @@ namespace WinFormsApp
 			string categoryName = "";
 			if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
 			{
-				SetTitle("Search IntelliSense");
+				SetTitle("Search Snippets");
 				string languageName = "";
 				languageName = arguments[2].Replace("/", "").Trim();
 				categoryName = arguments[3].Replace("/", "").Trim();
@@ -55,7 +55,7 @@ namespace WinFormsApp
 			else if (arguments.Length == 3)
 			{
 				searchTerm = arguments[2].Replace("/", "");
-				SetTitle("Filtering by Display Value");
+				SetTitle("Filtering Snippets by Display Value");
 			}
 		}
 		private async void CloseWindow()

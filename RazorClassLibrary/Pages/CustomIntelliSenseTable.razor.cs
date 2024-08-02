@@ -59,11 +59,11 @@ namespace RazorClassLibrary.Pages
       {
          await LoadData();
       }
-        protected override  async Task OnParametersSetAsync()
-        {
-             await LoadData();
-        }
-        private async Task LoadData()
+      protected override async Task OnParametersSetAsync()
+      {
+         await LoadData();
+      }
+      private async Task LoadData()
       {
          try
          {
@@ -191,7 +191,7 @@ namespace RazorClassLibrary.Pages
                  || v.DeliveryType != null && v.DeliveryType.ToLower().Contains(temporary)
                 )
                 .ToList();
-            Title = $"Filtered Custom Intelli Senses ({FilteredCustomIntelliSenseDTO.Count})";
+            Title = $"Filtered Snippets ({FilteredCustomIntelliSenseDTO.Count})";
          }
       }
       protected void SortCustomIntelliSense(string sortColumn)

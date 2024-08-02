@@ -149,7 +149,7 @@
 			</div>
 			<div class="col-10">
 				<div class="" style='float:right'>
-					<a class="btn btn-outline-primary" @onclick="@CloseAsync">Cancel</a>
+					<button type='button' class="btn btn-outline-primary" @onclick="@CloseAsync">Cancel</button>
 					<label class='form-label m-2' for='save-only'>Save Only?</label>
 					<input type='checkbox' class='form-checkbox m-2' @bind='_saveOnly' id='save-only' />
 					@if (CustomIntelliSenseDTO.Id > 0)
@@ -158,7 +158,11 @@
 							Record</button>
 					}
 					<button @TaskRunning type="submit" class="btn btn-primary">Save Record</button>
-					<SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
+					@if (OperatingSystem.IsBrowser())
+					{
+						<SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
+					}
+
 				</div>
 			</div>
 		</div>
