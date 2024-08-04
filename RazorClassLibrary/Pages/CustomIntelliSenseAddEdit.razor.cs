@@ -163,20 +163,29 @@ namespace RazorClassLibrary.Pages
 			return itemToCopy;
 		}
 
-		private async Task CopyAndPasteAsync(string itemToCopyAndPaste)
+		private void CopyAndPasteAsync(string itemToCopyAndPaste)
 		{
 			itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste);
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
-				var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
+				// await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
+				// var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
 				InputSimulator simulator = new InputSimulator();
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
 				simulator.Keyboard.Sleep(100);
-				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				ToastService!.ShowSuccess(message + " Success");
+				// simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+				simulator.Keyboard.TextEntry(itemToCopyAndPaste);
+				if (CustomIntelliSenseDTO.SelectWordFromRight == 1)
+				{
+					simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+					simulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+					simulator.Keyboard.KeyPress(VirtualKeyCode.LEFT);
+					simulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+					simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+				}
+				// ToastService!.ShowSuccess(message + " Success");
 			}
 		}
 		private async Task CallChangeAsync(string elementId)

@@ -147,6 +147,7 @@ namespace RazorClassLibrary.Pages
          var parameters = new ModalParameters();
 
          parameters.Add(nameof(CategoryId), CategoryId);
+         parameters.Add("RunningInBlazorHybrid", RunningInBlazorHybrid);
          var options = new ModalOptions()
          {
             Class = "blazored-modal-custom",
@@ -327,15 +328,22 @@ namespace RazorClassLibrary.Pages
          }
          if (JSRuntime != null && customIntelliSenseCurrent != null)
          {
-            await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-            var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+            // await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
+            // var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
             InputSimulator simulator = new InputSimulator();
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
             simulator.Keyboard.Sleep(100);
             simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
             simulator.Keyboard.Sleep(100);
-            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-            ToastService!.ShowSuccess(message);
+            // simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+            simulator.Keyboard.TextEntry(customIntelliSenseCurrent.SendKeysValue);
+            simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+            simulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            simulator.Keyboard.KeyPress(VirtualKeyCode.LEFT);
+            simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+            simulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+
+            // ToastService!.ShowSuccess(message);
             if (RunningInBlazorHybrid)
             {
                await CloseApplication.InvokeAsync();

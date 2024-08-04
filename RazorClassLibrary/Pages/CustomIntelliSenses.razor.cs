@@ -417,15 +417,22 @@ namespace RazorClassLibrary.Pages
 			}
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
-				var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
+				// await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
+				// var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
 				InputSimulator simulator = new InputSimulator();
 				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
 				simulator.Keyboard.Sleep(100);
 				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
 				simulator.Keyboard.Sleep(100);
-				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				ToastService!.ShowSuccess(message);
+				// simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
+				simulator.Keyboard.TextEntry(itemToCopyAndPaste);
+				simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+				simulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+				simulator.Keyboard.KeyPress(VirtualKeyCode.LEFT);
+				simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+				simulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
+
+				// ToastService!.ShowSuccess(message);
 				await CloseApplication.InvokeAsync();
 			}
 		}

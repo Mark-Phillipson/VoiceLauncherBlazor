@@ -1,5 +1,6 @@
 @page "/customintellisense/{Id:int?}"
 @using SmartComponents
+@using RazorClassLibrary.Pages;
 <div style="min-width:99vw" class='m-2 p-2'>
 	<h4>@Title</h4>
 
@@ -82,13 +83,19 @@
 			</div>
 			<div class="col-8">
 				<div class="form-group">
-					<label accesskey='-' for="SendKeysValue"><u>-</u> Send Keys Value: </label>
+					<label accesskey='-' for="SendKeysValue"><u>-</u> Snippet Value: </label>
 					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
 					<InputTextArea rows="10" id="SendKeysValue"
 						style="font-family: 'Cascadia Code', monospace; font-size: 19px; line-height: 1.5; padding: 10px;display: block;"
 						class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
 						placeholder="Enter Send Keys Value"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
+				</div>
+				<div class='form-group'>
+					<label for='SelectWordFromRight'>Select a Word from Right</label>
+					<InputNumber id='SelectWordFromRight' class='form-control'
+						@bind-Value='CustomIntelliSenseDTO.SelectWordFromRight'
+						placeholder='Enter Select Word From Right'></InputNumber>
 				</div>
 				@if (CustomIntelliSenseDTO.SendKeysValue != null)
 				{
@@ -166,5 +173,15 @@
 			</div>
 		</div>
 	</EditForm>
-
 </div>
+@if (!RunningInBlazorHybrid && Id > 0)
+{
+	<div class='row'>
+		<div class='col-md-6'>
+			<AdditionalAdditionalCommandOverview CustomIntelliSenseId="Id" />
+		</div>
+		<div class='col-md-6'>
+
+		</div>
+	</div>
+}

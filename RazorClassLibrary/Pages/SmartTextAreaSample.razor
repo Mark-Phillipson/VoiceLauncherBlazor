@@ -7,9 +7,17 @@
     <div class="form-group mb-5">
 
         <label for="comment">Response:</label>
-
-        <SmartTextArea class='form-control' rows='10' UserRole="@userRole" UserPhrases="@userPhrases"
-            @bind-Value="@comment" placeholder="Type your HR response here..." autofocus />
+        @if (Environment.MachineName == "J40L4V3")
+        {
+            <SmartTextArea class='form-control' rows='10' UserRole="@userRole" UserPhrases="@userPhrases"
+                @bind-Value="@comment" placeholder="Type your HR response here..." autofocus />
+        }
+        else
+        {
+            <label>
+                Smart Text Area Currently Disabled
+            </label>
+        }
     </div>
 </form>
 <h3>Role: @userRole</h3>

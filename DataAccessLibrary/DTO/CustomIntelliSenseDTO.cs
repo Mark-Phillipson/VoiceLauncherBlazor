@@ -33,6 +33,6 @@ namespace DataAccessLibrary.DTO
       public string Variable2 { get; set; }
       [StringLength(60)]
       public string Variable3 { get; set; }
-
+      public int SelectWordFromRight { get; set; } = 0;
    }
 }

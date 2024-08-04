@@ -44,7 +44,14 @@
         </div>
     </div>
     <button class='btn btn-lg btn-outline-primary' type="submit">Submit</button>
-    <SmartPasteButton class='btn btn-lg btn-outline-primary' DefaultIcon />
+    @if (Environment.MachineName == "J40L4V3")
+    {
+        <SmartPasteButton class='btn btn-lg btn-outline-primary' DefaultIcon />
+    }
+    else
+    {
+        <label>Smart Paste Currently Disabled</label>
+    }
     <p>Try copying the text below and then clicking Smart Paste, you may have to allow the web page to access the
         clipboard.</p>
     <textarea class='form-control' width='100%'

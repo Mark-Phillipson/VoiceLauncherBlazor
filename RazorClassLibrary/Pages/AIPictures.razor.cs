@@ -12,6 +12,7 @@ namespace RazorClassLibrary.Pages
         {
             if (!string.IsNullOrWhiteSpace(imagePrompt))
             {
+                imageUrl = "";
                 generatingImage = true;
                 var openAI = new ImageClient("dall-e-3", Constants.OpenAIAPIKEY);
                 var imageRequest = new ImageGenerationOptions
