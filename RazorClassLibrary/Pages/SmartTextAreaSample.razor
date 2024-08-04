@@ -14,7 +14,9 @@
         }
         else
         {
-            <label>
+            <SmartTextArea disabled class='form-control' rows='10' UserRole="@userRole" UserPhrases="@userPhrases"
+            @bind-Value="@comment" placeholder="Type your HR response here..." autofocus />
+            <label class='text-danger' >
                 Smart Text Area Currently Disabled
             </label>
         }
