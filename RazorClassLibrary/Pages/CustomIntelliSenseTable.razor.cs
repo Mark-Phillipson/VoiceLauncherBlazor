@@ -18,7 +18,7 @@ namespace RazorClassLibrary.Pages
 {
    public partial class CustomIntelliSenseTable : ComponentBase
    {
-      [Inject] public ICustomIntelliSenseDataService? CustomIntelliSenseDataService { get; set; }
+      [Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
       [Inject] public NavigationManager? NavigationManager { get; set; }
       [Inject] public ILogger<CustomIntelliSenseTable>? Logger { get; set; }
       [Inject] public required ILanguageDataService LanguageDataService { get; set; }
@@ -319,35 +319,13 @@ namespace RazorClassLibrary.Pages
 
          return itemToCopy;
       }
-      private async Task CopyAndPasteAsync(int customIntellisenseId)
+      private void CopyAndPasteAsync(int customIntellisenseId)
       {
          var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
          if (customIntelliSenseCurrent != null)
          {
             customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
-         }
-         if (JSRuntime != null && customIntelliSenseCurrent != null)
-         {
-            // await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-            // var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
-            InputSimulator simulator = new InputSimulator();
-            simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-            simulator.Keyboard.Sleep(100);
-            simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-            simulator.Keyboard.Sleep(100);
-            // simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-            simulator.Keyboard.TextEntry(customIntelliSenseCurrent.SendKeysValue);
-            simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
-            simulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-            simulator.Keyboard.KeyPress(VirtualKeyCode.LEFT);
-            simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
-            simulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-
-            // ToastService!.ShowSuccess(message);
-            if (RunningInBlazorHybrid)
-            {
-               await CloseApplication.InvokeAsync();
-            }
+            CustomIntelliSenseDataService.SendSnippet(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
          }
       }
    }

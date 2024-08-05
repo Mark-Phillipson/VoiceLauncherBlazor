@@ -43,6 +43,8 @@ namespace DataAccessLibrary.Models
       [StringLength(60)]
       public string Variable3 { get; set; }
       public int SelectWordFromRight { get; set; } = 0;
+      public int MoveCharactersLeft { get; set; } = 0;
+      public int SelectCharactersLeft { get; set; } = 0;
       [ForeignKey(nameof(CategoryId))]
       [InverseProperty(nameof(Models.Category.CustomIntelliSense))]
       public virtual Category Category { get; set; }

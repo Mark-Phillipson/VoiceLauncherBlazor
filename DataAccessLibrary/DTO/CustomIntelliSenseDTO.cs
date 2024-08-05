@@ -34,5 +34,8 @@ namespace DataAccessLibrary.DTO
       [StringLength(60)]
       public string Variable3 { get; set; }
       public int SelectWordFromRight { get; set; } = 0;
+      public int MoveCharactersLeft { get; set; } = 0;
+      public int SelectCharactersLeft { get; set; } = 0;
+
    }
 }

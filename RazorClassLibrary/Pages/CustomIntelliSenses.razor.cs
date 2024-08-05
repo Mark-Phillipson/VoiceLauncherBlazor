@@ -1,7 +1,7 @@
 ﻿using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
-
+using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using RazorClassLibrary.helpers;
+using VoiceLauncher.Services;
 using WindowsInput;
 using WindowsInput.Native;
 
@@ -30,7 +31,14 @@ namespace RazorClassLibrary.Pages
 		[Inject] IToastService? ToastService { get; set; }
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
 		private int currentAcceleratorKey = 0;
-		[Inject] public required CustomIntellisenseService CustomIntellisenseService { get; set; }
+		[Inject]
+		public required CustomIntellisenseService CustomIntellisenseService
+		{
+			get;
+			set;
+		}
+		[Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
+
 		[Inject] public required CategoryService CategoryService { get; set; }
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
@@ -408,32 +416,17 @@ namespace RazorClassLibrary.Pages
 			}
 			await CloseApplication.InvokeAsync();
 		}
-		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
+		private void CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 			if (customIntelliSenseCurrent != null)
 			{
 				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
-			}
-			if (JSRuntime != null)
-			{
-				// await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
-				// var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
-				InputSimulator simulator = new InputSimulator();
-				simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-				simulator.Keyboard.Sleep(100);
-				simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-				simulator.Keyboard.Sleep(100);
-				// simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.CONTROL, VirtualKeyCode.VK_V);
-				simulator.Keyboard.TextEntry(itemToCopyAndPaste);
-				simulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
-				simulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
-				simulator.Keyboard.KeyPress(VirtualKeyCode.LEFT);
-				simulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
-				simulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
-
-				// ToastService!.ShowSuccess(message);
-				await CloseApplication.InvokeAsync();
+				CustomIntelliSenseDTO customIntelliSenseDTO = new CustomIntelliSenseDTO();
+				customIntelliSenseDTO.SelectCharactersLeft = customIntelliSenseCurrent.SelectCharactersLeft;
+				customIntelliSenseDTO.SelectWordFromRight = customIntelliSenseCurrent.SelectWordFromRight;
+				customIntelliSenseDTO.MoveCharactersLeft = customIntelliSenseCurrent.MoveCharactersLeft;
+				CustomIntelliSenseDataService.SendSnippet(itemToCopyAndPaste, customIntelliSenseDTO);
 			}
 		}
 		private async Task EditAsync(int id)

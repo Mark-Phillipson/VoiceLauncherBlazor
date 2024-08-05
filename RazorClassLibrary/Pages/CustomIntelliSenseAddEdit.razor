@@ -91,11 +91,32 @@
 						placeholder="Enter Send Keys Value"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
 				</div>
-				<div class='form-group'>
-					<label for='SelectWordFromRight'>Select a Word from Right</label>
-					<InputNumber id='SelectWordFromRight' class='form-control'
-						@bind-Value='CustomIntelliSenseDTO.SelectWordFromRight'
-						placeholder='Enter Select Word From Right'></InputNumber>
+				<div class='row'>
+					<div class='col-md-4'>
+						<div class='form-group'>
+							<label for='SelectWordFromRight'>Select a Word from Right</label>
+							<InputNumber id='SelectWordFromRight' class='form-control'
+								@bind-Value='CustomIntelliSenseDTO.SelectWordFromRight'
+								placeholder='Enter Select Word From Right'></InputNumber>
+						</div>
+					</div>
+					<div class='col-md-4'>
+						<div class='form-group'>
+							<label for='MoveCharactersLeft'>Move Characters Left</label>
+							<InputNumber id='MoveCharactersLeft' class='form-control'
+								@bind-Value='CustomIntelliSenseDTO.MoveCharactersLeft'
+								placeholder='Enter Move Characters Left'>
+							</InputNumber>
+						</div>
+					</div>
+					<div class='col-md-4'>
+						<div class='form-group'>
+							<label for='SelectCharactersLeft'>Select Characters Left</label>
+							<InputNumber id='SelectCharactersLeft' class='form-control'
+								@bind-Value='CustomIntelliSenseDTO.SelectCharactersLeft'
+								placeholder='Enter Select Characters Left'></InputNumber>
+						</div>
+					</div>
 				</div>
 				@if (CustomIntelliSenseDTO.SendKeysValue != null)
 				{
