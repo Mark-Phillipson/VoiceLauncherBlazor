@@ -80,17 +80,34 @@ namespace DataAccessLibrary.Services
 			{
 				IQueryable<CustomIntelliSense> snippets = null;
 				snippets = intellisenses;
-				var displayValues = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).ToList();
+				var displayValues = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).Distinct().ToList();
 				using var localCommandEmbedder = new LocalEmbedder();
 				IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
 				matchedResults = localCommandEmbedder.EmbedRange(
 					displayValues.ToList());
-				string[] results = LocalEmbedder.FindClosest(localCommandEmbedder.Embed(searchTerm), matchedResults, maxResults: 20);
+				SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(searchTerm), matchedResults, maxResults: 20);
 				if (results.Length > 0)
 				{
-					//You need to return all the snippets that have the result equaling in the display value
-					snippets = snippets.Where(v => results.Contains(v.DisplayValue));
-					return await snippets.Take(maximumRows).ToListAsync();
+					foreach (var item in results)
+					{
+						Console.WriteLine($"Item: {item.Item} Score: {item.Similarity}");
+					}
+					var resultItems = results.Select(r => r.Item).ToList();
+					var similarityScores = results.ToDictionary(r => r.Item, r => r.Similarity);
+					List<CustomIntelliSense> snippetsList = await snippets.ToListAsync();
+					snippetsList = snippetsList.Where(v => resultItems.Contains(v.DisplayValue))
+					.OrderByDescending(v => similarityScores[v.DisplayValue])
+					.ToList();
+					List<CustomIntelliSense> result = null;
+					try
+					{
+						result = snippetsList.Take(maximumRows).ToList();
+					}
+					catch (System.Exception exception)
+					{
+						System.Console.WriteLine(exception.Message);
+					}
+					return result;
 				}
 			}
 
