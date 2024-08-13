@@ -68,16 +68,18 @@ namespace VoiceLauncher.Repositories
 			}
 			IEnumerable<CategoryDTO> CategoriesDTO = _mapper.Map<List<Category>, IEnumerable<CategoryDTO>>(Categories);
 			if (categoryType == "IntelliSense Command")
-
-			// Add the missing using directive above
-
 			{
 				foreach (var category in CategoriesDTO)
 				{
 					var tableCategory = Categories
 						.Where(v => v.Id == category.Id)
 						.FirstOrDefault();
-					category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense.Count(c => c.LanguageId == languageId);
+					category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense.Count(c => c.CategoryId == category.Id);
+					var test = category.CountOfCustomIntellisense;
+					if (test > 0)
+					{
+						test = category.CountOfCustomIntellisense;
+					}
 				}
 			}
 			else

@@ -10,6 +10,7 @@ using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
 using System.Security.Claims;
 using VoiceLauncher.Services;
+using SmartComponents.LocalEmbeddings;
 
 namespace RazorClassLibrary.Pages
 {
@@ -24,12 +25,15 @@ namespace RazorClassLibrary.Pages
 		public List<CategoryDTO>? CategoryDTO { get; set; }
 		public List<CategoryDTO>? FilteredCategoryDTO { get; set; }
 		protected CategoryAddEdit? CategoryAddEdit { get; set; }
+		private bool useSemanticMatching = false;
 		ElementReference SearchInput;
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
 		private string? searchTerm = null;
 #pragma warning restore 414, 649
 		private int? counter = 0;
+		private int maxResults = 5;
+
 		public string? SearchTerm
 		{
 			get => searchTerm; set
@@ -37,15 +41,19 @@ namespace RazorClassLibrary.Pages
 				searchTerm = value;
 				if (searchTerm != null)
 				{
-					if (searchTerm.Length > 4)
+					if (searchTerm.Length > 0)
 					{
 						ApplyFilter();
 					}
 				}
+				if (string.IsNullOrWhiteSpace(searchTerm))
+				{
+					FilteredCategoryDTO = CategoryDTO;
+				}
 			}
 		}
-			[Parameter]
-			public string GlobalSearchTerm { get; set; } = "";
+		[Parameter]
+		public string GlobalSearchTerm { get; set; } = "";
 		public string ExceptionMessage { get; set; } = string.Empty;
 		public List<string>? PropertyInfo { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
@@ -145,13 +153,39 @@ namespace RazorClassLibrary.Pages
 			else
 			{
 				var temporary = SearchTerm.ToLower().Trim();
-				FilteredCategoryDTO = CategoryDTO
-					 .Where(v =>
-					 v.CategoryName != null && v.CategoryName.ToLower().Contains(temporary)
-					  || v.CategoryType != null && v.CategoryType.ToLower().Contains(temporary)
-					 )
-					 .ToList();
-				Title = $"Filtered Categorys ({FilteredCategoryDTO.Count})";
+				if (useSemanticMatching && searchTerm != null && searchTerm.Length > 4)
+				{
+					var categories = CategoryDTO.Where(f => f.CategoryName != null).Select(v => v.CategoryName).ToList();
+					using var localCommandEmbedder = new LocalEmbedder();
+					IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
+					matchedResults = localCommandEmbedder.EmbedRange(
+						categories.ToList());
+					SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(searchTerm), matchedResults, maxResults: maxResults);
+					foreach (var result in results)
+					{
+						Console.WriteLine($"Item: {result.Item} Score: {result.Similarity}");
+					}
+					if (results.Length > 0)
+					{
+						var resultItems = results.Select(r => r.Item).ToList();
+						var similarityScores = results.ToDictionary(r => r.Item, r => r.Similarity);
+
+						FilteredCategoryDTO = CategoryDTO
+							.Where(v => resultItems.Contains(v.CategoryName))
+							.OrderByDescending(v => similarityScores[v.CategoryName])
+							.ToList();
+					}
+				}
+				else
+				{
+					FilteredCategoryDTO = CategoryDTO
+						 .Where(v =>
+						 v.CategoryName != null && v.CategoryName.ToLower().Contains(temporary)
+						  || v.CategoryType != null && v.CategoryType.ToLower().Contains(temporary)
+						 )
+						 .ToList();
+					Title = $"Filtered Categorys ({FilteredCategoryDTO.Count})";
+				}
 			}
 		}
 		protected void SortCategory(string sortColumn)

@@ -122,6 +122,5 @@ app.MapSmartComboBox("/api/suggestions/expense-category",
 app.MapSmartComboBox("/api/suggestions/issue-label",
 	request => embedder.FindClosest(request.Query, issueLabels));
 
-
 app.Run();
 

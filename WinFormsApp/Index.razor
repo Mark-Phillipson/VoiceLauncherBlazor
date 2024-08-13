@@ -2,14 +2,15 @@
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
 <CascadingBlazoredModal>
-	<div class='m-2'>
+	<div class='m-2' style="text-align: center;">
 		<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
 			Maximize</button>
 		<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
 			Minimize</button>
 		<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
 			Restore</button>
-
+	</div>
+	<div class='m-2'>
 		@* filtering by language and category and listing only ten at a time with paging *@
 		@if (languageAndCategoryListing)
 		{

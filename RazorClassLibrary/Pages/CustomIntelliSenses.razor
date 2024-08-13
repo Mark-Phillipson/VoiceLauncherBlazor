@@ -3,42 +3,51 @@
 @page "/intellisensesL/{languageIdFilter:int}"
 @page "/intellisensesBoth/{languageIdFilter:int}/{categoryIdFilter:int}"
 @using RazorClassLibrary.Shared
-<header class="form-inline mx-1">
-	<h4 style="display:inline-block">
-		<i class="fa-solid fa-file-code"></i>
-		@Title
-	</h4>
-</header>
+@if (!RunningInBlazorHybrid)
+{
+	<header class="form-inline mx-1">
+		<h4 style="display:inline-block">
+			<i class="fa-solid fa-file-code"></i>
+			@Title
+		</h4>
+	</header>
+}
 <div class="row">
 	@if (!RunningInBlazorHybrid)
 	{
 		<div class='col-md-1'>
-			<button class="btn btn-sm btn-outline-success m-1" accesskey="0" @onclick="CreateNew"><i
-					class="fas fa-plus"></i> Add (0)</button>
+			<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success m-1" accesskey="0"
+				@onclick="CreateNew"><i class="fas fa-plus"></i> Add</button>
 		</div>
 	}
 	@if (!RunningInBlazorHybrid)
 	{
 		<div class='col-md-2'>
-			<input accesskey="1" style="display:inline" id="languageFilter"
+			<input title='Filter by Language (Alt+1)' accesskey="1" style="display:inline" id="languageFilter"
 				@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
 				placeholder="Language Filter (1)" class="mx-1 form-control col-md-1" />
 		</div>
 		<div class='col-md-2'>
-			<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
-				@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
-				class="mx-1 form-control col-md-1" />
+			<input title='Filter by Category (Alt+2)' accesskey="2" style="display:inline" id="categoryFilter"
+				@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))"
+				placeholder="Category Filter (2)" class="mx-1 form-control col-md-1" />
 		</div>
-		<div class='col-md-3'>
-			<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-				id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
+		<div class='col-md-2'>
+			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
+				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" class="form-control col-md-1"
+				accesskey="3" placeholder="Blur to Filter (3)" />
+		</div>
+		<div class='col-md-1'>
+			<label for='useSemanticMatching'>Semantic?</label>
+			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
+				class='form-checkbox' />
 		</div>
 		<div class='col-md-1'>
 			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 			{
-				<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
-					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+				<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
+					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i></button>
 			}
 			<button class="btn btn-outline-secondary btn-sm mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
 				<i class="fas fa-sync"></i>
@@ -62,6 +71,9 @@
 				id="SearchInput" class="form-control col-md-1" accesskey="3" placeholder="Blur to Filter (3)" />
 		</div>
 		<div class='col-md-3'>
+			<label for='useSemanticMatching'>Semantic?</label>
+			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
+				class='form-checkbox' />
 			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 			{
@@ -281,15 +293,15 @@ else
 	}
 
 	<pre class='mt-2'>
-													<code class='m-2'>
+																															<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-																										<textarea rows="7" style='width:95%;color:white;background:black'>
+																																																														<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																																												</textarea>
+																																																																																</textarea>
 			}
-																		</code>
-																		</pre>
+																																				</code>
+																																				</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {

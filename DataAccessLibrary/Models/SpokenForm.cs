@@ -12,7 +12,7 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [StringLength(100)]
         [Required]
-        public string SpokenFormText { get; set; }
+        public string SpokenFormText { get; set; } = null!;
         public int WindowsSpeechVoiceCommandId { get; set; }
         public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
     }

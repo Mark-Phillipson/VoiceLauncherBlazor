@@ -24,6 +24,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public EventCallback CloseApplication { get; set; }
 		[Parameter] public EventCallback MaximizeApplication { get; set; }
 		private string Title { get; set; } = "Snippets";
+		private bool useSemanticMatching = false;
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
@@ -160,11 +161,13 @@ namespace RazorClassLibrary.Pages
 			{
 				await FilterByCategory();
 				category = await CategoryService.GetCategoryAsync(CategoryIdFilter.Value);
+				_categoryFilter = category?.CategoryName;
 			}
 			else if (LanguageIdFilter != null)
 			{
 				await FilterByLanguage();
 				language = await LanguageService.GetLanguageAsync(LanguageIdFilter.Value);
+				_languageFilter = language?.LanguageName;
 			}
 			else
 			{
@@ -188,7 +191,7 @@ namespace RazorClassLibrary.Pages
 			{
 				try
 				{
-					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm?.Trim(), categoryIdFilter: CategoryIdFilter, languageIdFilter: LanguageIdFilter, maximumRows: MaximumRows, languageFilter: _languageFilter, categoryFilter: _categoryFilter);
+					intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(SearchTerm?.Trim(), categoryIdFilter: CategoryIdFilter, languageIdFilter: LanguageIdFilter, maximumRows: MaximumRows, languageFilter: _languageFilter, categoryFilter: _categoryFilter, useSemanticMatching: useSemanticMatching);
 				}
 				catch (Exception exception)
 				{

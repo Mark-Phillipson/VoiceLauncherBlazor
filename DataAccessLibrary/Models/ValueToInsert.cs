@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace DataAccessLibrary.Models
 {
 
-[Table("ValuesToInsert")]
+    [Table("ValuesToInsert")]
     public partial class ValuesToInsert
 
     {
@@ -22,6 +22,6 @@ namespace DataAccessLibrary.Models
         [StringLength(255)]
         public string Lookup { get; set; }
         [StringLength(255)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

@@ -1,26 +1,51 @@
 @page "/categoriestable"
 <div class="row">
-	<div class="col-md-4">
+	<div class="col-md-2">
 		<h5 class="page-title m-1">@Title</h5>
 	</div>
 	@if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
 	{
-		<div class="col-md-4">
+		<div class="col-md-8">
 			<div class="form-group">
 				<div class="row">
-					<div class="col-4">
+					<div class="col-2">
 						<label for='show-cards'>Show Cards</label>
 					</div>
-					<div class="col-8">
+					<div class="col-2">
 						<input id='show-cards' title="Show Cards" class="form-checkbox" type="checkbox"
 							@bind="@_ShowCards" />
 					</div>
+					<div class="col-2">
+						<label for='useSemanticMatching'>Semantic?</label>
+					</div>
+					<div class="col-2">
+						<input id='useSemanticMatching' title="Use Semantic Matching" class="form-checkbox" type="checkbox"
+							@bind="@useSemanticMatching" />
+					</div>
+					@if (useSemanticMatching)
+					{
+						<div class="col-2">
+							<label for='maxResults'># Results</label>
+						</div>
+						<div class="col-2">
+							<input id='maxResults' title="Number of Results to Return" class="form-control" type="number"
+								@bind="@maxResults" />
+						</div>
+					}
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				@bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+		<div class="col-md-2">
+			@if (useSemanticMatching)
+			{
+				<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+					id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+			}
+			else
+			{
+				<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@GlobalSearchTerm"
+					@bind:event="oninput" id="SearchInput" name="GlobalSearchTerm" placeholder="Filter (Alt+I)" />
+			}
 		</div>
 	}
 </div>
@@ -148,6 +173,3 @@ else
 		</table>
 	}
 }
-
-
-

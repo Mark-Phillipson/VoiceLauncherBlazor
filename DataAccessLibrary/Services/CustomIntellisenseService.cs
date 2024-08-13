@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SmartComponents.LocalEmbeddings;
 
 namespace DataAccessLibrary.Services
 {
@@ -14,7 +15,7 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter = null, string categoryFilter = null)
+		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter = null, string categoryFilter = null, bool useSemanticMatching = false)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			IQueryable<CustomIntelliSense> intellisenses = null;
@@ -31,7 +32,7 @@ namespace DataAccessLibrary.Services
 			{
 				intellisenses = intellisenses.Where(v => v.Category.Sensitive == false);
 			}
-			if (searchTerm != null && searchTerm.Length > 0)
+			if (searchTerm != null && searchTerm.Length > 0 && useSemanticMatching == false)
 			{
 				var searchTerms = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 				intellisenses = intellisenses.Where(v => searchTerms.All(term => v.DisplayValue.Contains(term) || v.SendKeysValue.Contains(term)));
@@ -74,6 +75,23 @@ namespace DataAccessLibrary.Services
 			if (categoryIdFilter != null && categoryIdFilter != 0)
 			{
 				intellisenses = intellisenses.Where(v => v.CategoryId == categoryIdFilter);
+			}
+			if (useSemanticMatching)
+			{
+				IQueryable<CustomIntelliSense> snippets = null;
+				snippets = intellisenses;
+				var displayValues = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).ToList();
+				using var localCommandEmbedder = new LocalEmbedder();
+				IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
+				matchedResults = localCommandEmbedder.EmbedRange(
+					displayValues.ToList());
+				string[] results = LocalEmbedder.FindClosest(localCommandEmbedder.Embed(searchTerm), matchedResults, maxResults: 20);
+				if (results.Length > 0)
+				{
+					//You need to return all the snippets that have the result equaling in the display value
+					snippets = snippets.Where(v => results.Contains(v.DisplayValue));
+					return await snippets.Take(maximumRows).ToListAsync();
+				}
 			}
 
 			return await intellisenses.Take(maximumRows).ToListAsync();

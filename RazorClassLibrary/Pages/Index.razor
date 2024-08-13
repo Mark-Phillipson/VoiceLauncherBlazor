@@ -2,14 +2,16 @@
 @{
 }
 <PageTitle>Voice Admin</PageTitle>
-<section>
-	<h1 class="d-none d-lg-block text-center ml-3">
+<section class='m-5'>
+	<h1 class="d-none d-lg-block ml-3">
 		<i class="oi oi-microphone"></i>
 		Voice Admin
 	</h1>
-
-
-	<TalonAlphabetTable ReportView="true" />
+	<br />
+	@if (false)
+	{
+		<TalonAlphabetTable ReportView="true" />
+	}
 	<article class="d-lg-none" style="display:flex;flex-direction:column">
 		<div class="card m-1" style="width: 15rem;">
 			<div class="card-img-top text-center">
@@ -43,40 +45,105 @@
 
 	<div class="d-none d-lg-block">
 		<article style="display:flex;flex-direction:row">
-			<div class="card m-2 p-2" style="width: 18rem;text-align:center;">
-				<div class="card-img-top d-none d-lg-block mb-2">
-					<i class="oi oi-microphone text-danger" style="font-size:260px;"></i>
-				</div>
+			<div class="card m-2 p-2" style="width: 16rem;">
+				<a href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank"><img
+						src="/images/CSharpLogo.jpeg" class="card-img-top" alt="Blazor Logo"></a>
 				<div class="card-body">
-					<h5 class="card-title">Speech Recognition</h5>
-					<p class="card-text">Setting up bespoke speech recognition environments.</p>
-					@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
+					<h1 class="card-title">C#</h1>
+					<p class="card-text">Programming Language</p>
 				</div>
 			</div>
-			<div class="card m-2 p-2" style="width: 18rem;">
+			<div class="card m-2 p-2" style="width: 16rem;">
 				<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
 						src="/images/BlazorIcon.png" class="card-img-top" alt="Blazor Logo"></a>
 				<div class="card-body">
-					<h5 class="card-title">Blazor</h5>
+					<h1 class="card-title">Blazor</h1>
 					<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
 				</div>
 			</div>
-			<div class="card m-2 p-2" style="width: 18rem;">
+			<div class="card m-2 p-2" style="width: 16rem;">
 				<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png"
 						class="card-img-top" alt="Dot Net Logo"></a>
 				<div class="card-body">
-					<h5 class="card-title">MVC ASP.NET</h5>
+					<h1 class="card-title">MVC ASP.NET</h1>
 					<p class="card-text">MVC ASP.NET Web Applications</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 18rem;">
+				<a href="https://visualstudio.microsoft.com/" target="_blank"><img src="/images/VisualStudioLogo.png"
+						class="card-img-top" alt="Dot Net Logo"></a>
+				<div class="card-body">
+					<h1 class="card-title">Visual Studio</h1>
+					<p class="card-text">Visual Studio Integrated Development Environment (IDE)</p>
+				</div>
+			</div>
+
+		</article>
+		<article style="display:flex;flex-direction:row">
+			<div class="card m-2 p-2" style="width: 18rem;">
+				<a href="https://portal.azure.com/#home" target="_blank"><img src="/images/Azure.jpeg"
+						class="card-img-top" alt="Azure Logo"></a>
+				<div class="card-body">
+					<h3 class="card-title">Azure</h3>
+					<p class="card-text">Cloud Computing</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 9rem;">
+				<a href="https://getbootstrap.com/" target="_blank"><img src="/images/bootstrap-logo-shadow.png"
+						class="card-img-top" alt="Talon Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">Bootstrap</h5>
+					<p class="card-text">Build fast, responsive sites.</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 9rem;">
+				<a href="https://code.visualstudio.com/" target="_blank"><img src="/images/VisualStudioCode.jpeg"
+						class="card-img-top" alt="Dot Net Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">VSCode</h5>
+					<p class="card-text">Visual Studio Code text editor</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 9rem;">
+				<a href="https://www.microasoft.com/en-us/sql-server/" target="_blank"><img
+						src="/images/SQLServerLogo.jpeg" class="card-img-top" alt="SQLServer Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">MS SQL Server</h5>
+					<p class="card-text">Database management system.</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 9rem;">
+				<a href="https://talonvoice.com/" target="_blank"><img src="/images/Talon.png" class="card-img-top"
+						alt="Talon Logo"></a>
+				<div class="card-body">
+					<h5 class="card-title">Talon</h5>
+					<p class="card-text">Powerful hands-free input</p>
+				</div>
+			</div>
+			<div class="card m-2 p-2" style="width: 10rem;">
+				<a href="https://www.microsoft.com/en-us/sql-server/" target="_blank">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1920 1920" title="Logo"
+						width="130px" height="130px">
+						<path fill="currentColor"
+							d="M960.001 237.896c180.579 0 346.359 72.247 476.599 192.984C1388.26 184.524 1193.47 0 960.001 0 726.538 0 531.747 184.524 483.405 431.206c130.24-120.738 296.024-193.31 476.596-193.31M960.001 1681.92c-180.572 0-346.356-72.3-476.596-193.13C531.747 1735.34 726.538 1920 960.001 1920c233.469 0 428.259-184.66 476.599-431.21-130.24 120.83-296.02 193.13-476.599 193.13M238.075 960c0-180.571 72.302-346.356 193.131-476.595C184.663 531.747 0 726.537 0 960c0 233.47 184.663 428.26 431.206 476.6-120.503-130.24-193.131-296.02-193.131-476.6M1681.92 960c0 180.58-72.3 346.36-193.13 476.6C1735.34 1388.26 1920 1193.47 1920 960c0-233.463-184.66-428.253-431.21-476.595C1609.62 613.644 1681.92 779.429 1681.92 960">
+						</path>
+					</svg>
+				</a>
+				<div class="card-body">
+					<h5 class="card-title">Cursorless</h5>
+					<p class="card-text">VSCode Extension.</p>
 				</div>
 			</div>
 		</article>
 	</div>
-	<h5>If interested please click the logo:</h5>
+	<h5 class='m-5'>Fullstack developer in Blazer and ASP.NET, MVC, Web API, Entity Framework, JavaScript, Blazor
+		Hybrid.
+	</h5>
+	<br />
 	<div class="upwork-logo">
 		<a title="Click to View Profile" target="_blank" href="https://www.upwork.com/fl/markp2"
 			class="btn btn-lg btn-outline-primary">
-			<img src="/images/Upworklogo.png"
-				alt="Upwork Logo" class="d-block mx-auto img-responsive" width="50" />
+			<img src="/images/Upworklogo.png" alt="Upwork Logo" class="d-block mx-auto img-responsive" width="50" />
 		</a>
 	</div>
 </section>
