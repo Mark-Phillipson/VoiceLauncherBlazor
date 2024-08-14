@@ -270,6 +270,7 @@ namespace RazorClassLibrary.Pages
 				var ci = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 				if (ci != null)
 					intellisenses!.Remove(ci);
+				await LoadData();
 
 			}
 			catch (Exception exception)
@@ -357,6 +358,10 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					if (searchTerm != null)
+					{
+						await ApplyFilter();
+					}
 				}
 			}
 		}
@@ -449,6 +454,7 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					await ApplyFilter();
 				}
 			}
 			CustomIntelliSenseId = id;

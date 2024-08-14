@@ -135,6 +135,10 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					if (searchTerm != null)
+					{
+						ApplyFilter();
+					}
 				}
 			}
 		}
@@ -246,6 +250,10 @@ namespace RazorClassLibrary.Pages
 						await CategoryDataService.DeleteCategory(Id);
 						ToastService?.ShowSuccess(" Category deleted successfully");
 						await LoadData();
+						if (searchTerm != null)
+						{
+							ApplyFilter();
+						}
 					}
 				}
 			}
@@ -261,6 +269,10 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					if (searchTerm != null)
+					{
+						ApplyFilter();
+					}
 				}
 			}
 		}

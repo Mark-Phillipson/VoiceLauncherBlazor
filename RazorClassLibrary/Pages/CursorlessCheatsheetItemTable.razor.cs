@@ -107,6 +107,7 @@ namespace RazorClassLibrary.Pages
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message);
+
                 }
             }
         }
@@ -120,6 +121,10 @@ namespace RazorClassLibrary.Pages
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    if (searchTerm != null)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
             CursorlessCheatsheetItemId = 0;
@@ -194,6 +199,10 @@ namespace RazorClassLibrary.Pages
                         await CursorlessCheatsheetItemDataService.DeleteCursorlessCheatsheetItem(id);
                         ToastService?.ShowSuccess("Cursorless Cheatsheet Item deleted successfully");
                         await LoadData();
+                        if (searchTerm != null)
+                        {
+                            ApplyFilter();
+                        }
                     }
                 }
             }
@@ -211,6 +220,10 @@ namespace RazorClassLibrary.Pages
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    if (searchTerm != null)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
             CursorlessCheatsheetItemId = id;

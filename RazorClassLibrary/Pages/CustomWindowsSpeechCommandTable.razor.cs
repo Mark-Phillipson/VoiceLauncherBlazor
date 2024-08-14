@@ -64,7 +64,7 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception e)
             {
-                Logger?.LogError(e,"Exception occurred in LoadData Method, Getting Records from the Service");
+                Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
             }
@@ -100,6 +100,10 @@ namespace RazorClassLibrary.Pages
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    if (searchTerm != null)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
         }
@@ -168,6 +172,10 @@ namespace RazorClassLibrary.Pages
                         await CustomWindowsSpeechCommandDataService.DeleteCustomWindowsSpeechCommand(Id);
                         ToastService?.ShowSuccess(" Custom Windows Speech Command deleted successfully");
                         await LoadData();
+                        if (searchTerm != null)
+                        {
+                            ApplyFilter();
+                        }
                     }
                 }
             }
@@ -183,6 +191,10 @@ namespace RazorClassLibrary.Pages
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    if (searchTerm != null)
+                    {
+                        ApplyFilter();
+                    }
                 }
             }
         }

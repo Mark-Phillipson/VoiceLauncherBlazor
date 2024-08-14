@@ -130,6 +130,10 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					if (searchTerm != null)
+					{
+						ApplyFilter();
+					}
 				}
 			}
 		}
@@ -228,6 +232,10 @@ namespace RazorClassLibrary.Pages
 						}
 						ToastService?.ShowSuccess(" Launcher deleted successfully");
 						await LoadData();
+						if (searchTerm != null)
+						{
+							ApplyFilter();
+						}
 					}
 				}
 			}
@@ -243,6 +251,10 @@ namespace RazorClassLibrary.Pages
 				if (!result.Cancelled)
 				{
 					await LoadData();
+					if (searchTerm != null)
+					{
+						ApplyFilter();
+					}
 				}
 			}
 		}
