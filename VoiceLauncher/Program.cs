@@ -82,6 +82,8 @@ builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
 builder.Services.AddScoped<ILanguageDataService, LanguageDataService>();
 builder.Services.AddScoped<ICursorlessCheatsheetItemRepository, CursorlessCheatsheetItemRepository>();
 builder.Services.AddScoped<ICursorlessCheatsheetItemDataService, CursorlessCheatsheetItemDataService>();
+builder.Services.AddScoped<ICssPropertyRepository, CssPropertyRepository>();
+builder.Services.AddScoped<ICssPropertyDataService, CssPropertyDataService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

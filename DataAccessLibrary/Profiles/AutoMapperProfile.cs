@@ -37,6 +37,7 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<LanguageDTO, Language>();
 			CreateMap<CursorlessCheatsheetItem, CursorlessCheatsheetItemDTO>();
 			CreateMap<CursorlessCheatsheetItemDTO, CursorlessCheatsheetItem>();
+			CreateMap<CssProperty, CssPropertyDTO>(); CreateMap<CssPropertyDTO, CssProperty>();
 		}
 	}
 }

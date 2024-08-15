@@ -1,0 +1,37 @@
+@page "/cssproperty/{Id:int?}"
+<div style="min-width:80vw">
+    <h1>@Title</h1>
+    <EditForm Model="@CssPropertyDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (CssPropertyDTO.Id > 0)
+        {
+            <span class="text-info m-1">@CssPropertyDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="PropertyName">Property Name: </label> <i class="text-danger fa">*</i>
+                    <InputTextArea rows="2" id="PropertyName" class="form-control"
+                        @bind-Value="@CssPropertyDTO.PropertyName" placeholder="Enter Property Name"></InputTextArea>
+                    <ValidationMessage For="@(() => CssPropertyDTO.PropertyName)" />
+                </div>
+                <div class="form-group">
+                    <label for="Description">Description: </label>
+                    <InputTextArea rows="2" id="Description" class="form-control"
+                        @bind-Value="@CssPropertyDTO.Description" placeholder="Enter Description"></InputTextArea>
+                    <ValidationMessage For="@(() => CssPropertyDTO.Description)" />
+                </div>
+            </div>
+            <div class="col-12">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div style="float:right">
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                @onclick="@CloseAsync"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>
