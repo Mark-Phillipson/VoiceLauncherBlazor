@@ -22,6 +22,7 @@ using RazorClassLibrary.Shared;
 using DataAccessLibrary.Services;
 using DataAccessLibrary.DTOs;
 using Microsoft.Extensions.Logging;
+using SmartComponents.LocalEmbeddings;
 
 namespace RazorClassLibrary.Pages
 {
@@ -60,11 +61,39 @@ namespace RazorClassLibrary.Pages
             }
             else
             {
-                FilteredCssPropertyDTO = CssPropertyDTO.Where(v => v.PropertyName?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
-                || v.Description?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
-                ).ToList();
+                if (useSemanticMatching)
+                {
+                    var propertyNameAndDescription = CssPropertyDTO.Where(f => f.PropertyName != null && f.Description != null).Select(v => $"{v.PropertyName} | {v.Description}").ToList();
+                    using var localCommandEmbedder = new LocalEmbedder();
+                    IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
+                    matchedResults = localCommandEmbedder.EmbedRange(
+                        propertyNameAndDescription.ToList());
+                    SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(ClientSearchTerm), matchedResults, maxResults: maxResults);
+                    // foreach (var result in results)
+                    // {
+                    //     Console.WriteLine($"Item: {result.Item} Score: {result.Similarity}");
+                    // }
+                    if (results.Length > 0)
+                    {
+                        var resultItems = results.Select(r => r.Item.Split('|')[0].Trim()).ToList();
+                        var similarityScores = results.ToDictionary(r => r.Item.Split('|')[0].Trim(), r => r.Similarity);
+
+                        FilteredCssPropertyDTO = CssPropertyDTO
+                            .Where(v => resultItems.Contains(v.PropertyName)
+                             || resultItems.Contains(v.Description)
+                            )
+                            .OrderByDescending(v => similarityScores[v.PropertyName])
+                            .ToList();
+                    }
+                }
+                else
+                {
+                    FilteredCssPropertyDTO = CssPropertyDTO.Where(v => v.PropertyName?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
+                    || v.Description?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
+                    ).ToList();
+                }
             }
-            Title = $"CssProperty> ({FilteredCssPropertyDTO.Count})";
+            Title = $"Filtered CSS Properties ({FilteredCssPropertyDTO.Count})";
         }
 
         private string? lastSearchTerm { get; set; }
@@ -77,8 +106,10 @@ namespace RazorClassLibrary.Pages
         public bool ShowEdit { get; set; } = false;
         private bool ShowDeleteConfirm { get; set; }
         private int pageNumber = 1;
-        private int pageSize = 15;
+        private int pageSize = 1000;
         private int totalRows = 0;
+        private bool useSemanticMatching = true;
+        private int maxResults = 20;
 
         private int CssPropertyId { get; set; }
         protected override async Task OnInitializedAsync()
@@ -112,7 +143,7 @@ namespace RazorClassLibrary.Pages
                 ExceptionMessage = e.Message;
             }
             FilteredCssPropertyDTO = CssPropertyDTO;
-            Title = $"Css Property ({FilteredCssPropertyDTO?.Count})";
+            Title = $"CSS Properties ({FilteredCssPropertyDTO?.Count})";
 
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -133,19 +164,18 @@ namespace RazorClassLibrary.Pages
         private async Task AddNewCssProperty()
         {
             var parameters = new ModalParameters();
-            var formModal = Modal?.Show<CssPropertyAddEdit>("Add Css Property", parameters);
+            var formModal = Modal?.Show<CssPropertyAddEdit>("Add CSS Property", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    await ApplyFilter();
                 }
             }
             CssPropertyId = 0;
         }
-
-
         private async Task ApplyFilter()
         {
             if (FilteredCssPropertyDTO == null || CssPropertyDTO == null)
@@ -155,7 +185,7 @@ namespace RazorClassLibrary.Pages
             if (string.IsNullOrEmpty(SearchTerm))
             {
                 await LoadData();
-                Title = $"All Css Property ({FilteredCssPropertyDTO.Count})";
+                Title = $"All CSS Properties ({FilteredCssPropertyDTO.Count})";
             }
             else
             {
@@ -190,19 +220,20 @@ namespace RazorClassLibrary.Pages
             if (CssPropertyDataService != null)
             {
                 var cssProperty = await CssPropertyDataService.GetCssPropertyById(Id);
-                parameters.Add("Title", "Please Confirm, Delete Css Property");
+                parameters.Add("Title", "Please Confirm, Delete CSS Property");
                 parameters.Add("Message", $"PropertyName: {cssProperty?.PropertyName}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
-                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Css Property ({cssProperty?.PropertyName})?", parameters);
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete CSS Property ({cssProperty?.PropertyName})?", parameters);
                 if (formModal != null)
                 {
                     var result = await formModal.Result;
                     if (!result.Cancelled)
                     {
                         await CssPropertyDataService.DeleteCssProperty(Id);
-                        ToastService?.ShowSuccess("Css Property deleted successfully");
+                        ToastService?.ShowSuccess("CSS Property deleted successfully");
                         await LoadData();
+                        await ApplyFilter();
                     }
                 }
             }
@@ -213,13 +244,14 @@ namespace RazorClassLibrary.Pages
         {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
-            var formModal = Modal?.Show<CssPropertyAddEdit>("Edit Css Property", parameters);
+            var formModal = Modal?.Show<CssPropertyAddEdit>("Edit CSS Property", parameters);
             if (formModal != null)
             {
                 var result = await formModal.Result;
                 if (!result.Cancelled)
                 {
                     await LoadData();
+                    await ApplyFilter();
                 }
             }
             CssPropertyId = Id;

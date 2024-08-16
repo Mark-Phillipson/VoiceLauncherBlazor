@@ -52,7 +52,7 @@ public class CursorlessCheatsheetItemJsonRepository : ICursorlessCheatsheetItemJ
    {
       var jsonData = await File.ReadAllTextAsync(_jsonFilePath);
       var items = JsonSerializer.Deserialize<List<CursorlessCheatsheetItem>>(jsonData);
-      var filteredItems = items.Where(item => item.SpokenForm.Contains(serverSearchTerm, StringComparison.OrdinalIgnoreCase));
+      var filteredItems = items?.Where(item => item.SpokenForm.Contains(serverSearchTerm, StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<CursorlessCheatsheetItem>();
       return _mapper.Map<IEnumerable<CursorlessCheatsheetItemDTO>>(filteredItems);
    }
    public async Task<bool> ExportToJsonAsync()
