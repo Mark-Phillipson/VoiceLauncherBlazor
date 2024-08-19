@@ -1,0 +1,42 @@
+@page "/transactiontypemapping/{Id:int?}"
+<div style="min-width:80vw">
+    <h1>@Title</h1>
+    <EditForm Model="@TransactionTypeMappingDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (TransactionTypeMappingDTO.Id > 0)
+        {
+            <span class="text-info m-1">@TransactionTypeMappingDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label @ref="FirstInput" for="MyTransactionType">My Transaction Type:</label>
+                    <i class="text-danger">*</i>
+
+                    <InputText id="MyTransactionType" class="form-control"
+                        @bind-Value="@TransactionTypeMappingDTO.MyTransactionType"
+                        placeholder="Enter My Transaction Type"></InputText>
+                    <ValidationMessage For="@(() => TransactionTypeMappingDTO.MyTransactionType)" />
+                </div>
+                <div class="form-group">
+                    <label for="Type">Type:</label>
+                    <i class="text-danger">*</i>
+
+                    <InputText id="Type" class="form-control" @bind-Value="@TransactionTypeMappingDTO.Type"
+                        placeholder="Enter Type"></InputText>
+                    <ValidationMessage For="@(() => TransactionTypeMappingDTO.Type)" />
+                </div>
+            </div>
+            <div class="col-12">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div style="float:right">
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                @onclick="@CloseAsync"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

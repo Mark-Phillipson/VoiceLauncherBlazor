@@ -5,7 +5,6 @@ using DataAccessLibrary;
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Services;
-
 using Microsoft.EntityFrameworkCore;
 
 using SampleApplication.Repositories;
@@ -84,6 +83,10 @@ builder.Services.AddScoped<ICursorlessCheatsheetItemRepository, CursorlessCheats
 builder.Services.AddScoped<ICursorlessCheatsheetItemDataService, CursorlessCheatsheetItemDataService>();
 builder.Services.AddScoped<ICssPropertyRepository, CssPropertyRepository>();
 builder.Services.AddScoped<ICssPropertyDataService, CssPropertyDataService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionDataService, TransactionDataService>();
+builder.Services.AddScoped<ITransactionTypeMappingRepository, TransactionTypeMappingRepository>();
+builder.Services.AddScoped<ITransactionTypeMappingDataService, TransactionTypeMappingDataService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

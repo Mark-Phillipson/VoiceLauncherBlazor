@@ -1,0 +1,62 @@
+@page "/transaction/{Id:int?}"
+<div style="min-width:50vw">
+    <h1>@Title</h1>
+    <EditForm Model="@TransactionDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (TransactionDTO.Id > 0)
+        {
+            <span class="text-info m-1">@TransactionDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label @ref="FirstInput" for="Description">Description: </label>
+                    <InputText id="Description" class="form-control" @bind-Value="@TransactionDTO.Description"
+                        placeholder="Enter Description"></InputText>
+                    <ValidationMessage For="@(() => TransactionDTO.Description)" />
+                </div>
+                <div class="form-group">
+                    <label for="Type">Type: </label>
+                    <InputTextArea rows="2" id="Type" class="form-control" @bind-Value="@TransactionDTO.Type"
+                        placeholder="Enter Type"></InputTextArea>
+                    <ValidationMessage For="@(() => TransactionDTO.Type)" />
+                </div>
+                <div class="form-group">
+                    <label for="MoneyIn">Money In: </label> <i class="text-danger fa">*</i>
+                    <InputNumber disabled id="MoneyIn" class="form-control" @bind-Value="@TransactionDTO.MoneyIn"
+                        placeholder="Enter Money In"></InputNumber>
+                    <ValidationMessage For="@(() => TransactionDTO.MoneyIn)" />
+                </div>
+                <div class="form-group">
+                    <label for="MoneyOut">Money Out: </label> <i class="text-danger fa">*</i>
+                    <InputNumber disabled id="MoneyOut" class="form-control" @bind-Value="@TransactionDTO.MoneyOut"
+                        placeholder="Enter Money Out"></InputNumber>
+                    <ValidationMessage For="@(() => TransactionDTO.MoneyOut)" />
+                </div>
+                <div class="form-group">
+                    <label for="Balance">Balance: </label> <i class="text-danger fa">*</i>
+                    <InputNumber disabled id="Balance" class="form-control" @bind-Value="@TransactionDTO.Balance"
+                        placeholder="Enter Balance"></InputNumber>
+                    <ValidationMessage For="@(() => TransactionDTO.Balance)" />
+                </div>
+                <div class="form-group">
+                    <label for="MyTransactionType">My Transaction Type: </label>
+                    <InputText id="MyTransactionType" class="form-control"
+                        @bind-Value="@TransactionDTO.MyTransactionType" placeholder="Enter My Transaction Type">
+                    </InputText>
+                    <ValidationMessage For="@(() => TransactionDTO.MyTransactionType)" />
+                </div>
+            </div>
+            <div class="col-6">
+                @* Move here for the next display column if required *@
+            </div>
+        </div>
+        <hr>
+        <div style="float:right">
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                @onclick="@CloseAsync"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+        </div>
+    </EditForm>
+</div>

@@ -1,0 +1,146 @@
+@page "/transactiontypemappings"
+<div class="row">
+<div class="col-md-12">
+    </div>
+<div class="col-md-3">
+<h5 class="m-1">@Title of @totalRows Page: @pageNumber</h5>
+</div>
+@if (_serverPaging) {
+<div class="col-md-4">
+    <button title="Go to 1st page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="@(()  => PageDown(true))">
+        <i class="bi bi-skip-backward-fill"></i>
+    </button>
+    <button title="Go to previous page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(()  => PageDown(false))">
+        <i class="bi bi-caret-left-fill"></i>
+    </button>
+    <button title="Go to next page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(() => PageUp(false)) ">
+        <i class="bi bi-caret-right-fill"></i>
+    </button>
+    <button title="Go to last page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(()  => PageUp(true))">
+        <i class="bi bi-skip-forward-fill"></i>
+    </button>
+</div>
+}
+            @if (_serverPaging) {
+            <div class="col-md-4">
+                <input @ref="SearchInput" accesskey="i"
+                    class="form-control my-1"
+                    style="float:right"
+                    @bind="@SearchTerm"
+                    @bind:event="oninput"
+                    id="SearchInput" name="SearchTerm"
+                    placeholder="Filter by My Transaction Type/Type (Alt+I)" />
+            </div>
+            } else {
+                <div class="col-md-3">
+                    <input class="form-control my-1" style="float:right" @bind="@ClientSearchTerm" id="ClientSearchInput"
+                        name="ClientSearchTerm" @bind:event="oninput" placeholder="Filter by My Transaction Type/Type" />
+                </div>
+            }
+    </div>
+    @if (FilteredTransactionTypeMappingDTO == null && _loadFailed == true)
+        {
+        <h2 class="text-danger">The data failed to load
+            please try again in a little while..</h2>
+        <button class="btn btn-danger" type="button"
+        @onclick="@( () => LoadData() )">Reload</button>
+        <h6 class="text-danger">@ExceptionMessage</h6>
+    }
+    else if (FilteredTransactionTypeMappingDTO == null)
+            {
+            <div style="display:normal;margin:auto"
+                class="loader"></div>
+            }
+    else if (FilteredTransactionTypeMappingDTO.Count ==
+        0)
+        {
+        <p>No Transaction Type Mapping match the
+                criteria</p>
+        <button @onclick="AddNewTransactionTypeMapping"
+            class="btn btn-outline-primary  btn-lg">Add
+            Record 
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        }
+    else
+    {
+    <table style="font-size:small"
+        class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                                                                <th>
+                                Id
+                            </th>
+                                                                        <th>
+                            <button class="btn btn-sm"
+                                @onclick="@(() => SortTransactionTypeMapping("MyTransactionType"))">
+                                <i class="bi bi-sort-alpha-up"></i>
+                            </button>
+                            <button class="btn btn-sm"
+                                @onclick="@(() => SortTransactionTypeMapping("MyTransactionType Desc"))">
+                                <i class="bi bi-sort-alpha-up-alt"></i>
+                            </button>
+                            My Transaction Type
+                        </th>
+                                                                    <th>
+                            <button class="btn btn-sm"
+                                @onclick="@(() => SortTransactionTypeMapping("Type"))">
+                                <i class="bi bi-sort-alpha-up"></i>
+                            </button>
+                            <button class="btn btn-sm"
+                                @onclick="@(() => SortTransactionTypeMapping("Type Desc"))">
+                                <i class="bi bi-sort-alpha-up-alt"></i>
+                            </button>
+                            Type
+                        </th>
+                                                    <th class="btn-group border border-1" style='width:100%'>
+                              <button accesskey="+"
+                                    @onclick="AddNewTransactionTypeMapping" class="btn btn-outline-success btn-sm">
+                                    Create
+                                    <i class="fa-solid fa-plus"></i>
+                              </button>
+                            </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var
+                    transactionTypeMapping in
+                        FilteredTransactionTypeMappingDTO)
+                            {
+                            <tr>
+                                                                    <td style="cursor:pointer" @onclick="@(() => EditTransactionTypeMapping(transactionTypeMapping.Id))">
+    <button class="btn btn-sm btn-link">
+        @transactionTypeMapping.Id
+    </button>
+</td>
+                                        <td>
+        @transactionTypeMapping.MyTransactionType
+    </td>
+                                            <td>
+        @transactionTypeMapping.Type
+    </td>
+            <td class="btn-group-vertical border border-1" style='width:100%'>
+            <button class="btn btn-sm btn-outline-warning"
+                @onclick="@(() => EditTransactionTypeMapping(transactionTypeMapping.Id))">
+                Edit
+                <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+                @onclick="@(() => DeleteTransactionTypeMapping(transactionTypeMapping.Id))">
+                Delete
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
+        </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}

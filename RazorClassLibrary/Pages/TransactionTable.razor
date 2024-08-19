@@ -1,0 +1,288 @@
+@page "/transactions"
+@using System.Globalization
+<div class="row">
+    <div class="col-md-7">
+        <label class='form-label'>Import Bank Transactions</label>
+        <InputFile type="file" onchange="HandleFileSelection" class="btn btn-primary m-1" accept=".csv" />
+        <a class='btn btn-sm btn-outline-secondary' href="/transactiontypemappings">Mappings</a>
+        <button class='btn btn-sm btn-outline-danger' @onclick='BreakdownByMyTransactionType'>Breakdown</button>
+    </div>
+    <div class="col-md-2">
+        <div class='form-group'>
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-control" @bind="@FromDate" />
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class='form-group'>
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-control" @bind="@ToDate" />
+        </div>
+    </div>
+    <div class="col-md-1">
+        <button class="btn btn-primary" @onclick="ApplyLocalFilter">Apply Filter</button>
+    </div>
+    <div class="col-md-3">
+        <h5 class="m-1">@Title of @totalRows Page: @pageNumber</h5>
+    </div>
+    @if (_serverPaging)
+    {
+        <div class="col-md-4">
+            <button title="Go to 1st page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
+                @onclick="@(()  => PageDown(true))">
+                <i class="fa-solid fa-backward-fast"></i>
+            </button>
+            <button title="Go to previous page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
+                @onclick="(()  => PageDown(false))">
+                <i class="fa-solid fa-left-long"></i>
+            </button>
+            <button title="Go to next page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
+                @onclick="(() => PageUp(false)) ">
+                <i class="fa-solid fa-right-long"></i>
+            </button>
+            <button title="Go to last page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
+                @onclick="(()  => PageUp(true))">
+                <i class="fa-solid fa-forward-fast"></i>
+            </button>
+        </div>
+    }
+    @if (_serverPaging)
+    {
+        <div class="col-md-4">
+            <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+                @bind:event="oninput" id="SearchInput" name="SearchTerm" @onblur="ApplyFilter"
+                placeholder="Filter by Description/Type/My Transaction Type (Alt+I)" />
+        </div>
+    }
+    else
+    {
+        <div class="col-md-4">
+            <input class="form-control my-1" style="float:right" @bind="@ClientSearchTerm" id="ClientSearchInput"
+                name="ClientSearchTerm" @bind:event="oninput"
+                placeholder="Filter by Description/Type/My Transaction Type" />
+        </div>
+    }
+</div>
+@if (FilteredTransactionDTO == null && _loadFailed == true)
+{
+    <h2 class="text-danger">The data failed to load
+        please try again in a little while..</h2>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <h6 class="text-danger">@ExceptionMessage</h6>
+}
+else if (FilteredTransactionDTO == null)
+{
+    <div style="display:normal;margin:auto" class="loader"></div>
+}
+else if (FilteredTransactionDTO.Count ==
+0)
+{
+    <p>No Transaction match the
+        criteria</p>
+    <button @onclick="AddNewTransaction" class="btn btn-outline-primary  btn-lg">Add
+        Record
+        <i class="fa-solid fa-plus"></i>
+    </button>
+}
+else
+{
+    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Date
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Description"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="@(() => SortTransaction("Description Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Description
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Type
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Money In
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Money Out
+                </th>
+                <th>
+                    Balance
+                </th>
+                <th>
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="@(() => SortTransaction("MyTransactionType"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="@(() => SortTransaction("MyTransactionType Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    My Transaction Type
+                </th>
+                <th class="btn-group border border-1" style='width:100%'>
+                    <button accesskey="+" @onclick="AddNewTransaction" class="btn btn-outline-success btn-sm">
+                        Create
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var
+           transaction in
+           FilteredTransactionDTO)
+            {
+                <tr>
+                    @if (transaction.Id > 0)
+                    {
+                        <td class='p-2' style="cursor:pointer" @onclick="@(() => EditTransaction(transaction.Id))">
+                            <button class="btn btn-sm btn-link">
+                                @transaction.Id
+                            </button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td class='p-2'>
+                            <span class='text-danger'>---</span>
+                        </td>
+                    }
+                    <td class='p-3'>
+                        @if (transaction.Date.HasValue)
+                        {
+                            @transaction.Date.Value.ToString("dd/MM/yyyy", new CultureInfo("en-GB"))
+                        }
+                        else
+                        {
+                            <span class='text-danger'>-----</span>
+                        }
+                    </td>
+                    <td class='p-3'>
+                        @if (transaction.MoneyIn > 0)
+                        {
+                            <span class='text-success'>@transaction.Description</span>
+                        }
+                        else if (transaction.MoneyOut > 0)
+                        {
+                            <span class='text-danger'>@transaction.Description</span>
+                        }
+                    </td>
+                    <td class='p-3'>
+                        @transaction.Type
+                    </td>
+                    <td class='p-3' style="text-align: right;">
+                        @transaction.MoneyIn.ToString("C", new CultureInfo("en-GB"))
+                    </td>
+                    <td class='p-3' style="text-align: right;">
+                        @transaction.MoneyOut.ToString("C", new CultureInfo("en-GB"))
+                    </td>
+                    <td class='p-3' style="text-align: right;">
+                        @transaction.Balance.ToString("C", new CultureInfo("en-GB"))
+                    </td>
+                    <td class='p-3'>
+                        @transaction.MyTransactionType
+                    </td>
+                    <td class="btn-group border border-1" style='width:100%'>
+                        @if (transaction.Id > 0)
+                        {
+                            <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTransaction(transaction.Id))">
+                                Edit
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteTransaction(transaction.Id))">
+                                Delete
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button disabled class="btn btn-sm btn-outline-warning"
+                                @onclick="@(() => EditTransaction(transaction.Id))">
+                                Edit
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button disabled class="btn btn-sm btn-outline-danger"
+                                @onclick="@(() => DeleteTransaction(transaction.Id))">
+                                Delete
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td colspan="3">
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    Date
+                </td>
+                <td style="text-align: right;">
+                    @FilteredTransactionDTO.Sum(x => x.MoneyIn).ToString("C", new CultureInfo("en-GB"))
+                </td>
+                <td style="text-align: right;">
+                    @FilteredTransactionDTO.Sum(x => x.MoneyOut).ToString("C", new CultureInfo("en-GB"))
+                </td>
+                <td style="text-align: right;">
+                    @FilteredTransactionDTO.Sum(x => x.Balance).ToString("C", new CultureInfo("en-GB"))
+                </td>
+                <td colspan="1">
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="@(() => SortTransaction("MyTransactionType"))">
+                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="@(() => SortTransaction("MyTransactionType Desc"))">
+                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                    </button>
+                    My Transaction Type
+                </td>
+                <td class="btn-group border border-1" style='width:100%'>
+                    <button accesskey="+" @onclick="AddNewTransaction" class="btn btn-outline-success btn-sm">
+                        Create
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}

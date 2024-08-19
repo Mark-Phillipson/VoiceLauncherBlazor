@@ -28,6 +28,8 @@ namespace DataAccessLibrary.Models
 		{
 			_configuration = configuration;
 		}
+		public virtual DbSet<Transaction> Transactions { get; set; }
+		public virtual DbSet<TransactionTypeMapping> TransactionTypeMappings { get; set; }
 		public virtual DbSet<CursorlessCheatsheetItem> CursorlessCheatsheetItems { get; set; }
 		public virtual DbSet<CssProperty> CssProperties { get; set; }
 		public virtual DbSet<TalonAlphabet> TalonAlphabets { get; set; }
@@ -96,8 +98,20 @@ namespace DataAccessLibrary.Models
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<TransactionTypeMapping>()
+				.HasIndex(t => new { t.MyTransactionType, t.Type })
+				.IsUnique();
+			modelBuilder.Entity<Transaction>()
+						.Property(c => c.MoneyIn).HasColumnType("decimal(10,2)");
+
+			modelBuilder.Entity<Transaction>()
+			.Property(c => c.Balance).HasColumnType("decimal(10,2)");
+
+			modelBuilder.Entity<Transaction>()
+			.Property(c => c.MoneyOut).HasColumnType("decimal(10,2)");
+
 			modelBuilder.Entity<AdditionalCommand>()
-				 .Property(c => c.WaitBefore).HasColumnType("decimal(10,2)");
+					.Property(c => c.WaitBefore).HasColumnType("decimal(10,2)");
 
 			modelBuilder.Entity<CustomIntelliSense>(entity =>
 			{
