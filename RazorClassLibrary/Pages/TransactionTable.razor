@@ -1,11 +1,25 @@
 @page "/transactions"
 @using System.Globalization
 <div class="row">
+    @if (message.Length > 0)
+    {
+        <div class='col-md-12'>
+            <div class="alert alert-success" role="alert">
+                @message
+            </div>
+        </div>
+    }
     <div class="col-md-7">
-        <label class='form-label'>Import Bank Transactions</label>
-        <InputFile type="file" onchange="HandleFileSelection" class="btn btn-primary m-1" accept=".csv" />
+        <label class='form-label'>Import</label>
+        <InputFile type="file" onchange="HandleFileSelection" class="btn btn-outline-secondary m-1" accept=".csv" />
         <a class='btn btn-sm btn-outline-secondary' href="/transactiontypemappings">Mappings</a>
-        <button class='btn btn-sm btn-outline-danger' @onclick='BreakdownByMyTransactionType'>Breakdown</button>
+        <button type="button" class='btn btn-sm btn-outline-secondary'
+            @onclick='BreakdownByMyTransactionType'>Breakdown</button>
+        <button type="button" class='btn btn-sm btn-outline-secondary'
+            @onclick='HouseholdChargesReport'>Household</button>
+        <button type="button" class='btn btn-sm btn-outline-secondary' @onclick='ExportToCsv'>Export</button>
+        <button type="button" class='btn btn-sm btn-outline-secondary' @onclick='ResetBreakdown'>Reset</button>
+        <input class='form-checkbox' type="checkbox" @bind="@SubtotalsOnly" /> Subtitles Only
     </div>
     <div class="col-md-2">
         <div class='form-group'>
@@ -20,7 +34,13 @@
         </div>
     </div>
     <div class="col-md-1">
-        <button class="btn btn-primary" @onclick="ApplyLocalFilter">Apply Filter</button>
+        <button class="btn btn-primary" @onclick="ApplyLocalFilter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill"
+                viewBox="0 0 16 16">
+                <path
+                    d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z" />
+            </svg>
+        </button>
     </div>
     <div class="col-md-3">
         <h5 class="m-1">@Title of @totalRows Page: @pageNumber</h5>
@@ -166,7 +186,7 @@ else
            FilteredTransactionDTO)
             {
                 <tr>
-                    @if (transaction.Id > 0)
+                    @if (!showingBreakdown)
                     {
                         <td class='p-2' style="cursor:pointer" @onclick="@(() => EditTransaction(transaction.Id))">
                             <button class="btn btn-sm btn-link">
@@ -177,7 +197,7 @@ else
                     else
                     {
                         <td class='p-2'>
-                            <span class='text-danger'>---</span>
+                            <span class='text-success'>@transaction.Id</span>
                         </td>
                     }
                     <td class='p-3'>
@@ -187,17 +207,24 @@ else
                         }
                         else
                         {
-                            <span class='text-danger'>-----</span>
+                            <span class='text-success'>-----</span>
                         }
                     </td>
                     <td class='p-3'>
-                        @if (transaction.MoneyIn > 0)
+                        @if (transaction.Description.ToLower().Contains("subtotal"))
                         {
-                            <span class='text-success'>@transaction.Description</span>
+                            <span class='text-secondary'>@transaction.Description</span>
                         }
-                        else if (transaction.MoneyOut > 0)
+                        else
                         {
-                            <span class='text-danger'>@transaction.Description</span>
+                            @if (transaction.MoneyIn > 0)
+                            {
+                                <span class='text-success'>@transaction.Description</span>
+                            }
+                            else if (transaction.MoneyOut > 0)
+                            {
+                                <span class='text-danger'>@transaction.Description</span>
+                            }
                         }
                     </td>
                     <td class='p-3'>
@@ -213,10 +240,17 @@ else
                         @transaction.Balance.ToString("C", new CultureInfo("en-GB"))
                     </td>
                     <td class='p-3'>
-                        @transaction.MyTransactionType
+                        @if (!showingBreakdown)
+                        {
+                            @transaction.MyTransactionType
+                        }
+                        else if (!transaction.Description.ToLower().Contains("subtotal"))
+                        {
+                            <span class='text-success'>@transaction.MyTransactionType</span>
+                        }
                     </td>
                     <td class="btn-group border border-1" style='width:100%'>
-                        @if (transaction.Id > 0)
+                        @if (!showingBreakdown)
                         {
                             <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTransaction(transaction.Id))">
                                 Edit

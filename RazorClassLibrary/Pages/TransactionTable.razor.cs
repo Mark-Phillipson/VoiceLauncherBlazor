@@ -37,10 +37,26 @@ namespace RazorClassLibrary.Pages
         public List<TransactionDTO>? TransactionDTO { get; set; }
         public List<TransactionDTO>? FilteredTransactionDTO { get; set; }
         protected TransactionAddEdit? TransactionAddEdit { get; set; }
+        private bool showingBreakdown = false;
         [Inject] public required NavigationManager navigationManager { get; set; }
         ElementReference SearchInput;
 #pragma warning disable 414, 649
         private bool _loadFailed = false;
+        private bool SubtotalsOnly
+        {
+            get => subtotalsOnly; set
+            {
+                subtotalsOnly = value;
+                if (subtotalsOnly && FilteredTransactionDTO != null)
+                {
+                    FilteredTransactionDTO = FilteredTransactionDTO.Where(v => v.MyTransactionType == "SUBTOTAL").ToList();
+                }
+                else
+                {
+                    HouseholdChargesReport();
+                }
+            }
+        }
         private string? searchTerm = null;
 #pragma warning restore 414, 649
         public string? SearchTerm { get => searchTerm; set { searchTerm = value; } }
@@ -95,6 +111,8 @@ namespace RazorClassLibrary.Pages
         private int pageNumber = 1;
         private int pageSize = 200;
         private int totalRows = 0;
+        private string message = "When downloading the transactions from the bank you have set the date filter and make them all appear on the page and then scroll to the bottom and then click download. This will download all the transactions to a CSV file.";
+        private bool subtotalsOnly = false;
 
         private int TransactionId { get; set; }
         private TransactionDTO? currentTransaction { get; set; }
@@ -122,6 +140,7 @@ namespace RazorClassLibrary.Pages
                     {
                         TransactionDTO = result.ToList();
                         FilteredTransactionDTO = result.ToList();
+                        showingBreakdown = false;
                         StateHasChanged();
                     }
                 }
@@ -372,8 +391,98 @@ namespace RazorClassLibrary.Pages
                 breakdown.Add(transaction);
             }
             FilteredTransactionDTO = breakdown;
-            Title = $"Transaction Breakdown by MyTransactionType ({FilteredTransactionDTO.Count})";
+            Title = $"My Transaction Type ({FilteredTransactionDTO.Count})";
+            showingBreakdown = true;
             StateHasChanged();
+        }
+        private void HouseholdChargesReport()
+        {
+            // The report should break down each individual household charge for each month giving a total for each month
+            var householdCharges = FilteredTransactionDTO?.Where(v => v.MyTransactionType == "Household").ToList();
+            if (householdCharges == null)
+            {
+                return;
+            }
+            int sortOrder = 0; string lastMonthYear = "";
+            var uniqueMonthYearDescriptions = householdCharges
+                .Select(v => new { Month = v.Date?.Month, Year = v.Date?.Year, v.Description })
+                .Distinct()
+                .ToList();
+            var breakdown = new List<TransactionDTO>();
+            object? lastMonth = null;
+            decimal totalMoneyOut = 0; decimal totalMoneyIn = 0;
+            decimal subtotalmoneyIn = 0; decimal subtotalmoneyOut = 0;
+            foreach (var selectedMonth in uniqueMonthYearDescriptions.OrderBy(x => x.Year).ThenBy(x => x.Month).ThenBy(x => x.Description))
+            {
+                if (lastMonthYear != $"{selectedMonth.Month}/{selectedMonth.Year}" && lastMonthYear != "" && lastMonth != null)
+                {
+                    AddSubBreakdown(householdCharges, ref sortOrder, breakdown, ref subtotalmoneyIn, ref subtotalmoneyOut, lastMonth);
+                }
+                sortOrder++;
+                totalMoneyIn = householdCharges.Where(v => v.Date?.Month != null && v.Date?.Month == selectedMonth.Month && v.Date?.Year == selectedMonth.Year && selectedMonth.Description == v.Description).Sum(v => v.MoneyIn);
+                totalMoneyOut = householdCharges.Where(v => v.Date?.Month == selectedMonth.Month && v.Date?.Year == selectedMonth.Year && selectedMonth.Description == v.Description).Sum(v => v.MoneyOut);
+                var totalTransactions = householdCharges.Where(v => v.Date?.Month == selectedMonth.Month && v.Date?.Year == selectedMonth.Year).Count();
+                var transaction = new TransactionDTO
+                {
+                    Id = sortOrder,
+                    Date = selectedMonth.Year != null && selectedMonth.Month != null ? new DateTime((int)selectedMonth.Year, (int)selectedMonth.Month, 1) : null,
+                    Type = householdCharges.FirstOrDefault(v => v.Date?.Month == selectedMonth.Month && v.Date?.Year == selectedMonth.Year && v.Description == selectedMonth.Description)?.Type,
+                    MyTransactionType = "Household",
+                    MoneyIn = totalMoneyIn,
+                    MoneyOut = totalMoneyOut,
+                    Description = selectedMonth.Description
+                };
+                breakdown.Add(transaction);
+                subtotalmoneyIn += totalMoneyIn;
+                subtotalmoneyOut += totalMoneyOut;
+                lastMonthYear = $"{selectedMonth.Month}/{selectedMonth.Year}";
+                lastMonth = selectedMonth;
+            }
+            if (lastMonth != null)
+            {
+                AddSubBreakdown(householdCharges, ref sortOrder, breakdown, ref subtotalmoneyIn, ref subtotalmoneyOut, lastMonth);
+            }
+            FilteredTransactionDTO = breakdown.OrderBy(x => x.Id).ToList();
+            Title = $"Household Charges ({FilteredTransactionDTO.Count})";
+            showingBreakdown = true;
+            // StateHasChanged();
+        }
+
+        private static void AddSubBreakdown(List<TransactionDTO>? householdCharges, ref int sortOrder, List<TransactionDTO> breakdown, ref decimal subtotalmoneyIn, ref decimal subtotalmoneyOut, object month)
+        {
+            // Add a sub breakdown at the end of each month
+            sortOrder++;
+            var subBreakdown = householdCharges?.Where(v => ((dynamic)month).Month == v.Date?.Month && ((dynamic)month).Year == v.Date?.Year).ToList();
+            var subtotalTransaction = new TransactionDTO
+            {
+                Id = sortOrder,
+                Date = null,//month.Year != null && month.Month != null ? new DateTime((int)month.Year, (int)month.Month, 1) : null,
+                Type = "",
+                MyTransactionType = "SUBTOTAL",
+                MoneyIn = subtotalmoneyIn,
+                MoneyOut = subtotalmoneyOut,
+                Description = $"SUBTOTAL {((dynamic)month).Month}/{((dynamic)month).Year}"
+            };
+            subtotalmoneyIn = 0;
+            subtotalmoneyOut = 0;
+            breakdown.Add(subtotalTransaction);
+        }
+        private void ResetBreakdown()
+        {
+            FilteredTransactionDTO = TransactionDTO;
+            Title = $"Transaction ({FilteredTransactionDTO?.Count ?? 0})";
+            showingBreakdown = false;
+        }
+        private void ExportToCsv()
+        {
+            if (FilteredTransactionDTO == null)
+            {
+                return;
+            }
+            var data = FilteredTransactionDTO;
+            var fileName = $"Transactions_{DateTime.Now:yyyyMMddHHmmss}.csv";
+            var excelService = new ExcelService();
+            message = excelService.ExportTransactionsToExcel(data, fileName);
         }
     }
 }
