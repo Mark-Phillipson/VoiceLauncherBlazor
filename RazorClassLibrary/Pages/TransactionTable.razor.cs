@@ -109,13 +109,14 @@ namespace RazorClassLibrary.Pages
         public bool ShowEdit { get; set; } = false;
         private bool ShowDeleteConfirm { get; set; }
         private int pageNumber = 1;
-        private int pageSize = 200;
+        private int pageSize = 500;
         private int totalRows = 0;
-        private string message = "When downloading the transactions from the bank you have set the date filter and make them all appear on the page and then scroll to the bottom and then click download. This will download all the transactions to a CSV file.";
+        private string informationMessage = "When downloading the transactions from the bank you have set the date filter and make them all appear on the page and then scroll to the bottom and then click download. This will download all the available transactions to a CSV file.";
         private bool subtotalsOnly = false;
 
         private int TransactionId { get; set; }
         private TransactionDTO? currentTransaction { get; set; }
+        private string errorMessage { get; set; } = String.Empty;
         private string? Message { get; set; }
         protected override async Task OnInitializedAsync()
         {
@@ -356,11 +357,21 @@ namespace RazorClassLibrary.Pages
             {
                 var reader = new StreamReader(file.OpenReadStream());
                 var fileContent = await reader.ReadToEndAsync();
-                var transactions = await TransactionDataService.ImportTransactions(fileContent, file.Name);
-                transactions = await TransactionDataService.ProcessTransactions(transactions);
-                if (transactions != null)
+                var importedTransactions = await TransactionDataService.ImportTransactions(fileContent, file.Name);
+                errorMessage = "";
+                if (importedTransactions.Errors.Count > 0)
                 {
-                    int result = await TransactionDataService.AddTransactions(transactions);
+                    foreach (var error in importedTransactions.Errors)
+                    {
+                        errorMessage += error + Environment.NewLine;
+                    }
+                    return;
+                }
+                var processedTransactions = await TransactionDataService.ProcessTransactions(importedTransactions.Transactions);
+                if (processedTransactions != null)
+                {
+                    int result = await TransactionDataService.AddTransactions(processedTransactions);
+                    informationMessage = $"{result} Transactions added successfully";
                     await LoadData();
 
                 }
@@ -482,7 +493,7 @@ namespace RazorClassLibrary.Pages
             var data = FilteredTransactionDTO;
             var fileName = $"Transactions_{DateTime.Now:yyyyMMddHHmmss}.csv";
             var excelService = new ExcelService();
-            message = excelService.ExportTransactionsToExcel(data, fileName);
+            informationMessage = excelService.ExportTransactionsToExcel(data, fileName);
         }
     }
 }

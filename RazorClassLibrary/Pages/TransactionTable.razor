@@ -1,11 +1,19 @@
 @page "/transactions"
 @using System.Globalization
 <div class="row">
-    @if (message.Length > 0)
+    @if (informationMessage.Length > 0)
     {
         <div class='col-md-12'>
             <div class="alert alert-success" role="alert">
-                @message
+                @informationMessage
+            </div>
+        </div>
+    }
+    @if (errorMessage.Length > 0)
+    {
+        <div class='col-md-12'>
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
             </div>
         </div>
     }
@@ -21,6 +29,7 @@
         <button type="button" class='btn btn-sm btn-outline-secondary' @onclick='ResetBreakdown'>Reset</button>
         <input class='form-checkbox' type="checkbox" @bind="@SubtotalsOnly" /> Subtitles Only
     </div>
+
     <div class="col-md-2">
         <div class='form-group'>
             <label class="form-label">From Date</label>
@@ -47,7 +56,7 @@
     </div>
     @if (_serverPaging)
     {
-        <div class="col-md-4">
+        <div class="col-md-2">
             <button title="Go to 1st page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
                 @onclick="@(()  => PageDown(true))">
                 <i class="fa-solid fa-backward-fast"></i>
@@ -64,6 +73,17 @@
                 @onclick="(()  => PageUp(true))">
                 <i class="fa-solid fa-forward-fast"></i>
             </button>
+        </div>
+        <div class="col-md-2">
+            <div class='row'>
+                <div class='col-md-3'>
+                    <label for='pageSize'>Page Size</label>
+                </div>
+                <div class='col-md-9'>
+                    <input id='pageSize' name='pageSize' @onblur="ApplyFilter" class='form-control' type="number"
+                        @bind="@pageSize" />
+                </div>
+            </div>
         </div>
     }
     @if (_serverPaging)
@@ -112,16 +132,17 @@ else
                 <th>
                     Id
                 </th>
-                <th>
+                <th style="width: 10%;">
+                    Date
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    Date
                 </th>
-                <th>
+                <th style='width:25%'>
+                    Description
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Description"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
                     </button>
@@ -129,39 +150,36 @@ else
                         @onclick="@(() => SortTransaction("Description Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    Description
                 </th>
-                <th>
+                <th style="width: 10%;">
+                    Type
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    Type
                 </th>
-                <th>
+                <th style="width: 12%;">
+                    Money In
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    Money In
                 </th>
-                <th>
+                <th style="width: 12%;">
+                    Money Out
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    Money Out
                 </th>
-                <th>
-                    Balance
-                </th>
-                <th>
+                <th style="width: 12%;">
+                    My Type
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("MyTransactionType"))">
                         <i class="fa-solid fa-arrow-up-a-z"></i>
@@ -170,9 +188,8 @@ else
                         @onclick="@(() => SortTransaction("MyTransactionType Desc"))">
                         <i class="fa-solid fa-arrow-up-z-a"></i>
                     </button>
-                    My Transaction Type
                 </th>
-                <th class="btn-group border border-1" style='width:100%'>
+                <th class="btn-group border border-1">
                     <button accesskey="+" @onclick="AddNewTransaction" class="btn btn-outline-success btn-sm">
                         Create
                         <i class="fa-solid fa-plus"></i>
@@ -235,9 +252,6 @@ else
                     </td>
                     <td class='p-3' style="text-align: right;">
                         @transaction.MoneyOut.ToString("C", new CultureInfo("en-GB"))
-                    </td>
-                    <td class='p-3' style="text-align: right;">
-                        @transaction.Balance.ToString("C", new CultureInfo("en-GB"))
                     </td>
                     <td class='p-3'>
                         @if (!showingBreakdown)

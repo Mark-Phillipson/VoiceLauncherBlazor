@@ -9,6 +9,7 @@ using DataAccessLibrary.Repositories;
 using DataAccessLibrary.DTOs;
 using System.IO;
 using System.Globalization;
+using DataAccessLibrary.Models;
 
 
 namespace DataAccessLibrary.Services
@@ -71,9 +72,9 @@ namespace DataAccessLibrary.Services
             return result;
         }
 
-        public Task<List<TransactionDTO>> ImportTransactions(string fileContents, string filename)
+        public Task<ImportResult> ImportTransactions(string fileContents, string filename)
         {
-            var transactions = new List<TransactionDTO>();
+            var result = new ImportResult();
 
             using (var reader = new StringReader(fileContents))
             {
@@ -90,7 +91,7 @@ namespace DataAccessLibrary.Services
                     }
                     if (values == null || values.Length == 0)
                     {
-                        System.Console.WriteLine("Invalid line: " + line);
+                        result.Errors.Add("Invalid line: " + line);
                         continue;
                     }
                     DateTime date;
@@ -100,12 +101,13 @@ namespace DataAccessLibrary.Services
                     }
                     try
                     {
-                        date = DateTime.ParseExact(values[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                        string dateString = values[0].Split(' ')[0];
+                        date = DateTime.ParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                     }
                     catch (System.Exception exception)
                     {
-                        System.Console.WriteLine($"Invalid date: {exception.Message}");
-                        throw;
+                        result.Errors.Add($"Invalid date: {exception.Message}");
+                        continue;
                     }
                     string description = values[1];
                     string type = values[2];
@@ -137,11 +139,11 @@ namespace DataAccessLibrary.Services
                         ImportDate = DateTime.Now
                     };
 
-                    transactions.Add(transaction);
+                    result.Transactions.Add(transaction);
                 }
             }
 
-            return Task.FromResult(transactions);
+            return Task.FromResult(result);
         }
 
 
@@ -167,5 +169,6 @@ namespace DataAccessLibrary.Services
             var result = await _transactionRepository.AddTransactions(transactions);
             return result;
         }
+
     }
 }

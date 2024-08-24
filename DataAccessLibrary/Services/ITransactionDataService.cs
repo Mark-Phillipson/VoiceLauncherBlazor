@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLibrary.DTOs;
+using DataAccessLibrary.Models;
 
 namespace DataAccessLibrary.Services
 {
@@ -14,7 +15,7 @@ namespace DataAccessLibrary.Services
         Task<TransactionDTO> UpdateTransaction(TransactionDTO transactionDTO, string? username);
         Task DeleteTransaction(int Id);
         Task<int> GetTotalCount();
-        Task<List<TransactionDTO>> ImportTransactions(string fileContent, string filename);
+        Task<ImportResult> ImportTransactions(string fileContent, string filename);
         Task<List<TransactionDTO>> ProcessTransactions(List<TransactionDTO> transactions);
         Task<int> AddTransactions(List<TransactionDTO> transactions);
     }
