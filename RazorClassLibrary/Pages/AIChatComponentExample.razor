@@ -33,12 +33,17 @@
     </div>
 }
 <hr>
-@if (response != null && response.Value != null)
+@if (response != null && response.Items.Count > 0)
 {
     <label>Latest Response</label>
     <button class="btn btn-outline-success btn-sm m-1" type="button"
         @onclick="@( ( ) => ResizeResponse(  ) )">Resize</button>
-    <textarea @ref="textAreaRefResponse" class=' form-control' width='100%'>@response.Value.ToString() </textarea>
+    <textarea @ref="textAreaRefResponse" class=' form-control' width='100%'>
+        @foreach (var item in response.Items)
+        {
+            @item
+        }
+        </textarea>
 }
 <button class="btn btn-primary m-1" @onclick="@( ( ) => ToggleHistory(  ) )">Toggle History</button>
 @if (showHistory)

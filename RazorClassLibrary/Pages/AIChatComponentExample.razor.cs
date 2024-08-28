@@ -1,23 +1,28 @@
 using OpenAI.Chat;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Collections.Generic;
 using DataAccessLibrary.DTO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using SampleApplication.Services;
+using Microsoft.SemanticKernel;
 
 namespace RazorClassLibrary.Pages
 {
     public partial class AIChatComponentExample : ComponentBase
     {
         [Inject] public required IPromptDataService PromptDataService { get; set; }
-        private List<PromptDTO> prompts;
+        private List<PromptDTO> prompts = new List<PromptDTO>();
         private PromptDTO? selectedPrompt = null;
         private int selectedPromptId = 0;
         string prompt = "";
         string? history = "";
-        System.ClientModel.ClientResult<ChatCompletion>? response;
+        bool addedPredefinedPrompt = false;
+        Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
+        Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
         string? responseHistory;
-        ChatClient openAI = new ChatClient("gpt-4o", Constants.OpenAIAPIKEY);
+        IChatCompletionService chatService = new OpenAIChatCompletionService("gpt-4o-mini", Constants.OpenAIAPIKEY);
         private ElementReference inputElement;
         private ElementReference textAreaRefResponse;
         private ElementReference textAreaRefResponseHistory;
@@ -47,14 +52,23 @@ namespace RazorClassLibrary.Pages
                 return;
             }
             processing = true;
-            if (!string.IsNullOrWhiteSpace(selectedPrompt?.PromptText))
+            ChatHistory chatHistory = new();
+
+            PromptExecutionSettings settings = new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
+            if (addedPredefinedPrompt == false)
             {
-                predefinedPrompt = selectedPrompt.PromptText;
+                if (!string.IsNullOrWhiteSpace(selectedPrompt?.PromptText))
+                {
+                    predefinedPrompt = selectedPrompt.PromptText;
+                }
+                addedPredefinedPrompt = true;
+                chatHistory.AddUserMessage(predefinedPrompt);
+                kernel.ImportPluginFromType<MarkInformation>();
             }
-            response = await openAI.CompleteChatAsync(predefinedPrompt, history, prompt);
+            chatHistory.AddUserMessage(prompt);
+            response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
             processing = false;
-            responseHistory = responseHistory + "\n" + response.Value.ToString();
-            history = history + "\n" + prompt;
+            responseHistory = responseHistory + "\n" + response.Items;
             try
             {
                 await JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefResponse);
@@ -113,7 +127,7 @@ namespace RazorClassLibrary.Pages
         {
             history = "";
             responseHistory = "";
-            response = null;
+            response.Items.Clear();
             selectedPrompt = null;
         }
         private async Task OnValueChangedMethodName(int id)
@@ -129,6 +143,29 @@ namespace RazorClassLibrary.Pages
                 showHistory = !showHistory;
             }
         }
-
     }
+}
+public class MarkInformation
+{
+    [KernelFunction]
+    public string GetInformationAboutMark(string information)
+    {
+        if (information == "age")
+        {
+            return "Mark Was Born on the a day in August 1964 so he is currently sixty years old";
+        }
+        else if (information == "location")
+        {
+            return "Mark's location is Maidstone Kent";
+        }
+        else if (information == "job")
+        {
+            return "Mark's is a wannabe software developer";
+        }
+        else
+        {
+            return "I'm sorry, I don't know that information about Mark.";
+        }
+    }
+
 }

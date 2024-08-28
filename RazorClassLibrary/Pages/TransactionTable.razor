@@ -1,5 +1,26 @@
 @page "/transactions"
 @using System.Globalization
+@if (HouseholdTransactions != null && HouseholdTransactions.Count > 0 && HouseholdTransactionsPrevious != null
+&& HouseholdTransactionsPrevious.Count > 0)
+{
+    <div style='background-color:black'>
+        <h4>Household Charges</h4>
+        <RadzenChart ColorScheme="ColorScheme.Palette">
+            <RadzenLineSeries Smooth="true" Data="@HouseholdTransactions.Where(x => x.MoneyOut > 0).ToList()"
+                CategoryProperty="Description" Title="Current Year" Visible="true" LineType="LineType.Solid"
+                ValueProperty="MoneyOut">
+                <RadzenMarkers Visible="true" MarkerType="MarkerType.Auto" />
+                @* <RadzenSeriesDataLabels Visible="false" /> *@
+            </RadzenLineSeries>
+            <RadzenLineSeries Smooth="true" Data="@HouseholdTransactionsPrevious.Where(x => x.MoneyOut > 0).ToList()"
+                CategoryProperty="Description" Title="Previous Year" Visible="true" LineType="LineType.Solid"
+                ValueProperty="MoneyOut">
+                <RadzenMarkers Visible="true" MarkerType="MarkerType.Auto" />
+                @* <RadzenSeriesDataLabels Visible="false" /> *@
+            </RadzenLineSeries>
+        </RadzenChart>
+    </div>
+}
 <div class="row">
     @if (informationMessage.Length > 0)
     {

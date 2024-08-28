@@ -6,7 +6,7 @@ using DataAccessLibrary.Models;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Services;
 using Microsoft.EntityFrameworkCore;
-
+using Radzen;
 using SampleApplication.Repositories;
 using SampleApplication.Services;
 using SmartComponents.Inference.OpenAI;
@@ -27,6 +27,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.Us
 builder.Services.AddSmartComponents()
 	.WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
+builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CreateCommands>();
 builder.Services.AddScoped<AdditionalCommandService>();

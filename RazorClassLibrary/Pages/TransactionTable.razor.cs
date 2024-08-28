@@ -36,6 +36,8 @@ namespace RazorClassLibrary.Pages
         [Parameter] public int ParentId { get; set; }
         public List<TransactionDTO>? TransactionDTO { get; set; }
         public List<TransactionDTO>? FilteredTransactionDTO { get; set; }
+        public List<TransactionDTO>? HouseholdTransactions { get; set; }
+        public List<TransactionDTO>? HouseholdTransactionsPrevious { get; set; }
         protected TransactionAddEdit? TransactionAddEdit { get; set; }
         private bool showingBreakdown = false;
         [Inject] public required NavigationManager navigationManager { get; set; }
@@ -142,6 +144,7 @@ namespace RazorClassLibrary.Pages
                         TransactionDTO = result.ToList();
                         FilteredTransactionDTO = result.ToList();
                         showingBreakdown = false;
+                        FilterHouseholdTransactions();
                         StateHasChanged();
                     }
                 }
@@ -156,6 +159,37 @@ namespace RazorClassLibrary.Pages
             Title = $"Transaction ({FilteredTransactionDTO?.Count})";
 
         }
+
+        private void FilterHouseholdTransactions()
+        {
+            if (TransactionDTO == null)
+            {
+                return;
+            }
+            HouseholdTransactions = TransactionDTO
+                .Where(v => v.MyTransactionType == "Household" && v.Date.HasValue && v.Date.Value.Year == DateTime.Now.Year)
+                .GroupBy(v => new { v.Date?.Year, v.Date?.Month })
+                .Select(g => new TransactionDTO
+                {
+                    Date = g.Key.Year.HasValue && g.Key.Month.HasValue ? new DateTime((int)g.Key.Year, (int)g.Key.Month, 1) : DateTime.MinValue,
+                    MoneyOut = g.Sum(t => t.MoneyOut),
+                    Description = $"{(g.Key.Month < 10 ? "0" + g.Key.Month.ToString() : g.Key.Month.ToString())}"
+                })
+                .OrderBy(x => x.Description)
+                .ToList();
+            HouseholdTransactionsPrevious = TransactionDTO
+                            .Where(v => v.MyTransactionType == "Household" && v.Date.HasValue && v.Date.Value.Year == DateTime.Now.Year - 1)
+                            .GroupBy(v => new { v.Date?.Year, v.Date?.Month })
+                            .Select(g => new TransactionDTO
+                            {
+                                Date = g.Key.Year.HasValue && g.Key.Month.HasValue ? new DateTime((int)g.Key.Year, (int)g.Key.Month, 1) : DateTime.MinValue,
+                                MoneyOut = g.Sum(t => t.MoneyOut),
+                                Description = $"{(g.Key.Month < 10 ? "0" + g.Key.Month.ToString() : g.Key.Month.ToString())}"
+                            })
+                            .OrderBy(x => x.Description)
+                            .ToList();
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
