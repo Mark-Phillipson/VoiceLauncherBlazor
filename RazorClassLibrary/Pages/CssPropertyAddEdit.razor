@@ -11,7 +11,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <label for="PropertyName">Property Name: </label> <i class="text-danger fa">*</i>
+                    <label @ref="FirstInput" for="PropertyName">Property Name: </label> <i class="text-danger fa">*</i>
                     <InputTextArea rows="2" id="PropertyName" class="form-control"
                         @bind-Value="@CssPropertyDTO.PropertyName" placeholder="Enter Property Name"></InputTextArea>
                     <ValidationMessage For="@(() => CssPropertyDTO.PropertyName)" />

@@ -56,7 +56,6 @@ namespace RazorClassLibrary.Pages
         private bool ShowDeleteConfirm { get; set; }
         private int CursorlessCheatsheetItemId { get; set; }
         private string cursorlessTypeFilter = "Action";
-        private string? text; // Optionally, set a default value here
         private List<string> cursorlessTypeFilterList = new List<string> { "Action", "Compound Targets", "Destination", "Modifier", "Paired Delimiters", "Scope", "Scope visualizer", "Special Mark" };
         private int counter = 0;
         private bool showCards = true;

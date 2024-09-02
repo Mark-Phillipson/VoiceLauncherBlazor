@@ -13,13 +13,10 @@
 	</header>
 }
 <div class="row">
-	@if (!RunningInBlazorHybrid)
-	{
-		<div class='col-md-1'>
-			<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success m-1" accesskey="0"
-				@onclick="CreateNew"><i class="fas fa-plus"></i> Add</button>
-		</div>
-	}
+	<div class='col-md-1'>
+		<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success m-1" accesskey="0"
+			@onclick="CreateNew"><i class="fas fa-plus"></i> Add</button>
+	</div>
 	@if (!RunningInBlazorHybrid)
 	{
 		<div class='col-md-2'>
@@ -37,11 +34,14 @@
 				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" class="form-control col-md-1"
 				accesskey="3" placeholder="Blur to Filter (3)" />
 		</div>
-		<div class='col-md-1'>
-			<label for='useSemanticMatching'>Semantic?</label>
-			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
-				class='form-checkbox' />
-		</div>
+		@if (!RunningInBlazorHybrid)
+		{
+			<div class='col-md-1'>
+				<label for='useSemanticMatching'>Semantic?</label>
+				<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
+					class='form-checkbox' />
+			</div>
+		}
 		<div class='col-md-1'>
 			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
@@ -175,13 +175,9 @@ else
 									@intellisense.DisplayValue
 									<i class="fa-regular fa-edit"></i>
 								</button>
-								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-primary"
-									@onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))">
-									<u>@currentLetter</u> <i class="fa-regular fa-copy"></i>
-								</button>
-								<button title="Copy and switch and paste" class="btn btn-sm btn-danger"
+								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-danger"
 									@onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue,intellisense.Id))">
-									<i class="fa-solid fa-paste"></i>
+									<u>@currentLetter</u> <i class="fa-solid fa-paste"></i>
 								</button>
 							</div>
 						</div>
@@ -293,15 +289,15 @@ else
 	}
 
 	<pre class='mt-2'>
-																															<code class='m-2'>
+																																		<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-																																																														<textarea rows="7" style='width:95%;color:white;background:black'>
+																																																																				<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																																																																																</textarea>
+																																																																																						</textarea>
 			}
-																																				</code>
-																																				</pre>
+																																							</code>
+																																							</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {

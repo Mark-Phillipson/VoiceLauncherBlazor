@@ -424,12 +424,18 @@ namespace RazorClassLibrary.Pages
 			}
 			await CloseApplication.InvokeAsync();
 		}
-		private void CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
+		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 			if (customIntelliSenseCurrent != null)
 			{
 				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
+				if (JSRuntime != null)
+				{
+					await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
+					var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
+					ToastService!.ShowSuccess(message);
+				}
 				CustomIntelliSenseDTO customIntelliSenseDTO = new CustomIntelliSenseDTO();
 				customIntelliSenseDTO.SelectCharactersLeft = customIntelliSenseCurrent.SelectCharactersLeft;
 				customIntelliSenseDTO.SelectWordFromRight = customIntelliSenseCurrent.SelectWordFromRight;

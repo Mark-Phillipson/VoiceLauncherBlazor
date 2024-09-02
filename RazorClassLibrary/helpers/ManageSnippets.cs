@@ -70,14 +70,14 @@ namespace RazorClassLibrary.helpers
 	}
 	public class VisualStudioCodeSnippet
 	{
-		public Dictionary<string, CodeSnippet> CodeSnippets { get; set; }
+		public Dictionary<string, CodeSnippet> CodeSnippets { get; set; } = new Dictionary<string, CodeSnippet>();
 	}
 
 	public class CodeSnippet
 	{
-		public string Scope { get; set; }
-		public string Prefix { get; set; }
-		public List<string> Body { get; set; }
-		public string Description { get; set; }
+		public string? Scope { get; set; }
+		public string? Prefix { get; set; }
+		public List<string> Body { get; set; } = new List<string>();
+		public string? Description { get; set; }
 	}
 }
