@@ -66,7 +66,9 @@ namespace RazorClassLibrary.Pages
                 kernel.ImportPluginFromType<MarkInformation>();
             }
             chatHistory.AddUserMessage(prompt);
+            // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
             response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
+
             processing = false;
             responseHistory = responseHistory + "\n" + response.Items;
             try

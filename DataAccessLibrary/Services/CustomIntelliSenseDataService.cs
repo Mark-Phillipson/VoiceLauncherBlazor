@@ -67,7 +67,7 @@ namespace VoiceLauncher.Services
         {
             InputSimulator simulator = new InputSimulator();
             simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-            simulator.Keyboard.Sleep(100);
+            simulator.Keyboard.Sleep(300);
             simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
             simulator.Keyboard.Sleep(300);
             simulator.Keyboard.TextEntry(itemToCopyAndPaste);

@@ -1,7 +1,7 @@
 ﻿@page "/launchersfavourites/"
 <div class="row">
 	<div class="col-md-4">
-		<h5 class="page-title m-1">@Title</h5>
+		<h5="page-title m-1">@Title</h5>
 	</div>
 	<div class="col-md-1">
 	</div>
@@ -15,7 +15,7 @@
 {
 	<div class="alert alert-warning alert-dismissible fade show" role="alert">
 		<strong>Warning!</strong> @Message
-		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		<button type="button" class="btn-close" daclass-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
 }
 @if (FilteredLauncherDTO == null && _loadFailed == true)
@@ -57,6 +57,8 @@ else
 						<a accesskey="@counter" class="btn btn-lg btn-outline-success" target="_blank" href="@launcher.CommandLine">
 							<img height="75" src='/images/@launcher.Icon' />
 							<u>@counter</u> @launcher.Name
+							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
+								@onblur="@(() => UpdateFavorite(launcher))" />
 						</a>
 					}
 					else
@@ -64,7 +66,10 @@ else
 						<a accesskey="@counter" class="btn btn-lg btn-outline-success my-2" target="_blank"
 							href="@launcher.CommandLine"><i style='font-size:70px' class="fa-solid fa-rocket mt-1 text-danger"></i>
 							<u>@counter</u>
-							<span class='p-3'>@launcher.Name </span>
+							<span class='p-3'>@launcher.Name
+								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
+									@onblur="@(() => UpdateFavorite(launcher))" />
+							</span>
 						</a>
 					}
 				}
@@ -81,7 +86,10 @@ else
 							<i style='font-size:70px' class="fa-solid fa-rocket"></i>
 						}
 						<u>@counter</u>
-						<span>@launcher.Name</span>
+						<span>@launcher.Name
+							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
+								@onblur="@(() => UpdateFavorite(launcher))" />
+						</span>
 					</button>
 				}
 			</div>

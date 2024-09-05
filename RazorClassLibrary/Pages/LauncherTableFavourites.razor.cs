@@ -19,11 +19,11 @@ namespace RazorClassLibrary.Pages
 {
 	public partial class LauncherTableFavourites : ComponentBase
 	{
-		[Inject] public ILauncherDataService? LauncherDataService { get; set; }
-		[Inject] public ICategoryDataService? CategoryDataService { get; set; }
-		[Inject] public NavigationManager? NavigationManager { get; set; }
-		[Inject] public ILogger<LauncherTableFavourites>? Logger { get; set; }
-		[Inject] public IToastService? ToastService { get; set; }
+		[Inject] public required ILauncherDataService LauncherDataService { get; set; }
+		[Inject] public required ICategoryDataService CategoryDataService { get; set; }
+		[Inject] public required NavigationManager NavigationManager { get; set; }
+		[Inject] public required ILogger<LauncherTableFavourites> Logger { get; set; }
+		[Inject] public required IToastService ToastService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		public string Title { get; set; } = "Favourite Launcher Items";
 		private int? counter = 0;
@@ -238,6 +238,11 @@ namespace RazorClassLibrary.Pages
 			var random = new Random();
 			return string.Format("#{0:X6}", random.Next(0x1000000)); // = "#A197B9"
 
+		}
+		private async Task UpdateFavorite(LauncherDTO launcher)
+		{
+			await LauncherDataService.UpdateLauncher(launcher, "TBC");
+			await LoadData();
 		}
 	}
 }
