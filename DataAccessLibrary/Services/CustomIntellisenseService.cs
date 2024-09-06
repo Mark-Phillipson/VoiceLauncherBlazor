@@ -15,10 +15,10 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string languageFilter = null, string categoryFilter = null, bool useSemanticMatching = false)
+		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string? languageFilter = null, string? categoryFilter = null, bool useSemanticMatching = false)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<CustomIntelliSense> intellisenses = null;
+			IQueryable<CustomIntelliSense> intellisenses = new List<CustomIntelliSense>().AsQueryable();
 			try
 			{
 				intellisenses = context.CustomIntelliSenses.Include(i => i.Category).AsSingleQuery().Include(i => i.Language).AsSingleQuery().OrderBy(v => v.Category);
@@ -27,33 +27,37 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
-			intellisenses = intellisenses.Where(v => v.Language.Active);
+			if (intellisenses == null)
+			{
+				return new List<CustomIntelliSense>();
+			}
+			intellisenses = intellisenses.Where(v => v.Language != null && v.Language.Active);
 			if (Environment.MachineName != "J40L4V3")
 			{
-				intellisenses = intellisenses.Where(v => v.Category.Sensitive == false);
+				intellisenses = intellisenses.Where(v => v.Category != null && v.Category.Sensitive == false);
 			}
 			if (searchTerm != null && searchTerm.Length > 0 && useSemanticMatching == false)
 			{
 				var searchTerms = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-				intellisenses = intellisenses.Where(v => searchTerms.All(term => v.DisplayValue.Contains(term) || v.SendKeysValue.Contains(term)));
+				intellisenses = intellisenses.Where(v => searchTerms.All(term => v.DisplayValue != null && v.DisplayValue.Contains(term) || v.SendKeysValue != null && v.SendKeysValue.Contains(term)));
 			}
 			if (!string.IsNullOrWhiteSpace(languageFilter))
 			{
-				intellisenses = intellisenses.Where(v => v.Language.LanguageName.Contains(languageFilter));
+				intellisenses = intellisenses.Where(v => v.Language != null && v.Language.LanguageName.Contains(languageFilter));
 			}
 			if (!string.IsNullOrWhiteSpace(categoryFilter))
 			{
-				intellisenses = intellisenses.Where(v => v.Category.CategoryName.Contains(categoryFilter));
+				intellisenses = intellisenses.Where(v => v.Category != null && v.Category.CategoryName.Contains(categoryFilter));
 			}
 			if (sortType != null && sortColumn != null)
 			{
 				if (sortColumn == "LanguageName" && sortType == "Ascending")
 				{
-					intellisenses = intellisenses.OrderBy(v => v.Language.LanguageName);
+					intellisenses = intellisenses.OrderBy(v => v.Language!.LanguageName);
 				}
 				else if (sortColumn == "LanguageName" && sortType == "Descending")
 				{
-					intellisenses = intellisenses.OrderByDescending(v => v.Language.LanguageName);
+					intellisenses = intellisenses.OrderByDescending(v => v.Language!.LanguageName);
 				}
 				else if (sortColumn == "DisplayValue" && sortType == "Ascending")
 				{
@@ -66,7 +70,7 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				intellisenses = intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(t => t.Category.CategoryName).ThenBy(b => b.DisplayValue);
+				intellisenses = intellisenses.OrderBy(v => v.Language!.LanguageName).ThenBy(t => t.Category!.CategoryName).ThenBy(b => b.DisplayValue);
 			}
 			if (languageIdFilter != null && languageIdFilter != 0)
 			{
@@ -78,14 +82,23 @@ namespace DataAccessLibrary.Services
 			}
 			if (useSemanticMatching)
 			{
-				IQueryable<CustomIntelliSense> snippets = null;
+				IQueryable<CustomIntelliSense> snippets = new List<CustomIntelliSense>().AsQueryable();
 				snippets = intellisenses;
-				var displayValues = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).Distinct().ToList();
+				var result = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).Distinct().ToList();
+				if (result == null)
+				{
+					return new List<CustomIntelliSense>();
+				}
+				List<string> displayValues = result!;
 				using var localCommandEmbedder = new LocalEmbedder();
+				if (displayValues == null || displayValues.Count == 0)
+				{
+					return new List<CustomIntelliSense>();
+				}
 				IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
 				matchedResults = localCommandEmbedder.EmbedRange(
-					displayValues.ToList());
-				SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(searchTerm), matchedResults, maxResults: 20);
+					items: displayValues.ToList());
+				SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(searchTerm ?? ""), matchedResults, maxResults: 20);
 				if (results.Length > 0)
 				{
 					foreach (var item in results)
@@ -95,28 +108,28 @@ namespace DataAccessLibrary.Services
 					var resultItems = results.Select(r => r.Item).ToList();
 					var similarityScores = results.ToDictionary(r => r.Item, r => r.Similarity);
 					List<CustomIntelliSense> snippetsList = await snippets.ToListAsync();
-					snippetsList = snippetsList.Where(v => resultItems.Contains(v.DisplayValue))
-					.OrderByDescending(v => similarityScores[v.DisplayValue])
+					snippetsList = snippetsList.Where(v => resultItems.Contains(v.DisplayValue!))
+					.OrderByDescending(v => similarityScores[v.DisplayValue!])
 					.ToList();
-					List<CustomIntelliSense> result = null;
+					List<CustomIntelliSense> methodResult = new List<CustomIntelliSense>();
 					try
 					{
-						result = snippetsList.Take(maximumRows).ToList();
+						methodResult = snippetsList.Take(maximumRows).ToList();
 					}
 					catch (System.Exception exception)
 					{
 						System.Console.WriteLine(exception.Message);
 					}
-					return result;
+					return methodResult;
 				}
 			}
 
 			return await intellisenses.Take(maximumRows).ToListAsync();
 		}
-		public async Task<CustomIntelliSense> GetCustomIntelliSenseAsync(int intellisenseId)
+		public async Task<CustomIntelliSense?> GetCustomIntelliSenseAsync(int intellisenseId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			CustomIntelliSense intellisense = await context.CustomIntelliSenses.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
+			CustomIntelliSense? intellisense = await context.CustomIntelliSenses.Include(i => i.Language).Include(i => i.Category).Where(v => v.Id == intellisenseId).FirstOrDefaultAsync();
 			return intellisense;
 		}
 		public async Task<string> SaveCustomIntelliSense(CustomIntelliSense intellisense)

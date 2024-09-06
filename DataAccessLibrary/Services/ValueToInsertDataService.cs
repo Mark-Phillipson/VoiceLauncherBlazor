@@ -32,12 +32,12 @@ namespace DataAccessLibrary.Services
             return ValuesToInsert.ToList();
         }
 
-        public async Task<ValueToInsertDTO> GetValueToInsertById(int Id)
+        public async Task<ValueToInsertDTO?> GetValueToInsertById(int Id)
         {
             var valueToInsert = await _valueToInsertRepository.GetValueToInsertByIdAsync(Id);
             return valueToInsert;
         }
-        public async Task<ValueToInsertDTO> AddValueToInsert(ValueToInsertDTO valueToInsertDTO)
+        public async Task<ValueToInsertDTO?> AddValueToInsert(ValueToInsertDTO valueToInsertDTO)
         {
             Guard.Against.Null(valueToInsertDTO);
             var result = await _valueToInsertRepository.AddValueToInsertAsync(valueToInsertDTO);
@@ -47,7 +47,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<ValueToInsertDTO> UpdateValueToInsert(ValueToInsertDTO valueToInsertDTO, string username)
+        public async Task<ValueToInsertDTO?> UpdateValueToInsert(ValueToInsertDTO valueToInsertDTO, string? username)
         {
             Guard.Against.Null(valueToInsertDTO);
             Guard.Against.Null(username);

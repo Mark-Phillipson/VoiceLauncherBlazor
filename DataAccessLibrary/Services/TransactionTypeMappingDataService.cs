@@ -30,7 +30,7 @@ namespace DataAccessLibrary.Services
             return TransactionTypeMappings.ToList();
         }
 
-        public async Task<TransactionTypeMappingDTO> GetTransactionTypeMappingById(int Id)
+        public async Task<TransactionTypeMappingDTO?> GetTransactionTypeMappingById(int Id)
         {
             var transactionTypeMapping = await _transactionTypeMappingRepository.GetTransactionTypeMappingByIdAsync(Id);
             return transactionTypeMapping;
@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<TransactionTypeMappingDTO> UpdateTransactionTypeMapping(TransactionTypeMappingDTO transactionTypeMappingDTO, string username)
+        public async Task<TransactionTypeMappingDTO?> UpdateTransactionTypeMapping(TransactionTypeMappingDTO transactionTypeMappingDTO, string? username)
         {
             Guard.Against.Null(transactionTypeMappingDTO);
             Guard.Against.Null(username);

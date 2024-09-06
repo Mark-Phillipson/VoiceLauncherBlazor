@@ -48,10 +48,10 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception e)
             {
-                Logger!.LogError(e,"Exception occurred in on initialised async AdditionalCommand Data Service");
+                Logger!.LogError(e, "Exception occurred in on initialised async AdditionalCommand Data Service");
                 _loadFailed = true;
                 ExceptionMessage = e.Message;
-                ToastService!.ShowError(e.Message+" Error Loading AdditionalCommand");
+                ToastService!.ShowError(e.Message + " Error Loading AdditionalCommand");
             }
             FilteredAdditionalCommands = AdditionalCommands;
 
@@ -80,7 +80,7 @@ namespace RazorClassLibrary.Pages
             }
             else
             {
-                FilteredAdditionalCommands = AdditionalCommands!.Where(v => v.DeliveryType.ToLower().Contains(SearchTerm.Trim().ToLower())).ToList();
+                FilteredAdditionalCommands = AdditionalCommands!.Where(v => v.DeliveryType != null && v.DeliveryType.ToLower().Contains(SearchTerm.Trim().ToLower())).ToList();
                 Title = $"Filtered AdditionalCommands ({FilteredAdditionalCommands.Count})";
             }
         }

@@ -13,12 +13,12 @@ namespace DataAccessLibrary.Models
         [Required]
         [Column("Item_Value")]
         [StringLength(255)]
-        public string ItemValue { get; set; }
+        public required string ItemValue { get; set; }
         [Required]
         [StringLength(255)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
         public int? SortOrder { get; set; }
         [StringLength(255)]
-        public string DisplayValue { get; set; }
+        public string? DisplayValue { get; set; }
     }
 }

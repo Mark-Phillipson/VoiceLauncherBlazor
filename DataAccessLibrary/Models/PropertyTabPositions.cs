@@ -12,10 +12,10 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(60)]
-        public string ObjectName { get; set; }
+        public required string ObjectName { get; set; }
         [Required]
         [StringLength(60)]
-        public string PropertyName { get; set; }
+        public required string PropertyName { get; set; }
         public int NumberOfTabs { get; set; }
     }
 }

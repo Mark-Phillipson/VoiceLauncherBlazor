@@ -21,7 +21,7 @@ namespace DataAccessLibrary.Repositories
             _contextFactory = contextFactory;
             this._mapper = mapper;
         }
-        public async Task<IEnumerable<CssPropertyDTO>> GetAllCssPropertiesAsync(int pageNumber, int pageSize, string serverSearchTerm)
+        public async Task<IEnumerable<CssPropertyDTO>> GetAllCssPropertiesAsync(int pageNumber, int pageSize, string? serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
             List<CssProperty> CssProperties;
@@ -63,7 +63,7 @@ namespace DataAccessLibrary.Repositories
             return CssPropertiesDTO;
         }
 
-        public async Task<CssPropertyDTO> GetCssPropertyByIdAsync(int Id)
+        public async Task<CssPropertyDTO?> GetCssPropertyByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.CssProperties.AsNoTracking()
@@ -73,7 +73,7 @@ namespace DataAccessLibrary.Repositories
             return cssPropertyDTO;
         }
 
-        public async Task<CssPropertyDTO> AddCssPropertyAsync(CssPropertyDTO cssPropertyDTO)
+        public async Task<CssPropertyDTO?> AddCssPropertyAsync(CssPropertyDTO cssPropertyDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             CssProperty cssProperty = _mapper.Map<CssPropertyDTO, CssProperty>(cssPropertyDTO);
@@ -91,7 +91,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<CssPropertyDTO> UpdateCssPropertyAsync(CssPropertyDTO cssPropertyDTO)
+        public async Task<CssPropertyDTO?> UpdateCssPropertyAsync(CssPropertyDTO cssPropertyDTO)
         {
             CssProperty cssProperty = _mapper.Map<CssPropertyDTO, CssProperty>(cssPropertyDTO);
             using (var context = _contextFactory.CreateDbContext())

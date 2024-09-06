@@ -43,7 +43,8 @@ namespace RazorClassLibrary.Pages
 				GeneralLookupModel = new DataAccessLibrary.Models.GeneralLookup
 				{
 					Category = "Default?",
-					SortOrder = 1
+					SortOrder = 1,
+					ItemValue = "New Item"
 
 				};
 			}
@@ -87,7 +88,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				var result = await GeneralLookupService.SaveGeneralLookup(GeneralLookupModel);
+				if (GeneralLookupModel != null)
+				{
+					var result = await GeneralLookupService.SaveGeneralLookup(GeneralLookupModel);
+				}
 			}
 			catch (Exception exception)
 			{

@@ -40,7 +40,8 @@ namespace RazorClassLibrary.Pages
 			{
 				LanguageModel = new DataAccessLibrary.Models.Language
 				{
-					Active = true
+					Active = true,
+					LanguageName = "New Language"
 				};
 			}
 			if (LanguageModel != null)
@@ -74,7 +75,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				var result = await LanguageService.SaveLanguage(LanguageModel);
+				if (LanguageModel != null)
+				{
+					var result = await LanguageService.SaveLanguage(LanguageModel);
+				}
 			}
 			catch (Exception exception)
 			{

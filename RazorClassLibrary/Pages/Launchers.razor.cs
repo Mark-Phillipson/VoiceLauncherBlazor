@@ -53,7 +53,7 @@ namespace RazorClassLibrary.Pages
 			var query = new Uri(NavigationManager.Uri).Query;
 			if (QueryHelpers.ParseQuery(query).TryGetValue("category", out var categoryName))
 			{
-				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
+				var category = await CategoryService.GetCategoryAsync(categoryName!.ToString() ?? "", "Launch Applications");
 				return category?.Id;
 			}
 			return null;
@@ -159,7 +159,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				var temporary = await LauncherService.SaveAllLaunchers(launchers);
+				if (launchers != null)
+				{
+					var temporary = await LauncherService.SaveAllLaunchers(launchers);
+				}
 			}
 			catch (Exception exception)
 			{

@@ -27,13 +27,19 @@ namespace RazorClassLibrary.Components
 		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 		protected override async Task OnInitializedAsync()
 		{
+
 			if (AdditionalCommandId != null)
 			{
-				AdditionalCommand = await AdditionalCommandService!.GetAdditionalCommandAsync((int)AdditionalCommandId);
+
+				var result = await AdditionalCommandService!.GetAdditionalCommandAsync((int)AdditionalCommandId) ?? new AdditionalCommand();
+				if (result != null)
+				{
+					AdditionalCommand = result;
+				}
 			}
 			else
 			{
-				AdditionalCommand.CustomIntelliSenseId = CustomIntelliSenseId;
+				AdditionalCommand!.CustomIntelliSenseId = CustomIntelliSenseId;
 				AdditionalCommand.DeliveryType = "Send Keys";
 			}
 			GeneralLookups = await GeneralLookupService!.GetGeneralLookUpsAsync("Delivery Type");

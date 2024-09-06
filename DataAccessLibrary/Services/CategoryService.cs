@@ -20,11 +20,11 @@ namespace DataAccessLibrary.Services
 			List<Category> categories = await context.Categories.Where(v => v.CategoryType == categoryType).OrderBy(v => v.CategoryName).ToListAsync();
 			return categories;
 		}
-		public async Task<List<Category>> GetCategoriesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, string categoryTypeFilter = null, int maximumRows = 200)
+		public async Task<List<Category>> GetCategoriesAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, string? categoryTypeFilter = null, int maximumRows = 200)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			{
-				IQueryable<Category> categories = null;
+				IQueryable<Category> categories = new List<Category>().AsQueryable();
 				try
 				{
 					//categories = context.Categories.OrderBy(v => v.CategoryName);
@@ -33,7 +33,7 @@ namespace DataAccessLibrary.Services
 				catch (Exception exception)
 				{
 					Console.WriteLine(exception.Message);
-					return null;
+					return new List<Category>();
 				}
 				if (Environment.MachineName != "J40L4V3")
 				{
@@ -63,24 +63,24 @@ namespace DataAccessLibrary.Services
 		}
 
 
-		public async Task<Category> GetCategoryAsync(int categoryId)
+		public async Task<Category?> GetCategoryAsync(int categoryId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Category category = await context.Categories
+			Category? category = await context.Categories
 				.Include(i => i.Launchers)
 				.Where(v => v.Id == categoryId).FirstOrDefaultAsync();
 			return category;
 		}
-		public async Task<Category> GetCategoryAsync(int categoryId, string categoryType)
+		public async Task<Category?> GetCategoryAsync(int categoryId, string categoryType)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Category category = await context.Categories.Where(v => v.Id == categoryId && v.CategoryType == categoryType).FirstOrDefaultAsync();
+			Category? category = await context.Categories.Where(v => v.Id == categoryId && v.CategoryType == categoryType).FirstOrDefaultAsync();
 			return category;
 		}
-		public async Task<Category> GetCategoryAsync(string categoryName, string categoryType)
+		public async Task<Category?> GetCategoryAsync(string categoryName, string categoryType)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Category category = await context.Categories.Where(v => v.CategoryName.ToLower() == categoryName.ToLower() && v.CategoryType == categoryType).FirstOrDefaultAsync();
+			Category? category = await context.Categories.Where(v => v.CategoryName.ToLower() == categoryName.ToLower() && v.CategoryType == categoryType).FirstOrDefaultAsync();
 			return category;
 		}
 		public async Task<string> SaveCategory(Category category)

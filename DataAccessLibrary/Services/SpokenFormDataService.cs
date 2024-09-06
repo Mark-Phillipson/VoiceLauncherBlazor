@@ -11,7 +11,7 @@ using DataAccessLibrary.DTO;
 
 namespace SampleApplication.Services
 {
-  public class SpokenFormDataService : ISpokenFormDataService
+    public class SpokenFormDataService : ISpokenFormDataService
     {
         private readonly ISpokenFormRepository _spokenFormRepository;
 
@@ -45,7 +45,7 @@ namespace SampleApplication.Services
             }
             return result;
         }
-        public async Task<SpokenFormDTO> UpdateSpokenForm(SpokenFormDTO spokenFormDTO, string? username)
+        public async Task<SpokenFormDTO?> UpdateSpokenForm(SpokenFormDTO spokenFormDTO, string? username)
         {
             Guard.Against.Null(spokenFormDTO);
             Guard.Against.Null(username);

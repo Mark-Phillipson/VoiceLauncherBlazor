@@ -4,6 +4,6 @@ namespace DataAccessLibrary;
 
 public class JsonRepositoryOptions
 {
-    public string JsonFilePath { get; set; }
+    public required string JsonFilePath { get; set; }
 }
 

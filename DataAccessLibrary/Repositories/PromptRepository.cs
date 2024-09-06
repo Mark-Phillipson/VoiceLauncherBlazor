@@ -17,15 +17,15 @@ namespace SampleApplication.Repositories
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
 
-        public PromptRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper)
+        public PromptRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
             this._mapper = mapper;
         }
-		        public async Task<IEnumerable<PromptDTO>> GetAllPromptsAsync(int maxRows= 400)
+        public async Task<IEnumerable<PromptDTO>> GetAllPromptsAsync(int maxRows = 400)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Prompts= await context.Prompts
+            var Prompts = await context.Prompts
 
                 //.OrderBy(v => v.?)
                 .Take(maxRows)
@@ -36,7 +36,7 @@ namespace SampleApplication.Repositories
         public async Task<IEnumerable<PromptDTO>> SearchPromptsAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Prompts= await context.Prompts
+            var Prompts = await context.Prompts
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
@@ -47,17 +47,17 @@ namespace SampleApplication.Repositories
             return PromptsDTO;
         }
 
-        public async Task<PromptDTO> GetPromptByIdAsync(int Id)
+        public async Task<PromptDTO?> GetPromptByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.Prompts.AsNoTracking()
+            var result = await context.Prompts.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            PromptDTO promptDTO =_mapper.Map<Prompt, PromptDTO>(result);
+            PromptDTO promptDTO = _mapper.Map<Prompt, PromptDTO>(result);
             return promptDTO;
         }
 
-        public async Task<PromptDTO> AddPromptAsync(PromptDTO promptDTO)
+        public async Task<PromptDTO?> AddPromptAsync(PromptDTO promptDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Prompt prompt = _mapper.Map<PromptDTO, Prompt>(promptDTO);
@@ -71,13 +71,13 @@ namespace SampleApplication.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            PromptDTO resultDTO =_mapper.Map<Prompt, PromptDTO>(prompt);
+            PromptDTO resultDTO = _mapper.Map<Prompt, PromptDTO>(prompt);
             return resultDTO;
         }
 
-        public async Task<PromptDTO> UpdatePromptAsync(PromptDTO promptDTO)
+        public async Task<PromptDTO?> UpdatePromptAsync(PromptDTO promptDTO)
         {
-            Prompt prompt=_mapper.Map<PromptDTO, Prompt>(promptDTO);
+            Prompt prompt = _mapper.Map<PromptDTO, Prompt>(promptDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundPrompt = await context.Prompts.AsNoTracking().FirstOrDefaultAsync(e => e.Id == prompt.Id);

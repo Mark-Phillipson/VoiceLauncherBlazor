@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Models
 {
-     public  class ApplicationDetail
+    public class ApplicationDetail
     {
-         public int Id { get; set; }
+        public int Id { get; set; }
         [StringLength(60)]
         [Required]
-         public string ProcessName { get; set; }
+        public required string ProcessName { get; set; }
         [Required]
         [StringLength(255)]
-        public string ApplicationTitle { get; set; }
+        public required string ApplicationTitle { get; set; }
 
     }
 }

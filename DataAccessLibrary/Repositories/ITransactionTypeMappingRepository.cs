@@ -13,8 +13,8 @@ namespace DataAccessLibrary.Repositories
         Task DeleteTransactionTypeMappingAsync(int Id);
         Task<IEnumerable<TransactionTypeMappingDTO>> GetAllTransactionTypeMappingsAsync(int pageNumber, int pageSize, string serverSearchTerm);
         Task<IEnumerable<TransactionTypeMappingDTO>> SearchTransactionTypeMappingsAsync(string serverSearchTerm);
-        Task<TransactionTypeMappingDTO> GetTransactionTypeMappingByIdAsync(int Id);
-        Task<TransactionTypeMappingDTO> UpdateTransactionTypeMappingAsync(TransactionTypeMappingDTO transactionTypeMappingDTO);
+        Task<TransactionTypeMappingDTO?> GetTransactionTypeMappingByIdAsync(int Id);
+        Task<TransactionTypeMappingDTO?> UpdateTransactionTypeMappingAsync(TransactionTypeMappingDTO transactionTypeMappingDTO);
         Task<int> GetTotalCountAsync();
     }
 }

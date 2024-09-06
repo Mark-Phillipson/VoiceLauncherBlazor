@@ -12,14 +12,20 @@
     <tbody>
         @foreach (var item in language!.CustomIntelliSense.OrderBy(o => o.DisplayValue))
         {
-<tr>
-    <td>@item.Language.LanguageName</td>
-    <td>@item.DisplayValue</td>
-    <td>@item.SendKeysValue</td>
-    <td>@item.Remarks</td>
-    <td>@item.DeliveryType</td>
-</tr>}
+            <tr>
+                @if (item != null)
+                {
+                    <td>@item!.Language!.LanguageName</td>
+                    <td>@item.DisplayValue</td>
+                    <td>@item.SendKeysValue</td>
+                    <td>@item.Remarks</td>
+                    <td>@item.DeliveryType</td>
+                }
+            </tr>
+        }
     </tbody>
 </table>
 
-@code { [Parameter] public DataAccessLibrary.Models.Language? language { get; set; } }
+@code {
+    [Parameter] public DataAccessLibrary.Models.Language? language { get; set; }
+}

@@ -133,7 +133,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				LanguagesModel = await LanguageService.SaveAllLanguages(LanguagesModel);
+				if (LanguagesModel != null)
+				{
+					LanguagesModel = await LanguageService.SaveAllLanguages(LanguagesModel);
+				}
 			}
 			catch (Exception exception)
 			{

@@ -9,11 +9,11 @@ namespace DataAccessLibrary.DTOs
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
-        public string SpokenForm { get; set; } = "";
+        public string SpokenForm { get; set; } = "Take [target]";
         [StringLength(255)]
-        public string Meaning { get; set; }
+        public string Meaning { get; set; } = "Some Action in Visual Studio Code";
         [StringLength(255)]
-        public string CursorlessType { get; set; }
-        public string YoutubeLink { get; set; }
+        public string CursorlessType { get; set; } = "action";
+        public string? YoutubeLink { get; set; }
     }
 }

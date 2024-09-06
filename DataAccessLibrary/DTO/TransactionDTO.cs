@@ -11,9 +11,9 @@ namespace DataAccessLibrary.DTOs
         [Required]
         public DateTime? Date { get; set; }
         [StringLength(150)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [StringLength(70)]
-        public string Type { get; set; }
+        public string? Type { get; set; }
         [Required]
         public decimal MoneyIn { get; set; }
         [Required]
@@ -21,8 +21,8 @@ namespace DataAccessLibrary.DTOs
         [Required]
         public decimal Balance { get; set; }
         [StringLength(70)]
-        public string MyTransactionType { get; set; }
-        public string ImportFilename { get; set; }
+        public string? MyTransactionType { get; set; }
+        public string? ImportFilename { get; set; }
         public DateTime ImportDate { get; set; }
     }
 }

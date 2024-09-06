@@ -17,7 +17,7 @@ namespace DataAccessLibrary.Services
 		public async Task<List<AdditionalCommand>> GetAdditionalCommandsAsync(int customIntellisenseId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<AdditionalCommand> additionalCommands = null;
+			IQueryable<AdditionalCommand> additionalCommands = new List<AdditionalCommand>().AsQueryable();
 			try
 			{
 				additionalCommands = context.AdditionalCommands.Include(i => i.CustomIntelliSense)
@@ -27,12 +27,16 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
+			if (additionalCommands == null)
+			{
+				return new List<AdditionalCommand>();
+			}
 			return await additionalCommands.ToListAsync();
 		}
-		public async Task<AdditionalCommand> GetAdditionalCommandAsync(int additionalCommandId)
+		public async Task<AdditionalCommand?> GetAdditionalCommandAsync(int additionalCommandId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			AdditionalCommand additionalCommand = await context.AdditionalCommands.Include("CustomIntelliSense").Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
+			AdditionalCommand? additionalCommand = await context.AdditionalCommands.Include("CustomIntelliSense").Where(v => v.Id == additionalCommandId).FirstOrDefaultAsync();
 			return additionalCommand;
 		}
 		public async Task<string> SaveAdditionalCommand(AdditionalCommand additionalCommand)

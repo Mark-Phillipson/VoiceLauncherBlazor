@@ -7,11 +7,11 @@ namespace RazorClassLibrary.Pages
 {
     public partial class MultipleLaunchers : ComponentBase
     {
-      [Inject] public  required LauncherService LauncherService { get; set; }
-      [Inject] public  required NavigationManager NavigationManager { get; set; }
-      [Inject] public  required IJSRuntime JSRuntime { get; set; }
+        [Inject] public required LauncherService LauncherService { get; set; }
+        [Inject] public required NavigationManager NavigationManager { get; set; }
+        [Inject] public required IJSRuntime JSRuntime { get; set; }
 
-public bool ShowDialog { get; set; }
+        public bool ShowDialog { get; set; }
         public int MultipleLauncherIdDelete { get; set; }
         public string? SearchTerm { get; set; }
         private List<DataAccessLibrary.Models.MultipleLauncher>? multipleLaunchers;
@@ -29,7 +29,7 @@ public bool ShowDialog { get; set; }
         {
             try
             {
-                multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+                multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
                 launchers = await LauncherService.GetLaunchersAsync();
             }
             catch (Exception exception)
@@ -43,7 +43,7 @@ public bool ShowDialog { get; set; }
         {
             StatusMessage = await LauncherService.DeleteBridge(bridge);
             StatusClassName = "text-danger";
-            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
         }
         private void CreateBridge()
         {
@@ -51,36 +51,39 @@ public bool ShowDialog { get; set; }
         }
         private async Task ReloadLaunchers()
         {
-            launchers = await LauncherService.GetLaunchersAsync(LauncherFilter);
+            launchers = await LauncherService.GetLaunchersAsync(LauncherFilter ?? "");
             await CallChangeAsync("FilterLauncher");
             await JSRuntime.InvokeVoidAsync("setFocus", "NewbridgeSelect ");
         }
         private async Task SaveBridge()
         {
             StatusMessage = await LauncherService.SaveBridge(bridge);
-            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
             LauncherFilter = null;
             bridge = new DataAccessLibrary.Models.LauncherMultipleLauncherBridge();
         }
         private async Task SaveMultipleLauncher()
         {
             StatusMessage = await LauncherService.SaveMultipleLauncher(multipleLauncher);
-            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
             StatusClassName = "text-success";
             multipleLauncher = new DataAccessLibrary.Models.MultipleLauncher();
         }
         private async Task SaveMultipleLaunchers()
         {
-            multipleLaunchers = await LauncherService.SaveAllMultipleLauncher(multipleLaunchers);
+            if (multipleLaunchers != null)
+            {
+                multipleLaunchers = await LauncherService.SaveAllMultipleLauncher(multipleLaunchers);
+            }
         }
         private async Task DeleteMultipleLauncher(int multipleLauncherId)
         {
             StatusMessage = await LauncherService.DeleteMultipleLauncher(multipleLauncherId);
-            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
         }
         private async Task ApplyFilter()
         {
-            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm);
+            multipleLaunchers = await LauncherService.GetMultipleLaunchersAsync(SearchTerm ?? "");
         }
         private async Task CallChangeAsync(string elementId)
         {

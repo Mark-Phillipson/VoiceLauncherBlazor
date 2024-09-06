@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Models
 {
-    [Index(nameof(NameOfGrammar),IsUnique=true)]
+    [Index(nameof(NameOfGrammar), IsUnique = true)]
     public class GrammarName
     {
         public GrammarName()
@@ -18,8 +18,8 @@ namespace DataAccessLibrary.Models
         }
         public int Id { get; set; }
         [Required]
-        [StringLength( 40 )]
-        public string NameOfGrammar { get; set; }
+        [StringLength(40)]
+        public required string NameOfGrammar { get; set; }
         public ICollection<GrammarItem> GrammarItems { get; }
     }
 }

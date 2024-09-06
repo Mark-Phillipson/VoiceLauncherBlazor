@@ -17,10 +17,10 @@ namespace DataAccessLibrary.Models
         [Required]
         [StringLength(255)]
         [Column("ValueToInsert")]
-        public string ValueToInsertValue { get; set; }
+        public required string ValueToInsertValue { get; set; }
         [Required]
         [StringLength(255)]
-        public string Lookup { get; set; }
+        public required string Lookup { get; set; }
         [StringLength(255)]
         public string? Description { get; set; }
     }

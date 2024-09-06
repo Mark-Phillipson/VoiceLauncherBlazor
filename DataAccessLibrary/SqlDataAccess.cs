@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -11,7 +12,7 @@ namespace DataAccessLibrary
 	public class SqlDataAccess : ISqlDataAccess
 	{
 
-		readonly IConfiguration _config;
+		public required IConfiguration _config;
 		public string ConnectionStringName { get; set; } = "VoiceLauncher";
 
 		public SqlDataAccess(IConfiguration config)
@@ -20,7 +21,7 @@ namespace DataAccessLibrary
 		}
 		public async Task<List<T>> LoadData<T, U>(string sql, U parameters)
 		{
-			string connectionString = _config.GetConnectionString(ConnectionStringName);
+			string? connectionString = _config.GetConnectionString(ConnectionStringName);
 			using (IDbConnection connection = new SqlConnection(connectionString))
 			{
 				var data = await connection.QueryAsync<T>(sql, parameters);
@@ -29,16 +30,24 @@ namespace DataAccessLibrary
 		}
 		public async Task<T> LoadSingleData<T, U>(string sql, U parameters)
 		{
-			string connectionString = _config.GetConnectionString(ConnectionStringName);
+			if (ConnectionStringName == null || ConnectionStringName.Length > 0 || _config == null)
+			{
+				throw new ArgumentNullException("ConnectionStringName", "ConnectionStringName is null or empty");
+			}
+			string? connectionString = _config.GetConnectionString(ConnectionStringName);
 			using (IDbConnection connection = new SqlConnection(connectionString))
 			{
 				var data = await connection.QueryFirstOrDefaultAsync<T>(sql, parameters);
+				if (data == null)
+				{
+					throw new ArgumentNullException("data", "data is null");
+				}
 				return data;
 			}
 		}
 		public async Task SaveData<T>(string sql, T parameters)
 		{
-			string connectionString = _config.GetConnectionString(ConnectionStringName);
+			string? connectionString = _config.GetConnectionString(ConnectionStringName);
 			using (IDbConnection connection = new SqlConnection(connectionString))
 			{
 				await connection.ExecuteAsync(sql, parameters);

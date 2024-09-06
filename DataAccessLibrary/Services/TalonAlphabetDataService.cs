@@ -30,12 +30,12 @@ namespace DataAccessLibrary.Services
 			return TalonAlphabets.ToList();
 		}
 
-		public async Task<TalonAlphabetDTO> GetTalonAlphabetById(int Id)
+		public async Task<TalonAlphabetDTO?> GetTalonAlphabetById(int Id)
 		{
 			var talonAlphabet = await _talonAlphabetRepository.GetTalonAlphabetByIdAsync(Id);
 			return talonAlphabet;
 		}
-		public async Task<TalonAlphabetDTO> AddTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO)
+		public async Task<TalonAlphabetDTO?> AddTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO)
 		{
 			Guard.Against.Null(talonAlphabetDTO);
 			var result = await _talonAlphabetRepository.AddTalonAlphabetAsync(talonAlphabetDTO);
@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Services
 			}
 			return result;
 		}
-		public async Task<TalonAlphabetDTO> UpdateTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO, string username)
+		public async Task<TalonAlphabetDTO?> UpdateTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO, string username)
 		{
 			Guard.Against.Null(talonAlphabetDTO);
 			Guard.Against.Null(username);

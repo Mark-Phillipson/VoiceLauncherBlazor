@@ -47,7 +47,7 @@ namespace DataAccessLibrary.Repositories
             return CursorlessCheatsheetItemsDTO;
         }
 
-        public async Task<CursorlessCheatsheetItemDTO> GetCursorlessCheatsheetItemByIdAsync(int id)
+        public async Task<CursorlessCheatsheetItemDTO?> GetCursorlessCheatsheetItemByIdAsync(int id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.CursorlessCheatsheetItems.AsNoTracking()
@@ -57,7 +57,7 @@ namespace DataAccessLibrary.Repositories
             return cursorlessCheatsheetItemDTO;
         }
 
-        public async Task<CursorlessCheatsheetItemDTO> AddCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
+        public async Task<CursorlessCheatsheetItemDTO?> AddCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             CursorlessCheatsheetItem cursorlessCheatsheetItem = _mapper.Map<CursorlessCheatsheetItemDTO, CursorlessCheatsheetItem>(cursorlessCheatsheetItemDTO);
@@ -75,7 +75,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<CursorlessCheatsheetItemDTO> UpdateCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
+        public async Task<CursorlessCheatsheetItemDTO?> UpdateCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
         {
             CursorlessCheatsheetItem cursorlessCheatsheetItem = _mapper.Map<CursorlessCheatsheetItemDTO, CursorlessCheatsheetItem>(cursorlessCheatsheetItemDTO);
             using (var context = _contextFactory.CreateDbContext())

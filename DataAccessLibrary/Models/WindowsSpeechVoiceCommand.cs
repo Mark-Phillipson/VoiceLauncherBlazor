@@ -19,11 +19,11 @@ namespace DataAccessLibrary.Models
 
     [Required]
     [StringLength(100)]
-    public string SpokenCommand { get; set; }// To be depreciated 
+    public string? SpokenCommand { get; set; }// To be depreciated 
 
     [StringLength(1000)]
-    public string Description { get; set; }
-    public string ApplicationName { get; set; }
+    public string? Description { get; set; }
+    public string? ApplicationName { get; set; }
     public bool AutoCreated { get; set; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

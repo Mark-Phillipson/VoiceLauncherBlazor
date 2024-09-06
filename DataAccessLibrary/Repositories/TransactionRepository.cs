@@ -64,7 +64,7 @@ namespace DataAccessLibrary.Repositories
             return TransactionsDTO;
         }
 
-        public async Task<TransactionDTO> GetTransactionByIdAsync(int Id)
+        public async Task<TransactionDTO?> GetTransactionByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.Transactions.AsNoTracking()
@@ -74,7 +74,7 @@ namespace DataAccessLibrary.Repositories
             return transactionDTO;
         }
 
-        public async Task<TransactionDTO> AddTransactionAsync(TransactionDTO transactionDTO)
+        public async Task<TransactionDTO?> AddTransactionAsync(TransactionDTO transactionDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Transaction transaction = _mapper.Map<TransactionDTO, Transaction>(transactionDTO);
@@ -92,7 +92,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<TransactionDTO> UpdateTransactionAsync(TransactionDTO transactionDTO)
+        public async Task<TransactionDTO?> UpdateTransactionAsync(TransactionDTO transactionDTO)
         {
             Transaction transaction = _mapper.Map<TransactionDTO, Transaction>(transactionDTO);
             using (var context = _contextFactory.CreateDbContext())

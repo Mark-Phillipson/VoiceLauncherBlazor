@@ -9,8 +9,8 @@ namespace DataAccessLibrary.DTO
         [Key]
         public int Id { get; set; }
         [StringLength(255)]
-        public string TextToEnter { get; set; }
-        public string SendKeysValue { get; set; }
+        public string? TextToEnter { get; set; }
+        public string? SendKeysValue { get; set; }
         public VirtualKeyCode? KeyDownValue { get; set; } = VirtualKeyCode.NONAME;
         //[Depreciated]
         public VirtualKeyCode? ModifierKey { get; set; } = VirtualKeyCode.NONAME;
@@ -22,21 +22,21 @@ namespace DataAccessLibrary.DTO
         public VirtualKeyCode? KeyUpValue { get; set; } = VirtualKeyCode.NONAME;
 
         [StringLength(100)]
-        public string MouseCommand { get; set; }
+        public string? MouseCommand { get; set; }
         public int MouseMoveX { get; set; } = 0;
         public int MouseMoveY { get; set; } = 0;
         public double AbsoluteX { get; set; } = 0;
         public double AbsoluteY { get; set; } = 0;
         public int ScrollAmount { get; set; } = 0;
         [StringLength(255)]
-        public string ProcessStart { get; set; }
+        public string? ProcessStart { get; set; }
         [StringLength(255)]
-        public string CommandLineArguments { get; set; }
+        public string? CommandLineArguments { get; set; }
         [Required]
         public int WindowsSpeechVoiceCommandId { get; set; }
         public int WaitTime { get; set; } = 100;
         [StringLength(55)]
         public string HowToFormatDictation { get; set; } = "Do Nothing";
-        public string MethodToCall { get; set; }
+        public string? MethodToCall { get; set; }
     }
 }

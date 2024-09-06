@@ -7,15 +7,15 @@ namespace DataAccessLibrary.Models
 		public int Id { get; set; }
 		[Required]
 		[StringLength(20)]
-		public string Letter { get; set; }
+		public required string Letter { get; set; }
 		[Url]
 		[StringLength(255)]
-		public string PictureUrl { get; set; }
+		public required string PictureUrl { get; set; }
 		[Required]
 		[StringLength(20)]
-		public string DefaultLetter { get; set; }
+		public required string DefaultLetter { get; set; }
 		[Url]
 		[StringLength(255)]
-		public string DefaultPictureUrl { get; set; }
+		public string? DefaultPictureUrl { get; set; }
 	}
 }

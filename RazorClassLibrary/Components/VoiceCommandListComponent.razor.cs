@@ -7,7 +7,7 @@ namespace RazorClassLibrary.Components
 {
 	public partial class VoiceCommandListComponent : ComponentBase
 	{
-		string _result="";
+		string _result = "";
 		[Parameter] public CommandSet? CommandSet { get; set; }
 		[Inject] public IJSRuntime? JavaScriptRuntime { get; set; }
 		[Inject] public IToastService? ToastService { get; set; }
@@ -20,13 +20,13 @@ namespace RazorClassLibrary.Components
 			var name = VoiceCommand!.Name;
 			var startCharacter = "<";
 			var endCharacter = ">";
-			if (VoiceCommand.TargetApplication.CommandSource == "Dragon")
+			if (VoiceCommand!.TargetApplication!.CommandSource == "Dragon")
 			{
 				startCharacter = "[";
 				endCharacter = "]";
 			}
 			ListNames = new List<string>();
-			if (name.Contains(startCharacter) && name.Contains(endCharacter))
+			if (name != null && !string.IsNullOrWhiteSpace(name) && name.Contains(startCharacter) && name.Contains(endCharacter))
 			{
 				do
 				{

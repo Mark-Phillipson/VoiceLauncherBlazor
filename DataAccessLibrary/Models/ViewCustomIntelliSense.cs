@@ -14,22 +14,22 @@ namespace DataAccessLibrary.Models
         [Required]
         [Column("Display_Value")]
         [StringLength(255)]
-        public string DisplayValue { get; set; }
+        public required string DisplayValue { get; set; }
         [Column("SendKeys_Value")]
         [StringLength(4000)]
-        public string SendKeysValue { get; set; }
+        public string? SendKeysValue { get; set; }
         [Column("Command_Type")]
         [StringLength(255)]
-        public string CommandType { get; set; }
+        public string? CommandType { get; set; }
         [Column("CategoryID")]
         public int CategoryId { get; set; }
         [StringLength(255)]
-        public string Remarks { get; set; }
-        public string Search { get; set; }
+        public string? Remarks { get; set; }
+        public string? Search { get; set; }
         [Column("ComputerID")]
         public int? ComputerId { get; set; }
         [Required]
         [StringLength(30)]
-        public string DeliveryType { get; set; }
+        public required string DeliveryType { get; set; }
     }
 }

@@ -16,15 +16,15 @@ namespace VoiceLauncher.Repositories
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
 
-        public IdiosyncrasyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper)
+        public IdiosyncrasyRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
             _mapper = mapper;
         }
-		        public async Task<IEnumerable<IdiosyncrasyDTO>> GetAllIdiosyncrasiesAsync(int maxRows= 400)
+        public async Task<IEnumerable<IdiosyncrasyDTO>> GetAllIdiosyncrasiesAsync(int maxRows = 400)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Idiosyncrasies= await context.Idiosyncrasies
+            var Idiosyncrasies = await context.Idiosyncrasies
                 //.Where(v => v.?==?)
                 //.OrderBy(v => v.?)
                 .Take(maxRows)
@@ -35,7 +35,7 @@ namespace VoiceLauncher.Repositories
         public async Task<IEnumerable<IdiosyncrasyDTO>> SearchIdiosyncrasiesAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var Idiosyncrasies= await context.Idiosyncrasies
+            var Idiosyncrasies = await context.Idiosyncrasies
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
@@ -46,17 +46,17 @@ namespace VoiceLauncher.Repositories
             return IdiosyncrasiesDTO;
         }
 
-        public async Task<IdiosyncrasyDTO> GetIdiosyncrasyByIdAsync(int Id)
+        public async Task<IdiosyncrasyDTO?> GetIdiosyncrasyByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.Idiosyncrasies.AsNoTracking()
+            var result = await context.Idiosyncrasies.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            IdiosyncrasyDTO idiosyncrasyDTO =_mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(result);
+            IdiosyncrasyDTO idiosyncrasyDTO = _mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(result);
             return idiosyncrasyDTO;
         }
 
-        public async Task<IdiosyncrasyDTO> AddIdiosyncrasyAsync(IdiosyncrasyDTO idiosyncrasyDTO)
+        public async Task<IdiosyncrasyDTO?> AddIdiosyncrasyAsync(IdiosyncrasyDTO idiosyncrasyDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Idiosyncrasy idiosyncrasy = _mapper.Map<IdiosyncrasyDTO, Idiosyncrasy>(idiosyncrasyDTO);
@@ -70,13 +70,13 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            IdiosyncrasyDTO resultDTO =_mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(idiosyncrasy);
+            IdiosyncrasyDTO resultDTO = _mapper.Map<Idiosyncrasy, IdiosyncrasyDTO>(idiosyncrasy);
             return resultDTO;
         }
 
-        public async Task<IdiosyncrasyDTO> UpdateIdiosyncrasyAsync(IdiosyncrasyDTO idiosyncrasyDTO)
+        public async Task<IdiosyncrasyDTO?> UpdateIdiosyncrasyAsync(IdiosyncrasyDTO idiosyncrasyDTO)
         {
-            Idiosyncrasy idiosyncrasy=_mapper.Map<IdiosyncrasyDTO, Idiosyncrasy>(idiosyncrasyDTO);
+            Idiosyncrasy idiosyncrasy = _mapper.Map<IdiosyncrasyDTO, Idiosyncrasy>(idiosyncrasyDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundIdiosyncrasy = await context.Idiosyncrasies.AsNoTracking().FirstOrDefaultAsync(e => e.Id == idiosyncrasy.Id);

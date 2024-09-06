@@ -137,7 +137,7 @@ namespace RazorClassLibrary.Pages
                 {
                     ServerSearchTerm = SearchTerm;
                     totalRows = await TransactionDataService.GetTotalCount();
-                    var result = await TransactionDataService!.GetAllTransactionsAsync(pageNumber, pageSize, ServerSearchTerm);
+                    var result = await TransactionDataService!.GetAllTransactionsAsync(pageNumber, pageSize, ServerSearchTerm ?? "");
                     //var result = await TransactionDataService.SearchTransactionsAsync(ServerSearchTerm);
                     if (result != null)
                     {

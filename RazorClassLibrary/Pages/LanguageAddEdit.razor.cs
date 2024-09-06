@@ -31,7 +31,7 @@ namespace RazorClassLibrary.Pages
         [Inject] public ILogger<LanguageAddEdit>? Logger { get; set; }
         [Inject] public IJSRuntime? JSRuntime { get; set; }
         [Parameter] public int? Id { get; set; }
-        public LanguageDTO LanguageDTO { get; set; } = new LanguageDTO();//{ };
+        public LanguageDTO LanguageDTO { get; set; } = new LanguageDTO() { LanguageName = "Language Name", Colour = "#000000" };
         [Inject] public ILanguageDataService? LanguageDataService { get; set; }
 
         [Parameter] public int ParentId { get; set; }

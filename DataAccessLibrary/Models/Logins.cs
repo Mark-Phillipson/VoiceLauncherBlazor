@@ -12,12 +12,12 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(30)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [StringLength(255)]
-        public string Username { get; set; }
+        public required string Username { get; set; }
         [StringLength(255)]
-        public string Password { get; set; }
+        public required string Password { get; set; }
         [StringLength(255)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

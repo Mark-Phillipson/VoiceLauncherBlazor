@@ -47,7 +47,7 @@ namespace DataAccessLibrary.Repositories
             return SavedMousePositionsDTO;
         }
 
-        public async Task<SavedMousePositionDTO> GetSavedMousePositionByIdAsync(int Id)
+        public async Task<SavedMousePositionDTO?> GetSavedMousePositionByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.SavedMousePosition.AsNoTracking()
@@ -57,7 +57,7 @@ namespace DataAccessLibrary.Repositories
             return savedMousePositionDTO;
         }
 
-        public async Task<SavedMousePositionDTO> AddSavedMousePositionAsync(SavedMousePositionDTO savedMousePositionDTO)
+        public async Task<SavedMousePositionDTO?> AddSavedMousePositionAsync(SavedMousePositionDTO savedMousePositionDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             SavedMousePosition savedMousePosition = _mapper.Map<SavedMousePositionDTO, SavedMousePosition>(savedMousePositionDTO);
@@ -75,7 +75,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<SavedMousePositionDTO> UpdateSavedMousePositionAsync(SavedMousePositionDTO savedMousePositionDTO)
+        public async Task<SavedMousePositionDTO?> UpdateSavedMousePositionAsync(SavedMousePositionDTO savedMousePositionDTO)
         {
             SavedMousePosition savedMousePosition = _mapper.Map<SavedMousePositionDTO, SavedMousePosition>(savedMousePositionDTO);
             using (var context = _contextFactory.CreateDbContext())

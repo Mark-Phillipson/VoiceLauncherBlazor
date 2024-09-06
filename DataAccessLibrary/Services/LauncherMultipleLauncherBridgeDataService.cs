@@ -14,10 +14,10 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<LauncherMultipleLauncherBridge>> GetLMLBsAsync(int? launcherId,int? multipleLauncherId)
+		public async Task<List<LauncherMultipleLauncherBridge>> GetLMLBsAsync(int? launcherId, int? multipleLauncherId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<LauncherMultipleLauncherBridge> bridges = null;
+			IQueryable<LauncherMultipleLauncherBridge> bridges = new List<LauncherMultipleLauncherBridge>().AsQueryable();
 			try
 			{
 				bridges = context.LauncherMultipleLauncherBridge.Include(i => i.Launcher)
@@ -32,10 +32,10 @@ namespace DataAccessLibrary.Services
 
 			return await bridges.Take(200).ToListAsync();
 		}
-		public async Task<LauncherMultipleLauncherBridge> GetLauncherMultipleLauncherBridgeAsync(int launcherMultipleLauncherBridgeId)
+		public async Task<LauncherMultipleLauncherBridge?> GetLauncherMultipleLauncherBridgeAsync(int launcherMultipleLauncherBridgeId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			LauncherMultipleLauncherBridge bridge = await context.LauncherMultipleLauncherBridge.Include(i => i.Launcher).Include(i => i.MultipleLauncher)
+			LauncherMultipleLauncherBridge? bridge = await context.LauncherMultipleLauncherBridge.Include(i => i.Launcher).Include(i => i.MultipleLauncher)
 				.Where(v => v.Id == launcherMultipleLauncherBridgeId).FirstOrDefaultAsync();
 			return bridge;
 		}

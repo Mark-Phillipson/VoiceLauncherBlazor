@@ -8,10 +8,10 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         public int NumberValue { get; set; }
         [Required]
-        public string Text { get; set; }
+        public required string Text { get; set; }
         [Required]
         [Display(Name = "Large Text")]
-        public string LargeText { get; set; }
+        public required string LargeText { get; set; }
         public bool Boolean { get; set; }
         [Display(Name = "Date Value")]
         public DateTime DateValue { get; set; }

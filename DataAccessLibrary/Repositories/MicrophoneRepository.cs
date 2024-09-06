@@ -46,7 +46,7 @@ namespace VoiceLauncher.Repositories
             return MicrophonesDTO;
         }
 
-        public async Task<MicrophoneDTO> GetMicrophoneByIdAsync(int Id)
+        public async Task<MicrophoneDTO?> GetMicrophoneByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.Microphones.AsNoTracking()
@@ -56,7 +56,7 @@ namespace VoiceLauncher.Repositories
             return microphoneDTO;
         }
 
-        public async Task<MicrophoneDTO> AddMicrophoneAsync(MicrophoneDTO microphoneDTO)
+        public async Task<MicrophoneDTO?> AddMicrophoneAsync(MicrophoneDTO microphoneDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             Microphone microphone = _mapper.Map<MicrophoneDTO, Microphone>(microphoneDTO);
@@ -74,7 +74,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<MicrophoneDTO> UpdateMicrophoneAsync(MicrophoneDTO microphoneDTO)
+        public async Task<MicrophoneDTO?> UpdateMicrophoneAsync(MicrophoneDTO microphoneDTO)
         {
             Microphone microphone = _mapper.Map<MicrophoneDTO, Microphone>(microphoneDTO);
             using (var context = _contextFactory.CreateDbContext())

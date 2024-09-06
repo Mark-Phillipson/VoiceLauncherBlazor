@@ -9,9 +9,9 @@ namespace DataAccessLibrary.Services
     {
         Task<List<CssPropertyDTO>> GetAllCssPropertiesAsync(int pageNumber, int pageSize, string serverSearchTerm);
         Task<List<CssPropertyDTO>> SearchCssPropertiesAsync(string serverSearchTerm);
-        Task<CssPropertyDTO> AddCssProperty(CssPropertyDTO cssPropertyDTO);
-        Task<CssPropertyDTO> GetCssPropertyById(int Id);
-        Task<CssPropertyDTO> UpdateCssProperty(CssPropertyDTO cssPropertyDTO, string username);
+        Task<CssPropertyDTO?> AddCssProperty(CssPropertyDTO cssPropertyDTO);
+        Task<CssPropertyDTO?> GetCssPropertyById(int Id);
+        Task<CssPropertyDTO?> UpdateCssProperty(CssPropertyDTO cssPropertyDTO, string username);
         Task DeleteCssProperty(int Id);
         Task<int> GetTotalCount();
     }

@@ -2,7 +2,7 @@
 
 namespace RazorClassLibrary.Pages
 {
-    public partial class Loading
+    public partial class Loading : ComponentBase
     {
         [Inject] public required NavigationManager NavigationManager { get; set; }
         void GoHome()

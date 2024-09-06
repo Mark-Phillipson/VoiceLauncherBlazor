@@ -45,7 +45,10 @@ namespace RazorClassLibrary.Pages
 			{
 				Category = new DataAccessLibrary.Models.Category
 				{
-					CategoryType = "IntelliSense Command"
+					CategoryType = "IntelliSense Command",
+					CategoryName = "A New Category",
+					Sensitive = false,
+					Colour = "#000000"
 				};
 			}
 
@@ -85,6 +88,10 @@ namespace RazorClassLibrary.Pages
 			if (Environment.MachineName != "J40L4V3")
 			{
 				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
+				return;
+			}
+			if (Category == null)
+			{
 				return;
 			}
 			try

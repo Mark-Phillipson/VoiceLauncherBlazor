@@ -47,17 +47,17 @@ namespace SampleApplication.Repositories
       return SpokenFormsDTO;
     }
 
-    public async Task<SpokenFormDTO?> GetSpokenFormByIdAsync(int Id)
+    public async Task<SpokenFormDTO> GetSpokenFormByIdAsync(int Id)
     {
       using var context = _contextFactory.CreateDbContext();
       var result = await context.SpokenForms.AsNoTracking()
         .FirstOrDefaultAsync(c => c.Id == Id);
-      if (result == null) return null;
+      if (result == null) return new SpokenFormDTO();
       SpokenFormDTO spokenFormDTO = _mapper.Map<SpokenForm, SpokenFormDTO>(result);
       return spokenFormDTO;
     }
 
-    public async Task<SpokenFormDTO?> AddSpokenFormAsync(SpokenFormDTO spokenFormDTO)
+    public async Task<SpokenFormDTO> AddSpokenFormAsync(SpokenFormDTO spokenFormDTO)
     {
       using var context = _contextFactory.CreateDbContext();
       SpokenForm spokenForm = _mapper.Map<SpokenFormDTO, SpokenForm>(spokenFormDTO);
@@ -69,13 +69,13 @@ namespace SampleApplication.Repositories
       catch (Exception exception)
       {
         Console.WriteLine(exception.Message);
-        return null;
+        return new SpokenFormDTO();
       }
       SpokenFormDTO resultDTO = _mapper.Map<SpokenForm, SpokenFormDTO>(spokenForm);
       return resultDTO;
     }
 
-    public async Task<SpokenFormDTO?> UpdateSpokenFormAsync(SpokenFormDTO spokenFormDTO)
+    public async Task<SpokenFormDTO> UpdateSpokenFormAsync(SpokenFormDTO spokenFormDTO)
     {
       SpokenForm spokenForm = _mapper.Map<SpokenFormDTO, SpokenForm>(spokenFormDTO);
       using (var context = _contextFactory.CreateDbContext())
@@ -91,7 +91,7 @@ namespace SampleApplication.Repositories
           return resultDTO;
         }
       }
-      return null;
+      return new SpokenFormDTO();
     }
     public async Task DeleteSpokenFormAsync(int Id)
     {

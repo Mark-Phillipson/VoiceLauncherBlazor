@@ -46,7 +46,7 @@ namespace DataAccessLibrary.Repositories
 			return TalonAlphabetsDTO;
 		}
 
-		public async Task<TalonAlphabetDTO> GetTalonAlphabetByIdAsync(int Id)
+		public async Task<TalonAlphabetDTO?> GetTalonAlphabetByIdAsync(int Id)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var result = await context.TalonAlphabets.AsNoTracking()
@@ -56,7 +56,7 @@ namespace DataAccessLibrary.Repositories
 			return talonAlphabetDTO;
 		}
 
-		public async Task<TalonAlphabetDTO> AddTalonAlphabetAsync(TalonAlphabetDTO talonAlphabetDTO)
+		public async Task<TalonAlphabetDTO?> AddTalonAlphabetAsync(TalonAlphabetDTO talonAlphabetDTO)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			TalonAlphabet talonAlphabet = _mapper.Map<TalonAlphabetDTO, TalonAlphabet>(talonAlphabetDTO);
@@ -74,7 +74,7 @@ namespace DataAccessLibrary.Repositories
 			return resultDTO;
 		}
 
-		public async Task<TalonAlphabetDTO> UpdateTalonAlphabetAsync(TalonAlphabetDTO talonAlphabetDTO)
+		public async Task<TalonAlphabetDTO?> UpdateTalonAlphabetAsync(TalonAlphabetDTO talonAlphabetDTO)
 		{
 			TalonAlphabet talonAlphabet = _mapper.Map<TalonAlphabetDTO, TalonAlphabet>(talonAlphabetDTO);
 			using (var context = _contextFactory.CreateDbContext())

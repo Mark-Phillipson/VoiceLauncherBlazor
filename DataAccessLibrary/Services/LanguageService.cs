@@ -14,10 +14,10 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<Language>> GetLanguagesAsync(string searchTerm = null, string sortColumn = null, string sortType = null, bool? activeFilter = null, int maximumRows = 200)
+		public async Task<List<Language>> GetLanguagesAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, bool? activeFilter = null, int maximumRows = 200)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<Language> languages = null;
+			IQueryable<Language> languages = new List<Language>().AsQueryable();
 			try
 			{
 				languages = context.Languages.Include(i => i.CustomIntelliSense).OrderBy(v => v.LanguageName);
@@ -25,6 +25,10 @@ namespace DataAccessLibrary.Services
 			catch (Exception exception)
 			{
 				Console.WriteLine(exception.Message);
+			}
+			if (languages == null)
+			{
+				return new List<Language>();
 			}
 			if (searchTerm != null && searchTerm.Length > 0)
 			{
@@ -48,16 +52,16 @@ namespace DataAccessLibrary.Services
 
 			return await languages.Take(maximumRows).ToListAsync();
 		}
-		public async Task<Language> GetLanguageAsync(int languageId)
+		public async Task<Language?> GetLanguageAsync(int languageId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Language language = await context.Languages.Include("CustomIntelliSense").Where(v => v.Id == languageId).FirstOrDefaultAsync();
+			Language? language = await context.Languages.Include("CustomIntelliSense").Where(v => v.Id == languageId).FirstOrDefaultAsync();
 			return language;
 		}
-		public async Task<Language> GetLanguageAsync(string languageName)
+		public async Task<Language?> GetLanguageAsync(string languageName)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Language language = await context.Languages.Include("CustomIntelliSense").Where(v => v.LanguageName.ToLower() == languageName.ToLower()).FirstOrDefaultAsync();
+			Language? language = await context.Languages.Include("CustomIntelliSense").Where(v => v.LanguageName.ToLower() == languageName.ToLower()).FirstOrDefaultAsync();
 			return language;
 		}
 		public async Task<string> SaveLanguage(Language language)

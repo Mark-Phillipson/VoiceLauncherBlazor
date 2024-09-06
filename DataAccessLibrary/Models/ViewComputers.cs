@@ -11,6 +11,6 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(20)]
-        public string ComputerName { get; set; }
+        public required string ComputerName { get; set; }
     }
 }

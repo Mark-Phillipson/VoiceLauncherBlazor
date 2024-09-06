@@ -45,7 +45,7 @@ namespace VoiceLauncher.Repositories
             return GrammarItemsDTO;
         }
 
-        public async Task<GrammarItemDTO> GetGrammarItemByIdAsync(int Id)
+        public async Task<GrammarItemDTO?> GetGrammarItemByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.GrammarItems.AsNoTracking()
@@ -55,7 +55,7 @@ namespace VoiceLauncher.Repositories
             return grammarItemDTO;
         }
 
-        public async Task<GrammarItemDTO> AddGrammarItemAsync(GrammarItemDTO grammarItemDTO)
+        public async Task<GrammarItemDTO?> AddGrammarItemAsync(GrammarItemDTO grammarItemDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             GrammarItem grammarItem = _mapper.Map<GrammarItemDTO, GrammarItem>(grammarItemDTO);
@@ -73,7 +73,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<GrammarItemDTO> UpdateGrammarItemAsync(GrammarItemDTO grammarItemDTO)
+        public async Task<GrammarItemDTO?> UpdateGrammarItemAsync(GrammarItemDTO grammarItemDTO)
         {
             GrammarItem grammarItem = _mapper.Map<GrammarItemDTO, GrammarItem>(grammarItemDTO);
             using (var context = _contextFactory.CreateDbContext())
@@ -107,7 +107,7 @@ namespace VoiceLauncher.Repositories
         {
             bool successful = true;
             using var context = _contextFactory.CreateDbContext();
-            GrammarItemDTO result;
+            GrammarItemDTO? result;
             foreach (GrammarItemDTO grammarItem in grammarItemsDTO)
             {
                 if (grammarItem.Id > 0)

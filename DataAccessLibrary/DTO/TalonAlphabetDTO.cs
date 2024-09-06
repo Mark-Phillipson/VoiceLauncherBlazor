@@ -11,12 +11,12 @@ namespace DataAccessLibrary.DTO
 		[StringLength(20)]
 		public string Letter { get; set; } = "";
 		[StringLength(255)]
-		public string PictureUrl { get; set; }
+		public string? PictureUrl { get; set; }
 		[Required]
 		[StringLength(20)]
 		public string DefaultLetter { get; set; } = "";
 		[StringLength(255)]
-		public string DefaultPictureUrl { get; set; }
-		 public Guid RandomSort { get; set; }= Guid.NewGuid();
+		public string? DefaultPictureUrl { get; set; }
+		public Guid RandomSort { get; set; } = Guid.NewGuid();
 	}
 }

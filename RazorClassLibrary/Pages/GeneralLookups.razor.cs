@@ -142,7 +142,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				GeneralLookupsModel = await GeneralLookupService.SaveAllGeneralLookups(GeneralLookupsModel);
+				if (GeneralLookupsModel != null)
+				{
+					GeneralLookupsModel = await GeneralLookupService.SaveAllGeneralLookups(GeneralLookupsModel);
+				}
 			}
 			catch (Exception exception)
 			{
@@ -160,10 +163,14 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task DuplicateRecord(int generalLookupId)
 		{
-			DataAccessLibrary.Models.GeneralLookup generalLookupSource = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
+			DataAccessLibrary.Models.GeneralLookup? generalLookupSource = await GeneralLookupService.GetGeneralLookupAsync(generalLookupId);
+			if (generalLookupSource == null)
+			{
+				return;
+			}
 			DataAccessLibrary.Models.GeneralLookup generalLookup = new()
 			{
-				Category = generalLookupSource?.Category,
+				Category = generalLookupSource.Category,
 				DisplayValue = generalLookupSource?.DisplayValue,
 				ItemValue = "TBC!",
 				SortOrder = generalLookupSource?.SortOrder + 1

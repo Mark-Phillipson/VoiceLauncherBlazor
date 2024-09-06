@@ -14,6 +14,6 @@ namespace DataAccessLibrary.DTO
         [StringLength(255)]
         public string Lookup { get; set; } = "";
         [StringLength(255)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

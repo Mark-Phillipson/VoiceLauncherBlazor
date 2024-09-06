@@ -8,13 +8,13 @@ namespace DataAccessLibrary
 	public class TodoData : ITodoData
 	{
 		private string table = "dbo.Todos";
-		private string[] columns = new string[] { "Title", "Description", "Completed", "Project", "Archived","SortPriority" };
+		private string[] columns = new string[] { "Title", "Description", "Completed", "Project", "Archived", "SortPriority" };
 		private readonly ISqlDataAccess _db;
 		public TodoData(ISqlDataAccess db)
 		{
 			_db = db;
 		}
-		public Task<List<Todo>> GetTodos(string searchTerm = null, string projectFilter = null)
+		public Task<List<Todo>> GetTodos(string? searchTerm = null, string? projectFilter = null)
 		{
 			string sql = $"SELECT * FROM {table} WHERE Archived=0";
 			if (searchTerm != null)

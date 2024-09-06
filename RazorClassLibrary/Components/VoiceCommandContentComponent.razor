@@ -1,19 +1,26 @@
-﻿
+﻿@if (VoiceCommandContent != null && VoiceCommandContent.Content != null)
+{
+
 	<tr>
 		<td>
 			@VoiceCommandContent!.Type
-			<button class="btn btn-primary btn-sm" type="button" @onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent!.Content) )">Copy Code</button>
+			<button class="btn btn-primary btn-sm" type="button"
+				@onclick="@( ( ) => CopyTextToClipboard(VoiceCommandContent!.Content ?? "") )">Copy Code</button>
 		</td>
-		<td style="max-width:900px"  colspan="5"  >
+		<td style="max-width:900px" colspan="5">
 			@{
 				var languageClass = "text-dark";
-				if (VoiceCommandContent.Type.ToLower().Contains("basic") || VoiceCommandContent.Type.ToLower().Contains("script"))
+				if (VoiceCommandContent != null && VoiceCommandContent.Type != null)
 				{
-					languageClass = "language-visual-basic";
+					if (
+					VoiceCommandContent!.Type.ToLower().Contains("basic") ||
+					VoiceCommandContent.Type.ToLower().Contains("script"))
+					{
+						languageClass = "language-visual-basic";
+					}
 				}
 			}
 			<pre><code class="@languageClass">@VoiceCommandContent?.Content</code></pre>
 		</td>
 	</tr>
-
-
+}

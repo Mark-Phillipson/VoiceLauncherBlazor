@@ -22,7 +22,7 @@ namespace DataAccessLibrary
         public void CreateCommandsFromList(string nameOfGrammar, string spokenFormPrefix)
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == nameOfGrammar).FirstOrDefault();
-            var items = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            var items = _context.GrammarItems.Where(v => grammarName != null && v.GrammarNameId == grammarName.Id).ToList();
             foreach (GrammarItem item in items)
             {
                 WindowsSpeechVoiceCommand command = new();
@@ -34,7 +34,7 @@ namespace DataAccessLibrary
                 SpokenForm spokenForm = new SpokenForm();
                 spokenForm.WindowsSpeechVoiceCommandId = command.Id;
                 spokenForm.SpokenFormText = $"{spokenFormPrefix} {item.Value}";
-                _context.SaveChanges(); 
+                _context.SaveChanges();
                 CustomWindowsSpeechCommand action = new();
                 action.WindowsSpeechVoiceCommandId = command.Id;
                 if (spokenFormPrefix == "Move Left")
@@ -53,7 +53,7 @@ namespace DataAccessLibrary
         public void CreateCommandSqlCommands()
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == "Sequel").FirstOrDefault();
-            var keywordItems = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            var keywordItems = _context.GrammarItems.Where(v => grammarName != null && v.GrammarNameId == grammarName.Id).ToList();
             foreach (GrammarItem item in keywordItems)
             {
                 WindowsSpeechVoiceCommand command = new();
@@ -75,7 +75,7 @@ namespace DataAccessLibrary
         public void CreateCommandKeywordCSharp()
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == "Keyword").FirstOrDefault();
-            var keywordItems = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            var keywordItems = _context.GrammarItems.Where(v => grammarName != null && v.GrammarNameId == grammarName.Id).ToList();
             foreach (GrammarItem item in keywordItems)
             {
                 WindowsSpeechVoiceCommand command = new();
@@ -97,9 +97,9 @@ namespace DataAccessLibrary
         public void CreateCommandMoveMouseAndClick()
         {
             var grammarName = _context.GrammarNames.Where(v => v.NameOfGrammar == "Direction").FirstOrDefault();
-            var directions = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            var directions = _context.GrammarItems.Where(v => grammarName != null && v.GrammarNameId == grammarName.Id).ToList();
             grammarName = _context.GrammarNames.FirstOrDefault(f => f.NameOfGrammar == "1to30");
-            var numbers = _context.GrammarItems.Where(v => v.GrammarNameId == grammarName.Id).ToList();
+            var numbers = _context.GrammarItems.Where(v => grammarName != null && v.GrammarNameId == grammarName.Id).ToList();
             foreach (GrammarItem item in directions)
             {
                 foreach (GrammarItem number in numbers)

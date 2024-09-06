@@ -21,16 +21,16 @@ namespace DataAccessLibrary.Models
         [StringLength(30)]
         [Column("Category")]
         [Required(ErrorMessage = "The Category Name is required!")]
-        public string CategoryName { get; set; }
+        public required string CategoryName { get; set; }
         [Column("Category_Type")]
         [StringLength(255)]
         [Required(ErrorMessage = "The Category Type is required!")]
-        public string CategoryType { get; set; }
+        public required string CategoryType { get; set; }
         public bool Sensitive { get; set; } = false;
         [StringLength(40)]
-        public string Colour { get; set; }
+        public string? Colour { get; set; }
         [StringLength(50)]
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
         [InverseProperty("Category")]

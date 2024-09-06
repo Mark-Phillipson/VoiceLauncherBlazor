@@ -55,7 +55,7 @@ namespace DataAccessLibrary.Repositories
             return WindowsSpeechVoiceCommandsDTO;
         }
 
-        public async Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandByIdAsync(int Id)
+        public async Task<WindowsSpeechVoiceCommandDTO?> GetWindowsSpeechVoiceCommandByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.WindowsSpeechVoiceCommands.AsNoTracking().Include(i => i.SpokenForms)
@@ -65,7 +65,7 @@ namespace DataAccessLibrary.Repositories
             return windowsSpeechVoiceCommandDTO;
         }
 
-        public async Task<WindowsSpeechVoiceCommandDTO> AddWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
+        public async Task<WindowsSpeechVoiceCommandDTO?> AddWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             WindowsSpeechVoiceCommand windowsSpeechVoiceCommand = _mapper.Map<WindowsSpeechVoiceCommandDTO, WindowsSpeechVoiceCommand>(windowsSpeechVoiceCommandDTO);
@@ -90,7 +90,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
+        public async Task<WindowsSpeechVoiceCommandDTO?> UpdateWindowsSpeechVoiceCommandAsync(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
         {
             WindowsSpeechVoiceCommand windowsSpeechVoiceCommand = _mapper.Map<WindowsSpeechVoiceCommandDTO, WindowsSpeechVoiceCommand>(windowsSpeechVoiceCommandDTO);
             using (var context = _contextFactory.CreateDbContext())
@@ -119,13 +119,17 @@ namespace DataAccessLibrary.Repositories
             context.WindowsSpeechVoiceCommands.Remove(foundWindowsSpeechVoiceCommand);
             await context.SaveChangesAsync();
         }
-        public async Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded()
+        public async Task<WindowsSpeechVoiceCommandDTO?> GetLatestAdded()
         {
             var context = _contextFactory.CreateDbContext();
             var latestWindowSpeechVoiceCommand = await context.WindowsSpeechVoiceCommands
                 .AsNoTracking()
                 .OrderByDescending(v => v.Id)
                 .FirstOrDefaultAsync();
+            if (latestWindowSpeechVoiceCommand == null)
+            {
+                return null;
+            }
             WindowsSpeechVoiceCommandDTO resultDTO = _mapper.Map<WindowsSpeechVoiceCommand, WindowsSpeechVoiceCommandDTO>(latestWindowSpeechVoiceCommand);
             return resultDTO;
         }
@@ -142,12 +146,12 @@ namespace DataAccessLibrary.Repositories
         {
             var context = _contextFactory.CreateDbContext();
             List<WindowsSpeechVoiceCommand> result = await context.WindowsSpeechVoiceCommands
-                .Where(v => v.ApplicationName.Length > 0).ToListAsync();
+                .Where(v => v.ApplicationName != null && v.ApplicationName.Length > 0).ToListAsync();
             var breakdown = result
                .GroupBy(a => new { a.ApplicationName, a.AutoCreated })
                .Select(g => new CommandsBreakdown
                {
-                   ApplicationName = g.Key.ApplicationName,
+                   ApplicationName = g.Key.ApplicationName ?? "Unknown",
                    AutoCreated = g.Key.AutoCreated,
                    Number = g.Count()
                }).ToList();
@@ -159,13 +163,16 @@ namespace DataAccessLibrary.Repositories
             List<SpokenForm> spokenForms = new List<SpokenForm>();
             foreach (var item in result)
             {
-                SpokenForm spokenForm = await context.SpokenForms
+                SpokenForm? spokenForm = await context.SpokenForms
                                  .AsNoTracking()
                                                 .FirstOrDefaultAsync(v => v.WindowsSpeechVoiceCommandId == item.Id);
-                spokenForms?.Add(spokenForm);
+                if (spokenForm != null)
+                {
+                    spokenForms?.Add(spokenForm);
+                }
             }
 
-            return spokenForms;
+            return spokenForms ?? new List<SpokenForm>();
         }
 
     }

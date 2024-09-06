@@ -9,9 +9,9 @@ namespace DataAccessLibrary.Services
   {
     Task<List<SpokenFormDTO>> GetAllSpokenFormsAsync(int WindowsSpeechVoiceCommandId);
     Task<List<SpokenFormDTO>> SearchSpokenFormsAsync(string serverSearchTerm);
-    Task<SpokenFormDTO> AddSpokenForm(SpokenFormDTO spokenFormDTO);
-    Task<SpokenFormDTO> GetSpokenFormById(int Id);
-    Task<SpokenFormDTO> UpdateSpokenForm(SpokenFormDTO spokenFormDTO, string username);
+    Task<SpokenFormDTO?> AddSpokenForm(SpokenFormDTO spokenFormDTO);
+    Task<SpokenFormDTO?> GetSpokenFormById(int Id);
+    Task<SpokenFormDTO?> UpdateSpokenForm(SpokenFormDTO spokenFormDTO, string username);
     Task DeleteSpokenForm(int Id);
   }
 }

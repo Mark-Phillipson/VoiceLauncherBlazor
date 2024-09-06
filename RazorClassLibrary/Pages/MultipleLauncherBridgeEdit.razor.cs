@@ -34,7 +34,11 @@ namespace RazorClassLibrary.Pages
             }
             if (MultipleLauncherBridgeId != 0 && LauncherMultipleLauncherBridgeService != null)
             {
-                LauncherMultipleLauncherBridge = await LauncherMultipleLauncherBridgeService.GetLauncherMultipleLauncherBridgeAsync(MultipleLauncherBridgeId);
+                var bridge = await LauncherMultipleLauncherBridgeService.GetLauncherMultipleLauncherBridgeAsync(MultipleLauncherBridgeId);
+                if (bridge != null)
+                {
+                    LauncherMultipleLauncherBridge = bridge;
+                }
             }
             else
             {

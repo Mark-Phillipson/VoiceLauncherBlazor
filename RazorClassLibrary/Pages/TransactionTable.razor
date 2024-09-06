@@ -1,5 +1,6 @@
 @page "/transactions"
 @using System.Globalization
+@using DataAccessLibrary.DTOs
 @if (HouseholdTransactions != null && HouseholdTransactions.Count > 0 && HouseholdTransactionsPrevious != null
 && HouseholdTransactionsPrevious.Count > 0)
 {
@@ -219,9 +220,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var
-           transaction in
-           FilteredTransactionDTO)
+            @foreach (TransactionDTO transaction in FilteredTransactionDTO)
             {
                 <tr>
                     @if (!showingBreakdown)
@@ -249,43 +248,47 @@ else
                         }
                     </td>
                     <td class='p-3'>
-                        @if (transaction.Description.ToLower().Contains("subtotal"))
+                        @if (transaction != null && transaction.Description != null &&
+                       transaction.Description.ToLower().Contains("subtotal"))
                         {
                             <span class='text-secondary'>@transaction.Description</span>
                         }
                         else
                         {
-                            @if (transaction.MoneyIn > 0)
+                            @if (transaction?.MoneyIn > 0)
                             {
                                 <span class='text-success'>@transaction.Description</span>
                             }
-                            else if (transaction.MoneyOut > 0)
+                            else if (transaction?.MoneyOut > 0)
                             {
                                 <span class='text-danger'>@transaction.Description</span>
                             }
                         }
                     </td>
                     <td class='p-3'>
-                        @transaction.Type
+                        @transaction?.Type
                     </td>
-                    <td class='p-3' style="text-align: right;">
-                        @transaction.MoneyIn.ToString("C", new CultureInfo("en-GB"))
-                    </td>
-                    <td class='p-3' style="text-align: right;">
-                        @transaction.MoneyOut.ToString("C", new CultureInfo("en-GB"))
-                    </td>
-                    <td class='p-3'>
-                        @if (!showingBreakdown)
-                        {
-                            @transaction.MyTransactionType
-                        }
-                        else if (!transaction.Description.ToLower().Contains("subtotal"))
-                        {
-                            <span class='text-success'>@transaction.MyTransactionType</span>
-                        }
-                    </td>
+                    @if (transaction != null)
+                    {
+                        <td class='p-3' style="text-align: right;">
+                            @transaction.MoneyIn.ToString("C", new CultureInfo("en-GB"))
+                        </td>
+                        <td class='p-3' style="text-align: right;">
+                            @transaction.MoneyOut.ToString("C", new CultureInfo("en-GB"))
+                        </td>
+                        <td class='p-3'>
+                            @if (!showingBreakdown)
+                            {
+                                @transaction.MyTransactionType
+                            }
+                            else if (transaction.Description != null && !transaction.Description.ToLower().Contains("subtotal"))
+                            {
+                                <span class='text-success'>@transaction.MyTransactionType</span>
+                            }
+                        </td>
+                    }
                     <td class="btn-group border border-1" style='width:100%'>
-                        @if (!showingBreakdown)
+                        @if (!showingBreakdown && transaction != null)
                         {
                             <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTransaction(transaction.Id))">
                                 Edit
@@ -298,16 +301,19 @@ else
                         }
                         else
                         {
-                            <button disabled class="btn btn-sm btn-outline-warning"
-                                @onclick="@(() => EditTransaction(transaction.Id))">
-                                Edit
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button disabled class="btn btn-sm btn-outline-danger"
-                                @onclick="@(() => DeleteTransaction(transaction.Id))">
-                                Delete
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            @if (transaction != null)
+                            {
+                                <button disabled class="btn btn-sm btn-outline-warning"
+                                    @onclick="@(() => EditTransaction(transaction.Id))">
+                                    Edit
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button disabled class="btn btn-sm btn-outline-danger"
+                                    @onclick="@(() => DeleteTransaction(transaction.Id))">
+                                    Delete
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            }
                         }
                     </td>
                 </tr>

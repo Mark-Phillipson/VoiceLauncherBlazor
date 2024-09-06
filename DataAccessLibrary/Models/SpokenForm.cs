@@ -14,7 +14,7 @@ namespace DataAccessLibrary.Models
         [Required]
         public string SpokenFormText { get; set; } = null!;
         public int WindowsSpeechVoiceCommandId { get; set; }
-        public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; }
+        public WindowsSpeechVoiceCommand WindowsSpeechVoiceCommand { get; set; } = new WindowsSpeechVoiceCommand();
     }
 
 }

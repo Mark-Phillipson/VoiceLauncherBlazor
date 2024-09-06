@@ -30,12 +30,12 @@ namespace VoiceLauncher.Services
             return PhraseListGrammars.ToList();
         }
 
-        public async Task<PhraseListGrammarDTO> GetPhraseListGrammarById(int Id)
+        public async Task<PhraseListGrammarDTO?> GetPhraseListGrammarById(int Id)
         {
             var phraseListGrammar = await _phraseListGrammarRepository.GetPhraseListGrammarByIdAsync(Id);
             return phraseListGrammar;
         }
-        public async Task<PhraseListGrammarDTO> AddPhraseListGrammar(PhraseListGrammarDTO phraseListGrammarDTO)
+        public async Task<PhraseListGrammarDTO?> AddPhraseListGrammar(PhraseListGrammarDTO phraseListGrammarDTO)
         {
             Guard.Against.Null(phraseListGrammarDTO);
             var result = await _phraseListGrammarRepository.AddPhraseListGrammarAsync(phraseListGrammarDTO);
@@ -45,7 +45,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<PhraseListGrammarDTO> UpdatePhraseListGrammar(PhraseListGrammarDTO phraseListGrammarDTO, string username)
+        public async Task<PhraseListGrammarDTO?> UpdatePhraseListGrammar(PhraseListGrammarDTO phraseListGrammarDTO, string username)
         {
             Guard.Against.Null(phraseListGrammarDTO);
             Guard.Against.Null(username);

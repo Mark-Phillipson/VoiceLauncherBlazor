@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DataAccessLibrary.Models
 {
-   [Table("PhraseListGrammars")]
-     public  class PhraseListGrammar
-    {
-         public int Id { get; set; }
-        [StringLength(100)]
-        [Required]
-        public string PhraseListGrammarValue { get; set; }
-    }
+  [Table("PhraseListGrammars")]
+  public class PhraseListGrammar
+  {
+    public int Id { get; set; }
+    [StringLength(100)]
+    [Required]
+    public required string PhraseListGrammarValue { get; set; }
+  }
 }

@@ -11,9 +11,9 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [StringLength(255)]
-        public string CommandLine { get; set; }
+        public required string CommandLine { get; set; }
         [Column("CategoryID")]
         public int CategoryId { get; set; }
         [Column("ComputerID")]

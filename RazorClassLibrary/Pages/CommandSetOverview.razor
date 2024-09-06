@@ -107,7 +107,7 @@
 			}
 			<div class='col-md-1'>
 				<button type="button" class="btn btn-sm btn-outline-@partialClass m-1"
-					@onclick="@(() => SetApplicationFilter(item.ModuleDescription))">@item.ModuleDescription <span
+					@onclick="@(() => SetApplicationFilter(item?.ModuleDescription!))">@item.ModuleDescription <span
 						class="badge badge-@partialClass">@item.VoiceCommands.Count</span></button>
 			</div>
 		}
@@ -155,32 +155,35 @@ else
 				}
 				<tr>
 					<td>
-						<button class="btn btn-outline-@className" type="button"
-							@onclick="@( ( ) => ApplyApplicationFilter( targetApplication.Module ) )">
-							<span class="m-1">Source</span><span class="text-warning"> @targetApplication.CommandSource </span>
-							<span class="m-1">Description</span><span class="text-danger"> @targetApplication.ModuleDescription
-							</span>
-							<span class="m-1">Module</span><span class="text-secondary"> @targetApplication.Module </span>
-							<span class="m-1">Scope</span><span class="text-secondary"> @targetApplication.Scope </span>
-							<span class="m-1">Company</span><span class="text-secondary"> @targetApplication.Company</span>
-							@if (targetApplication.WindowTitle != null)
-							{
-								<span class="m-1"> Window Title </span>
+						@if (targetApplication != null)
+						{
+							<button class="btn btn-outline-@className" type="button"
+								@onclick="@( ( ) => ApplyApplicationFilter( targetApplication!.Module ) )">
+								<span class="m-1">Source</span><span class="text-warning"> @targetApplication.CommandSource </span>
+								<span class="m-1">Description</span><span class="text-danger"> @targetApplication.ModuleDescription
+								</span>
+								<span class="m-1">Module</span><span class="text-secondary"> @targetApplication.Module </span>
+								<span class="m-1">Scope</span><span class="text-secondary"> @targetApplication.Scope </span>
+								<span class="m-1">Company</span><span class="text-secondary"> @targetApplication.Company</span>
+								@if (targetApplication.WindowTitle != null)
+								{
+									<span class="m-1"> Window Title </span>
 
-								<span class="text-secondary">@targetApplication.WindowTitle</span>
-							}
-							@if (targetApplication.WindowClass != null)
-							{
-								<span class="m-1"> Window Class </span>
+									<span class="text-secondary">@targetApplication.WindowTitle</span>
+								}
+								@if (targetApplication.WindowClass != null)
+								{
+									<span class="m-1"> Window Class </span>
 
-								<span class="text-secondary">@targetApplication.WindowClass</span>
-							}
-							<span class="m-1">Commands</span><span class="text-secondary">
-								<span class="badge badge-@className">@targetApplication?.VoiceCommands?.Count(c =>
-									c.Name.ToLower().Contains(SearchTerm.ToLower()))</span>
+									<span class="text-secondary">@targetApplication.WindowClass</span>
+								}
+								<span class="m-1">Commands</span><span class="text-secondary">
+									<span class="badge badge-@className">@targetApplication?.VoiceCommands?.Count(c =>
+										c.Name!.ToLower().Contains(SearchTerm.ToLower()))</span>
 
-							</span>
-						</button>
+								</span>
+							</button>
+						}
 					</td>
 				</tr>
 				<tr>
@@ -203,7 +206,7 @@ else
 							</tr>
 							@{
 								var voiceCommands = targetApplication?.VoiceCommands?.Where(v => (SearchTerm != null &&
-								v.Name.ToLower().Contains(SearchTerm.ToLower())
+								v.Name!.ToLower().Contains(SearchTerm.ToLower())
 								&& v.Name.Length > 0)).Count();
 							}
 							@if (targetApplication != null && targetApplication?.VoiceCommands?.Count > 0)
@@ -215,7 +218,7 @@ else
 													.OrderBy(a => a.Name))
 								{
 									<tr>
-										<td title="Click to filter and copy" @onclick="@(() => CommandDrillDownAsync(voiceCommand.Name))">
+										<td title="Click to filter and copy" @onclick="@(() => CommandDrillDownAsync(voiceCommand?.Name!))">
 											<button class="btn btn-success">@voiceCommand.Name</button>
 										</td>
 										<td>

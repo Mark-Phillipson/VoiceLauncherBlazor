@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore;
 
 namespace VoiceLauncher.Repositories
 {
@@ -37,7 +36,7 @@ namespace VoiceLauncher.Repositories
 		public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows = 400, string categoryType = "Launch Applications", int languageId = 0)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			List<Category> Categories = null;
+			List<Category> Categories = new List<Category>();
 			if (languageId > 0)
 			{
 				Categories = await context.Categories
@@ -74,11 +73,10 @@ namespace VoiceLauncher.Repositories
 					var tableCategory = Categories
 						.Where(v => v.Id == category.Id)
 						.FirstOrDefault();
-					category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense.Count(c => c.CategoryId == category.Id);
-					var test = category.CountOfCustomIntellisense;
-					if (test > 0)
+					if (tableCategory != null)
 					{
-						test = category.CountOfCustomIntellisense;
+						category.CountOfCustomIntellisense = tableCategory.CustomIntelliSense?.Count(c => c.CategoryId == category.Id) ?? 0;
+
 					}
 				}
 			}
@@ -87,7 +85,10 @@ namespace VoiceLauncher.Repositories
 				foreach (var category in CategoriesDTO)
 				{
 					var tableCategory = Categories.Where(v => v.Id == category.Id).FirstOrDefault();
-					category.CountOfLaunchers = tableCategory.Launchers.Count;
+					if (tableCategory != null)
+					{
+						category.CountOfLaunchers = tableCategory.Launchers?.Count ?? 0;
+					}
 				}
 
 			}
@@ -105,7 +106,7 @@ namespace VoiceLauncher.Repositories
 			return CategoriesDTO;
 		}
 
-		public async Task<CategoryDTO> GetCategoryByIdAsync(int Id)
+		public async Task<CategoryDTO?> GetCategoryByIdAsync(int Id)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var result = await context.Categories.AsNoTracking()
@@ -141,7 +142,7 @@ namespace VoiceLauncher.Repositories
 			return $"{category.CategoryName} added successfully";
 		}
 
-		public async Task<CategoryDTO> UpdateCategoryAsync(CategoryDTO categoryDTO)
+		public async Task<CategoryDTO?> UpdateCategoryAsync(CategoryDTO categoryDTO)
 		{
 			Category category = _mapper.Map<CategoryDTO, Category>(categoryDTO);
 			using (var context = _contextFactory.CreateDbContext())

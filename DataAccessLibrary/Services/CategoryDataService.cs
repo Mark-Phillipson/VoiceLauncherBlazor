@@ -35,7 +35,7 @@ namespace VoiceLauncher.Services
             return Categories.ToList();
         }
 
-        public async Task<CategoryDTO> GetCategoryById(int Id)
+        public async Task<CategoryDTO?> GetCategoryById(int Id)
         {
             var category = await _categoryRepository.GetCategoryByIdAsync(Id);
             return category;
@@ -50,7 +50,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<CategoryDTO> UpdateCategory(CategoryDTO categoryDTO, string username)
+        public async Task<CategoryDTO?> UpdateCategory(CategoryDTO categoryDTO, string username)
         {
             Guard.Against.Null(categoryDTO);
             Guard.Against.Null(username);

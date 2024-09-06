@@ -7,11 +7,11 @@ namespace DataAccessLibrary.Repositories
 {
     public interface ICursorlessCheatsheetItemRepository
     {
-        Task<CursorlessCheatsheetItemDTO> AddCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO);
+        Task<CursorlessCheatsheetItemDTO?> AddCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO);
         Task DeleteCursorlessCheatsheetItemAsync(int id);
         Task<IEnumerable<CursorlessCheatsheetItemDTO>> GetAllCursorlessCheatsheetItemsAsync(int maxRows);
         Task<IEnumerable<CursorlessCheatsheetItemDTO>> SearchCursorlessCheatsheetItemsAsync(string serverSearchTerm);
-        Task<CursorlessCheatsheetItemDTO> GetCursorlessCheatsheetItemByIdAsync(int id);
-        Task<CursorlessCheatsheetItemDTO> UpdateCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO);
+        Task<CursorlessCheatsheetItemDTO?> GetCursorlessCheatsheetItemByIdAsync(int id);
+        Task<CursorlessCheatsheetItemDTO?> UpdateCursorlessCheatsheetItemAsync(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO);
     }
 }

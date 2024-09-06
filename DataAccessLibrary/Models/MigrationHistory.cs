@@ -10,14 +10,14 @@ namespace DataAccessLibrary.Models
     {
         [Key]
         [StringLength(150)]
-        public string MigrationId { get; set; }
+        public required string MigrationId { get; set; }
         [Key]
         [StringLength(300)]
-        public string ContextKey { get; set; }
+        public required string ContextKey { get; set; }
         [Required]
-        public byte[] Model { get; set; }
+        public required byte[] Model { get; set; }
         [Required]
         [StringLength(32)]
-        public string ProductVersion { get; set; }
+        public required string ProductVersion { get; set; }
     }
 }

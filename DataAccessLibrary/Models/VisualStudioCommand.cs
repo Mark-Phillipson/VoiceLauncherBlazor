@@ -3,7 +3,7 @@
 	public class VisualStudioCommand
 	{
 		public int Id { get; set; }
-		public string Caption { get; set; }
-		public string Command { get; set; }
+		public required string Caption { get; set; }
+		public required string Command { get; set; }
 	}
 }

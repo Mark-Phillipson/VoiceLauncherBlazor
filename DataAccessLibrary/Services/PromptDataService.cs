@@ -30,12 +30,12 @@ namespace SampleApplication.Services
             return Prompts.ToList();
         }
 
-        public async Task<PromptDTO> GetPromptById(int Id)
+        public async Task<PromptDTO?> GetPromptById(int Id)
         {
             var prompt = await _promptRepository.GetPromptByIdAsync(Id);
             return prompt;
         }
-        public async Task<PromptDTO> AddPrompt(PromptDTO promptDTO)
+        public async Task<PromptDTO?> AddPrompt(PromptDTO promptDTO)
         {
             Guard.Against.Null(promptDTO);
             var result = await _promptRepository.AddPromptAsync(promptDTO);
@@ -45,7 +45,7 @@ namespace SampleApplication.Services
             }
             return result;
         }
-        public async Task<PromptDTO> UpdatePrompt(PromptDTO promptDTO, string username)
+        public async Task<PromptDTO?> UpdatePrompt(PromptDTO promptDTO, string username)
         {
             Guard.Against.Null(promptDTO);
             Guard.Against.Null(username);

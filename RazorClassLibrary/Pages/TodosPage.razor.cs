@@ -37,12 +37,12 @@ namespace RazorClassLibrary.Pages
 		}
 		protected override async Task OnInitializedAsync()
 		{
-			todo = new Todo { Project = Project };
+			todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
 			await LoadData();
 		}
 		private async void CancelEdit()
 		{
-			todo = new Todo { Project = Project };
+			todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
 			await JSRuntime!.InvokeVoidAsync("setFocus", $"SearchInput");
 		}
 		private async void EditTodo(Todo todoEdit)
@@ -148,7 +148,7 @@ namespace RazorClassLibrary.Pages
 				await TodoData.InsertToDo(todo);
 				await LoadData();
 				StatusMessage = $"Created Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
-				todo = new Todo { Project = Project };
+				todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
 			}
 		}
 		private async Task ChangeCompleted(int todoId, bool completed)
@@ -171,10 +171,14 @@ namespace RazorClassLibrary.Pages
 				ToastService!.ShowError("This demo application does not allow editing of data! Demo Only");
 				return;
 			}
+			if (todo == null)
+			{
+				return;
+			}
 			await TodoData.UpdateToDo(todo);
 			await LoadData();
 			StatusMessage = $"Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
-			todo = new Todo { Project = Project };
+			todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
 		}
 
 		private async Task CallChangeAsync(string elementId)
@@ -201,7 +205,7 @@ namespace RazorClassLibrary.Pages
 			await TodoData.UpdateToDo(todo);
 			await LoadData();
 			StatusMessage = $"Priority Updated Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
-			todo = new Todo { Project = Project };
+			todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
 		}
 		void ToggleShowProjects()
 		{

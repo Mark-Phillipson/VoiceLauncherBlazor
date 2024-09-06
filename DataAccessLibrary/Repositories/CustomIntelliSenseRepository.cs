@@ -33,8 +33,16 @@ namespace VoiceLauncher.Repositories
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
          foreach (var item in CustomIntelliSensesDTO)
          {
-            item.LanguageName= context.Languages.Where(x => x.Id == item.LanguageId).Select(x => x.LanguageName).FirstOrDefault();
-            item.CategoryName = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.CategoryName).FirstOrDefault();
+            var language = context.Languages.Where(x => x.Id == item.LanguageId).FirstOrDefault();
+            if (language != null)
+            {
+               item.LanguageName = language.LanguageName;
+            }
+            var category = context.Categories.Where(x => x.Id == item.CategoryId).FirstOrDefault();
+            if (category != null)
+            {
+               item.CategoryName = category.CategoryName;
+            }
          }
          return CustomIntelliSensesDTO;
       }
@@ -42,18 +50,26 @@ namespace VoiceLauncher.Repositories
       {
          using var context = _contextFactory.CreateDbContext();
          var CustomIntelliSenses = await context.CustomIntelliSenses
-             .Where(x => x.DisplayValue.ToLower().Contains(serverSearchTerm.ToLower()))
+             .Where(x => x.DisplayValue != null && x.DisplayValue.ToLower().Contains(serverSearchTerm.ToLower()))
              .OrderBy(v => v.DisplayValue)
              .Take(1000)
              .ToListAsync();
          IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
          foreach (var item in CustomIntelliSensesDTO)
          {
-            item.LanguageName = context.Languages.Where(x => x.Id == item.LanguageId).Select(x => x.LanguageName).FirstOrDefault();
-            item.CategoryName = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.CategoryName).FirstOrDefault();
-            item.Sensitive= context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.Sensitive).FirstOrDefault();
+            var language = context.Languages.Where(x => x.Id == item.LanguageId).FirstOrDefault();
+            if (language != null)
+            {
+               item.LanguageName = language.LanguageName;
+            }
+            var category = context.Categories.Where(x => x.Id == item.CategoryId).FirstOrDefault();
+            if (category != null)
+            {
+               item.CategoryName = category.CategoryName;
+            }
+            item.Sensitive = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.Sensitive).FirstOrDefault();
          }
-      return CustomIntelliSensesDTO;
+         return CustomIntelliSensesDTO;
       }
 
       public async Task<CustomIntelliSenseDTO?> GetCustomIntelliSenseByIdAsync(int Id)

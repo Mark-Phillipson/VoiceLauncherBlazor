@@ -44,7 +44,7 @@ namespace DataAccessLibrary.Repositories
             return CustomWindowsSpeechCommandsDTO;
         }
 
-        public async Task<CustomWindowsSpeechCommandDTO> GetCustomWindowsSpeechCommandByIdAsync(int Id)
+        public async Task<CustomWindowsSpeechCommandDTO?> GetCustomWindowsSpeechCommandByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.CustomWindowsSpeechCommands.AsNoTracking()
@@ -54,7 +54,7 @@ namespace DataAccessLibrary.Repositories
             return customWindowsSpeechCommandDTO;
         }
 
-        public async Task<CustomWindowsSpeechCommandDTO> AddCustomWindowsSpeechCommandAsync(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
+        public async Task<CustomWindowsSpeechCommandDTO?> AddCustomWindowsSpeechCommandAsync(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             CustomWindowsSpeechCommand customWindowsSpeechCommand = _mapper.Map<CustomWindowsSpeechCommandDTO, CustomWindowsSpeechCommand>(customWindowsSpeechCommandDTO);
@@ -72,7 +72,7 @@ namespace DataAccessLibrary.Repositories
             return resultDTO;
         }
 
-        public async Task<CustomWindowsSpeechCommandDTO> UpdateCustomWindowsSpeechCommandAsync(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
+        public async Task<CustomWindowsSpeechCommandDTO?> UpdateCustomWindowsSpeechCommandAsync(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
         {
             CustomWindowsSpeechCommand customWindowsSpeechCommand = _mapper.Map<CustomWindowsSpeechCommandDTO, CustomWindowsSpeechCommand>(customWindowsSpeechCommandDTO);
             using (var context = _contextFactory.CreateDbContext())

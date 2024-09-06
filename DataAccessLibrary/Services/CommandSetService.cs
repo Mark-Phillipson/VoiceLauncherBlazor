@@ -13,12 +13,18 @@ namespace DataAccessLibrary.Services
 	{
 		readonly DataSet dataSetKB = new DataSet();
 		readonly DataSet dataSetDragon = new DataSet();
-		XElement MyCommands = null;
+		XElement MyCommands = new XElement("MyCommands");
 		readonly CommandSet commandSet = new CommandSet();
-		public CommandSetService(string knowbrainerScriptFileName = null, string dragonScriptFileName = null, bool viewNew = false)
+		public CommandSetService(string? knowbrainerScriptFileName, string? dragonScriptFileName, bool viewNew = false)
 		{
-			dataSetKB = LoadDataSet(knowbrainerScriptFileName, viewNew, true);
-			dataSetDragon = LoadDataSet(dragonScriptFileName, viewNew, false);
+			if (knowbrainerScriptFileName != null)
+			{
+				dataSetKB = LoadDataSet(knowbrainerScriptFileName, viewNew, true);
+			}
+			if (dragonScriptFileName != null)
+			{
+				dataSetDragon = LoadDataSet(dragonScriptFileName, viewNew, false);
+			}
 		}
 		public CommandSet GetCommandSet()
 		{
@@ -79,35 +85,36 @@ namespace DataAccessLibrary.Services
 				commandSet.TargetApplications.Add(targetApplication);
 			}
 			var speechLists = GetSpeechLists(false);
-			if (speechLists!= null)
+			if (speechLists != null)
 			{
-				commandSet.SpeechLists.AddRange(speechLists); 
+				commandSet.SpeechLists.AddRange(speechLists);
 			}
 			return commandSet;
 		}
 		List<SpeechList> GetSpeechLists(bool isKB)
 		{
-			DataTable table;
+			DataTable? table;
 			if (isKB)
 			{
 				table = dataSetKB.Tables[5];
 			}
 			else
 			{
+				if (dataSetDragon == null)
+				{
+					return new List<SpeechList>();
+				}
 				table = dataSetDragon.Tables["List"];
-				//if (dataSetDragon.Tables.Count>=9)
-				//{
-				//}
-				//else
-				//{
-				//	return null; 
-				//}
 			}
-			List<SpeechList> speechLists = table.AsEnumerable().Select(row =>
+			if (table == null)
+			{
+				return new List<SpeechList>();
+			}
+			List<SpeechList> speechLists = table.AsEnumerable().Select(static row =>
 				   new SpeechList
 				   {
 					   Lists_Id = row.Field<int>("Lists_Id"),
-					   Name = row.Field<string>("name"),
+					   Name = row.Field<string>("name")!,
 					   List_Id = row.Field<int>("List_Id")
 				   }).ToList();
 			List<SpeechList> results = new List<SpeechList>();
@@ -137,7 +144,11 @@ namespace DataAccessLibrary.Services
 			}
 			else
 			{
-				DataTable table = dataSetDragon.Tables["Value"];
+				DataTable? table = dataSetDragon.Tables["Value"];
+				if (table == null)
+				{
+					return new List<ListValue>();
+				}
 				List<ListValue> listValues = table.AsEnumerable()
 					.Where(v => v.Field<int>("List_Id") == speechList.List_Id)
 					.Select(row =>
@@ -173,7 +184,10 @@ namespace DataAccessLibrary.Services
 				}
 				try
 				{
-					FileManagement.LoadXMLDocument(filename, dataSetKB,true,commandSet);
+					if (filename != null)
+					{
+						FileManagement.LoadXMLDocument(filename, dataSetKB, true, commandSet);
+					}
 				}
 				catch (Exception exception)
 				{
@@ -195,7 +209,7 @@ namespace DataAccessLibrary.Services
 			}
 			try
 			{
-				FileManagement.LoadXMLDocument(filename, dataSetDragon,false,commandSet);
+				FileManagement.LoadXMLDocument(filename, dataSetDragon, false, commandSet);
 				MyCommands = XElement.Load(filename);
 			}
 			catch (Exception exception)
@@ -223,7 +237,7 @@ namespace DataAccessLibrary.Services
 			{
 				Command_id = row.Field<int>("Command_Id"),
 				Description = row.Field<string>("description"),
-				Enabled = row.Field<string>("enabled").ToLower() == "true" ? true : false,
+				Enabled = row.Field<string>("enabled")!.ToLower() == "true" ? true : false,
 				Group = row.Field<string>("group"),
 				Name = row.Field<string>("name"),
 				States = isKB ? null : row.Field<string>("states"),
@@ -268,17 +282,17 @@ namespace DataAccessLibrary.Services
 			{
 				table = dataSetDragon.Tables[3];
 				var result = from elements in MyCommands.Descendants("Commands").Descendants("Command")
-							 where (string)elements.Attribute("name") == voiceCommand.Name
-							 select (string)elements.Descendants("contents").FirstOrDefault();
+							 where (string?)elements.Attribute("name") == voiceCommand.Name
+							 select (string?)elements.Descendants("contents").FirstOrDefault();
 
 				var type = from elements in MyCommands.Descendants("Commands").Descendants("Command")
-							 where (string)elements.Attribute("name") == voiceCommand.Name
-							 select elements.Descendants("contents").Attributes("type");
+						   where (string?)elements.Attribute("name") == voiceCommand.Name
+						   select elements.Descendants("contents").Attributes("type");
 
 				var value = result.FirstOrDefault();
 				VoiceCommandContent voiceCommandContent = new VoiceCommandContent();
 				voiceCommandContent.Content = value;
-				voiceCommandContent.Type =  type.FirstOrDefault().FirstOrDefault().Value ;
+				voiceCommandContent.Type = type.FirstOrDefault()?.FirstOrDefault()?.Value;
 				var returnValue = new List<VoiceCommandContent>();
 				returnValue.Add(voiceCommandContent);
 				return returnValue;

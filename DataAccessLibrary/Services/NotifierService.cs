@@ -16,6 +16,6 @@ namespace DataAccessLibrary.Services
             }
         }
 
-        public event Func<string, int, Task> Notify;
+        public event Func<string, int, Task>? Notify;
     }
 }

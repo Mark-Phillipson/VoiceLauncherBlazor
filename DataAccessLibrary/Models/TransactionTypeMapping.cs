@@ -8,7 +8,7 @@ public class TransactionTypeMapping
 {
     public int Id { get; set; }
     [StringLength(50), Required]
-    public string MyTransactionType { get; set; }
+    public required string MyTransactionType { get; set; }
     [StringLength(50), Required]
-    public string Type { get; set; }
+    public required string Type { get; set; }
 }

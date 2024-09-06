@@ -10,9 +10,9 @@ namespace DataAccessLibrary.Services
     {
         Task<List<TransactionDTO>> GetAllTransactionsAsync(int pageNumber, int pageSize, string serverSearchTerm);
         Task<List<TransactionDTO>> SearchTransactionsAsync(string serverSearchTerm);
-        Task<TransactionDTO> AddTransaction(TransactionDTO transactionDTO);
-        Task<TransactionDTO> GetTransactionById(int Id);
-        Task<TransactionDTO> UpdateTransaction(TransactionDTO transactionDTO, string? username);
+        Task<TransactionDTO?> AddTransaction(TransactionDTO transactionDTO);
+        Task<TransactionDTO?> GetTransactionById(int Id);
+        Task<TransactionDTO?> UpdateTransaction(TransactionDTO transactionDTO, string? username);
         Task DeleteTransaction(int Id);
         Task<int> GetTotalCount();
         Task<ImportResult> ImportTransactions(string fileContent, string filename);

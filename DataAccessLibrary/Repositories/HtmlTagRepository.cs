@@ -16,15 +16,15 @@ namespace VoiceLauncher.Repositories
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
 
-        public HtmlTagRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper)
+        public HtmlTagRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
             _mapper = mapper;
         }
-		        public async Task<IEnumerable<HtmlTagDTO>> GetAllHtmlTagsAsync(int maxRows= 400)
+        public async Task<IEnumerable<HtmlTagDTO>> GetAllHtmlTagsAsync(int maxRows = 400)
         {
             using var context = _contextFactory.CreateDbContext();
-            var HtmlTags= await context.HtmlTags
+            var HtmlTags = await context.HtmlTags
                 //.Where(v => v.?==?)
                 //.OrderBy(v => v.?)
                 .Take(maxRows)
@@ -35,7 +35,7 @@ namespace VoiceLauncher.Repositories
         public async Task<IEnumerable<HtmlTagDTO>> SearchHtmlTagsAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var HtmlTags= await context.HtmlTags
+            var HtmlTags = await context.HtmlTags
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
@@ -46,17 +46,17 @@ namespace VoiceLauncher.Repositories
             return HtmlTagsDTO;
         }
 
-        public async Task<HtmlTagDTO> GetHtmlTagByIdAsync(int Id)
+        public async Task<HtmlTagDTO?> GetHtmlTagByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.HtmlTags.AsNoTracking()
+            var result = await context.HtmlTags.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            HtmlTagDTO htmlTagDTO =_mapper.Map<HtmlTag, HtmlTagDTO>(result);
+            HtmlTagDTO htmlTagDTO = _mapper.Map<HtmlTag, HtmlTagDTO>(result);
             return htmlTagDTO;
         }
 
-        public async Task<HtmlTagDTO> AddHtmlTagAsync(HtmlTagDTO htmlTagDTO)
+        public async Task<HtmlTagDTO?> AddHtmlTagAsync(HtmlTagDTO htmlTagDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             HtmlTag htmlTag = _mapper.Map<HtmlTagDTO, HtmlTag>(htmlTagDTO);
@@ -70,13 +70,13 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            HtmlTagDTO resultDTO =_mapper.Map<HtmlTag, HtmlTagDTO>(htmlTag);
+            HtmlTagDTO resultDTO = _mapper.Map<HtmlTag, HtmlTagDTO>(htmlTag);
             return resultDTO;
         }
 
-        public async Task<HtmlTagDTO> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO)
+        public async Task<HtmlTagDTO?> UpdateHtmlTagAsync(HtmlTagDTO htmlTagDTO)
         {
-            HtmlTag htmlTag=_mapper.Map<HtmlTagDTO, HtmlTag>(htmlTagDTO);
+            HtmlTag htmlTag = _mapper.Map<HtmlTagDTO, HtmlTag>(htmlTagDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundHtmlTag = await context.HtmlTags.AsNoTracking().FirstOrDefaultAsync(e => e.Id == htmlTag.Id);

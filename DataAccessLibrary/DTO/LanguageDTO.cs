@@ -8,10 +8,10 @@ namespace DataAccessLibrary.DTO
       public int Id { get; set; }
       [Required]
       [StringLength(25)]
-      public string LanguageName { get; set; }
+      public required string LanguageName { get; set; } = "New Language";
       [Required]
-      public bool Active { get; set; }
+      public bool Active { get; set; } = true;
       [StringLength(40)]
-      public string Colour { get; set; }
+      public required string Colour { get; set; } = "#000000";
    }
 }

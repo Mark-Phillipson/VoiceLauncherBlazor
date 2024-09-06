@@ -16,15 +16,15 @@ namespace VoiceLauncher.Repositories
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly IMapper _mapper;
 
-        public PhraseListGrammarRepository(IDbContextFactory<ApplicationDbContext> contextFactory,IMapper mapper)
+        public PhraseListGrammarRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
             _mapper = mapper;
         }
-		        public async Task<IEnumerable<PhraseListGrammarDTO>> GetAllPhraseListGrammarsAsync(int maxRows= 400)
+        public async Task<IEnumerable<PhraseListGrammarDTO>> GetAllPhraseListGrammarsAsync(int maxRows = 400)
         {
             using var context = _contextFactory.CreateDbContext();
-            var PhraseListGrammars= await context.PhraseListGrammars
+            var PhraseListGrammars = await context.PhraseListGrammars
                 //.Where(v => v.?==?)
                 //.OrderBy(v => v.?)
                 .Take(maxRows)
@@ -35,7 +35,7 @@ namespace VoiceLauncher.Repositories
         public async Task<IEnumerable<PhraseListGrammarDTO>> SearchPhraseListGrammarsAsync(string serverSearchTerm)
         {
             using var context = _contextFactory.CreateDbContext();
-            var PhraseListGrammars= await context.PhraseListGrammars
+            var PhraseListGrammars = await context.PhraseListGrammars
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
@@ -46,17 +46,17 @@ namespace VoiceLauncher.Repositories
             return PhraseListGrammarsDTO;
         }
 
-        public async Task<PhraseListGrammarDTO> GetPhraseListGrammarByIdAsync(int Id)
+        public async Task<PhraseListGrammarDTO?> GetPhraseListGrammarByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
-            var result =await context.PhraseListGrammars.AsNoTracking()
+            var result = await context.PhraseListGrammars.AsNoTracking()
               .FirstOrDefaultAsync(c => c.Id == Id);
             if (result == null) return null;
-            PhraseListGrammarDTO phraseListGrammarDTO =_mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(result);
+            PhraseListGrammarDTO phraseListGrammarDTO = _mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(result);
             return phraseListGrammarDTO;
         }
 
-        public async Task<PhraseListGrammarDTO> AddPhraseListGrammarAsync(PhraseListGrammarDTO phraseListGrammarDTO)
+        public async Task<PhraseListGrammarDTO?> AddPhraseListGrammarAsync(PhraseListGrammarDTO phraseListGrammarDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             PhraseListGrammar phraseListGrammar = _mapper.Map<PhraseListGrammarDTO, PhraseListGrammar>(phraseListGrammarDTO);
@@ -70,13 +70,13 @@ namespace VoiceLauncher.Repositories
                 Console.WriteLine(exception.Message);
                 return null;
             }
-            PhraseListGrammarDTO resultDTO =_mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(phraseListGrammar);
+            PhraseListGrammarDTO resultDTO = _mapper.Map<PhraseListGrammar, PhraseListGrammarDTO>(phraseListGrammar);
             return resultDTO;
         }
 
-        public async Task<PhraseListGrammarDTO> UpdatePhraseListGrammarAsync(PhraseListGrammarDTO phraseListGrammarDTO)
+        public async Task<PhraseListGrammarDTO?> UpdatePhraseListGrammarAsync(PhraseListGrammarDTO phraseListGrammarDTO)
         {
-            PhraseListGrammar phraseListGrammar=_mapper.Map<PhraseListGrammarDTO, PhraseListGrammar>(phraseListGrammarDTO);
+            PhraseListGrammar phraseListGrammar = _mapper.Map<PhraseListGrammarDTO, PhraseListGrammar>(phraseListGrammarDTO);
             using (var context = _contextFactory.CreateDbContext())
             {
                 var foundPhraseListGrammar = await context.PhraseListGrammars.AsNoTracking().FirstOrDefaultAsync(e => e.Id == phraseListGrammar.Id);

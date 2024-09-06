@@ -14,14 +14,14 @@ namespace DataAccessLibrary.Models.KnowbrainerCommands
 		}
 		// Primary Key
 		public int Commands_Id { get; set; }
-		public string Scope { get; set; }
-		public string Module { get; set; }
-		public string Company { get; set; }
-		public string ModuleDescription { get; set; }
-		public string WindowTitle { get; set; }
-		public string WindowClass { get; set; }
+		public string? Scope { get; set; }
+		public string? Module { get; set; }
+		public string? Company { get; set; }
+		public string? ModuleDescription { get; set; }
+		public string? WindowTitle { get; set; }
+		public string? WindowClass { get; set; }
 		public int KnowbrainerCommands_Id { get; set; }
-		public string Type { get; set; }
+		public string? Type { get; set; }
 		public string CommandSource { get; set; } = "KB";
 		public virtual ICollection<VoiceCommand> VoiceCommands { get; set; }
 

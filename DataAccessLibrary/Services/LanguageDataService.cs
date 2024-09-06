@@ -30,12 +30,12 @@ namespace DataAccessLibrary.Services
          return Languages.ToList();
       }
 
-      public async Task<LanguageDTO> GetLanguageById(int Id)
+      public async Task<LanguageDTO?> GetLanguageById(int Id)
       {
          var language = await _languageRepository.GetLanguageByIdAsync(Id);
          return language;
       }
-      public async Task<LanguageDTO> AddLanguage(LanguageDTO languageDTO)
+      public async Task<LanguageDTO?> AddLanguage(LanguageDTO languageDTO)
       {
          Guard.Against.Null(languageDTO);
          var result = await _languageRepository.AddLanguageAsync(languageDTO);
@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Services
          }
          return result;
       }
-      public async Task<LanguageDTO> UpdateLanguage(LanguageDTO languageDTO, string username)
+      public async Task<LanguageDTO?> UpdateLanguage(LanguageDTO languageDTO, string username)
       {
          Guard.Against.Null(languageDTO);
          Guard.Against.Null(username);

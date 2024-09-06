@@ -64,7 +64,7 @@ namespace DataAccessLibrary.Repositories
             return TransactionTypeMappingsDTO;
         }
 
-        public async Task<TransactionTypeMappingDTO> GetTransactionTypeMappingByIdAsync(int Id)
+        public async Task<TransactionTypeMappingDTO?> GetTransactionTypeMappingByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.TransactionTypeMappings.AsNoTracking()
@@ -92,7 +92,7 @@ namespace DataAccessLibrary.Repositories
             return "success";
         }
 
-        public async Task<TransactionTypeMappingDTO> UpdateTransactionTypeMappingAsync(TransactionTypeMappingDTO transactionTypeMappingDTO)
+        public async Task<TransactionTypeMappingDTO?> UpdateTransactionTypeMappingAsync(TransactionTypeMappingDTO transactionTypeMappingDTO)
         {
             TransactionTypeMapping transactionTypeMapping = _mapper.Map<TransactionTypeMappingDTO, TransactionTypeMapping>(transactionTypeMappingDTO);
             using (var context = _contextFactory.CreateDbContext())

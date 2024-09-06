@@ -188,7 +188,7 @@ namespace RazorClassLibrary.Pages
         }
         async Task SaveAllAsync()
         {
-            if (GrammarItemDataService == null)
+            if (GrammarItemDataService == null || FilteredGrammarItemDTO == null)
             {
                 return;
             }

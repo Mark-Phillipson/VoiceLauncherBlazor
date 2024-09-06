@@ -11,9 +11,9 @@ namespace DataAccessLibrary.Models
     {
         public int Id { get; set; }
         public int GrammarNameId { get; set; }
-        public GrammarName GrammarName { get; set; }
+        public required GrammarName GrammarName { get; set; }
         [Required]
         [StringLength(60)]
-        public string Value { get; set; }
+        public required string Value { get; set; }
     }
 }

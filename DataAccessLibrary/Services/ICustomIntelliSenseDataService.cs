@@ -8,9 +8,9 @@ namespace VoiceLauncher.Services
     {
         Task<List<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int LanguageId, int CategoryId, int pageNumber, int pageSize);
         Task<List<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm);
-        Task<CustomIntelliSenseDTO> AddCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO);
-        Task<CustomIntelliSenseDTO> GetCustomIntelliSenseById(int Id);
-        Task<CustomIntelliSenseDTO> UpdateCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO, string? username);
+        Task<CustomIntelliSenseDTO?> AddCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO);
+        Task<CustomIntelliSenseDTO?> GetCustomIntelliSenseById(int Id);
+        Task<CustomIntelliSenseDTO?> UpdateCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO, string? username);
         Task DeleteCustomIntelliSense(int Id);
         void SendSnippet(string snippetToSend, CustomIntelliSenseDTO customIntelliSenseDTO);
 

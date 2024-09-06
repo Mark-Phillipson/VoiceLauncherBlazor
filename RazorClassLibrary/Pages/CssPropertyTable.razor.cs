@@ -69,10 +69,6 @@ namespace RazorClassLibrary.Pages
                     matchedResults = localCommandEmbedder.EmbedRange(
                         propertyNameAndDescription.ToList());
                     SimilarityScore<string>[] results = LocalEmbedder.FindClosestWithScore(localCommandEmbedder.Embed(ClientSearchTerm), matchedResults, maxResults: maxResults);
-                    // foreach (var result in results)
-                    // {
-                    //     Console.WriteLine($"Item: {result.Item} Score: {result.Similarity}");
-                    // }
                     if (results.Length > 0)
                     {
                         var resultItems = results.Select(r => r.Item.Split('|')[0].Trim()).ToList();
@@ -80,7 +76,7 @@ namespace RazorClassLibrary.Pages
 
                         FilteredCssPropertyDTO = CssPropertyDTO
                             .Where(v => resultItems.Contains(v.PropertyName)
-                             || resultItems.Contains(v.Description)
+                             || v.Description != null && resultItems.Contains(v.Description)
                             )
                             .OrderByDescending(v => similarityScores[v.PropertyName])
                             .ToList();
@@ -126,8 +122,7 @@ namespace RazorClassLibrary.Pages
                     totalRows = await CssPropertyDataService.GetTotalCount();
                     var result = await CssPropertyDataService!.GetAllCssPropertiesAsync
 
-                    (pageNumber, pageSize, ServerSearchTerm);
-                    //var result = await CssPropertyDataService.SearchCssPropertiesAsync(ServerSearchTerm);
+                    (pageNumber, pageSize, ServerSearchTerm ?? "");
                     if (result != null)
                     {
                         CssPropertyDTO = result.ToList();

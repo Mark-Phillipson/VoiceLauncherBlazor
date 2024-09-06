@@ -11,6 +11,6 @@ namespace DataAccessLibrary.DTOs
         [StringLength(100)]
         public string PropertyName { get; set; } = "";
         [StringLength(255)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

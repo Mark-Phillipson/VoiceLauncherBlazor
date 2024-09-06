@@ -11,7 +11,7 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(25)]
-        public string Language { get; set; }
+        public required string Language { get; set; }
         public bool Active { get; set; }
     }
 }

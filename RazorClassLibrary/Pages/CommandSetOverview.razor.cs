@@ -115,7 +115,7 @@ namespace RazorClassLibrary.Pages
 			}
 			catch (Exception e)
 			{
-				Logger!.LogError(e,"Exception occurred in on initialised  CommandSet Data Service");
+				Logger!.LogError(e, "Exception occurred in on initialised  CommandSet Data Service");
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
 				ToastService!.ShowError(e.Message + " Error Loading Command Set");
@@ -154,7 +154,7 @@ namespace RazorClassLibrary.Pages
 			{
 				var searchTermRevised = SearchTerm.Trim().ToLower();
 				FilteredTargetApplications = TargetApplications!
-				  .Where(v => v.VoiceCommands.Any(c => c.Name.ToLower().Contains(searchTermRevised)))
+				  .Where(v => v.VoiceCommands.Any(c => c.Name!.ToLower().Contains(searchTermRevised)))
 				  .ToList();
 
 			}
@@ -172,7 +172,7 @@ namespace RazorClassLibrary.Pages
 			Title = $"Filtered Applications ({recordsReturned})";
 			ShowCommands = recordsReturned < 8;
 			ShowLists = false;
-			ShowCode = recordsReturned<8;
+			ShowCode = recordsReturned < 8;
 		}
 		protected void SortTargetApplications(string sortColumn)
 		{

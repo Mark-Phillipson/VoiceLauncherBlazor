@@ -15,22 +15,22 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<MultipleLauncher>> GetMultipleLaunchersAsync(string SearchTerm = null)
+		public async Task<List<MultipleLauncher>> GetMultipleLaunchersAsync(string? SearchTerm = null)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<MultipleLauncher> multipleLaunchers = null;
+			IQueryable<MultipleLauncher> multipleLaunchers = new List<MultipleLauncher>().AsQueryable();
 			multipleLaunchers = context.MultipleLauncher.Include(i => i.LaunchersMultipleLauncherBridges).ThenInclude(t => t.Launcher).OrderBy(v => v.Description);
 			if (SearchTerm != null)
 			{
-				multipleLaunchers = multipleLaunchers.Where(v => v.Description.Contains(SearchTerm));
+				multipleLaunchers = multipleLaunchers.Where(v => v.Description != null && v.Description.Contains(SearchTerm));
 			}
 			return await multipleLaunchers.ToListAsync();
 		}
 
-		public async Task<List<Launcher>> GetLaunchersAsync(string searchTerm = null, string sortColumn = null, string sortType = null, int? categoryIdFilter = null, int maximumRows = 400)
+		public async Task<List<Launcher>> GetLaunchersAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, int? categoryIdFilter = null, int maximumRows = 400)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<Launcher> launchers = null;
+			IQueryable<Launcher> launchers = new List<Launcher>().AsQueryable();
 			try
 			{
 				launchers = context.Launcher.Include(i => i.Category).Include(i => i.Computer).OrderBy(v => v.Name);
@@ -38,7 +38,7 @@ namespace DataAccessLibrary.Services
 			catch (Exception exception)
 			{
 				Console.WriteLine(exception.Message);
-				return null;
+				return new List<Launcher>();
 			}
 			if (searchTerm != null && searchTerm.Length > 0)
 			{
@@ -61,10 +61,10 @@ namespace DataAccessLibrary.Services
 			}
 			return await launchers.Take(maximumRows).ToListAsync();
 		}
-		public async Task<Launcher> GetLauncherAsync(int launcherId)
+		public async Task<Launcher?> GetLauncherAsync(int launcherId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			Launcher launcher = await context.Launcher.Include(i => i.Category).Include(n => n.Computer).Where(v => v.Id == launcherId).FirstOrDefaultAsync();
+			Launcher? launcher = await context.Launcher.Include(i => i.Category).Include(n => n.Computer).Where(v => v.Id == launcherId).FirstOrDefaultAsync();
 			return launcher;
 		}
 		public async Task<string> SaveBridge(LauncherMultipleLauncherBridge bridge)
@@ -109,15 +109,21 @@ namespace DataAccessLibrary.Services
 		public async Task<string> SaveLauncher(Launcher launcher)
 		{
 			using var context = _contextFactory.CreateDbContext();
+
 			if (launcher.Id > 0)
 			{
 				var existingLauncher = context.Launcher.FirstOrDefault(l => l.Id == launcher.Id);
-				existingLauncher.Name = launcher.Name;
-				existingLauncher.CommandLine = launcher.CommandLine;
-				existingLauncher.CategoryId = launcher.CategoryId;
-				existingLauncher.ComputerId = launcher.ComputerId;
-				existingLauncher.Favourite= launcher.Favourite;
-				existingLauncher.Icon = launcher.Icon;
+
+				if (existingLauncher != null)
+				{
+					existingLauncher.Name = launcher.Name;
+					existingLauncher.CommandLine = launcher.CommandLine;
+					existingLauncher.CategoryId = launcher.CategoryId;
+					existingLauncher.ComputerId = launcher.ComputerId;
+					existingLauncher.Favourite = launcher.Favourite;
+					existingLauncher.Icon = launcher.Icon;
+
+				}
 			}
 			else
 			{
@@ -158,8 +164,12 @@ namespace DataAccessLibrary.Services
 		{
 			using var context = _contextFactory.CreateDbContext();
 			var multipleLauncher = await context.MultipleLauncher.Where(v => v.Id == multipleLauncherId).FirstOrDefaultAsync();
-			await RemoveBridges(multipleLauncher);
-			context.MultipleLauncher.Remove(multipleLauncher);
+
+			if (multipleLauncher != null)
+			{
+				await RemoveBridges(multipleLauncher);
+				context.MultipleLauncher.Remove(multipleLauncher);
+			}
 			await context.SaveChangesAsync();
 			return "Multiple Launcher has been deleted successfully!";
 		}

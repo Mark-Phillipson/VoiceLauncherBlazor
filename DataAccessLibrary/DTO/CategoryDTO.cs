@@ -8,16 +8,16 @@ namespace DataAccessLibrary.DTO
         [Key]
         public int Id { get; set; }
         [StringLength(30)]
-        public string CategoryName { get; set; }
+        public string CategoryName { get; set; } = "A New Category";
         [StringLength(255)]
-        public string CategoryType { get; set; }
+        public string? CategoryType { get; set; } = "IntelliSense Command";
         [Required]
         public bool Sensitive { get; set; }
-         public int CountOfLaunchers { get; set; }
-        public int CountOfCustomIntellisense { get; set; }
-        public string Colour { get; set; }
+        public int CountOfLaunchers { get; set; }
+        public int? CountOfCustomIntellisense { get; set; }
+        public string Colour { get; set; } = "#000000";
         [StringLength(50)]
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
 
     }
 }

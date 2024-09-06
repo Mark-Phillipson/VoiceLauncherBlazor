@@ -46,7 +46,7 @@ namespace VoiceLauncher.Repositories
             return GrammarNamesDTO;
         }
 
-        public async Task<GrammarNameDTO> GetGrammarNameByIdAsync(int Id)
+        public async Task<GrammarNameDTO?> GetGrammarNameByIdAsync(int Id)
         {
             using var context = _contextFactory.CreateDbContext();
             var result = await context.GrammarNames.AsNoTracking()
@@ -56,7 +56,7 @@ namespace VoiceLauncher.Repositories
             return grammarNameDTO;
         }
 
-        public async Task<GrammarNameDTO> AddGrammarNameAsync(GrammarNameDTO grammarNameDTO)
+        public async Task<GrammarNameDTO?> AddGrammarNameAsync(GrammarNameDTO grammarNameDTO)
         {
             using var context = _contextFactory.CreateDbContext();
             GrammarName grammarName = _mapper.Map<GrammarNameDTO, GrammarName>(grammarNameDTO);
@@ -74,7 +74,7 @@ namespace VoiceLauncher.Repositories
             return resultDTO;
         }
 
-        public async Task<GrammarNameDTO> UpdateGrammarNameAsync(GrammarNameDTO grammarNameDTO)
+        public async Task<GrammarNameDTO?> UpdateGrammarNameAsync(GrammarNameDTO grammarNameDTO)
         {
             GrammarName grammarName = _mapper.Map<GrammarNameDTO, GrammarName>(grammarNameDTO);
             using (var context = _contextFactory.CreateDbContext())
@@ -104,18 +104,18 @@ namespace VoiceLauncher.Repositories
             await context.SaveChangesAsync();
         }
 
-        public  async Task<GrammarNameDTO> GetLatest()
+        public async Task<GrammarNameDTO> GetLatest()
         {
             using (var context = _contextFactory.CreateDbContext())
             {
-                var latest =await  context.GrammarNames.AsNoTracking().OrderByDescending(v => v.Id).FirstOrDefaultAsync();
+                var latest = await context.GrammarNames.AsNoTracking().OrderByDescending(v => v.Id).FirstOrDefaultAsync();
                 if (latest != null)
                 {
                     GrammarNameDTO resultDTO = _mapper.Map<GrammarName, GrammarNameDTO>(latest);
                     return resultDTO;
                 }
             }
-            return null;
+            return new GrammarNameDTO();
         }
     }
 }

@@ -1,19 +1,9 @@
 ﻿@if (Show)
 {
-	<dialog open="true" style="position:absolute;left: 0px;z-index: 900;min-width:500px;top:@top" class="border border-success">
+	<dialog open="true" style="position:absolute;left: 0px;z-index: 900;min-width:500px;top:@top"
+		class="border border-success">
 		<div>
 			@ChildContent
 		</div>
 	</dialog>
-}
-
-@code {
-	[Parameter] public RenderFragment? ChildContent { get; set; }
-	[Parameter] public bool Show { get; set; }
-	[Parameter] public int PageYOffset { get; set; }
-	private string top { get; set; } = "0px";
-	protected override void OnParametersSet()
-	{
-		top = $"{PageYOffset}px";
-	}
 }

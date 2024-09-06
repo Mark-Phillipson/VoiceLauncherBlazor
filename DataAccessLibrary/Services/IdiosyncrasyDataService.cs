@@ -30,12 +30,12 @@ namespace VoiceLauncher.Services
             return Idiosyncrasies.ToList();
         }
 
-        public async Task<IdiosyncrasyDTO> GetIdiosyncrasyById(int Id)
+        public async Task<IdiosyncrasyDTO?> GetIdiosyncrasyById(int Id)
         {
             var idiosyncrasy = await _idiosyncrasyRepository.GetIdiosyncrasyByIdAsync(Id);
             return idiosyncrasy;
         }
-        public async Task<IdiosyncrasyDTO> AddIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO)
+        public async Task<IdiosyncrasyDTO?> AddIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO)
         {
             Guard.Against.Null(idiosyncrasyDTO);
             var result = await _idiosyncrasyRepository.AddIdiosyncrasyAsync(idiosyncrasyDTO);
@@ -45,7 +45,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<IdiosyncrasyDTO> UpdateIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO, string username)
+        public async Task<IdiosyncrasyDTO?> UpdateIdiosyncrasy(IdiosyncrasyDTO idiosyncrasyDTO, string username)
         {
             Guard.Against.Null(idiosyncrasyDTO);
             Guard.Against.Null(username);

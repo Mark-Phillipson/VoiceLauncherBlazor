@@ -35,12 +35,12 @@ namespace DataAccessLibrary.Services
             return Transactions.ToList();
         }
 
-        public async Task<TransactionDTO> GetTransactionById(int Id)
+        public async Task<TransactionDTO?> GetTransactionById(int Id)
         {
             var transaction = await _transactionRepository.GetTransactionByIdAsync(Id);
             return transaction;
         }
-        public async Task<TransactionDTO> AddTransaction(TransactionDTO transactionDTO)
+        public async Task<TransactionDTO?> AddTransaction(TransactionDTO transactionDTO)
         {
             Guard.Against.Null(transactionDTO);
             var result = await _transactionRepository.AddTransactionAsync(transactionDTO);
@@ -50,7 +50,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<TransactionDTO> UpdateTransaction(TransactionDTO transactionDTO, string username)
+        public async Task<TransactionDTO?> UpdateTransaction(TransactionDTO transactionDTO, string? username)
         {
             Guard.Against.Null(transactionDTO);
             Guard.Against.Null(username);
@@ -84,7 +84,7 @@ namespace DataAccessLibrary.Services
                 while (reader.Peek() != -1)
                 {
                     var line = reader.ReadLine();
-                    string[] values = null;
+                    string[] values = new string[0];
                     if (line != null)
                     {
                         values = line.Split(',');
@@ -154,7 +154,7 @@ namespace DataAccessLibrary.Services
             {
                 foreach (var mapping in mappings)
                 {
-                    if (transaction.Description.ToLower().Contains(mapping.Type))
+                    if (transaction != null && transaction.Description != null && transaction.Description.ToLower().Contains(mapping.Type))
                     {
                         transaction.MyTransactionType = mapping.MyTransactionType;
                         break;

@@ -29,12 +29,12 @@ namespace VoiceLauncher.Services
             return ApplicationDetails.ToList();
         }
 
-        public async Task<ApplicationDetailDTO> GetApplicationDetailById(int Id)
+        public async Task<ApplicationDetailDTO?> GetApplicationDetailById(int Id)
         {
             var applicationDetail = await _applicationDetailRepository.GetApplicationDetailByIdAsync(Id);
             return applicationDetail;
         }
-        public async Task<ApplicationDetailDTO> AddApplicationDetail(ApplicationDetailDTO applicationDetailDTO)
+        public async Task<ApplicationDetailDTO?> AddApplicationDetail(ApplicationDetailDTO applicationDetailDTO)
         {
             Guard.Against.Null(applicationDetailDTO);
             var result = await _applicationDetailRepository.AddApplicationDetailAsync(applicationDetailDTO);
@@ -44,7 +44,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<ApplicationDetailDTO> UpdateApplicationDetail(ApplicationDetailDTO applicationDetailDTO, string username)
+        public async Task<ApplicationDetailDTO?> UpdateApplicationDetail(ApplicationDetailDTO applicationDetailDTO, string username)
         {
             Guard.Against.Null(applicationDetailDTO);
             Guard.Against.Null(username);

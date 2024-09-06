@@ -137,15 +137,17 @@ namespace RazorClassLibrary.Pages
 		private async Task LoadData()
 		{
 			var query = new Uri(NavigationManager.Uri).Query;
-			if (QueryHelpers.ParseQuery(query).TryGetValue("language", out var languageName))
+			if (QueryHelpers.ParseQuery(query).TryGetValue("language", out var languageName) && !string.IsNullOrWhiteSpace(languageName.ToString()))
 			{
-				language = await LanguageService.GetLanguageAsync(languageName);
+				var language1 = languageName.ToString();
+				language = await LanguageService.GetLanguageAsync(language1);
 				LanguageIdFilter = language?.Id;
 				_languageFilter = language?.LanguageName;
 			}
 			if (QueryHelpers.ParseQuery(query).TryGetValue("category", out var categoryName))
 			{
-				category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+				string category1 = categoryName.ToString();
+				category = await CategoryService.GetCategoryAsync(category1, "IntelliSense Command");
 				CategoryIdFilter = category?.Id;
 				_categoryFilter = category?.CategoryName;
 			}
@@ -220,10 +222,10 @@ namespace RazorClassLibrary.Pages
 		{
 			CategoryIdFilter = categoryId;
 			category = await CategoryService.GetCategoryAsync(categoryId);
-			_categoryFilter = category.CategoryName;
+			_categoryFilter = category!.CategoryName;
 			LanguageIdFilter = languageId;
 			language = await LanguageService.GetLanguageAsync(languageId);
-			_languageFilter = language.LanguageName;
+			_languageFilter = language!.LanguageName;
 			await ApplyFilter();
 		}
 		void ConfirmDelete(int customIntellisenseId)
@@ -289,7 +291,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				var temporary = await CustomIntellisenseService.SaveAllCustomIntelliSenses(intellisenses);
+				if (intellisenses != null)
+				{
+					var temporary = await CustomIntellisenseService.SaveAllCustomIntelliSenses(intellisenses);
+				}
 			}
 			catch (Exception exception)
 			{
@@ -469,9 +474,12 @@ namespace RazorClassLibrary.Pages
 		private void ShowValue(int customInTeleSenseId)
 		{
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customInTeleSenseId).FirstOrDefault();
-			if (customIntelliSenseCurrent != null && !customIntelliSenseCurrent.Category.CategoryName.ToLower().Contains("password") && !customIntelliSenseCurrent.DisplayValue.ToLower().Contains("password"))
+			if (customIntelliSenseCurrent != null && !customIntelliSenseCurrent!.Category!.CategoryName.ToLower().Contains("password") && !customIntelliSenseCurrent!.DisplayValue!.ToLower().Contains("password"))
 			{
-				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+				if (customIntelliSenseCurrent.SendKeysValue != null)
+				{
+					customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
+				}
 			}
 			else if (customIntelliSenseCurrent != null)
 			{

@@ -31,12 +31,12 @@ namespace VoiceLauncher.Services
             return Launchers.ToList();
         }
 
-        public async Task<LauncherDTO> GetLauncherById(int Id)
+        public async Task<LauncherDTO?> GetLauncherById(int Id)
         {
             var launcher = await _launcherRepository.GetLauncherByIdAsync(Id);
             return launcher;
         }
-        public async Task<LauncherDTO> AddLauncher(LauncherDTO launcherDTO)
+        public async Task<LauncherDTO?> AddLauncher(LauncherDTO launcherDTO)
         {
             Guard.Against.Null(launcherDTO);
             var result = await _launcherRepository.AddLauncherAsync(launcherDTO);
@@ -46,7 +46,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<LauncherDTO> UpdateLauncher(LauncherDTO launcherDTO, string username)
+        public async Task<LauncherDTO?> UpdateLauncher(LauncherDTO launcherDTO, string username)
         {
             Guard.Against.Null(launcherDTO);
             Guard.Against.Null(username);

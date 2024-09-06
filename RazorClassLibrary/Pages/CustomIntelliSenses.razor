@@ -133,10 +133,11 @@ else
 		counter = 0;
 		alphabetCounter = 0;
 		<div class="layout-as-cards">
-			@foreach (var intellisense in intellisenses.OrderBy(v => v.Language.LanguageName).ThenBy(v =>
-					v.Category.CategoryName))
+			@foreach (var intellisense in intellisenses.OrderBy(v => v.Language!.LanguageName).ThenBy(v =>
+					v.Category!.CategoryName))
 			{
-				@if (group != intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName)
+				@if (intellisense != null && group != intellisense.Language!.LanguageName + " / " +
+						intellisense.Category!.CategoryName)
 				{
 					counter++;
 					@if (counter < 10)
@@ -162,7 +163,7 @@ else
 						</button>
 					</div>
 				}
-				@if (!_showOnlyLanguageAndCategory && Alphabet != null)
+				@if (!_showOnlyLanguageAndCategory && Alphabet != null && intellisense != null)
 				{
 					alphabetCounter++;
 					currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
@@ -176,14 +177,17 @@ else
 									<i class="fa-regular fa-edit"></i>
 								</button>
 								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-danger"
-									@onclick="@(() => CopyAndPasteAsync(intellisense.SendKeysValue,intellisense.Id))">
+									@onclick="@(() => CopyAndPasteAsync(intellisense!.SendKeysValue ?? "",intellisense.Id))">
 									<u>@currentLetter</u> <i class="fa-solid fa-paste"></i>
 								</button>
 							</div>
 						</div>
 					</div>
 				}
-				group = intellisense.Language.LanguageName + " / " + intellisense.Category.CategoryName;
+				@if (intellisense != null)
+				{
+					group = (intellisense.Language?.LanguageName ?? "") + " / " + (intellisense.Category?.CategoryName ?? "");
+				}
 			}
 		</div>
 	}
@@ -230,74 +234,77 @@ else
 					{
 						counter++;
 					}
-					<tr>
-						<td>
-							<input type="hidden" @bind="intellisense.Id" />
-							<input type="hidden" @bind="intellisense.LanguageId" />
-							<input type="hidden" @bind="intellisense.CategoryId" />
-							<input type="hidden" @bind="intellisense.CommandType" />
-							<input type="hidden" @bind="intellisense.Remarks" />
-							<input type="hidden" @bind="intellisense.ComputerId" />
-							<input disabled="disabled" class="form-control-sm" @bind="intellisense.Language.LanguageName" />
-						</td>
-						<td>
-							<input disabled="disabled" type="text" class="form-control-sm"
-								@bind="intellisense.Category.CategoryName" />
-						</td>
-						<td>
-							<input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
-						</td>
-						<td>
-							<textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue"
-								class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
-						</td>
-						<td>
-							<select style="min-width: 130px" class="form-select-sm col-md-8" @bind="@intellisense.DeliveryType">
-								@if (GeneralLookups != null)
-								{
-									@foreach (var lookup in GeneralLookups)
+					@if (intellisense != null)
+					{
+						<tr>
+							<td>
+								<input type="hidden" @bind="intellisense.Id" />
+								<input type="hidden" @bind="intellisense.LanguageId" />
+								<input type="hidden" @bind="intellisense.CategoryId" />
+								<input type="hidden" @bind="intellisense.CommandType" />
+								<input type="hidden" @bind="intellisense.Remarks" />
+								<input type="hidden" @bind="intellisense.ComputerId" />
+								<input disabled="disabled" class="form-control-sm" @bind="intellisense!.Language!.LanguageName" />
+							</td>
+							<td>
+								<input disabled="disabled" type="text" class="form-control-sm"
+									@bind="intellisense!.Category!.CategoryName" />
+							</td>
+							<td>
+								<input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
+							</td>
+							<td>
+								<textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue"
+									class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
+							</td>
+							<td>
+								<select style="min-width: 130px" class="form-select-sm col-md-8" @bind="@intellisense.DeliveryType">
+									@if (GeneralLookups != null)
 									{
-										@if (intellisense.DeliveryType == lookup.ItemValue)
+										@foreach (var lookup in GeneralLookups)
 										{
-											<option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
+											@if (intellisense.DeliveryType == lookup.ItemValue)
+											{
+												<option selected value="@lookup.ItemValue">@lookup.ItemValue</option>
 
-										}
-										else
-										{
-											<option value="@lookup.ItemValue">@lookup.ItemValue</option>
+											}
+											else
+											{
+												<option value="@lookup.ItemValue">@lookup.ItemValue</option>
+											}
 										}
 									}
-								}
-							</select>
-						</td>
+								</select>
+							</td>
 
-						<td>
-							<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i
-									class="oi oi-pencil"></i></button>
-							<button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i
-									class="oi oi-circle-x"></i></button>
+							<td>
+								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"><i
+										class="oi oi-pencil"></i></button>
+								<button class="btn btn-outline-danger" @onclick="@(() => ConfirmDelete(intellisense.Id))"><i
+										class="oi oi-circle-x"></i></button>
 
-							<button class="btn btn-outline-primary"
-								@onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))"><i
-									class="fa-regular fa-copy"></i></button>
+								<button class="btn btn-outline-primary"
+									@onclick="@(() => CopyItemAsync(intellisense.SendKeysValue,intellisense.Id))"><i
+										class="fa-regular fa-copy"></i></button>
 
-						</td>
-					</tr>
+							</td>
+						</tr>
+					}
 				}
 			</tbody>
 		</table>
 	}
 
 	<pre class='mt-2'>
-																																		<code class='m-2'>
+																																											<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-																																																																				<textarea rows="7" style='width:95%;color:white;background:black'>
+																																																																																						<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																																																																																						</textarea>
+																																																																																																								</textarea>
 			}
-																																							</code>
-																																							</pre>
+																																																</code>
+																																																</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
@@ -307,7 +314,3 @@ else
 		</ConfirmDialog>
 	</TemplatedDialog>
 }
-
-@*<TemplatedDialog Show="showCreateNewOrEdit">
-<CustomIntelliSense OnClose="CloseCreateNew" customIntellisenseId="_customIntellisenseId" />
-</TemplatedDialog>*@

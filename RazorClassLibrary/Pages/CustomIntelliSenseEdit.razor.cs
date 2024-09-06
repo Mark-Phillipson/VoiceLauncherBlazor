@@ -105,39 +105,46 @@ namespace RazorClassLibrary.Pages
     {
       if (firstRender)
       {
-                try
-                {
-                    await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
-                }
-                catch (Exception exception)
-                {
-                    await Console.Out.WriteLineAsync(exception.Message);
+        try
+        {
+          await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
+        }
+        catch (Exception exception)
+        {
+          await Console.Out.WriteLineAsync(exception.Message);
 
-                }
+        }
       }
     }
     private async Task HandleValidSubmit()
     {
-      Intellisense!.SendKeysValue = CarriageReturn.ReplaceForCarriageReturnChar(Intellisense.SendKeysValue);
+      if (Intellisense == null || Intellisense.SendKeysValue == null)
+      {
+        return;
+      }
+      if (Intellisense?.SendKeysValue != null)
+      {
+        Intellisense!.SendKeysValue = CarriageReturn.ReplaceForCarriageReturnChar(Intellisense.SendKeysValue);
+      }
       customValidationErrors.Clear();
-      if (Intellisense.LanguageId == 0)
+      if (Intellisense?.LanguageId == 0)
       {
         customValidationErrors.Add("Language is required");
       }
-      if (Intellisense.CategoryId == 0)
+      if (Intellisense?.CategoryId == 0)
       {
         customValidationErrors.Add("Category is required");
       }
-      if (customValidationErrors.Count == 0)
+      if (customValidationErrors.Count == 0 && Intellisense != null)
       {
 
         var result = await CustomIntellisenseService.SaveCustomIntelliSense(Intellisense);
         if (result.Contains("Successfully"))
         {
-          ToastService!.ShowSuccess(result+ "Success");
+          ToastService!.ShowSuccess(result + "Success");
           return;
         }
-        ToastService!.ShowError(result+"Failure");
+        ToastService!.ShowError(result + "Failure");
       }
     }
     private async Task CallChangeAsync(string elementId)

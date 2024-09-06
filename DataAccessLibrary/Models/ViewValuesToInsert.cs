@@ -11,11 +11,11 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(255)]
-        public string ValueToInsert { get; set; }
+        public required string ValueToInsert { get; set; }
         [Required]
         [StringLength(255)]
-        public string Lookup { get; set; }
+        public required string Lookup { get; set; }
         [StringLength(255)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

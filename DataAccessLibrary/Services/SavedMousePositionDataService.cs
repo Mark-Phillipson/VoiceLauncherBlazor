@@ -22,12 +22,12 @@ namespace VoiceLauncher.Services
             var SavedMousePositions = await _savedMousePositionRepository.GetAllSavedMousePositionsAsync(300);
             return SavedMousePositions.ToList();
         }
-        public async Task<SavedMousePositionDTO> GetSavedMousePositionById(int Id)
+        public async Task<SavedMousePositionDTO?> GetSavedMousePositionById(int Id)
         {
             var savedMousePosition = await _savedMousePositionRepository.GetSavedMousePositionByIdAsync(Id);
             return savedMousePosition;
         }
-        public async Task<SavedMousePositionDTO> AddSavedMousePosition(SavedMousePositionDTO savedMousePositionDTO)
+        public async Task<SavedMousePositionDTO?> AddSavedMousePosition(SavedMousePositionDTO savedMousePositionDTO)
         {
             Guard.Against.Null(savedMousePositionDTO);
             var result = await _savedMousePositionRepository.AddSavedMousePositionAsync(savedMousePositionDTO);
@@ -37,7 +37,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<SavedMousePositionDTO> UpdateSavedMousePosition(SavedMousePositionDTO savedMousePositionDTO, string username)
+        public async Task<SavedMousePositionDTO?> UpdateSavedMousePosition(SavedMousePositionDTO savedMousePositionDTO, string username)
         {
             Guard.Against.Null(savedMousePositionDTO);
             Guard.Against.Null(username);

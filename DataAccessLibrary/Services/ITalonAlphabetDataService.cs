@@ -8,9 +8,9 @@ namespace DataAccessLibrary.Services
 	{
 		Task<List<TalonAlphabetDTO>> GetAllTalonAlphabetsAsync();
 		Task<List<TalonAlphabetDTO>> SearchTalonAlphabetsAsync(string serverSearchTerm);
-		Task<TalonAlphabetDTO> AddTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO);
-		Task<TalonAlphabetDTO> GetTalonAlphabetById(int Id);
-		Task<TalonAlphabetDTO> UpdateTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO, string username);
+		Task<TalonAlphabetDTO?> AddTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO);
+		Task<TalonAlphabetDTO?> GetTalonAlphabetById(int Id);
+		Task<TalonAlphabetDTO?> UpdateTalonAlphabet(TalonAlphabetDTO talonAlphabetDTO, string username);
 		Task DeleteTalonAlphabet(int Id);
 	}
 }

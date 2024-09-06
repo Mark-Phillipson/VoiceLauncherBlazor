@@ -26,10 +26,10 @@ namespace DataAccessLibrary.Services
 			List<string> collection = await context.GeneralLookups.OrderBy(c => c.Category).GroupBy(g => g.Category).Select(s => s.Key).ToListAsync();
 			return collection;
 		}
-		public async Task<List<GeneralLookup>> GetGeneralLookupsAsync(string searchTerm = null, string sortColumn = null, string sortType = null, string categoryFilter = null, int maximumRows = 200)
+		public async Task<List<GeneralLookup>> GetGeneralLookupsAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, string? categoryFilter = null, int maximumRows = 200)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<GeneralLookup> generalLookups = null;
+			IQueryable<GeneralLookup> generalLookups = new List<GeneralLookup>().AsQueryable();
 			try
 			{
 				generalLookups = context.GeneralLookups.OrderBy(v => v.Category).ThenBy(t => t.SortOrder);
@@ -37,11 +37,11 @@ namespace DataAccessLibrary.Services
 			catch (Exception exception)
 			{
 				Console.WriteLine(exception.Message);
-				return null;
+				return new List<GeneralLookup>();
 			}
 			if (searchTerm != null && searchTerm.Length > 0)
 			{
-				generalLookups = generalLookups.Where(v => v.ItemValue.Contains(searchTerm) || v.Category.Contains(searchTerm) || v.DisplayValue.Contains(searchTerm));
+				generalLookups = generalLookups.Where(v => v.ItemValue.Contains(searchTerm) || v.Category.Contains(searchTerm) || v.DisplayValue != null && v.DisplayValue.Contains(searchTerm));
 			}
 			if (sortType != null && sortColumn != null)
 			{
@@ -93,11 +93,15 @@ namespace DataAccessLibrary.Services
 			}
 			return generalLookups;
 		}
-		public async Task<string> SaveGeneralLookup(GeneralLookup generalLookup)
+		public async Task<string> SaveGeneralLookup(GeneralLookup? generalLookup)
 		{
 			using var context = _contextFactory.CreateDbContext();
+			if (generalLookup == null)
+			{
+				return "General Lookup is null!";
+			}
 			generalLookup = TrimGeneralLookup(generalLookup);
-			if (generalLookup.Id > 0)
+			if (generalLookup!.Id > 0)
 			{
 				context.GeneralLookups.Update(generalLookup);
 			}
@@ -116,18 +120,22 @@ namespace DataAccessLibrary.Services
 			}
 		}
 
-		private GeneralLookup TrimGeneralLookup(GeneralLookup generalLookup)
+		private GeneralLookup? TrimGeneralLookup(GeneralLookup generalLookup)
 		{
-			generalLookup.Category = generalLookup.Category?.Trim();
-			generalLookup.ItemValue = generalLookup.ItemValue?.Trim();
+			if (generalLookup == null || generalLookup.Category == null || generalLookup.ItemValue == null || generalLookup.DisplayValue == null)
+			{
+				return generalLookup;
+			}
+			generalLookup.Category = generalLookup.Category?.Trim() ?? "";
+			generalLookup.ItemValue = generalLookup.ItemValue?.Trim() ?? "";
 			generalLookup.DisplayValue = generalLookup.DisplayValue?.Trim();
 			return generalLookup;
 		}
 
-		public async Task<GeneralLookup> GetGeneralLookupAsync(int generalLookupId)
+		public async Task<GeneralLookup?> GetGeneralLookupAsync(int generalLookupId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			GeneralLookup generalLookup = await context.GeneralLookups.Where(v => v.Id == generalLookupId).FirstOrDefaultAsync();
+			GeneralLookup? generalLookup = await context.GeneralLookups.Where(v => v.Id == generalLookupId).FirstOrDefaultAsync();
 			return generalLookup;
 		}
 	}

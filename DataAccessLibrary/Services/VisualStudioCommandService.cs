@@ -15,10 +15,10 @@ namespace DataAccessLibrary.Services
 		{
 			_contextFactory = context;
 		}
-		public async Task<List<VisualStudioCommand>> GetVisualStudioCommandsAsync( int take= 300)
+		public async Task<List<VisualStudioCommand>> GetVisualStudioCommandsAsync(int take = 300)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<VisualStudioCommand> visualStudioCommands = null;
+			IQueryable<VisualStudioCommand> visualStudioCommands = new List<VisualStudioCommand>().AsQueryable();
 			try
 			{
 				visualStudioCommands = context.VisualStudioCommands;
@@ -27,12 +27,18 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
-			return await visualStudioCommands.Take(take).ToListAsync();
+			if (visualStudioCommands != null && take > 0)
+			{
+				var result = await visualStudioCommands.Take(take).ToListAsync();
+				return result;
+			}
+			return new List<VisualStudioCommand>();
 		}
 		public async Task<List<VisualStudioCommand>> GetVisualStudioCommandsAsync(string caption)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			IQueryable<VisualStudioCommand> visualStudioCommands = null;
+
+			IQueryable<VisualStudioCommand> visualStudioCommands = new List<VisualStudioCommand>().AsQueryable();
 			try
 			{
 				visualStudioCommands = context.VisualStudioCommands.Where(v => v.Caption.ToLower().Contains(caption.ToLower()));
@@ -41,12 +47,17 @@ namespace DataAccessLibrary.Services
 			{
 				Console.WriteLine(exception.Message);
 			}
-			return await visualStudioCommands.ToListAsync();
+			if (visualStudioCommands != null)
+			{
+				var result = await visualStudioCommands.ToListAsync();
+				return result;
+			}
+			return new List<VisualStudioCommand>();
 		}
-		public async Task<VisualStudioCommand> GetVisualStudioCommandAsync(int visualStudioCommandId)
+		public async Task<VisualStudioCommand?> GetVisualStudioCommandAsync(int visualStudioCommandId)
 		{
 			using var context = _contextFactory.CreateDbContext();
-			VisualStudioCommand visualStudioCommand = await context.VisualStudioCommands.Where(v => v.Id == visualStudioCommandId).FirstOrDefaultAsync();
+			VisualStudioCommand? visualStudioCommand = await context.VisualStudioCommands.Where(v => v.Id == visualStudioCommandId).FirstOrDefaultAsync();
 			return visualStudioCommand;
 		}
 		public async Task<string> SaveVisualStudioCommand(VisualStudioCommand visualStudioCommand)

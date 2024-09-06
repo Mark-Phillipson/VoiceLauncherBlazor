@@ -138,7 +138,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				categories = await CategoryService.SaveAllCategories(categories);
+				if (categories != null)
+				{
+					categories = await CategoryService.SaveAllCategories(categories);
+				}
 			}
 			catch (Exception exception)
 			{

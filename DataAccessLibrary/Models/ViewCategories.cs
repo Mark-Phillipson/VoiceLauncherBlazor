@@ -10,9 +10,9 @@ namespace DataAccessLibrary.Models
         [Column("ID")]
         public int Id { get; set; }
         [StringLength(30)]
-        public string Category { get; set; }
+        public required string Category { get; set; }
         [Column("Category_Type")]
         [StringLength(255)]
-        public string CategoryType { get; set; }
+        public required string CategoryType { get; set; }
     }
 }

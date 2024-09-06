@@ -11,7 +11,7 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(255)]
-        public string NamedLocation { get; set; }
+        public required string NamedLocation { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         [Column(TypeName = "datetime")]

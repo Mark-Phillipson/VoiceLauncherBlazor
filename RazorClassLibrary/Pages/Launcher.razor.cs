@@ -100,7 +100,10 @@ namespace RazorClassLibrary.Pages
 			}
 			try
 			{
-				var result = await LauncherService.SaveLauncher(LauncherModel);
+				if (LauncherModel != null)
+				{
+					var result = await LauncherService.SaveLauncher(LauncherModel);
+				}
 			}
 			catch (Exception exception)
 			{

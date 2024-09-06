@@ -29,12 +29,12 @@ namespace DataAccessLibrary.Services
             return CustomWindowsSpeechCommands.ToList();
         }
 
-        public async Task<CustomWindowsSpeechCommandDTO> GetCustomWindowsSpeechCommandById(int Id)
+        public async Task<CustomWindowsSpeechCommandDTO?> GetCustomWindowsSpeechCommandById(int Id)
         {
             var customWindowsSpeechCommand = await _customWindowsSpeechCommandRepository.GetCustomWindowsSpeechCommandByIdAsync(Id);
             return customWindowsSpeechCommand;
         }
-        public async Task<CustomWindowsSpeechCommandDTO> AddCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
+        public async Task<CustomWindowsSpeechCommandDTO?> AddCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO)
         {
             Guard.Against.Null(customWindowsSpeechCommandDTO);
             var result = await _customWindowsSpeechCommandRepository.AddCustomWindowsSpeechCommandAsync(customWindowsSpeechCommandDTO);
@@ -44,7 +44,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<CustomWindowsSpeechCommandDTO> UpdateCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO, string username)
+        public async Task<CustomWindowsSpeechCommandDTO?> UpdateCustomWindowsSpeechCommand(CustomWindowsSpeechCommandDTO customWindowsSpeechCommandDTO, string username)
         {
             Guard.Against.Null(customWindowsSpeechCommandDTO);
             Guard.Against.Null(username);

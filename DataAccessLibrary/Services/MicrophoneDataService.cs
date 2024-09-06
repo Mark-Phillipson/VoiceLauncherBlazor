@@ -30,12 +30,12 @@ namespace VoiceLauncher.Services
             return Microphones.ToList();
         }
 
-        public async Task<MicrophoneDTO> GetMicrophoneById(int Id)
+        public async Task<MicrophoneDTO?> GetMicrophoneById(int Id)
         {
             var microphone = await _microphoneRepository.GetMicrophoneByIdAsync(Id);
             return microphone;
         }
-        public async Task<MicrophoneDTO> AddMicrophone(MicrophoneDTO microphoneDTO)
+        public async Task<MicrophoneDTO?> AddMicrophone(MicrophoneDTO microphoneDTO)
         {
             Guard.Against.Null(microphoneDTO);
             var result = await _microphoneRepository.AddMicrophoneAsync(microphoneDTO);
@@ -45,7 +45,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<MicrophoneDTO> UpdateMicrophone(MicrophoneDTO microphoneDTO, string username)
+        public async Task<MicrophoneDTO?> UpdateMicrophone(MicrophoneDTO microphoneDTO, string username)
         {
             Guard.Against.Null(microphoneDTO);
             Guard.Against.Null(username);

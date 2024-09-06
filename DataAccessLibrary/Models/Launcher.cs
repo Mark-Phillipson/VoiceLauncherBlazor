@@ -15,13 +15,13 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         [StringLength(255)]
-        public string CommandLine { get; set; }
+        public required string CommandLine { get; set; } = null!;
         [StringLength(255)]
-        public string WorkingDirectory { get; set; }
+        public string? WorkingDirectory { get; set; }
         [StringLength(255)]
-        public string Arguments { get; set; }
+        public string? Arguments { get; set; }
         [Column("CategoryID")]
         public int CategoryId { get; set; }
         [Column("ComputerID")]
@@ -34,10 +34,10 @@ namespace DataAccessLibrary.Models
         public string Icon { get; set; } = "";
         public bool Favourite { get; set; }
         public int SortOrder { get; set; }
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]
-        public virtual Computer Computer { get; set; }
+        public virtual Computer? Computer { get; set; }
         public virtual ICollection<LauncherMultipleLauncherBridge> LaunchersMultipleLauncherBridges { get; set; }
     }
 }

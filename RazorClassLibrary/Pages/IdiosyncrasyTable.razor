@@ -1,13 +1,13 @@
-
 @page "/idiosyncrasies"
 <div class="row">
     <div class="col-md-7">
         <h4 class="page-title m-1">@Title</h4>
     </div>
     <div class="col-md-4">
-        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm" 
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Find String/Replace With (Alt+I)" />
-    </div> 
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+            @bind:event="oninput" id="SearchInput" name="SearchTerm"
+            placeholder="Filter by Find String/Replace With (Alt+I)" />
+    </div>
 </div>
 
 @if (FilteredIdiosyncrasyDTO == null && _loadFailed == true)
@@ -23,14 +23,15 @@ else if (FilteredIdiosyncrasyDTO == null)
 else if (FilteredIdiosyncrasyDTO.Count == 0)
 {
     <p>No Idiosyncrasy match the criteria</p>
-    <button @onclick="AddNewIdiosyncrasyAsync" class="btn btn-lg btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewIdiosyncrasyAsync" class="btn btn-lg btn-outline-success">Add Record <i
+            class="fas fa-plus"></i></button>
 }
 else
 {
     <table style="font-size:xx-large" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
-              <th>
+                <th>
                     <button class="btn btn-sm" @onclick="@(() => SortIdiosyncrasy("FindString"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
@@ -39,7 +40,7 @@ else
                     </button>
                     Find String
                 </th>
-              <th>
+                <th>
                     <button class="btn btn-sm" @onclick="@(() => SortIdiosyncrasy("ReplaceWith"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
@@ -60,14 +61,16 @@ else
             @foreach (var idiosyncrasy in FilteredIdiosyncrasyDTO)
             {
                 <tr>
-                    <td>@idiosyncrasy.FindString.Replace(" ","•")</td>
-                    <td>@idiosyncrasy.ReplaceWith</td>
-                    <td>@idiosyncrasy.StringFormattingMethod</td>
+                    <td>@idiosyncrasy?.FindString?.Replace(" ", "ï¿½")</td>
+                    <td>@idiosyncrasy?.ReplaceWith</td>
+                    <td>@idiosyncrasy?.StringFormattingMethod</td>
                     <td class="btn-group">
-                        <button class="btn btn-lg btn-outline-warning" @onclick="@(() => EditIdiosyncrasyAsync(idiosyncrasy.Id))">
+                        <button class="btn btn-lg btn-outline-warning"
+                            @onclick="@(() => EditIdiosyncrasyAsync(idiosyncrasy!.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteIdiosyncrasyAsync(idiosyncrasy.Id))">
+                        <button class="btn btn-lg btn-outline-danger"
+                            @onclick="@(() => DeleteIdiosyncrasyAsync(idiosyncrasy!.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -76,5 +79,3 @@ else
         </tbody>
     </table>
 }
-
-

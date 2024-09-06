@@ -30,12 +30,12 @@ namespace DataAccessLibrary.Services
             return WindowsSpeechVoiceCommands.ToList();
         }
 
-        public async Task<WindowsSpeechVoiceCommandDTO> GetWindowsSpeechVoiceCommandById(int Id)
+        public async Task<WindowsSpeechVoiceCommandDTO?> GetWindowsSpeechVoiceCommandById(int Id)
         {
             var windowsSpeechVoiceCommand = await _windowsSpeechVoiceCommandRepository.GetWindowsSpeechVoiceCommandByIdAsync(Id);
             return windowsSpeechVoiceCommand;
         }
-        public async Task<WindowsSpeechVoiceCommandDTO> AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
+        public async Task<WindowsSpeechVoiceCommandDTO?> AddWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO)
         {
             Guard.Against.Null(windowsSpeechVoiceCommandDTO);
             var result = await _windowsSpeechVoiceCommandRepository.AddWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommandDTO);
@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<WindowsSpeechVoiceCommandDTO> UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO, string username)
+        public async Task<WindowsSpeechVoiceCommandDTO?> UpdateWindowsSpeechVoiceCommand(WindowsSpeechVoiceCommandDTO windowsSpeechVoiceCommandDTO, string username)
         {
             Guard.Against.Null(windowsSpeechVoiceCommandDTO);
             Guard.Against.Null(username);
@@ -61,7 +61,7 @@ namespace DataAccessLibrary.Services
         {
             await _windowsSpeechVoiceCommandRepository.DeleteWindowsSpeechVoiceCommandAsync(Id);
         }
-        public async Task<WindowsSpeechVoiceCommandDTO> GetLatestAdded()
+        public async Task<WindowsSpeechVoiceCommandDTO?> GetLatestAdded()
         {
             var result = await _windowsSpeechVoiceCommandRepository.GetLatestAdded();
             return result;
@@ -71,13 +71,14 @@ namespace DataAccessLibrary.Services
             var result = await _windowsSpeechVoiceCommandRepository.GetAllApplicationDetails();
             return result;
         }
-        public async Task<List<CommandsBreakdown>> GetCommandsBreakdown() {
+        public async Task<List<CommandsBreakdown>> GetCommandsBreakdown()
+        {
             var result = await _windowsSpeechVoiceCommandRepository.GetCommandsBreakdown();
             return result;
         }
         public async Task<List<SpokenForm>> GetSpokenFormsAsync(List<WindowsSpeechVoiceCommandDTO> result)
         {
-             var returnValue= await _windowsSpeechVoiceCommandRepository.GetSpokenFormsAsync(result);
+            var returnValue = await _windowsSpeechVoiceCommandRepository.GetSpokenFormsAsync(result);
             return returnValue;
         }
     }

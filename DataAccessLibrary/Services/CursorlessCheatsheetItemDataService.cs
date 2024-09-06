@@ -45,12 +45,12 @@ namespace DataAccessLibrary.Services
             return CursorlessCheatsheetItems.ToList();
         }
 
-        public async Task<CursorlessCheatsheetItemDTO> GetCursorlessCheatsheetItemById(int id)
+        public async Task<CursorlessCheatsheetItemDTO?> GetCursorlessCheatsheetItemById(int id)
         {
             var cursorlessCheatsheetItem = await _cursorlessCheatsheetItemRepository.GetCursorlessCheatsheetItemByIdAsync(id);
             return cursorlessCheatsheetItem;
         }
-        public async Task<CursorlessCheatsheetItemDTO> AddCursorlessCheatsheetItem(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
+        public async Task<CursorlessCheatsheetItemDTO?> AddCursorlessCheatsheetItem(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO)
         {
             Guard.Against.Null(cursorlessCheatsheetItemDTO);
             var result = await _cursorlessCheatsheetItemRepository.AddCursorlessCheatsheetItemAsync(cursorlessCheatsheetItemDTO);
@@ -60,7 +60,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<CursorlessCheatsheetItemDTO> UpdateCursorlessCheatsheetItem(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO, string username)
+        public async Task<CursorlessCheatsheetItemDTO?> UpdateCursorlessCheatsheetItem(CursorlessCheatsheetItemDTO cursorlessCheatsheetItemDTO, string username)
         {
             Guard.Against.Null(cursorlessCheatsheetItemDTO);
             Guard.Against.Null(username);

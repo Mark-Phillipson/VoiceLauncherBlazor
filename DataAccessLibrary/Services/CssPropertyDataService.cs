@@ -30,12 +30,12 @@ namespace DataAccessLibrary.Services
             return CssProperties.ToList();
         }
 
-        public async Task<CssPropertyDTO> GetCssPropertyById(int Id)
+        public async Task<CssPropertyDTO?> GetCssPropertyById(int Id)
         {
             var cssProperty = await _cssPropertyRepository.GetCssPropertyByIdAsync(Id);
             return cssProperty;
         }
-        public async Task<CssPropertyDTO> AddCssProperty(CssPropertyDTO cssPropertyDTO)
+        public async Task<CssPropertyDTO?> AddCssProperty(CssPropertyDTO cssPropertyDTO)
         {
             Guard.Against.Null(cssPropertyDTO);
             var result = await _cssPropertyRepository.AddCssPropertyAsync(cssPropertyDTO);
@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Services
             }
             return result;
         }
-        public async Task<CssPropertyDTO> UpdateCssProperty(CssPropertyDTO cssPropertyDTO, string username)
+        public async Task<CssPropertyDTO?> UpdateCssProperty(CssPropertyDTO cssPropertyDTO, string username)
         {
             Guard.Against.Null(cssPropertyDTO);
             Guard.Against.Null(username);

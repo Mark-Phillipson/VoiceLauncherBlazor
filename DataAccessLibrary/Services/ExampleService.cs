@@ -9,15 +9,15 @@ namespace DataAccessLibrary.Services
 {
     public class ExampleService
     {
-		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-		public ExampleService(IDbContextFactory<ApplicationDbContext> context)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public ExampleService(IDbContextFactory<ApplicationDbContext> context)
         {
             this._contextFactory = context;
         }
-        public IQueryable<Example> GetExamples(string searchTerm = null, string sortColumn = null, string sortType = null, string categoryTypeFilter = null, int maximumRows = 200)
+        public IQueryable<Example> GetExamples(string? searchTerm = null, string? sortColumn = null, string? sortType = null, string? categoryTypeFilter = null, int maximumRows = 200)
         {
-			using var context = _contextFactory.CreateDbContext();
-			IQueryable<Example> examples = null;
+            using var context = _contextFactory.CreateDbContext();
+            IQueryable<Example> examples = new List<Example>().AsQueryable();
             try
             {
                 examples = context.Examples.OrderBy(v => v.Text);
@@ -25,7 +25,7 @@ namespace DataAccessLibrary.Services
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return null;
+                return new List<Example>().AsQueryable();
             }
             if (searchTerm != null && searchTerm.Length > 0)
             {
@@ -50,16 +50,16 @@ namespace DataAccessLibrary.Services
         }
 
 
-        public async Task<Example> GetExampleAsync(int exampleId)
+        public async Task<Example?> GetExampleAsync(int exampleId)
         {
-			using var context = _contextFactory.CreateDbContext();
-			Example example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
+            using var context = _contextFactory.CreateDbContext();
+            Example? example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
             return example;
         }
         public async Task<string> SaveExample(Example example)
         {
-			using var context = _contextFactory.CreateDbContext();
-			if (example.Id > 0)
+            using var context = _contextFactory.CreateDbContext();
+            if (example.Id > 0)
             {
                 context.Examples.Update(example);
             }
@@ -80,8 +80,8 @@ namespace DataAccessLibrary.Services
 
         public async Task<string> DeleteExample(int exampleId)
         {
-			using var context = _contextFactory.CreateDbContext();
-			var example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var example = await context.Examples.Where(v => v.Id == exampleId).FirstOrDefaultAsync();
             var result = $"Delete Example Failed {DateTime.UtcNow:h:mm:ss tt zz}";
             if (example != null)
             {

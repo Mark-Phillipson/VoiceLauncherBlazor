@@ -12,9 +12,9 @@ namespace DataAccessLibrary.Models
         public int Id { get; set; }
         [Required]
         [StringLength(3000)]
-        public string PromptText { get; set; }
+        public required string PromptText { get; set; }
         [StringLength(2000)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public bool IsDefault { get; set; } = false;
     }
 }

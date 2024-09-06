@@ -97,9 +97,7 @@ namespace RazorClassLibrary.Pages
                 {
                     ServerSearchTerm = SearchTerm;
                     totalRows = await TransactionTypeMappingDataService.GetTotalCount();
-                    var result = await TransactionTypeMappingDataService!.GetAllTransactionTypeMappingsAsync
-
-                    (pageNumber, pageSize, ServerSearchTerm);
+                    var result = await TransactionTypeMappingDataService!.GetAllTransactionTypeMappingsAsync(pageNumber, pageSize, ServerSearchTerm ?? "");
                     //var result = await TransactionTypeMappingDataService.SearchTransactionTypeMappingsAsync(ServerSearchTerm);
                     if (result != null)
                     {

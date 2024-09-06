@@ -43,7 +43,7 @@ public class LanguageRepository : ILanguageRepository
       return LanguagesDTO;
    }
 
-   public async Task<LanguageDTO> GetLanguageByIdAsync(int Id)
+   public async Task<LanguageDTO?> GetLanguageByIdAsync(int Id)
    {
       using var context = _contextFactory.CreateDbContext();
       var result = await context.Languages.AsNoTracking()
@@ -53,7 +53,7 @@ public class LanguageRepository : ILanguageRepository
       return languageDTO;
    }
 
-   public async Task<LanguageDTO> AddLanguageAsync(LanguageDTO languageDTO)
+   public async Task<LanguageDTO?> AddLanguageAsync(LanguageDTO languageDTO)
    {
       using var context = _contextFactory.CreateDbContext();
       Language language = _mapper.Map<LanguageDTO, Language>(languageDTO);
@@ -71,7 +71,7 @@ public class LanguageRepository : ILanguageRepository
       return resultDTO;
    }
 
-   public async Task<LanguageDTO> UpdateLanguageAsync(LanguageDTO languageDTO)
+   public async Task<LanguageDTO?> UpdateLanguageAsync(LanguageDTO languageDTO)
    {
       Language language = _mapper.Map<LanguageDTO, Language>(languageDTO);
       using (var context = _contextFactory.CreateDbContext())

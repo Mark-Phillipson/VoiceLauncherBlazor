@@ -18,10 +18,10 @@ namespace DataAccessLibrary.Models
         [Required]
         [StringLength(25)]
         [Column("Language")]
-        public string LanguageName { get; set; }
+        public required string LanguageName { get; set; } = null!;
         public bool Active { get; set; }
         [StringLength(40)]
-        public string Colour { get; set; }
+        public string? Colour { get; set; }
         [InverseProperty("Language")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
     }

@@ -32,12 +32,12 @@ namespace VoiceLauncher.Services
             return CustomIntelliSenses.ToList();
         }
 
-        public async Task<CustomIntelliSenseDTO> GetCustomIntelliSenseById(int Id)
+        public async Task<CustomIntelliSenseDTO?> GetCustomIntelliSenseById(int Id)
         {
             var customIntelliSense = await _customIntelliSenseRepository.GetCustomIntelliSenseByIdAsync(Id);
             return customIntelliSense;
         }
-        public async Task<CustomIntelliSenseDTO> AddCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO)
+        public async Task<CustomIntelliSenseDTO?> AddCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO)
         {
             Guard.Against.Null(customIntelliSenseDTO);
             var result = await _customIntelliSenseRepository.AddCustomIntelliSenseAsync(customIntelliSenseDTO);
@@ -47,7 +47,7 @@ namespace VoiceLauncher.Services
             }
             return result;
         }
-        public async Task<CustomIntelliSenseDTO> UpdateCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO, string username)
+        public async Task<CustomIntelliSenseDTO?> UpdateCustomIntelliSense(CustomIntelliSenseDTO customIntelliSenseDTO, string? username)
         {
             Guard.Against.Null(customIntelliSenseDTO);
             Guard.Against.Null(username);

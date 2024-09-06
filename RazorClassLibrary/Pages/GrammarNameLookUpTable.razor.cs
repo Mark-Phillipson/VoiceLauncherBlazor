@@ -193,7 +193,10 @@ namespace RazorClassLibrary.Pages
             if (GrammarNameDataService != null)
             {
                 var grammar = await GrammarNameDataService.GetGrammarNameById(id);
-                await OnSelectCallback.InvokeAsync(grammar.NameOfGrammar);
+                if (grammar != null)
+                {
+                    await OnSelectCallback.InvokeAsync(grammar.NameOfGrammar);
+                }
             }
         }
     }
