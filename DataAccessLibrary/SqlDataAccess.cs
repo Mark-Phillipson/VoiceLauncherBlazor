@@ -30,7 +30,7 @@ namespace DataAccessLibrary
 		}
 		public async Task<T> LoadSingleData<T, U>(string sql, U parameters)
 		{
-			if (ConnectionStringName == null || ConnectionStringName.Length > 0 || _config == null)
+			if (ConnectionStringName == null || ConnectionStringName.Length == 0 || _config == null)
 			{
 				throw new ArgumentNullException("ConnectionStringName", "ConnectionStringName is null or empty");
 			}

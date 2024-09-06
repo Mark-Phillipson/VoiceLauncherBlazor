@@ -31,7 +31,7 @@ namespace DataAccessLibrary.Models
         [ForeignKey(nameof(CategoryId))]
         [InverseProperty(nameof(Models.Category.Launchers))]
         [StringLength(100)]
-        public string Icon { get; set; } = "";
+        public string? Icon { get; set; }
         public bool Favourite { get; set; }
         public int SortOrder { get; set; }
         public virtual Category Category { get; set; } = null!;

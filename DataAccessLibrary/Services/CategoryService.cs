@@ -62,7 +62,6 @@ namespace DataAccessLibrary.Services
 			}
 		}
 
-
 		public async Task<Category?> GetCategoryAsync(int categoryId)
 		{
 			using var context = _contextFactory.CreateDbContext();

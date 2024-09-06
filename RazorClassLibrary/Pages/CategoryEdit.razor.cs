@@ -14,12 +14,9 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public int CategoryId { get; set; }
 		[Inject] IToastService? ToastService { get; set; }
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
-
 		[Inject] public required CategoryService CategoryService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
-
-
 		public DataAccessLibrary.Models.Category? Category { get; set; }
 		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 #pragma warning disable 414

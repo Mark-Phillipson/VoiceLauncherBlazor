@@ -21,12 +21,19 @@ namespace WinFormsApp
 			InitializeComponent();
 
 			var services = new ServiceCollection();
-			//services.AddScoped(IConfiguration, Configuration > ();
+
+			// Register IConfigurationRoot
+			var configurationBuilder = new ConfigurationBuilder()
+				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+			IConfigurationRoot configurationRoot = configurationBuilder.Build();
+			services.AddSingleton<IConfigurationRoot>(configurationRoot);
+			services.AddSingleton<IConfiguration>(configurationRoot);
+
 			services.AddWindowsFormsBlazorWebView();
 #if DEBUG
 			services.AddBlazorWebViewDeveloperTools();
 #endif
-
 			services.AddScoped<LanguageService>();
 			services.AddScoped<ILauncherRepository, LauncherRepository>();
 			services.AddScoped<ILauncherDataService, LauncherDataService>();

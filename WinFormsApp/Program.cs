@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 
-
 namespace WinFormsApp
 {
 	internal static class Program
@@ -13,11 +12,11 @@ namespace WinFormsApp
 		{
 			AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
 			{
-				#if DEBUG
-					MessageBox.Show(text: error.ExceptionObject.ToString(), caption: "Error");
-				#else
+#if DEBUG
+				MessageBox.Show(text: error.ExceptionObject.ToString(), caption: "Error");
+#else
 					MessageBox.Show(text: "An error has occurred.", caption: "Error");
-				#endif
+#endif
 				// Log the error information (error.ExceptionObject)
 			};
 

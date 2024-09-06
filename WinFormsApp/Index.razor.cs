@@ -9,7 +9,6 @@ namespace WinFormsApp
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required CategoryService CategoryService { get; set; }
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
-
 		private int languageId;
 		private int categoryId;
 		private string message = "";
@@ -39,8 +38,11 @@ namespace WinFormsApp
 				categoryName = arguments[3].Replace("/", "").Trim();
 				var language = await LanguageService.GetLanguageAsync(languageName);
 				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
-				languageId = language.Id;
-				categoryId = category.Id;
+				if (language != null && category != null)
+				{
+					languageId = language.Id;
+					categoryId = category.Id;
+				}
 				languageAndCategoryListing = true;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
@@ -48,7 +50,10 @@ namespace WinFormsApp
 			{
 				categoryName = arguments[2].Replace("/", "");
 				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-				categoryId = category.Id;
+				if (category != null)
+				{
+					categoryId = category.Id;
+				}
 				SetTitle($"Launch from category: {categoryName}");
 				launcher = true;
 			}

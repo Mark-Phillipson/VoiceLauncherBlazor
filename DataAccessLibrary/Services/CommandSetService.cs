@@ -15,7 +15,7 @@ namespace DataAccessLibrary.Services
 		readonly DataSet dataSetDragon = new DataSet();
 		XElement MyCommands = new XElement("MyCommands");
 		readonly CommandSet commandSet = new CommandSet();
-		public CommandSetService(string? knowbrainerScriptFileName, string? dragonScriptFileName, bool viewNew = false)
+		public CommandSetService(string? knowbrainerScriptFileName = null, string? dragonScriptFileName = null, bool viewNew = false)
 		{
 			if (knowbrainerScriptFileName != null)
 			{

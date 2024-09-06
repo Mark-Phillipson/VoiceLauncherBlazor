@@ -33,13 +33,8 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required IJSRuntime JSRuntime { get; set; }
 		private int currentAcceleratorKey = 0;
 		[Inject]
-		public required CustomIntellisenseService CustomIntellisenseService
-		{
-			get;
-			set;
-		}
+		public required CustomIntellisenseService CustomIntellisenseService { get; set; }
 		[Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
-
 		[Inject] public required CategoryService CategoryService { get; set; }
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required GeneralLookupService GeneralLookupService { get; set; }
