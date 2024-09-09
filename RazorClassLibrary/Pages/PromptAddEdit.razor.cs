@@ -25,7 +25,7 @@ namespace RazorClassLibrary.Pages
 {
     public partial class PromptAddEdit : ComponentBase
     {
-        [Inject] IToastService? ToastService { get; set; }
+        [Inject] public required IToastService ToastService { get; set; }
         [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
         [Parameter] public string? Title { get; set; }
         [Inject] public ILogger<PromptAddEdit>? Logger { get; set; }

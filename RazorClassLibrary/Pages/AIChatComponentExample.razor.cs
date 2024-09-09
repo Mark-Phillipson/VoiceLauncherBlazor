@@ -7,31 +7,32 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using SampleApplication.Services;
 using Microsoft.SemanticKernel;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace RazorClassLibrary.Pages
 {
     public partial class AIChatComponentExample : ComponentBase
     {
         [Inject] public required IPromptDataService PromptDataService { get; set; }
+        ChatHistory chatHistory = new();
+        ChatHistory responseHistory = new();
         private List<PromptDTO> prompts = new List<PromptDTO>();
         private PromptDTO? selectedPrompt = null;
         private int selectedPromptId = 0;
         string prompt = "";
-        string? history = "";
+        // string? history = "";
+        int historyCount = 0;
         bool addedPredefinedPrompt = false;
         Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
         Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
-        string? responseHistory;
         IChatCompletionService chatService = new OpenAIChatCompletionService("gpt-4o-mini", Constants.OpenAIAPIKEY);
         private ElementReference inputElement;
-        private ElementReference textAreaRefResponse;
-        private ElementReference textAreaRefResponseHistory;
-        private ElementReference textAreaRefPromptHistory;
         string predefinedPrompt = "";
         [Inject] public required IJSRuntime JSRuntime { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
+            await inputElement.FocusAsync();
         }
 
         private async Task LoadData()
@@ -45,14 +46,13 @@ namespace RazorClassLibrary.Pages
             }
         }
 
-        private async Task Chat()
+        private async Task ProcessChat()
         {
             if (string.IsNullOrWhiteSpace(prompt))
             {
                 return;
             }
             processing = true;
-            ChatHistory chatHistory = new();
 
             PromptExecutionSettings settings = new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
             if (addedPredefinedPrompt == false)
@@ -62,40 +62,17 @@ namespace RazorClassLibrary.Pages
                     predefinedPrompt = selectedPrompt.PromptText;
                 }
                 addedPredefinedPrompt = true;
-                chatHistory.AddUserMessage(predefinedPrompt);
+                chatHistory.AddSystemMessage(predefinedPrompt);
                 kernel.ImportPluginFromType<MarkInformation>();
             }
             chatHistory.AddUserMessage(prompt);
             // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
             response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
-
+            responseHistory.AddAssistantMessage(response.Content ?? "");
+            prompt = "";
+            await inputElement.FocusAsync();
             processing = false;
-            responseHistory = responseHistory + "\n" + response.Items;
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefResponse);
-                await JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefPromptHistory);
-            }
-            catch (System.Exception exception)
-            {
-                System.Console.WriteLine(exception.Message);
-            }
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefResponseHistory);
-            }
-            catch (System.Exception exception)
-            {
-                System.Console.WriteLine(exception.Message);
-            }
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefPromptHistory);
-            }
-            catch (System.Exception exception)
-            {
-                System.Console.WriteLine(exception.Message);
-            }
+            StateHasChanged();
         }
         private void ResizeTextAreaPrompt()
         {
@@ -108,29 +85,20 @@ namespace RazorClassLibrary.Pages
                 System.Console.WriteLine(exception.Message);
             }
         }
-        private void ResizeResponse()
-        {
-            try
-            {
-                JSRuntime.InvokeVoidAsync("adjustTextArea", textAreaRefResponse);
-            }
-            catch (System.Exception exception)
-            {
-                System.Console.WriteLine(exception.Message);
-            }
-        }
+
         private async Task Clear()
         {
             prompt = "";
-
             await inputElement.FocusAsync();
         }
-        private void Forget()
+        private async Task Forget()
         {
-            history = "";
-            responseHistory = "";
+            responseHistory.Clear();
             response.Items.Clear();
             selectedPrompt = null;
+            addedPredefinedPrompt = false;
+            chatHistory.Clear();
+            await inputElement.FocusAsync();
         }
         private async Task OnValueChangedMethodName(int id)
         {
@@ -143,6 +111,15 @@ namespace RazorClassLibrary.Pages
         {
             {
                 showHistory = !showHistory;
+            }
+        }
+        private async Task EnteredChat(KeyboardEventArgs e)
+        {
+            System.Console.WriteLine(e.Key);
+            if (e.Key == "Enter")
+            {
+                // Handle the Enter key press event
+                await ProcessChat();
             }
         }
     }
@@ -177,5 +154,4 @@ public class MarkInformation
             return "I'm sorry, I don't know that information about Mark.";
         }
     }
-
 }

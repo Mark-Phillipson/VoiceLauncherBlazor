@@ -3,7 +3,6 @@ using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using DataAccessLibrary.DTO;
-using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
@@ -11,19 +10,17 @@ using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
 using System.Security.Claims;
 using VoiceLauncher.Services;
-using WindowsInput.Native;
-using WindowsInput;
 
 namespace RazorClassLibrary.Pages
 {
    public partial class CustomIntelliSenseTable : ComponentBase
    {
       [Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
-      [Inject] public NavigationManager? NavigationManager { get; set; }
+      [Inject] public required NavigationManager NavigationManager { get; set; }
       [Inject] public ILogger<CustomIntelliSenseTable>? Logger { get; set; }
       [Inject] public required ILanguageDataService LanguageDataService { get; set; }
       [Inject] public required ICategoryDataService CategoryDataService { get; set; }
-      [Inject] public IToastService? ToastService { get; set; }
+      [Inject] public required IToastService ToastService { get; set; }
       [CascadingParameter] public IModalService? Modal { get; set; }
       public string Title { get; set; } = "CustomIntelliSense Items (CustomIntelliSenses)";
       public string EditTitle { get; set; } = "Edit CustomIntelliSense Item (CustomIntelliSenses)";

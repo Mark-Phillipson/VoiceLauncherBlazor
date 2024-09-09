@@ -1,62 +1,85 @@
 ﻿@page "/chat"
-<h3>AI Chat Component Example</h3>
-@if (prompts != null)
-{
-    <label for='selectedPromptId'>Select a Predefined Prompt</label>
-    <a class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
-    <InputSelect ValueExpression="@(()=>selectedPromptId)" Value="@selectedPromptId"
-        ValueChanged="@(( int  value) => OnValueChangedMethodName(value))" class="form-select">
-        @foreach (var item in prompts)
+@using RazorClassLibrary.Components
+<h4>AI Chat Component Example</h4>
+<div class='row'>
+    <div class='col-md-5'>
+        @if (prompts != null)
         {
-            <option value="@item.Id">@item.Description</option>
+            <label for='selectedPromptId'>Select a Predefined Prompt</label>
+            <a target="_blank" class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
+            <InputSelect ValueExpression="@(()=>selectedPromptId)" Value="@selectedPromptId"
+                ValueChanged="@(( int  value) => OnValueChangedMethodName(value))" class="form-select">
+                @foreach (var item in prompts)
+                {
+                    <option value="@item.Id">@item.Description</option>
+                }
+            </InputSelect>
         }
-    </InputSelect>
-}
-@if (selectedPrompt != null)
-{
-    <label>Included Data:</label> @selectedPrompt?.Description
-}
-<textarea @oninput='ResizeTextAreaPrompt' @ref="inputElement" class='form-control m-1' @bind='@prompt'
-    placeholder='Enter some text to chat'>
-    @prompt
+        @if (selectedPrompt != null)
+        {
+            <label class='m-1'>Included Data:</label> @selectedPrompt?.Description
+        }
+        @foreach (var item in chatHistory)
+        {
+            @if (item.Role.Label.ToLower() == "system")
+            {
+                <div class="m-1 text-danger">
+                    <span>@item.Content</span>
+                </div>
+            }
+            else
+            {
+                <div class="m-1 text-success">
+                    <span>@item.Content</span>
+                </div>
+            }
+        }
+<label class='label-control' for='inputElement'  >Chat Message</label>
+        <textarea id='inputElement'  @ref="inputElement" class='form-control m-1' @bind-value='@prompt' @bind-value:event='oninput'
+            placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
+            @prompt
 </textarea>
-<button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
-    @onclick="@( ( ) => Chat(  ) )"><u>C</u>hat</button>
-<button accesskey='l' class="btn btn-outline-danger btn-lg m-1" type="button"
-    @onclick="@( ( ) => Clear(  ) )">C<u>l</u>ear</button>
-<button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
-    @onclick="@( ( ) => Forget(  ) )">Forge<u>t</u></button>
-@if (processing)
-{
-    <div class="spinner-border text-primary m-2ay" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
-}
-<hr>
-@if (response != null && response.Items.Count > 0)
-{
-    <label>Latest Response</label>
-    <button class="btn btn-outline-success btn-sm m-1" type="button"
-        @onclick="@( ( ) => ResizeResponse(  ) )">Resize</button>
-    <textarea @ref="textAreaRefResponse" class=' form-control' width='100%'>
-        @foreach (var item in response.Items)
+        <button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
+            @onclick="@( ( ) => ProcessChat(  ) )"><u>C</u>hat</button>
+        <button accesskey='l' class="btn btn-outline-warning btn-lg m-1" type="button"
+            @onclick="@( ( ) => Clear(  ) )">C<u>l</u>ear</button>
+        <button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
+            @onclick="@( ( ) => Forget(  ) )">Forge<u>t</u></button>
+        @if (processing)
         {
-            @item
+            <div class="spinner-border text-primary m-2ay" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         }
-        </textarea>
-}
-<button class="btn btn-primary m-1" @onclick="@( ( ) => ToggleHistory(  ) )">Toggle History</button>
-@if (showHistory)
-{
-    @if (responseHistory != null && responseHistory.Length > 0)
-    {
-        <label>Response History</label>
-        <textarea @ref="textAreaRefResponseHistory" class='form-control' width='100%'>@responseHistory </textarea>
-    }
-    @if (history != null && history.Length > 0)
-    {
-        <label>Prompt History</label>
-        <textarea @ref="textAreaRefPromptHistory" class='form-control' width='100%'>@history </textarea>
-    }
-}
+        <hr>
+        <button class="btn btn-primary m-1" @onclick="@( ( ) => ToggleHistory(  ) )">Response History <span
+                class='badge bg-success'>@responseHistory?.Count</span></button>
+        @if (showHistory)
+        {
+            @if (responseHistory != null && responseHistory.Count > 0)
+            {
+                historyCount = 0;
+                @foreach (var item in responseHistory)
+                {
+                    historyCount++;
+                    <ul>
+                        <li class='text-danger'>Response # @historyCount</li>
+                        <ul>
+                            <li>
+                                <MarkdownConverter MarkdownContent="@item.Content" />
+                            </li>
+                        </ul>
+                    </ul>
+                }
+            }
+        }
+
+    </div>
+    <div class='col-md-7'>
+        @if (responseHistory?.Count > 0)
+        {
+            <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
+        }
+    </div>
+</div>
 <a class='btn-link' href="/smart-components">Back to List of Smart Components</a>
