@@ -34,11 +34,11 @@
                 </div>
             }
         }
-<label class='label-control' for='inputElement'  >Chat Message</label>
-        <textarea id='inputElement'  @ref="inputElement" class='form-control m-1' @bind-value='@prompt' @bind-value:event='oninput'
-            placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
+        <label class='sr-only m-1' for='inputElement'>Chat Message</label>
+        <textarea id='inputElement' @ref="inputElement" class='form-control m-1' @bind-value='@prompt'
+            @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
             @prompt
-</textarea>
+                    </textarea>
         <button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
             @onclick="@( ( ) => ProcessChat(  ) )"><u>C</u>hat</button>
         <button accesskey='l' class="btn btn-outline-warning btn-lg m-1" type="button"
