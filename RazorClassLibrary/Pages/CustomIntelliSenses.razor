@@ -68,7 +68,7 @@
 		</div>
 		<div class='col-6 col-lg-3'>
 			<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-				id="SearchInput" class="form-control" accesskey="3" placeholder="Blur to Filter (3)" />
+				id="SearchInput" class="form-control mx-1" accesskey="3" placeholder="Blur to Filter (3)" />
 		</div>
 		<div class='col-6 col-lg-3'>
 			<label for='useSemanticMatching'>Semantic?</label>
@@ -295,15 +295,15 @@ else
 	}
 
 	<pre class='mt-2'>
-																																																					<code class='m-2'>
+																																																						<code class='m-2'>
 			@if (customIntelliSenseCurrent != null)
 			{
-																																																																																																										<textarea rows="7" style='width:95%;color:white;background:black'>
+																																																																																																												<textarea rows="7" style='width:95%;color:white;background:black'>
 					@customIntelliSenseCurrent.SendKeysValue
-																																																																																																																												</textarea>
+																																																																																																																														</textarea>
 			}
-																																																										</code>
-																																																										</pre>
+																																																											</code>
+																																																											</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {
