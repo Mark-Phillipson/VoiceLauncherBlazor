@@ -43,6 +43,8 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<TransactionDTO, Transaction>();
 			CreateMap<TransactionTypeMapping, TransactionTypeMappingDTO>();
 			CreateMap<TransactionTypeMappingDTO, TransactionTypeMapping>();
+			CreateMap<Example, ExampleDTO>();
+			CreateMap<ExampleDTO, Example>();
 		}
 	}
 }

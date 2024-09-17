@@ -441,6 +441,10 @@ namespace RazorClassLibrary.Pages
 				customIntelliSenseDTO.SelectWordFromRight = customIntelliSenseCurrent.SelectWordFromRight;
 				customIntelliSenseDTO.MoveCharactersLeft = customIntelliSenseCurrent.MoveCharactersLeft;
 				CustomIntelliSenseDataService.SendSnippet(itemToCopyAndPaste, customIntelliSenseDTO);
+				if (RunningInBlazorHybrid)
+				{
+					await CloseApplication.InvokeAsync();
+				}
 			}
 		}
 		private async Task EditAsync(int id)

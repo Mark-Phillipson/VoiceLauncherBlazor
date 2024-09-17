@@ -88,6 +88,8 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionDataService, TransactionDataService>();
 builder.Services.AddScoped<ITransactionTypeMappingRepository, TransactionTypeMappingRepository>();
 builder.Services.AddScoped<ITransactionTypeMappingDataService, TransactionTypeMappingDataService>();
+builder.Services.AddScoped<IExampleRepository, ExampleRepository>();
+builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

@@ -1,0 +1,162 @@
+
+@page "/examples"
+<div class="row">
+<div class="col-md-12">
+    </div>
+<div class="col-md-3">
+<h5 class="m-1">@Title of @totalRows Page: @pageNumber</h5>
+</div>
+@if (_serverPaging) {
+<div class="col-md-4">
+        <button title="Go to 1st page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="@(()  => PageUp(true))">
+        <i class="bi bi-skip-backward-fill"></i>
+    </button>
+    <button title="Go to previous page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(()  => PageUp(false))">
+        <i class="bi bi-caret-left-fill"></i>
+    </button>
+    <button title="Go to next page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(() => PageDown(false)) ">
+        <i class="bi bi-caret-right-fill"></i>
+    </button>
+    <button title="Go to last page" type="button"
+        class="btn btn-sm btn-outline-secondary mx-1"
+        @onclick="(()  => PageDown(true))">
+        <i class="bi bi-skip-forward-fill"></i>
+    </button>
+    </div>
+}
+            @if (_serverPaging) {
+            <div class="col-md-4">
+                                <input @ref="SearchInput" accesskey="i"
+                    class="form-control my-1"
+                    style="float:right"
+                    @bind="@SearchTerm"
+                    @bind:event="oninput"
+                    @onblur="ApplyFilter"
+                    id="SearchInput" name="SearchTerm"
+                    placeholder="Filter by Text/Large Text (Alt+I)" />
+                            </div>
+            } else {
+                                <div class="col-md-3">
+                    <input @ref="SearchInput" class="form-control my-1" style="float:right" @bind="@ClientSearchTerm" id="ClientSearchInput"
+                        name="ClientSearchTerm" @bind:event="oninput" placeholder="Filter by Text/Large Text" />
+                </div>
+                            }
+    </div>
+    @if (FilteredExampleDTO == null && _loadFailed == true)
+        {
+        <h2 class="text-danger">The data failed to load
+            please try again in a little while..</h2>
+                    <button class="btn btn-danger" type="button"
+            @onclick="@( () => LoadData() )">Reload</button>
+                <h6 class="text-danger">@ExceptionMessage</h6>
+    }
+    else if (FilteredExampleDTO == null)
+            {
+                        <div style="display:normal;margin:auto"
+                class="loader"></div>
+                        }
+    else if (FilteredExampleDTO.Count ==
+        0)
+        {
+        <p>No Example match the
+                criteria</p>
+                <button @onclick="AddNewExample"
+            class="btn btn-outline-primary  btn-lg">Add
+            Record <i
+                class="bi bi-plus-square"></i></button>
+                }
+    else
+    {
+    <table style="font-size:x-large" class="table table-bordered table-striped table-sm table-responsive-sm">
+        <thead>
+            <tr>
+                                                                <th>
+                                ID
+                            </th>
+                                                                            <th>
+                                Number Value
+                            </th>
+                                                                        <th>
+                                                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="@(() => SortExample("Text"))">
+                                <i class="bi bi-sort-alpha-up"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="@(() => SortExample("Text Desc"))">
+                                <i class="bi bi-sort-alpha-up-alt"></i>
+                            </button>
+                                                        Text
+                        </th>
+                                                                        <th>
+                                Large Text
+                            </th>
+                                                                            <th>
+                                Boolean
+                            </th>
+                                                                        <th>
+                                                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="@(() => SortExample("DateValue"))">
+                                <i class="bi bi-sort-alpha-up"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="@(() => SortExample("DateValue Desc"))">
+                                <i class="bi bi-sort-alpha-up-alt"></i>
+                            </button>
+                                                        Date Value
+                        </th>
+                                                    <th class="btn-group border border-1" style='width:100%'>
+                                                          <button accesskey="+"
+                                    @onclick="AddNewExample" class="btn btn-outline-success btn-sm">
+                                    Create
+                                    <i class="bi bi-plus-square"></i>
+                              </button>
+                                                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var example in FilteredExampleDTO)
+                            {
+                            <tr>
+                                                                    <td style="cursor:pointer" @onclick="@(() => EditExample(example.Id))">
+        <button class="btn btn-sm btn-link">
+        @example.Id
+    </button>
+    </td>
+                                        <td>
+        @example.NumberValue
+    </td>
+                                            <td>
+        @example.Text
+    </td>
+                                            <td>
+        @example.LargeText
+    </td>
+                                            <td>
+        @example.Boolean
+    </td>
+                                            <td>
+        @example.DateValue
+    </td>
+            <td class="btn-group-vertical border border-1" style='width:100%'>
+                        <button class="btn btn-sm btn-outline-warning"
+                @onclick="@(() => EditExample(example.Id))">
+                Edit
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+                @onclick="@(() => DeleteExample(example.Id))">
+                Delete
+                <i class="bi bi-trash"></i>
+            </button>
+                    </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}

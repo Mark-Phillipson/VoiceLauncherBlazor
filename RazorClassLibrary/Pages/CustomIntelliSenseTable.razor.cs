@@ -295,7 +295,6 @@ namespace RazorClassLibrary.Pages
          if (RunningInBlazorHybrid)
          {
             await CloseApplication.InvokeAsync();
-
          }
 
       }
