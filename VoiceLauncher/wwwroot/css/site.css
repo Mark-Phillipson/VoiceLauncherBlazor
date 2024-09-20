@@ -368,3 +368,9 @@ header>h3 {
 	background-color: #252525;
 	color: white;
 }
+
+.card-img-top:focus {
+	border: 2px solid orange;
+	outline: none;
+	/* Optional: Remove default focus outline */
+}

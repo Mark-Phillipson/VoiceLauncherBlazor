@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using DataAccessLibrary.Services;
 using DataAccessLibrary.DTOs;
 using RazorClassLibrary.Shared;
-
 namespace RazorClassLibrary.Pages
 {
     public partial class ExampleTable : ComponentBase
@@ -48,7 +47,7 @@ namespace RazorClassLibrary.Pages
         public string? SearchTerm { get => searchTerm; set { searchTerm = value; } }
         private string? clientSearchedTerm { get; set; }
         public string? ClientSearchTerm { get => clientSearchedTerm; set { clientSearchedTerm = value; ApplyLocalFilter(); } }
-        private bool _serverPaging = true;
+        private bool _serverPaging = false;
         private void ApplyLocalFilter()
         {
             if (FilteredExampleDTO == null || ExampleDTO == null)
@@ -85,7 +84,7 @@ namespace RazorClassLibrary.Pages
         public bool ShowEdit { get; set; } = false;
         private bool ShowDeleteConfirm { get; set; }
         private int pageNumber = 1;
-        private int pageSize = 10;
+        private int pageSize = 1000;
         private int totalRows = 0;
 
         private int ExampleId { get; set; }
@@ -193,14 +192,6 @@ namespace RazorClassLibrary.Pages
             {
                 return;
             }
-            if (sortColumn == "Text")
-            {
-                FilteredExampleDTO = FilteredExampleDTO.OrderBy(v => v.Text).ToList();
-            }
-            else if (sortColumn == "Text Desc")
-            {
-                FilteredExampleDTO = FilteredExampleDTO.OrderByDescending(v => v.Text).ToList();
-            }
             if (sortColumn == "DateValue")
             {
                 FilteredExampleDTO = FilteredExampleDTO.OrderBy(v => v.DateValue).ToList();
@@ -218,10 +209,10 @@ namespace RazorClassLibrary.Pages
             {
                 var example = await ExampleDataService.GetExampleById(Id);
                 parameters.Add("Title", "Please Confirm, Delete Example");
-                parameters.Add("Message", $"Text: {example?.Text}");
+                parameters.Add("Message", $"DateValue: {example?.DateValue}");
                 parameters.Add("ButtonColour", "danger");
                 parameters.Add("Icon", "fa fa-trash");
-                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Example ({example?.Text})?", parameters);
+                var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Example ({example?.DateValue})?", parameters);
                 if (formModal != null)
                 {
                     var result = await formModal.Result;

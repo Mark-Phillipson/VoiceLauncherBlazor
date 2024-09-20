@@ -1,12 +1,13 @@
 .upwork-logo {
-	animation:bounce;
-	animation-duration:5s;
-	animation-iteration-count:5;
-	animation-delay:5s;
-	float:right
+	animation: bounce;
+	animation-duration: 5s;
+	animation-iteration-count: 5;
+	animation-delay: 5s;
+	float: right
 }
+
 .copyright {
-	color: grey;
-	font-size:xx-small;
-	float:left;
+	color: whitesmoke;
+	font-size: small;
+	float: left;
 }

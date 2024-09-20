@@ -44,7 +44,7 @@ namespace RazorClassLibrary.Pages
       public string ExceptionMessage { get; set; } = string.Empty;
       public List<string>? PropertyInfo { get; set; }
       [CascadingParameter] public ClaimsPrincipal? User { get; set; }
-      [Inject] public IJSRuntime? JSRuntime { get; set; }
+      [Inject] public required IJSRuntime JSRuntime { get; set; }
       public bool ShowEdit { get; set; } = false;
       private bool ShowDeleteConfirm { get; set; }
       private int CustomIntelliSenseId { get; set; }
@@ -315,7 +315,7 @@ namespace RazorClassLibrary.Pages
 
          return itemToCopy;
       }
-      private void CopyAndPasteAsync(int customIntellisenseId)
+      private async Task CopyAndPasteAsync(int customIntellisenseId)
       {
          var customIntelliSenseCurrent = FilteredCustomIntelliSenseDTO!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
          if (customIntelliSenseCurrent != null)
@@ -323,6 +323,28 @@ namespace RazorClassLibrary.Pages
             customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
             CustomIntelliSenseDataService.SendSnippet(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
          }
+         await CopyItemAsync(customIntellisenseId);
+
+         // if (JSRuntime != null && customIntelliSenseCurrent != null)
+         // {
+         //    try
+         //    {
+         //       // await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
+         //       await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
+         //    }
+         //    catch (System.Exception exception)
+         //    {
+         //       System.Console.WriteLine(exception.Message);
+         //    }
+         //    var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+         //    ToastService!.ShowSuccess(message);
+         // }
+         await Task.Delay(3000);
+         if (RunningInBlazorHybrid)
+         {
+            await CloseApplication.InvokeAsync();
+         }
+
       }
    }
 }
