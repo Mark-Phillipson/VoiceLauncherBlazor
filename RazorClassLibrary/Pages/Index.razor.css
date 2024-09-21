@@ -6,8 +6,17 @@
 	float: right
 }
 
-.copyright {
+.center {
+	width: 100%;
+	text-align: center;
+	margin: 0 auto;
+}
+
+
+.center-footer {
+	width: 100%;
+	text-align: center;
+	margin: 0 auto;
 	color: whitesmoke;
 	font-size: small;
-	float: left;
 }

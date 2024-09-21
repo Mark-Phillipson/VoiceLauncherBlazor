@@ -1,7 +1,7 @@
 @page "/windowsspeechvoicecommands"
 @page "/windowsspeechvoicecommands/{ServerSearchTerm}"
 @page "/windowsspeechvoicecommands/{Id:int}"
-
+<PageTitle>Windows Speech Voice Commands</PageTitle>
 <div class="row">
     <div class="col-md-4">
         <h5 class="page-title m-1">@Title</h5>
@@ -11,13 +11,15 @@
             <label for="HideActions">Hide Actions (Alt+1) </label>
             <input type="checkbox" accesskey="1" @bind="@_hideActions" class="form-checkbox mx-2" style="width:50px" />
             <label for="ShowAutoCreated">Show Auto Created</label>
-            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-checkbox mx-2" style="width:50px" />
-            @*            <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(  ) )">Create Commands</button>*@
+            <input type="checkbox" @bind="@_showAutoCreated" @onclick="LoadData" class="form-checkbox mx-2"
+                style="width:50px" />
+            @* <button enabled="false" class="btn btn-success" type="button" @onclick="@( ( ) => CreateCommandsDirectly(
+            ) )">Create Commands</button>*@
         </div>
     </div>
     <div class="col-md-4">
         <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
+            @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Spoken Command (Alt+I)" />
     </div>
 </div>
 
@@ -34,7 +36,8 @@ else if (FilteredWindowsSpeechVoiceCommandDTO == null)
 else if (FilteredWindowsSpeechVoiceCommandDTO.Count == 0)
 {
     <p>No Windows Speech Voice Command match the criteria</p>
-    <button @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success">Add Record <i
+            class="fas fa-plus"></i></button>
 }
 else
 {
@@ -51,7 +54,9 @@ else
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-lg">
                         Add <i class="fas fa-plus"></i>
                     </button>
-                    <button class="btn btn-danger btn-lg" type="button" @onclick="@( () => ResetServerFilterAsync() )">Refresh <i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="btn btn-danger btn-lg" type="button"
+                        @onclick="@( () => ResetServerFilterAsync() )">Refresh <i
+                            class="fa-solid fa-arrows-rotate"></i></button>
                 </th>
             </tr>
         </thead>
@@ -81,13 +86,16 @@ else
                         }
                     </td>
                     <td class="btn-group">
-                        <button class="btn btn-primary" @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-primary"
+                            @onclick="@(() => CopyWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="btn btn-warning" @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-warning"
+                            @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-danger" @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
+                        <button class="btn btn-danger"
+                            @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -96,7 +104,8 @@ else
                 {
                     <tr>
                         <td colspan="4">
-                            <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id" Updated="Updated" />
+                            <CustomWindowsSpeechCommandTable WindowsSpeechVoiceCommandId="@windowsSpeechVoiceCommand.Id"
+                                Updated="Updated" />
                         </td>
                     </tr>
                 }

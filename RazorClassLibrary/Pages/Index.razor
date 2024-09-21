@@ -1,161 +1,175 @@
 ﻿@page "/"
-<PageTitle>Voice Admin🎙️</PageTitle>
+<PageTitle>Voice Admin🎙️ Homepage</PageTitle>
 <section class='m-1'>
-	<div class="d-none d-lg-block p-2" style="font-size: 10.5rem;">
-		Voice Admin🎙️
-	</div>
+	<header>
+		<h1 class="d-none d-lg-block p-2" style="font-size: 10.5rem;">
+			Voice Admin🎙️
+		</h1>
+	</header>
 	<br />
-	@* @if (false)
-	{
-	<TalonAlphabetTable ReportView="true" />
-	} *@
-	<article class="d-lg-none" style="display:flex;flex-direction:column">
-		<div class="card m-1" style="width: 15rem;">
-			<div class="card-img-top text-center">
-				<i class="oi oi-microphone"></i>
-			</div>
-			<div class="card-body">
-				<div class="card-title fs-4">Speech Recognition</div>
-				<p class="card-text">Setting up bespoke speech recognition environments.</p>
-				@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
-			</div>
-		</div>
-		<div class="card m-2 p-2" style="width: 15rem;">
-			<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
-					src="/images/BlazorIcon.png" class="card-img-top d-block mx-auto img-responsive"
-					style="max-height:100px;max-width:100px" alt="Blazor Logo"></a>
-			<div class="card-body">
-				<div class="card-title fs-4">Blazor</div>
-				<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
-			</div>
-		</div>
-		<div class="card m-2 p-2" style="width: 15rem;">
-			<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png"
-					class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px"
-					alt="Dot Net Logo"></a>
-			<div class="card-body">
-				<div class="card-title fs-4">MVC ASP.NET</div>
-				<p class="card-text">MVC ASP.NET Web Applications</p>
-			</div>
-		</div>
-	</article>
-	<div class="d-none d-lg-block">
-		<article style="display:flex;flex-direction:row">
-			<div class="card m-2 p-2" style="width: 16rem;">
-				<a href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank">
-					<img src="/images/CSharpLogo.jpeg" class="card-img-top border border-dark border-2" alt="C# Logo">
-				</a>
-				<div class="card-body">
-					<div class="card-title fs-1">C#</div>
-					<p class="card-text">C# is known for its versatility and power, making it a great choice for a wide
-						range of applications from web development to game design.</p>
+	@* <TalonAlphabetTable ReportView="true" />*@
+	<main>
+		<article class="d-lg-none" style="display:flex;flex-direction:column">
+			<div class="card m-1" style="width: 15rem;">
+				<div class="card-img-top text-center">
+					<i class="oi oi-microphone"></i>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 17rem;">
-				<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
-						src="/images/BlazorIcon.png" class="card-img-top" alt="Blazor Logo"></a>
 				<div class="card-body">
-					<div id="focusMe" class="card-title fs-1">Blazor</div>
-					<p class="card-text">Blazor is a powerful framework for creating rich, interactive web applications
-						using C# instead of JavaScript. It simplifies the development process and enhances productivity.
-					</p>
-				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 18rem;">
-				<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png"
-						class="card-img-top" alt="Dot Net Logo"></a>
-				<div class="card-body">
-					<div class="card-title fs-1">MVC ASP.NET</div>
-					<p class="card-text">ASP.NET Core MVC is known for its lightweight, open-source framework that
-						enables a clean separation of concerns and highly testable code.</p>
+					<div class="card-title fs-4">Speech Recognition</div>
+					<p class="card-text">Setting up bespoke speech recognition environments.</p>
+					@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
 				</div>
 			</div>
 			<div class="card m-2 p-2" style="width: 15rem;">
-				<a href="https://visualstudio.microsoft.com/" target="_blank">
-					<img src="/images/VisualStudioLogo.png" class="card-img-top border border-dark border-2"
-						alt="Dot Net Logo">
-				</a>
+				<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
+						src="/images/BlazorIcon.png" class="card-img-top d-block mx-auto img-responsive"
+						style="max-height:100px;max-width:100px" alt="Blazor Logo"></a>
 				<div class="card-body">
-					<div class="card-title fs-1">Visual Studio</div>
-					<p class="card-text">Visual Studio is renowned for its comprehensive suite of tools that support a
-						wide range of programming languages and development tasks, making it a powerful IDE for
-						developers.</p>
+					<div class="card-title fs-4">Blazor</div>
+					<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
 				</div>
 			</div>
+			<div class="card m-2 p-2" style="width: 15rem;">
+				<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png"
+						class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px"
+						alt="Dot Net Logo"></a>
+				<div class="card-body">
+					<div class="card-title fs-4">MVC ASP.NET</div>
+					<p class="card-text">MVC ASP.NET Web Applications</p>
+				</div>
+			</div>
+		</article>
+		<div class="d-none d-lg-block">
+			<article style="display:flex;flex-direction:row">
+				<div class="card m-2 p-2" style="width: 16rem;">
+					<a aria-details='Link to Microsoft languages C#'
+						href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank">
+						<img src="/images/CSharpLogo.jpeg" class="card-img-top border border-dark border-2"
+							alt="C Sharp Logo">
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-1">C Sharp</div>
+						<p class="card-text">C Sharp is known for its versatility and power, making it a great choice
+							for a
+							wide range of applications from web development to game design.</p>
+					</div>
+				</div>
+				<div class="card m-2 p-2" style="width: 17rem;">
+					<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
+							src="/images/BlazorIcon.png" class="card-img-top" alt="Blazor Logo"></a>
+					<div tabindex='0' class="card-body">
+						<div id="focusMe" class="card-title fs-1">Blazor</div>
+						<p class="card-text">Blazor is a powerful framework for creating rich, interactive web
+							applications
+							using C Sharp instead of JavaScript. It simplifies the development process and enhances
+							productivity.
+						</p>
+					</div>
+				</div>
+				<div class="card m-2 p-2" style="width: 18rem;">
+					<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img
+							src="/images/ASP-NET-logo.png" class="card-img-top" alt="Dot Net Logo"></a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-1">MVC ASP.NET</div>
+						<p class="card-text">ASP.NET Core MVC is known for its lightweight, open-source framework that
+							enables a clean separation of concerns and highly testable code.</p>
+					</div>
+				</div>
+				<div class="card m-2 p-2" style="width: 15rem;">
+					<a href="https://visualstudio.microsoft.com/" target="_blank">
+						<img src="/images/VisualStudioLogo.png" class="card-img-top border border-dark border-2"
+							alt="Visual Studio Logo">
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-1">Visual Studio</div>
+						<p class="card-text">Visual Studio is renowned for its comprehensive suite of tools that support
+							a
+							wide range of programming languages and development tasks, making it a powerful IDE for
+							developers.</p>
+					</div>
+				</div>
 
-		</article>
-		<article style="display:flex;flex-direction:row">
-			<div class="card m-2 p-2" style="width: 18rem;">
-				<a href="https://portal.azure.com/#home" target="_blank">
-					<img src="/images/Azure.jpeg" class="card-img-top border border-dark border-2" alt="Azure Logo">
-				</a>
-				<div class="card-body">
-					<div class="card-title fs-3">Azure</div>
-					<p class="card-text">Cloud Computing</p>
+			</article>
+			<article style="display:flex;flex-direction:row">
+				<div class="card m-2 p-2" style="width: 18rem;">
+					<a href="https://portal.azure.com/#home" target="_blank">
+						<img src="/images/Azure.jpeg" class="card-img-top border border-dark border-2" alt="Azure Logo">
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-3">Azure</div>
+						<p class="card-text">Cloud Computing</p>
+					</div>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 9rem;">
-				<a href="https://getbootstrap.com/" target="_blank"><img src="/images/bootstrap-logo-shadow.png"
-						class="card-img-top" alt="Talon Logo"></a>
-				<div class="card-body">
-					<div class="card-title fs-5">Bootstrap</div>
-					<p class="card-text">Build fast, responsive sites.</p>
+				<div class="card m-2 p-2" style="width: 9rem;">
+					<a href="https://getbootstrap.com/" target="_blank"><img src="/images/bootstrap-logo-shadow.png"
+							class="card-img-top" alt="Talon Logo"></a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-5">Bootstrap</div>
+						<p class="card-text">Build fast, responsive sites.</p>
+					</div>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 9rem;">
-				<a href="https://code.visualstudio.com/" target="_blank">
-					<img src="/images/VisualStudioCode.jpeg" class="card-img-top border border-dark border-2"
-						alt="Dot Net Logo">
-				</a>
-				<div class="card-body">
-					<div class="card-title fs-5">VSCode</div>
-					<p class="card-text">Visual Studio Code text editor</p>
+				<div class="card m-2 p-2" style="width: 9rem;">
+					<a href="https://code.visualstudio.com/" target="_blank">
+						<img src="/images/VisualStudioCode.jpeg" class="card-img-top border border-dark border-2"
+							alt="Dot Net Logo">
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-5">VSCode</div>
+						<p class="card-text">Visual Studio Code text editor</p>
+					</div>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 9rem;">
-				<a href="https://www.microasoft.com/en-us/sql-server/" target="_blank">
-					<img src="/images/SQLServerLogo.jpeg" class="card-img-top border border-dark border-2"
-						alt="SQLServer Logo">
-				</a>
-				<div class="card-body">
-					<div class="card-title fs-5">MS SQL Server</div>
-					<p class="card-text">Database management system.</p>
+				<div class="card m-2 p-2" style="width: 9rem;">
+					<a href="https://www.microasoft.com/en-us/sql-server/" target="_blank">
+						<img src="/images/SQLServerLogo.jpeg" class="card-img-top border border-dark border-2"
+							alt="SQLServer Logo">
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-5">MS SQL Server</div>
+						<p class="card-text">Database management system.</p>
+					</div>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 9rem;">
-				<a href="https://talonvoice.com/" target="_blank"><img src="/images/Talon.png" class="card-img-top"
-						alt="Talon Logo"></a>
-				<div class="card-body">
-					<div class="card-title fs-5">Talon</div>
-					<p class="card-text">Powerful hands-free input</p>
+				<div class="card m-2 p-2" style="width: 9rem;">
+					<a href="https://talonvoice.com/" target="_blank"><img src="/images/Talon.png" class="card-img-top"
+							alt="Talon Logo"></a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-5">Talon</div>
+						<p class="card-text">Powerful hands-free input</p>
+					</div>
 				</div>
-			</div>
-			<div class="card m-2 p-2" style="width: 10rem;">
-				<a href="https://www.microsoft.com/en-us/sql-server/" target="_blank">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1920 1920" title="Logo"
-						width="130px" height="130px">
-						<path fill="currentColor"
-							d="M960.001 237.896c180.579 0 346.359 72.247 476.599 192.984C1388.26 184.524 1193.47 0 960.001 0 726.538 0 531.747 184.524 483.405 431.206c130.24-120.738 296.024-193.31 476.596-193.31M960.001 1681.92c-180.572 0-346.356-72.3-476.596-193.13C531.747 1735.34 726.538 1920 960.001 1920c233.469 0 428.259-184.66 476.599-431.21-130.24 120.83-296.02 193.13-476.599 193.13M238.075 960c0-180.571 72.302-346.356 193.131-476.595C184.663 531.747 0 726.537 0 960c0 233.47 184.663 428.26 431.206 476.6-120.503-130.24-193.131-296.02-193.131-476.6M1681.92 960c0 180.58-72.3 346.36-193.13 476.6C1735.34 1388.26 1920 1193.47 1920 960c0-233.463-184.66-428.253-431.21-476.595C1609.62 613.644 1681.92 779.429 1681.92 960">
-						</path>
-					</svg>
-				</a>
-				<div class="card-body">
-					<div class="card-title fs-5">Cursorless</div>
-					<p class="card-text">VSCode Extension.</p>
+				<div class="card m-2 p-2" style="width: 10rem;">
+					<a href="https://www.microsoft.com/en-us/sql-server/" target="_blank">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1920 1920" title="Logo"
+							width="130px" height="130px">
+							<path fill="currentColor"
+								d="M960.001 237.896c180.579 0 346.359 72.247 476.599 192.984C1388.26 184.524 1193.47 0 960.001 0 726.538 0 531.747 184.524 483.405 431.206c130.24-120.738 296.024-193.31 476.596-193.31M960.001 1681.92c-180.572 0-346.356-72.3-476.596-193.13C531.747 1735.34 726.538 1920 960.001 1920c233.469 0 428.259-184.66 476.599-431.21-130.24 120.83-296.02 193.13-476.599 193.13M238.075 960c0-180.571 72.302-346.356 193.131-476.595C184.663 531.747 0 726.537 0 960c0 233.47 184.663 428.26 431.206 476.6-120.503-130.24-193.131-296.02-193.131-476.6M1681.92 960c0 180.58-72.3 346.36-193.13 476.6C1735.34 1388.26 1920 1193.47 1920 960c0-233.463-184.66-428.253-431.21-476.595C1609.62 613.644 1681.92 779.429 1681.92 960">
+							</path>
+						</svg>
+					</a>
+					<div tabindex='0' class="card-body">
+						<div class="card-title fs-5">Cursorless</div>
+						<p class="card-text">VSCode Extension.</p>
+					</div>
 				</div>
-			</div>
-		</article>
-	</div>
-	<p class='m-5 fs-5'>Fullstack developer in Blazor and ASP.NET, MVC, Web API, Entity Framework, JavaScript Blazor
-		Hybrid.
+			</article>
+		</div>
+		<section title="Latest YouTube Videos">
+			@* <video src="https://youtu.be/UtnEG0E_rg8" poster="\images\VoiceCommandsScreenshot.png">
+			</video> *@
+			<iframe width="200" height="200." src="https://www.youtube.com/embed/UtnEG0E_rg8" frameborder="0"
+				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+				allowfullscreen></iframe>
+		</section>
+	</main>
+	<p class='m-5 fs-5'>Fullstack developer in Blazor and ASP.NET, MVC, Web API, Entity Framework, JavaScript
+		Blazor Hybrid.
 	</p>
 	<br />
 	<div class="upwork-logo">
 		<a title="Click to View My Upwork Profile" target="_blank" href="https://www.upwork.com/fl/markp2"
 			class="btn btn-lg btn-outline-primary">
-			<img src="/images/Upworklogo.png" alt="" class="d-block mx-auto img-responsive" width="50" />
+			<img src="/images/Upworklogo.png" alt="Upwork Logo" class="d-block mx-auto img-responsive" width="50" />
 		</a>
 	</div>
 </section>
-<div class="copyright text-center">&copy; Voice Admin @DateTime.Now.Year, Powered by
-	@System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription</div>
+<footer class="center-footer">&copy; Voice Admin @DateTime.Now.Year, Powered by
+	@System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription</footer>

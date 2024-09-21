@@ -1,21 +1,22 @@
-
 @page "/prompts"
+<PageTitle>AI Prompts for Chat Application</PageTitle>
 <div class="row">
-<div class="col-md-12">
+    <div class="col-md-12">
     </div>
     <div class="col-md-8">
         <h5 class="m-1">@Title</h5>
     </div>
     <div class="col-md-4">
-        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm" 
-        @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Prompt Text/Description (Alt+I)" />
-    </div> 
+        <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
+            @bind:event="oninput" id="SearchInput" name="SearchTerm"
+            placeholder="Filter by Prompt Text/Description (Alt+I)" />
+    </div>
 </div>
 
 @if (FilteredPromptDTO == null && _loadFailed == true)
 {
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )"> Reload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
 else if (FilteredPromptDTO == null)
@@ -32,8 +33,8 @@ else
     <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
         <thead>
             <tr>
-              <th>Id</th>
-              <th>
+                <th>Id</th>
+                <th>
                     <button class="btn btn-sm" @onclick="@(() => SortPrompt("PromptText"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
@@ -42,8 +43,8 @@ else
                     </button>
                     Prompt Text
                 </th>
-              <th>Description</th>
-              <th>
+                <th>Description</th>
+                <th>
                     <button class="btn btn-sm" @onclick="@(() => SortPrompt("IsDefault"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>

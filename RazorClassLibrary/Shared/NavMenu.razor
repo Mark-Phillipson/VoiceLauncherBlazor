@@ -10,80 +10,80 @@
 	<ul class="nav flex-column">
 		<li class="nav-item px-3">
 			<NavLink accesskey=">" class="nav-link" href="" Match="NavLinkMatch.All" @onclick="MenuItemSelected">
-				<span class="oi oi-home" aria-hidden="true"></span> Home (>)
+				<span aria-hidden="true"><kbd class='mr-1'>></kbd></span> <span>&nbsp; Home </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="?" class="nav-link" href="globalsearch" @onclick="MenuItemSelected">
-				<span class="oi fa-solid fa-magnifying-glass" aria-hidden="true"></span> Search (?)
+				<span aria-hidden="true"><kbd class='mr-1'>?</kbd></span> <span>&nbsp; Search </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="£" @onclick="@(()=>LoadCategories("Launch Applications"))">
-				<span class="oi oi-media-play" aria-hidden="true"></span><span>Launch Categories (£)</span>
+				<span aria-hidden="true"><kbd class='mr-1'>£</kbd></span> <span>&nbsp; Launch Categories </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="$" class="nav-link" href="launcherstable/0" @onclick="MenuItemSelected">
-				<i class="oi fa-solid fa-rocket"></i> Launchers ($)
+				<span aria-hidden="true"><kbd class='mr-1'>$</kbd></span> <span>&nbsp; Launches </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" href="launchersfavourites" accesskey="%" @onclick="MenuItemSelected">
-				<i class="oi fa-solid fa-star"></i> Favorites (%)
+				<span aria-hidden="true"><kbd class='mr-1'>%</kbd></span> <span>&nbsp; Favorites </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="*" class="nav-link" href="languages" @onclick="MenuItemSelected">
-				<span class="oi oi-flag" aria-hidden="true"></span> Languages (*)
+				<span aria-hidden="true"><kbd class='mr-1'>*</kbd></span> <span>&nbsp; Languages </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="(" @onclick="@(()=>LoadCategories("IntelliSense Command"))">
-				<span class="oi oi-media-play" aria-hidden="true"></span><span>Snippet Category [(]</span>
+				<span aria-hidden="true"><kbd class='mr-1'>(</kbd></span> <span>&nbsp; Snippet Category </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="!" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
-				<span class="oi oi-spreadsheet" aria-hidden="true"></span> Snippets (!)
+				<span aria-hidden="true"><kbd class='mr-1'>!</kbd></span> <span>&nbsp; Snippets </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="/" class="nav-link" href="formatters">
-				<span class="oi oi-bold" aria-hidden="true"></span> Formatters (/)
+				<span aria-hidden="true"><kbd class='mr-1'>/</kbd></span> <span>&nbsp; Formatters </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="=" class="nav-link" href="cursorlesscheatsheetitems">
-				<span class="oi oi-book" aria-hidden="true"></span> Cursorless (=)
+				<span aria-hidden="true"><kbd class='mr-1'>=</kbd></span> <span>&nbsp; Cursorless </span>
 			</NavLink>
 		</li>
 		@if (Environment.MachineName == "J40L4V3")
 		{
 			<li class="nav-item px-3">
 				<NavLink class="nav-link" href="googlecalendar" accesskey=")" @onclick="MenuItemSelected">
-					<span class="oi oi-calendar" aria-hidden="true"></span>Calendar [)]
+					<span aria-hidden="true"><kbd class='mr-1'>)</kbd></span> <span>&nbsp; Calendar </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
 				<NavLink class="nav-link" href="overspill" accesskey="^" @onclick="MenuItemSelected">
-					<span class="oi oi-menu" aria-hidden="true"></span> <span>More (^) ...</span>
+					<span aria-hidden="true"><kbd class='mr-1'>^</kbd></span> <span>&nbsp; More ... </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
 				<NavLink accesskey="&" class="nav-link" href="todos" @onclick="MenuItemSelected">
-					<span class="oi oi-task" aria-hidden="true"></span> Todo (&)
+					<span aria-hidden="true"><kbd class='mr-1'>&</kbd></span> <span>&nbsp; Todo </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
 				<NavLink class="nav-link" href="chat">
-					<span class="oi oi-image" aria-hidden="true"></span> AI Chatbot
+					<span class="oi oi-chat" aria-hidden="true"></span> AI Chatbot
 				</NavLink>
 			</li>
 		}
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" href="smart-components">
-				<span class="oi oi-image" aria-hidden="true"></span> AI Smart Components
+				<span class="oi oi-code" aria-hidden="true"></span> AI Smart Components
 			</NavLink>
 		</li>
 	</ul>

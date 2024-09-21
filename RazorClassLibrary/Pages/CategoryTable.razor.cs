@@ -22,6 +22,7 @@ namespace RazorClassLibrary.Pages
 		[Inject] public IToastService? ToastService { get; set; }
 		[CascadingParameter] public IModalService? Modal { get; set; }
 		public string Title { get; set; } = "Category Items (Categories)";
+		public string pageTitle { get; set; } = "Snippet Categories";
 		public List<CategoryDTO>? CategoryDTO { get; set; }
 		public List<CategoryDTO>? FilteredCategoryDTO { get; set; }
 		protected CategoryAddEdit? CategoryAddEdit { get; set; }
@@ -81,6 +82,11 @@ namespace RazorClassLibrary.Pages
 				}
 				if (CategoryDataService != null)
 				{
+					pageTitle = "Snippet Categories";
+					if (CategoryType == "Launch Applications")
+					{
+						pageTitle = "Launcher Categories";
+					}
 					List<CategoryDTO> result;
 					if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
 					{

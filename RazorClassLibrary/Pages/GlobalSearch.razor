@@ -1,9 +1,13 @@
 ﻿@page "/globalsearch"
-<h3>Global Search</h3>
-<div class='row'>
+<PageTitle>Global Search for Relevant Tables</PageTitle>
+<heading>
+    <h1>Global Search</h1>
+</heading>
+<main class='row'>
     <div class='col-12'>
-        <label for="searchTerm" accesskey="s" ><u>S</u>earch</label>
-        <input  id='searchTerm' type="text" @bind-value="@searchTerm" placeholder="Enter a Search Value Here :)" class='form-control'
+        <label for="searchTerm" accesskey="s">Search <kbd>Alt</kbd>+<kbd>S</kbd></label>
+        <input id='searchTerm' type="text" @bind-value="@searchTerm"
+            placeholder="Enter a Search Value Here and Search Relevant Tables :)" class='form-control'
             @bind-value:event="oninput" />
     </div>
     <div class='col-6'>
@@ -36,4 +40,4 @@
             <ValueToInsertTable GlobalSearchTerm="@searchTerm" />
         }
     </div>
-</div>
+</main>
