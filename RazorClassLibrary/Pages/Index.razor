@@ -1,21 +1,21 @@
 ﻿@page "/"
 <PageTitle>Voice Admin🎙️ Homepage</PageTitle>
-<section class='m-1'>
+<div class='m-1'>
 	<header>
 		<h1 class="d-none d-lg-block p-2" style="font-size: 10.5rem;">
 			Voice Admin🎙️
 		</h1>
 	</header>
-	<br />
-	@* <TalonAlphabetTable ReportView="true" />*@
 	<main>
+		<p>Development Powered By:</p>
+		@* <TalonAlphabetTable ReportView="true" />*@
 		<article class="d-lg-none" style="display:flex;flex-direction:column">
 			<div class="card m-1" style="width: 15rem;">
 				<div class="card-img-top text-center">
 					<i class="oi oi-microphone"></i>
 				</div>
-				<div class="card-body">
-					<div class="card-title fs-4">Speech Recognition</div>
+				<div tabindex='0' class="card-body">
+					<div class="card-title fs-4">Speech Recognition Consultant</div>
 					<p class="card-text">Setting up bespoke speech recognition environments.</p>
 					@*<a href="#" class="btn btn-primary">Go somewhere</a>*@
 				</div>
@@ -24,7 +24,7 @@
 				<a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank"><img
 						src="/images/BlazorIcon.png" class="card-img-top d-block mx-auto img-responsive"
 						style="max-height:100px;max-width:100px" alt="Blazor Logo"></a>
-				<div class="card-body">
+				<div tabindex='0' class="card-body">
 					<div class="card-title fs-4">Blazor</div>
 					<p class="card-text">Blazor Server/Client WebAssembly Applications</p>
 				</div>
@@ -33,7 +33,7 @@
 				<a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank"><img src="/images/ASP-NET-logo.png"
 						class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px"
 						alt="Dot Net Logo"></a>
-				<div class="card-body">
+				<div tabindex='0' class="card-body">
 					<div class="card-title fs-4">MVC ASP.NET</div>
 					<p class="card-text">MVC ASP.NET Web Applications</p>
 				</div>
@@ -42,8 +42,7 @@
 		<div class="d-none d-lg-block">
 			<article style="display:flex;flex-direction:row">
 				<div class="card m-2 p-2" style="width: 16rem;">
-					<a aria-details='Link to Microsoft languages C#'
-						href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank">
+					<a href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank">
 						<img src="/images/CSharpLogo.jpeg" class="card-img-top border border-dark border-2"
 							alt="C Sharp Logo">
 					</a>
@@ -152,24 +151,49 @@
 				</div>
 			</article>
 		</div>
-		<section title="Latest YouTube Videos">
-			@* <video src="https://youtu.be/UtnEG0E_rg8" poster="\images\VoiceCommandsScreenshot.png">
-			</video> *@
-			<iframe width="200" height="200." src="https://www.youtube.com/embed/UtnEG0E_rg8" frameborder="0"
+	</main>
+</div>
+
+<section class="center-content" title='My Details'>
+	<p>My Details:</p>
+	<article style="display:flex;flex-direction:row">
+		<div class="card m-2 p-2" style="width: 20rem;">
+			<a target='_blank' title='My Github Site' href="https://github.com/Mark-Phillipson/">
+				<img width="300" src='/images/githublogo.png' /></a>
+			<div tabindex='0' class="card-body">
+				<div class="card-title fs-1">My Github</div>
+				<p class="card-text">My Source Code Repositories on Github</p>
+			</div>
+		</div>
+		<div class="card m-2 p-2" style="width: 20rem;">
+			<iframe title='Voice Coding Demo on YouTube' width="300" height="200"
+				src="https://www.youtube.com/embed/UtnEG0E_rg8" frameborder="0"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 				allowfullscreen></iframe>
-		</section>
-	</main>
-	<p class='m-5 fs-5'>Fullstack developer in Blazor and ASP.NET, MVC, Web API, Entity Framework, JavaScript
-		Blazor Hybrid.
-	</p>
-	<br />
-	<div class="upwork-logo">
-		<a title="Click to View My Upwork Profile" target="_blank" href="https://www.upwork.com/fl/markp2"
-			class="btn btn-lg btn-outline-primary">
-			<img src="/images/Upworklogo.png" alt="Upwork Logo" class="d-block mx-auto img-responsive" width="50" />
-		</a>
-	</div>
+			<div tabindex='0' class="card-body">
+				<div id="focusMe" class="card-title fs-1">Voice Coding</div>
+				<p class="card-text">Voice Coding Demo on YouTube</p>
+				<a href="https://www.youtube.com/@@MPhillipson007">YouTube Channel</a>
+			</div>
+		</div>
+		<div class="card m-2 p-2" style="width: 27.5rem;">
+			<a title="Click to View My Upwork Profile" target="_blank" href="https://www.upwork.com/fl/markp2"
+				class="btn btn-lg btn-outline-primary">
+				<img src="/images/Upworklogo.png" alt="Upwork Logo" class="d-block mx-auto img-responsive"
+					width="250" />
+			</a>
+			<div tabindex='0' class="card-body">
+				<div class="card-title fs-1">Upwork Freelancer</div>
+				<p class="card-text">Fullstack developer in Blazor, Blazor Hybrid and ASP.NET, MVC, Web API, Entity
+					Framework Core.
+				</p>
+			</div>
+		</div>
+
+	</article>
 </section>
+
 <footer class="center-footer">&copy; Voice Admin @DateTime.Now.Year, Powered by
-	@System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription</footer>
+	@System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
+	@System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier
+</footer>

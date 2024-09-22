@@ -49,7 +49,7 @@ else if (FilteredCustomIntelliSenseDTO == null)
 else if (FilteredCustomIntelliSenseDTO.Count == 0)
 {
 	<p>No Custom Intelli Sense match the criteria @GlobalSearchTerm</p>
-	<button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success">Add Record <i
+	<button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-light">Add Record <i
 			class="fas fa-plus"></i></button>
 }
 else
@@ -109,7 +109,7 @@ else
 									{
 										@customIntelliSense.SendKeysValue
 									}
-											</code>
+																	</code>
 							}
 						</div>
 						@if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))

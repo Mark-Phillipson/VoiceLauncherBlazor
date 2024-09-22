@@ -90,9 +90,8 @@ namespace RazorClassLibrary.Pages
                if (result != null)
                {
                   CustomIntelliSenseDTO = result.ToList();
-                  //Paging Here instead
-                  FilteredCustomIntelliSenseDTO = result.Skip((pageNumber - 1) * pageSize)
-                  .Take(pageSize).ToList();
+                  FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO;
+                  ApplyFilter();
                   StateHasChanged();
                }
             }

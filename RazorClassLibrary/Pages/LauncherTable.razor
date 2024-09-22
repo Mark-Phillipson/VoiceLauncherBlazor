@@ -16,7 +16,7 @@
     else
     {
         <div class="col-md-12">
-            <div class="text-center">
+            <div class="text-center text-info">
                 Launch Search Results: @GlobalSearchTerm
             </div>
         </div>
@@ -24,7 +24,7 @@
     <div class="col-md-3">
         @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <label accesskey="1" for="CategoryId" class='fs-15 m-1'>Categories (Alt+1)</label>
+            <label accesskey="1" for="CategoryId" class='fs-6 m-1'>Categories (Alt+1)</label>
         }
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
@@ -98,40 +98,52 @@ else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <a accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success" target="_blank"
-                                href="@launcher.CommandLine"><img height="50" src='/images/@launcher.Icon' /> <u>@currentLetter</u>
-                                @launcher.Name</a>
+                            <a title="Launch Application or Website" accesskey="@currentLetter" style="font-size:large"
+                                class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine">
+                                <img alt='Stock Item Logo' height="50" src='/images/@launcher.Icon' aria-hidden="true" />
+                                <u>@currentLetter</u> @launcher.Name
+                            </a>
                         }
                         else
                         {
-                            <a accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2" target="_blank"
-                                href="@launcher.CommandLine"><i class="fa-solid fa-rocket"></i> <u>@currentLetter</u> @launcher.Name</a>
+                            <a title='Launch Application or Website' accesskey="@currentLetter" style="font-size:large"
+                                class="btn btn-outline-success mx-2" target="_blank" href="@launcher.CommandLine">
+                                <i aria-hidden='true' class="fa-solid fa-rocket"></i>
+                                <u>@currentLetter</u> @launcher.Name
+                            </a>
                         }
                     }
                     else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
-                            <button accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2"
-                                type="button" @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )"><img class="" height="35"
-                                    src='/images/@launcher.Icon' /> <u>@currentLetter</u> @launcher.Name</button>
+                            <button title='Launch Application or Website' accesskey="@currentLetter" style="font-size:large"
+                                class="btn btn-outline-success text-light mx-2" type="button"
+                                @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">
+                                <img aria-hidden='true' class="" height="35" src='/images/@launcher.Icon' />
+                                <u>@currentLetter</u> @launcher.Name
+                            </button>
                         }
                         else
                         {
-                            <button accesskey="@currentLetter" style="font-size:large" class="btn btn-outline-success mx-2"
-                                type="button" @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">🚀 <u>@currentLetter</u>
-                                @launcher.Name</button>
+                            <button title='Launch Application or Website' accesskey="@currentLetter" style="font-size:large"
+                                class="btn btn-outline-success mx-2" type="button"
+                                @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">
+                                🚀 <u>@currentLetter</u>
+                                @launcher.Name
+                            </button>
 
                         }
                     }
                     @if (!RunningInBlazorHybrid)
                     {
 
-                        <button class="btn-narrow btn btn-lg btn-outline-warning m-1"
+                        <button title='Edit Launcher' class="btn-narrow btn btn-lg btn-outline-warning m-1"
                             @onclick="@(() => EditLauncherAsync(launcher.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
+                        <button title='Delete Launcher' class="btn btn-lg btn-outline-danger"
+                            @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     }

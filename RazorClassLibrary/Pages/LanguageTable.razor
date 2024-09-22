@@ -27,7 +27,8 @@ else if (FilteredLanguageDTO == null)
 else if (FilteredLanguageDTO.Count == 0)
 {
     <p>No Languages match the criteria @GlobalSearchTerm</p>
-    @if (string.IsNullOrWhiteSpace(GlobalSearchTerm)) { 
+    @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+    {
         <button @onclick="AddNewLanguage" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
     }
 }
@@ -38,10 +39,11 @@ else
             <tr>
                 <th>ID</th>
                 <th>
-                    <button class="btn btn-sm" @onclick="@(() => SortLanguage("Language"))">
+                    <button aria-label="Sort Ascending" class="btn btn-sm" @onclick="@(() => SortLanguage("Language"))">
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
-                    <button class="btn btn-sm" @onclick="@(() => SortLanguage("Language Desc"))">
+                    <button aria-label="Sort Descending" class="btn btn-sm"
+                        @onclick="@(() => SortLanguage("Language Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
                     Language
@@ -51,7 +53,8 @@ else
                 <th>
                     @if (string.IsNullOrEmpty(GlobalSearchTerm))
                     {
-                        <button accesskey="+" @onclick="AddNewLanguage" class="btn btn-outline-success btn-sm">
+                        <button title='Add New Language' accesskey="+" @onclick="AddNewLanguage"
+                            class="btn btn-outline-success btn-sm">
                             <i class="fas fa-plus"></i>
                         </button>
                     }
@@ -63,7 +66,8 @@ else
             {
                 <tr>
                     <td>
-                        <button class="btn btn-sm btn-link" @onclick="@(() => EditLanguage(language.Id))">
+                        <button aria-label='Edit Language' class="btn btn-sm btn-link bg-light"
+                            @onclick="@(() => EditLanguage(language.Id))">
                             @language.Id
                         </button>
                     </td>
@@ -71,10 +75,12 @@ else
                     <td>@language.Active</td>
                     <td>@language.Colour</td>
                     <td class="btn-group-vertical">
-                        <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditLanguage(language.Id))">
+                        <button aria-label='Edit Language' class="btn btn-sm btn-outline-warning"
+                            @onclick="@(() => EditLanguage(language.Id))">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteLanguage(language.Id))">
+                        <button aria-label='Delete Language' class="btn btn-sm btn-outline-danger"
+                            @onclick="@(() => DeleteLanguage(language.Id))">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
