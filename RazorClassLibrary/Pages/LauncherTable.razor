@@ -52,7 +52,7 @@
     }
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-
+        <label for='SearchInput' class="sr-only">Type to Filter</label>
         <div class="col-md-2">
             <input @ref="SearchInput" accesskey="3" class="form-control my-1" style="float:right" @bind="@SearchTerm"
                 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
@@ -120,7 +120,7 @@ else
                             <button title='Launch Application or Website' accesskey="@currentLetter" style="font-size:large"
                                 class="btn btn-outline-success text-light mx-2" type="button"
                                 @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">
-                                <img aria-hidden='true' class="" height="35" src='/images/@launcher.Icon' />
+                                <img alt="Stock Image" aria-hidden='true' class="" height="35" src='/images/@launcher.Icon' />
                                 <u>@currentLetter</u> @launcher.Name
                             </button>
                         }

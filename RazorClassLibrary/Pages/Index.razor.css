@@ -11,20 +11,3 @@
 	text-align: center;
 	margin: 0 auto;
 }
-
-
-.center-footer {
-	width: 100%;
-	text-align: center;
-	margin: 0 auto;
-	color: whitesmoke;
-	font-size: small;
-}
-
-.center-content {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-}

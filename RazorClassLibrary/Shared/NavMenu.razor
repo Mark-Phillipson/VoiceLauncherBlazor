@@ -5,74 +5,263 @@
 		</button>
 	</div>
 </div>
-
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
 	<ul class="nav flex-column">
 		<li class="nav-item px-3">
-			<NavLink accesskey=">" class="nav-link" href="" Match="NavLinkMatch.All" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>></kbd></span> <span>&nbsp; Home </span>
+			<button class='btn btn-sm btn-secondary' @onclick="ToggleAccessKeys">Toggle Access Keys</button>
+		</li>
+		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey(">")" class="nav-link" href="" Match="NavLinkMatch.All"
+				@onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>></kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-house" viewBox="0 0 16 16">
+							<path
+								d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Home </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="?" class="nav-link" href="globalsearch" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>?</kbd></span> <span>&nbsp; Search </span>
+			<NavLink accesskey="@GetAccessKey("?")" class="nav-link" href="globalsearch" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>?</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-search" viewBox="0 0 16 16">
+							<path
+								d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+						</svg>
+					}
+				</span> <span>&nbsp; Search </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" accesskey="£" @onclick="@(()=>LoadCategories("Launch Applications"))">
-				<span aria-hidden="true"><kbd class='mr-1'>£</kbd></span> <span>&nbsp; Launch Categories </span>
+			<NavLink class="nav-link" accesskey="@GetAccessKey("£")"
+				@onclick="@(()=>LoadCategories("Launch Applications"))">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>£</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-tags" viewBox="0 0 16 16">
+							<path
+								d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586z" />
+							<path
+								d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Launch Categories </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="$" class="nav-link" href="launcherstable/0" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>$</kbd></span> <span>&nbsp; Launches </span>
+			<NavLink accesskey="@GetAccessKey("$")" class="nav-link" href="launcherstable/0"
+				@onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>$</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-rocket" viewBox="0 0 16 16">
+							<path d="M8 8c.828 0 1.5-.895 1.5-2S8.828 4 8 4s-1.5.895-1.5 2S7.172 8 8 8" />
+							<path
+								d="M11.953 8.81c-.195-3.388-.968-5.507-1.777-6.819C9.707 1.233 9.23.751 8.857.454a3.5 3.5 0 0 0-.463-.315A2 2 0 0 0 8.25.064.55.55 0 0 0 8 0a.55.55 0 0 0-.266.073 2 2 0 0 0-.142.08 4 4 0 0 0-.459.33c-.37.308-.844.803-1.31 1.57-.805 1.322-1.577 3.433-1.774 6.756l-1.497 1.826-.004.005A2.5 2.5 0 0 0 2 12.202V15.5a.5.5 0 0 0 .9.3l1.125-1.5c.166-.222.42-.4.752-.57.214-.108.414-.192.625-.281l.198-.084c.7.428 1.55.635 2.4.635s1.7-.207 2.4-.635q.1.044.196.083c.213.09.413.174.627.282.332.17.586.348.752.57l1.125 1.5a.5.5 0 0 0 .9-.3v-3.298a2.5 2.5 0 0 0-.548-1.562zM12 10.445v.055c0 .866-.284 1.585-.75 2.14.146.064.292.13.425.199.39.197.8.46 1.1.86L13 14v-1.798a1.5 1.5 0 0 0-.327-.935zM4.75 12.64C4.284 12.085 4 11.366 4 10.5v-.054l-.673.82a1.5 1.5 0 0 0-.327.936V14l.225-.3c.3-.4.71-.664 1.1-.861.133-.068.279-.135.425-.199M8.009 1.073q.096.06.226.163c.284.226.683.621 1.09 1.28C10.137 3.836 11 6.237 11 10.5c0 .858-.374 1.48-.943 1.893C9.517 12.786 8.781 13 8 13s-1.517-.214-2.057-.607C5.373 11.979 5 11.358 5 10.5c0-4.182.86-6.586 1.677-7.928.409-.67.81-1.082 1.096-1.32q.136-.113.236-.18Z" />
+							<path
+								d="M9.479 14.361c-.48.093-.98.139-1.479.139s-.999-.046-1.479-.139L7.6 15.8a.5.5 0 0 0 .8 0z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Launches </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="launchersfavourites" accesskey="%" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>%</kbd></span> <span>&nbsp; Favorites </span>
+			<NavLink class="nav-link" href="launchersfavourites" accesskey="@GetAccessKey("%")"
+				@onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>%</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-star" viewBox="0 0 16 16">
+							<path
+								d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Favorites </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="*" class="nav-link" href="languages" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>*</kbd></span> <span>&nbsp; Languages </span>
+			<NavLink accesskey="@GetAccessKey("*")" class="nav-link" href="languages" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>*</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-translate" viewBox="0 0 16 16">
+							<path
+								d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286zm1.634-.736L5.5 3.956h-.049l-.679 2.022z" />
+							<path
+								d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm7.138 9.995q.289.451.63.846c-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6 6 0 0 1-.415-.492 2 2 0 0 1-.94.31" />
+						</svg>
+					}
+				</span> <span>&nbsp; Languages </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" accesskey="(" @onclick="@(()=>LoadCategories("IntelliSense Command"))">
-				<span aria-hidden="true"><kbd class='mr-1'>(</kbd></span> <span>&nbsp; Snippet Category </span>
+			<NavLink class="nav-link" accesskey="@GetAccessKey("(")"
+				@onclick="@(()=>LoadCategories("IntelliSense Command"))">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>(</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag"
+							viewBox="0 0 16 16">
+							<path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0" />
+							<path
+								d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1m0 5.586 7 7L13.586 9l-7-7H2z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Snippet Category </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="!" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
-				<span aria-hidden="true"><kbd class='mr-1'>!</kbd></span> <span>&nbsp; Snippets </span>
+			<NavLink accesskey="@GetAccessKey("!")" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>!</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-braces" viewBox="0 0 16 16">
+							<path
+								d="M2.114 8.063V7.9c1.005-.102 1.497-.615 1.497-1.6V4.503c0-1.094.39-1.538 1.354-1.538h.273V2h-.376C3.25 2 2.49 2.759 2.49 4.352v1.524c0 1.094-.376 1.456-1.49 1.456v1.299c1.114 0 1.49.362 1.49 1.456v1.524c0 1.593.759 2.352 2.372 2.352h.376v-.964h-.273c-.964 0-1.354-.444-1.354-1.538V9.663c0-.984-.492-1.497-1.497-1.6M13.886 7.9v.163c-1.005.103-1.497.616-1.497 1.6v1.798c0 1.094-.39 1.538-1.354 1.538h-.273v.964h.376c1.613 0 2.372-.759 2.372-2.352v-1.524c0-1.094.376-1.456 1.49-1.456V7.332c-1.114 0-1.49-.362-1.49-1.456V4.352C13.51 2.759 12.75 2 11.138 2h-.376v.964h.273c.964 0 1.354.444 1.354 1.538V6.3c0 .984.492 1.497 1.497 1.6" />
+						</svg>
+					}
+				</span> <span>&nbsp; Snippets </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="/" class="nav-link" href="formatters">
-				<span aria-hidden="true"><kbd class='mr-1'>/</kbd></span> <span>&nbsp; Formatters </span>
+			<NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="formatters">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>/</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic"
+							viewBox="0 0 16 16">
+							<path
+								d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5" />
+							<path
+								d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3" />
+						</svg>
+					}
+				</span> <span>&nbsp; Formatters </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="=" class="nav-link" href="cursorlesscheatsheetitems">
-				<span aria-hidden="true"><kbd class='mr-1'>=</kbd></span> <span>&nbsp; Cursorless </span>
+			<NavLink accesskey="@GetAccessKey("=")" class="nav-link" href="cursorlesscheatsheetitems">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>=</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-messenger" viewBox="0 0 16 16">
+							<path
+								d="M0 7.76C0 3.301 3.493 0 8 0s8 3.301 8 7.76-3.493 7.76-8 7.76c-.81 0-1.586-.107-2.316-.307a.64.64 0 0 0-.427.03l-1.588.702a.64.64 0 0 1-.898-.566l-.044-1.423a.64.64 0 0 0-.215-.456C.956 12.108 0 10.092 0 7.76m5.546-1.459-2.35 3.728c-.225.358.214.761.551.506l2.525-1.916a.48.48 0 0 1 .578-.002l1.869 1.402a1.2 1.2 0 0 0 1.735-.32l2.35-3.728c.226-.358-.214-.761-.551-.506L9.728 7.381a.48.48 0 0 1-.578.002L7.281 5.98a1.2 1.2 0 0 0-1.735.32z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Cursorless </span>
 			</NavLink>
 		</li>
 		@if (Environment.MachineName == "J40L4V3")
 		{
 			<li class="nav-item px-3">
-				<NavLink class="nav-link" href="googlecalendar" accesskey=")" @onclick="MenuItemSelected">
-					<span aria-hidden="true"><kbd class='mr-1'>)</kbd></span> <span>&nbsp; Calendar </span>
+				<NavLink class="nav-link" href="googlecalendar" accesskey="@GetAccessKey(")")" @onclick="MenuItemSelected">
+					<span aria-hidden="true">
+						@if (accessKeysEnabled)
+						{
+							<kbd class='mr-1'>)</kbd>
+						}
+						else
+						{
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-calendar-day" viewBox="0 0 16 16">
+								<path
+									d="M4.684 11.523v-2.3h2.261v-.61H4.684V6.801h2.464v-.61H4v5.332zm3.296 0h.676V8.98c0-.554.227-1.007.953-1.007.125 0 .258.004.329.015v-.613a2 2 0 0 0-.254-.02c-.582 0-.891.32-1.012.567h-.02v-.504H7.98zm2.805-5.093c0 .238.192.425.43.425a.428.428 0 1 0 0-.855.426.426 0 0 0-.43.43m.094 5.093h.672V7.418h-.672z" />
+								<path
+									d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+							</svg>
+						} </span> <span>&nbsp; Calendar </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
-				<NavLink class="nav-link" href="overspill" accesskey="^" @onclick="MenuItemSelected">
-					<span aria-hidden="true"><kbd class='mr-1'>^</kbd></span> <span>&nbsp; More ... </span>
+				<NavLink class="nav-link" href="overspill" accesskey="@GetAccessKey("^")" @onclick="MenuItemSelected">
+					<span aria-hidden="true">
+						@if (accessKeysEnabled)
+						{
+							<kbd class='mr-1'>^</kbd>
+						}
+						else
+						{
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-three-dots" viewBox="0 0 16 16">
+								<path
+									d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3" />
+							</svg>
+						}
+					</span> <span>&nbsp; More ... </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
-				<NavLink accesskey="&" class="nav-link" href="todos" @onclick="MenuItemSelected">
-					<span aria-hidden="true"><kbd class='mr-1'>&</kbd></span> <span>&nbsp; Todo </span>
+				<NavLink accesskey="@GetAccessKey("&")" class="nav-link" href="todos" @onclick="MenuItemSelected">
+					<span aria-hidden="true">
+						@if (accessKeysEnabled)
+						{
+							<kbd class='mr-1'>&</kbd>
+						}
+						else
+						{
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-check2-square" viewBox="0 0 16 16">
+								<path
+									d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5z" />
+								<path
+									d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0" />
+							</svg>
+						}
+					</span> <span>&nbsp; Todo </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">

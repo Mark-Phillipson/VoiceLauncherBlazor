@@ -374,3 +374,11 @@ header>h3 {
 	outline: none;
 	/* Optional: Remove default focus outline */
 }
+
+.center-footer {
+	width: 100%;
+	text-align: center;
+	margin: 0 auto;
+	color: whitesmoke;
+	font-size: small;
+}
