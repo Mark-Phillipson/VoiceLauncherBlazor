@@ -172,7 +172,7 @@ namespace RazorClassLibrary.Pages
          if (string.IsNullOrEmpty(SearchTerm))
          {
             FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO.OrderBy(v => v.DisplayValue)
-            .Skip(pageNumber * pageSize)
+            .Skip((pageNumber-1) * pageSize)
             .Take(pageSize)
             .ToList();
             Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {CustomIntelliSenseDTO.Count}";

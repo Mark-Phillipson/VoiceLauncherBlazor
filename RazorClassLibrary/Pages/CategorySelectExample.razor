@@ -1,0 +1,26 @@
+@page "/category-select"
+@using Microsoft.AspNetCore.Components.Web
+<PageTitle>Category Select</PageTitle>
+<h3>Select List with Category Headings</h3>
+
+<select @onchange="OnChange">
+    <optgroup label="Fruits" style="font-weight: bold;">
+        <option value="apple">Apple</option>
+        <option value="banana">Banana</option>
+        <option value="cherry">Cherry</option>
+    </optgroup>
+    <optgroup label="Vegetables" style="font-weight: bold;">
+        <option value="carrot">Carrot</option>
+        <option value="broccoli">Broccoli</option>
+        <option value="spinach">Spinach</option>
+    </optgroup>
+</select>
+
+@code {
+    private void OnChange(ChangeEventArgs e)
+    {
+        if (e == null || e.Value == null) { return; }
+        var selectedValue = e.Value.ToString();
+        Console.WriteLine($"Selected value: {selectedValue}");
+    }
+}

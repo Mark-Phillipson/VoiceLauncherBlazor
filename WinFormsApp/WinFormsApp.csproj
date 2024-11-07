@@ -20,6 +20,8 @@
     <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" Version="8.0.80" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>
