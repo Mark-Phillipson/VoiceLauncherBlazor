@@ -33,8 +33,7 @@ namespace DataAccessLibrary.Repositories
                      || (v.Type != null && v.Type.ToLower().Contains(serverSearchTerm))
                      || (v.MyTransactionType != null && v.MyTransactionType.ToLower().Contains(serverSearchTerm))
                     )
-
-                    //.OrderBy(v => v.?)
+                    .OrderByDescending(x => x.Date).ThenBy(x => x.Description)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -42,7 +41,7 @@ namespace DataAccessLibrary.Repositories
             else
             {
                 Transactions = await context.Transactions
-                    //.OrderBy(v => v.?)
+                    .OrderByDescending(x => x.Date).ThenBy(x => x.Description)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -142,6 +141,15 @@ namespace DataAccessLibrary.Repositories
                 Console.WriteLine(exception.Message);
                 return 0;
             }
+        }
+        public async Task<bool> DoesTransactionExist(TransactionDTO transaction)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var result = await context.Transactions.AsNoTracking()
+             .FirstOrDefaultAsync(c => c.Description == transaction.Description && c.Date == transaction.Date && c.MoneyIn == transaction.MoneyIn && c.MoneyOut == transaction.MoneyOut);
+            if (result == null) return false;
+            return true;
         }
     }
 }

@@ -17,5 +17,6 @@ namespace DataAccessLibrary.Repositories
         Task<TransactionDTO?> UpdateTransactionAsync(TransactionDTO transactionDTO);
         Task<int> GetTotalCountAsync();
         Task<int> AddTransactions(List<TransactionDTO> transactions);
+        Task<bool> DoesTransactionExist(TransactionDTO transaction);
     }
 }

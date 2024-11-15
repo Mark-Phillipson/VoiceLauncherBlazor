@@ -72,7 +72,7 @@ namespace DataAccessLibrary.Services
             return result;
         }
 
-        public Task<ImportResult> ImportTransactions(string fileContents, string filename)
+        public async Task<ImportResult> ImportTransactions(string fileContents, string filename)
         {
             var result = new ImportResult();
 
@@ -138,12 +138,18 @@ namespace DataAccessLibrary.Services
                         ImportFilename = filename,
                         ImportDate = DateTime.Now
                     };
-
-                    result.Transactions.Add(transaction);
+                    bool exist = await _transactionRepository.DoesTransactionExist(transaction);
+                    if (!exist)
+                    {
+                        result.Transactions.Add(transaction);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"{transaction.Description} {transaction.Date} {transaction.Type} Transaction already exists");
+                    }
                 }
             }
-
-            return Task.FromResult(result);
+            return result;
         }
 
 

@@ -113,7 +113,7 @@ namespace RazorClassLibrary.Pages
         private int pageNumber = 1;
         private int pageSize = 500;
         private int totalRows = 0;
-        private string informationMessage = "When downloading the transactions from the bank you have set the date filter and make them all appear on the page and then scroll to the bottom and then click download. This will download all the available transactions to a CSV file.";
+        private string informationMessage = "When downloading the transactions from the bank you will have set the date filter and make them all appear on the page and then scroll to the bottom and then click download. This will download all the available transactions to a CSV file.";
         private bool subtotalsOnly = false;
 
         private int TransactionId { get; set; }
