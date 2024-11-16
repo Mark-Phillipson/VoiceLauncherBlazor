@@ -1,4 +1,4 @@
-using OpenAI.Chat;
+//using OpenAI.Chat;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Collections.Generic;

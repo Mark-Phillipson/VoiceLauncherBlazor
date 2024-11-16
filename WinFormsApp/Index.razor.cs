@@ -1,15 +1,25 @@
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.ComponentModel;
 
 namespace WinFormsApp
 {
 	public partial class Index : ComponentBase
 	{
-		[Inject] public required LanguageService LanguageService { get; set; }
-		[Inject] public required CategoryService CategoryService { get; set; }
-		[Inject] public required IJSRuntime JSRuntime { get; set; }
-		private int languageId;
+		//[Inject] public required LanguageService LanguageService { get; set; }
+		//[Inject] public required CategoryService CategoryService { get; set; }
+		//[Inject] public required IJSRuntime JSRuntime { get; set; }
+		private readonly LanguageService LanguageService;
+		 private  readonly CategoryService CategoryService;
+		private readonly JSRuntime JSRuntime;
+		public Index(LanguageService languageService, CategoryService categoryService, IJSRuntime jsRuntime, JSRuntime jSRuntime) {
+         LanguageService = languageService;
+         CategoryService = categoryService;
+
+         JSRuntime = jSRuntime;
+      }
+      private int languageId;
 		private int categoryId;
 		private string message = "";
 		private string[]? arguments;
@@ -83,10 +93,10 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-		[Parameter] public EventCallback CloseWindowCallback { get; set; }
-		[Parameter] public EventCallback MaximizeWindowCallback { get; set; }
-		[Parameter] public EventCallback MinimizeWindowCallback { get; set; }
-		[Parameter] public EventCallback RestoreWindowCallback { get; set; }
-		[Parameter] public EventCallback<string> SetTitleCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback CloseWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MaximizeWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MinimizeWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback RestoreWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
 	}
 }

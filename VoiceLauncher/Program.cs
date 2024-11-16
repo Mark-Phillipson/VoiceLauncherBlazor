@@ -1,3 +1,4 @@
+using System.Reflection;
 using Blazored.Modal;
 using Blazored.Toast;
 
@@ -43,7 +44,18 @@ builder.Services.AddScoped<VisualStudioCommandService>();
 builder.Services.AddScoped<CommandSetService>();
 builder.Services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
 builder.Services.AddSingleton<NotifierService>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+try
+{
+    builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+}
+catch (ReflectionTypeLoadException ex)
+{
+    foreach (var loaderException in ex.LoaderExceptions)
+    {
+        Console.WriteLine(loaderException?.Message);
+    }
+    throw; // Re-throw the exception after logging
+}
 builder.Services.AddScoped<ISavedMousePositionRepository, SavedMousePositionRepository>();
 builder.Services.AddScoped<ISavedMousePositionDataService, SavedMousePositionDataService>();
 builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindowsSpeechCommandDataService>();
