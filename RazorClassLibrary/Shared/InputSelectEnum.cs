@@ -88,7 +88,16 @@ namespace RazorClassLibrary.Shared
 
             // Require the NuGet package Humanizer.Core
             // <PackageReference Include = "Humanizer.Core" Version = "2.8.26" />
-            return value.ToString().Humanize();
+            if (value != null)
+            {
+                string? stringValue = value?.ToString();
+                if (stringValue != null && stringValue.Length > 0)
+                {
+                    stringValue = stringValue.Humanize();
+                }
+                return stringValue;
+            }
+            return "";
         }
 
         // Get the actual enum type. It unwrap Nullable<T> if needed

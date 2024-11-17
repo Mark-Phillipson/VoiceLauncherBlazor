@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+// using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +22,8 @@ namespace DataAccessLibrary
 		public async Task<List<T>> LoadData<T, U>(string sql, U parameters)
 		{
 			string? connectionString = _config.GetConnectionString(ConnectionStringName);
-			using (IDbConnection connection = new SqlConnection(connectionString))
+			// using (IDbConnection connection = new SqlConnection(connectionString))
+			using (Microsoft.Data.SqlClient.SqlConnection connection =  new Microsoft.Data.SqlClient.SqlConnection(connectionString))
 			{
 				var data = await connection.QueryAsync<T>(sql, parameters);
 				return data.ToList();
@@ -35,7 +36,7 @@ namespace DataAccessLibrary
 				throw new ArgumentNullException("ConnectionStringName", "ConnectionStringName is null or empty");
 			}
 			string? connectionString = _config.GetConnectionString(ConnectionStringName);
-			using (IDbConnection connection = new SqlConnection(connectionString))
+			using (Microsoft.Data.SqlClient.SqlConnection connection =  new Microsoft.Data.SqlClient.SqlConnection(connectionString))
 			{
 				var data = await connection.QueryFirstOrDefaultAsync<T>(sql, parameters);
 				if (data == null)
@@ -48,7 +49,7 @@ namespace DataAccessLibrary
 		public async Task SaveData<T>(string sql, T parameters)
 		{
 			string? connectionString = _config.GetConnectionString(ConnectionStringName);
-			using (IDbConnection connection = new SqlConnection(connectionString))
+			using (Microsoft.Data.SqlClient.SqlConnection connection =  new Microsoft.Data.SqlClient.SqlConnection(connectionString))
 			{
 				await connection.ExecuteAsync(sql, parameters);
 			}

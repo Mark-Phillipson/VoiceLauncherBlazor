@@ -7,19 +7,10 @@ namespace WinFormsApp
 {
 	public partial class Index : ComponentBase
 	{
-		//[Inject] public required LanguageService LanguageService { get; set; }
-		//[Inject] public required CategoryService CategoryService { get; set; }
-		//[Inject] public required IJSRuntime JSRuntime { get; set; }
-		private readonly LanguageService LanguageService;
-		 private  readonly CategoryService CategoryService;
-		private readonly JSRuntime JSRuntime;
-		public Index(LanguageService languageService, CategoryService categoryService, IJSRuntime jsRuntime, JSRuntime jSRuntime) {
-         LanguageService = languageService;
-         CategoryService = categoryService;
-
-         JSRuntime = jSRuntime;
-      }
-      private int languageId;
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LanguageService LanguageService { get; set; }
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required CategoryService CategoryService { get; set; }
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IJSRuntime JSRuntime { get; set; }
+		private int languageId;
 		private int categoryId;
 		private string message = "";
 		private string[]? arguments;

@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorClassLibrary", "RazorC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "WinFormsApp\WinFormsApp.csproj", "{21948236-3380-4D01-934B-AC3A48CED897}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin.AppHost", "VoiceAdmin.AppHost\VoiceAdmin.AppHost.csproj", "{5F263162-27C2-48DC-9BBD-CEF4577AAD68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin.ServiceDefaults", "VoiceAdmin.ServiceDefaults\VoiceAdmin.ServiceDefaults.csproj", "{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +81,22 @@ Global
 		{21948236-3380-4D01-934B-AC3A48CED897}.Release|Any CPU.Build.0 = Release|Any CPU
 		{21948236-3380-4D01-934B-AC3A48CED897}.Release|x64.ActiveCfg = Release|x64
 		{21948236-3380-4D01-934B-AC3A48CED897}.Release|x64.Build.0 = Release|x64
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F263162-27C2-48DC-9BBD-CEF4577AAD68}.Release|x64.Build.0 = Release|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Debug|x64.Build.0 = Debug|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Release|x64.ActiveCfg = Release|Any CPU
+		{63AD0B6B-201B-D25F-0D75-C0E1AD64F711}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
