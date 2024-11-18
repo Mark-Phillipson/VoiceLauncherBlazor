@@ -86,7 +86,12 @@ namespace VoiceLauncher.Repositories
       {
          using var context = _contextFactory.CreateDbContext();
          CustomIntelliSense customIntelliSense = _mapper.Map<CustomIntelliSenseDTO, CustomIntelliSense>(customIntelliSenseDTO);
+         if (customIntelliSense.LanguageId == 0)
+         {
+            customIntelliSense.LanguageId = 1;//Will be not applicable by default
+         }
          var addedEntity = context.CustomIntelliSenses.Add(customIntelliSense);
+
          try
          {
             await context.SaveChangesAsync();
