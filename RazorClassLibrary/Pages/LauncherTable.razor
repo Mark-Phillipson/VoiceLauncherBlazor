@@ -15,11 +15,14 @@
     }
     else
     {
-        <div class="col-md-12">
-            <div class="text-center text-info">
-                Launch Search Results: @GlobalSearchTerm
+        @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+        {
+            <div class="col-md-12">
+                <div class="text-center text-info">
+                    <text>Launch Search Results: @GlobalSearchTerm </text>
+                </div>
             </div>
-        </div>
+        }
     }
     <div class="col-md-3">
         @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
@@ -29,11 +32,11 @@
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
             <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
-                ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select form-select-sm my-1">
+                ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select my-1">
                 <option value="">-</option>
                 @foreach (var item in _categories)
                 {
-                    <option style="font-size:xx-large" value="@item.Id">@item.CategoryName <strong>testing</strong></option>
+                    <option style="font-size:xx-large" value="@item.Id">@item.CategoryName </option>
                 }
             </InputSelect>
         }
@@ -50,12 +53,24 @@
             </button>
         </div>
     }
+
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <label for='SearchInput' class="sr-only">Type to Filter</label>
-        <div class="col-md-2">
+        <div class="col-md-4">
             <input @ref="SearchInput" accesskey="3" class="form-control my-1" style="float:right" @bind="@SearchTerm"
                 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
+        </div>
+        <div class="col-md-2">
+            <button class='btn btn-outline-info my-1' @onclick="() => LoadData(true)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                    <path
+                        d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                </svg>
+                Refresh
+            </button>
         </div>
     }
 </div>

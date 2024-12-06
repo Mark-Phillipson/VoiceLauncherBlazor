@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 
 using VoiceLauncher.Services;
+using System.Text.Json;
 
 namespace RazorClassLibrary.Pages
 {
@@ -56,6 +57,8 @@ namespace RazorClassLibrary.Pages
 		public List<string>? PropertyInfo { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
+		private List<LauncherDTO>? _cachedLauncherDTO;
+		
 		protected override async Task OnInitializedAsync()
 		{
 			Alphabet.BuildAlphabet();
@@ -65,8 +68,17 @@ namespace RazorClassLibrary.Pages
 		{
 			await LoadData();
 		}
-		private async Task LoadData()
+		private async Task LoadData(bool forceRefresh = false)
 		{
+			if (!forceRefresh)
+			{
+				var cachedData = await LoadDataFromJsonFile();
+				if (cachedData != null)
+				{
+					LauncherDTO = cachedData;
+					return;
+				}
+			}
 			CategoryDTO? category = null;
 			try
 			{
@@ -84,6 +96,7 @@ namespace RazorClassLibrary.Pages
 					if (result != null)
 					{
 						LauncherDTO = result.ToList();
+						_cachedLauncherDTO = LauncherDTO;
 					}
 				}
 
@@ -285,17 +298,6 @@ namespace RazorClassLibrary.Pages
 				{
 					Message = exception.Message;
 				}
-				if (launcher.CategoryId == 4115) // Code Project
-				{
-					// InputSimulator simulator = new InputSimulator();
-					//Need to maximize Visual Studio code window
-					// await Task.Delay(10000);
-					// simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.SPACE);
-					// Need to pause execution for 0.5 seconds
-					// await Task.Delay(3000);
-					// simulator.Keyboard.KeyPress(VirtualKeyCode.VK_X);
-
-				}
 				await CloseApplication.InvokeAsync();
 			}
 		}
@@ -312,6 +314,19 @@ namespace RazorClassLibrary.Pages
 			CategoryId = value;
 			await LoadData();
 		}
-
+		private async Task SaveDataToJsonFile(List<LauncherDTO> data)
+		{
+			var json = JsonSerializer.Serialize(data);
+			await File.WriteAllTextAsync("launcherCache.json", json);
+		}
+		private async Task<List<LauncherDTO>?> LoadDataFromJsonFile()
+		{
+			if (File.Exists("launcherCache.json"))
+			{
+				var json = await File.ReadAllTextAsync("launcherCache.json");
+				return JsonSerializer.Deserialize<List<LauncherDTO>>(json);
+			}
+			return null;
+		}
 	}
 }
