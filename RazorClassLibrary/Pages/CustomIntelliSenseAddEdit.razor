@@ -151,6 +151,7 @@
 							}
 						</div>
 						<div class="col-8 m-2 button-group">
+							@if (CustomIntelliSenseDTO.SendKeysValue!=null && CustomIntelliSenseDTO.SendKeysValue.Length>0) { 
 							<button class="btn btn-outline-success" type="button"
 								@onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
 							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create
@@ -163,6 +164,7 @@
 								@onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="fa-solid fa-paste"></i>
 							</button>
+							}
 						</div>
 						<div class="col-9 ">
 							@if (!string.IsNullOrWhiteSpace(example))

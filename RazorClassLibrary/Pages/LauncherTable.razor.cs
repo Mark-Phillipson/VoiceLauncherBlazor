@@ -1,4 +1,6 @@
 using Ardalis.GuardClauses;
+using WindowsInput;
+using WindowsInput.Native;
 
 using Blazored.Modal;
 using Blazored.Modal.Services;
@@ -273,6 +275,7 @@ namespace RazorClassLibrary.Pages
 				psi.FileName = launcher.CommandLine;
 				psi.WorkingDirectory = launcher.WorkingDirectory;
 				psi.Arguments = launcher.Arguments;
+				psi.WindowStyle = ProcessWindowStyle.Maximized;
 				psi.UseShellExecute = true;
 				try
 				{
@@ -282,29 +285,21 @@ namespace RazorClassLibrary.Pages
 				{
 					Message = exception.Message;
 				}
+				if (launcher.CategoryId == 4115) // Code Project
+				{
+					// InputSimulator simulator = new InputSimulator();
+					//Need to maximize Visual Studio code window
+					// await Task.Delay(10000);
+					// simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.SPACE);
+					// Need to pause execution for 0.5 seconds
+					// await Task.Delay(3000);
+					// simulator.Keyboard.KeyPress(VirtualKeyCode.VK_X);
+
+				}
 				await CloseApplication.InvokeAsync();
 			}
 		}
 
-		private async Task LaunchItemAsync(string commandLine)
-		{
-
-			if (JSRuntime == null)
-			{
-				return;
-			}
-			if (commandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
-			{
-				NavigationManager.NavigateTo(commandLine, true, false);
-			}
-			else
-			{
-				await JSRuntime.InvokeVoidAsync(
-					 "clipboardCopy.copyText", commandLine);
-				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService!.ShowSuccess(message + "Copy Commandline");
-			}
-		}
 		public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }
 		public string GetColour()
 		{

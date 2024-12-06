@@ -1,4 +1,4 @@
- SELECT * FROM CustomIntelliSense ORDER BY ID DESC
+ SELECT * FROM Categories  WHERE Category='Code Projects'
 SELECT *
 FROM Categories
 WHERE Colour = '#3357ff'
