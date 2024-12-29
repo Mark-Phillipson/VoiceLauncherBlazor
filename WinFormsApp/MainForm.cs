@@ -16,11 +16,43 @@ namespace WinFormsApp
 {
 	public partial class MainForm : Form
 	{
+		private ContextMenuStrip contextMenu;
+		private NotifyIcon notifyIcon;
 		public MainForm()
 		{
 			InitializeComponent();
+			this.Text = "Blazor Hybrid Voice Admin"; // Set the desired title here
+			// Initialize NotifyIcon
+			notifyIcon = new NotifyIcon
+			{
+				Icon = SystemIcons.Application,
+				Visible = true,
+				Text = "Blazor Hybrid Voice Admin"
+			};
+			notifyIcon.DoubleClick += NotifyIcon_DoubleClick!;
+			// Initialize ContextMenu
+			contextMenu = new ContextMenuStrip();
+			contextMenu.Items.Add("Open", null, (s, e) => ShowMainForm());
+			contextMenu.Items.Add("Exit", null, (s, e) => ExitApplication());
+			notifyIcon.ContextMenuStrip = contextMenu;
 
+			// Handle Form events
+			this.FormClosing += MainForm_FormClosing!;
+			this.Resize += MainForm_Resize!;
 			var services = new ServiceCollection();
+			// Blazor WebView initialization
+			blazorWebView1.HostPage = "wwwroot\\index.html";
+			blazorWebView1.Services = services.BuildServiceProvider();
+			// blazorWebView1.RootComponents.Add<Index>("#app",
+			// 	new Dictionary<string, object?>
+			// 	{
+			// 		{"CloseWindowCallback", new EventCallback(null, ()=>{ Application.Exit(); }) },
+			// 		{"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
+			// 		{"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
+			// 		{"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
+			// 		{"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
+			// 	});
+
 
 			// Register IConfigurationRoot
 			var configurationBuilder = new ConfigurationBuilder()
@@ -69,6 +101,38 @@ namespace WinFormsApp
 				  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
 			 });
 
+		}
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			// Minimize to system tray instead of closing
+			e.Cancel = true;
+			this.Hide();
+			notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
+		}
+
+		private void MainForm_Resize(object sender, EventArgs e)
+		{
+			if (this.WindowState == FormWindowState.Minimized)
+			{
+				this.Hide();
+				notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
+			}
+		}
+
+		private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+		{
+			this.Show();
+			this.WindowState = FormWindowState.Normal;
+		}
+		private void ShowMainForm()
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+        }
+		private void ExitApplication()
+		{
+			notifyIcon.Visible = false;
+			Application.Exit();
 		}
 	}
 }

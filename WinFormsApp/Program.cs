@@ -4,12 +4,27 @@ namespace WinFormsApp
 {
 	internal static class Program
 	{
+		private static Mutex mutex = new Mutex(true, "{B1A7D5F9-8C3D-4A6F-9B2D-3A5D6F8E9C3D}");
 		/// <summary>
 		///  The main entry point for the application.
 		/// </summary>
 		[STAThread]
 		static void Main()
 		{
+			if (mutex.WaitOne(TimeSpan.Zero, true))
+			{
+				Application.EnableVisualStyles();
+				Application.SetCompatibleTextRenderingDefault(false);
+				ApplicationConfiguration.Initialize();
+				Application.Run(new MainForm());
+				mutex.ReleaseMutex();
+			}
+			else
+			{
+				// Bring the existing instance to the foreground
+				// MessageBox.Show("An instance of the application is already running.");
+				NativeMethods.BringExistingInstanceToFront();
+			}
 			AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
 			{
 #if DEBUG
@@ -23,8 +38,6 @@ namespace WinFormsApp
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
 
-			ApplicationConfiguration.Initialize();
-			Application.Run(new MainForm());
 
 		}
 		public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
@@ -32,5 +45,34 @@ namespace WinFormsApp
 	 .Build();
 
 	}
+	internal static class NativeMethods
+	{
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool IsIconic(IntPtr hWnd);
+
+		private const int SW_RESTORE = 9;
+
+		public static void BringExistingInstanceToFront()
+		{
+			var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+			foreach (var process in System.Diagnostics.Process.GetProcessesByName(currentProcess.ProcessName))
+			{
+				if (process.Id != currentProcess.Id)
+				{
+					if (IsIconic(process.MainWindowHandle))
+					{
+						ShowWindowAsync(process.MainWindowHandle, SW_RESTORE);
+					}
+					SetForegroundWindow(process.MainWindowHandle);
+					break;
+				}
+			}
+		}
+	}
 }
