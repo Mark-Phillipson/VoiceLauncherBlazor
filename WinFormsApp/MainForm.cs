@@ -21,7 +21,6 @@ namespace WinFormsApp
 		public MainForm()
 		{
 			InitializeComponent();
-			this.Text = "Blazor Hybrid Voice Admin"; // Set the desired title here
 			// Initialize NotifyIcon
 			notifyIcon = new NotifyIcon
 			{
@@ -105,18 +104,18 @@ namespace WinFormsApp
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			// Minimize to system tray instead of closing
-			e.Cancel = true;
-			this.Hide();
-			notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
+			// e.Cancel = true;
+			// this.Hide();
+			// notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
 		}
 
 		private void MainForm_Resize(object sender, EventArgs e)
 		{
-			if (this.WindowState == FormWindowState.Minimized)
-			{
-				this.Hide();
-				notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
-			}
+			// if (this.WindowState == FormWindowState.Minimized)
+			// {
+			// 	this.Hide();
+			// 	notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
+			// }
 		}
 
 		private void NotifyIcon_DoubleClick(object sender, EventArgs e)
