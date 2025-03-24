@@ -1,25 +1,11 @@
- SELECT * FROM Categories  WHERE Category='Code Projects'
-SELECT *
-FROM Categories
-WHERE Colour = '#3357ff'
+ SELECT * FROM Transactions
+ --Creates some SQL that will define if there are any duplicate rows in this table with the same description and date
+    SELECT COUNT(*) AS DuplicateCount, Description, Date
+    FROM Transactions
+    GROUP BY Description, Date
+    HAVING COUNT(*) > 1
 
-UPDATE Categories
-SET Colour = (
-    SELECT Colour
-FROM (
-                                                                                SELECT '#00ff99' AS Colour
-    UNION ALL
-        SELECT '#33ff09' AS Colour
-    UNION ALL
-        SELECT '#3907ff' AS Colour
-    UNION ALL
-        SELECT '#ff33a1' AS Colour
-    UNION ALL
-        SELECT '#0405ff' AS Colour
-    UNION ALL
-        SELECT '#a133ff' AS Colour
-    ) AS RandomColors
-ORDER BY NEWID()
-    OFFSET 0 ROWS FETCH NEXT 1 ROW ONLY
-)
-WHERE Colour = '#3357ff';
+     SELECT * FROM Transactions WHERE Description='AMZNMktplace' AND Date='2023-04-11'
+        SELECT * FROM Transactions WHERE Description='SP SENACRE CYCLES' AND Date='2024-12-23'
+    SELECT * FROM Transactions WHERE Description='LIDL GB MAIDSTONE' AND Date='2024-12-30'
+    SELECT * FROM Transactions WHERE Description='THE CAFE BY THE CR' AND Date='2025-01-20'

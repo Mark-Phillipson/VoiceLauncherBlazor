@@ -487,7 +487,7 @@ namespace RazorClassLibrary.Pages
             {
                 AddSubBreakdown(householdCharges, ref sortOrder, breakdown, ref subtotalmoneyIn, ref subtotalmoneyOut, lastMonth);
             }
-            FilteredTransactionDTO = breakdown.OrderBy(x => x.Id).ToList();
+            FilteredTransactionDTO = breakdown.OrderByDescending(x => x.Id).ToList();
             Title = $"Household Charges ({FilteredTransactionDTO.Count})";
             showingBreakdown = true;
             // StateHasChanged();

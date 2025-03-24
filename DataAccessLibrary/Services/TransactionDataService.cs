@@ -75,6 +75,16 @@ namespace DataAccessLibrary.Services
         public async Task<ImportResult> ImportTransactions(string fileContents, string filename)
         {
             var result = new ImportResult();
+            int numberOfRows = 0;
+            using (var reader = new StringReader(fileContents))
+            {
+                // Store the Number of Rows in the File
+                while (reader.Peek() != -1)
+                {
+                    reader.ReadLine();
+                    numberOfRows++;
+                }
+            }
 
             using (var reader = new StringReader(fileContents))
             {
@@ -145,7 +155,7 @@ namespace DataAccessLibrary.Services
                     }
                     else
                     {
-                        System.Console.WriteLine($"{transaction.Description} {transaction.Date} {transaction.Type} Transaction already exists");
+                        result.Errors.Add($"Duplicate Found: {transaction.Description} {transaction.Date} {transaction.Type}");
                     }
                 }
             }

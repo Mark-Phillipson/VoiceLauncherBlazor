@@ -146,10 +146,12 @@ namespace DataAccessLibrary.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var result = await context.Transactions.AsNoTracking()
-             .FirstOrDefaultAsync(c => c.Description == transaction.Description && c.Date == transaction.Date && c.MoneyIn == transaction.MoneyIn && c.MoneyOut == transaction.MoneyOut);
-            if (result == null) return false;
-            return true;
+            return await context.Transactions.AsNoTracking()
+                .AnyAsync(c => c.Description == transaction.Description
+                            && c.Date == transaction.Date
+                            && c.MoneyIn == transaction.MoneyIn
+                            && c.MoneyOut == transaction.MoneyOut
+                            && c.Balance == transaction.Balance);
         }
     }
 }
