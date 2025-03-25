@@ -53,45 +53,39 @@ else
 			<div class="card">
 				@if (launcher.CommandLine.ToLower().StartsWith("http"))
 				{
-					@if (launcher.Icon != null && launcher.Icon.Length > 0)
-					{
 						<a accesskey="@counter" class="btn btn-lg btn-outline-success" target="_blank" href="@launcher.CommandLine">
-							<img height="75" src='/images/@launcher.Icon' />
+							@if (launcher.Icon != null && launcher.Icon.Length > 0)
+							{
+								<img height="75" src='/images/@launcher.Icon' />
+							}
+							else
+							{
+								<i style='font-size:70px' class="fa-solid fa-rocket"></i>
+							}
 							<u>@counter</u> @launcher.Name
 							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
 								@onblur="@(() => UpdateFavorite(launcher))" />
 						</a>
-					}
-					else
-					{
-						<a accesskey="@counter" class="btn btn-lg btn-outline-success my-2" target="_blank"
-							href="@launcher.CommandLine"><i style='font-size:70px' class="fa-solid fa-rocket mt-1 text-danger"></i>
-							<u>@counter</u>
-							<span class='p-3'>@launcher.Name
-								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
-									@onblur="@(() => UpdateFavorite(launcher))" />
-							</span>
-						</a>
-					}
 				}
 				else
 				{
-					<button accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success"
+					<a accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success"
 						@onclick="@(() => LaunchItem(launcher))">
 						@if (launcher.Icon != null && launcher.Icon.Length > 0)
 						{
-							<img class="m-1" height="75" src='/images/@launcher.Icon' />
+							<img class="" height="75" src='/images/@launcher.Icon' />
 						}
 						else
 						{
 							<i style='font-size:70px' class="fa-solid fa-rocket"></i>
 						}
-						<u>@counter</u>
-						<span>@launcher.Name
+						<span class='p-3' >
+							<u>@counter</u>
+							@launcher.Name
 							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
 								@onblur="@(() => UpdateFavorite( launcher ))" />
 						</span>
-					</button>
+					</a>
 				}
 			</div>
 		}
