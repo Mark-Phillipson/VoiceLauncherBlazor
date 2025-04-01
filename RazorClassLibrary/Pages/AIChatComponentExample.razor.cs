@@ -14,7 +14,9 @@ namespace RazorClassLibrary.Pages
     public partial class AIChatComponentExample : ComponentBase
     {
         [Inject] public required IPromptDataService PromptDataService { get; set; }
+        [Inject] public required IJSRuntime JSRuntime { get; set; }
         ChatHistory chatHistory = new();
+        private bool isPluginImported = false;
         ChatHistory responseHistory = new();
         private List<PromptDTO> prompts = new List<PromptDTO>();
         private PromptDTO? selectedPrompt = null;
@@ -28,11 +30,20 @@ namespace RazorClassLibrary.Pages
         IChatCompletionService chatService = new OpenAIChatCompletionService("gpt-4o-mini", Constants.OpenAIAPIKEY);
         private ElementReference inputElement;
         string predefinedPrompt = "";
-        [Inject] public required IJSRuntime JSRuntime { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
-            await inputElement.FocusAsync();
+            if (inputElement.Id != null)
+            {
+                try
+                {
+                    await inputElement.FocusAsync();
+                }
+                catch (System.Exception exception)
+                {
+                    System.Console.WriteLine(exception.Message);
+                }
+            }
         }
 
         private async Task LoadData()
@@ -63,7 +74,11 @@ namespace RazorClassLibrary.Pages
                 }
                 addedPredefinedPrompt = true;
                 chatHistory.AddSystemMessage(predefinedPrompt);
-                kernel.ImportPluginFromType<MarkInformation>();
+                if (isPluginImported == false)
+                {
+                    // kernel.ImportPluginFromType<MarkInformation>();
+                    isPluginImported = true;
+                }
             }
             chatHistory.AddUserMessage(prompt);
             // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
@@ -122,6 +137,12 @@ namespace RazorClassLibrary.Pages
                 await ProcessChat();
             }
         }
+        private async Task CopyItemAsync(string itemToCopy)
+        {
+            if (string.IsNullOrEmpty(itemToCopy)) { return; }
+            await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
+
+        }
     }
 }
 public class MarkInformation
@@ -154,4 +175,5 @@ public class MarkInformation
             return "I'm sorry, I don't know that information about Mark.";
         }
     }
+
 }

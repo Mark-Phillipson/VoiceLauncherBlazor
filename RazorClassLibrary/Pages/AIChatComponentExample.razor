@@ -8,8 +8,8 @@
         {
             <label for='selectedPromptId'>Select a Predefined Prompt</label>
             <a target="_blank" class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
-            <InputSelect ValueExpression="@(()=>selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@(( int  value) => OnValueChangedMethodName(value))" class="form-select">
+            <InputSelect ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
+                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select">
                 @foreach (var item in prompts)
                 {
                     <option value="@item.Id">@item.Description</option>
@@ -18,7 +18,8 @@
         }
         @if (selectedPrompt != null)
         {
-            <label class='m-1'>Included Data:</label> @selectedPrompt?.Description
+            <label class='m-1'>Included Data:</label>
+            @selectedPrompt?.Description
         }
         @foreach (var item in chatHistory)
         {
@@ -41,11 +42,16 @@
             @prompt
                     </textarea>
         <button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
-            @onclick="@( ( ) => ProcessChat(  ) )"><u>C</u>hat</button>
+            @onclick="@(() => ProcessChat())"><u>C</u>hat</button>
         <button accesskey='l' class="btn btn-outline-warning btn-lg m-1" type="button"
-            @onclick="@( ( ) => Clear(  ) )">C<u>l</u>ear</button>
+            @onclick="@(() => Clear())">C<u>l</u>ear</button>
         <button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
-            @onclick="@( ( ) => Forget(  ) )">Forge<u>t</u></button>
+            @onclick="@(() => Forget())">Forge<u>t</u></button>
+        <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-lg"
+            @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content))">
+            <i class="fa-regular fa-copy"></i>
+        Cop<u>y</u>
+        </button>
         @if (processing)
         {
             <div class="spinner-border text-primary m-2ay" role="status">
@@ -53,7 +59,7 @@
             </div>
         }
         <hr>
-        <button class="btn btn-primary m-1" @onclick="@( ( ) => ToggleHistory(  ) )">Response History <span
+        <button class="btn btn-primary m-1" @onclick="@(() => ToggleHistory())">Response History <span
                 class='badge bg-success'>@responseHistory?.Count</span></button>
         @if (showHistory)
         {
@@ -79,7 +85,8 @@
     <div class='col-md-7'>
         @if (responseHistory?.Count > 0)
         {
-            <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
+            @* <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" /> *@
+            <textarea  placeholder='The response from the AI will appear here'  class='form-control' rows="30">@responseHistory?.LastOrDefault()?.Content </textarea>
         }
     </div>
 </div>
