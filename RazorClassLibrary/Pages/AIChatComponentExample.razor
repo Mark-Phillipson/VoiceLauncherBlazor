@@ -1,18 +1,29 @@
 ﻿@page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
-<h4>AI Chat Component Example</h4>
+<h4>AI Chat </h4>
+@if (!string.IsNullOrWhiteSpace(Message)) { 
+    <div class="alert alert-danger" role="alert">@Message</div>
+}
 <div class='row'>
     <div class='col-md-5'>
         @if (prompts != null)
         {
             <label for='selectedPromptId'>Select a Predefined Prompt</label>
             <a target="_blank" class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
-            <InputSelect ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
+            <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
                 ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select">
                 @foreach (var item in prompts)
                 {
-                    <option value="@item.Id">@item.Description</option>
+                    if (item.Id == selectedPrompt?.Id)
+                    {
+                        <option selected value="@item.Id">@item.Description</option>
+                    }
+                    else
+                    {
+
+                        <option value="@item.Id">@item.Description</option>
+                    }
                 }
             </InputSelect>
         }
@@ -37,7 +48,7 @@
             }
         }
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
-        <textarea id='inputElement' @ref="inputElement" class='form-control m-1' @bind-value='@prompt'
+        <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1' @bind-value='@prompt'
             @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
             @prompt
                     </textarea>
@@ -50,8 +61,15 @@
         <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-lg"
             @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content))">
             <i class="fa-regular fa-copy"></i>
-        Cop<u>y</u>
+            Cop<u>y</u>
         </button>
+        @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content))
+        {
+            <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-primary btn-lg"
+                @onclick="@(() => FocusResponseElement())">
+                Focus <u>R</u>esponse
+            </button>
+        }
         @if (processing)
         {
             <div class="spinner-border text-primary m-2ay" role="status">
@@ -86,7 +104,11 @@
         @if (responseHistory?.Count > 0)
         {
             @* <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" /> *@
-            <textarea  placeholder='The response from the AI will appear here'  class='form-control' rows="30">@responseHistory?.LastOrDefault()?.Content </textarea>
+            <textarea @ref='responseElement' placeholder='The response from the AI will appear here' class='form-control'
+                rows="30">@TextBlock </textarea>
+        @if (!string.IsNullOrWhiteSpace(AIComments)) {
+            <div class="alert alert-info" role="alert">@AIComments</div>
+         }
         }
     </div>
 </div>
