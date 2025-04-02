@@ -113,10 +113,10 @@
             }
             else
             {
-                <textarea @ref='responseElement' class='form-control' rows="30">@TextBlock </textarea>
+                <textarea @ref='responseElement' class='form-control m-2' rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
-                    <div class="alert alert-info" role="alert">@AIComments</div>
+                    <div class="alert alert-info m-2" role="alert">@AIComments</div>
                 }
             }
         }
