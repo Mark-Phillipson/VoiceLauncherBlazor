@@ -2,7 +2,8 @@
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
 <h4>AI Chat </h4>
-@if (!string.IsNullOrWhiteSpace(Message)) { 
+@if (!string.IsNullOrWhiteSpace(Message))
+{
     <div class="alert alert-danger" role="alert">@Message</div>
 }
 <div class='row'>
@@ -58,12 +59,15 @@
             @onclick="@(() => Clear())">C<u>l</u>ear</button>
         <button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
             @onclick="@(() => Forget())">Forge<u>t</u></button>
-        <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-lg"
-            @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content))">
-            <i class="fa-regular fa-copy"></i>
-            Cop<u>y</u>
-        </button>
-        @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content))
+        @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
+        {
+            <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-lg"
+                @onclick="@(() => CopyItemAsync(TextBlock))">
+                <i class="fa-regular fa-copy"></i>
+                Cop<u>y</u>
+            </button>
+        }
+        @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
         {
             <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-primary btn-lg"
                 @onclick="@(() => FocusResponseElement())">
@@ -103,13 +107,19 @@
     <div class='col-md-7'>
         @if (responseHistory?.Count > 0)
         {
-            @* <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" /> *@
-            <textarea @ref='responseElement' placeholder='The response from the AI will appear here' class='form-control'
-                rows="30">@TextBlock </textarea>
-        @if (!string.IsNullOrWhiteSpace(AIComments)) {
-            <div class="alert alert-info" role="alert">@AIComments</div>
-         }
+            @if (string.IsNullOrWhiteSpace(TextBlock))
+            {
+                <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
+            }
+            else
+            {
+                <textarea @ref='responseElement' class='form-control' rows="30">@TextBlock </textarea>
+                @if (!string.IsNullOrWhiteSpace(AIComments))
+                {
+                    <div class="alert alert-info" role="alert">@AIComments</div>
+                }
+            }
         }
     </div>
 </div>
-<a class='btn-link' href="/smart-components">Back to List of Smart Components</a>
+<a class='btn-link m-2' href="/smart-components">Back to List of Smart Components</a>

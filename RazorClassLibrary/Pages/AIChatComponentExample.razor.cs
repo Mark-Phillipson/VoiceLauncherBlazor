@@ -88,19 +88,23 @@ public partial class AIChatComponentExample : ComponentBase
         try
         {
             response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
-        // Deserialize the JSON response
-        var jsonResponse = response.Content ?? "";
-        var chatResponse = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(jsonResponse);
+            if (selectedPrompt?.Description=="Do Dictation")
+            {
+                // Deserialize the JSON response
+                var jsonResponse = response.Content ?? "";
+                var chatResponse = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(jsonResponse);
 
-        // Extract the values
-        TextBlock = chatResponse?.TextBlock ?? "";
-        AIComments = chatResponse?.Comments ?? "";
+                // Extract the values
+                TextBlock = chatResponse?.TextBlock ?? "";
+                AIComments = chatResponse?.Comments ?? "";
+            }
 
         }
         catch (System.Exception exception)
         {
             Message = "Error: " + exception.Message;
-            System.Console.WriteLine(exception.Message);
+            System
+            .Console.WriteLine(exception.Message);
         }
         responseHistory.AddAssistantMessage(response.Content ?? "");
         prompt = "";
@@ -129,6 +133,12 @@ public partial class AIChatComponentExample : ComponentBase
     {
         responseHistory.Clear();
         response.Items.Clear();
+        if (selectedPrompt != null)
+        {
+            selectedPrompt.Description = null;
+        }
+        TextBlock = "";
+        AIComments = "";        
         selectedPrompt = null;
         addedPredefinedPrompt = false;
         chatHistory.Clear();
@@ -136,6 +146,7 @@ public partial class AIChatComponentExample : ComponentBase
     }
     private async Task OnValueChangedMethodName(int id)
     {
+        await Forget();
         selectedPromptId = id;
         selectedPrompt = await PromptDataService.GetPromptById(id);
         StateHasChanged();
@@ -143,7 +154,7 @@ public partial class AIChatComponentExample : ComponentBase
     }
     bool showHistory = false;
     bool processing = false;
-    private string Message="";
+    private string Message = "";
 
     void ToggleHistory()
     {
