@@ -28,31 +28,11 @@
                 }
             </InputSelect>
         }
-        @if (selectedPrompt != null)
-        {
-            <label class='m-1'>Included Data:</label>
-            @selectedPrompt?.Description
-        }
-        @foreach (var item in chatHistory)
-        {
-            @if (item.Role.Label.ToLower() == "system")
-            {
-                <div class="m-1 text-danger">
-                    <span>@item.Content</span>
-                </div>
-            }
-            else
-            {
-                <div class="m-1 text-success">
-                    <span>@item.Content</span>
-                </div>
-            }
-        }
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1' @bind-value='@prompt'
             @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
             @prompt
-                    </textarea>
+        </textarea>
         <button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
             @onclick="@(() => ProcessChat())"><u>C</u>hat</button>
         <button accesskey='l' class="btn btn-outline-warning btn-lg m-1" type="button"
@@ -73,6 +53,10 @@
                 @onclick="@(() => FocusResponseElement())">
                 Focus <u>R</u>esponse
             </button>
+            @if (responseHistory?.Count>1) { 
+                <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertPrevious())'>Previous</button>
+                <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertNext())'>Next</button>
+            }
         }
         @if (processing)
         {
@@ -80,9 +64,38 @@
                 <span class="sr-only">Loading...</span>
             </div>
         }
+        <br />
+        @if (selectedPrompt != null)
+        {
+            <label class='m-1'>Current Prompt:</label>
+        }
+        @foreach (var item in chatHistory)
+        {
+            @if (item.Role.Label.ToLower() == "system")
+            {
+                <div class="m-1 text-danger">
+                <span>
+                    @if (@item?.Content?.Length > 300)
+                    {
+                        @($"{item.Content?.Substring(0, 300)}...")
+                    }
+                    else
+                    {
+                        @item?.Content
+                    }
+                </span>
+                </div>
+            }
+            else
+            {
+                <div class="m-1 text-success">
+                    <span>@item.Content</span>
+                </div>
+            }
+        }
         <hr>
         <button class="btn btn-primary m-1" @onclick="@(() => ToggleHistory())">Response History <span
-                class='badge bg-success'>@responseHistory?.Count</span></button>
+                class='badge bg-success'>@responseHistory?.Count</span></button>        
         @if (showHistory)
         {
             @if (responseHistory != null && responseHistory.Count > 0)
