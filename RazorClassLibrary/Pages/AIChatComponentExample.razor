@@ -1,19 +1,19 @@
 ﻿@page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
-<h4>AI Chat </h4>
+<h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
     <div class="alert alert-danger" role="alert">@Message</div>
 }
 <div class='row'>
-    <div class='col-md-5'>
+    <div class='col-md-5 bg-dark text-light p-4 rounded'>
         @if (prompts != null)
         {
-            <label for='selectedPromptId'>Select a Predefined Prompt</label>
-            <a target="_blank" class='btn btn-link btn-sm' href="/prompts">Manage Prompts</a>
+            <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined Prompt</label>
+            <a target="_blank" class='btn btn-link btn-sm text-info' href="/prompts"><i class="fa-solid fa-pen-to-square"></i> Manage</a>
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select">
+                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-secondary text-light border-0">
                 @foreach (var item in prompts)
                 {
                     if (item.Id == selectedPrompt?.Id)
@@ -22,52 +22,51 @@
                     }
                     else
                     {
-
                         <option value="@item.Id">@item.Description</option>
                     }
                 }
             </InputSelect>
         }
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
-        <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1' @bind-value='@prompt'
-            @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' @onkeydown="EnteredChat">
-            @prompt
-        </textarea>
-        <button accesskey='c' class="btn btn-outline-success btn-lg m-1" type="button"
-            @onclick="@(() => ProcessChat())"><u>C</u>hat</button>
-        <button accesskey='l' class="btn btn-outline-warning btn-lg m-1" type="button"
-            @onclick="@(() => Clear())">C<u>l</u>ear</button>
-        <button accesskey='t' class="btn btn-outline-danger btn-lg m-1" type="button"
-            @onclick="@(() => Forget())">Forge<u>t</u></button>
-        @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
-        {
-            <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-lg"
-                @onclick="@(() => CopyItemAsync(TextBlock))">
-                <i class="fa-regular fa-copy"></i>
-                Cop<u>y</u>
-            </button>
-        }
-        @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
-        {
-            <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-primary btn-lg"
-                @onclick="@(() => FocusResponseElement())">
-                Focus <u>R</u>esponse
-            </button>
-            @if (responseHistory?.Count>1) { 
-                <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertPrevious())'>Previous</button>
-                <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertNext())'>Next</button>
+        <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1 bg-dark text-light border-0' style="background-color: #2a2a2a !important;"
+            @bind-value='@prompt' @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' 
+            @onkeydown="EnteredChat"></textarea>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
+                @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
+            <button accesskey='l' class="btn btn-outline-warning btn-sm" type="button"
+                @onclick="@(() => Clear())"><i class="fa-solid fa-eraser"></i> C<u>l</u>ear</button>
+            <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
+                @onclick="@(() => Forget())"><i class="fa-solid fa-trash"></i> Forge<u>t</u></button>
+            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
+            {
+                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-sm"
+                    @onclick="@(() => CopyItemAsync(TextBlock))">
+                    <i class="fa-regular fa-copy"></i> Cop<u>y</u>
+                </button>
             }
-        }
+            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
+            {
+                <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-primary btn-sm"
+                    @onclick="@(() => FocusResponseElement())">
+                    <i class="fa-solid fa-crosshairs"></i> Focus <u>R</u>esponse
+                </button>
+                @if (responseHistory?.Count > 1) { 
+                    <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertPrevious())'><i class="fa-solid fa-arrow-left"></i> Previous</button>
+                    <button class='btn btn-outline-danger btn-sm'  @onclick='@(()=>RevertNext())'><i class="fa-solid fa-arrow-right"></i> Next</button>
+                }
+            }
+        </div>
         @if (processing)
         {
-            <div class="spinner-border text-primary m-2ay" role="status">
+            <div class="spinner-border text-primary m-2" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         }
         <br />
         @if (selectedPrompt != null)
         {
-            <label class='m-1'>Current Prompt:</label>
+            <label class='m-1 text-light'><i class="fa-solid fa-info-circle"></i> Current Prompt:</label>
         }
         @foreach (var item in chatHistory)
         {
@@ -93,8 +92,8 @@
                 </div>
             }
         }
-        <hr>
-        <button class="btn btn-primary m-1" @onclick="@(() => ToggleHistory())">Response History <span
+        <hr class="text-light">
+        <button class="btn btn-primary m-1" @onclick="@(() => ToggleHistory())"><i class="fa-solid fa-history"></i> Response History <span
                 class='badge bg-success'>@responseHistory?.Count</span></button>        
         @if (showHistory)
         {
@@ -115,9 +114,8 @@
                 }
             }
         }
-
     </div>
-    <div class='col-md-7'>
+    <div class='col-md-7 bg-dark text-light p-4 rounded'>
         @if (responseHistory?.Count > 0)
         {
             @if (string.IsNullOrWhiteSpace(TextBlock))
@@ -126,7 +124,7 @@
             }
             else
             {
-                <textarea @ref='responseElement' class='form-control m-2' rows="30">@TextBlock </textarea>
+                <textarea @ref='responseElement' class='form-control m-2 text-light border-0' style="background-color: #2a2a2a !important;" rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
                     <div class="alert alert-info m-2" role="alert">@AIComments</div>
@@ -135,4 +133,4 @@
         }
     </div>
 </div>
-<a class='btn-link m-2' href="/smart-components">Back to List of Smart Components</a>
+<a class='btn-link m-2 text-info' href="/smart-components"><i class="fa-solid fa-arrow-left"></i> Back to List of Smart Components</a>

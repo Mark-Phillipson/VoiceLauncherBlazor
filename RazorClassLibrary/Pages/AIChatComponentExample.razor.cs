@@ -139,7 +139,6 @@ public partial class AIChatComponentExample : ComponentBase {
       }
    }
    private async Task EnteredChat(KeyboardEventArgs e) {
-      System.Console.WriteLine(e.Key);
       if (e.Key == "Enter") {
          // Handle the Enter key press event
          await ProcessChat();
