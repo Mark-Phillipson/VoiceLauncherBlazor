@@ -16,6 +16,8 @@ public partial class AIChatComponentExample : ComponentBase {
    [Inject] public required IJSRuntime JSRuntime { get; set; }
    ChatHistory chatHistory = new();
    private bool isPluginImported = false;
+   private HashSet<object> expandedMessages = new HashSet<object>();
+
    private string TextBlock { get; set; } = "";
    private string AIComments { get; set; } = "";
    private int revertTo = 0;
@@ -193,4 +195,11 @@ public partial class AIChatComponentExample : ComponentBase {
          }
       }
    }
+   private void ToggleMessageExpansion(object message)
+{
+    if (expandedMessages.Contains(message))
+        expandedMessages.Remove(message);
+    else
+        expandedMessages.Add(message);
+}
 }

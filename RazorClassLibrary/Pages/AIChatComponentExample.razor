@@ -4,16 +4,16 @@
 <h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
-    <div class="alert alert-danger" role="alert">@Message</div>
+    <div class="alert alert-success" role="alert">@Message</div>
 }
 <div class='row'>
     <div class='col-md-5 bg-dark text-light p-4 rounded'>
         @if (prompts != null)
         {
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined Prompt</label>
-            <a target="_blank" class='btn btn-link btn-sm text-info' href="/prompts"><i class="fa-solid fa-pen-to-square"></i> Manage</a>
+            <a target="_blank" class='btn btn-link btn-sm text-light' href="/prompts"><i class="fa-solid fa-pen-to-square"></i> Manage</a>
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-secondary text-light border-0">
+                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-success text-light">
                 @foreach (var item in prompts)
                 {
                     if (item.Id == selectedPrompt?.Id)
@@ -28,26 +28,26 @@
             </InputSelect>
         }
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
-        <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1 bg-dark text-light border-0' style="background-color: #2a2a2a !important;"
+        <textarea rows='4' id='inputElement' @ref="inputElement" class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
             @bind-value='@prompt' @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)' 
             @onkeydown="EnteredChat"></textarea>
         <div class="d-flex flex-wrap gap-2 mt-2">
             <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
                 @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
-            <button accesskey='l' class="btn btn-outline-warning btn-sm" type="button"
+            <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
                 @onclick="@(() => Clear())"><i class="fa-solid fa-eraser"></i> C<u>l</u>ear</button>
             <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
                 @onclick="@(() => Forget())"><i class="fa-solid fa-trash"></i> Forge<u>t</u></button>
             @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
             {
-                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-primary btn-sm"
+                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success btn-sm"
                     @onclick="@(() => CopyItemAsync(TextBlock))">
                     <i class="fa-regular fa-copy"></i> Cop<u>y</u>
                 </button>
             }
             @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
             {
-                <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-primary btn-sm"
+                <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
                     @onclick="@(() => FocusResponseElement())">
                     <i class="fa-solid fa-crosshairs"></i> Focus <u>R</u>esponse
                 </button>
@@ -64,17 +64,26 @@
             </div>
         }
         <br />
-        @if (selectedPrompt != null)
-        {
-            <label class='m-1 text-light'><i class="fa-solid fa-info-circle"></i> Current Prompt:</label>
-        }
-        @foreach (var item in chatHistory)
-        {
-            @if (item.Role.Label.ToLower() == "system")
-            {
-                <div class="m-1 text-danger">
-                <span>
-                    @if (@item?.Content?.Length > 300)
+@if (selectedPrompt != null)
+{
+    <label class='m-1 text-light'><i class="fa-solid fa-info-circle"></i> Current Prompt:</label>
+}
+@foreach (var item in chatHistory)
+{
+    @if (item.Role.Label.ToLower() == "system")
+    {
+        <div class="chat-bubble system-bubble mb-3">
+            <div class="bubble-content @(expandedMessages.Contains(item) ? "expanded" : "")" 
+                 @onclick="@(() => ToggleMessageExpansion(item))">
+                <div class="bubble-header">
+                    <i class="fa-solid fa-robot me-1"></i> System
+                    @if (item?.Content?.Length > 300)
+                    {
+                        <small><i class="fa-solid @(expandedMessages.Contains(item) ? "fa-chevron-up" : "fa-chevron-down")"></i></small>
+                    }
+                </div>
+                <div class="bubble-text">
+                    @if (item?.Content?.Length > 300 && !expandedMessages.Contains(item))
                     {
                         @($"{item.Content?.Substring(0, 300)}...")
                     }
@@ -82,18 +91,27 @@
                     {
                         @item?.Content
                     }
-                </span>
                 </div>
-            }
-            else
-            {
-                <div class="m-1 text-success">
-                    <span>@item.Content</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="chat-bubble user-bubble mb-3">
+            <div class="bubble-content">
+                <div class="bubble-header">
+                    <i class="fa-solid fa-user me-1"></i> You
                 </div>
-            }
-        }
+                <div class="bubble-text">
+                    @item.Content
+                </div>
+            </div>
+        </div>
+    }
+}
+
         <hr class="text-light">
-        <button class="btn btn-primary m-1" @onclick="@(() => ToggleHistory())"><i class="fa-solid fa-history"></i> Response History <span
+        <button class="btn btn-outline-success m-1" @onclick="@(() => ToggleHistory())"><i class="fa-solid fa-history"></i> Response History <span
                 class='badge bg-success'>@responseHistory?.Count</span></button>        
         @if (showHistory)
         {
@@ -127,10 +145,10 @@
                 <textarea @ref='responseElement' class='form-control m-2 text-light border-0' style="background-color: #2a2a2a !important;" rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
-                    <div class="alert alert-info m-2" role="alert">@AIComments</div>
+                    <div class="alert alert-success m-2" role="alert">@AIComments</div>
                 }
             }
         }
     </div>
 </div>
-<a class='btn-link m-2 text-info' href="/smart-components"><i class="fa-solid fa-arrow-left"></i> Back to List of Smart Components</a>
+<a class='btn-link m-2 text-success' href="/smart-components"><i class="fa-solid fa-arrow-left"></i> Back to List of Smart Components</a>
