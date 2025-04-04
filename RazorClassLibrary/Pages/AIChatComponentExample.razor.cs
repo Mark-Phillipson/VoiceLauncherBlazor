@@ -73,6 +73,12 @@ public partial class AIChatComponentExample : ComponentBase {
             isPluginImported = true;
          }
       }
+      if (selectedPrompt?.Description == "Do Dictation") {
+         chatHistory= new ChatHistory();
+         chatHistory.AddSystemMessage($"{predefinedPrompt}\n The current value of the TextBlock is: {TextBlock}.\n" +
+            $"The current value of the AIComments is: {AIComments}.\n" +
+            $"The user has asked to do dictation. Please provide a response.\n");
+      }
       chatHistory.AddUserMessage(prompt);
       // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
       try {
