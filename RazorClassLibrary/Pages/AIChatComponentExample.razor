@@ -1,7 +1,7 @@
 ﻿@page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
-<h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat</h4>
+<h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
     <div class="alert alert-success" role="alert">@Message</div>
@@ -136,7 +136,7 @@
     <div class='col-md-7 bg-dark text-light p-4 rounded'>
         @if (responseHistory?.Count > 0)
         {
-            @if (string.IsNullOrWhiteSpace(TextBlock))
+            @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
             {
                 <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
             }

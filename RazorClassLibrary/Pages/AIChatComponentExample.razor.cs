@@ -11,7 +11,8 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Text.Json;
 namespace RazorClassLibrary.Pages;
 
-public partial class AIChatComponentExample : ComponentBase {
+public partial class AIChatComponentExample : ComponentBase
+{
    [Inject] public required IPromptDataService PromptDataService { get; set; }
    [Inject] public required IJSRuntime JSRuntime { get; set; }
    ChatHistory chatHistory = new();
@@ -31,59 +32,75 @@ public partial class AIChatComponentExample : ComponentBase {
    bool addedPredefinedPrompt = false;
    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
-   IChatCompletionService chatService = new OpenAIChatCompletionService("gpt-4o-mini", Constants.OpenAIAPIKEY);
+   private string model = "o3-mini";
+   IChatCompletionService chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
    private ElementReference inputElement;
    private ElementReference responseElement;
    string predefinedPrompt = "";
-   protected override async Task OnInitializedAsync() {
+   protected override async Task OnInitializedAsync()
+   {
       await LoadData();
-      if (inputElement.Id != null) {
-         try {
+      if (inputElement.Id != null)
+      {
+         try
+         {
             await inputElement.FocusAsync();
-         } catch (System.Exception exception) {
+         }
+         catch (System.Exception exception)
+         {
             System.Console.WriteLine(exception.Message);
          }
       }
    }
 
-   private async Task LoadData() {
+   private async Task LoadData()
+   {
       prompts = await PromptDataService.GetAllPromptsAsync();
       var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
-      if (prompt != null) {
+      if (prompt != null)
+      {
          selectedPromptId = prompt.Id;
          selectedPrompt = await PromptDataService.GetPromptById(prompt.Id);
       }
    }
 
-   private async Task ProcessChat() {
-      if (string.IsNullOrWhiteSpace(prompt)) {
+   private async Task ProcessChat()
+   {
+      if (string.IsNullOrWhiteSpace(prompt))
+      {
          return;
       }
       processing = true;
 
       PromptExecutionSettings settings = new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
-      if (addedPredefinedPrompt == false) {
-         if (!string.IsNullOrWhiteSpace(selectedPrompt?.PromptText)) {
+      if (addedPredefinedPrompt == false)
+      {
+         if (!string.IsNullOrWhiteSpace(selectedPrompt?.PromptText))
+         {
             predefinedPrompt = selectedPrompt.PromptText;
          }
          addedPredefinedPrompt = true;
          chatHistory.AddSystemMessage(predefinedPrompt);
-         if (isPluginImported == false) {
+         if (isPluginImported == false)
+         {
             // kernel.ImportPluginFromType<MarkInformation>();
             isPluginImported = true;
          }
       }
-      if (selectedPrompt?.Description == "Do Dictation") {
-         chatHistory= new ChatHistory();
+      if (selectedPrompt?.Description == "Do Dictation")
+      {
+         chatHistory = new ChatHistory();
          chatHistory.AddSystemMessage($"{predefinedPrompt}\n The current value of the TextBlock is: {TextBlock}.\n" +
             $"The current value of the AIComments is: {AIComments}.\n" +
             $"The user has asked to do dictation. Please provide a response.\n");
       }
       chatHistory.AddUserMessage(prompt);
       // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
-      try {
+      try
+      {
          response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
-         if (selectedPrompt?.Description == "Do Dictation") {
+         if (selectedPrompt?.Description == "Do Dictation")
+         {
             // Deserialize the JSON response
             var jsonResponse = response.Content ?? "";
             var chatResponse = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(jsonResponse);
@@ -93,7 +110,9 @@ public partial class AIChatComponentExample : ComponentBase {
             AIComments = chatResponse?.Comments ?? "";
          }
 
-      } catch (System.Exception exception) {
+      }
+      catch (System.Exception exception)
+      {
          Message = "Error: " + exception.Message;
          System
          .Console.WriteLine(exception.Message);
@@ -105,22 +124,29 @@ public partial class AIChatComponentExample : ComponentBase {
       processing = false;
       StateHasChanged();
    }
-   private void ResizeTextAreaPrompt() {
-      try {
+   private void ResizeTextAreaPrompt()
+   {
+      try
+      {
          JSRuntime.InvokeVoidAsync("adjustTextArea", inputElement);
-      } catch (System.Exception exception) {
+      }
+      catch (System.Exception exception)
+      {
          System.Console.WriteLine(exception.Message);
       }
    }
 
-   private async Task Clear() {
+   private async Task Clear()
+   {
       prompt = "";
       await inputElement.FocusAsync();
    }
-   private async Task Forget() {
+   private async Task Forget()
+   {
       responseHistory.Clear();
       response.Items.Clear();
-      if (selectedPrompt != null) {
+      if (selectedPrompt != null)
+      {
          selectedPrompt.Description = null;
       }
       TextBlock = "";
@@ -130,7 +156,8 @@ public partial class AIChatComponentExample : ComponentBase {
       chatHistory.Clear();
       await inputElement.FocusAsync();
    }
-   private async Task OnValueChangedMethodName(int id) {
+   private async Task OnValueChangedMethodName(int id)
+   {
       await Forget();
       selectedPromptId = id;
       selectedPrompt = await PromptDataService.GetPromptById(id);
@@ -141,53 +168,69 @@ public partial class AIChatComponentExample : ComponentBase {
    bool processing = false;
    private string Message = "";
 
-   void ToggleHistory() {
+   void ToggleHistory()
+   {
       {
          showHistory = !showHistory;
       }
    }
-   private async Task EnteredChat(KeyboardEventArgs e) {
-      if (e.Key == "Enter") {
+   private async Task EnteredChat(KeyboardEventArgs e)
+   {
+      if (e.Key == "Enter")
+      {
          // Handle the Enter key press event
          await ProcessChat();
       }
    }
-   private async Task CopyItemAsync(string? itemToCopy) {
+   private async Task CopyItemAsync(string? itemToCopy)
+   {
       if (string.IsNullOrEmpty(itemToCopy)) { return; }
       await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
 
    }
-   private async Task FocusResponseElement() {
-      if (responseElement.Id != null) {
-         try {
+   private async Task FocusResponseElement()
+   {
+      if (responseElement.Id != null)
+      {
+         try
+         {
             await responseElement.FocusAsync();
-         } catch (System.Exception exception) {
+         }
+         catch (System.Exception exception)
+         {
             System.Console.WriteLine(exception.Message);
          }
       }
    }
-   private async Task RevertPrevious() {
+   private async Task RevertPrevious()
+   {
       revertTo--;
-      if (revertTo < 0) {
+      if (revertTo < 0)
+      {
          revertTo = 0;
       }
       await LoadHistory();
    }
-   private async Task RevertNext() {
+   private async Task RevertNext()
+   {
       revertTo++;
-      if (revertTo>= responseHistory.Count) {
+      if (revertTo >= responseHistory.Count)
+      {
          revertTo = responseHistory.Count - 1;
       }
       await LoadHistory();
    }
-   private async Task LoadHistory() {
+   private async Task LoadHistory()
+   {
       // Check if there are any messages in the history
-      if (responseHistory?.LastOrDefault()?.Content != null && responseHistory.Count > 0) {
+      if (responseHistory?.LastOrDefault()?.Content != null && responseHistory.Count > 0)
+      {
 
          // Get the latest message from the history
          var latestMessage = responseHistory?[revertTo];
 
-         if (latestMessage != null) {
+         if (latestMessage != null)
+         {
             // Deserialize the JSON response
             var jsonResponse = latestMessage.Content ?? "";
             var chatResponse = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(jsonResponse);
@@ -202,10 +245,10 @@ public partial class AIChatComponentExample : ComponentBase {
       }
    }
    private void ToggleMessageExpansion(object message)
-{
-    if (expandedMessages.Contains(message))
-        expandedMessages.Remove(message);
-    else
-        expandedMessages.Add(message);
-}
+   {
+      if (expandedMessages.Contains(message))
+         expandedMessages.Remove(message);
+      else
+         expandedMessages.Add(message);
+   }
 }
