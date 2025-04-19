@@ -33,7 +33,7 @@ public partial class AIChatComponentExample : ComponentBase
    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
    private string model = "o3-mini";
-   IChatCompletionService chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
+   IChatCompletionService? chatService;
    private ElementReference inputElement;
    private ElementReference responseElement;
    string predefinedPrompt = "";
@@ -55,6 +55,16 @@ public partial class AIChatComponentExample : ComponentBase
 
    private async Task LoadData()
    {
+      if (string.IsNullOrWhiteSpace(Constants.OpenAIAPIKEY))
+      {
+         Message = "Please set the OpenAI API key in the TextBox.";
+         return;
+      }
+      else
+      {
+         Message = "";
+         chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
+      }
       prompts = await PromptDataService.GetAllPromptsAsync();
       var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
       if (prompt != null)
@@ -70,6 +80,18 @@ public partial class AIChatComponentExample : ComponentBase
       {
          return;
       }
+      if (string.IsNullOrWhiteSpace(Constants.OpenAIAPIKEY))
+      {
+         Message = "Please set the OpenAI API key in the TextBox.";
+         return;
+
+      }
+      else if (chatService==null)
+      {
+         Message = "";
+         chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
+      }
+      prompts = await PromptDataService.GetAllPromptsAsync();
       processing = true;
 
       PromptExecutionSettings settings = new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
