@@ -1,6 +1,6 @@
 ﻿using System;// See https://aka.ms/new-console-template for more information
 using System.IO;
-
+// Note this will not work for Captures
 
 
 string directoryPath = @"C:\Users\MPhil\AppData\Roaming\talon\user\community"; // Replace with the actual path to your Talon user directory

@@ -18,7 +18,7 @@ public partial class AIChatComponentExample : ComponentBase
    ChatHistory chatHistory = new();
    private bool isPluginImported = false;
    private HashSet<object> expandedMessages = new HashSet<object>();
-
+   private string OpenAIAPIKEY = "";
    private string TextBlock { get; set; } = "";
    private string AIComments { get; set; } = "";
    private int revertTo = 0;
@@ -55,7 +55,7 @@ public partial class AIChatComponentExample : ComponentBase
 
    private async Task LoadData()
    {
-      if (string.IsNullOrWhiteSpace(Constants.OpenAIAPIKEY))
+      if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
       {
          Message = "Please set the OpenAI API key in the TextBox.";
          return;
@@ -63,7 +63,7 @@ public partial class AIChatComponentExample : ComponentBase
       else
       {
          Message = "";
-         chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
+         chatService = new OpenAIChatCompletionService("o3-mini", OpenAIAPIKEY);
       }
       prompts = await PromptDataService.GetAllPromptsAsync();
       var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
@@ -80,7 +80,7 @@ public partial class AIChatComponentExample : ComponentBase
       {
          return;
       }
-      if (string.IsNullOrWhiteSpace(Constants.OpenAIAPIKEY))
+      if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
       {
          Message = "Please set the OpenAI API key in the TextBox.";
          return;
@@ -89,7 +89,7 @@ public partial class AIChatComponentExample : ComponentBase
       else if (chatService==null)
       {
          Message = "";
-         chatService = new OpenAIChatCompletionService("o3-mini", Constants.OpenAIAPIKEY);
+         chatService = new OpenAIChatCompletionService("o3-mini", OpenAIAPIKEY);
       }
       prompts = await PromptDataService.GetAllPromptsAsync();
       processing = true;

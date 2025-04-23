@@ -56,7 +56,7 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("£")"
-				@onclick="@(()=>LoadCategories("Launch Applications"))">
+				@onclick="@(() => LoadCategories("Launch Applications"))">
 				<span aria-hidden="true">
 					@if (accessKeysEnabled)
 					{
@@ -138,7 +138,7 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("(")"
-				@onclick="@(()=>LoadCategories("IntelliSense Command"))">
+				@onclick="@(() => LoadCategories("IntelliSense Command"))">
 				<span aria-hidden="true">
 					@if (accessKeysEnabled)
 					{
@@ -230,7 +230,8 @@
 								<path
 									d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
 							</svg>
-						} </span> <span>&nbsp; Calendar </span>
+						}
+	 </span> <span>&nbsp; Calendar </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
@@ -271,12 +272,12 @@
 					</span> <span>&nbsp; Todo </span>
 				</NavLink>
 			</li>
-			<li class="nav-item px-3">
-				<NavLink class="nav-link" href="chat">
-					<span class="oi oi-chat" aria-hidden="true"></span> AI Chatbot
-				</NavLink>
-			</li>
 		}
+		<li class="nav-item px-3">
+			<NavLink class="nav-link" href="chat">
+				<span class="oi oi-chat" aria-hidden="true"></span> AI Chatbot
+			</NavLink>
+		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" href="smart-components">
 				<span class="oi oi-code" aria-hidden="true"></span> AI Smart Components

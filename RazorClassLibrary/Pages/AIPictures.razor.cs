@@ -6,6 +6,7 @@ namespace RazorClassLibrary.Pages
     public partial class AIPictures : ComponentBase
     {
         string imagePrompt = "";
+        private string OpenAIAPIKEY = "";
         string imageUrl = "";
         bool generatingImage = false;
         private async Task GenerateImage()
@@ -14,7 +15,7 @@ namespace RazorClassLibrary.Pages
             {
                 imageUrl = "";
                 generatingImage = true;
-                var openAI = new ImageClient("dall-e-3", Constants.OpenAIAPIKEY);
+                var openAI = new ImageClient("dall-e-3", OpenAIAPIKEY);
                 var imageRequest = new ImageGenerationOptions
                 {
                     Quality = GeneratedImageQuality.High,

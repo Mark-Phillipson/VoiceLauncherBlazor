@@ -6,13 +6,10 @@
 {
     <div class="alert alert-info" role="alert">@Message</div>
 }
-@if (string.IsNullOrWhiteSpace(Constants.OpenAIAPIKEY))
-{
-    <div>
-        <input @onblur='LoadData' type='password' placeholder='Enter Your Open AI API key Here..' @bind=Constants.OpenAIAPIKEY
-            class='form-control' />
-    </div>
-}
+<div>
+    <input @onblur='LoadData' type='password' placeholder='Enter Your Open AI API key Here..' @bind=OpenAIAPIKEY
+        class='form-control' />
+</div>
 <div class='row'>
     <div class='col-md-5 bg-dark text-light p-4 rounded'>
         @if (prompts != null)

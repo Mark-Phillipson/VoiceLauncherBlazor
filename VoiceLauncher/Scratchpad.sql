@@ -1,4 +1,4 @@
- SELECT * FROM Transactions
+ SELECT * FROM Prompts  WHERE ID=22
  --Creates some SQL that will define if there are any duplicate rows in this table with the same description and date
     SELECT COUNT(*) AS DuplicateCount, Description, Date
     FROM Transactions
