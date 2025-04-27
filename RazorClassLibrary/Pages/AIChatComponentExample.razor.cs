@@ -125,6 +125,7 @@ public partial class AIChatComponentExample : ComponentBase
         }
         prompts = await PromptDataService.GetAllPromptsAsync();
         processing = true;
+        StateHasChanged();
 
         PromptExecutionSettings settings = new OpenAIPromptExecutionSettings() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
         if (addedPredefinedPrompt == false)
