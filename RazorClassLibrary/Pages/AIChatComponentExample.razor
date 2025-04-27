@@ -6,10 +6,7 @@
 {
     <div class="alert alert-info" role="alert">@Message</div>
 }
-<div>
-    <input @onblur='LoadData' type='password' placeholder='Enter Your Open AI API key Here..' @bind=OpenAIAPIKEY
-        class='form-control' />
-</div>
+
 <div class='row'>
     <div class='col-md-5 bg-dark text-light p-4 rounded'>
         @if (prompts != null)
@@ -19,7 +16,7 @@
             <a target="_blank" class='btn btn-link btn-sm text-light' href="/prompts"><i
                     class="fa-solid fa-pen-to-square"></i> Manage</a>
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-success text-light">
+                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-success text-light m-1">
                 @foreach (var item in prompts)
                 {
                     if (item.Id == selectedPrompt?.Id)
@@ -145,7 +142,7 @@
             }
         }
     </div>
-    <div class='col-md-7 bg-dark text-light p-4 rounded'>
+    <div class='col-md-7 bg-dark text-light p-2 rounded'>
         @if (responseHistory?.Count > 0)
         {
             @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
@@ -154,11 +151,11 @@
             }
             else
             {
-                <textarea @ref='responseElement' class='form-control m-2 text-light border-0'
+                <textarea @ref='responseElement' class='form-control text-light border-0'
                     style="background-color: #2a2a2a !important;" rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
-                    <div class="alert alert-success m-2" role="alert">@AIComments</div>
+                    <div class="alert alert-success" role="alert">@AIComments</div>
                 }
             }
         }
