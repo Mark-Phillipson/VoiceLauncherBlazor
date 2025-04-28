@@ -113,9 +113,12 @@ else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
+                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                ? launcher.Icon
+                                : $"/images/{launcher.Icon}";
                             <a title="Launch Application or Website" accesskey="@currentLetter" style="font-size:large"
                                 class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine">
-                                <img alt='Stock Item Logo' height="50" src='/images/@launcher.Icon' aria-hidden="true" />
+                                <img alt='Stock Item Logo' height="50" src='@iconSrc' aria-hidden="true" />
                                 <u>@currentLetter</u> @launcher.Name
                             </a>
                         }
@@ -132,10 +135,13 @@ else
                     {
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
                         {
+                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                ? launcher.Icon
+                                : $"/images/{launcher.Icon}";
                             <button title='Launch Application or Website' accesskey="@currentLetter" style="font-size:large"
                                 class="btn btn-outline-success text-light mx-2" type="button"
                                 @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">
-                                <img alt="Stock Image" aria-hidden='true' class="" height="35" src='/images/@launcher.Icon' />
+                                <img alt="Stock Image" aria-hidden='true' class="" height="35" src='@iconSrc' />
                                 <u>@currentLetter</u> @launcher.Name
                             </button>
                         }

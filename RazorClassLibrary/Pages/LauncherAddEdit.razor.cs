@@ -27,6 +27,16 @@ namespace RazorClassLibrary.Pages
 #pragma warning restore 414, 649
         string[] filenameList = new string[0];
         List<string> imageUlrs = new List<string>();
+        // New property to track icon input mode
+        public bool UseCustomIconUrl { get; set; } = false;
+        private void SetIconInputMode(bool useCustom)
+        {
+            UseCustomIconUrl = useCustom;
+            if (!useCustom && imageUlrs.Count > 0 && !imageUlrs.Contains(LauncherDTO.Icon))
+            {
+                LauncherDTO.Icon = imageUlrs.First();
+            }
+        }
         private void LoadImages()
         {
             string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";

@@ -56,7 +56,10 @@ else
 					<a accesskey="@counter" class="btn btn-lg btn-outline-success" target="_blank" href="@launcher.CommandLine">
 						@if (launcher.Icon != null && launcher.Icon.Length > 0)
 						{
-							<img height="75" src='/images/@launcher.Icon' />
+							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+								? launcher.Icon
+								: $"/images/{launcher.Icon}";
+							<img height="75" src="@iconSrc" />
 						}
 						else
 						{
@@ -75,7 +78,10 @@ else
 						@onclick="@(() => LaunchItem(launcher))">
 						@if (launcher.Icon != null && launcher.Icon.Length > 0)
 						{
-							<img class="" height="75" src='/images/@launcher.Icon' />
+							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+								? launcher.Icon
+								: $"/images/{launcher.Icon}";
+							<img class="" height="75" src="@iconSrc" />
 						}
 						else
 						{

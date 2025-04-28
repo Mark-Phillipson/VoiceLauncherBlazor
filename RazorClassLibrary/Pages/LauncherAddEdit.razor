@@ -18,22 +18,25 @@
                 </div>
                 <div class="form-group">
                     <label for="Icon">Icon:</label>
-                    <InputSelect id="Icon" class="form-select" @bind-Value="@LauncherDTO.Icon">
-                        @foreach (var item in imageUlrs)
-                            @if (item == LauncherDTO.Icon)
+                    <div>
+                        <input type="radio" id="iconList" name="iconMode" checked="@(!UseCustomIconUrl)" @onchange="_ => SetIconInputMode(false)" />
+                        <label for="iconList">Select from list</label>
+                        <input type="radio" id="iconUrl" name="iconMode" checked="@(UseCustomIconUrl)" @onchange="_ => SetIconInputMode(true)" class="ms-3" />
+                        <label for="iconUrl">Enter web address</label>
+                    </div>
+                    @if (!UseCustomIconUrl)
+                    {
+                        <InputSelect id="Icon" class="form-select" @bind-Value="@LauncherDTO.Icon">
+                            @foreach (var item in imageUlrs)
                             {
-                                <option selected value="@item">
-                                    @item
-                                </option>
+                                <option value="@item">@item</option>
                             }
-                            else
-                            {
-                                <option value="@item">
-                                    @item
-                                </option>
-                            }
-                        }
-                    </InputSelect>
+                        </InputSelect>
+                    }
+                    else
+                    {
+                        <InputText id="IconUrl" class="form-control" @bind-Value="@LauncherDTO.Icon" placeholder="Enter icon web address or image path" />
+                    }
                     <ValidationMessage For="@(() => LauncherDTO.Icon)" />
                 </div>
                 <div class="form-group">
