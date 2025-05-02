@@ -51,12 +51,82 @@
 			color: white;
 		}
 
+/* Bold, noticeable alternating menu item background colors */
+.nav-item:nth-child(odd) {
+    background-color: #2a3b5c;
+}
+
+.nav-item:nth-child(even) {
+    background-color: #3c4a5e;
+}
+
+/* Arrange .letter-label (voice) left, <kbd> (keyboard) right */
+.nav-item ::deep .menu-label-container {
+    display: flex;
+    align-items: center;
+    /* Remove gap so we control spacing with margin on kbd */
+    gap: 0;
+}
+
+.nav-item ::deep .letter-label {
+    order: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item ::deep kbd {
+    order: 2;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0.3em;
+    background: #1a2233;
+    color: #fff;
+    border-radius: 3px;
+    padding-right: 0.3em;
+    font-size: 0.95em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
 .nav-item {
 	min-width: 230px;
 }
 
 .nav-link {
 	min-width: 230px;
+}
+
+/* Make Favourites and Snippets menu items as bold as possible */
+.nav-link[href*="launchersfavourites"],
+.nav-link[href*="intellisenses"] {
+    font-weight: 900;
+    font-size: 1.15em;
+    color: #fff !important;
+    text-shadow: 0 1px 4px #000, 0 0 2px #2a3b5c;
+    letter-spacing: 0.5px;
+}
+
+/* Favourites: pink, Snippets: yellow */
+.nav-link[href*="launchersfavourites"] {
+    color: #ff69b4 !important; /* hot pink */
+    font-weight: bold;
+    text-shadow: none;
+}
+
+.nav-link[href*="intellisenses"] {
+    color: #ffd700 !important; /* gold/yellow */
+    font-weight: bold;
+    text-shadow: none;
+}
+
+/* Force Favourites: pink, Snippets: yellow, using high specificity */
+.nav-link[href*="launchersfavourites"] span {
+    color: #ff69b4 !important;
+    font-weight: bold;
+}
+
+.nav-link[href*="intellisenses"] span {
+    color: #ffd700 !important;
+    font-weight: bold;
 }
 
 @media (min-width: 768px) {
