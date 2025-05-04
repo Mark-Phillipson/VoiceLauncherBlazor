@@ -9,13 +9,7 @@
             <span class="text-info m-1">@LauncherDTO.Id</span>
         }
         <div class="row">
-            <div class="col-12">
-                <div class="form-group">
-                    <label for="Name">Name:</label> <i class="text-danger fa">*</i>
-                    <InputText id="Name" class="form-control" @bind-Value="@LauncherDTO.Name" placeholder="Enter Name">
-                    </InputText>
-                    <ValidationMessage For="@(() => LauncherDTO.Name)" />
-                </div>
+            <div class="col-8">
                 <div class="form-group">
                     <label for="Icon">Icon:</label>
                     <div>
@@ -26,18 +20,40 @@
                     </div>
                     @if (!UseCustomIconUrl)
                     {
-                        <InputSelect id="Icon" class="form-select" @bind-Value="@LauncherDTO.Icon">
+                        <div class="d-flex flex-wrap gap-2 border p-2" style="height: 600px; overflow-y: auto;">
                             @foreach (var item in imageUlrs)
                             {
-                                <option value="@item">@item</option>
+                                <div class="d-flex flex-column align-items-center" style="width: 100px;">
+                                    <img src="/images/@item" 
+                                         class="img-thumbnail mb-1" 
+                                         style="width: 100px; height: 48px; cursor: pointer; border: @(LauncherDTO.Icon == item ? "2px solid #007bff" : "1px solid #dee2e6"); object-fit: contain;"
+                                         @onclick="@(() => LauncherDTO.Icon = item)"
+                                         alt="@item" />
+                                    <small class="text-center" style="word-break: break-all;">@item</small>
+                                </div>
                             }
-                        </InputSelect>
+                        </div>
                     }
                     else
                     {
                         <InputText id="IconUrl" class="form-control" @bind-Value="@LauncherDTO.Icon" placeholder="Enter icon web address or image path" />
+                        @if (!string.IsNullOrEmpty(LauncherDTO.Icon))
+                        {
+                            <img src="@(LauncherDTO.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? LauncherDTO.Icon : $"/images/{LauncherDTO.Icon}")" 
+                                 class="mt-2 img-thumbnail" 
+                                 style="width: 100px; height: 48px; object-fit: contain;"
+                                 alt="Selected icon preview" />
+                        }
                     }
                     <ValidationMessage For="@(() => LauncherDTO.Icon)" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="Name">Name:</label> <i class="text-danger fa">*</i>
+                    <InputText id="Name" class="form-control" @bind-Value="@LauncherDTO.Name" placeholder="Enter Name">
+                    </InputText>
+                    <ValidationMessage For="@(() => LauncherDTO.Name)" />
                 </div>
                 <div class="form-group">
                     <label for="CommandLine">Command Line: </label>
@@ -57,10 +73,9 @@
                         placeholder="Enter Arguments"></InputText>
                     <ValidationMessage For="@(() => LauncherDTO.Arguments)" />
                 </div>
-
                 <div class="form-group">
                     <label for="CategoryId">Category: </label> <i class="text-danger fa">*</i>
-                    <InputSelect id="category" class="form-select col-sm-8" @bind-Value="@LauncherDTO.CategoryId">
+                    <InputSelect id="category" class="form-select" @bind-Value="@LauncherDTO.CategoryId">
                         @foreach (var category in _categories)
                         {
                             <option value="@category.Id">@category.CategoryName</option>
@@ -75,23 +90,33 @@
                     <ValidationMessage For="@(() => LauncherDTO.ComputerId)" />
                 </div>
                 <div class="form-group">
-                    <label for="SortOrder">Sort Orderc: </label>
+                    <label for="SortOrder">Sort Order: </label>
                     <InputNumber id="SortOrder" class="form-control" @bind-Value="@LauncherDTO.SortOrder"
                         placeholder="Enter Sort Order"></InputNumber>
                     <ValidationMessage For="@(() => LauncherDTO.SortOrder)" />
                 </div>
                 <div class="form-group">
-                    <label for="Favourite">Favourite: </label>
-                    <InputCheckbox id="Favorite" class="form-checkbox" @bind-Value="@LauncherDTO.Favourite"
-                        placeholder="Enter Favourite"></InputCheckbox>
+                    <label for="Favourite" class="d-block mb-2">Favourite: </label>
+                    <div class="form-check">
+                        <InputCheckbox id="Favorite" class="form-check-input" 
+                            style="width: 30px; height: 30px; cursor: pointer;"
+                            @bind-Value="@LauncherDTO.Favourite" />
+                        <label class="form-check-label ms-2" for="Favorite" style="font-size: 1.2rem;">
+                            Mark as Favourite
+                        </label>
+                    </div>
                     <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
                 </div>
             </div>
         </div>
-        <div class="" style="float:right">
-            <button accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
-            <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save Record (4)</button>
-            <SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="" style="float:right">
+                    <button accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
+                    <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save Record (4)</button>
+                    <SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
+                </div>
+            </div>
         </div>
     </EditForm>
 </div>
