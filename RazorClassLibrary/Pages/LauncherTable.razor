@@ -32,7 +32,7 @@
     <div class="col-auto me-4">
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <InputSelect ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
+            <InputSelect accesskey='1' ValueExpression="@(()=>CategoryId)" id='CategoryId' Value="@CategoryId"
                 ValueChanged="@(( int  value) => OnCategorySelectedAsync(value))" class="form-select">
                 <option value="">Select Category (Alt+1)</option>
                 @foreach (var item in _categories)
@@ -99,21 +99,20 @@ else
             alphabetCounter++;
             currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
             @if (launcher.CommandLine.ToLower().StartsWith("http"))
-            {
-                <div class="card m-1">
-                    @if (launcher.Icon != null && launcher.Icon.Length > 0)
-                    {
-                        var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                            ? launcher.Icon
-                            : $"/images/{launcher.Icon}";
-                        <img alt='Icon' src='@iconSrc' />
-                    }
-                    else
-                    {
-                        <i class="fa-solid fa-rocket"></i>
-                    }
+            {                <div class="card m-1">
                     <a title="Launch Application or Website" accesskey="@currentLetter" class="btn btn-outline-success" target="_blank" href="@launcher.CommandLine">
-                        <u>@currentLetter</u> @launcher.Name
+                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                        {
+                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                ? launcher.Icon
+                                : $"/images/{launcher.Icon}";
+                            <img alt='Icon' src='@iconSrc' class="mb-2" />
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-rocket mb-2"></i>
+                        }
+                        <span><u>@currentLetter</u> @launcher.Name</span>
                     </a>
                     @if (!RunningInBlazorHybrid)
                     {
@@ -131,23 +130,22 @@ else
                 </div>
             }
             else
-            {
-                <div class="card m-1">
-                    @if (launcher.Icon != null && launcher.Icon.Length > 0)
-                    {
-                        var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                            ? launcher.Icon
-                            : $"/images/{launcher.Icon}";
-                        <img alt='Icon' src='@iconSrc' />
-                    }
-                    else
-                    {
-                        <i class="fa-solid fa-rocket"></i>
-                    }
+            {                <div class="card m-1">
                     <button title='Launch Application or Website' accesskey="@currentLetter"
                         class="btn btn-outline-success" type="button"
                         @onclick="@( ( ) => ProcessLaunching(launcher.Id  ) )">
-                        <u>@currentLetter</u> @launcher.Name
+                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                        {
+                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                ? launcher.Icon
+                                : $"/images/{launcher.Icon}";
+                            <img alt='Icon' src='@iconSrc' class="mb-2" />
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-rocket mb-2"></i>
+                        }
+                        <span><u>@currentLetter</u> @launcher.Name</span>
                     </button>
                     @if (!RunningInBlazorHybrid)
                     {

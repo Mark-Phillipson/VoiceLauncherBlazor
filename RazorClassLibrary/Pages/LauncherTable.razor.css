@@ -22,19 +22,16 @@
 
 .card img {
     width: 100%;
-    height: 100px;
+    max-height: 100px;
     object-fit: contain;
-    order: 3;
 }
 
 .card i.fa-rocket {
     width: 100%;
-    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 50px;
-    order: 3;
 }
 
 .card a.btn, 
@@ -42,6 +39,32 @@
     width: 100%;
     color: #28a745 !important;
     order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.card a.btn span, 
+.card button.btn-outline-success span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.card a.btn:hover, 
+.card button.btn-outline-success:hover {
+    color: white !important;
+    background-color: #28a745;
+}
+
+.card a.btn:hover img, 
+.card button.btn-outline-success:hover img,
+.card a.btn:hover i, 
+.card button.btn-outline-success:hover i {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
 }
 
 .card .btn-group {
