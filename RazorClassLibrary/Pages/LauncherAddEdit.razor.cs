@@ -23,7 +23,7 @@ namespace RazorClassLibrary.Pages
         [Inject] public ILauncherDataService? LauncherDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
         [Inject]
-        private ILauncherRepository LauncherRepository { get; set; }
+        private ILauncherRepository? LauncherRepository { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649

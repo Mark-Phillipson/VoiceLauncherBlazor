@@ -27,6 +27,7 @@ namespace DataAccessLibrary.Models
 		{
 			_configuration = configuration;
 		}
+		public virtual DbSet<LauncherCategoryBridge> LauncherCategoryBridges { get; set; }
 		public virtual DbSet<Transaction> Transactions { get; set; }
 		public virtual DbSet<TransactionTypeMapping> TransactionTypeMappings { get; set; }
 		public virtual DbSet<CursorlessCheatsheetItem> CursorlessCheatsheetItems { get; set; }

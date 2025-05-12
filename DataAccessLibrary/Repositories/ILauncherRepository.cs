@@ -15,4 +15,5 @@ public interface ILauncherRepository
     Task<LauncherDTO?> GetLauncherByIdAsync(int Id);
     Task<LauncherDTO?> UpdateLauncherAsync(LauncherDTO launcherDTO);
     Task UpdateLauncherCategoriesAsync(int id, HashSet<int> selectedCategoryIds);
+    Task<IEnumerable<int>> GetCategoryIdsForLauncherAsync(int id);
 }

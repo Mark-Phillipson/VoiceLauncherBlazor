@@ -1,4 +1,3 @@
-
 using AutoMapper;
 
 using DataAccessLibrary.DTO;
@@ -23,10 +22,6 @@ namespace DataAccessLibrary.Repositories;
 			_contextFactory = contextFactory;
         _mapper = mapper;
 		}
-
-    public LauncherRepository()
-    {
-    }
 
     public async Task<IEnumerable<LauncherDTO>> GetAllLaunchersAsync(int CategoryId)
 		{
@@ -133,8 +128,55 @@ namespace DataAccessLibrary.Repositories;
 
 		}
 
-    public Task UpdateLauncherCategoriesAsync(int id, HashSet<int> selectedCategoryIds)
+    public async Task UpdateLauncherCategoriesAsync(int launcherId, HashSet<int> selectedCategoryIds)
     {
-        throw new NotImplementedException();
+        using var context = _contextFactory.CreateDbContext();
+        
+        // Get existing category associations for this launcher
+        var existingAssociations = await context.LauncherCategoryBridges
+            .Where(lcb => lcb.LauncherId == launcherId)
+            .ToListAsync();
+        
+        // Remove associations that aren't in the selectedCategoryIds
+        var associationsToRemove = existingAssociations
+            .Where(a => !selectedCategoryIds.Contains(a.CategoryId))
+            .ToList();
+            
+        if (associationsToRemove.Any())
+        {
+            context.LauncherCategoryBridges.RemoveRange(associationsToRemove);
+        }
+        
+        // Add new associations that don't already exist
+        var existingCategoryIds = existingAssociations.Select(a => a.CategoryId).ToHashSet();
+        var categoriesToAdd = selectedCategoryIds
+            .Where(id => !existingCategoryIds.Contains(id))
+            .Select(categoryId => new LauncherCategoryBridge 
+            { 
+                LauncherId = launcherId, 
+                CategoryId = categoryId 
+            })
+            .ToList();
+            
+        if (categoriesToAdd.Any())
+        {
+            await context.LauncherCategoryBridges.AddRangeAsync(categoriesToAdd);
+        }
+        
+        // Save changes to the database
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<int>> GetCategoryIdsForLauncherAsync(int launcherId)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        
+        // Query the bridge table to get all category IDs associated with this launcher
+        var categoryIds = await context.LauncherCategoryBridges
+            .Where(lcb => lcb.LauncherId == launcherId)
+            .Select(lcb => lcb.CategoryId)
+            .ToListAsync();
+            
+        return categoryIds;
     }
 }

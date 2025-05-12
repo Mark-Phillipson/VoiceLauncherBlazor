@@ -94,7 +94,7 @@
                                        type="checkbox" 
                                        id="category-@category.Id" 
                                        checked="@(SelectedCategoryIds.Contains(category.Id))" 
-                                       @onchange="@(e => CategoryCheckboxChanged(category.Id, e.Value))" />
+                                       @onchange="@(e => CategoryCheckboxChanged(category.Id, e?.Value))" />
                                 <label class="form-check-label" for="category-@category.Id">
                                     @category.CategoryName
                                 </label>
