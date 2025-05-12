@@ -23,7 +23,7 @@ namespace RazorClassLibrary.Pages
         [Inject] public ILauncherDataService? LauncherDataService { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
         [Inject]
-        private ILauncherRepository? LauncherRepository { get; set; }
+        public required ILauncherRepository LauncherRepository { get; set; }
 #pragma warning disable 414, 649
         string TaskRunning = "";
 #pragma warning restore 414, 649
@@ -77,7 +77,7 @@ namespace RazorClassLibrary.Pages
             if (LauncherDTO.Id > 0)
             {
                 // Load existing category associations
-                var categoryIds = await LauncherRepository.GetCategoryIdsForLauncherAsync(LauncherDTO.Id);
+                var categoryIds = await LauncherRepository!.GetCategoryIdsForLauncherAsync(LauncherDTO.Id);
                 SelectedCategoryIds = new HashSet<int>(categoryIds);
 
                 // Keep the primary category if it exists
@@ -116,7 +116,7 @@ namespace RazorClassLibrary.Pages
                 ModalInstance.CancelAsync();
         }
 
-        protected void CategoryCheckboxChanged(int categoryId, object checkedValue)
+        protected void CategoryCheckboxChanged(int categoryId, object? checkedValue)
         {
             if (checkedValue is bool isChecked)
             {
@@ -174,7 +174,7 @@ namespace RazorClassLibrary.Pages
             }
             else
             {
-                savedLauncher = await LauncherRepository.AddLauncherAsync(LauncherDTO);
+                savedLauncher = await LauncherRepository!.AddLauncherAsync(LauncherDTO);
             }
 
             if (savedLauncher != null)

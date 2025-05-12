@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
+    [Table("LauncherCategoryBridge")]
     public class LauncherCategoryBridge
     {
         [Key]

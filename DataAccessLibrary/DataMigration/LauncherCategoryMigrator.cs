@@ -72,8 +72,8 @@ namespace DataAccessLibrary.DataMigration
             public int TotalLaunchersFound { get; set; }
             public int NewRelationshipsCreated { get; set; }
             public int ExistingRelationshipsFound { get; set; }
-            public string ErrorMessage { get; set; }
-            public Exception Exception { get; set; }
+            public string? ErrorMessage { get; set; }
+            public Exception? Exception { get; set; }
         }
     }
 }

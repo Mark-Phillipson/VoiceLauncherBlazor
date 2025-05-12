@@ -1618,13 +1618,13 @@ namespace DataAccessLibrary.Migrations
             modelBuilder.Entity("DataAccessLibrary.Models.LauncherCategoryBridge", b =>
                 {
                     b.HasOne("DataAccessLibrary.Models.Category", "Category")
-                        .WithMany("LauncherCategoryBridges")
+                        .WithMany("LauncherCategoryBridge")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLibrary.Models.Launcher", "Launcher")
-                        .WithMany("LauncherCategoryBridges")
+                        .WithMany("LauncherCategoryBridge")
                         .HasForeignKey("LauncherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1668,7 +1668,7 @@ namespace DataAccessLibrary.Migrations
                 {
                     b.Navigation("CustomIntelliSense");
 
-                    b.Navigation("LauncherCategoryBridges");
+                    b.Navigation("LauncherCategoryBridge");
 
                     b.Navigation("Launchers");
                 });
@@ -1697,7 +1697,7 @@ namespace DataAccessLibrary.Migrations
 
             modelBuilder.Entity("DataAccessLibrary.Models.Launcher", b =>
                 {
-                    b.Navigation("LauncherCategoryBridges");
+                    b.Navigation("LauncherCategoryBridge");
 
                     b.Navigation("LaunchersMultipleLauncherBridges");
                 });
