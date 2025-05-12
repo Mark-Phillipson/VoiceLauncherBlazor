@@ -1,4 +1,3 @@
-
 using AutoMapper;
 using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -84,13 +83,13 @@ namespace VoiceLauncher.Repositories
 			{
 				foreach (var category in CategoriesDTO)
 				{
-					var tableCategory = Categories.Where(v => v.Id == category.Id).FirstOrDefault();
-					if (tableCategory != null)
-					{
-						category.CountOfLaunchers = tableCategory.Launchers?.Count ?? 0;
-					}
+					// Get count from bridge table instead of direct relationship
+					var launcherCount = await context.LauncherCategoryBridges
+						.Where(lcb => lcb.CategoryId == category.Id)
+						.CountAsync();
+						
+					category.CountOfLaunchers = launcherCount;
 				}
-
 			}
 			return CategoriesDTO;
 		}
