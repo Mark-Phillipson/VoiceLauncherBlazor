@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VoiceLauncher.Repositories;
 using DataAccessLibrary.Models;
+using DataAccessLibrary.Repositories;
 
-
-namespace VoiceLauncher.Services
+namespace DataAccessLibrary.Services
 {
     public class LauncherDataService : ILauncherDataService
     {
@@ -18,7 +17,7 @@ namespace VoiceLauncher.Services
 
         public LauncherDataService(ILauncherRepository launcherRepository)
         {
-            this._launcherRepository = launcherRepository;
+            _launcherRepository = launcherRepository;
         }
         public async Task<List<LauncherDTO>> GetAllLaunchersAsync(int CategoryID)
         {

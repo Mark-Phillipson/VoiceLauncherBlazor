@@ -8,9 +8,9 @@ namespace DataAccessLibrary.Models
 
 	public partial class ApplicationDbContext : DbContext
 	{
-		public ApplicationDbContext()
-		{
-		}
+		// public ApplicationDbContext()
+		// {
+		// }
 		// public ApplicationDbContext(string connectionString)
 		// {
 		// 	_connectionString = connectionString;

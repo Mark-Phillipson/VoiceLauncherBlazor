@@ -3,16 +3,16 @@ using AutoMapper;
 
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
-
 using Microsoft.EntityFrameworkCore;
-
+using DataAccessLibrary.Repositories;
+using DataAccessLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace VoiceLauncher.Repositories
-{
+namespace DataAccessLibrary.Repositories;
+
 	public class LauncherRepository : ILauncherRepository
 	{
 		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
@@ -21,9 +21,14 @@ namespace VoiceLauncher.Repositories
 		public LauncherRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
 		{
 			_contextFactory = contextFactory;
-			this._mapper = mapper;
+        _mapper = mapper;
 		}
-		public async Task<IEnumerable<LauncherDTO>> GetAllLaunchersAsync(int CategoryId)
+
+    public LauncherRepository()
+    {
+    }
+
+    public async Task<IEnumerable<LauncherDTO>> GetAllLaunchersAsync(int CategoryId)
 		{
 			using var context = _contextFactory.CreateDbContext();
 			List<Launcher> launchers;
@@ -38,7 +43,7 @@ namespace VoiceLauncher.Repositories
 				return launchersDTO;
 			}
 			launchers = await context.Launcher
-								.Where(v => v.CategoryId == CategoryId)
+								.Where(v => v.LauncherCategoryBridges.Any(b => b.CategoryId == CategoryId))
 								.OrderBy(v => v.SortOrder)
 								.ThenBy(x => x.Name)
 								.ToListAsync();
@@ -127,5 +132,9 @@ namespace VoiceLauncher.Repositories
 			return LaunchersDTO;
 
 		}
-	}
+
+    public Task UpdateLauncherCategoriesAsync(int id, HashSet<int> selectedCategoryIds)
+    {
+        throw new NotImplementedException();
+    }
 }
