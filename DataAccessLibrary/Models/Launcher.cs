@@ -23,6 +23,9 @@ namespace DataAccessLibrary.Models
         public string? WorkingDirectory { get; set; }
         [StringLength(255)]
         public string? Arguments { get; set; }
+        // Keep CategoryId temporarily for migration purposes
+        [Column("CategoryID")]
+        public int CategoryId { get; set; }
         [Column("ComputerID")]
         public int? ComputerId { get; set; }
         [StringLength(30)]
@@ -31,11 +34,18 @@ namespace DataAccessLibrary.Models
         public string? Icon { get; set; }
         public bool Favourite { get; set; }
         public int SortOrder { get; set; }
+        
+        // Keep the Category property temporarily for migration
+        [ForeignKey(nameof(CategoryId))]
+        [InverseProperty(nameof(Models.Category.Launchers))]
+        public virtual Category Category { get; set; } = null!;
+        
         [ForeignKey(nameof(ComputerId))]
         [InverseProperty(nameof(Models.Computer.Launcher))]
         public virtual Computer? Computer { get; set; }
         public virtual ICollection<LauncherMultipleLauncherBridge> LaunchersMultipleLauncherBridges { get; set; }
         
+        // Add the new collection property for the bridge
         [InverseProperty(nameof(LauncherCategoryBridge.Launcher))]
         public virtual ICollection<LauncherCategoryBridge> LauncherCategoryBridges { get; set; }
     }
