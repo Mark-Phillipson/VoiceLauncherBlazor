@@ -6,6 +6,8 @@
 	],
 	"settings": {
 		"workbench.colorCustomizations": {
+			"tab.activeBackground": "#5c3e90",
+			"editorGhostText.foreground": "#888888",
 			"activityBar.activeBackground": "#3399ff",
 			"activityBar.background": "#3399ff",
 			"activityBar.foreground": "#15202b",
