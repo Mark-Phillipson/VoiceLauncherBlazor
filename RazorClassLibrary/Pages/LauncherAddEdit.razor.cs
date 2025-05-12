@@ -159,10 +159,18 @@ namespace RazorClassLibrary.Pages
             }
 
             // Save launcher first
-            LauncherDTO savedLauncher;
+            LauncherDTO? savedLauncher;
             if (LauncherDTO.Id > 0)
             {
-                savedLauncher = await LauncherRepository.UpdateLauncherAsync(LauncherDTO);
+                if (LauncherRepository != null)
+                {
+                    savedLauncher = await LauncherRepository.UpdateLauncherAsync(LauncherDTO);
+                }
+                else
+                {
+                    ToastService?.ShowError("LauncherRepository is not initialized.");
+                    return;
+                }
             }
             else
             {
