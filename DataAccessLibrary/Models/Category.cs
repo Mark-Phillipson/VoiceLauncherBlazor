@@ -13,7 +13,8 @@ namespace DataAccessLibrary.Models
         public Category()
         {
             CustomIntelliSense = new HashSet<CustomIntelliSense>();
-            Launchers = new HashSet<Launcher>();
+            // Removed direct reference to Launchers
+            LauncherCategoryBridges = new HashSet<LauncherCategoryBridge>();
         }
         [Key]
         [Column("ID")]
@@ -33,7 +34,9 @@ namespace DataAccessLibrary.Models
         public string? Icon { get; set; }
         [InverseProperty("Category")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
-        [InverseProperty("Category")]
-        public virtual ICollection<Launcher> Launchers { get; set; }
+        
+        // Replace direct launchers collection with the bridge collection
+        [InverseProperty(nameof(LauncherCategoryBridge.Category))]
+        public virtual ICollection<LauncherCategoryBridge> LauncherCategoryBridges { get; set; }
     }
 }
