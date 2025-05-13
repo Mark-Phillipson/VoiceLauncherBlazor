@@ -24,7 +24,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public EventCallback CloseApplication { get; set; }
 		[Parameter] public EventCallback MaximizeApplication { get; set; }
 		private string Title { get; set; } = "Snippets";
-		private bool useSemanticMatching = false;
+		private bool useSemanticMatching = true;
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }

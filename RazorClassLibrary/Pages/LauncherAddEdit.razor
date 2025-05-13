@@ -1,9 +1,11 @@
-@*@page "/launcher/{Id:int?}"*@
 @using SmartComponents
+@using Microsoft.AspNetCore.Components.Forms
+@using System
+
 <div style="min-width:80vw">
     <EditForm Model="@LauncherDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
-        @*<ValidationSummary />*@
+        <ValidationSummary />
         @if (LauncherDTO.Id > 0)
         {
             <span class="text-info m-1">@LauncherDTO.Id</span>

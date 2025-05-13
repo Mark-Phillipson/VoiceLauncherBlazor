@@ -146,9 +146,9 @@ namespace RazorClassLibrary.Pages
         protected async Task HandleValidSubmit()
         {
             // Validate that at least one category is selected
-            if (!SelectedCategoryIds.Any())
+            if (!SelectedCategoryIds.Any() && LauncherDTO.CategoryId <= 0)
             {
-                // Show validation error
+                ToastService?.ShowError("Please select at least one category.");
                 return;
             }
 
