@@ -418,6 +418,27 @@ namespace RazorClassLibrary.Pages
                   // Start prefetching next page
                   _ = PrefetchNextPage(); // Use discard to silence CS4014
                }
+               else
+               {
+                  // Direct database fetch if cache is empty
+                  var languageTask = LanguageDataService.GetLanguageById(LanguageId);
+                  var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
+                  var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
+                      ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
+                      : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+
+                  await Task.WhenAll(languageTask, categoryTask, dataTask);
+
+                  currentLanguage = await languageTask;
+                  currentCategory = await categoryTask;
+                  CustomIntelliSenseDTO = await dataTask;
+                  FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO;
+
+                  var totalCount = CustomIntelliSenseDTO?.FirstOrDefault()?.TotalCount ?? 0;
+                  Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
+
+                  _ = PrefetchNextPage();
+               }
             }
          }
          catch (Exception e)
