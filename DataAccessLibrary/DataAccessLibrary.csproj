@@ -5,6 +5,8 @@
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 		<Nullable>enable</Nullable>
 		<Platforms>AnyCPU;x64</Platforms>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
 
 	<ItemGroup>

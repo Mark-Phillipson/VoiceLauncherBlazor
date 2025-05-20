@@ -1,4 +1,3 @@
-
 using AutoMapper;
 
 using DataAccessLibrary.DTO;
@@ -26,25 +25,33 @@ namespace VoiceLauncher.Repositories
       public async Task<IEnumerable<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int LanguageId, int CategoryId, int pageNumber, int pageSize)
       {
          using var context = _contextFactory.CreateDbContext();
-         var CustomIntelliSenses = await context.CustomIntelliSenses
+    
+         // Get total count for the given filters
+         var totalCount = await context.CustomIntelliSenses
              .Where(v => v.CategoryId == CategoryId && v.LanguageId == LanguageId)
+             .CountAsync();
+
+         // Get page of data with related entities in a single query
+         var customIntelliSenses = await context.CustomIntelliSenses
+             .Where(v => v.CategoryId == CategoryId && v.LanguageId == LanguageId)
+             .Include(x => x.Language)
+             .Include(x => x.Category)
              .OrderBy(x => x.DisplayValue)
+             .Skip((pageNumber - 1) * pageSize)
+             .Take(pageSize)
+             .AsNoTracking() // Optimization since we're only reading
              .ToListAsync();
-         IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
-         foreach (var item in CustomIntelliSensesDTO)
+
+         // Map to DTOs - no need for additional queries since related data is included
+         var customIntelliSenseDTOs = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(customIntelliSenses);
+    
+         // Set the total count in the first DTO for the UI to use
+         if (customIntelliSenseDTOs.Any())
          {
-            var language = context.Languages.Where(x => x.Id == item.LanguageId).FirstOrDefault();
-            if (language != null)
-            {
-               item.LanguageName = language.LanguageName;
-            }
-            var category = context.Categories.Where(x => x.Id == item.CategoryId).FirstOrDefault();
-            if (category != null)
-            {
-               item.CategoryName = category.CategoryName;
-            }
+             customIntelliSenseDTOs.First().TotalCount = totalCount;
          }
-         return CustomIntelliSensesDTO;
+
+         return customIntelliSenseDTOs;
       }
       public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)
       {

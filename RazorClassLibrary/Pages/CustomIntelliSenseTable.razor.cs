@@ -10,10 +10,11 @@ using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
 using System.Security.Claims;
 using VoiceLauncher.Services;
+using RazorClassLibrary.Services;
 
 namespace RazorClassLibrary.Pages
 {
-   public partial class CustomIntelliSenseTable : ComponentBase
+   public partial class CustomIntelliSenseTable : ComponentBase, IDisposable
    {
       [Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
       [Inject] public required NavigationManager NavigationManager { get; set; }
@@ -22,6 +23,7 @@ namespace RazorClassLibrary.Pages
       [Inject] public required ICategoryDataService CategoryDataService { get; set; }
       [Inject] public required IToastService ToastService { get; set; }
       [CascadingParameter] public IModalService? Modal { get; set; }
+      [Inject] public required ComponentCacheService Cache { get; set; }
       public string Title { get; set; } = "CustomIntelliSense Items (CustomIntelliSenses)";
       public string EditTitle { get; set; } = "Edit CustomIntelliSense Item (CustomIntelliSenses)";
       [Parameter] public string GlobalSearchTerm { get; set; } = "";
@@ -40,7 +42,15 @@ namespace RazorClassLibrary.Pages
       private bool _loadFailed = false;
       private string? searchTerm = null;
 #pragma warning restore 414, 649
-      public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
+      public string? SearchTerm 
+      { 
+         get => searchTerm; 
+         set 
+         { 
+            searchTerm = value;
+            _ = InvokeAsync(() => ApplyFilter());
+         } 
+      }
       public string ExceptionMessage { get; set; } = string.Empty;
       public List<string>? PropertyInfo { get; set; }
       [CascadingParameter] public ClaimsPrincipal? User { get; set; }
@@ -52,72 +62,54 @@ namespace RazorClassLibrary.Pages
       private int pageSize = 10;
       private int counter = 0;
       private int shortcutValue = 0;
+      private CancellationTokenSource? _searchCancellation;
+      private Task? _prefetchTask;
+      private const int SEARCH_DEBOUNCE_MS = 300;
       protected override async Task OnInitializedAsync()
       {
+         // Load data only once during initialization
          await LoadData();
       }
-      protected override async Task OnParametersSetAsync()
-      {
-         await LoadData();
-      }
-      private async Task LoadData()
-      {
-         try
-         {
-            if (CustomIntelliSenseDataService != null)
-            {
-               if (LanguageId == 0)
-               {
-                  LanguageId = 8;
-               }
-               if (CategoryId == 0)
-               {
-                  CategoryId = 34;
-               }
-               currentLanguage = await LanguageDataService.GetLanguageById(LanguageId);
-               currentCategory = await CategoryDataService.GetCategoryById(CategoryId);
-               //Not paging here, just getting all records
-               List<CustomIntelliSenseDTO> result;
-               if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
-               {
-                  result = await CustomIntelliSenseDataService!.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
-               }
-               else
-               {
-                  result = await CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
-                  pageSize = result.Count;
-               }
-               if (result != null)
-               {
-                  CustomIntelliSenseDTO = result.ToList();
-                  FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO;
-                  ApplyFilter();
-                  StateHasChanged();
-               }
-            }
-         }
-         catch (Exception e)
-         {
-            Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
-            _loadFailed = true;
-            ExceptionMessage = e.Message;
-         }
-         Title = $"Snippets ({FilteredCustomIntelliSenseDTO?.Count}) of {CustomIntelliSenseDTO?.Count}";
+      private string GetCacheKey(string suffix = "", int? pageNum = null) => 
+          $"CustomIntelliSenseTable_{LanguageId}_{CategoryId}_{pageNum ?? pageNumber}_{pageSize}_{GlobalSearchTerm}{suffix}";
 
-      }
-      private async Task NextPageAsync()
+      private string GetFilterCacheKey() =>
+          $"CustomIntelliSenseTable_Filter_{LanguageId}_{CategoryId}_{pageNumber}_{pageSize}_{GlobalSearchTerm}_{SearchTerm}";
+
+      private async Task InvalidateCache()
       {
-         pageNumber = pageNumber + 1;
+         Cache.InvalidateCache($"CustomIntelliSenseTable_{LanguageId}_{CategoryId}");
          await LoadData();
       }
-      private async Task PreviousPageAsync()
+
+      private async Task PrefetchNextPage()
       {
-         pageNumber = pageNumber - 1;
-         if (pageNumber < 1)
+         try 
          {
-            pageNumber = 1;
+            // Cancel any existing prefetch
+            if (_prefetchTask != null && !_prefetchTask.IsCompleted)
+            {
+               return;
+            }
+
+            var nextPageKey = GetCacheKey("", pageNumber + 1);
+            if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+            {
+               return; // Don't prefetch during global search
+            }
+
+            _prefetchTask = Cache.GetOrSetAsync(nextPageKey, async () =>
+            {
+               var data = await CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(
+                  LanguageId, CategoryId, pageNumber + 1, pageSize);
+               return new { Data = data, Language = currentLanguage, Category = currentCategory };
+            });
+            await _prefetchTask;
          }
-         await LoadData();
+         catch 
+         {
+            // Ignore prefetch errors
+         }
       }
 
       protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -156,39 +148,55 @@ namespace RazorClassLibrary.Pages
             var result = await formModal.Result;
             if (!result.Cancelled)
             {
-               await LoadData();
+               await InvalidateCache();
             }
          }
          CustomIntelliSenseId = 0;
-      }
-
-
-      private void ApplyFilter()
+      }      private async Task ApplyFilter()
       {
-         if (FilteredCustomIntelliSenseDTO == null || CustomIntelliSenseDTO == null)
+         // Cancel any previous search operation
+         _searchCancellation?.Cancel();
+         _searchCancellation?.Dispose();
+         _searchCancellation = new CancellationTokenSource();
+
+         try
          {
-            return;
+             // Debounce the search
+             await Task.Delay(SEARCH_DEBOUNCE_MS, _searchCancellation.Token);
+
+             if (FilteredCustomIntelliSenseDTO == null || CustomIntelliSenseDTO == null)
+             {
+                 return;
+             }
+
+             var filterCacheKey = GetFilterCacheKey();
+             FilteredCustomIntelliSenseDTO = await Cache.GetOrSetAsync(filterCacheKey, () =>
+             {
+                 if (string.IsNullOrEmpty(SearchTerm))
+                 {
+                     // No additional filtering needed since we're already paginated from the server
+                     return Task.FromResult(CustomIntelliSenseDTO);
+                 }
+                 else
+                 {
+                     var temporary = SearchTerm.ToLower().Trim();
+                     var filtered = CustomIntelliSenseDTO
+                         .Where(v =>
+                             v.DisplayValue != null && v.DisplayValue.ToLower().Contains(temporary) ||
+                             v.SendKeysValue != null && v.SendKeysValue.ToLower().Contains(temporary) ||
+                             v.CommandType != null && v.CommandType.ToLower().Contains(temporary) ||
+                             v.DeliveryType != null && v.DeliveryType.ToLower().Contains(temporary)
+                         )
+                         .ToList();
+                     return Task.FromResult(filtered);
+                 }
+             });
+
+             StateHasChanged();
          }
-         if (string.IsNullOrEmpty(SearchTerm))
+         catch (OperationCanceledException)
          {
-            FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO.OrderBy(v => v.DisplayValue)
-            .Skip((pageNumber-1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-            Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {CustomIntelliSenseDTO.Count}";
-         }
-         else
-         {
-            var temporary = SearchTerm.ToLower().Trim();
-            FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO
-                .Where(v =>
-                v.DisplayValue != null && v.DisplayValue.ToLower().Contains(temporary)
-                 || v.SendKeysValue != null && v.SendKeysValue.ToLower().Contains(temporary)
-                 || v.CommandType != null && v.CommandType.ToLower().Contains(temporary)
-                 || v.DeliveryType != null && v.DeliveryType.ToLower().Contains(temporary)
-                )
-                .ToList();
-            Title = $"Filtered Snippets ({FilteredCustomIntelliSenseDTO.Count})";
+             // Search was cancelled, ignore
          }
       }
       protected void SortCustomIntelliSense(string sortColumn)
@@ -249,7 +257,7 @@ namespace RazorClassLibrary.Pages
                {
                   await CustomIntelliSenseDataService.DeleteCustomIntelliSense(Id);
                   ToastService?.ShowSuccess("Custom Intelli Sense deleted successfully");
-                  await LoadData();
+                  await InvalidateCache();
                }
             }
          }
@@ -273,7 +281,7 @@ namespace RazorClassLibrary.Pages
             var result = await formModal.Result;
             if (!result.Cancelled)
             {
-               await LoadData();
+               await InvalidateCache();
             }
          }
          CustomIntelliSenseId = Id;
@@ -344,6 +352,103 @@ namespace RazorClassLibrary.Pages
             await CloseApplication.InvokeAsync();
          }
 
+      }
+
+      private async Task LoadData()
+      {
+         try
+         {
+            StateHasChanged();
+
+            if (CustomIntelliSenseDataService != null)
+            {
+               if (LanguageId == 0) LanguageId = 8;
+               if (CategoryId == 0) CategoryId = 34;
+
+               // Try to get the complete state from cache
+               var cacheKey = GetCacheKey();
+               var filterCacheKey = GetFilterCacheKey();
+
+               // First try to get filtered results from cache
+               var filteredResult = await Cache.GetOrSetAsync(filterCacheKey, async () =>
+               {
+                  // Get the main data
+                  var cachedState = await Cache.GetOrSetAsync(cacheKey, async () =>
+                  {
+                     // Load language and category data in parallel
+                     var languageTask = LanguageDataService.GetLanguageById(LanguageId);
+                     var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
+                     
+                     // Load the data page
+                     var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
+                         ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
+                         : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+
+                     await Task.WhenAll(languageTask, categoryTask, dataTask);
+
+                     return new
+                     {
+                        Language = await languageTask,
+                        Category = await categoryTask,
+                        Data = await dataTask
+                     };
+                  });
+
+                  if (cachedState != null)
+                  {
+                     currentLanguage = cachedState.Language;
+                     currentCategory = cachedState.Category;
+                     CustomIntelliSenseDTO = cachedState.Data;
+
+                     // Apply filter and cache the result
+                     ApplyFilter();
+                     return FilteredCustomIntelliSenseDTO;
+                  }
+
+                  return null;
+               });
+
+               if (filteredResult != null)
+               {
+                  FilteredCustomIntelliSenseDTO = filteredResult;
+                  // Get total count from first item if available
+                  var totalCount = CustomIntelliSenseDTO?.FirstOrDefault()?.TotalCount ?? 0;
+                  Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
+
+                  // Start prefetching next page
+                  _ = PrefetchNextPage(); // Use discard to silence CS4014
+               }
+            }
+         }
+         catch (Exception e)
+         {
+            Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
+            _loadFailed = true;
+            ExceptionMessage = e.Message;
+         }
+         finally
+         {
+            StateHasChanged();
+         }
+      }
+
+      // Add these methods if they are missing
+      private Task PreviousPageAsync()
+      {
+          // TODO: Add your paging logic here
+          return Task.CompletedTask;
+      }
+
+      private Task NextPageAsync()
+      {
+          // TODO: Add your paging logic here
+          return Task.CompletedTask;
+      }
+
+      public void Dispose()
+      {
+         _searchCancellation?.Cancel();
+         _searchCancellation?.Dispose();
       }
    }
 }

@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLibrary.DTO
@@ -36,6 +35,6 @@ namespace DataAccessLibrary.DTO
       public int SelectWordFromRight { get; set; } = 0;
       public int MoveCharactersLeft { get; set; } = 0;
       public int SelectCharactersLeft { get; set; } = 0;
-
+      public int TotalCount { get; set; } = 0;  // Total count for pagination
    }
 }

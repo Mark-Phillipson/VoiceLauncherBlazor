@@ -9,6 +9,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 		<Platforms>AnyCPU;x64</Platforms>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Blazored.Modal" Version="7.3.1" />

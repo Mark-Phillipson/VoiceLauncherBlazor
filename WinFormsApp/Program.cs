@@ -1,7 +1,9 @@
+using System.Runtime.Versioning;
 using Microsoft.Extensions.Configuration;
 
 namespace WinFormsApp
 {
+	[SupportedOSPlatform("windows")]
 	internal static class Program
 	{
 		private static Mutex mutex = new Mutex(true, "{B1A7D5F9-8C3D-4A6F-9B2D-3A5D6F8E9C3D}");
@@ -11,6 +13,12 @@ namespace WinFormsApp
 		[STAThread]
 		static void Main()
 		{
+			// Initialize configuration first
+			Configuration = new ConfigurationBuilder()
+				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				.Build();
+
 			if (mutex.WaitOne(TimeSpan.Zero, true))
 			{
 				Application.EnableVisualStyles();
@@ -40,9 +48,7 @@ namespace WinFormsApp
 
 
 		}
-		public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-	 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-	 .Build();
+		public static IConfiguration Configuration { get; private set; }
 
 	}
 	internal static class NativeMethods

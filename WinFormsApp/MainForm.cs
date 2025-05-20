@@ -6,15 +6,19 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RazorClassLibrary;
+using RazorClassLibrary.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
+using System.Runtime.Versioning;
 
 
 namespace WinFormsApp
 {
+	[SupportedOSPlatform("windows")]
 	public partial class MainForm : Form
 	{
 		private ContextMenuStrip contextMenu;
@@ -39,56 +43,56 @@ namespace WinFormsApp
 			// Handle Form events
 			this.FormClosing += MainForm_FormClosing!;
 			this.Resize += MainForm_Resize!;
+			InitializeServices();
+		}
+		private void InitializeServices()
+		{
 			var services = new ServiceCollection();
-			services.AddMemoryCache(); // Add memory cache service
+			
+			// Add core services first
+			services.AddSingleton<IConfiguration>(Program.Configuration);
+			services.AddMemoryCache();
+			services.AddSingleton<ComponentCacheService>();
+			
+			// Add database context
+			var connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
+			services.AddDbContextFactory<ApplicationDbContext>(options => 
+				options.UseSqlServer(connectionString));
 
-			// Blazor WebView initialization
-			blazorWebView1.HostPage = "wwwroot\\index.html";
-			blazorWebView1.Services = services.BuildServiceProvider();
-			// blazorWebView1.RootComponents.Add<Index>("#app",
-			// 	new Dictionary<string, object?>
-			// 	{
-			// 		{"CloseWindowCallback", new EventCallback(null, ()=>{ Application.Exit(); }) },
-			// 		{"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
-			// 		{"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
-			// 		{"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
-			// 		{"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
-			// 	});
+			// Add AutoMapper
+			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+			// Add repositories
+			services.AddScoped<ILauncherRepository, LauncherRepository>();
+			services.AddScoped<ICategoryRepository, CategoryRepository>();
+			services.AddScoped<ILanguageRepository, LanguageRepository>();
+			services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
 
-			// Register IConfigurationRoot
-			var configurationBuilder = new ConfigurationBuilder()
-				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-			IConfigurationRoot configurationRoot = configurationBuilder.Build();
-			services.AddSingleton<IConfigurationRoot>(configurationRoot);
-			services.AddSingleton<IConfiguration>(configurationRoot);
-
-			services.AddWindowsFormsBlazorWebView();
-#if DEBUG
-			services.AddBlazorWebViewDeveloperTools();
-#endif
+			// Add core services
 			services.AddScoped<ComputerService>();
 			services.AddScoped<LanguageService>();
-			services.AddScoped<CategoryService>();
-			services.AddScoped<ILauncherRepository, LauncherRepository>();
-			services.AddScoped<ILauncherDataService, LauncherDataService>();
-			services.AddScoped<ICategoryRepository, CategoryRepository>();
-			services.AddScoped<ICategoryDataService, CategoryDataService>();
 			services.AddScoped<ILanguageDataService, LanguageDataService>();
-			services.AddScoped<ILanguageRepository, LanguageRepository>();
-			services.AddBlazoredModal();
-			services.AddBlazoredToast();
-			string connectionString = "Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-			services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-			services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
+			services.AddScoped<CategoryService>();
+			services.AddScoped<ICategoryDataService, CategoryDataService>();
+			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
+			
+			// Add additional services
 			services.AddScoped<GeneralLookupService>();
 			services.AddScoped<AdditionalCommandService>();
 			services.AddScoped<CustomIntellisenseService>();
 			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
-			services.AddScoped<LauncherService>();  // Add LauncherService registration
+			services.AddScoped<LauncherService>();
 
+			// Add UI services
+			services.AddBlazoredModal();
+			services.AddBlazoredToast();
+			
+			// Add Blazor services last
+			services.AddWindowsFormsBlazorWebView();
+#if DEBUG
+			services.AddBlazorWebViewDeveloperTools();
+#endif
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
 
@@ -101,7 +105,6 @@ namespace WinFormsApp
 				  {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
 				  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
 			 });
-
 		}
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{

@@ -2,6 +2,7 @@ using Ardalis.GuardClauses;
 using AutoMapper;
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,20 +17,62 @@ namespace VoiceLauncher.Services
     public class CustomIntelliSenseDataService : ICustomIntelliSenseDataService
     {
         private readonly ICustomIntelliSenseRepository _customIntelliSenseRepository;
+        private readonly IMemoryCache _cache;
+        private const string CacheKeyPrefix = "CustomIntelliSense_";
+        private readonly MemoryCacheEntryOptions _cacheOptions;
 
-        public CustomIntelliSenseDataService(ICustomIntelliSenseRepository customIntelliSenseRepository)
+        public CustomIntelliSenseDataService(ICustomIntelliSenseRepository customIntelliSenseRepository, IMemoryCache cache)
         {
             _customIntelliSenseRepository = customIntelliSenseRepository;
+            _cache = cache;
+            _cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(30))  // Increased from 10 to 30 minutes
+                .SetAbsoluteExpiration(TimeSpan.FromHours(4));   // Increased from 1 to 4 hours
         }
+
         public async Task<List<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int LanguageId, int CategoryId, int pageNumber, int pageSize)
         {
-            var CustomIntelliSenses = await _customIntelliSenseRepository.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
-            return CustomIntelliSenses.ToList();
+            string cacheKey = $"{CacheKeyPrefix}{LanguageId}_{CategoryId}_{pageNumber}_{pageSize}";
+            
+            if (!_cache.TryGetValue(cacheKey, out List<CustomIntelliSenseDTO>? customIntelliSenses))
+            {
+                var result = await _customIntelliSenseRepository.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize);
+                customIntelliSenses = result.ToList();
+                
+                // Only cache if we have data
+                if (customIntelliSenses.Any())
+                {
+                    _cache.Set(cacheKey, customIntelliSenses, _cacheOptions);
+                }
+            }
+            
+            return customIntelliSenses ?? new List<CustomIntelliSenseDTO>();
         }
+
         public async Task<List<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)
         {
-            var CustomIntelliSenses = await _customIntelliSenseRepository.SearchCustomIntelliSensesAsync(serverSearchTerm);
-            return CustomIntelliSenses.ToList();
+            // Don't cache search results as they're likely to be unique
+            var result = await _customIntelliSenseRepository.SearchCustomIntelliSensesAsync(serverSearchTerm);
+            return result.ToList();
+        }
+
+        public void InvalidateCache()
+        {
+            // Find and remove all CustomIntelliSense cache entries
+            var field = typeof(MemoryCache).GetField("_entries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var entries = field?.GetValue(_cache) as System.Collections.IDictionary;
+            
+            if (entries != null)
+            {
+                var keys = entries.Keys.Cast<object>()
+                                .Where(k => k.ToString()?.StartsWith(CacheKeyPrefix) == true)
+                                .ToList();
+                
+                foreach (var key in keys)
+                {
+                    _cache.Remove(key);
+                }
+            }
         }
 
         public async Task<CustomIntelliSenseDTO?> GetCustomIntelliSenseById(int Id)
