@@ -17,7 +17,7 @@ using Blazored.Toast;
 using Blazored.Toast.Services;
 using DataAccessLibrary.DTO;
 using System.Security.Claims;
-using VoiceLauncher.Services;
+using DataAccessLibrary.Services;
 
 namespace RazorClassLibrary.Pages
 {

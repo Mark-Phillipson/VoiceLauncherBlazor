@@ -10,6 +10,9 @@ namespace WinFormsApp
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LanguageService LanguageService { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required CategoryService CategoryService { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IJSRuntime JSRuntime { get; set; }
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LauncherService LauncherService { get; set; }
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required ILauncherDataService LauncherDataService { get; set; }
+
 		private int languageId;
 		private int categoryId;
 		private string message = "";
@@ -17,6 +20,8 @@ namespace WinFormsApp
 		string searchTerm = "";
 		private bool languageAndCategoryListing = false;
 		private bool launcher = false;
+		private bool refreshRequested;
+
 		protected override async Task OnInitializedAsync()
 		{
 			arguments = Environment.GetCommandLineArgs();
@@ -83,6 +88,17 @@ namespace WinFormsApp
 		private async void SetTitle(string title)
 		{
 			await SetTitleCallback.InvokeAsync(title);
+		}		private async Task RefreshCache()
+		{
+			// Invalidate both legacy and modern service caches
+			LauncherService.InvalidateCache();
+			await LauncherDataService.DeleteLauncher(-1); // This will trigger cache invalidation without deleting anything
+			
+			// Toggle refresh flag to force component reload
+			refreshRequested = !refreshRequested;
+			
+			// Force refresh of current view
+			StateHasChanged();
 		}
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback CloseWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MaximizeWindowCallback { get; set; }

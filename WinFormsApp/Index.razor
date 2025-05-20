@@ -9,6 +9,9 @@
 			Minimize</button>
 		<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
 			Restore</button>
+		<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
+			<i class="fas fa-sync"></i> Refresh Data
+		</button>
 	</div>
 	<div class='m-2'>
 		@* filtering by language and category and listing only ten at a time with paging *@
@@ -19,7 +22,7 @@
 		}
 		else if (launcher)
 		{
-			<LauncherTable CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true" />
+			<LauncherTable CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
 		}
 		else // filtering by display value mostly
 		{

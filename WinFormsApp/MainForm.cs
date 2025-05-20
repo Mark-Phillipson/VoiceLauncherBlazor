@@ -12,6 +12,7 @@ using RazorClassLibrary;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 
+
 namespace WinFormsApp
 {
 	public partial class MainForm : Form
@@ -39,6 +40,8 @@ namespace WinFormsApp
 			this.FormClosing += MainForm_FormClosing!;
 			this.Resize += MainForm_Resize!;
 			var services = new ServiceCollection();
+			services.AddMemoryCache(); // Add memory cache service
+
 			// Blazor WebView initialization
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
@@ -65,7 +68,9 @@ namespace WinFormsApp
 #if DEBUG
 			services.AddBlazorWebViewDeveloperTools();
 #endif
+			services.AddScoped<ComputerService>();
 			services.AddScoped<LanguageService>();
+			services.AddScoped<CategoryService>();
 			services.AddScoped<ILauncherRepository, LauncherRepository>();
 			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -75,17 +80,14 @@ namespace WinFormsApp
 			services.AddBlazoredModal();
 			services.AddBlazoredToast();
 			string connectionString = "Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-			services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
-			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-			services.AddScoped<LanguageService>();
+			services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 			services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
 			services.AddScoped<GeneralLookupService>();
 			services.AddScoped<AdditionalCommandService>();
 			services.AddScoped<CustomIntellisenseService>();
-			services.AddScoped<CategoryService>();
 			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
-			services.AddScoped<LauncherDataService>();
+			services.AddScoped<LauncherService>();  // Add LauncherService registration
 
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();

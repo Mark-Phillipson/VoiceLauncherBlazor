@@ -12,8 +12,6 @@ using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
 using System.Security.Claims;
 
-using VoiceLauncher.Services;
-
 namespace RazorClassLibrary.Pages
 {
     public partial class CategoryIntelisenseTable : ComponentBase

@@ -16,8 +16,6 @@ using RazorClassLibrary.Shared;
 
 using System.Diagnostics;
 using System.Security.Claims;
-
-using VoiceLauncher.Services;
 using System.Text.Json;
 
 namespace RazorClassLibrary.Pages
@@ -64,12 +62,15 @@ namespace RazorClassLibrary.Pages
 			Alphabet.BuildAlphabet();
 			await LoadData();
 		}
+		[Parameter] public bool RefreshData { get; set; }
+
 		protected override async Task OnParametersSetAsync()
 		{
-			await LoadData();
+			await LoadData(RefreshData);
 		}
 		private async Task LoadData(bool forceRefresh = false)
 		{
+			// Skip cache if force refresh requested
 			if (!forceRefresh)
 			{
 				var cachedData = await LoadDataFromJsonFile();
