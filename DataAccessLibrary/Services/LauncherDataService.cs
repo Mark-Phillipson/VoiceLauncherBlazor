@@ -29,14 +29,14 @@ namespace DataAccessLibrary.Services
         {
             string cacheKey = $"{LAUNCHERS_CACHE_KEY}_{CategoryID}";
             
-            if (!_cache.TryGetValue(cacheKey, out List<LauncherDTO> launchers))
+            if (!_cache.TryGetValue(cacheKey, out List<LauncherDTO>? launchers))
             {
                 var result = await _launcherRepository.GetAllLaunchersAsync(CategoryID);
-                launchers = result.ToList();
+                launchers = result?.ToList() ?? new List<LauncherDTO>();
                 _cache.Set(cacheKey, launchers, _cacheDuration);
             }
             
-            return launchers;
+            return launchers ?? new List<LauncherDTO>();
         }
 
         public async Task<List<LauncherDTO>> SearchLaunchersAsync(string serverSearchTerm)
@@ -64,14 +64,14 @@ namespace DataAccessLibrary.Services
 
         public async Task<List<LauncherDTO>> GetFavoriteLaunchersAsync()
         {
-            if (!_cache.TryGetValue(FAVORITE_LAUNCHERS_CACHE_KEY, out List<LauncherDTO> launchers))
+            if (!_cache.TryGetValue(FAVORITE_LAUNCHERS_CACHE_KEY, out List<LauncherDTO>? launchers))
             {
                 var result = await _launcherRepository.GetFavoriteLaunchersAsync();
-                launchers = result.ToList();
+                launchers = result?.ToList() ?? new List<LauncherDTO>();
                 _cache.Set(FAVORITE_LAUNCHERS_CACHE_KEY, launchers, _cacheDuration);
             }
             
-            return launchers;
+            return launchers ?? new List<LauncherDTO>();
         }
 
         public async Task<LauncherDTO?> AddLauncher(LauncherDTO launcherDTO)
