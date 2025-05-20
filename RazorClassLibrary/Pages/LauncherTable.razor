@@ -59,7 +59,13 @@
         </div>
         <div class="col-auto">
             <button class='btn btn-md btn-outline-info' @onclick="() => LoadData(true)">
-                <i class="bi bi-arrow-clockwise"></i>
+                @if (!RunningInBlazorHybrid) { 
+                    <i class="bi bi-arrow-clockwise"></i>
+                }
+                else
+                {
+                    <label>Clear Filter and Load Data</label>
+                }
             </button>
         </div>
     }
