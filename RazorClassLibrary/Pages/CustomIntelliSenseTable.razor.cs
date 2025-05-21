@@ -7,7 +7,7 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using RazorClassLibrary.Shared;
+
 using System.Security.Claims;
 using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
@@ -249,7 +249,7 @@ namespace RazorClassLibrary.Pages
             parameters.Add("Message", $"DisplayValue: {customIntelliSense?.DisplayValue}");
             parameters.Add("ButtonColour", "danger");
             parameters.Add("Icon", "fa fa-trash");
-            var formModal = Modal?.Show<BlazoredModalConfirmDialog>($"Delete Custom Intelli Sense ({customIntelliSense?.DisplayValue})?", parameters);
+            var formModal = Modal?.Show<RazorClassLibrary.Shared.BlazoredModalConfirmDialog>($"Delete Custom Intelli Sense ({customIntelliSense?.DisplayValue})?", parameters);
             if (formModal != null)
             {
                var result = await formModal.Result;
