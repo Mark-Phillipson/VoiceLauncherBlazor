@@ -63,6 +63,7 @@ namespace RazorClassLibrary.Pages
       private int counter = 0;
       private int shortcutValue = 0;
       private CancellationTokenSource? _searchCancellation;
+      private bool _isLoading = false;
       private Task? _prefetchTask;
       private const int SEARCH_DEBOUNCE_MS = 300;
       protected override async Task OnInitializedAsync()
@@ -104,7 +105,6 @@ namespace RazorClassLibrary.Pages
                   LanguageId, CategoryId, pageNumber + 1, pageSize);
                return new { Data = data, Language = currentLanguage, Category = currentCategory };
             });
-            await _prefetchTask;
          }
          catch 
          {
@@ -358,6 +358,7 @@ namespace RazorClassLibrary.Pages
       {
          try
          {
+            _isLoading = true;
             StateHasChanged();
 
             if (CustomIntelliSenseDataService != null)
@@ -372,30 +373,37 @@ namespace RazorClassLibrary.Pages
                // First try to get filtered results from cache
                var filteredResult = await Cache.GetOrSetAsync(filterCacheKey, async () =>
                {
-                  // Get the main data
-                  var cachedState = await Cache.GetOrSetAsync(cacheKey, async () =>
+                  try 
                   {
-                     // Load language and category data in parallel
-                     var languageTask = LanguageDataService.GetLanguageById(LanguageId);
-                     var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
-                     
-                     // Load the data page
-                     var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
-                         ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
-                         : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
-
-                     await Task.WhenAll(languageTask, categoryTask, dataTask);
-
-                     return new
+                     // Get the main data
+                     var cachedState = await Cache.GetOrSetAsync(cacheKey, async () =>
                      {
-                        Language = await languageTask,
-                        Category = await categoryTask,
-                        Data = await dataTask
-                     };
-                  });
+                        // Load language and category data in parallel
+                        var languageTask = LanguageDataService.GetLanguageById(LanguageId);
+                        var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
+                        
+                        // Load the data page
+                        var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
+                            ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
+                            : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
 
-                  if (cachedState != null)
-                  {
+                        await Task.WhenAll(languageTask, categoryTask, dataTask);
+
+                        return new
+                        {
+                           Language = await languageTask,
+                           Category = await categoryTask,
+                           Data = await dataTask
+                        };
+                     });
+
+                     if (cachedState?.Data == null)
+                     {
+                        // Invalidate cache if we got null data
+                        await InvalidateCache();
+                        throw new InvalidOperationException("Cache returned null data");
+                     }
+
                      currentLanguage = cachedState.Language;
                      currentCategory = cachedState.Category;
                      CustomIntelliSenseDTO = cachedState.Data;
@@ -404,8 +412,12 @@ namespace RazorClassLibrary.Pages
                      ApplyFilter();
                      return FilteredCustomIntelliSenseDTO;
                   }
-
-                  return null;
+                  catch
+                  {
+                     // If anything fails, invalidate cache and try direct fetch
+                     await InvalidateCache();
+                     throw;
+                  }
                });
 
                if (filteredResult != null)
@@ -416,27 +428,6 @@ namespace RazorClassLibrary.Pages
                   Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
 
                   // Start prefetching next page
-                  _ = PrefetchNextPage(); // Use discard to silence CS4014
-               }
-               else
-               {
-                  // Direct database fetch if cache is empty
-                  var languageTask = LanguageDataService.GetLanguageById(LanguageId);
-                  var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
-                  var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
-                      ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
-                      : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
-
-                  await Task.WhenAll(languageTask, categoryTask, dataTask);
-
-                  currentLanguage = await languageTask;
-                  currentCategory = await categoryTask;
-                  CustomIntelliSenseDTO = await dataTask;
-                  FilteredCustomIntelliSenseDTO = CustomIntelliSenseDTO;
-
-                  var totalCount = CustomIntelliSenseDTO?.FirstOrDefault()?.TotalCount ?? 0;
-                  Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
-
                   _ = PrefetchNextPage();
                }
             }
@@ -449,21 +440,45 @@ namespace RazorClassLibrary.Pages
          }
          finally
          {
+            _isLoading = false;
             StateHasChanged();
          }
       }
 
-      // Add these methods if they are missing
-      private Task PreviousPageAsync()
+      private async Task NextPageAsync()
       {
-          // TODO: Add your paging logic here
-          return Task.CompletedTask;
+         // Cancel any prefetch task since we're actually moving to next page
+         if (_prefetchTask != null && !_prefetchTask.IsCompleted)
+         {
+            // Wait for prefetch to complete since it might have our data
+            try 
+            {
+               await _prefetchTask;
+            }
+            catch 
+            {
+               // Ignore prefetch errors
+            }
+         }
+
+         pageNumber++;
+         searchTerm = null; // Reset search when changing pages
+         await LoadData();
+         StateHasChanged();
       }
 
-      private Task NextPageAsync()
+      private async Task PreviousPageAsync()
       {
-          // TODO: Add your paging logic here
-          return Task.CompletedTask;
+         pageNumber--;
+         if (pageNumber < 1)
+         {
+            pageNumber = 1;
+            return;
+         }
+         
+         searchTerm = null; // Reset search when changing pages
+         await LoadData();
+         StateHasChanged();
       }
 
       public void Dispose()

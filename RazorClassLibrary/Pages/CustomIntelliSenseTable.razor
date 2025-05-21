@@ -142,12 +142,23 @@ else
 				</tr>
 			}
 		</tbody>
-	</table>
-	@if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+	</table>	@if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
 	{
-		<button accesskey="p" class="btn btn-outline-success" type="button"
-			@onclick="@( ( ) => PreviousPageAsync(  ) )"><u>P</u>revious Page</button>
-		<button accesskey="n" class="btn btn-outline-success" type="button" @onclick="@( ( ) => NextPageAsync(  ) )"><u>N</u>ext
-			Page</button>
+		<button accesskey="p" class="btn btn-outline-success" type="button" disabled="@_isLoading"
+			@onclick="@( ( ) => PreviousPageAsync(  ) )">
+			@if (_isLoading)
+			{
+				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+			}
+			<u>P</u>revious Page
+		</button>
+		<button accesskey="n" class="btn btn-outline-success" type="button" disabled="@_isLoading"
+			@onclick="@( ( ) => NextPageAsync(  ) )">
+			@if (_isLoading)
+			{
+				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+			}
+			<u>N</u>ext Page
+		</button>
 	}
 }
