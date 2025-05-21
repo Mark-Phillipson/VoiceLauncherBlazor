@@ -370,53 +370,63 @@ namespace RazorClassLibrary.Pages
                var cacheKey = GetCacheKey();
                var filterCacheKey = GetFilterCacheKey();
 
-               // First try to get filtered results from cache
-               var filteredResult = await Cache.GetOrSetAsync(filterCacheKey, async () =>
+               // Get the main data (language, category, and items)
+               var cachedState = await Cache.GetOrSetAsync(cacheKey, async () =>
                {
-                  try 
+                  // Load language and category data in parallel
+                  var languageTask = LanguageDataService.GetLanguageById(LanguageId);
+                  var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
+
+                  // Load the data page
+                  var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
+                      ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
+                      : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+
+                  await Task.WhenAll(languageTask, categoryTask, dataTask);
+
+                  return new
                   {
-                     // Get the main data
-                     var cachedState = await Cache.GetOrSetAsync(cacheKey, async () =>
-                     {
-                        // Load language and category data in parallel
-                        var languageTask = LanguageDataService.GetLanguageById(LanguageId);
-                        var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
-                        
-                        // Load the data page
-                        var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
-                            ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
-                            : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+                     Language = await languageTask,
+                     Category = await categoryTask,
+                     Data = await dataTask
+                  };
+               });
 
-                        await Task.WhenAll(languageTask, categoryTask, dataTask);
+               if (cachedState?.Data == null)
+               {
+                  // Invalidate cache if we got null data
+                  await InvalidateCache();
+                  throw new InvalidOperationException("Cache returned null data");
+               }
 
-                        return new
-                        {
-                           Language = await languageTask,
-                           Category = await categoryTask,
-                           Data = await dataTask
-                        };
-                     });
+               currentLanguage = cachedState.Language;
+               currentCategory = cachedState.Category;
+               CustomIntelliSenseDTO = cachedState.Data;
 
-                     if (cachedState?.Data == null)
-                     {
-                        // Invalidate cache if we got null data
-                        await InvalidateCache();
-                        throw new InvalidOperationException("Cache returned null data");
-                     }
-
-                     currentLanguage = cachedState.Language;
-                     currentCategory = cachedState.Category;
-                     CustomIntelliSenseDTO = cachedState.Data;
-
-                     // Apply filter and cache the result
-                     ApplyFilter();
-                     return FilteredCustomIntelliSenseDTO;
+               // Now apply filter and cache the filtered result
+               var filteredResult = await Cache.GetOrSetAsync(filterCacheKey, () =>
+               {
+                  if (CustomIntelliSenseDTO == null)
+                  {
+                     return Task.FromResult(new List<CustomIntelliSenseDTO>());
                   }
-                  catch
+                  if (string.IsNullOrEmpty(SearchTerm))
                   {
-                     // If anything fails, invalidate cache and try direct fetch
-                     await InvalidateCache();
-                     throw;
+                     // No additional filtering needed since we're already paginated from the server
+                     return Task.FromResult(CustomIntelliSenseDTO);
+                  }
+                  else
+                  {
+                     var temporary = SearchTerm.ToLower().Trim();
+                     var filtered = CustomIntelliSenseDTO
+                         .Where(v =>
+                             v.DisplayValue != null && v.DisplayValue.ToLower().Contains(temporary) ||
+                             v.SendKeysValue != null && v.SendKeysValue.ToLower().Contains(temporary) ||
+                             v.CommandType != null && v.CommandType.ToLower().Contains(temporary) ||
+                             v.DeliveryType != null && v.DeliveryType.ToLower().Contains(temporary)
+                         )
+                         .ToList();
+                     return Task.FromResult(filtered);
                   }
                });
 
