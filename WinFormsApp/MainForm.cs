@@ -48,16 +48,22 @@ namespace WinFormsApp
 		private void InitializeServices()
 		{
 			var services = new ServiceCollection();
-			
+
 			// Add core services first
-			services.AddSingleton<IConfiguration>(Program.Configuration);
+			if (Program.Configuration != null)
+			{
+				services.AddSingleton<IConfiguration>(Program.Configuration);
+			}
 			services.AddMemoryCache();
 			services.AddSingleton<ComponentCacheService>();
-			
+
 			// Add database context
-			var connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
-			services.AddDbContextFactory<ApplicationDbContext>(options => 
-				options.UseSqlServer(connectionString));
+			if (Program.Configuration != null)
+			{
+				var connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
+				services.AddDbContextFactory<ApplicationDbContext>(options =>
+					options.UseSqlServer(connectionString));
+			}
 
 			// Add AutoMapper
 			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -76,7 +82,7 @@ namespace WinFormsApp
 			services.AddScoped<ICategoryDataService, CategoryDataService>();
 			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
-			
+
 			// Add additional services
 			services.AddScoped<GeneralLookupService>();
 			services.AddScoped<AdditionalCommandService>();
@@ -87,7 +93,7 @@ namespace WinFormsApp
 			// Add UI services
 			services.AddBlazoredModal();
 			services.AddBlazoredToast();
-			
+
 			// Add Blazor services last
 			services.AddWindowsFormsBlazorWebView();
 #if DEBUG
@@ -129,10 +135,10 @@ namespace WinFormsApp
 			this.WindowState = FormWindowState.Normal;
 		}
 		private void ShowMainForm()
-        {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
-        }
+		{
+			this.Show();
+			this.WindowState = FormWindowState.Normal;
+		}
 		private void ExitApplication()
 		{
 			notifyIcon.Visible = false;

@@ -48,7 +48,7 @@ namespace WinFormsApp
 
 
 		}
-		public static IConfiguration Configuration { get; private set; }
+		public static IConfiguration? Configuration { get; private set; }
 
 	}
 	internal static class NativeMethods
