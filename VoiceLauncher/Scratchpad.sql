@@ -1,4 +1,6 @@
- SELECT * FROM Prompts  WHERE ID=22
+SELECT * FROM CustomIntelliSense WHERE CategoryId=39 AND LanguageID=1 AND Display_Value LIKE '%navigate%'
+  UPDATE  CustomIntelliSense set CategoryId=4135 WHERE CategoryId=39 AND LanguageID=1 AND Display_Value LIKE '%navigate%'
+ SELECT * FROM Categories WHERE Category='Words'
  --Creates some SQL that will define if there are any duplicate rows in this table with the same description and date
     SELECT COUNT(*) AS DuplicateCount, Description, Date
     FROM Transactions
