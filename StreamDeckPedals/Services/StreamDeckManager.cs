@@ -91,7 +91,7 @@ public class StreamDeckManager : IStreamDeckManager, IDisposable
 
     public async Task<bool> InitializeAsync()
     {
-        _port = StreamDeckLaunchConfig.Port;
+        _port = StreamDeckLaunchConfig.Port.ToString();
         _pluginUuid = StreamDeckLaunchConfig.PluginUuid;
         _registerEventName = StreamDeckLaunchConfig.RegisterEvent;
 

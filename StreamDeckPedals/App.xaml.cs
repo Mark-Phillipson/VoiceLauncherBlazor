@@ -15,7 +15,7 @@ public partial class App : Application
             // Adjust window size and position if desired for desktop
             #if WINDOWS
             window.Width = 800;
-            window.Height = 600;
+            window.Height = 900; // Increased height
             #endif
             return window;
 		}
