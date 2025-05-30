@@ -40,7 +40,7 @@ private string PromptWithDebounce
     }
 }
 private System.Timers.Timer? debounceTimer;
-private int debounceMilliseconds = 1200; // Default 1.2 seconds
+private int debounceMilliseconds = 2200; // Default 2.2 seconds
 public int DebounceMillisecondsInput
 {
     get => debounceMilliseconds;
