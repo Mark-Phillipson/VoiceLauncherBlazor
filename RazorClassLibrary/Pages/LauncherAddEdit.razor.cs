@@ -8,194 +8,199 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace RazorClassLibrary.Pages
+namespace RazorClassLibrary.Pages;
+
+public partial class LauncherAddEdit : ComponentBase
 {
-    public partial class LauncherAddEdit : ComponentBase
-    {
-        [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
-        [Inject] public ICategoryDataService? CategoryDataService { get; set; }
-        private List<CategoryDTO> _categories = new List<CategoryDTO>();
-        [Inject] public IJSRuntime? JSRuntime { get; set; }
-        [Parameter] public int? Id { get; set; }
-        [Parameter] public int CategoryID { get; set; }
-        public LauncherDTO LauncherDTO { get; set; } = new LauncherDTO();//{ };
-        [Inject] public ILauncherDataService? LauncherDataService { get; set; }
-        [Inject] public IToastService? ToastService { get; set; }
-        [Inject]
-        public required ILauncherRepository LauncherRepository { get; set; }
+    [CascadingParameter] BlazoredModalInstance? ModalInstance { get; set; }
+    [CascadingParameter] public IModalService? Modal { get; set; }
+    [Inject] public required NavigationManager NavigationManager { get; set; }
+    [Inject] public ICategoryDataService? CategoryDataService { get; set; }
+    private List<CategoryDTO> _categories = new List<CategoryDTO>();
+    [Inject] public IJSRuntime? JSRuntime { get; set; }
+    [Parameter] public int? Id { get; set; }
+    [Parameter] public int CategoryID { get; set; }
+    public LauncherDTO LauncherDTO { get; set; } = new LauncherDTO();//{ };
+    [Inject] public ILauncherDataService? LauncherDataService { get; set; }
+    [Inject] public IToastService? ToastService { get; set; }
+    [Inject]
+    public required ILauncherRepository LauncherRepository { get; set; }
 #pragma warning disable 414, 649
-        string TaskRunning = "";
+    string TaskRunning = "";
 #pragma warning restore 414, 649
-        string[] filenameList = new string[0];
-        List<string> imageUlrs = new List<string>();
-        // New property to track icon input mode
-        public bool UseCustomIconUrl { get; set; } = false;
-        private void SetIconInputMode(bool useCustom)
+    string[] filenameList = new string[0];
+    List<string> imageUlrs = new List<string>();
+    // New property to track icon input mode
+    public bool UseCustomIconUrl { get; set; } = false;
+    private void SetIconInputMode(bool useCustom)
+    {
+        UseCustomIconUrl = useCustom;
+        if (!useCustom && imageUlrs.Count > 0 && !imageUlrs.Contains(LauncherDTO.Icon))
         {
-            UseCustomIconUrl = useCustom;
-            if (!useCustom && imageUlrs.Count > 0 && !imageUlrs.Contains(LauncherDTO.Icon))
+            LauncherDTO.Icon = imageUlrs.First();
+        }
+    }
+    private void LoadImages()
+    {
+        string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
+        filenameList = Directory.GetFiles(directoryPath);
+        foreach (string item in filenameList)
+        {
+            string imageUrl = item.Replace(@"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images\", "");
+            imageUlrs.Add(imageUrl);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (LauncherDataService == null)
+        {
+            return;
+        }
+        if (Id > 0)
+        {
+            var result = await LauncherDataService.GetLauncherById((int)Id);
+            if (result != null)
             {
-                LauncherDTO.Icon = imageUlrs.First();
+                LauncherDTO = result;
             }
         }
-        private void LoadImages()
+        else
         {
-            string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
-            filenameList = Directory.GetFiles(directoryPath);
-            foreach (string item in filenameList)
-            {
-                string imageUrl = item.Replace(@"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images\", "");
-                imageUlrs.Add(imageUrl);
-            }
+            LauncherDTO.CategoryId = CategoryID;
         }
-
-        protected override async Task OnInitializedAsync()
+        if (CategoryDataService != null)
         {
-            if (LauncherDataService == null)
-            {
-                return;
-            }
-            if (Id > 0)
-            {
-                var result = await LauncherDataService.GetLauncherById((int)Id);
-                if (result != null)
-                {
-                    LauncherDTO = result;
-                }
-            }
-            else
-            {
-                LauncherDTO.CategoryId = CategoryID;
-            }
-            if (CategoryDataService != null)
-            {
-                _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
-            }
-            LoadImages();
+            _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
+        }
+        LoadImages();
 
-            if (LauncherDTO.Id > 0)
-            {
-                // Load existing category associations
-                var categoryIds = await LauncherRepository!.GetCategoryIdsForLauncherAsync(LauncherDTO.Id);
-                SelectedCategoryIds = new HashSet<int>(categoryIds);
+        if (LauncherDTO.Id > 0)
+        {
+            // Load existing category associations
+            var categoryIds = await LauncherRepository!.GetCategoryIdsForLauncherAsync(LauncherDTO.Id);
+            SelectedCategoryIds = new HashSet<int>(categoryIds);
 
-                // Keep the primary category if it exists
-                if (LauncherDTO.CategoryId > 0 && !SelectedCategoryIds.Contains(LauncherDTO.CategoryId))
-                {
-                    SelectedCategoryIds.Add(LauncherDTO.CategoryId);
-                }
-            }
-            else if (LauncherDTO.CategoryId > 0)
+            // Keep the primary category if it exists
+            if (LauncherDTO.CategoryId > 0 && !SelectedCategoryIds.Contains(LauncherDTO.CategoryId))
             {
-                // For new launcher with default category
                 SelectedCategoryIds.Add(LauncherDTO.CategoryId);
             }
         }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        else if (LauncherDTO.CategoryId > 0)
         {
-            if (firstRender)
+            // For new launcher with default category
+            SelectedCategoryIds.Add(LauncherDTO.CategoryId);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
             {
-                try
+                if (JSRuntime != null)
                 {
-                    if (JSRuntime != null)
-                    {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "Name");
-                    }
+                    await JSRuntime.InvokeVoidAsync("window.setFocus", "Name");
                 }
-                catch (Exception exception)
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+    }
+    public void Close()
+    {
+        if (ModalInstance != null)
+            ModalInstance.CancelAsync();
+    }
+
+    protected void CategoryCheckboxChanged(int categoryId, object? checkedValue)
+    {
+        if (checkedValue is bool isChecked)
+        {
+            if (isChecked)
+            {
+                SelectedCategoryIds.Add(categoryId);
+
+                // If no primary category is set, use this as primary
+                if (LauncherDTO.CategoryId <= 0)
                 {
-                    Console.WriteLine(exception.Message);
+                    LauncherDTO.CategoryId = categoryId;
+                }
+            }
+            else
+            {
+                SelectedCategoryIds.Remove(categoryId);
+
+                // If removing the primary category, select another one as primary if available
+                if (LauncherDTO.CategoryId == categoryId && SelectedCategoryIds.Any())
+                {
+                    LauncherDTO.CategoryId = SelectedCategoryIds.First();
                 }
             }
         }
-        public void Close()
+    }
+
+    protected async Task HandleValidSubmit()
+    {
+        // Validate that at least one category is selected
+        if (!SelectedCategoryIds.Any() && LauncherDTO.CategoryId <= 0)
         {
-            if (ModalInstance != null)
-                ModalInstance.CancelAsync();
+            ToastService?.ShowError("Please select at least one category.");
+            return;
         }
 
-        protected void CategoryCheckboxChanged(int categoryId, object? checkedValue)
+        // Make sure primary category is in selected categories
+        if (LauncherDTO.CategoryId <= 0 && SelectedCategoryIds.Any())
         {
-            if (checkedValue is bool isChecked)
+            LauncherDTO.CategoryId = SelectedCategoryIds.First();
+        }
+
+        // Save launcher first
+        LauncherDTO? savedLauncher;
+        if (LauncherDTO.Id > 0)
+        {
+            if (LauncherRepository != null)
             {
-                if (isChecked)
-                {
-                    SelectedCategoryIds.Add(categoryId);
-
-                    // If no primary category is set, use this as primary
-                    if (LauncherDTO.CategoryId <= 0)
-                    {
-                        LauncherDTO.CategoryId = categoryId;
-                    }
-                }
-                else
-                {
-                    SelectedCategoryIds.Remove(categoryId);
-
-                    // If removing the primary category, select another one as primary if available
-                    if (LauncherDTO.CategoryId == categoryId && SelectedCategoryIds.Any())
-                    {
-                        LauncherDTO.CategoryId = SelectedCategoryIds.First();
-                    }
-                }
+                savedLauncher = await LauncherRepository.UpdateLauncherAsync(LauncherDTO);
             }
-        }
-
-        protected async Task HandleValidSubmit()
-        {
-            // Validate that at least one category is selected
-            if (!SelectedCategoryIds.Any() && LauncherDTO.CategoryId <= 0)
+            else
             {
-                ToastService?.ShowError("Please select at least one category.");
+                ToastService?.ShowError("LauncherRepository is not initialized.");
                 return;
             }
-
-            // Make sure primary category is in selected categories
-            if (LauncherDTO.CategoryId <= 0 && SelectedCategoryIds.Any())
-            {
-                LauncherDTO.CategoryId = SelectedCategoryIds.First();
-            }
-
-            // Save launcher first
-            LauncherDTO? savedLauncher;
-            if (LauncherDTO.Id > 0)
-            {
-                if (LauncherRepository != null)
-                {
-                    savedLauncher = await LauncherRepository.UpdateLauncherAsync(LauncherDTO);
-                }
-                else
-                {
-                    ToastService?.ShowError("LauncherRepository is not initialized.");
-                    return;
-                }
-            }
-            else
-            {
-                savedLauncher = await LauncherRepository!.AddLauncherAsync(LauncherDTO);
-            }
-
-            if (savedLauncher != null)
-            {
-                // Update category associations
-                await LauncherRepository.UpdateLauncherCategoriesAsync(savedLauncher.Id, SelectedCategoryIds);
-
-                ToastService?.ShowSuccess("Launcher saved successfully");
-            }
-            else
-            {
-                ToastService?.ShowError("Launcher failed to save, please investigate Error Adding New Launcher");
-            }
-
-            if (ModalInstance != null)
-            {
-                await ModalInstance.CloseAsync(ModalResult.Ok(true));
-            }
-            TaskRunning = "";
+        }
+        else
+        {
+            savedLauncher = await LauncherRepository!.AddLauncherAsync(LauncherDTO);
         }
 
-        // Add this property to store selected category IDs
-        protected HashSet<int> SelectedCategoryIds { get; set; } = new HashSet<int>();
+        if (savedLauncher != null)
+        {
+            // Update category associations
+            await LauncherRepository.UpdateLauncherCategoriesAsync(savedLauncher.Id, SelectedCategoryIds);
+
+            ToastService?.ShowSuccess("Launcher saved successfully");
+        }
+        else
+        {
+            ToastService?.ShowError("Launcher failed to save, please investigate Error Adding New Launcher");
+        }
+
+        if (ModalInstance != null)
+        {
+            await ModalInstance.CloseAsync(ModalResult.Ok(true));
+        }
+        TaskRunning = "";
+    }
+
+    // Add this property to store selected category IDs
+    protected HashSet<int> SelectedCategoryIds { get; set; } = new HashSet<int>();
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/launcherstable/{LauncherDTO.CategoryId}");
     }
 }

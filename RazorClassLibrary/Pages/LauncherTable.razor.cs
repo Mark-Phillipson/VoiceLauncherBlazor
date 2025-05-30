@@ -134,23 +134,11 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
-		protected async Task AddNewLauncherAsync()
+		void AddNewLauncherAsync()
 		{
-			var parameters = new ModalParameters();
-
-			parameters.Add(nameof(CategoryId), CategoryId);
-			var formModal = Modal?.Show<LauncherAddEdit>("Add Launcher", parameters);
-			if (formModal != null)
+			if (NavigationManager != null)
 			{
-				var result = await formModal.Result;
-				if (!result.Cancelled)
-				{
-					await LoadData();
-					if (searchTerm != null)
-					{
-						ApplyFilter();
-					}
-				}
+				NavigationManager.NavigateTo("/launcheradd");
 			}
 		}
 
@@ -261,22 +249,11 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
-		async Task EditLauncherAsync(int Id)
+		void EditLauncherAsync(int Id)
 		{
-			var parameters = new ModalParameters();
-			parameters.Add("Id", Id);
-			var formModal = Modal?.Show<LauncherAddEdit>("Edit Launcher", parameters);
-			if (formModal != null)
+			if (NavigationManager != null)
 			{
-				var result = await formModal.Result;
-				if (!result.Cancelled)
-				{
-					await LoadData();
-					if (searchTerm != null)
-					{
-						ApplyFilter();
-					}
-				}
+				NavigationManager.NavigateTo($"/launcheredit/{Id}");
 			}
 		}
 		private async Task ProcessLaunching(int id)

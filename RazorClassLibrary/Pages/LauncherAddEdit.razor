@@ -1,6 +1,9 @@
+@page "/launcheradd"
+@page "/launcheredit/{Id:int}"
 @using SmartComponents
 @using Microsoft.AspNetCore.Components.Forms
 @using System
+@using Microsoft.AspNetCore.Components
 
 <div style="min-width:80vw">
     <EditForm Model="@LauncherDTO" OnValidSubmit="HandleValidSubmit">
@@ -135,7 +138,17 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div class="" style="float:right">
-                    <button accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
+                    @if (ModalInstance != null)
+                    {
+                        <button type='button' accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
+                    }
+                    else
+                    {
+                        <button type='button' class="btn btn-lg btn-outline-secondary m-1" @onclick="GoBack">
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                            <span class="ms-2">Back</span>
+                        </button>
+                    }
                     <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save Record (4)</button>
                     <SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
                 </div>
@@ -143,3 +156,4 @@
         </div>
     </EditForm>
 </div>
+
