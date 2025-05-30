@@ -175,6 +175,11 @@ namespace RazorClassLibrary.Pages
 					 )
 					 .ToList();
 				Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
+				if (FilteredLauncherDTO.Count==1)
+				{
+					// Fire and Forget
+					_ = ProcessLaunching(FilteredLauncherDTO.First().Id);
+				}
 			}
 		}
 		protected void SortLauncher(string sortColumn)
@@ -285,12 +290,11 @@ namespace RazorClassLibrary.Pages
 			else
 			{
 				var psi = new ProcessStartInfo();
-				psi.UseShellExecute = true;
 				psi.FileName = launcher.CommandLine;
 				psi.WorkingDirectory = launcher.WorkingDirectory;
 				psi.Arguments = launcher.Arguments;
 				psi.WindowStyle = ProcessWindowStyle.Maximized;
-				psi.UseShellExecute = true;
+				psi.UseShellExecute = false;
 				try
 				{
 					Process.Start(psi);
@@ -298,6 +302,7 @@ namespace RazorClassLibrary.Pages
 				catch (Exception exception)
 				{
 					Message = exception.Message;
+					return;
 				}
 				await CloseApplication.InvokeAsync();
 			}

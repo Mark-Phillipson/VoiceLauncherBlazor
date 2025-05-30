@@ -11,16 +11,7 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 
   </PropertyGroup>
-
   <ItemGroup>
-    <Content Include="..\..\..\..\AppData\Roaming\KnowBrainer\KnowBrainerCommands\MyKBCommands.xml" Link="wwwroot\MyKBCommands.xml" />
-    <Content Include="..\..\..\..\OneDrive\Documents\MyCommands.xml" Link="wwwroot\MyCommands.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-	  
     <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" Version="9.0.10" />
