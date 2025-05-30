@@ -106,6 +106,12 @@ namespace DataAccessLibrary.Repositories;
 		public async Task DeleteLauncherAsync(int Id)
 		{
 			using var context = _contextFactory.CreateDbContext();
+			// Remove all related LauncherCategoryBridge records
+			var relatedBridges = context.LauncherCategoryBridges.Where(b => b.LauncherId == Id);
+			if (relatedBridges.Any())
+			{
+				context.LauncherCategoryBridges.RemoveRange(relatedBridges);
+			}
 			var foundLauncher = context.Launcher.FirstOrDefault(e => e.Id == Id);
 			if (foundLauncher == null)
 			{
