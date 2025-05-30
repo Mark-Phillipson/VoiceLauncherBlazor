@@ -27,7 +27,37 @@ public partial class AIChatComponentExample : ComponentBase
     private List<PromptDTO> prompts = new List<PromptDTO>();
     private PromptDTO? selectedPrompt = null;
     private int selectedPromptId = 0;
-    string prompt = "";
+private string prompt = "";
+private string PromptWithDebounce
+{
+    get => prompt;
+    set
+    {
+        prompt = value;
+        StartDebounceTimer();
+    }
+}
+private System.Timers.Timer? debounceTimer;
+private const int DebounceMilliseconds = 1200; // 1.2 seconds pause
+private void StartDebounceTimer()
+{
+    debounceTimer?.Stop();
+    debounceTimer?.Dispose();
+    debounceTimer = new System.Timers.Timer(DebounceMilliseconds);
+    debounceTimer.Elapsed += async (_, __) =>
+    {
+        debounceTimer?.Stop();
+        debounceTimer?.Dispose();
+        debounceTimer = null;
+        await InvokeAsync(async () =>
+        {
+            await ProcessChat();
+            StateHasChanged();
+        });
+    };
+    debounceTimer.AutoReset = false;
+    debounceTimer.Start();
+}
     // string? history = "";
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
@@ -229,14 +259,14 @@ public partial class AIChatComponentExample : ComponentBase
             showHistory = !showHistory;
         }
     }
-    private async Task EnteredChat(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            // Handle the Enter key press event
-            await ProcessChat();
-        }
-    }
+    // Enter key is no longer needed for chat submission
+    // private async Task EnteredChat(KeyboardEventArgs e)
+    // {
+    //     if (e.Key == "Enter")
+    //     {
+    //         await ProcessChat();
+    //     }
+    // }
     private async Task CopyItemAsync(string? itemToCopy)
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }

@@ -56,7 +56,7 @@ namespace RazorClassLibrary.Pages
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
 		private List<LauncherDTO>? _cachedLauncherDTO;
-		
+
 		protected override async Task OnInitializedAsync()
 		{
 			Alphabet.BuildAlphabet();
@@ -175,7 +175,7 @@ namespace RazorClassLibrary.Pages
 					 )
 					 .ToList();
 				Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
-				if (FilteredLauncherDTO.Count==1)
+				if (FilteredLauncherDTO.Count == 1)
 				{
 					// Fire and Forget
 					_ = ProcessLaunching(FilteredLauncherDTO.First().Id);
@@ -294,7 +294,11 @@ namespace RazorClassLibrary.Pages
 				psi.WorkingDirectory = launcher.WorkingDirectory;
 				psi.Arguments = launcher.Arguments;
 				psi.WindowStyle = ProcessWindowStyle.Maximized;
-				psi.UseShellExecute = false;
+				psi.UseShellExecute = true;
+				if (psi.FileName.EndsWith(".exe"))
+				{
+					psi.UseShellExecute = false;
+				}
 				try
 				{
 					Process.Start(psi);

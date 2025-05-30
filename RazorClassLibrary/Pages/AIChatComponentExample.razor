@@ -33,8 +33,7 @@
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
-            @bind-value='@prompt' @bind-value:event='oninput' placeholder='Enter some text to chat (Enter to send)'
-            @onkeydown="EnteredChat"></textarea>
+            @bind-value='PromptWithDebounce' @bind-value:event='oninput' placeholder='Enter some text to chat (pause to send)'></textarea>
         <div class="d-flex flex-wrap gap-2 mt-2">
             <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
                 @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
