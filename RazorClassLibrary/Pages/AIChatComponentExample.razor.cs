@@ -38,12 +38,25 @@ private string PromptWithDebounce
     }
 }
 private System.Timers.Timer? debounceTimer;
-private const int DebounceMilliseconds = 1200; // 1.2 seconds pause
+private int debounceMilliseconds = 1200; // Default 1.2 seconds
+public int DebounceMillisecondsInput
+{
+    get => debounceMilliseconds;
+    set
+    {
+        debounceMilliseconds = value;
+        // Optionally, restart debounce timer if user changes value while typing
+        if (debounceTimer != null)
+        {
+            StartDebounceTimer();
+        }
+    }
+}
 private void StartDebounceTimer()
 {
     debounceTimer?.Stop();
     debounceTimer?.Dispose();
-    debounceTimer = new System.Timers.Timer(DebounceMilliseconds);
+    debounceTimer = new System.Timers.Timer(debounceMilliseconds);
     debounceTimer.Elapsed += async (_, __) =>
     {
         debounceTimer?.Stop();

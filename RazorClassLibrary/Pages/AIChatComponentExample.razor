@@ -1,4 +1,8 @@
-﻿@page "/chat"
+﻿        <div class="mb-2">
+            <label for="debounceBox" class="form-label text-light">Debounce Wait (ms):</label>
+            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 180px; display: inline-block;" @bind="DebounceMillisecondsInput" />
+        </div>
+@page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
 <h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
