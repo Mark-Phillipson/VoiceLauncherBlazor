@@ -13,6 +13,37 @@ namespace RazorClassLibrary.Pages;
 
 public partial class AIChatComponentExample : ComponentBase
 {
+    public bool DebounceEnabled { get; set; } = true;
+    private string PromptInput
+    {
+        get => prompt;
+        set
+        {
+            prompt = value;
+            if (DebounceEnabled)
+            {
+                StartDebounceTimer();
+            }
+            else
+            {
+                // If debounce is off, stop any running timers and countdown
+                debounceTimer?.Stop();
+                debounceTimer?.Dispose();
+                debounceTimer = null;
+                countdownTimer?.Stop();
+                countdownTimer?.Dispose();
+                countdownTimer = null;
+                debounceCountdown = 0;
+            }
+        }
+    }
+    private async Task OnInputKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        if (!DebounceEnabled && e.Key == "Enter")
+        {
+            await ProcessChat();
+        }
+    }
     private int debounceCountdown = 0;
     private System.Timers.Timer? countdownTimer;
     [Inject] public required IPromptDataService PromptDataService { get; set; }

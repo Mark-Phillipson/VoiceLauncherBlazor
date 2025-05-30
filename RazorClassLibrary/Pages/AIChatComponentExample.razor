@@ -1,7 +1,9 @@
 ﻿        <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
+            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;" @bind="DebounceEnabled" />
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Enable Debounce</label>
             <label for="debounceBox" class="form-label text-light mb-0">Debounce Wait (ms):</label>
-            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" />
-            @if (debounceCountdown > 0)
+            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" disabled="@(DebounceEnabled ? null : "disabled")" />
+            @if (DebounceEnabled && debounceCountdown > 0)
             {
                 <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
             }
@@ -41,7 +43,8 @@
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
-            @bind-value='PromptWithDebounce' @bind-value:event='oninput' placeholder='Enter some text to chat (pause to send)'></textarea>
+            @bind-value='PromptInput' @bind-value:event='oninput' placeholder='Enter some text to chat (Enter or button to send)'
+            @onkeydown="OnInputKeyDown"></textarea>
         <div class="d-flex flex-wrap gap-2 mt-2">
             <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
                 @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
