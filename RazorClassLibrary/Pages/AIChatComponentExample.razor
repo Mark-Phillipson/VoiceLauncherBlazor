@@ -13,8 +13,10 @@
         {
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
                 Prompt</label>
-            <a target="_blank" class='btn btn-link btn-sm text-light' href="/prompts"><i
-                    class="fa-solid fa-pen-to-square"></i> Manage</a>
+            <a target="_blank" class='btn btn-link btn-sm text-light'
+               href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
+                <i class="fa-solid fa-pen-to-square"></i> Manage
+            </a>
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
                 ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-success text-light m-1">
                 @foreach (var item in prompts)
@@ -156,6 +158,10 @@
     <div class='col-md-7 bg-dark text-light p-2 rounded'>
         @if (responseHistory?.Count > 0)
         {
+            <button class="btn btn-outline-info btn-sm mb-2" @onclick="ToggleFont">
+                <i class="fa-solid fa-font"></i>
+                @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
+            </button>
             @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
             {
                 <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
@@ -163,7 +169,8 @@
             else
             {
                 <textarea @ref='responseElement' class='form-control text-light border-0'
-                    style="background-color: #2a2a2a !important;" rows="30">@TextBlock </textarea>
+                    style="background-color: #2a2a2a !important; font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
+                    rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
                     <div class="alert alert-success" role="alert">@AIComments</div>
@@ -179,8 +186,7 @@
         </p>
     </div>
 </div>
-<a class='btn-link m-2 text-success' href="/smart-components"><i class="fa-solid fa-arrow-left"></i> Back to List of
-    Smart Components</a>
+
 
 <style>
     .chat-bubble {
@@ -239,3 +245,11 @@
         max-width: 95%;
     }
 </style>
+
+@code {
+    private bool useCascadiaCodeFont = true;
+    private void ToggleFont()
+    {
+        useCascadiaCodeFont = !useCascadiaCodeFont;
+    }
+}

@@ -1,7 +1,8 @@
 @page "/prompt/{Id:int?}"
 @using SmartComponents
+@inject NavigationManager NavigationManager
 <div style="min-width:80vw">
-    <h1>@Title</h1>
+    <>@Title</h1>
     <EditForm Model="@PromptDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -36,10 +37,30 @@
         </div>
         <hr>
         <div class="" style="float:right">
-            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
-                @onclick="@CloseAsync"><u>C</u>ancel</button>
+            @if (IsModal)
+            {
+                <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                    @onclick="@CloseAsync"><u>C</u>ancel</button>
+            }
+            else
+            {
+                <button type='button' class="btn btn-lg btn-outline-secondary" @onclick="GoBackToChat">
+                    <i class="fa fa-arrow-left"></i> Back to Chat
+                </button>
+            }
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
             <SmartPasteButton type='button' class='btn btn-lg btn-outline-danger' DefaultIcon />
         </div>
     </EditForm>
 </div>
+
+@code {
+    // ...existing code...
+    [Parameter] public bool IsModal { get; set; } = false;
+
+    private void GoBackToChat()
+    {
+        NavigationManager.NavigateTo("/chat");
+    }
+    // ...existing code...
+}
