@@ -1,14 +1,4 @@
-﻿        <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
-            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;" @bind="DebounceEnabled" />
-            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Enable Debounce</label>
-            <label for="debounceBox" class="form-label text-light mb-0">Debounce Wait (ms):</label>
-            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" disabled="@(DebounceEnabled ? null : "disabled")" />
-            @if (DebounceEnabled && debounceCountdown > 0)
-            {
-                <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
-            }
-        </div>
-@page "/chat"
+﻿@page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
 @using RazorClassLibrary.Components
 <h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
@@ -43,9 +33,20 @@
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
-            @bind-value='PromptInput' @bind-value:event='oninput' placeholder='Enter some text to chat (Enter or button to send)'
+            @bind-value='PromptInput' @bind-value:event='oninput' placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Enter or click Chat.'
             @onkeydown="OnInputKeyDown"></textarea>
-        <div class="d-flex flex-wrap gap-2 mt-2">
+        <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
+            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;" @bind="DebounceEnabled" />
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Enable Debounce</label>
+            <label for="debounceBox" class="form-label text-light mb-0">Debounce Wait (ms):</label>
+            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" disabled="@(DebounceEnabled ? null : "disabled")" />
+            @if (DebounceEnabled && debounceCountdown > 0)
+            {
+                <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
+            }
+        </div>
+        <div class="d-flex flex-wrap gap-
+         mt-2">
             <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
                 @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
             <button accesskey='l' class="btn btn-outline-success btn-sm" type="button" @onclick="@(() => Clear())"><i
