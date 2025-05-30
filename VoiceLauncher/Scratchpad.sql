@@ -1,5 +1,5 @@
- SELECT * FROM Categories WHERE Category ='Code Projects'
- SELECT * FROM Launcher WHERE CategoryId=4115
+ SELECT * FROM Categories WHERE Id =4132
+ SELECT * FROM Launcher  ORDER BY ID desc 
   DELETE FROM Launcher WHERE ID=32940
  SELECT * FROM LauncherCategoryBridge WHERE   LauncherId=32940
   DELETE FROM LauncherCategoryBridge WHERE ID=356

@@ -70,6 +70,21 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task LoadData(bool forceRefresh = false)
 		{
+			// If force refresh requested, delete the cache file
+			if (forceRefresh)
+			{
+				if (File.Exists("launcherCache.json"))
+				{
+					try
+					{
+						File.Delete("launcherCache.json");
+					}
+					catch (Exception ex)
+					{
+						Logger?.LogError(ex, "Failed to delete cache file during refresh");
+					}
+				}
+			}
 			// Skip cache if force refresh requested
 			if (!forceRefresh)
 			{
@@ -98,6 +113,11 @@ namespace RazorClassLibrary.Pages
 					{
 						LauncherDTO = result.ToList();
 						_cachedLauncherDTO = LauncherDTO;
+						// Save fresh data to cache after refresh
+						if (forceRefresh)
+						{
+							await SaveDataToJsonFile(LauncherDTO);
+						}
 					}
 				}
 
