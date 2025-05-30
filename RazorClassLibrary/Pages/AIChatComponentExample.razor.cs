@@ -13,6 +13,8 @@ namespace RazorClassLibrary.Pages;
 
 public partial class AIChatComponentExample : ComponentBase
 {
+    private int debounceCountdown = 0;
+    private System.Timers.Timer? countdownTimer;
     [Inject] public required IPromptDataService PromptDataService { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
@@ -54,22 +56,43 @@ public int DebounceMillisecondsInput
 }
 private void StartDebounceTimer()
 {
-    debounceTimer?.Stop();
-    debounceTimer?.Dispose();
-    debounceTimer = new System.Timers.Timer(debounceMilliseconds);
-    debounceTimer.Elapsed += async (_, __) =>
-    {
         debounceTimer?.Stop();
         debounceTimer?.Dispose();
-        debounceTimer = null;
-        await InvokeAsync(async () =>
+        countdownTimer?.Stop();
+        countdownTimer?.Dispose();
+
+        debounceCountdown = debounceMilliseconds;
+        StateHasChanged();
+
+        // Start countdown timer for visual feedback
+        countdownTimer = new System.Timers.Timer(50); // update every 50ms
+        countdownTimer.Elapsed += (s, e) =>
         {
-            await ProcessChat();
-            StateHasChanged();
-        });
-    };
-    debounceTimer.AutoReset = false;
-    debounceTimer.Start();
+            debounceCountdown -= 50;
+            if (debounceCountdown < 0) debounceCountdown = 0;
+            InvokeAsync(StateHasChanged);
+        };
+        countdownTimer.AutoReset = true;
+        countdownTimer.Start();
+
+        debounceTimer = new System.Timers.Timer(debounceMilliseconds);
+        debounceTimer.Elapsed += async (_, __) =>
+        {
+            debounceTimer?.Stop();
+            debounceTimer?.Dispose();
+            debounceTimer = null;
+            countdownTimer?.Stop();
+            countdownTimer?.Dispose();
+            countdownTimer = null;
+            debounceCountdown = 0;
+            await InvokeAsync(async () =>
+            {
+                await ProcessChat();
+                StateHasChanged();
+            });
+        };
+        debounceTimer.AutoReset = false;
+        debounceTimer.Start();
 }
     // string? history = "";
     int historyCount = 0;

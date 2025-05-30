@@ -1,6 +1,10 @@
-﻿        <div class="mb-2">
-            <label for="debounceBox" class="form-label text-light">Debounce Wait (ms):</label>
-            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 180px; display: inline-block;" @bind="DebounceMillisecondsInput" />
+﻿        <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
+            <label for="debounceBox" class="form-label text-light mb-0">Debounce Wait (ms):</label>
+            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" />
+            @if (debounceCountdown > 0)
+            {
+                <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
+            }
         </div>
 @page "/chat"
 <PageTitle>AI Chat Component Example</PageTitle>
