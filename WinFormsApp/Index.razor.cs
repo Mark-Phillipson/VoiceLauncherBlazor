@@ -21,6 +21,8 @@ namespace WinFormsApp
 		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
+				// Property for dynamic AI Chat button caption
+		private string AIChatButtonCaption => showAIChat ? "← Back" : "Chat";
 
 		protected override async Task OnInitializedAsync()
 		{

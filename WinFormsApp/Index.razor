@@ -8,12 +8,11 @@
 		<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
 			Minimize</button>
 		<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
-			Restore</button>
-		<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
+			Restore</button>		<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
 			<i class="fas fa-sync"></i> Refresh Data
 		</button>
-		<button accesskey="C" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>C</u>
-			AI Chat</button>
+		<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I 
+			@AIChatButtonCaption</button>
 	</div>
 	<div class='m-2'>
 		@if (showAIChat)
