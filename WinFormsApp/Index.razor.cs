@@ -12,7 +12,6 @@ namespace WinFormsApp
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IJSRuntime JSRuntime { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LauncherService LauncherService { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required ILauncherDataService LauncherDataService { get; set; }
-
 		private int languageId;
 		private int categoryId;
 		private string message = "";
@@ -21,6 +20,7 @@ namespace WinFormsApp
 		private bool languageAndCategoryListing = false;
 		private bool launcher = false;
 		private bool refreshRequested;
+		private bool showAIChat = false;
 
 		protected override async Task OnInitializedAsync()
 		{
@@ -84,11 +84,46 @@ namespace WinFormsApp
 		private async void RestoreWindow()
 		{
 			await RestoreWindowCallback.InvokeAsync();
-		}
-		private async void SetTitle(string title)
+		}		private async void SetTitle(string title)
 		{
 			await SetTitleCallback.InvokeAsync(title);
-		}		private async Task RefreshCache()
+		}
+		
+		private void ShowAIChat()
+		{
+			showAIChat = !showAIChat;
+			if (showAIChat)
+			{
+				// Reset other views when showing AI Chat
+				languageAndCategoryListing = false;
+				launcher = false;
+				SetTitle("AI Chat Assistant");
+			}
+			else
+			{
+				// Restore previous view based on arguments
+				if (arguments != null && arguments.Length > 1)
+				{
+					if (arguments[1].Contains("SearchIntelliSense"))
+					{
+						languageAndCategoryListing = true;
+						SetTitle("Search Snippets");
+					}
+					else if (arguments[1].Contains("Launcher"))
+					{
+						launcher = true;
+						SetTitle($"Launch Applications");
+					}
+					else
+					{
+						SetTitle("Filtering Snippets by Display Value");
+					}
+				}
+			}
+			StateHasChanged();
+		}
+		
+		private async Task RefreshCache()
 		{
 			// Invalidate both legacy and modern service caches
 			LauncherService.InvalidateCache();

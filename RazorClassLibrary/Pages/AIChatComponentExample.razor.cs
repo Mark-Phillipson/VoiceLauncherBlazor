@@ -134,13 +134,16 @@ public partial class AIChatComponentExample : ComponentBase
     IChatCompletionService? chatService;
     private ElementReference inputElement;
     private ElementReference responseElement;
-    string predefinedPrompt = "";
-    protected override async Task OnInitializedAsync()
+    string predefinedPrompt = "";    protected override async Task OnInitializedAsync()
     {
-        OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ?? ""; // Read from configuration
+        // Try multiple configuration paths for the OpenAI API key
+        OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ?? 
+                       Configuration["OpenAI:ApiKey"] ?? 
+                       Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
+        
         if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
         {
-            Message = "OpenAI API key not found in configuration (appsettings.json). Please add it under 'OpenAI:ApiKey'.";
+            Message = "OpenAI API key not found. Please add it to appsettings.json under 'SmartComponents:ApiKey' or 'OpenAI:ApiKey', or set the OPENAI_API_KEY environment variable.";
             // Optionally, prevent further loading if the key is missing
             // return; 
         }

@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RazorClassLibrary;
 using RazorClassLibrary.Services;
+using SampleApplication.Repositories;
+using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
@@ -66,13 +68,12 @@ namespace WinFormsApp
 			}
 
 			// Add AutoMapper
-			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-			// Add repositories
+			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());			// Add repositories
 			services.AddScoped<ILauncherRepository, LauncherRepository>();
 			services.AddScoped<ICategoryRepository, CategoryRepository>();
 			services.AddScoped<ILanguageRepository, LanguageRepository>();
 			services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
+			services.AddScoped<IPromptRepository, PromptRepository>();
 
 			// Add core services
 			services.AddScoped<ComputerService>();
@@ -82,6 +83,7 @@ namespace WinFormsApp
 			services.AddScoped<ICategoryDataService, CategoryDataService>();
 			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
+			services.AddScoped<IPromptDataService, PromptDataService>();
 
 			// Add additional services
 			services.AddScoped<GeneralLookupService>();

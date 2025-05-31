@@ -10,13 +10,16 @@ namespace WinFormsApp
 		/// <summary>
 		///  The main entry point for the application.
 		/// </summary>
-		[STAThread]
-		static void Main()
+		[STAThread]		static void Main()
 		{
 			// Initialize configuration first
+			var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
+			
 			Configuration = new ConfigurationBuilder()
 				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
 				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+				.AddEnvironmentVariables()
 				.Build();
 
 			if (mutex.WaitOne(TimeSpan.Zero, true))

@@ -12,10 +12,15 @@
 		<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
 			<i class="fas fa-sync"></i> Refresh Data
 		</button>
+		<button accesskey="C" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>C</u>
+			AI Chat</button>
 	</div>
 	<div class='m-2'>
-		@* filtering by language and category and listing only ten at a time with paging *@
-		@if (languageAndCategoryListing)
+		@if (showAIChat)
+		{
+			<AIChatComponentExample />
+		}
+		else if (languageAndCategoryListing)
 		{
 			<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"
 				CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
