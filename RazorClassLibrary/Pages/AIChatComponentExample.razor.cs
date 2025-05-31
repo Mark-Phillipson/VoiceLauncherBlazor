@@ -73,7 +73,7 @@ public partial class AIChatComponentExample : ComponentBase
         }
     }
     private System.Timers.Timer? debounceTimer;
-    private int debounceMilliseconds = 2200; // Default 2.2 seconds
+    private int debounceMilliseconds = 4200; // Default 4.2 seconds
     public int DebounceMillisecondsInput
     {
         get => debounceMilliseconds;
