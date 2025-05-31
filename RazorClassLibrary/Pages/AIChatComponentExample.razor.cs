@@ -60,33 +60,33 @@ public partial class AIChatComponentExample : ComponentBase
     private List<PromptDTO> prompts = new List<PromptDTO>();
     private PromptDTO? selectedPrompt = null;
     private int selectedPromptId = 0;
-private string prompt = "";
-private string PromptWithDebounce
-{
-    get => prompt;
-    set
+    private string prompt = "";
+    private string PromptWithDebounce
     {
-        prompt = value;
-        StartDebounceTimer();
-    }
-}
-private System.Timers.Timer? debounceTimer;
-private int debounceMilliseconds = 2200; // Default 2.2 seconds
-public int DebounceMillisecondsInput
-{
-    get => debounceMilliseconds;
-    set
-    {
-        debounceMilliseconds = value;
-        // Optionally, restart debounce timer if user changes value while typing
-        if (debounceTimer != null)
+        get => prompt;
+        set
         {
+            prompt = value;
             StartDebounceTimer();
         }
     }
-}
-private void StartDebounceTimer()
-{
+    private System.Timers.Timer? debounceTimer;
+    private int debounceMilliseconds = 2200; // Default 2.2 seconds
+    public int DebounceMillisecondsInput
+    {
+        get => debounceMilliseconds;
+        set
+        {
+            debounceMilliseconds = value;
+            // Optionally, restart debounce timer if user changes value while typing
+            if (debounceTimer != null)
+            {
+                StartDebounceTimer();
+            }
+        }
+    }
+    private void StartDebounceTimer()
+    {
         debounceTimer?.Stop();
         debounceTimer?.Dispose();
         countdownTimer?.Stop();
@@ -124,7 +124,7 @@ private void StartDebounceTimer()
         };
         debounceTimer.AutoReset = false;
         debounceTimer.Start();
-}
+    }
     // string? history = "";
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
@@ -164,18 +164,6 @@ private void StartDebounceTimer()
 
     private async Task LoadData()
     {
-        // Remove the check for OpenAIAPIKEY here as it's handled in OnInitializedAsync
-        // if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
-        // {
-        //    Message = "Please set the OpenAI API key in the TextBox.";
-        //    return;
-        // }
-        // else
-        // {
-        //    Message = "";
-        //    chatService = new OpenAIChatCompletionService("o3-mini", OpenAIAPIKEY);
-        // }
-
         // Initialize chatService if the key was found
         if (!string.IsNullOrWhiteSpace(OpenAIAPIKEY))
         {
@@ -183,9 +171,9 @@ private void StartDebounceTimer()
         }
         else
         {
-             // Handle the case where the key is missing, maybe disable chat functionality
-             Message = "OpenAI API key is missing. Chat functionality disabled.";
-             return; // Prevent loading prompts if service can't be initialized
+            // Handle the case where the key is missing, maybe disable chat functionality
+            Message = "OpenAI API key is missing. Chat functionality disabled.";
+            return; // Prevent loading prompts if service can't be initialized
         }
         prompts = await PromptDataService.GetAllPromptsAsync();
         var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
@@ -307,6 +295,7 @@ private void StartDebounceTimer()
         addedPredefinedPrompt = false;
         chatHistory.Clear();
         await inputElement.FocusAsync();
+        await LoadData();
     }
     private async Task OnValueChangedMethodName(int id)
     {
