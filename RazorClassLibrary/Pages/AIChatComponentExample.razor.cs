@@ -13,6 +13,8 @@ namespace RazorClassLibrary.Pages;
 
 public partial class AIChatComponentExample : ComponentBase
 {
+    [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+    
     public bool DebounceEnabled { get; set; } = true;
     private string PromptInput
     {
@@ -330,7 +332,39 @@ public partial class AIChatComponentExample : ComponentBase
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
         await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
+    }
 
+    private async Task CopyChatResultsAsync()
+    {
+        string contentToCopy = "";
+        
+        // Priority 1: If we have AIComments (latest AI response), copy that
+        if (!string.IsNullOrWhiteSpace(AIComments))
+        {
+            contentToCopy = AIComments;
+        }
+        // Priority 2: If we have TextBlock (dictation mode), copy that
+        else if (!string.IsNullOrWhiteSpace(TextBlock))
+        {
+            contentToCopy = TextBlock;
+        }
+        // Priority 3: Get the latest assistant response from chat history
+        else if (chatHistory?.Count > 0)
+        {
+            var lastAssistantMessage = chatHistory
+                .Where(m => m.Role.Label.ToLower() == "assistant")
+                .LastOrDefault();
+            
+            if (lastAssistantMessage != null)
+            {
+                contentToCopy = lastAssistantMessage.Content ?? "";
+            }
+        }
+        
+        if (!string.IsNullOrWhiteSpace(contentToCopy))
+        {
+            await CopyItemAsync(contentToCopy);
+        }
     }
     private async Task FocusResponseElement()
     {

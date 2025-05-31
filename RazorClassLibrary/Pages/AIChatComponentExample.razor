@@ -1,5 +1,5 @@
 ﻿@page "/chat"
-<PageTitle>AI Chat Component Example</PageTitle>
+<PageTitle>AI Chat Component </PageTitle>
 @using RazorClassLibrary.Components
 <h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
@@ -8,7 +8,7 @@
 }
 
 <div class='row'>
-    <div class='col-md-5 bg-dark text-light p-4 rounded'>
+    <div class='col-md-5 bg-dark text-light p-1 rounded'>
         @if (prompts != null)
         {
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
@@ -67,14 +67,20 @@
                 <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
                     @onclick="@(() => FocusResponseElement())">
                     <i class="fa-solid fa-crosshairs"></i> Focus <u>R</u>esponse
-                </button>
-                @if (responseHistory?.Count > 1)
+                </button>                @if (responseHistory?.Count > 1)
                 {
                     <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertPrevious())'><i
                             class="fa-solid fa-arrow-left"></i> Previous</button>
                     <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertNext())'><i
                             class="fa-solid fa-arrow-right"></i> Next</button>
                 }
+            }
+            @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) || !string.IsNullOrWhiteSpace(TextBlock)))
+            {
+                <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
+                    @onclick="@(() => CopyChatResultsAsync())">
+                    <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste
+                </button>
             }
         </div>
         @if (processing)

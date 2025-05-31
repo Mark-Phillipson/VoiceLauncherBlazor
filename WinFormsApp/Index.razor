@@ -13,11 +13,10 @@
 		</button>
 		<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I 
 			@AIChatButtonCaption</button>
-	</div>
-	<div class='m-2'>
+	</div>	<div class='m-2'>
 		@if (showAIChat)
 		{
-			<AIChatComponentExample />
+			<AIChatComponentExample RunningInBlazorHybrid="true" />
 		}
 		else if (languageAndCategoryListing)
 		{
