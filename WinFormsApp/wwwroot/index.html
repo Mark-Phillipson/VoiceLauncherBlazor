@@ -63,16 +63,29 @@
 						console.log(error);
 					});
 			}
-		};
-		window.blazorHybrid = {
+		};		window.blazorHybrid = {
+			testConnection: function () {
+				console.log("Testing JSInterop connection...");
+				DotNet.invokeMethodAsync('WinFormsApp', 'TestMethod')
+					.then(function () {
+						console.log("JSInterop test successful!");
+					})
+					.catch(function (error) {
+						console.error("JSInterop test failed:", error);
+					});
+			},
 			triggerPaste: function () {
+				// First test the connection
+				this.testConnection();
+				
 				// Call the C# method to handle paste functionality
+				console.log("Attempting to trigger paste...");
 				DotNet.invokeMethodAsync('WinFormsApp', 'TriggerPasteToActiveWindow')
 					.then(function () {
 						console.log("Paste triggered successfully");
 					})
 					.catch(function (error) {
-						console.log("Paste error:", error);
+						console.error("Paste error:", error);
 					});
 			}
 		};

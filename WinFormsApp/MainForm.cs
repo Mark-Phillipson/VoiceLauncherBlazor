@@ -16,29 +16,12 @@ using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
-using System.Runtime.InteropServices;
-using Microsoft.JSInterop;
 
 
 namespace WinFormsApp
-{
-	[SupportedOSPlatform("windows")]
+{	[SupportedOSPlatform("windows")]
 	public partial class MainForm : Form
 	{
-		// Windows API declarations for paste functionality
-		[DllImport("user32.dll")]
-		private static extern IntPtr GetForegroundWindow();
-
-		[DllImport("user32.dll")]
-		private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-		[DllImport("user32.dll")]
-		private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
-
-		private const int VK_CONTROL = 0x11;
-		private const int VK_V = 0x56;
-		private const int KEYEVENTF_KEYUP = 0x0002;
-
 		private ContextMenuStrip contextMenu;
 		private NotifyIcon notifyIcon;
 		public MainForm()
@@ -62,8 +45,7 @@ namespace WinFormsApp
 			this.FormClosing += MainForm_FormClosing!;
 			this.Resize += MainForm_Resize!;
 			InitializeServices();
-		}
-		private void InitializeServices()
+		}		private void InitializeServices()
 		{
 			var services = new ServiceCollection();
 
@@ -74,6 +56,9 @@ namespace WinFormsApp
 			}
 			services.AddMemoryCache();
 			services.AddSingleton<ComponentCacheService>();
+			
+			// Register this form for JSInterop
+			services.AddSingleton<MainForm>(this);
 
 			// Add database context
 			if (Program.Configuration != null)
@@ -106,9 +91,7 @@ namespace WinFormsApp
 			services.AddScoped<AdditionalCommandService>();
 			services.AddScoped<CustomIntellisenseService>();
 			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
-			services.AddScoped<LauncherService>();
-
-			// Add UI services
+			services.AddScoped<LauncherService>();			// Add UI services
 			services.AddBlazoredModal();
 			services.AddBlazoredToast();
 
@@ -156,39 +139,10 @@ namespace WinFormsApp
 		{
 			this.Show();
 			this.WindowState = FormWindowState.Normal;
-		}
-		private void ExitApplication()
+		}		private void ExitApplication()
 		{
 			notifyIcon.Visible = false;
 			Application.Exit();
-		}
-
-		[JSInvokable]
-		public static async Task TriggerPasteToActiveWindow()
-		{
-			await Task.Run(() =>
-			{
-				try
-				{
-					// Small delay to ensure clipboard operation is complete
-					Thread.Sleep(100);
-
-					// Get the currently focused window (should be the target application)
-					IntPtr currentWindow = GetForegroundWindow();
-
-					// Send Ctrl+V to paste
-					keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero); // Press Ctrl
-					keybd_event(VK_V, 0, 0, UIntPtr.Zero); // Press V
-					keybd_event(VK_V, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Release V
-					keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Release Ctrl
-
-					Console.WriteLine("Paste command sent successfully");
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine($"Error during paste operation: {ex.Message}");
-				}
-			});
 		}
 	}
 }

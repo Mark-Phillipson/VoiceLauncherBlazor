@@ -364,21 +364,23 @@ public partial class AIChatComponentExample : ComponentBase
             // If running in Blazor Hybrid, also trigger paste functionality
             if (RunningInBlazorHybrid)
             {
+                
                 await TriggerPasteAsync();
             }
         }
-    }
-
-    private async Task TriggerPasteAsync()
+    }    private async Task TriggerPasteAsync()
     {
         try
         {
+            Console.WriteLine("TriggerPasteAsync called from C#");
             // Use JavaScript to trigger paste functionality
             await JSRuntime.InvokeVoidAsync("blazorHybrid.triggerPaste");
+            Console.WriteLine("JavaScript triggerPaste called successfully");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Paste functionality error: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             // Fallback: just copy to clipboard (already done above)
         }
     }
