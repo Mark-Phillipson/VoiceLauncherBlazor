@@ -16,6 +16,8 @@ using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
+using System.Runtime.InteropServices;
+using Microsoft.JSInterop;
 
 
 namespace WinFormsApp
@@ -23,6 +25,20 @@ namespace WinFormsApp
 	[SupportedOSPlatform("windows")]
 	public partial class MainForm : Form
 	{
+		// Windows API declarations for paste functionality
+		[DllImport("user32.dll")]
+		private static extern IntPtr GetForegroundWindow();
+
+		[DllImport("user32.dll")]
+		private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+		private const int VK_CONTROL = 0x11;
+		private const int VK_V = 0x56;
+		private const int KEYEVENTF_KEYUP = 0x0002;
+
 		private ContextMenuStrip contextMenu;
 		private NotifyIcon notifyIcon;
 		public MainForm()
@@ -145,6 +161,34 @@ namespace WinFormsApp
 		{
 			notifyIcon.Visible = false;
 			Application.Exit();
+		}
+
+		[JSInvokable]
+		public static async Task TriggerPasteToActiveWindow()
+		{
+			await Task.Run(() =>
+			{
+				try
+				{
+					// Small delay to ensure clipboard operation is complete
+					Thread.Sleep(100);
+
+					// Get the currently focused window (should be the target application)
+					IntPtr currentWindow = GetForegroundWindow();
+
+					// Send Ctrl+V to paste
+					keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero); // Press Ctrl
+					keybd_event(VK_V, 0, 0, UIntPtr.Zero); // Press V
+					keybd_event(VK_V, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Release V
+					keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero); // Release Ctrl
+
+					Console.WriteLine("Paste command sent successfully");
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Error during paste operation: {ex.Message}");
+				}
+			});
 		}
 	}
 }

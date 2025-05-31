@@ -34,3 +34,5 @@
 - Test new features with Talon Voice and Cursorless workflows.
 - Use Bootstrap for all styling unless a specific exception is required for accessibility.
 
+## General Behavior
+ -When running things in the terminal do not keep creating new terminals try to use the existing one!

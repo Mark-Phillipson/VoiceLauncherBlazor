@@ -332,38 +332,54 @@ public partial class AIChatComponentExample : ComponentBase
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
         await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
-    }
-
-    private async Task CopyChatResultsAsync()
+    }    private async Task CopyChatResultsAsync()
     {
         string contentToCopy = "";
         
-        // Priority 1: If we have AIComments (latest AI response), copy that
-        if (!string.IsNullOrWhiteSpace(AIComments))
-        {
-            contentToCopy = AIComments;
-        }
-        // Priority 2: If we have TextBlock (dictation mode), copy that
-        else if (!string.IsNullOrWhiteSpace(TextBlock))
+        // Prioritize AI response content (TextBlock) first
+        if (!string.IsNullOrWhiteSpace(TextBlock))
         {
             contentToCopy = TextBlock;
         }
-        // Priority 3: Get the latest assistant response from chat history
-        else if (chatHistory?.Count > 0)
+        // Second priority: AI Comments
+        else if (!string.IsNullOrWhiteSpace(AIComments))
         {
-            var lastAssistantMessage = chatHistory
-                .Where(m => m.Role.Label.ToLower() == "assistant")
-                .LastOrDefault();
-            
-            if (lastAssistantMessage != null)
-            {
-                contentToCopy = lastAssistantMessage.Content ?? "";
-            }
+            contentToCopy = AIComments;
+        }
+        // Third priority: Latest markdown response from history
+        else if (responseHistory?.Count > 0 && !string.IsNullOrWhiteSpace(responseHistory.LastOrDefault()?.Content))
+        {
+            contentToCopy = responseHistory.LastOrDefault()?.Content ?? "";
+        }
+        // Last fallback: User's input (if nothing else is available)
+        else if (!string.IsNullOrWhiteSpace(PromptInput))
+        {
+            contentToCopy = PromptInput;
         }
         
         if (!string.IsNullOrWhiteSpace(contentToCopy))
         {
             await CopyItemAsync(contentToCopy);
+            
+            // If running in Blazor Hybrid, also trigger paste functionality
+            if (RunningInBlazorHybrid)
+            {
+                await TriggerPasteAsync();
+            }
+        }
+    }
+
+    private async Task TriggerPasteAsync()
+    {
+        try
+        {
+            // Use JavaScript to trigger paste functionality
+            await JSRuntime.InvokeVoidAsync("blazorHybrid.triggerPaste");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Paste functionality error: {ex.Message}");
+            // Fallback: just copy to clipboard (already done above)
         }
     }
     private async Task FocusResponseElement()

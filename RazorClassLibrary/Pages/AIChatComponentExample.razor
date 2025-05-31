@@ -1,7 +1,7 @@
 ﻿@page "/chat"
 <PageTitle>AI Chat Component </PageTitle>
 @using RazorClassLibrary.Components
-<h4 class="text-light mb-4"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
+<h4 class="text-light mb-1"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
     <div class="alert alert-info" role="alert">@Message</div>

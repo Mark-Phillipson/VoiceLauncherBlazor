@@ -48,12 +48,11 @@
 			}
 			element.focus();
 			//element.select();
-		}
-		window.myJsFunctions = {
+		}		window.myJsFunctions = {
 			focusElement: function (element) {
 				element.focus();
 			}
-		}
+		};
 		window.clipboardCopy = {
 			copyText: function (text) {
 				navigator.clipboard.writeText(text).then(function () {
@@ -62,6 +61,18 @@
 				})
 					.catch(function (error) {
 						console.log(error);
+					});
+			}
+		};
+		window.blazorHybrid = {
+			triggerPaste: function () {
+				// Call the C# method to handle paste functionality
+				DotNet.invokeMethodAsync('WinFormsApp', 'TriggerPasteToActiveWindow')
+					.then(function () {
+						console.log("Paste triggered successfully");
+					})
+					.catch(function (error) {
+						console.log("Paste error:", error);
 					});
 			}
 		};
