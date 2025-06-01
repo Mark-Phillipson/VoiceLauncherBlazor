@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Text.Json;
 namespace RazorClassLibrary.Pages;
 
-public partial class AIChatComponentExample : ComponentBase
+public partial class AIChatComponent : ComponentBase
 {
     [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
     

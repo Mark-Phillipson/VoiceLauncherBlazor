@@ -1,7 +1,7 @@
 //using OpenAI.Chat;
 namespace RazorClassLibrary.Pages;
 
-public partial class AIChatComponentExample
+public partial class AIChatComponent
 {
     public class ChatResponse
 {
