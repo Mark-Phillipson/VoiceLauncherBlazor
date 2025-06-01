@@ -14,7 +14,8 @@ namespace RazorClassLibrary.Pages;
 public partial class AIChatComponent : ComponentBase, IDisposable
 {
     [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
-    
+
+    private bool useCascadiaCodeFont = true;
     public bool DebounceEnabled { get; set; } = true;
     private string PromptInput
     {
@@ -124,7 +125,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 StateHasChanged();
             });
         };
-        
+
         debounceTimer.AutoReset = false;
         debounceTimer.Start();
     }
@@ -132,18 +133,18 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
     Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
-    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();    private string model = "o3-mini";
+    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel(); private string model = "o3-mini";
     IChatCompletionService? chatService;
     private ElementReference inputElement;
     private ElementReference responseElement;
     string predefinedPrompt = "";
-    private CancellationTokenSource? cancellationTokenSource;protected override async Task OnInitializedAsync()
+    private CancellationTokenSource? cancellationTokenSource; protected override async Task OnInitializedAsync()
     {
         // Try multiple configuration paths for the OpenAI API key
-        OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ?? 
-                       Configuration["OpenAI:ApiKey"] ?? 
+        OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ??
+                       Configuration["OpenAI:ApiKey"] ??
                        Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
-        
+
         if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
         {
             Message = "OpenAI API key not found. Please add it to appsettings.json under 'SmartComponents:ApiKey' or 'OpenAI:ApiKey', or set the OPENAI_API_KEY environment variable.";
@@ -188,36 +189,26 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             selectedPromptId = prompt.Id;
             selectedPrompt = await PromptDataService.GetPromptById(prompt.Id);
         }
-    }    private async Task ProcessChat()
+    }
+    private async Task ProcessChat()
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
             return;
         }
-        // Remove the check for OpenAIAPIKEY here
-        // if (string.IsNullOrWhiteSpace(OpenAIAPIKEY))
-        // {
-        //    Message = "Please set the OpenAI API key in the TextBox.";
-        //    return;
-        // }
-        // else if (chatService==null)
-        // {
-        //    Message = "";
-        //    chatService = new OpenAIChatCompletionService("o3-mini", OpenAIAPIKEY);
-        // }
-
+        Message = "";
         // Add a check if chatService failed to initialize due to missing key
         if (chatService == null)
         {
             Message = "OpenAI API key is missing or invalid. Cannot process chat.";
             return;
         }
-        
+
         // Create a new cancellation token for this request
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
         cancellationTokenSource = new CancellationTokenSource();
-        
+
         prompts = await PromptDataService.GetAllPromptsAsync();
         processing = true;
         StateHasChanged();
@@ -272,14 +263,14 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             System
             .Console.WriteLine(exception.Message);
         }
-        
+
         // Only add response to history if not cancelled
         if (!cancellationTokenSource.Token.IsCancellationRequested)
         {
             responseHistory.AddAssistantMessage(response.Content ?? "");
             revertTo = responseHistory.Count - 1;
         }
-        
+
         prompt = "";
         await inputElement.FocusAsync();
         processing = false;
@@ -295,12 +286,13 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             System.Console.WriteLine(exception.Message);
         }
-    }    private async Task Clear()
+    }
+    private async Task Clear()
     {
         prompt = "";
         await inputElement.FocusAsync();
     }
-    
+
     private void CancelChat()
     {
         if (cancellationTokenSource != null && !cancellationTokenSource.Token.IsCancellationRequested)
@@ -356,10 +348,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
         await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
-    }    private async Task CopyChatResultsAsync()
+    }
+    private async Task CopyChatResultsAsync()
     {
         string contentToCopy = "";
-        
+
         // Prioritize AI response content (TextBlock) first
         if (!string.IsNullOrWhiteSpace(TextBlock))
         {
@@ -380,19 +373,20 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             contentToCopy = PromptInput;
         }
-        
+
         if (!string.IsNullOrWhiteSpace(contentToCopy))
         {
             await CopyItemAsync(contentToCopy);
-            
+
             // If running in Blazor Hybrid, also trigger paste functionality
             if (RunningInBlazorHybrid)
             {
-                
+
                 await TriggerPasteAsync();
             }
         }
-    }    private async Task TriggerPasteAsync()
+    }
+    private async Task TriggerPasteAsync()
     {
         try
         {
@@ -463,14 +457,18 @@ public partial class AIChatComponent : ComponentBase, IDisposable
 
             }
         }
-    }    private void ToggleMessageExpansion(object message)
+    }
+    private void ToggleMessageExpansion(object message)
     {
         if (expandedMessages.Contains(message))
             expandedMessages.Remove(message);
         else
             expandedMessages.Add(message);
     }
-    
+    private void ToggleFont()
+    {
+        useCascadiaCodeFont = !useCascadiaCodeFont;
+    }
     public void Dispose()
     {
         cancellationTokenSource?.Cancel();

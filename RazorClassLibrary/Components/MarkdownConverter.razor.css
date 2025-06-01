@@ -1,0 +1,99 @@
+/* MarkdownConverter Dark Mode Styling */
+.markdown-container {
+    background-color: #3a3a3a; /* Slightly lighter than the main dark background */
+    border: 1px solid #5a5a5a; /* Dark border for definition */
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Make sure text content is readable */
+.markdown-container h1,
+.markdown-container h2,
+.markdown-container h3,
+.markdown-container h4,
+.markdown-container h5,
+.markdown-container h6 {
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+}
+
+.markdown-container p {
+    color: #d0d0d0;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.markdown-container ul,
+.markdown-container ol {
+    color: #d0d0d0;
+    padding-left: 1.5rem;
+}
+
+.markdown-container li {
+    margin-bottom: 0.25rem;
+}
+
+.markdown-container code {
+    background-color: #2a2a2a;
+    color: #f8f8f2;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+.markdown-container pre {
+    background-color: #2a2a2a;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid #4a4a4a;
+}
+
+.markdown-container pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.markdown-container blockquote {
+    border-left: 4px solid #6c757d;
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #b0b0b0;
+    font-style: italic;
+}
+
+.markdown-container a {
+    color: #5bc0de;
+    text-decoration: none;
+}
+
+.markdown-container a:hover {
+    color: #31b0d5;
+    text-decoration: underline;
+}
+
+.markdown-container table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.markdown-container th,
+.markdown-container td {
+    border: 1px solid #5a5a5a;
+    padding: 0.5rem;
+    text-align: left;
+    color: #d0d0d0;
+}
+
+.markdown-container th {
+    background-color: #4a4a4a;
+    font-weight: bold;
+}
+
+.markdown-container tr:nth-child(even) {
+    background-color: #404040;
+}
