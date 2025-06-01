@@ -14,11 +14,12 @@
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
                 Prompt</label>
             <a target="_blank" class='btn btn-outline-primary btn-sm text-light'
-               href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
+                href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
                 <i class="fa-solid fa-pen-to-square"></i> Manage
             </a>
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@((int value) => OnValueChangedMethodName(value))" class="form-select bg-success text-light m-1">
+                ValueChanged="@((int value) => OnValueChangedMethodName(value))"
+                class="form-select bg-success text-light m-1">
                 @foreach (var item in prompts)
                 {
                     if (item.Id == selectedPrompt?.Id)
@@ -35,24 +36,36 @@
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
-            @bind-value='PromptInput' @bind-value:event='oninput' placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Enter or click Chat.'
+            @bind-value='PromptInput' @bind-value:event='oninput'
+            placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Enter or click Chat.'
             @onkeydown="OnInputKeyDown"></textarea>
         <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
-            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;" @bind="DebounceEnabled" />
+            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;"
+                @bind="DebounceEnabled" />
             <label for="debounceToggle" class="form-label text-light mb-0 me-2">Enable Debounce</label>
-            <label for="debounceBox" class="form-label text-light mb-0">Debounce Wait (ms):</label>
-            <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success" style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput" disabled="@(DebounceEnabled ? null : "disabled")" />
+            <label for="debounceBox" class="form-label text-light mb-0">Wait (ms):</label>
+            <input id="debounceBox" type="number" min="100" max="10000" step="100"
+                class="form-control bg-dark text-light border-success"
+                style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput"
+                disabled="@(DebounceEnabled ? null : "disabled")" />
             @if (DebounceEnabled && debounceCountdown > 0)
             {
                 <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
             }
-        </div>        
+            else
+            {
+                <span class="badge bg-warning text-dark ms-2">Type to Start </span>
+            }
+        </div>
         <div class="d-flex flex-wrap gap-2 mt-2">
-            <button accesskey='c' class="btn btn-outline-success btn-sm" type="button" disabled="@(processing ? "disabled" : null)"
-                @onclick="@(() => ProcessChat())"><i class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
-            <button accesskey='l' class="btn btn-outline-success btn-sm" type="button" disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
+            <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
+                disabled="@(processing ? "disabled" : null)" @onclick="@(() => ProcessChat())"><i
+                    class="fa-solid fa-paper-plane"></i> <u>C</u>hat</button>
+            <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
+                disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
                     class="fa-solid fa-eraser"></i> C<u>l</u>ear</button>
-            <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button" disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
+            <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
+                disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
                     class="fa-solid fa-trash"></i> Forge<u>t</u></button>
             @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
             {
@@ -66,7 +79,7 @@
                 <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
                     @onclick="@(() => FocusResponseElement())">
                     <i class="fa-solid fa-crosshairs"></i> Focus <u>R</u>esponse
-                </button>                @if (responseHistory?.Count > 1)
+                </button> @if (responseHistory?.Count > 1)
                 {
                     <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertPrevious())'><i
                             class="fa-solid fa-arrow-left"></i> Previous</button>
@@ -74,16 +87,18 @@
                             class="fa-solid fa-arrow-right"></i> Next</button>
                 }
             }
-            @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) || !string.IsNullOrWhiteSpace(TextBlock)))
+            @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) ||
+                        !string.IsNullOrWhiteSpace(TextBlock)))
             {
                 <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
                     @onclick="@(() => CopyChatResultsAsync())">
                     <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste (Paste Not Currently Working)
                 </button>
-            }        </div>        @if (processing)
+            }
+        </div> @if (processing)
         {
-            <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" 
-                 role="status" aria-live="polite" aria-label="AI is processing your request">
+            <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" role="status"
+                aria-live="polite" aria-label="AI is processing your request">
                 <div class="spinner-border text-primary me-3" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
@@ -98,8 +113,8 @@
             </div>
             @if (processing)
             {
-                <button accesskey='x' class="btn btn-warning btn-lg" type="button"
-                    @onclick="@(() => CancelChat())"><i class="fa-solid fa-stop"></i>Cancel (x)</button>
+                <button accesskey='x' class="btn btn-warning btn-lg" type="button" @onclick="@(() => CancelChat())"><i
+                        class="fa-solid fa-stop"></i>Cancel (x)</button>
             }
 
         }
@@ -202,7 +217,8 @@
 <div class='row'>
     <div class='col-12 text-secondary'>
         <p>
-            Talon Command Reminder: Draft All (VSCode should be open), Draft This, Draft Submit, Voice Typing in Code, Voice Typing
+            Talon Command Reminder: Draft All (VSCode should be open), Draft This, Draft Submit, Voice Typing in Code,
+            Voice Typing
         </p>
     </div>
 </div>
