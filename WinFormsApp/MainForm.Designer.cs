@@ -40,16 +40,16 @@
 			blazorWebView1.StartPath = "/";
 			blazorWebView1.TabIndex = 0;
 			blazorWebView1.Text = "blazorWebView1";
-			// 
-			// MainForm
+			//			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(855, 670);
 			Controls.Add(blazorWebView1);
+			FormBorderStyle = FormBorderStyle.Sizable;
 			Icon = (Icon)resources.GetObject("$this.Icon");
-			MaximizeBox = false;
-			MinimizeBox = false;
+			MaximizeBox = true;
+			MinimizeBox = true;
 			Name = "MainForm";
 			Text = "Voice Admin";
 			ResumeLayout(false);
