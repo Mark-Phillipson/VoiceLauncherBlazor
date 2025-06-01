@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Text.Json;
 namespace RazorClassLibrary.Pages;
 
-public partial class AIChatComponent : ComponentBase
+public partial class AIChatComponent : ComponentBase, IDisposable
 {
     [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
     
@@ -124,6 +124,7 @@ public partial class AIChatComponent : ComponentBase
                 StateHasChanged();
             });
         };
+        
         debounceTimer.AutoReset = false;
         debounceTimer.Start();
     }
@@ -131,12 +132,12 @@ public partial class AIChatComponent : ComponentBase
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
     Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
-    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
-    private string model = "o3-mini";
+    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();    private string model = "o3-mini";
     IChatCompletionService? chatService;
     private ElementReference inputElement;
     private ElementReference responseElement;
-    string predefinedPrompt = "";    protected override async Task OnInitializedAsync()
+    string predefinedPrompt = "";
+    private CancellationTokenSource? cancellationTokenSource;protected override async Task OnInitializedAsync()
     {
         // Try multiple configuration paths for the OpenAI API key
         OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ?? 
@@ -187,9 +188,7 @@ public partial class AIChatComponent : ComponentBase
             selectedPromptId = prompt.Id;
             selectedPrompt = await PromptDataService.GetPromptById(prompt.Id);
         }
-    }
-
-    private async Task ProcessChat()
+    }    private async Task ProcessChat()
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
@@ -213,6 +212,12 @@ public partial class AIChatComponent : ComponentBase
             Message = "OpenAI API key is missing or invalid. Cannot process chat.";
             return;
         }
+        
+        // Create a new cancellation token for this request
+        cancellationTokenSource?.Cancel();
+        cancellationTokenSource?.Dispose();
+        cancellationTokenSource = new CancellationTokenSource();
+        
         prompts = await PromptDataService.GetAllPromptsAsync();
         processing = true;
         StateHasChanged();
@@ -243,7 +248,7 @@ public partial class AIChatComponent : ComponentBase
         // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
         try
         {
-            response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
+            response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel, cancellationTokenSource.Token);
             if (selectedPrompt?.Description == "Do Dictation")
             {
                 // Deserialize the JSON response
@@ -256,14 +261,25 @@ public partial class AIChatComponent : ComponentBase
             }
 
         }
+        catch (OperationCanceledException)
+        {
+            Message = "AI request was cancelled.";
+            System.Console.WriteLine("AI request was cancelled by user.");
+        }
         catch (System.Exception exception)
         {
             Message = "Error: " + exception.Message;
             System
             .Console.WriteLine(exception.Message);
         }
-        responseHistory.AddAssistantMessage(response.Content ?? "");
-        revertTo = responseHistory.Count - 1;
+        
+        // Only add response to history if not cancelled
+        if (!cancellationTokenSource.Token.IsCancellationRequested)
+        {
+            responseHistory.AddAssistantMessage(response.Content ?? "");
+            revertTo = responseHistory.Count - 1;
+        }
+        
         prompt = "";
         await inputElement.FocusAsync();
         processing = false;
@@ -279,12 +295,20 @@ public partial class AIChatComponent : ComponentBase
         {
             System.Console.WriteLine(exception.Message);
         }
-    }
-
-    private async Task Clear()
+    }    private async Task Clear()
     {
         prompt = "";
         await inputElement.FocusAsync();
+    }
+    
+    private void CancelChat()
+    {
+        if (cancellationTokenSource != null && !cancellationTokenSource.Token.IsCancellationRequested)
+        {
+            cancellationTokenSource.Cancel();
+            Message = "Cancelling AI request...";
+            StateHasChanged();
+        }
     }
     private async Task Forget()
     {
@@ -439,12 +463,21 @@ public partial class AIChatComponent : ComponentBase
 
             }
         }
-    }
-    private void ToggleMessageExpansion(object message)
+    }    private void ToggleMessageExpansion(object message)
     {
         if (expandedMessages.Contains(message))
             expandedMessages.Remove(message);
         else
             expandedMessages.Add(message);
+    }
+    
+    public void Dispose()
+    {
+        cancellationTokenSource?.Cancel();
+        cancellationTokenSource?.Dispose();
+        debounceTimer?.Stop();
+        debounceTimer?.Dispose();
+        countdownTimer?.Stop();
+        countdownTimer?.Dispose();
     }
 }
