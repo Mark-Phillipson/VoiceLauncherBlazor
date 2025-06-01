@@ -21,10 +21,12 @@ namespace WinFormsApp
 		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
-		// Property for dynamic AI Chat button caption
-		private string AIChatButtonCaption => showAIChat ? 
-			(arguments != null && arguments.Length > 1 && arguments[1].Contains("AIChat") ? "Close" : "← Back") : 
-			"Chat";
+	// Property for dynamic AI Chat button caption
+	private string AIChatButtonCaption => showAIChat ? 
+		(arguments != null && arguments.Length > 1 && 
+		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
+		  (arguments.Length >= 3 && arguments[2].Contains("AIChat"))) ? "Close" : "← Back") : 
+		"Chat";
 
 		protected override async Task OnInitializedAsync()
 		{
@@ -36,40 +38,46 @@ namespace WinFormsApp
 			{
 				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
-				 arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
-			}			string categoryName = "";
-			if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
+				 arguments = new string[] { arguments[0], "Launcher", "AIChat" };
+				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
+			}		string categoryName = "";
+		if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
+		{
+			SetTitle("AI Chat");
+			showAIChat = true;
+		}
+		else if (arguments.Count() >= 3 && arguments[2].Contains("AIChat"))
+		{
+			SetTitle("AI Chat");
+			showAIChat = true;
+		}
+		else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
+		{
+			SetTitle("Search Snippets");
+			string languageName = "";
+			languageName = arguments[2].Replace("/", "").Trim();
+			categoryName = arguments[3].Replace("/", "").Trim();
+			var language = await LanguageService.GetLanguageAsync(languageName);
+			var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+			if (language != null && category != null)
 			{
-				SetTitle("AI Chat");
-				showAIChat = true;
+				languageId = language.Id;
+				categoryId = category.Id;
 			}
-			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
+			languageAndCategoryListing = true;
+			message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
+		}
+		else if (arguments.Length == 3 && arguments[1].Contains("Launcher"))
+		{
+			categoryName = arguments[2].Replace("/", "");
+			var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
+			if (category != null)
 			{
-				SetTitle("Search Snippets");
-				string languageName = "";
-				languageName = arguments[2].Replace("/", "").Trim();
-				categoryName = arguments[3].Replace("/", "").Trim();
-				var language = await LanguageService.GetLanguageAsync(languageName);
-				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
-				if (language != null && category != null)
-				{
-					languageId = language.Id;
-					categoryId = category.Id;
-				}
-				languageAndCategoryListing = true;
-				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
+				categoryId = category.Id;
 			}
-			else if (arguments.Length == 3 && arguments[1].Contains("Launcher"))
-			{
-				categoryName = arguments[2].Replace("/", "");
-				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-				if (category != null)
-				{
-					categoryId = category.Id;
-				}
-				SetTitle($"Launch from category: {categoryName}");
-				launcher = true;
-			}
+			SetTitle($"Launch from category: {categoryName}");
+			launcher = true;
+		}
 			else if (arguments.Length == 3)
 			{
 				searchTerm = arguments[2].Replace("/", "");
@@ -95,47 +103,48 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-				private void ShowAIChat()
+			private void ShowAIChat()
+	{
+		if (showAIChat)
 		{
-			if (showAIChat)
+			// Turning off AI Chat - restore previous view based on arguments
+			showAIChat = false;
+			if (arguments != null && arguments.Length > 1)
 			{
-				// Turning off AI Chat - restore previous view based on arguments
-				showAIChat = false;
-				if (arguments != null && arguments.Length > 1)
+				if ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
+				    (arguments.Length >= 3 && arguments[2].Contains("AIChat")))
 				{
-					if (arguments[1].Contains("AIChat"))
-					{
-						// If we launched directly into AI chat, close the application when going back
-						CloseWindow();
-						return;
-					}
-					else if (arguments[1].Contains("SearchIntelliSense"))
-					{
-						languageAndCategoryListing = true;
-						SetTitle("Search Snippets");
-					}
-					else if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle($"Launch Applications");
-					}
-					else
-					{
-						SetTitle("Filtering Snippets by Display Value");
-					}
+					// If we launched directly into AI chat, close the application when going back
+					CloseWindow();
+					return;
+				}
+				else if (arguments[1].Contains("SearchIntelliSense"))
+				{
+					languageAndCategoryListing = true;
+					SetTitle("Search Snippets");
+				}
+				else if (arguments[1].Contains("Launcher"))
+				{
+					launcher = true;
+					SetTitle($"Launch Applications");
+				}
+				else
+				{
+					SetTitle("Filtering Snippets by Display Value");
 				}
 			}
-			else
-			{
-				// Turning on AI Chat
-				showAIChat = true;
-				// Reset other views when showing AI Chat
-				languageAndCategoryListing = false;
-				launcher = false;
-				SetTitle("AI Chat Assistant");
-			}
-			StateHasChanged();
 		}
+		else
+		{
+			// Turning on AI Chat
+			showAIChat = true;
+			// Reset other views when showing AI Chat
+			languageAndCategoryListing = false;
+			launcher = false;
+			SetTitle("AI Chat Assistant");
+		}
+		StateHasChanged();
+	}
 		
 		private async Task RefreshCache()
 		{
