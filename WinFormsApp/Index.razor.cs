@@ -21,8 +21,10 @@ namespace WinFormsApp
 		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
-				// Property for dynamic AI Chat button caption
-		private string AIChatButtonCaption => showAIChat ? "← Back" : "Chat";
+		// Property for dynamic AI Chat button caption
+		private string AIChatButtonCaption => showAIChat ? 
+			(arguments != null && arguments.Length > 1 && arguments[1].Contains("AIChat") ? "Close" : "← Back") : 
+			"Chat";
 
 		protected override async Task OnInitializedAsync()
 		{
@@ -30,15 +32,18 @@ namespace WinFormsApp
 			if (arguments == null || arguments.Length == 0)
 			{
 				return;
-			}
-			if (arguments.Count() < 2)
+			}			if (arguments.Count() < 2)
 			{
 				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
 				 arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
+			}			string categoryName = "";
+			if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
+			{
+				SetTitle("AI Chat");
+				showAIChat = true;
 			}
-			string categoryName = "";
-			if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
+			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
 			{
 				SetTitle("Search Snippets");
 				string languageName = "";
@@ -90,23 +95,21 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-		
-		private void ShowAIChat()
+				private void ShowAIChat()
 		{
-			showAIChat = !showAIChat;
 			if (showAIChat)
 			{
-				// Reset other views when showing AI Chat
-				languageAndCategoryListing = false;
-				launcher = false;
-				SetTitle("AI Chat Assistant");
-			}
-			else
-			{
-				// Restore previous view based on arguments
+				// Turning off AI Chat - restore previous view based on arguments
+				showAIChat = false;
 				if (arguments != null && arguments.Length > 1)
 				{
-					if (arguments[1].Contains("SearchIntelliSense"))
+					if (arguments[1].Contains("AIChat"))
+					{
+						// If we launched directly into AI chat, close the application when going back
+						CloseWindow();
+						return;
+					}
+					else if (arguments[1].Contains("SearchIntelliSense"))
 					{
 						languageAndCategoryListing = true;
 						SetTitle("Search Snippets");
@@ -121,6 +124,15 @@ namespace WinFormsApp
 						SetTitle("Filtering Snippets by Display Value");
 					}
 				}
+			}
+			else
+			{
+				// Turning on AI Chat
+				showAIChat = true;
+				// Reset other views when showing AI Chat
+				languageAndCategoryListing = false;
+				launcher = false;
+				SetTitle("AI Chat Assistant");
 			}
 			StateHasChanged();
 		}
