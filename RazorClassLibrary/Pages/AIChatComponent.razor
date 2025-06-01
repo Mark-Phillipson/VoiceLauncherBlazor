@@ -8,15 +8,17 @@
 }
 
 <div class='row'>
-    <div class='col-md-5 bg-dark text-light p-1 rounded'>
-        @if (prompts != null)
+    <div class='col-md-5 bg-dark text-light p-1 rounded'>        @if (prompts != null)
         {
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
                 Prompt</label>
-            <a target="_blank" class='btn btn-outline-primary btn-sm text-light'
-                href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
-                <i class="fa-solid fa-pen-to-square"></i> Manage
-            </a>
+            @if (!RunningInBlazorHybrid)
+            {
+                <a target="_blank" class='btn btn-outline-primary btn-sm text-light'
+                    href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
+                    <i class="fa-solid fa-pen-to-square"></i> Manage
+                </a>
+            }
             <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
                 ValueChanged="@((int value) => OnValueChangedMethodName(value))"
                 class="form-select bg-success text-light m-1">
@@ -125,7 +127,7 @@
         }
         @foreach (var item in chatHistory)
         {
-            @if (item.Role.Label.ToLower() == "system")
+            @if (item.Role == Microsoft.SemanticKernel.ChatCompletion.AuthorRole.System)
             {
                 <div class="chat-bubble system-bubble mb-3">
                     <div class="bubble-content @(expandedMessages.Contains(item) ? "expanded" : "")"
@@ -138,10 +140,9 @@
                                         class="fa-solid @(expandedMessages.Contains(item) ? "fa-chevron-up" : "fa-chevron-down")"></i></small>
                             }
                         </div>
-                        <div class="bubble-text">
-                            @if (item?.Content?.Length > 300 && !expandedMessages.Contains(item))
+                        <div class="bubble-text">                            @if (item?.Content?.Length > 300 && !expandedMessages.Contains(item))
                             {
-                                @($"{item.Content?.Substring(0, 300)}...")
+                                @($"{item.Content.Substring(0, 300)}...")
                             }
                             else
                             {
@@ -157,9 +158,8 @@
                     <div class="bubble-content">
                         <div class="bubble-header">
                             <i class="fa-solid fa-user me-1"></i> You
-                        </div>
-                        <div class="bubble-text">
-                            @item.Content
+                        </div>                        <div class="bubble-text">
+                            @(item.Content ?? string.Empty)
                         </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                         <li class='text-danger'>Response # @historyCount</li>
                         <ul>
                             <li>
-                                <MarkdownConverter MarkdownContent="@item.Content" />
+                                <MarkdownConverter MarkdownContent="@(item.Content ?? string.Empty)" />
                             </li>
                         </ul>
                     </ul>
