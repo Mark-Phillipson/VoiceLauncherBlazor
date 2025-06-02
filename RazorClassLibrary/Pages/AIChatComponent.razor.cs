@@ -42,6 +42,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     }
     private async Task OnInputKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
     {
+        // If debounce is enabled, we handle the Enter key here
         if (!DebounceEnabled && e.Key == "Enter")
         {
             await ProcessChat();
