@@ -92,6 +92,9 @@ namespace RazorClassLibrary.Pages
 				if (cachedData != null)
 				{
 					LauncherDTO = cachedData;
+					FilteredLauncherDTO = LauncherDTO;
+					Title = $"Launcher Items ({FilteredLauncherDTO?.Count ?? 0})";
+					StateHasChanged();
 					return;
 				}
 			}
