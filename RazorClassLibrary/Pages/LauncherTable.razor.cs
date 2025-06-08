@@ -66,7 +66,15 @@ namespace RazorClassLibrary.Pages
 
 		protected override async Task OnParametersSetAsync()
 		{
-			await LoadData(RefreshData);
+			// If CategoryId is supplied (not zero), always force reload from DB (bypass cache)
+			if (CategoryId != 0)
+			{
+				await LoadData(true);
+			}
+			else
+			{
+				await LoadData(RefreshData);
+			}
 		}
 		private async Task LoadData(bool forceRefresh = false)
 		{

@@ -2,18 +2,22 @@
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
 <CascadingBlazoredModal>
-	<div class='m-2' style="text-align: center;">
-		<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
-			Maximize</button>
-		<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
-			Minimize</button>
-		<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
-			Restore</button>		<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
-			<i class="fas fa-sync"></i> Refresh Data
-		</button>
-		<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I 
-			@AIChatButtonCaption</button>
-	</div>	<div class='m-2'>
+	@if (!showAIChat)
+	{
+		<div class='m-2' style="text-align: center;">
+			<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
+				Maximize</button>
+			<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
+				Minimize</button>
+			<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
+				Restore</button> <button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
+				<i class="fas fa-sync"></i> Refresh Data
+			</button>
+			<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
+				@AIChatButtonCaption</button>
+		</div>
+	}
+	<div class='m-2'>
 		@if (showAIChat)
 		{
 			<AIChatComponent RunningInBlazorHybrid="true" />
@@ -25,7 +29,8 @@
 		}
 		else if (launcher)
 		{
-			<LauncherTable CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
+			<LauncherTable CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true"
+				RefreshData="@refreshRequested" />
 		}
 		else // filtering by display value mostly
 		{

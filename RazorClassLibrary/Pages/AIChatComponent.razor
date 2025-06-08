@@ -8,7 +8,7 @@
 }
 
 <div class='row'>
-    <div class='col-md-5 bg-dark text-light p-1 rounded'>        @if (prompts != null)
+    <div class='col-md-5 bg-dark text-light p-2 rounded'>        @if (prompts != null)
         {
             <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
                 Prompt</label>
@@ -44,12 +44,14 @@
         <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
             <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;"
                 @bind="DebounceEnabled" />
-            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Enable Debounce</label>
-            <label for="debounceBox" class="form-label text-light mb-0">Wait (ms):</label>
-            <input id="debounceBox" type="number" min="100" max="10000" step="100"
-                class="form-control bg-dark text-light border-success"
-                style="width: 120px; display: inline-block; margin-bottom: 0;" @bind="DebounceMillisecondsInput"
-                disabled="@(DebounceEnabled ? null : "disabled")" />
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Debounce</label>
+            <div class="d-none d-md-flex align-items-center">
+                <label for="debounceBox" class="form-label text-light mb-0" style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
+                <input id="debounceBox" type="number" min="100" max="10000" step="100"
+                    class="form-control bg-dark text-light border-success text-end"
+                    style="display: inline-block; margin-bottom: 0;width: 70px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
+                    disabled="@(DebounceEnabled ? null : "disabled")" />
+            </div>
             @if (DebounceEnabled && debounceCountdown > 0)
             {
                 <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
@@ -69,13 +71,6 @@
             <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
                 disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
                     class="fa-solid fa-trash"></i> Forge<u>t</u></button>
-            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
-            {
-                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success btn-sm"
-                    @onclick="@(() => CopyItemAsync(TextBlock))">
-                    <i class="fa-regular fa-copy"></i> Cop<u>y</u>
-                </button>
-            }
             @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
             {
                 <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
@@ -92,10 +87,10 @@
             @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) ||
                         !string.IsNullOrWhiteSpace(TextBlock)))
             {
-                <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
+                @* <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
                     @onclick="@(() => CopyChatResultsAsync())">
                     <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste (Paste Not Currently Working)
-                </button>
+                </button> *@
             }
         </div> @if (processing)
         {
@@ -193,10 +188,17 @@
     <div class='col-md-7 bg-dark text-light p-2 rounded'>
         @if (responseHistory?.Count > 0)
         {
-            <button class="btn btn-outline-info btn-sm mb-2" @onclick="ToggleFont">
+            <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
                 <i class="fa-solid fa-font"></i>
                 @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
             </button>
+            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
+            {
+                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                    @onclick="@(() => CopyItemAsync(TextBlock))">
+                    <i class="fa-regular fa-copy"></i> Cop<u>y</u>
+                </button>
+            }
             @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
             {
                 <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
@@ -211,6 +213,11 @@
                     <div class="alert alert-success" role="alert">@AIComments</div>
                 }
             }
+        }
+        else {
+            <div class="d-flex justify-content-center align-items-center border border-light" style="width:100%;height:300px;">
+                <span class="text-muted">The Results Will Appear Here..</span>
+            </div>
         }
     </div>
 </div>
