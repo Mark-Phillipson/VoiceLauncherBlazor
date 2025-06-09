@@ -1,0 +1,87 @@
+@page "/accessible-launchers"
+@using DataAccessLibrary.DTO
+@using DataAccessLibrary.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Logging
+
+<PageTitle>Accessible Launcher</PageTitle>
+
+<div class="row" style="height: 85vh;">
+    <div class="col-md-8" style="height: 100%; overflow-y: auto;" @ref="listContainer" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="true" tabindex="0" role="listbox" aria-label="Launchers List">
+        @if (Launchers == null && _loadFailed)
+        {
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>The data failed to load. Please check the console for more details or try again later.</p>
+                <hr>
+                <p class="mb-0">@_errorMessage</p>
+                <button class="btn btn-primary mt-2" @onclick="LoadLaunchers">Retry</button>
+            </div>
+        }
+        else if (Launchers == null)
+        {
+            <div class="d-flex justify-content-center align-items-center" style="height:100%;">
+                 <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (!Launchers.Any())
+        {
+            <div class="d-flex justify-content-center align-items-center" style="height:100%;">
+                <p class="text-muted">No launchers found.</p>
+            </div>
+        }
+        else
+        {
+            <ul class="list-group">
+                @for (int i = 0; i < Launchers.Count; i++)
+                {
+                    var launcher = Launchers[i];
+                    var itemClass = i == SelectedIndex ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action";
+                    <li id="@($"launcher-item-{i}")" 
+                        class="@itemClass" 
+                        @onclick="() => SelectItem(i, true)" 
+                        role="option" 
+                        aria-selected="@(i == SelectedIndex)"
+                        tabindex="-1">
+                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                        {
+                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                ? launcher.Icon
+                                : $"/images/{launcher.Icon}";
+                            <img src="@iconSrc" alt="@launcher.Name icon" style="height: 30px; width: auto; margin-right: 10px;" />
+                        }
+                        else
+                        {
+                            <span style="font-size: 20px; margin-right: 10px;">🚀</span>
+                        }
+                        @launcher.Name
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    <div class="col-md-4 d-flex align-items-center justify-content-center" style="height: 100%; border-left: 1px solid #444; background-color: #212529; color: #f8f9fa;">
+        @if (!string.IsNullOrWhiteSpace(_dwellStatusMessage))
+        {
+            <div class="text-center" role="status" aria-live="polite">
+                <h4 class="text-info p-3">@_dwellStatusMessage</h4>
+            </div>
+        }
+        else if (SelectedLauncher != null) // Show selected item if no dwell message
+        {
+            <div class="text-center">
+                 <h5 class="p-3">Selected: @SelectedLauncher.Name</h5>
+                 <p class="text-light px-3">URL: @SelectedLauncher.CommandLine</p>
+                 <p class="text-light p-1">Maintain selection to auto-launch.</p>
+            </div>
+        }
+        else // Default message if nothing is selected and no dwell message
+        {
+            <div class="text-center">
+                <p class="p-3 text-light">Select an item from the list using Up/Down arrow keys. <br />The selected website will launch automatically after a short delay.</p>
+            </div>
+        }
+    </div>
+</div>

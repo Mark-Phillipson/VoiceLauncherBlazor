@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
 @using RazorClassLibrary.Shared
+@inject NavigationManager NavigationManager
+
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome"
     SuccessClass="success-toast-override" SuccessIcon="fa fa-thumbs-up" ErrorIcon="fa fa-bug" ShowProgressBar="true"
     RemoveToastsOnNavigation="true" InfoIcon="fa fa-info" WarningIcon="fa fa-warning" />
@@ -38,8 +40,30 @@
 </footer>
 @code {
     private bool ShowNavMenu = true;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // Ensure NavMenu is shown by default and remove page-specific hiding logic
+        ShowNavMenu = true; 
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Ensure NavMenu is shown by default and remove page-specific hiding logic
+        ShowNavMenu = true;
+        InvokeAsync(StateHasChanged); // Ensure UI updates
+    }
+
     private void ToggleShowNavMenu()
     {
         ShowNavMenu = !ShowNavMenu;
+    }
+
+    // Implement IDisposable to unsubscribe from the event
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
     }
 }

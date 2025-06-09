@@ -122,6 +122,11 @@
         }
         @foreach (var item in chatHistory)
         {
+            if (item == null) // Add this check to skip null items
+            {
+                continue;
+            }
+
             @if (item.Role == Microsoft.SemanticKernel.ChatCompletion.AuthorRole.System)
             {
                 <div class="chat-bubble system-bubble mb-3">
@@ -129,32 +134,32 @@
                         @onclick="@(() => ToggleMessageExpansion(item))">
                         <div class="bubble-header">
                             <i class="fa-solid fa-robot me-1"></i> System
-                            @if (item?.Content?.Length > 300)
+                            @if (item.Content != null && item.Content.Length > 300) // Explicit null check for item.Content
                             {
                                 <small><i
                                         class="fa-solid @(expandedMessages.Contains(item) ? "fa-chevron-up" : "fa-chevron-down")"></i></small>
                             }
                         </div>
-                        <div class="bubble-text">                            @if (item?.Content?.Length > 300 && !expandedMessages.Contains(item))
+                        <div class="bubble-text">                            @if (item.Content != null && item.Content.Length > 300 && !expandedMessages.Contains(item)) // Explicit null check
                             {
-                                @($"{item.Content.Substring(0, 300)}...")
+                                @($"{item.Content.Substring(0, 300)}...") // item.Content is now guaranteed non-null here
                             }
                             else
                             {
-                                @item?.Content
+                                @item.Content // item.Content can be null, Razor handles rendering it as empty
                             }
                         </div>
                     </div>
                 </div>
             }
-            else
+            else // User role or other
             {
                 <div class="chat-bubble user-bubble mb-3">
                     <div class="bubble-content">
                         <div class="bubble-header">
                             <i class="fa-solid fa-user me-1"></i> You
                         </div>                        <div class="bubble-text">
-                            @(item.Content ?? string.Empty)
+                            @(item.Content ?? string.Empty) // item is non-null here, item.Content can be null
                         </div>
                     </div>
                 </div>
