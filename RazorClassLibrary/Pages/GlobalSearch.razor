@@ -3,12 +3,29 @@
 <heading>
     <h1>Global Search</h1>
 </heading>
-<main class='row'>
-    <div class='col-12'>
+<main class='row'>    <div class='col-12'>
         <label for="searchTerm" accesskey="s">Search <kbd>Alt</kbd>+<kbd>S</kbd></label>
-        <input id='searchTerm' type="text" @bind-value="@searchTerm"
+        <input id='searchTerm' type="text" @bind-value="@InputValue"
             placeholder="Enter a Search Value Here and Search Relevant Tables :)" class='form-control'
             @bind-value:event="oninput" />
+        
+        @if (_isCountingDown && !string.IsNullOrWhiteSpace(_inputValue))
+        {
+            <div class="mt-2">
+                <div class="d-flex align-items-center">
+                    <small class="text-muted me-2">Searching in:</small>                    <div class="progress flex-grow-1" style="height: 4px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
+                             role="progressbar" 
+                             style="width: @(((double)_remainingMs / DebounceDelayMs) * 100)%"
+                             aria-valuenow="@_remainingMs" 
+                             aria-valuemin="0" 
+                             aria-valuemax="@DebounceDelayMs">
+                        </div>
+                    </div>
+                    <small class="text-muted ms-2">@(Math.Ceiling(_remainingMs / 100.0) / 10)s</small>
+                </div>
+            </div>
+        }
     </div>
     <div class='col-6'>
         @if (!string.IsNullOrWhiteSpace(searchTerm) && searchTerm.Length > 4)
