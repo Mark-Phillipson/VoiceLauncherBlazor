@@ -13,7 +13,7 @@
                     <i class="fas fa-sort-alpha-up-alt"></i>
                 </button>
             </div>
-            <button class="btn btn-md btn-outline-danger me-4" type="button" @onclick="@(() => LoadData())">
+            <button class="btn btn-md btn-outline-danger me-4" type="button" @onclick="@(() => LoadData(true))">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </button>
         </div>
@@ -56,19 +56,6 @@
         <div class="col-auto me-4">
             <input @ref="SearchInput" accesskey="3" class="form-control" style="width: 200px;" @bind="@SearchTerm"
                 @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
-        </div>
-        <div class="col-auto">
-            <button class='btn btn-md btn-outline-info' @onclick="() => LoadData(true)">
-                @if (!RunningInBlazorHybrid)
-                {
-                    <span>Reload Data</span>
-                    <i class="bi bi-arrow-clockwise"></i>
-                }
-                else
-                {
-                    <label>Clear Filter and Load Data</label>
-                }
-            </button>
         </div>
     }
 </div>
