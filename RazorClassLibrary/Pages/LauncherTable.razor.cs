@@ -95,6 +95,9 @@ namespace RazorClassLibrary.Pages
 			bool loadFromService = true; // Default to loading from service
 
 			// Try to load from cache only if not forcing refresh AND no GlobalSearchTerm is active
+			// Use cached data only when not forcing a refresh and no global search term is active.
+			// This ensures that cached data is used for general browsing, but fresh data is fetched
+			// when a specific search term is provided or a refresh is explicitly requested.
 			if (!forceRefresh && string.IsNullOrWhiteSpace(GlobalSearchTerm))
 			{
 				var cachedData = await LoadDataFromJsonFile();

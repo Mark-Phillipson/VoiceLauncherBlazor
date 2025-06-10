@@ -11,7 +11,7 @@
             @bind-value:event="oninput" />
     </div>
     <div class='col-6'>
-        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        @if (!string.IsNullOrWhiteSpace(searchTerm) && searchTerm.Length > 4)
         {
             <LanguageTable GlobalSearchTerm="@searchTerm" />
         }
