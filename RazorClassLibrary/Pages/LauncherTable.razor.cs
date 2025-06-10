@@ -78,21 +78,6 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task LoadData(bool forceRefresh = false)
 		{
-			// If force refresh requested, delete the cache file
-			if (forceRefresh)
-			{
-				if (File.Exists("launcherCache.json"))
-				{
-					try
-					{
-						File.Delete("launcherCache.json");
-					}
-					catch (Exception ex)
-					{
-						Logger?.LogError(ex, "Failed to delete cache file during refresh");
-					}
-				}
-			}
 			// Attempt to load categories regardless of cache status for launchers
 			if (CategoryDataService != null)
 			{
@@ -106,60 +91,104 @@ namespace RazorClassLibrary.Pages
 					// Optionally, handle the error e.g., by setting a message for the user
 				}
 			}
-			// Skip cache if force refresh requested
-			if (!forceRefresh)
+
+			bool loadFromService = true; // Default to loading from service
+
+			// Try to load from cache only if not forcing refresh AND no GlobalSearchTerm is active
+			if (!forceRefresh && string.IsNullOrWhiteSpace(GlobalSearchTerm))
 			{
 				var cachedData = await LoadDataFromJsonFile();
 				if (cachedData != null)
 				{
 					LauncherDTO = cachedData;
-					FilteredLauncherDTO = LauncherDTO;
-					Title = $"Launcher Items ({FilteredLauncherDTO?.Count ?? 0})";
-					StateHasChanged();
-					return;
+					loadFromService = false; // Data loaded from cache, service call for full list might be skipped
 				}
 			}
-			CategoryDTO? category = null;
-			try
+			
+			// If GlobalSearchTerm is present, or forceRefresh is true, or cache was missed, we must load from service.
+			if (forceRefresh || !string.IsNullOrWhiteSpace(GlobalSearchTerm))
 			{
-				List<LauncherDTO> result;
-				if (LauncherDataService != null)
+				loadFromService = true;
+			}
+
+			CategoryDTO? category = null; // Used for title if CategoryId is set
+			if (loadFromService)
+			{
+				try
 				{
-					if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+					List<LauncherDTO> result;
+					if (LauncherDataService != null)
 					{
-						result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
-					}
-					else
-					{
-						result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
-					}
-					if (result != null)
-					{
-						LauncherDTO = result.ToList();
-						_cachedLauncherDTO = LauncherDTO;
-						// Save fresh data to cache after refresh
-						if (forceRefresh)
+						if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
 						{
-							await SaveDataToJsonFile(LauncherDTO);
+							result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
+						}
+						else
+						{
+							result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
+						}
+						if (result != null)
+						{
+							LauncherDTO = result.ToList();
+							// Save fresh data to cache only if it was a full list (not a global search) and refresh was intended
+							if (forceRefresh && string.IsNullOrWhiteSpace(GlobalSearchTerm))
+							{
+								await SaveDataToJsonFile(LauncherDTO);
+							}
 						}
 					}
 				}
-
-				if (CategoryDataService != null)
+				catch (Exception e)
 				{
-					category = await CategoryDataService.GetCategoryById(CategoryId);
-					// _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0); // Moved up
+					Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
+					_loadFailed = true;
+					ExceptionMessage = e.Message;
+					LauncherDTO = new List<LauncherDTO>(); // Ensure LauncherDTO is not null on error
 				}
 			}
-			catch (Exception e)
-			{
-				Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
-				_loadFailed = true;
-				ExceptionMessage = e.Message;
-			}
-			FilteredLauncherDTO = LauncherDTO;
-			Title = $"Launcher Category: {category?.CategoryName} ({FilteredLauncherDTO?.Count})";
+			
+			LauncherDTO ??= new List<LauncherDTO>(); // Ensure LauncherDTO is initialized
+			_cachedLauncherDTO = new List<LauncherDTO>(LauncherDTO); // Base for local filtering
 
+			// Initialize FilteredLauncherDTO with the (potentially globally searched) LauncherDTO
+			FilteredLauncherDTO = new List<LauncherDTO>(LauncherDTO);
+
+			// Apply local search term if present
+			if (!string.IsNullOrWhiteSpace(SearchTerm))
+			{
+				ApplyFilter(); // This updates FilteredLauncherDTO and may set a temporary title
+			}
+			else
+			{
+				// If no local search, ensure FilteredLauncherDTO is sorted
+				FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+			}
+			
+			// Determine and set the final title
+			if (CategoryDataService != null && CategoryId != 0)
+			{
+				category = await CategoryDataService.GetCategoryById(CategoryId);
+			}
+
+			if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+			{
+				Title = $"Launchers matching '{GlobalSearchTerm}' ({FilteredLauncherDTO.Count})";
+				if (!string.IsNullOrWhiteSpace(SearchTerm) && FilteredLauncherDTO.Count != LauncherDTO.Count)
+				{
+					Title += $" and '{SearchTerm}'";
+				}
+			}
+			else if (category != null)
+			{
+				Title = $"Launcher Category: {category.CategoryName} ({FilteredLauncherDTO.Count})";
+				if (!string.IsNullOrWhiteSpace(SearchTerm)) Title += $" (filtered by '{SearchTerm}')";
+			}
+			else
+			{
+				Title = $"All Launchers ({FilteredLauncherDTO.Count})";
+				if (!string.IsNullOrWhiteSpace(SearchTerm)) Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})"; // ApplyFilter might set a similar title
+			}
+			StateHasChanged();
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
