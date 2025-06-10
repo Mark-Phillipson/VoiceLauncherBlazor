@@ -1,11 +1,28 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "C#: VoiceLauncher Debug",
-            "type": "dotnet",
+                {
+            "name": ".NET Launch (Port 7264 Check)",
+            "type": "coreclr",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/VoiceLauncher/VoiceLauncher.csproj"
+            "preLaunchTask": "checkAppRunningOnPort7264", // Runs the port check task first
+            // IMPORTANT: Adjust the following paths to your project
+            "program": "${workspaceFolder}/VoiceLauncher/bin/Debug/net9.0/VoiceLauncher.dll", 
+            "args": [],
+            "cwd": "${workspaceFolder}/VoiceLauncher",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                 // Adjust the pattern if your app uses a different URL or message
+                "pattern": "\\bNow listening on:\\s+(https?://localhost:7264\\b)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                // If your app is configured to run on a specific URL via launchSettings.json,
+                // you might need to ensure it's consistent or override it here.
+                // "ASPNETCORE_URLS": "http://localhost:7264" 
+            }
         }
+ 
     ]
 }

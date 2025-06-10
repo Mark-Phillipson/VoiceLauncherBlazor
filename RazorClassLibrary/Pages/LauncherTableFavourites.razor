@@ -53,7 +53,7 @@ else
 			<div class="card">
 				@if (launcher.CommandLine.ToLower().StartsWith("http"))
 				{
-					<a accesskey="@counter" class="btn btn-lg btn-outline-success" target="_blank" href="@launcher.CommandLine">
+					<a accesskey="@counter" class="btn btn-lg btn-outline-success w-100" target="_blank" href="@launcher.CommandLine">
 						@if (launcher.Icon != null && launcher.Icon.Length > 0)
 						{
 							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
@@ -74,7 +74,7 @@ else
 				}
 				else
 				{
-					<a accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success"
+					<a accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success w-100"
 						@onclick="@(() => LaunchItem(launcher))">
 						@if (launcher.Icon != null && launcher.Icon.Length > 0)
 						{

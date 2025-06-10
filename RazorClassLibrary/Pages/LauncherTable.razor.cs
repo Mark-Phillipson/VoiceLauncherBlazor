@@ -93,6 +93,19 @@ namespace RazorClassLibrary.Pages
 					}
 				}
 			}
+			// Attempt to load categories regardless of cache status for launchers
+			if (CategoryDataService != null)
+			{
+				try
+				{
+					_categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
+				}
+				catch (Exception ex)
+				{
+					Logger?.LogError(ex, "Failed to load categories.");
+					// Optionally, handle the error e.g., by setting a message for the user
+				}
+			}
 			// Skip cache if force refresh requested
 			if (!forceRefresh)
 			{
@@ -135,7 +148,7 @@ namespace RazorClassLibrary.Pages
 				if (CategoryDataService != null)
 				{
 					category = await CategoryDataService.GetCategoryById(CategoryId);
-					_categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
+					// _categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0); // Moved up
 				}
 			}
 			catch (Exception e)
@@ -194,7 +207,7 @@ namespace RazorClassLibrary.Pages
 					 )
 					 .ToList();
 				Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
-				if (FilteredLauncherDTO.Count == 1)
+				if (FilteredLauncherDTO.Count == 1 && RunningInBlazorHybrid)
 				{
 					// Fire and Forget
 					_ = ProcessLaunching(FilteredLauncherDTO.First().Id);
@@ -330,7 +343,7 @@ namespace RazorClassLibrary.Pages
 		private async Task OnCategorySelectedAsync(int value)
 		{
 			CategoryId = value;
-			await LoadData();
+			await LoadData(true); // Ensure data is reloaded and filtered by the new CategoryId
 		}
 		private async Task SaveDataToJsonFile(List<LauncherDTO> data)
 		{

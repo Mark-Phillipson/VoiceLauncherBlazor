@@ -23,6 +23,17 @@
 			"type": "shell",
 			"command": "dotnet publish --configuration Release",
 			"problemMatcher": []
+		},
+		{
+			"label": "checkAppRunningOnPort7264",
+			"type": "shell",
+			"command": "powershell.exe -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/check-port.ps1\" -PortNumber 7264",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"clear": true
+			}
 		}
 	]
 }
