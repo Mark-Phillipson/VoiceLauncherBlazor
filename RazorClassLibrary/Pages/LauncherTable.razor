@@ -3,17 +3,17 @@
 <div class="row align-items-center">
     @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        <div class="col-auto d-flex align-items-center">
-            <h2 class="mb-0 me-4">@Title</h2>
-            <div class="me-4">
-                <button class="btn btn-md btn-outline-warning me-2" @onclick="@(() => SortLauncher("Name"))">
+        <div class="col-auto d-flex align-items-center gap-1">
+            <h2 class="mb-0">@Title</h2>
+            <div class="d-flex gap-1">
+                <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
                     <i class="fas fa-sort-alpha-up"></i>
                 </button>
-                <button class="btn btn-md btn-outline-warning me-4" @onclick="@(() => SortLauncher("Name Desc"))">
+                <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
                     <i class="fas fa-sort-alpha-up-alt"></i>
                 </button>
             </div>
-            <button class="btn btn-md btn-outline-danger me-4" type="button" @onclick="@(() => LoadData(true))">
+            <button class="btn btn-md btn-outline-danger" type="button" @onclick="@(() => LoadData(true))">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </button>
         </div>
