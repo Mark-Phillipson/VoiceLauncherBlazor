@@ -47,12 +47,10 @@ namespace VoiceLauncher.Services
             }
             
             return customIntelliSenses ?? new List<CustomIntelliSenseDTO>();
-        }
-
-        public async Task<List<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)
+        }        public async Task<List<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm, int? languageId = null, int? categoryId = null)
         {
             // Don't cache search results as they're likely to be unique
-            var result = await _customIntelliSenseRepository.SearchCustomIntelliSensesAsync(serverSearchTerm);
+            var result = await _customIntelliSenseRepository.SearchCustomIntelliSensesAsync(serverSearchTerm, languageId, categoryId);
             return result.ToList();
         }
 

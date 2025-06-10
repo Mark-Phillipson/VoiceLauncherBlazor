@@ -52,30 +52,114 @@ namespace VoiceLauncher.Repositories
          }
 
          return customIntelliSenseDTOs;
-      }
-      public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm)
+      }      public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm, int? languageId = null, int? categoryId = null)
       {
          using var context = _contextFactory.CreateDbContext();
-         var CustomIntelliSenses = await context.CustomIntelliSenses
-             .Where(x => x.DisplayValue != null && x.DisplayValue.ToLower().Contains(serverSearchTerm.ToLower()))
+         
+         var searchTermLower = serverSearchTerm.ToLower().Trim();
+         Console.WriteLine($"Search term after processing: '{searchTermLower}' (length: {searchTermLower.Length})");
+         
+         Console.WriteLine($"Starting global search for '{serverSearchTerm}' with languageId={languageId}, categoryId={categoryId}");
+             // Build the query with proper filtering - same logic as the main service
+         var query = context.CustomIntelliSenses
+             .Include(x => x.Language)
+             .Include(x => x.Category)
+             .AsQueryable();
+             
+         // Check total count before any filtering
+         var totalRecords = await query.CountAsync();
+         Console.WriteLine($"Total records in database: {totalRecords}");
+           // For global search (no specific language/category), be more permissive with filtering
+         // Only apply filters if we're doing a scoped search
+         if (languageId.HasValue && languageId.Value > 0)
+         {
+             query = query.Where(x => x.LanguageId == languageId.Value);
+             Console.WriteLine($"Applied language filter: {languageId}");
+             
+             // Apply active language filter only when filtering by language
+             query = query.Where(x => x.Language != null && x.Language.Active);
+             Console.WriteLine("Applied active language filter");
+         }
+         
+         if (categoryId.HasValue && categoryId.Value > 0)
+         {
+             query = query.Where(x => x.CategoryId == categoryId.Value);
+             Console.WriteLine($"Applied category filter: {categoryId}");
+             
+             // Filter out sensitive categories only when filtering by category
+             if (Environment.MachineName != "J40L4V3")
+             {
+                 query = query.Where(x => x.Category != null && x.Category.Sensitive == false);
+                 Console.WriteLine("Applied sensitive category filter");
+             }
+         }
+         
+         // For true global search (no languageId or categoryId), apply minimal filtering
+         if (!languageId.HasValue && !categoryId.HasValue)
+         {
+             Console.WriteLine("Global search mode - applying minimal filtering");
+             // Only filter out obviously inactive data, but be permissive
+         }         // Apply the actual search but be very permissive
+         Console.WriteLine($"About to apply search filter for term: '{searchTermLower}'");
+         
+         // Try a very simple search first - just DisplayValue
+         var searchQuery = query.Where(x => 
+             x.DisplayValue != null && x.DisplayValue.ToLower().Contains(searchTermLower)
+         );
+         
+         Console.WriteLine($"Search query built for DisplayValue only");
+         
+         // Check how many records match the search before taking results
+         var searchMatchCount = await searchQuery.CountAsync();
+         Console.WriteLine($"Records matching search term '{searchTermLower}' in DisplayValue: {searchMatchCount}");
+         
+         // If no results in DisplayValue, try other fields too
+         if (searchMatchCount == 0)
+         {
+             Console.WriteLine($"No DisplayValue matches, trying all fields...");
+             searchQuery = query.Where(x => 
+                 (x.DisplayValue != null && x.DisplayValue.ToLower().Contains(searchTermLower)) ||
+                 (x.SendKeysValue != null && x.SendKeysValue.ToLower().Contains(searchTermLower)) ||
+                 (x.CommandType != null && x.CommandType.ToLower().Contains(searchTermLower)) ||
+                 (x.DeliveryType != null && x.DeliveryType.ToLower().Contains(searchTermLower))
+             );
+             
+             searchMatchCount = await searchQuery.CountAsync();
+             Console.WriteLine($"Records matching search term '{searchTermLower}' in any field: {searchMatchCount}");
+         }
+         
+         var CustomIntelliSenses = await searchQuery
              .OrderBy(v => v.DisplayValue)
-             .Take(1000)
+             .Take(100) // Reasonable limit for global search
+             .AsNoTracking()
              .ToListAsync();
-         IEnumerable<CustomIntelliSenseDTO> CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
+         
+         Console.WriteLine($"DEBUG: Query returned {CustomIntelliSenses.Count} records total");
+         foreach (var item in CustomIntelliSenses)
+         {
+             var sendKeysLength = item.SendKeysValue?.Length ?? 0;
+             var sendKeysPreview = sendKeysLength > 0 && item.SendKeysValue != null 
+                 ? item.SendKeysValue.Substring(0, Math.Min(30, sendKeysLength)) 
+                 : "";
+             Console.WriteLine($"  - ID: {item.Id}, Display: '{item.DisplayValue}', SendKeys: '{sendKeysPreview}'");
+         }
+         
+         Console.WriteLine($"=== SEARCH DEBUG END ===");
+             
+         // Map to DTOs - related data is already included
+         var CustomIntelliSensesDTO = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(CustomIntelliSenses);
+           // Set additional properties from the included relationships
          foreach (var item in CustomIntelliSensesDTO)
          {
-            var language = context.Languages.Where(x => x.Id == item.LanguageId).FirstOrDefault();
-            if (language != null)
+            var source = CustomIntelliSenses.FirstOrDefault(x => x.Id == item.Id);
+            if (source != null)
             {
-               item.LanguageName = language.LanguageName;
+               item.LanguageName = source.Language?.LanguageName ?? string.Empty;
+               item.CategoryName = source.Category?.CategoryName ?? string.Empty;
+               item.Sensitive = source.Category?.Sensitive ?? false;
             }
-            var category = context.Categories.Where(x => x.Id == item.CategoryId).FirstOrDefault();
-            if (category != null)
-            {
-               item.CategoryName = category.CategoryName;
-            }
-            item.Sensitive = context.Categories.Where(x => x.Id == item.CategoryId).Select(x => x.Sensitive).FirstOrDefault();
          }
+         
          return CustomIntelliSensesDTO;
       }
 

@@ -65,11 +65,21 @@ namespace RazorClassLibrary.Pages
       private CancellationTokenSource? _searchCancellation;
       private bool _isLoading = false;
       private Task? _prefetchTask;
-      private const int SEARCH_DEBOUNCE_MS = 300;
-      protected override async Task OnInitializedAsync()
+      private const int SEARCH_DEBOUNCE_MS = 300;      protected override async Task OnInitializedAsync()
       {
+         Console.WriteLine($"CustomIntelliSenseTable OnInitializedAsync - GlobalSearchTerm: '{GlobalSearchTerm}', LanguageId: {LanguageId}, CategoryId: {CategoryId}");
          // Load data only once during initialization
          await LoadData();
+      }
+      
+      protected override async Task OnParametersSetAsync()
+      {
+         Console.WriteLine($"CustomIntelliSenseTable OnParametersSetAsync - GlobalSearchTerm: '{GlobalSearchTerm}', LanguageId: {LanguageId}, CategoryId: {CategoryId}");
+         if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+         {
+            Console.WriteLine($"Global search term detected, triggering LoadData");
+            await LoadData();
+         }
       }
       private string GetCacheKey(string suffix = "", int? pageNum = null) =>
           $"CustomIntelliSenseTable_{LanguageId}_{CategoryId}_{pageNum ?? pageNumber}_{pageSize}_{GlobalSearchTerm}{suffix}";
@@ -352,8 +362,24 @@ namespace RazorClassLibrary.Pages
 
       }
 
-      private async Task LoadData()
+      // Helper method to highlight search terms
+      private string HighlightSearchTerm(string text, string searchTerm)
       {
+         if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(searchTerm))
+            return text ?? "";
+            
+         var index = text.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase);
+         if (index >= 0)
+         {
+            var before = text.Substring(0, index);
+            var match = text.Substring(index, searchTerm.Length);
+            var after = text.Substring(index + searchTerm.Length);
+            return $"{before}<mark class='bg-warning'>{match}</mark>{after}";
+         }
+         return text;
+      }      private async Task LoadData()
+      {
+         Console.WriteLine($"=== LoadData called with GlobalSearchTerm: '{GlobalSearchTerm}' ===");
          try
          {
             _isLoading = true;
@@ -373,12 +399,10 @@ namespace RazorClassLibrary.Pages
                {
                   // Load language and category data in parallel
                   var languageTask = LanguageDataService.GetLanguageById(LanguageId);
-                  var categoryTask = CategoryDataService.GetCategoryById(CategoryId);
-
-                  // Load the data page
+                  var categoryTask = CategoryDataService.GetCategoryById(CategoryId);                  // Load the data page
                   var dataTask = string.IsNullOrWhiteSpace(GlobalSearchTerm)
                       ? CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, pageNumber, pageSize)
-                      : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm);
+                      : CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(GlobalSearchTerm); // Global search without language/category restrictions
 
                   await Task.WhenAll(languageTask, categoryTask, dataTask);
 

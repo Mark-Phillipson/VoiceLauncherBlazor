@@ -93,8 +93,7 @@ else
 						<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary"
 							type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
 							@customIntelliSense.DisplayValue</button>
-					</td>
-					<td>
+					</td>					<td>
 						<div>
 							@if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) ||
 												(currentCategory != null && !currentCategory!.Sensitive &&
@@ -109,12 +108,39 @@ else
 									{
 										@customIntelliSense.SendKeysValue
 									}
-																	</code>
+								</code>
 							}
 						</div>
 						@if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
 						{
-							<text>@customIntelliSense.LanguageName / @customIntelliSense.CategoryName</text>
+							<div class="small text-info">
+								@customIntelliSense.LanguageName / @customIntelliSense.CategoryName
+								@if (!string.IsNullOrWhiteSpace(customIntelliSense.CommandType))
+								{
+									<br /><strong>Type:</strong> @customIntelliSense.CommandType
+								}
+								@if (!string.IsNullOrWhiteSpace(customIntelliSense.DeliveryType))
+								{
+									<br /><strong>Delivery:</strong> @customIntelliSense.DeliveryType
+								}
+								<br /><strong>Match in:</strong> 
+								@if (customIntelliSense.DisplayValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+								{
+									<span class="badge bg-success">Display</span>
+								}
+								@if (customIntelliSense.SendKeysValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+								{
+									<span class="badge bg-primary">SendKeys</span>
+								}
+								@if (customIntelliSense.CommandType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+								{
+									<span class="badge bg-warning">Command</span>
+								}
+								@if (customIntelliSense.DeliveryType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+								{
+									<span class="badge bg-info">Delivery</span>
+								}
+							</div>
 						}
 					</td>
 					<td class="btn-group">
