@@ -45,6 +45,8 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<ExampleDTO, Example>();
 			CreateMap<Prompt, PromptDTO>();
 			CreateMap<PromptDTO, Prompt>();
+			CreateMap<QuickPrompt, QuickPromptDTO>();
+			CreateMap<QuickPromptDTO, QuickPrompt>();
 		}
 	}
 }

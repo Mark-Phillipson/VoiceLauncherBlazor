@@ -105,6 +105,8 @@ builder.Services.AddScoped<ITransactionTypeMappingRepository, TransactionTypeMap
 builder.Services.AddScoped<ITransactionTypeMappingDataService, TransactionTypeMappingDataService>();
 builder.Services.AddScoped<IExampleRepository, ExampleRepository>();
 builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
+builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
+builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

@@ -1,0 +1,58 @@
+@using SmartComponents
+<div style="min-width:80vw">
+    <EditForm Model="@QuickPromptDTO" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @*<ValidationSummary />*@
+        @if (QuickPromptDTO.Id > 0)
+        {
+            <span class="text-info m-1">@QuickPromptDTO.Id</span>
+        }
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="Type">Type: </label> <i class="text-danger fa">*</i>
+                    <InputText id="Type" class="form-control" @bind-Value="@QuickPromptDTO.Type"
+                        placeholder="Enter Type (e.g., FIXES, FORMATTING, etc.)"></InputText>
+                    <ValidationMessage For="@(() => QuickPromptDTO.Type)" />
+                </div>
+                <div class="form-group">
+                    <label for="Command">Command: </label> <i class="text-danger fa">*</i>
+                    <InputText id="Command" class="form-control" @bind-Value="@QuickPromptDTO.Command"
+                        placeholder="Enter Command"></InputText>
+                    <ValidationMessage For="@(() => QuickPromptDTO.Command)" />
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="Description">Description: </label>
+                    <InputTextArea rows="3" id="Description" class="form-control"
+                        @bind-Value="@QuickPromptDTO.Description" placeholder="Enter Description"></InputTextArea>
+                    <ValidationMessage For="@(() => QuickPromptDTO.Description)" />
+                </div>
+                <div class="form-group">
+                    <label for="IsActive">Is Active: </label>
+                    <InputCheckbox id="IsActive" class="form-checkbox" @bind-Value="@QuickPromptDTO.IsActive">
+                    </InputCheckbox>
+                    <ValidationMessage For="@(() => QuickPromptDTO.IsActive)" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="PromptText">Prompt Text: </label> <i class="text-danger fa">*</i>
+                    <InputTextArea rows="8" id="PromptText" class="form-control" @bind-Value="@QuickPromptDTO.PromptText"
+                        placeholder="Enter the full prompt text for this command"></InputTextArea>
+                    <ValidationMessage For="@(() => QuickPromptDTO.PromptText)" />
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div style="float:right">
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+                @onclick="@Close"><u>C</u>ancel</button>
+            <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
+            <SmartPasteButton type='button' class='btn btn-lg btn-outline-danger' DefaultIcon />
+        </div>
+    </EditForm>
+</div>
