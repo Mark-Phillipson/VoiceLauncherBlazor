@@ -75,6 +75,7 @@ namespace WinFormsApp
 			services.AddScoped<ILanguageRepository, LanguageRepository>();
 			services.AddScoped<ICustomIntelliSenseRepository, CustomIntelliSenseRepository>();
 			services.AddScoped<IPromptRepository, PromptRepository>();
+			services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 
 			// Add core services
 			services.AddScoped<ComputerService>();
@@ -85,6 +86,7 @@ namespace WinFormsApp
 			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
 			services.AddScoped<IPromptDataService, PromptDataService>();
+			services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 
 			// Add additional services
 			services.AddScoped<GeneralLookupService>();
