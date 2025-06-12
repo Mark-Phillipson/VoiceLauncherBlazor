@@ -27,8 +27,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             if (DebounceEnabled)
             {
                 StartDebounceTimer();
-            }
-            else
+            }            else
             {
                 // If debounce is off, stop any running timers and countdown
                 debounceTimer?.Stop();
@@ -38,6 +37,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 countdownTimer?.Dispose();
                 countdownTimer = null;
                 debounceCountdown = 0;
+                debounceProgressPercentage = 0;
             }
         }
     }
@@ -48,9 +48,9 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             await ProcessChat();
         }
-    }
-    private int debounceCountdown = 0;
-    private System.Timers.Timer? countdownTimer;    [Inject] public required IPromptDataService PromptDataService { get; set; }
+    }    private int debounceCountdown = 0;
+    private int debounceProgressPercentage = 0;
+    private System.Timers.Timer? countdownTimer;[Inject] public required IPromptDataService PromptDataService { get; set; }
     [Inject] public required IQuickPromptDataService QuickPromptDataService { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
@@ -91,8 +91,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 StartDebounceTimer();
             }
         }
-    }
-    private void StartDebounceTimer()
+    }    private void StartDebounceTimer()
     {
         debounceTimer?.Stop();
         debounceTimer?.Dispose();
@@ -100,6 +99,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         countdownTimer?.Dispose();
 
         debounceCountdown = debounceMilliseconds;
+        debounceProgressPercentage = 0;
         StateHasChanged();
 
         // Start countdown timer for visual feedback
@@ -108,13 +108,16 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             debounceCountdown -= 50;
             if (debounceCountdown < 0) debounceCountdown = 0;
+            
+            // Calculate progress percentage (0-100)
+            debounceProgressPercentage = Math.Max(0, 100 - (int)((double)debounceCountdown / debounceMilliseconds * 100));
+            
             InvokeAsync(StateHasChanged);
         };
         countdownTimer.AutoReset = true;
         countdownTimer.Start();
 
-        debounceTimer = new System.Timers.Timer(debounceMilliseconds);
-        debounceTimer.Elapsed += async (_, __) =>
+        debounceTimer = new System.Timers.Timer(debounceMilliseconds);        debounceTimer.Elapsed += async (_, __) =>
         {
             debounceTimer?.Stop();
             debounceTimer?.Dispose();
@@ -123,6 +126,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             countdownTimer?.Dispose();
             countdownTimer = null;
             debounceCountdown = 0;
+            debounceProgressPercentage = 0;
             await InvokeAsync(async () =>
             {
                 await ProcessChat();

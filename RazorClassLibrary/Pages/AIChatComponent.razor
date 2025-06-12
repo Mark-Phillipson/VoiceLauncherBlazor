@@ -51,14 +51,26 @@
                     class="form-control bg-dark text-light border-success text-end"
                     style="display: inline-block; margin-bottom: 0;width: 100px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
                     disabled="@(DebounceEnabled ? null : "disabled")" />
-            </div>
-            @if (DebounceEnabled && debounceCountdown > 0)
+            </div>            @if (DebounceEnabled && debounceCountdown > 0)
             {
-                <span class="badge bg-warning text-dark ms-2">Sending in @debounceCountdown ms...</span>
+                <div class="ms-2 debounce-progress-container">
+                    <div class="d-flex align-items-center debounce-progress-text">
+                        <small class="text-light me-2">Sending in @debounceCountdown ms</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: @(debounceProgressPercentage)%"
+                             aria-valuenow="@debounceProgressPercentage" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
             }
-            else
+            else if (DebounceEnabled)
             {
-                <span class="badge bg-warning text-dark ms-2">Type to Start </span>
+                <span class="debounce-ready-badge ms-2">Type to Start</span>
             }
         </div>
         <div class="d-flex flex-wrap gap-2 mt-2">

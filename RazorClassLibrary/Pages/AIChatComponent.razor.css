@@ -72,3 +72,45 @@
     border-color: #198754;
     box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
 }
+
+/* Progress meter styles for debounce functionality */
+.debounce-progress-container {
+    min-width: 200px;
+    transition: all 0.2s ease-in-out;
+}
+
+.debounce-progress-text {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.9;
+}
+
+.progress {
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    transition: width 0.1s linear;
+    border-radius: 4px;
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% { background-position: 1rem 0; }
+    100% { background-position: 0 0; }
+}
+
+/* Badge for when debounce is enabled but not active */
+.debounce-ready-badge {
+    background: linear-gradient(45deg, #6c757d, #5a6268);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
