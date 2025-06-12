@@ -34,6 +34,7 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<CssProperty> CssProperties { get; set; }
 		public virtual DbSet<TalonAlphabet> TalonAlphabets { get; set; }
 		public virtual DbSet<Prompt> Prompts { get; set; }
+		public virtual DbSet<QuickPrompt> QuickPrompts { get; set; }
 		public virtual DbSet<Microphone> Microphones { get; set; }
 		public virtual DbSet<ApplicationDetail> ApplicationDetails { get; set; }
 		public virtual DbSet<Idiosyncrasy> Idiosyncrasies { get; set; }
