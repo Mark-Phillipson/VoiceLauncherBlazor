@@ -11,6 +11,7 @@
 ## Development Practices
 
 - **Component Organization**: Each Blazor component consists of a `.razor` file (markup/UI) and a `.razor.cs` file (logic/code-behind).
+- **CSS Isolation**: Always use CSS isolation files (`.razor.css`) for component-specific styles instead of inline `<style>` tags. This provides better separation of concerns, scoped styling, and maintainability.
 - **Styling**: Use Bootstrap classes for layout and controls. Ensure all interactive elements are accessible via keyboard and screen readers.
 - **Accessibility**:
   - Use semantic HTML elements.
@@ -36,3 +37,9 @@
 
 ## General Behavior
  -When running things in the terminal do not keep creating new terminals try to use the existing one!
+
+## Build Configuration
+- **IMPORTANT**: Always use Debug builds when testing or building the application. 
+- **DO NOT use Release builds** as they can break existing applications that depend on this codebase.
+- When building the solution, use: `dotnet build --configuration Debug`
+- Avoid commands like `dotnet build --configuration Release` or any Release configuration builds.

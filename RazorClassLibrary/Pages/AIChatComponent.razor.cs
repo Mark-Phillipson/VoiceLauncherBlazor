@@ -3,6 +3,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Collections.Generic;
 using DataAccessLibrary.DTO;
+using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using SampleApplication.Services;
@@ -49,8 +50,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         }
     }
     private int debounceCountdown = 0;
-    private System.Timers.Timer? countdownTimer;
-    [Inject] public required IPromptDataService PromptDataService { get; set; }
+    private System.Timers.Timer? countdownTimer;    [Inject] public required IPromptDataService PromptDataService { get; set; }
+    [Inject] public required IQuickPromptDataService QuickPromptDataService { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
     ChatHistory chatHistory = new();
@@ -59,9 +60,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private string OpenAIAPIKEY = "";
     private string TextBlock { get; set; } = "";
     private string AIComments { get; set; } = "";
-    private int revertTo = 0;
-    ChatHistory responseHistory = new();
-    private List<PromptDTO> prompts = new List<PromptDTO>();
+    private int revertTo = 0;    ChatHistory responseHistory = new();
+    private List<PromptDTO> prompts = new List<PromptDTO>();    private List<QuickPromptDTO> quickPrompts = new List<QuickPromptDTO>();
+    private List<QuickPromptDTO> filteredQuickPrompts = new List<QuickPromptDTO>();
+    private string quickPromptSearchTerm = "";
+    private bool showQuickPrompts = true;
     private PromptDTO? selectedPrompt = null;
     private int selectedPromptId = 0;
     private string prompt = "";
@@ -182,8 +185,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             // Handle the case where the key is missing, maybe disable chat functionality
             Message = "OpenAI API key is missing. Chat functionality disabled.";
             return; // Prevent loading prompts if service can't be initialized
-        }
-        prompts = await PromptDataService.GetAllPromptsAsync();
+        }        prompts = await PromptDataService.GetAllPromptsAsync();
+        quickPrompts = await QuickPromptDataService.GetAllQuickPromptsAsync(1, 1000, "");
         var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
         if (prompt != null)
         {
@@ -469,8 +472,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private void ToggleFont()
     {
         useCascadiaCodeFont = !useCascadiaCodeFont;
-    }
-    public void Dispose()
+    }    public void Dispose()
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
@@ -478,5 +480,93 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         debounceTimer?.Dispose();
         countdownTimer?.Stop();
         countdownTimer?.Dispose();
+    }
+
+    private async Task ApplyQuickPrompt(QuickPromptDTO quickPrompt)
+    {
+        if (quickPrompt?.PromptText == null) return;
+
+        // Get current content from TextBlock or latest response
+        var currentContent = !string.IsNullOrWhiteSpace(TextBlock) 
+            ? TextBlock 
+            : responseHistory?.LastOrDefault()?.Content ?? "";
+
+        // Apply the quick prompt to the current content
+        var promptToSend = $"{quickPrompt.PromptText}\n\nCurrent content:\n{currentContent}";
+        
+        // Set the prompt and process it
+        prompt = promptToSend;
+        
+        // Clear the quick prompt search
+        quickPromptSearchTerm = "";
+        filteredQuickPrompts.Clear();
+        showQuickPrompts = false;
+        
+        // Process the chat with the applied quick prompt
+        await ProcessChat();
+        
+        StateHasChanged();
+    }
+
+    private void ToggleQuickPromptPanel()
+    {
+        showQuickPrompts = !showQuickPrompts;
+        if (!showQuickPrompts)
+        {
+            quickPromptSearchTerm = "";
+            filteredQuickPrompts.Clear();
+        }
+        StateHasChanged();
+    }
+
+    private string GetQuickPromptTypeColorClass(string type)
+    {
+        return type?.ToUpper().Replace(" ", "-") switch
+        {
+            "FIXES" => "text-danger fw-bold",
+            "FORMATTING" => "text-purple fw-bold", 
+            "TEXT-GENERATION" => "text-success fw-bold",
+            "FILE-CONVERSIONS" => "text-warning fw-bold",
+            "CHECKERS" => "text-info fw-bold",
+            "TRANSLATIONS" => "text-primary fw-bold",
+            "CODE-GENERATION" => "text-primary fw-bold",
+            "WRITING-HELPERS" => "text-danger fw-bold",
+            _ => "text-muted"
+        };
+    }
+
+    private void OnQuickPromptSearchInput(ChangeEventArgs e)
+    {
+        quickPromptSearchTerm = e.Value?.ToString() ?? "";
+        FilterQuickPrompts();
+        StateHasChanged();
+    }
+
+    private void FilterQuickPrompts()
+    {
+        if (quickPrompts == null)
+        {
+            filteredQuickPrompts = new List<QuickPromptDTO>();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(quickPromptSearchTerm))
+        {
+            filteredQuickPrompts = new List<QuickPromptDTO>();
+            return;
+        }
+
+        var searchTerm = quickPromptSearchTerm.ToLower().Trim();
+        
+        filteredQuickPrompts = quickPrompts
+            .Where(q => q.IsActive && (
+                (q.Command != null && q.Command.ToLower().Contains(searchTerm)) ||
+                (q.Type != null && q.Type.ToLower().Contains(searchTerm)) ||
+                (q.Description != null && q.Description.ToLower().Contains(searchTerm)) ||
+                (q.PromptText != null && q.PromptText.ToLower().Contains(searchTerm))
+            ))
+            .OrderBy(q => q.Type).ThenBy(q => q.Command)
+            .Take(10) // Limit to top 10 results for performance
+            .ToList();
     }
 }

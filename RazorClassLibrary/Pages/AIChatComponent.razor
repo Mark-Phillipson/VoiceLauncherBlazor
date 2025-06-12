@@ -1,7 +1,8 @@
 ﻿@page "/chat"
 <PageTitle>AI Chat Component </PageTitle>
 @using RazorClassLibrary.Components
-<h4 class="text-light mb-1"><i class="fa-solid fa-comments"></i> AI Chat (Using @model)</h4>
+
+<h4 class="text-light mb-1"><i class="fa-solid fa-comments"></i> AI Chat (Using o3-mini)</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
     <div class="alert alert-info" role="alert">@Message</div>
@@ -92,7 +93,68 @@
                     <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste (Paste Not Currently Working)
                 </button> *@
             }
-        </div> @if (processing)
+        </div>
+        
+        <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
+        <div class="mt-3">
+            <label class="form-label text-light">
+                <i class="fa-solid fa-bolt"></i> Quick Prompts
+                <button type="button" class="btn btn-outline-info btn-sm ms-2" @onclick="ToggleQuickPromptPanel">
+                    <i class="fa-solid @(showQuickPrompts ? "fa-eye-slash" : "fa-eye")"></i>
+                    @(showQuickPrompts ? "Hide" : "Show")
+                </button>
+            </label>
+            
+            <div class="input-group">
+                <input type="text" 
+                       class="form-control bg-dark text-light border-success quick-prompt-search" 
+                       style="background-color: #2a2a2a !important;"
+                       placeholder="Search quick prompts (command, type, description)..."
+                       @bind="quickPromptSearchTerm"
+                       @oninput="OnQuickPromptSearchInput" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="() => { quickPromptSearchTerm = string.Empty; FilterQuickPrompts(); }">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            @if (showQuickPrompts && filteredQuickPrompts.Count > 0)
+            {
+                <div class="mt-2 border border-success rounded p-2" style="max-height: 300px; overflow-y: auto; background-color: #1a1a1a;">
+                    @foreach (var quickPrompt in filteredQuickPrompts)
+                    {
+                        <div class="d-flex justify-content-between align-items-start mb-2 p-2 border border-secondary rounded bg-dark quick-prompt-item">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge @GetQuickPromptTypeColorClass(quickPrompt.Type) me-2">@quickPrompt.Type</span>
+                                    <strong class="text-light">@quickPrompt.Command</strong>
+                                </div>
+                                <small class="text-muted d-block">@quickPrompt.Description</small>
+                                <small class="text-secondary" style="font-size: 0.75rem;">
+                                    @(quickPrompt.PromptText.Length > 100 
+                                        ? quickPrompt.PromptText.Substring(0, 100) + "..." 
+                                        : quickPrompt.PromptText)
+                                </small>
+                            </div>
+                            <button class="btn btn-success btn-sm ms-2" 
+                                    type="button" 
+                                    @onclick="() => ApplyQuickPrompt(quickPrompt)"
+                                    title="Apply this quick prompt to current content">
+                                <i class="fa-solid fa-play"></i> Apply
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            
+            @if (showQuickPrompts && !string.IsNullOrWhiteSpace(quickPromptSearchTerm) && filteredQuickPrompts.Count == 0)
+            {
+                <div class="alert alert-info mt-2">
+                    <i class="fa-solid fa-info-circle"></i> No quick prompts found matching "@quickPromptSearchTerm"
+                </div>
+            }
+        </div>
+
+        @if (processing)
         {
             <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" role="status"
                 aria-live="polite" aria-label="AI is processing your request">
