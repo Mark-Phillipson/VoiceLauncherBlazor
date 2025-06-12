@@ -1,6 +1,17 @@
 @page "/quickpromptstable"
 <PageTitle>@Title</PageTitle>
-<div class="row">
+
+<style>
+    .table .type-fixes { color: #dc3545 !important; font-weight: 600 !important; } /* Red */
+    .table .type-formatting { color: #6f42c1 !important; font-weight: 600 !important; } /* Purple */
+    .table .type-text-generation { color: #198754 !important; font-weight: 600 !important; } /* Green */
+    .table .type-file-conversions { color: #fd7e14 !important; font-weight: 600 !important; } /* Orange */
+    .table .type-checkers { color: #0dcaf0 !important; font-weight: 600 !important; } /* Cyan */
+    .table .type-translations { color: #6610f2 !important; font-weight: 600 !important; } /* Indigo */
+    .table .type-code-generation { color: #0d6efd !important; font-weight: 600 !important; } /* Blue */
+    .table .type-writing-helpers { color: #d63384 !important; font-weight: 600 !important; } /* Pink */
+</style>
+<div class="row mb-3">
     <div class="col-md-2">
         <h5 class="page-title m-1">@Title</h5>
     </div>
@@ -24,9 +35,8 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-2">
-        <input @ref="SearchInput" id="SearchInput" @bind="searchTerm" @onkeyup="ApplyFilter" 
+    </div>    <div class="col-md-2">
+        <input @ref="SearchInput" id="SearchInput" value="@searchTerm" @oninput="OnSearchInput" 
                placeholder="Search..." class="form-control" />
     </div>
 </div>
@@ -90,11 +100,10 @@ else
                 </th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var quickPrompt in FilteredQuickPromptDTO)
+        <tbody>            @foreach (var quickPrompt in FilteredQuickPromptDTO)
             {
                 <tr>
-                    <td>@quickPrompt.Type</td>
+                    <td class="@GetTypeColorClass(quickPrompt.Type)">@quickPrompt.Type</td>
                     <td>@quickPrompt.Command</td>
                     <td style="max-width: 300px; word-wrap: break-word;">
                         @(quickPrompt.PromptText.Length > 100 ? 

@@ -99,6 +99,28 @@ namespace RazorClassLibrary.Pages
             }
         }
 
+        private void OnSearchInput(ChangeEventArgs e)
+        {
+            searchTerm = e.Value?.ToString();
+            ApplyFilter();
+        }
+
+        private string GetTypeColorClass(string type)
+        {
+            return type?.ToUpper().Replace(" ", "-") switch
+            {
+                "FIXES" => "type-fixes",
+                "FORMATTING" => "type-formatting", 
+                "TEXT-GENERATION" => "type-text-generation",
+                "FILE-CONVERSIONS" => "type-file-conversions",
+                "CHECKERS" => "type-checkers",
+                "TRANSLATIONS" => "type-translations",
+                "CODE-GENERATION" => "type-code-generation",
+                "WRITING-HELPERS" => "type-writing-helpers",
+                _ => ""
+            };
+        }
+
         private async Task AddNewQuickPrompt()
         {
             var parameters = new ModalParameters();
