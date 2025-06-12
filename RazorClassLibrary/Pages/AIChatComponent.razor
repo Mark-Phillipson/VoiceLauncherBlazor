@@ -15,7 +15,7 @@
                 Prompt</label>
             @if (!RunningInBlazorHybrid)
             {
-                <a target="_blank" class='btn btn-outline-primary btn-sm text-light'
+                <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-3'
                     href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
                     <i class="fa-solid fa-pen-to-square"></i> Manage
                 </a>
@@ -45,12 +45,11 @@
         <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
             <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;"
                 @bind="DebounceEnabled" />
-            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Debounce</label>
-            <div class="d-none d-md-flex align-items-center">
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Debounce</label>            <div class="d-none d-md-flex align-items-center">
                 <label for="debounceBox" class="form-label text-light mb-0" style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
                 <input id="debounceBox" type="number" min="100" max="10000" step="100"
                     class="form-control bg-dark text-light border-success text-end"
-                    style="display: inline-block; margin-bottom: 0;width: 70px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
+                    style="display: inline-block; margin-bottom: 0;width: 100px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
                     disabled="@(DebounceEnabled ? null : "disabled")" />
             </div>
             @if (DebounceEnabled && debounceCountdown > 0)
@@ -94,8 +93,7 @@
                 </button> *@
             }
         </div>
-        
-        <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
+          <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
         <div class="mt-3">
             <label class="form-label text-light">
                 <i class="fa-solid fa-bolt"></i> Quick Prompts
@@ -103,6 +101,13 @@
                     <i class="fa-solid @(showQuickPrompts ? "fa-eye-slash" : "fa-eye")"></i>
                     @(showQuickPrompts ? "Hide" : "Show")
                 </button>
+                @if (!RunningInBlazorHybrid)
+                {
+                    <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-1'
+                        href="/quickpromptstable">
+                        <i class="fa-solid fa-pen-to-square"></i> Manage
+                    </a>
+                }
             </label>
             
             <div class="input-group">
