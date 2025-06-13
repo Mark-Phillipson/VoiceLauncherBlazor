@@ -19,12 +19,13 @@ namespace RazorClassLibrary.Pages
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
-        public bool UseSemanticMatching { get; set; } = true;
-          // Filter properties
+        public bool UseSemanticMatching { get; set; } = true;          // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;        public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
+        public string SelectedRepository { get; set; } = string.Empty;
         public List<string> AvailableApplications { get; set; } = new();
         public List<string> AvailableModes { get; set; } = new();        public List<string> AvailableOperatingSystems { get; set; } = new();
+        public List<string> AvailableRepositories { get; set; } = new();
         
         private int maxResults = 20;
 
@@ -32,38 +33,58 @@ namespace RazorClassLibrary.Pages
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
         public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;
-        private static bool _staticFiltersLoaded = false;
+        private CancellationTokenSource? _searchCancellationTokenSource;private static bool _staticFiltersLoaded = false;
         private static List<string> _staticAvailableApplications = new();
         private static List<string> _staticAvailableModes = new();
         private static List<string> _staticAvailableOperatingSystems = new();
-        private static readonly object _filterLock = new object();        private CancellationTokenSource? _searchCancellationTokenSource;protected override async Task OnInitializedAsync()
+        private static List<string> _staticAvailableRepositories = new();
+        private static readonly object _filterLock = new object();        /// <summary>
+        /// Clears the static filter cache to force reload after data changes
+        /// </summary>
+        public static void InvalidateFilterCache()
         {
-            Results = new List<TalonVoiceCommand>();
-            
-            // Use cached filters if already loaded
             lock (_filterLock)
             {
-                if (_staticFiltersLoaded)
-                {
-                    AvailableApplications = _staticAvailableApplications;
-                    AvailableModes = _staticAvailableModes;
-                    AvailableOperatingSystems = _staticAvailableOperatingSystems;
-                    return;
-                }
+                _staticFiltersLoaded = false;
+                _staticAvailableApplications.Clear();
+                _staticAvailableModes.Clear();
+                _staticAvailableOperatingSystems.Clear();
+                _staticAvailableRepositories.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Forces a refresh of filter options from the database
+        /// </summary>
+        public async Task RefreshFiltersAsync()
+        {
+            lock (_filterLock)
+            {
+                _staticFiltersLoaded = false;
+                _staticAvailableApplications.Clear();
+                _staticAvailableModes.Clear();
+                _staticAvailableOperatingSystems.Clear();
+                _staticAvailableRepositories.Clear();
             }
             
             await LoadFilterOptions();
-        }        private async Task LoadFilterOptions()
+        }        protected override async Task OnInitializedAsync()
+        {
+            Results = new List<TalonVoiceCommand>();
+            
+            // Always load filter options to ensure fresh data
+            await LoadFilterOptions();
+        }private async Task LoadFilterOptions()
         {
             if (_isLoadingFilters || TalonService is null) return;
             
             lock (_filterLock)
-            {
-                if (_staticFiltersLoaded)
+            {                if (_staticFiltersLoaded)
                 {
                     AvailableApplications = _staticAvailableApplications;
                     AvailableModes = _staticAvailableModes;
                     AvailableOperatingSystems = _staticAvailableOperatingSystems;
+                    AvailableRepositories = _staticAvailableRepositories;
                     return;
                 }
                 
@@ -87,14 +108,21 @@ namespace RazorClassLibrary.Pages
                     .Select(c => c.Mode!)
                     .Distinct()
                     .OrderBy(m => m)
-                    .ToList();
-
-                var operatingSystems = _allCommandsCache
+                    .ToList();                var operatingSystems = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
                     .Select(c => c.OperatingSystem!)
                     .Distinct()
                     .OrderBy(os => os)
                     .ToList();
+                  var repositories = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
+                    .Select(c => c.Repository!)
+                    .Distinct()
+                    .OrderBy(r => r)
+                    .ToList();
+                
+                // Debug output
+                Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
                 
                 // Update both instance and static collections
                 lock (_filterLock)
@@ -102,6 +130,7 @@ namespace RazorClassLibrary.Pages
                     AvailableApplications = _staticAvailableApplications = applications;
                     AvailableModes = _staticAvailableModes = modes;
                     AvailableOperatingSystems = _staticAvailableOperatingSystems = operatingSystems;
+                    AvailableRepositories = _staticAvailableRepositories = repositories;
                     _staticFiltersLoaded = true;
                 }
                 
@@ -133,17 +162,16 @@ namespace RazorClassLibrary.Pages
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }
-
-        protected async Task OnSearch()
+        }        protected async Task OnSearch()
         {
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
             bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
             bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+            bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
             
-            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter)
+            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter)
             {
                 Results = new List<TalonVoiceCommand>();
                 HasSearched = false;
@@ -174,10 +202,14 @@ namespace RazorClassLibrary.Pages
                 {
                     filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
                 }
-                
-                if (hasOSFilter)
+                  if (hasOSFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.OperatingSystem == SelectedOperatingSystem);
+                }
+                
+                if (hasRepositoryFilter)
+                {
+                    filteredCommands = filteredCommands.Where(c => c.Repository == SelectedRepository);
                 }
                 
                 if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
@@ -235,12 +267,12 @@ namespace RazorClassLibrary.Pages
             if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
             {
                 await EnsureSearchFocus();
-            }
-        }public async Task ClearFilters()
+            }        }public async Task ClearFilters()
         {
             SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
+            SelectedRepository = string.Empty;
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;
@@ -258,11 +290,15 @@ namespace RazorClassLibrary.Pages
         {
             SelectedMode = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
-        }
-
-        protected void OnOSFilterChange(ChangeEventArgs e)
+        }        protected void OnOSFilterChange(ChangeEventArgs e)
         {
             SelectedOperatingSystem = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }
+
+        protected void OnRepositoryFilterChange(ChangeEventArgs e)
+        {
+            SelectedRepository = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
         }
 

@@ -1227,6 +1227,23 @@ BEGIN
     VALUES (N'20250613115041_AddOperatingSystemField', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613121500_AddRepositoryField'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Repository] nvarchar(100) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613121500_AddRepositoryField'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250613121500_AddRepositoryField', N'9.0.0');
+END;
+
 COMMIT;
 GO
 

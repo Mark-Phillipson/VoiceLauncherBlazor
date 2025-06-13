@@ -78,6 +78,9 @@ namespace RazorClassLibrary.Pages
                     });
                 
                 ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files in directory.";
+                
+                // Invalidate the filter cache so repository dropdown gets updated
+                TalonVoiceCommandSearch.InvalidateFilterCache();
             }
             catch (Exception ex)
             {

@@ -9,13 +9,52 @@ using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLibrary.Services
-{
-    public class TalonVoiceCommandDataService
+{    public class TalonVoiceCommandDataService
     {
         private readonly ApplicationDbContext _context;
         public TalonVoiceCommandDataService(ApplicationDbContext context)
         {
             _context = context;
+        }        /// <summary>        /// <summary>
+        /// Extracts the repository name from a file path by finding the first subdirectory after the 'user' directory
+        /// For example: C:\Users\MPhil\AppData\Roaming\talon\user\community\file.talon -> community
+        /// </summary>
+        private string? ExtractRepositoryFromPath(string filePath)
+        {
+            try
+            {
+                var normalizedPath = Path.GetFullPath(filePath).Replace('\\', '/');
+                
+                // Look for the '/user/' pattern that indicates the talon user directory
+                var userDirPattern = "/user/";
+                var userIndex = normalizedPath.IndexOf(userDirPattern, StringComparison.OrdinalIgnoreCase);
+                
+                if (userIndex >= 0)
+                {
+                    // Find the path after the user directory
+                    var userDirStart = userIndex + userDirPattern.Length;
+                    var pathAfterUser = normalizedPath.Substring(userDirStart);
+                    
+                    // Split the path and get the parts
+                    var pathParts = pathAfterUser.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                    
+                    // The first directory after the user directory is the repository
+                    // Format: .../user/community/... 
+                    // pathParts would be: ["community", ...]
+                    // We want the first part (index 0) which is the repository
+                    
+                    if (pathParts.Length >= 1 && !string.IsNullOrWhiteSpace(pathParts[0]))
+                    {
+                        return pathParts[0];
+                    }
+                }
+                
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
@@ -91,7 +130,12 @@ namespace DataAccessLibrary.Services
                             Mode = mode != null && mode.Length > 100 ? mode.Substring(0, 100) : mode,
                             OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                             FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
+                            Repository = ExtractRepositoryFromPath(file),
                             CreatedAt = File.GetCreationTimeUtc(file)                        });
+                        
+                        // Debug logging - remove after testing
+                        Debug.WriteLine($"File: {file}");
+                        Debug.WriteLine($"Extracted Repository: {ExtractRepositoryFromPath(file)}");
                     }
                 }
             }
@@ -183,6 +227,7 @@ namespace DataAccessLibrary.Services
                         Mode = modes.Count > 0 ? string.Join("|", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
                         OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                         FilePath = fileName,
+                        Repository = ExtractRepositoryFromPath(fileName),
                         CreatedAt = DateTime.UtcNow
                     });
                 }            }

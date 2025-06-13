@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using DataAccessLibrary.Models;
 using DataAccessLibrary.Services;
@@ -21,6 +22,15 @@ namespace TestProjectxUnit
                 .Options;
             var config = new ConfigurationBuilder().Build(); // Provides an empty configuration
             return new ApplicationDbContext(options, config);
+        }
+
+        // Helper method to access the private ExtractRepositoryFromPath method using reflection
+        private string? CallExtractRepositoryFromPath(TalonVoiceCommandDataService service, string filePath)
+        {
+            var methodInfo = typeof(TalonVoiceCommandDataService).GetMethod("ExtractRepositoryFromPath", 
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            
+            return (string?)methodInfo?.Invoke(service, new object[] { filePath });
         }
 
         [Fact]
@@ -139,6 +149,103 @@ namespace TestProjectxUnit
 
             // Cleanup
             Directory.Delete(tempDir, true);
+        }        [Theory]
+        [InlineData("C:/Users/MPhil/AppData/Roaming/talon/user/community/file.talon", "community")]
+        [InlineData("C:\\Users\\MPhil\\AppData\\Roaming\\talon\\user\\community\\subfolder\\app.talon", "community")]
+        [InlineData("/home/jane/.talon_user/user/my-repo/config.py", "my-repo")]
+        [InlineData("C:/some/path/user/project123/scripts/main.talon", "project123")]
+        [InlineData("/Users/developer/talon/user/awesome-project/commands.talon", "awesome-project")]
+        [InlineData("C:\\talon\\user\\some-repo-name\\folder\\file.txt", "some-repo-name")]
+        public void ExtractRepositoryFromPath_ValidPaths_ReturnsCorrectRepository(string filePath, string expectedRepository)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Equal(expectedRepository, result);
+        }[Theory]
+        [InlineData("C:/Users/MPhil/")]
+        [InlineData("C:\\Users\\MPhil")]
+        [InlineData("/Users/MPhil")]
+        [InlineData("C:/Users/")]
+        [InlineData("/Users/")]
+        [InlineData("")]
+        [InlineData("C:/InvalidPath/file.txt")]
+        [InlineData("D:/SomeOtherPath/file.txt")]
+        [InlineData("C:/talon/notuser/community/file.talon")] // wrong directory name
+        [InlineData("C:/some/path/withoutuser/directory.txt")] // no user directory
+        public void ExtractRepositoryFromPath_InvalidPaths_ReturnsNull(string filePath)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Null(result);
+        }[Theory]
+        [InlineData("C:/Users/MPhil/AppData/Roaming/talon/user/community/subfolder/deep/file.talon", "community")]
+        [InlineData("/home/developer/talon/user/awesome-project/src/components/Button.talon", "awesome-project")]
+        [InlineData("C:\\some\\path\\user\\my_project\\tests\\unit\\test_file.py", "my_project")]
+        public void ExtractRepositoryFromPath_DeepPaths_ReturnsCorrectRepository(string filePath, string expectedRepository)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Equal(expectedRepository, result);
+        }        [Theory]
+        [InlineData("C:/some/path/user/ /file.txt")]
+        [InlineData("C:/some/path/user/   /file.txt")]
+        public void ExtractRepositoryFromPath_EmptyOrWhitespaceRepository_ReturnsNull(string filePath)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Null(result);
+        }[Theory]
+        [InlineData("C:/some/path/user/community", "community")] // Direct repository directory
+        [InlineData("/talon/user/my-repo", "my-repo")] // Simple path
+        public void ExtractRepositoryFromPath_RelativeAndDirectPaths_ReturnsExpectedResult(string filePath, string expectedRepository)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Equal(expectedRepository, result);
+        }[Theory]
+        [InlineData("C:/some/path/user//file.txt", "file.txt")] // Double slash creates a "repository" name
+        [InlineData("C:/some/path/without/user/directory.txt", "directory.txt")] // Contains "/user/" substring
+        public void ExtractRepositoryFromPath_EdgeCases_ReturnsUnexpectedButValidResult(string filePath, string expectedRepository)
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var result = CallExtractRepositoryFromPath(service, filePath);
+
+            // Assert
+            Assert.Equal(expectedRepository, result);
         }
     }
 }
