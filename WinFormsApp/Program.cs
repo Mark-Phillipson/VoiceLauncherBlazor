@@ -6,11 +6,11 @@ namespace WinFormsApp
 	[SupportedOSPlatform("windows")]
 	internal static class Program
 	{
-		private static Mutex mutex = new Mutex(true, "{B1A7D5F9-8C3D-4A6F-9B2D-3A5D6F8E9C3D}");
-		/// <summary>
+		private static Mutex mutex = new Mutex(true, "{B1A7D5F9-8C3D-4A6F-9B2D-3A5D6F8E9C3D}");		/// <summary>
 		///  The main entry point for the application.
 		/// </summary>
-		[STAThread]		static void Main()
+		[STAThread]
+		static void Main(string[] args)
 		{
 			// Initialize configuration first
 			var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
@@ -27,7 +27,13 @@ namespace WinFormsApp
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 				ApplicationConfiguration.Initialize();
-				Application.Run(new MainForm());
+				
+				// Check for command line arguments to determine launch mode
+				var launchSearchMode = args.Length > 0 && 
+					(args[0].Equals("search", StringComparison.OrdinalIgnoreCase) || 
+					 args[0].Equals("Talon", StringComparison.OrdinalIgnoreCase));
+				
+				Application.Run(new MainForm(launchSearchMode));
 				mutex.ReleaseMutex();
 			}
 			else

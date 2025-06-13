@@ -25,69 +25,95 @@ namespace RazorClassLibrary.Pages
         public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
         public List<string> AvailableApplications { get; set; } = new();
-        public List<string> AvailableModes { get; set; } = new();
-        public List<string> AvailableOperatingSystems { get; set; } = new();
+        public List<string> AvailableModes { get; set; } = new();        public List<string> AvailableOperatingSystems { get; set; } = new();
         
         private int maxResults = 20;
+        
+        // Countdown properties
+        public int CountdownSeconds => _countdownSeconds;
+        public bool ShowCountdown => _showCountdown;
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
         public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;
+        private static bool _staticFiltersLoaded = false;
+        private static List<string> _staticAvailableApplications = new();
+        private static List<string> _staticAvailableModes = new();
+        private static List<string> _staticAvailableOperatingSystems = new();
+        private static readonly object _filterLock = new object();
         private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _searchTimer;
-
-        protected override async Task OnInitializedAsync()
+        private Timer? _countdownTimer;
+        private int _countdownSeconds = 0;
+        private bool _showCountdown = false;        protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
+            
+            // Use cached filters if already loaded
+            lock (_filterLock)
+            {
+                if (_staticFiltersLoaded)
+                {
+                    AvailableApplications = _staticAvailableApplications;
+                    AvailableModes = _staticAvailableModes;
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems;
+                    return;
+                }
+            }
+            
             await LoadFilterOptions();
         }        private async Task LoadFilterOptions()
         {
             if (_isLoadingFilters || TalonService is null) return;
             
-            _isLoadingFilters = true;
+            lock (_filterLock)
+            {
+                if (_staticFiltersLoaded)
+                {
+                    AvailableApplications = _staticAvailableApplications;
+                    AvailableModes = _staticAvailableModes;
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems;
+                    return;
+                }
+                
+                if (_isLoadingFilters) return;
+                _isLoadingFilters = true;
+            }
             
             try
-            {
-                // Cache all commands to avoid multiple database calls
+            {                // Cache all commands to avoid multiple database calls
                 _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
                 
-                Console.WriteLine($"Total commands loaded: {_allCommandsCache.Count}");
-                
-                AvailableApplications = _allCommandsCache
+                var applications = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.Application))
                     .Select(c => c.Application!)
                     .Distinct()
                     .OrderBy(a => a)
                     .ToList();
 
-                Console.WriteLine($"Available Applications: {string.Join(", ", AvailableApplications)}");
-
-                var modesWithValues = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
-                    .ToList();
-                    
-                Console.WriteLine($"Commands with non-null modes: {modesWithValues.Count}");
-                foreach (var cmd in modesWithValues.Take(5))
-                {
-                    Console.WriteLine($"Mode example: '{cmd.Mode}' for command: '{cmd.Command}'");
-                }                AvailableModes = _allCommandsCache
+                var modes = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
                     .Select(c => c.Mode!)
                     .Distinct()
                     .OrderBy(m => m)
                     .ToList();
 
-                Console.WriteLine($"Available Modes: {string.Join(", ", AvailableModes)}");
-
-                AvailableOperatingSystems = _allCommandsCache
+                var operatingSystems = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
                     .Select(c => c.OperatingSystem!)
                     .Distinct()
                     .OrderBy(os => os)
                     .ToList();
-
-                Console.WriteLine($"Available Operating Systems: {string.Join(", ", AvailableOperatingSystems)}");
+                
+                // Update both instance and static collections
+                lock (_filterLock)
+                {
+                    AvailableApplications = _staticAvailableApplications = applications;
+                    AvailableModes = _staticAvailableModes = modes;
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems = operatingSystems;
+                    _staticFiltersLoaded = true;
+                }
                 
                 StateHasChanged();
             }
@@ -95,37 +121,80 @@ namespace RazorClassLibrary.Pages
             {
                 _isLoadingFilters = false;
             }
-        }        protected override async Task OnAfterRenderAsync(bool firstRender)
+        }protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 await searchInput.FocusAsync();
             }
-        }
-
-        protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
+            // Note: We avoid calling EnsureSearchFocus on every render to prevent 
+            // performance issues and potential infinite loops
+        }protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
         {
             // Trigger search on Enter key
             if (e.Key == "Enter")
             {
+                StopCountdown();
                 await OnSearch();
                 return;
             }
 
-            // For other keys, debounce the search
+            // For other keys, debounce the search with countdown
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource = new CancellationTokenSource();
+
+            // Start countdown
+            StartCountdown();
 
             _searchTimer?.Dispose();
             _searchTimer = new Timer(async _ => 
             {
                 if (!_searchCancellationTokenSource.Token.IsCancellationRequested)
                 {
+                    StopCountdown();
                     await InvokeAsync(async () => await OnSearch());
                 }
-            }, null, TimeSpan.FromMilliseconds(500), Timeout.InfiniteTimeSpan);
-        }        protected async Task OnSearch()
+            }, null, TimeSpan.FromSeconds(4), Timeout.InfiniteTimeSpan);
+        }        private void StartCountdown()
         {
+            _countdownSeconds = 4;
+            _showCountdown = true;
+            InvokeAsync(() => StateHasChanged());
+
+            _countdownTimer?.Dispose();
+            _countdownTimer = new Timer(_ =>
+            {
+                _countdownSeconds--;
+                if (_countdownSeconds <= 0)
+                {
+                    StopCountdown();
+                }
+                InvokeAsync(() => StateHasChanged());
+            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        }
+
+        private void StopCountdown()
+        {
+            _showCountdown = false;
+            _countdownSeconds = 0;
+            _countdownTimer?.Dispose();
+            InvokeAsync(() => StateHasChanged());
+        }protected async Task OnSearch()
+        {
+            // Don't search if no criteria are specified - check for default filter states
+            bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
+            bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
+            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
+            bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+            
+            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter)
+            {
+                Results = new List<TalonVoiceCommand>();
+                HasSearched = false;
+                await EnsureSearchFocus();
+                return;
+            }
+
             IsLoading = true;
             HasSearched = true;
             StateHasChanged();
@@ -141,21 +210,21 @@ namespace RazorClassLibrary.Pages
                 // Apply filters first
                 var filteredCommands = allCommands.AsEnumerable();
                 
-                if (!string.IsNullOrWhiteSpace(SelectedApplication))
+                if (hasApplicationFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
                 }
-                  if (!string.IsNullOrWhiteSpace(SelectedMode))
+                  if (hasModeFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
                 }
                 
-                if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
+                if (hasOSFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.OperatingSystem == SelectedOperatingSystem);
                 }
                 
-                if (UseSemanticMatching && !string.IsNullOrWhiteSpace(SearchTerm) && SearchTerm.Length > 2)
+                if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
                 {
                     var candidates = filteredCommands.Select((c, index) => (Item: c, Text: c.Command + " " + c.Script, Index: index)).ToList();
                     using var embedder = new LocalEmbedder();
@@ -179,7 +248,7 @@ namespace RazorClassLibrary.Pages
                 }
                 else                {
                     // Apply text search on filtered results
-                    if (!string.IsNullOrWhiteSpace(SearchTerm))
+                    if (hasSearchTerm)
                     {
                         Results = filteredCommands
                             .Where(c => c.Command.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -202,15 +271,71 @@ namespace RazorClassLibrary.Pages
             else
             {
                 Results = new List<TalonVoiceCommand>();
-            }
-            IsLoading = false;
+            }            IsLoading = false;
             StateHasChanged();
-        }        public async Task ClearFilters()
+            
+            // Only restore focus if the search was triggered intentionally
+            // (not during debounced typing to avoid interfering with user input)
+            if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
+            {
+                await EnsureSearchFocus();
+            }
+        }public async Task ClearFilters()
         {
             SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
-            await OnSearch();
+            // Don't automatically search after clearing - let user type in search box
+            Results = new List<TalonVoiceCommand>();
+            HasSearched = false;
+            StateHasChanged();
+            // Restore focus to search input after clearing
+            await EnsureSearchFocus();
+        }protected async Task OnApplicationFilterChange(ChangeEventArgs e)
+        {
+            SelectedApplication = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }
+
+        protected async Task OnModeFilterChange(ChangeEventArgs e)
+        {
+            SelectedMode = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }        protected async Task OnOSFilterChange(ChangeEventArgs e)
+        {
+            SelectedOperatingSystem = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }
+
+        protected async Task OnSemanticToggleChange(ChangeEventArgs e)
+        {
+            UseSemanticMatching = e.Value != null && (bool)e.Value;
+            // Don't auto-search, let user control when to search
+        }
+
+        private async Task EnsureSearchFocus()
+        {
+            if (JSRuntime != null)
+            {
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("setTimeout", 
+                        "() => { const searchInput = document.querySelector('input[type=\"text\"]'); if (searchInput) searchInput.focus(); }", 
+                        10);
+                }
+                catch
+                {
+                    // Fallback to direct focus if JS fails
+                    try
+                    {
+                        await searchInput.FocusAsync();
+                    }
+                    catch
+                    {
+                        // Silent fail - focus is best effort
+                    }
+                }
+            }
         }
 
         public async Task OpenFileInVSCode(string filePath)
@@ -233,11 +358,10 @@ namespace RazorClassLibrary.Pages
                 return string.Empty;
             
             return System.IO.Path.GetFileName(filePath);
-        }
-
-        public void Dispose()
+        }        public void Dispose()
         {
             _searchTimer?.Dispose();
+            _countdownTimer?.Dispose();
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
         }

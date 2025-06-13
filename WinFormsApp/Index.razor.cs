@@ -32,20 +32,30 @@ namespace WinFormsApp
 		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
 		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))) ? "Close" : "← Back") :
 		"Talon Search";
-
 		protected override async Task OnInitializedAsync()
 		{
 			arguments = Environment.GetCommandLineArgs();
 			if (arguments == null || arguments.Length == 0)
 			{
 				return;
-			}			if (arguments.Count() < 2)
+			}
+
+			// Check for search/Talon command line arguments
+			if (arguments.Length >= 2 && 
+				(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) || 
+				 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+			{
+				showTalonSearch = true;
+				return;
+			}
+
+			if (arguments.Count() < 2)
 			{				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
 				 arguments = new string[] { arguments[0], "Launcher", "AIChat" };
 				// arguments = new string[] { arguments[0], "search" };
 				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
-			}		string categoryName = "";
+			}string categoryName = "";
 		if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
 		{
 			SetTitle("AI Chat");

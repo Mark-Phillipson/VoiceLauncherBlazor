@@ -19,13 +19,15 @@ using System.Runtime.Versioning;
 
 
 namespace WinFormsApp
-{	[SupportedOSPlatform("windows")]
-	public partial class MainForm : Form
+{	[SupportedOSPlatform("windows")]	public partial class MainForm : Form
 	{
 		private ContextMenuStrip contextMenu;
 		private NotifyIcon notifyIcon;
-		public MainForm()
+		private bool launchSearchMode;
+		
+		public MainForm(bool launchSearchMode = false)
 		{
+			this.launchSearchMode = launchSearchMode;
 			InitializeComponent();
 			// Initialize NotifyIcon
 			notifyIcon = new NotifyIcon
