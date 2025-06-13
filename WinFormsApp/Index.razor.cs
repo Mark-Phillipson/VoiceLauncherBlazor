@@ -26,12 +26,11 @@ namespace WinFormsApp
 		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
 		  (arguments.Length >= 3 && arguments[2].Contains("AIChat"))) ? "Close" : "← Back") : 
 		"Chat";
-
 	// Property for dynamic Talon Search button caption
 	private string TalonSearchButtonCaption => showTalonSearch ?
 		(arguments != null && arguments.Length > 1 &&
-		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") && arguments[1].Contains("search"))) ||
-		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") && arguments[2].Contains("search")))) ? "Close" : "← Back") :
+		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
+		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))) ? "Close" : "← Back") :
 		"Talon Search";
 
 		protected override async Task OnInitializedAsync()
@@ -44,7 +43,7 @@ namespace WinFormsApp
 			{				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
 				 arguments = new string[] { arguments[0], "Launcher", "AIChat" };
-				// arguments = new string[] { arguments[0], "Talon search" };
+				// arguments = new string[] { arguments[0], "search" };
 				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
 			}		string categoryName = "";
 		if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
@@ -56,13 +55,12 @@ namespace WinFormsApp
 		{
 			SetTitle("AI Chat");
 			showAIChat = true;
-		}
-		else if (arguments.Count() >= 2 && arguments[1].Contains("Talon") && arguments[1].Contains("search"))
+		}		else if (arguments.Count() >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search")))
 		{
 			SetTitle("Talon Voice Command Search");
 			showTalonSearch = true;
 		}
-		else if (arguments.Count() >= 3 && arguments[2].Contains("Talon") && arguments[2].Contains("search"))
+		else if (arguments.Count() >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))
 		{
 			SetTitle("Talon Voice Command Search");
 			showTalonSearch = true;
@@ -137,13 +135,12 @@ namespace WinFormsApp
 				{
 					languageAndCategoryListing = true;
 					SetTitle("Search Snippets");
-				}
-				else if (arguments[1].Contains("Launcher"))
+				}				else if (arguments[1].Contains("Launcher"))
 				{
 					launcher = true;
 					SetTitle($"Launch Applications");
 				}
-				else if (arguments[1].Contains("Talon") && arguments[1].Contains("search"))
+				else if (arguments[1].Contains("Talon") || arguments[1].Contains("search"))
 				{
 					showTalonSearch = true;
 					SetTitle("Talon Voice Command Search");
@@ -168,15 +165,14 @@ namespace WinFormsApp
 	}
 
 	private void ShowTalonSearch()
-	{
-		if (showTalonSearch)
+	{		if (showTalonSearch)
 		{
 			// Turning off Talon Search - restore previous view based on arguments
 			showTalonSearch = false;
 			if (arguments != null && arguments.Length > 1)
 			{
-				if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") && arguments[1].Contains("search"))) ||
-				    (arguments.Length >= 3 && (arguments[2].Contains("Talon") && arguments[2].Contains("search"))))
+				if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
+				    (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search"))))
 				{
 					// If we launched directly into Talon search, close the application when going back
 					CloseWindow();

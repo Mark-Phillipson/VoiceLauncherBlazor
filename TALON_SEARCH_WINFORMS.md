@@ -6,10 +6,14 @@ The Talon Voice Command Search functionality has been successfully integrated in
 ## How to Use
 
 ### Command Line Arguments
-To launch the application directly into Talon search mode, use one of these command line arguments:
+To launch the application directly into Talon search mode, use any of these command line arguments:
 
-1. **Simple Talon search**: `WinFormsApp.exe "Talon search"`
-2. **Alternative format**: `WinFormsApp.exe "Something" "Talon search"`
+1. **Simple search**: `WinFormsApp.exe "search"`
+2. **Talon keyword**: `WinFormsApp.exe "Talon"`
+3. **Combined format**: `WinFormsApp.exe "Talon search"`
+4. **As second argument**: `WinFormsApp.exe "Something" "search"`
+
+The application will automatically detect if any argument contains "Talon" OR "search" and launch directly into the Talon Voice Command Search interface.
 
 ### In-App Navigation
 When the application is running, you can switch to Talon search mode by:
@@ -58,13 +62,15 @@ The existing `TalonVoiceCommandSearch` component from the RazorClassLibrary is u
 ### Command Line Test
 ```bash
 cd WinFormsApp
-dotnet run --configuration Debug "Talon search"
+dotnet run --configuration Debug "search"
+# OR
+dotnet run --configuration Debug "Talon"
 ```
 
 ### Development Testing
 Uncomment the test line in `Index.razor.cs`:
 ```csharp
-arguments = new string[] { arguments[0], "Talon search" };
+arguments = new string[] { arguments[0], "search" };
 ```
 
 ## Accessibility
