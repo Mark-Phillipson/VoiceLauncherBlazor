@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 
-class Program
+namespace DataAccessLibrary
+{
+    class RepositoryExtractionTester
 {
     static void Main()
     {
@@ -73,19 +75,18 @@ class Program
                     }
                     else
                     {
-                        Console.WriteLine($"  Not enough path parts or empty repository name. Parts count: {pathParts.Length}");
+                        Console.WriteLine($"  Not enough path parts or empty repository name. Parts cou nt: {pathParts.Length}");
                         break;
                     }
                 }
             }
             
-            Console.WriteLine("  No user pattern found");
-            return null;
-        }
+            Console.WriteLine("  No user pattern found");            return null;        }
         catch (Exception ex)
         {
             Console.WriteLine($"  Exception: {ex.Message}");
             return null;
         }
     }
+}
 }
