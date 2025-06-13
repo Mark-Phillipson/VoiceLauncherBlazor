@@ -1,13 +1,17 @@
 @page "/talon-voice-command-search"
 @using DataAccessLibrary.Models
-@inject DataAccessLibrary.Services.TalonVoiceCommandDataService TalonService
+
 
 <div class="container mt-4">
     <h2>Talon Voice Command Search</h2>
     <form class="mb-3" @onsubmit="OnSearch">
-        <div class="input-group">
+        <div class="input-group mb-2">
             <input class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" />
             <button class="btn btn-primary" type="submit" aria-label="Search">Search</button>
+        </div>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="semanticToggle" @bind="UseSemanticMatching" />
+            <label class="form-check-label" for="semanticToggle">Semantic Search</label>
         </div>
     </form>
     <div>
