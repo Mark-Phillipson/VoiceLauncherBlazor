@@ -6,10 +6,12 @@ using SmartComponents.LocalEmbeddings;
 using System.Linq;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Web;
+using System.Threading;
+using System;
 
 namespace RazorClassLibrary.Pages
 {
-    public partial class TalonVoiceCommandSearch : ComponentBase
+    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
         private ElementReference searchInput;
         
@@ -30,10 +32,10 @@ namespace RazorClassLibrary.Pages
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
-        public IJSRuntime? JSRuntime { get; set; }
-
-        private List<TalonVoiceCommand>? _allCommandsCache;
+        public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;
+        private CancellationTokenSource? _searchCancellationTokenSource;
+        private Timer? _searchTimer;
 
         protected override async Task OnInitializedAsync()
         {
@@ -93,19 +95,43 @@ namespace RazorClassLibrary.Pages
             {
                 _isLoadingFilters = false;
             }
-        }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        }        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 await searchInput.FocusAsync();
             }
+        }
+
+        protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
+        {
+            // Trigger search on Enter key
+            if (e.Key == "Enter")
+            {
+                await OnSearch();
+                return;
+            }
+
+            // For other keys, debounce the search
+            _searchCancellationTokenSource?.Cancel();
+            _searchCancellationTokenSource = new CancellationTokenSource();
+
+            _searchTimer?.Dispose();
+            _searchTimer = new Timer(async _ => 
+            {
+                if (!_searchCancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    await InvokeAsync(async () => await OnSearch());
+                }
+            }, null, TimeSpan.FromMilliseconds(500), Timeout.InfiniteTimeSpan);
         }        protected async Task OnSearch()
         {
             IsLoading = true;
             HasSearched = true;
             StateHasChanged();
+            
+            // Small delay to ensure spinner is visible
+            await Task.Delay(100);
             
             if (TalonService is not null)
             {
@@ -207,6 +233,13 @@ namespace RazorClassLibrary.Pages
                 return string.Empty;
             
             return System.IO.Path.GetFileName(filePath);
+        }
+
+        public void Dispose()
+        {
+            _searchTimer?.Dispose();
+            _searchCancellationTokenSource?.Cancel();
+            _searchCancellationTokenSource?.Dispose();
         }
     }
 }
