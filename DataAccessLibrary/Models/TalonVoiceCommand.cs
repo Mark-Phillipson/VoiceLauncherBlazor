@@ -18,10 +18,11 @@ namespace DataAccessLibrary.Models
 
         [StringLength(100)]
         [Required]
-        public required string Application { get; set; } = "global";
-
-        [StringLength(100)]
+        public required string Application { get; set; } = "global";        [StringLength(100)]
         public string? Mode { get; set; }
+
+        [StringLength(50)]
+        public string? OperatingSystem { get; set; }
 
         [StringLength(250)]
         [Required]

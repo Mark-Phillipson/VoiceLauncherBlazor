@@ -109,3 +109,36 @@
         padding: 0.25rem 0.5rem;
     }
 }
+
+/* Filter styling */
+.form-label.small {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--bs-secondary-color);
+}
+
+.form-select-sm {
+    font-size: 0.875rem;
+}
+
+.btn-outline-secondary {
+    border-color: var(--bs-secondary);
+    color: var(--bs-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    color: var(--bs-white);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+    border-color: var(--bs-secondary);
+    color: var(--bs-secondary);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--bs-secondary);
+    color: var(--bs-dark);
+}

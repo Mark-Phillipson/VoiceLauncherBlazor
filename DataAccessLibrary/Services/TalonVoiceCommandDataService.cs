@@ -24,12 +24,12 @@ namespace DataAccessLibrary.Services
             _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
             await _context.SaveChangesAsync();
             var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
-            var commands = new List<TalonVoiceCommand>();
-            foreach (var file in talonFiles)
+            var commands = new List<TalonVoiceCommand>();            foreach (var file in talonFiles)
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 string application = "global";
                 string? mode = null;
+                string? operatingSystem = null;
                 bool inCommandsSection = false;
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -53,12 +53,15 @@ namespace DataAccessLibrary.Services
                         else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
                         {
                             application = line.Substring(12).Trim();
-                        }
-                        else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
+                        }                        else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                         {
                             mode = line.Substring(5).Trim();
                         }
-                        // skip os: and other headers
+                        else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            operatingSystem = line.Substring(3).Trim();
+                        }
+                        // skip other headers
                         continue;
                     }
                     // After delimiter, skip blank lines and comments
@@ -80,13 +83,13 @@ namespace DataAccessLibrary.Services
                             script += "\n" + lines[j].Trim();
                             j++;
                         }
-                        i = j - 1;
-                        commands.Add(new TalonVoiceCommand
+                        i = j - 1;                        commands.Add(new TalonVoiceCommand
                         {
                             Command = command.Length > 100 ? command.Substring(0, 100) : command,
                             Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
                             Application = application.Length > 100 ? application.Substring(0, 100) : application,
                             Mode = mode != null && mode.Length > 100 ? mode.Substring(0, 100) : mode,
+                            OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                             FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
                             CreatedAt = File.GetCreationTimeUtc(file)
                         });
@@ -111,13 +114,18 @@ namespace DataAccessLibrary.Services
                 .ToListAsync();
         }
 
-        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
+        public async Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
+        {
+            // Return ALL commands for building filter dropdowns
+            return await _context.TalonVoiceCommands.ToListAsync();
+        }        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
         {
             // Do NOT clear the table here; only add new commands
             var commands = new List<TalonVoiceCommand>();
             var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             string application = "global";
             List<string> modes = new();
+            string? operatingSystem = null;
             bool inCommandsSection = false;
             for (int i = 0; i < lines.Length; i++)
             {
@@ -138,14 +146,17 @@ namespace DataAccessLibrary.Services
                     else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
                     {
                         application = line.Substring(12).Trim();
-                    }
-                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
+                    }                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                     {
                         var modeValue = line.Substring(5).Trim();
                         if (!string.IsNullOrEmpty(modeValue))
                         {
                             modes.Add(modeValue);
                         }
+                    }
+                    else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        operatingSystem = line.Substring(3).Trim();
                     }
                     continue;
                 }
@@ -164,13 +175,13 @@ namespace DataAccessLibrary.Services
                         script += "\n" + lines[j].Trim();
                         j++;
                     }
-                    i = j - 1;
-                    commands.Add(new TalonVoiceCommand
+                    i = j - 1;                    commands.Add(new TalonVoiceCommand
                     {
                         Command = command.Length > 100 ? command.Substring(0, 100) : command,
                         Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
                         Application = application.Length > 100 ? application.Substring(0, 100) : application,
                         Mode = modes.Count > 0 ? string.Join("|", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
+                        OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                         FilePath = fileName,
                         CreatedAt = DateTime.UtcNow
                     });

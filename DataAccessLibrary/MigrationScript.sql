@@ -1210,6 +1210,23 @@ BEGIN
     VALUES (N'20250613055849_AddTalonVoiceCommandTable', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613115041_AddOperatingSystemField'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [OperatingSystem] nvarchar(50) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613115041_AddOperatingSystemField'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250613115041_AddOperatingSystemField', N'9.0.0');
+END;
+
 COMMIT;
 GO
 

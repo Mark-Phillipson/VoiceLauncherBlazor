@@ -1,1 +1,1 @@
- SELECT * FROM TalonVoiceCommands
+ SELECT TalonVoiceCommands.Application,Mode FROM TalonVoiceCommands GROUP BY Application,mode  ORDER BY Mode desc
