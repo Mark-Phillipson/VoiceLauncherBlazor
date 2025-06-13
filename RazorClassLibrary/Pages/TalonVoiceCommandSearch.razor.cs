@@ -21,17 +21,12 @@ namespace RazorClassLibrary.Pages
         public bool HasSearched { get; set; }
         public bool UseSemanticMatching { get; set; } = true;
           // Filter properties
-        public string SelectedApplication { get; set; } = string.Empty;
-        public string SelectedMode { get; set; } = string.Empty;
+        public string SelectedApplication { get; set; } = string.Empty;        public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
         public List<string> AvailableApplications { get; set; } = new();
         public List<string> AvailableModes { get; set; } = new();        public List<string> AvailableOperatingSystems { get; set; } = new();
         
         private int maxResults = 20;
-        
-        // Countdown properties
-        public int CountdownSeconds => _countdownSeconds;
-        public bool ShowCountdown => _showCountdown;
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
@@ -41,12 +36,7 @@ namespace RazorClassLibrary.Pages
         private static List<string> _staticAvailableApplications = new();
         private static List<string> _staticAvailableModes = new();
         private static List<string> _staticAvailableOperatingSystems = new();
-        private static readonly object _filterLock = new object();
-        private CancellationTokenSource? _searchCancellationTokenSource;
-        private Timer? _searchTimer;
-        private Timer? _countdownTimer;
-        private int _countdownSeconds = 0;
-        private bool _showCountdown = false;        protected override async Task OnInitializedAsync()
+        private static readonly object _filterLock = new object();        private CancellationTokenSource? _searchCancellationTokenSource;protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
             
@@ -126,60 +116,26 @@ namespace RazorClassLibrary.Pages
             if (firstRender)
             {
                 await searchInput.FocusAsync();
-            }
-            // Note: We avoid calling EnsureSearchFocus on every render to prevent 
+            }            // Note: We avoid calling EnsureSearchFocus on every render to prevent 
             // performance issues and potential infinite loops
-        }protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
-        {
-            // Trigger search on Enter key
-            if (e.Key == "Enter")
-            {
-                StopCountdown();
-                await OnSearch();
-                return;
-            }
-
-            // For other keys, debounce the search with countdown
-            _searchCancellationTokenSource?.Cancel();
-            _searchCancellationTokenSource = new CancellationTokenSource();
-
-            // Start countdown
-            StartCountdown();
-
-            _searchTimer?.Dispose();
-            _searchTimer = new Timer(async _ => 
-            {
-                if (!_searchCancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    StopCountdown();
-                    await InvokeAsync(async () => await OnSearch());
-                }
-            }, null, TimeSpan.FromSeconds(4), Timeout.InfiniteTimeSpan);
-        }        private void StartCountdown()
-        {
-            _countdownSeconds = 4;
-            _showCountdown = true;
-            InvokeAsync(() => StateHasChanged());
-
-            _countdownTimer?.Dispose();
-            _countdownTimer = new Timer(_ =>
-            {
-                _countdownSeconds--;
-                if (_countdownSeconds <= 0)
-                {
-                    StopCountdown();
-                }
-                InvokeAsync(() => StateHasChanged());
-            }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
-        private void StopCountdown()
+        protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
         {
-            _showCountdown = false;
-            _countdownSeconds = 0;
-            _countdownTimer?.Dispose();
-            InvokeAsync(() => StateHasChanged());
-        }protected async Task OnSearch()
+            // Only trigger search on Enter key
+            if (e.Key == "Enter")
+            {
+                await OnSearch();
+            }
+        }
+
+        protected async Task OnSearchInputBlur()
+        {
+            // Trigger search when the search input loses focus
+            await OnSearch();
+        }
+
+        protected async Task OnSearch()
         {
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
@@ -288,26 +244,29 @@ namespace RazorClassLibrary.Pages
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;
-            StateHasChanged();
-            // Restore focus to search input after clearing
+            StateHasChanged();            // Restore focus to search input after clearing
             await EnsureSearchFocus();
-        }protected async Task OnApplicationFilterChange(ChangeEventArgs e)
+        }
+
+        protected void OnApplicationFilterChange(ChangeEventArgs e)
         {
             SelectedApplication = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
         }
 
-        protected async Task OnModeFilterChange(ChangeEventArgs e)
+        protected void OnModeFilterChange(ChangeEventArgs e)
         {
             SelectedMode = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
-        }        protected async Task OnOSFilterChange(ChangeEventArgs e)
+        }
+
+        protected void OnOSFilterChange(ChangeEventArgs e)
         {
             SelectedOperatingSystem = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
         }
 
-        protected async Task OnSemanticToggleChange(ChangeEventArgs e)
+        protected void OnSemanticToggleChange(ChangeEventArgs e)
         {
             UseSemanticMatching = e.Value != null && (bool)e.Value;
             // Don't auto-search, let user control when to search
@@ -360,8 +319,6 @@ namespace RazorClassLibrary.Pages
             return System.IO.Path.GetFileName(filePath);
         }        public void Dispose()
         {
-            _searchTimer?.Dispose();
-            _countdownTimer?.Dispose();
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
         }
