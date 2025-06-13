@@ -24,16 +24,14 @@ namespace RazorClassLibrary.Pages
             SelectedFiles = e.GetMultipleFiles();
             ImportResult = null;
             ErrorMessage = null;
-        }
-
-        protected async Task ImportFiles()
+        }        protected async Task ImportFiles()
         {
             if (SelectedFiles == null || SelectedFiles.Count == 0)
                 return;
             IsLoading = true;
             ImportResult = null;
             ErrorMessage = null;
-            int imported = 0;
+            int totalCommandsImported = 0;
             try
             {
                 foreach (var file in SelectedFiles)
@@ -41,10 +39,10 @@ namespace RazorClassLibrary.Pages
                     using var stream = file.OpenReadStream();
                     using var reader = new StreamReader(stream);
                     var content = await reader.ReadToEndAsync();
-                    await TalonServiceField.ImportTalonFileContentAsync(content, file.Name);
-                    imported++;
+                    var commandsFromThisFile = await TalonServiceField.ImportTalonFileContentAsync(content, file.Name);
+                    totalCommandsImported += commandsFromThisFile;
                 }
-                ImportResult = $"Successfully imported {imported} file(s).";
+                ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
             }
             catch (Exception ex)
             {
@@ -54,9 +52,7 @@ namespace RazorClassLibrary.Pages
             {
                 IsLoading = false;
             }
-        }
-
-        protected async Task ImportAllFromDirectory()
+        }        protected async Task ImportAllFromDirectory()
         {
             if (string.IsNullOrWhiteSpace(DirectoryPath))
             {
@@ -72,24 +68,16 @@ namespace RazorClassLibrary.Pages
             {
                 var talonFiles = Directory.GetFiles(DirectoryPath, "*.talon", SearchOption.AllDirectories);
                 ImportTotal = talonFiles.Length;
-                int imported = 0;
-                var context = (TalonServiceField as DataAccessLibrary.Services.TalonVoiceCommandDataService)?.GetType()
-                    .GetProperty("_context", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    ?.GetValue(TalonServiceField) as DataAccessLibrary.Models.ApplicationDbContext;
-                if (context != null)
-                {
-                    context.TalonVoiceCommands.RemoveRange(context.TalonVoiceCommands);
-                    context.SaveChanges();
-                }
-                foreach (var file in talonFiles)
-                {
-                    var content = await File.ReadAllTextAsync(file);
-                    await TalonServiceField.ImportTalonFileContentAsync(content, file);
-                    imported++;
-                    ImportProgress = imported;
-                    StateHasChanged();
-                }
-                ImportResult = $"Successfully imported {imported} commands from all .talon files in directory.";
+                
+                // Use the new service method with progress callback
+                var totalCommandsImported = await TalonServiceField.ImportAllTalonFilesWithProgressAsync(DirectoryPath, 
+                    (filesProcessed, totalFiles, commandsSoFar) =>
+                    {
+                        ImportProgress = filesProcessed;
+                        StateHasChanged();
+                    });
+                
+                ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files in directory.";
             }
             catch (Exception ex)
             {

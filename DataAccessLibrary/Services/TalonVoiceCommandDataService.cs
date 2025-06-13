@@ -91,13 +91,13 @@ namespace DataAccessLibrary.Services
                             Mode = mode != null && mode.Length > 100 ? mode.Substring(0, 100) : mode,
                             OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                             FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
-                            CreatedAt = File.GetCreationTimeUtc(file)
-                        });
+                            CreatedAt = File.GetCreationTimeUtc(file)                        });
                     }
                 }
             }
             await _context.TalonVoiceCommands.AddRangeAsync(commands);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return commands.Count;
         }
 
         public async Task<List<TalonVoiceCommand>> SemanticSearchAsync(string searchTerm)
@@ -185,10 +185,10 @@ namespace DataAccessLibrary.Services
                         FilePath = fileName,
                         CreatedAt = DateTime.UtcNow
                     });
-                }
-            }
+                }            }
             await _context.TalonVoiceCommands.AddRangeAsync(commands);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return commands.Count;
         }
 
         public async Task<int> ImportAllTalonFilesFromDirectoryAsync(string rootFolder)
@@ -202,6 +202,37 @@ namespace DataAccessLibrary.Services
             {
                 var content = await File.ReadAllTextAsync(file);
                 totalImported += await ImportTalonFileContentAsync(content, file);
+            }
+            return totalImported;
+        }
+
+        public async Task<int> ClearAllCommandsAsync()
+        {
+            // More robust clearing method
+            var allCommands = await _context.TalonVoiceCommands.ToListAsync();
+            _context.TalonVoiceCommands.RemoveRange(allCommands);
+            await _context.SaveChangesAsync();
+            return allCommands.Count;
+        }
+
+        public async Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null)
+        {
+            // Clear all existing records first
+            await ClearAllCommandsAsync();
+            
+            var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
+            int totalImported = 0;
+            int filesProcessed = 0;
+            
+            foreach (var file in talonFiles)
+            {
+                var content = await File.ReadAllTextAsync(file);
+                var commandsFromThisFile = await ImportTalonFileContentAsync(content, file);
+                totalImported += commandsFromThisFile;
+                filesProcessed++;
+                
+                // Report progress: (filesProcessed, totalFiles, totalCommandsSoFar)
+                progressCallback?.Invoke(filesProcessed, talonFiles.Length, totalImported);
             }
             return totalImported;
         }
