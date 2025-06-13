@@ -6,7 +6,7 @@
     <h2>Talon Voice Command Search</h2>
     <form class="mb-3" @onsubmit="OnSearch">
         <div class="input-group mb-2">
-            <input class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" />
+            <input class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" @onblur="OnSearch" />
             <button class="btn btn-primary" type="submit" aria-label="Search">Search</button>
         </div>
         <div class="form-check form-switch mb-2">
@@ -40,7 +40,9 @@
                             <td><pre>@cmd.Script</pre></td>
                             <td>@cmd.Application</td>
                             <td>@cmd.Mode</td>
-                            <td>@cmd.FilePath</td>
+                            <td>
+                                <a href="#" @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" tabindex="0" class="text-decoration-underline" title="Open in VS Code">@cmd.FilePath</a>
+                            </td>
                             <td>@cmd.CreatedAt.ToLocalTime().ToString("g")</td>
                         </tr>
                     }

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components;
 using DataAccessLibrary.Models;
 using SmartComponents.LocalEmbeddings;
 using System.Linq;
+using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace RazorClassLibrary.Pages
 {
@@ -18,6 +20,9 @@ namespace RazorClassLibrary.Pages
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }
+
+        [Inject]
+        public IJSRuntime? JSRuntime { get; set; }
 
         protected override void OnInitialized()
         {
@@ -57,6 +62,22 @@ namespace RazorClassLibrary.Pages
             }
             IsLoading = false;
             StateHasChanged();
+        }
+
+        public async Task OpenFileInVSCode(string filePath)
+        {
+            if (JSRuntime != null && !string.IsNullOrWhiteSpace(filePath))
+            {
+                // This will attempt to open the file in VS Code using the vscode://file URI scheme
+                var uri = $"vscode://file/{filePath.Replace("\\", "/")}";
+                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+            }
+        }
+
+        public async Task OnFilePathClick(MouseEventArgs e, string filePath)
+        {
+            // PreventDefault is not available in Blazor, but using @onclick on <a href="#"> avoids navigation
+            await OpenFileInVSCode(filePath);
         }
     }
 }
