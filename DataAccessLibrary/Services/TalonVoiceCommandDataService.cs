@@ -113,9 +113,7 @@ namespace DataAccessLibrary.Services
 
         public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
         {
-            // Remove all existing records before importing new ones
-            _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
-            await _context.SaveChangesAsync();
+            // Do NOT clear the table here; only add new commands
             var commands = new List<TalonVoiceCommand>();
             var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             string application = "global";
