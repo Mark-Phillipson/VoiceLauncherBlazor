@@ -78,6 +78,7 @@ namespace DataAccessLibrary.Models
 		public virtual DbSet<AdditionalCommand> AdditionalCommands { get; set; }
 		public virtual DbSet<ValuesToInsert> ValuesToInserts { get; set; }
 		public virtual DbSet<VisualStudioCommand> VisualStudioCommands { get; set; }
+		public virtual DbSet<TalonVoiceCommand> TalonVoiceCommands { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			if (!optionsBuilder.IsConfigured)

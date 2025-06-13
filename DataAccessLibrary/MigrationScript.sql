@@ -953,16 +953,16 @@ IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'20240712153756_MIGYoutubeLink'
 )
---BEGIN
-    -- CREATE TABLE [CursorlessCheatsheetItems] (
-    --     [Id] int NOT NULL IDENTITY,
-    --     [SpokenForm] nvarchar(max) NOT NULL,
-    --     [Meaning] nvarchar(max) NULL,
-    --     [CursorlessType] nvarchar(max) NULL,
-    --     [YoutubeLink] nvarchar(255) NULL,
-    --     CONSTRAINT [PK_CursorlessCheatsheetItems] PRIMARY KEY ([Id])
-    -- );
---END;
+BEGIN
+    CREATE TABLE [CursorlessCheatsheetItems] (
+        [Id] int NOT NULL IDENTITY,
+        [SpokenForm] nvarchar(max) NOT NULL,
+        [Meaning] nvarchar(max) NULL,
+        [CursorlessType] nvarchar(max) NULL,
+        [YoutubeLink] nvarchar(255) NULL,
+        CONSTRAINT [PK_CursorlessCheatsheetItems] PRIMARY KEY ([Id])
+    );
+END;
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
@@ -1182,6 +1182,32 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'20250612085739_AddQuickPromptsTable', N'9.0.0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613055849_AddTalonVoiceCommandTable'
+)
+BEGIN
+    CREATE TABLE [TalonVoiceCommands] (
+        [Id] int NOT NULL IDENTITY,
+        [Command] nvarchar(100) NOT NULL,
+        [Script] nvarchar(1000) NOT NULL,
+        [Application] nvarchar(100) NOT NULL,
+        [Mode] nvarchar(100) NULL,
+        [FilePath] nvarchar(250) NOT NULL,
+        [CreatedAt] datetime2 NOT NULL,
+        CONSTRAINT [PK_TalonVoiceCommands] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250613055849_AddTalonVoiceCommandTable'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250613055849_AddTalonVoiceCommandTable', N'9.0.0');
 END;
 
 COMMIT;

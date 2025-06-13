@@ -1,0 +1,55 @@
+@page "/talon-voice-command-search"
+@using DataAccessLibrary.Models
+@inject DataAccessLibrary.Services.TalonVoiceCommandDataService TalonService
+
+<div class="container mt-4">
+    <h2>Talon Voice Command Search</h2>
+    <form class="mb-3" @onsubmit="OnSearch">
+        <div class="input-group">
+            <input class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" />
+            <button class="btn btn-primary" type="submit" aria-label="Search">Search</button>
+        </div>
+    </form>
+    <div>
+        @if (IsLoading)
+        {
+            <div class="spinner-border" role="status" aria-label="Loading"></div>
+        }
+        else if (Results?.Any() == true)
+        {
+            <table class="table table-striped table-hover table-responsive" aria-label="Search Results">
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Script</th>
+                        <th>Application</th>
+                        <th>Mode</th>
+                        <th>File Path</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cmd in Results)
+                    {
+                        <tr tabindex="0">
+                            <td>@cmd.Command</td>
+                            <td><pre>@cmd.Script</pre></td>
+                            <td>@cmd.Application</td>
+                            <td>@cmd.Mode</td>
+                            <td>@cmd.FilePath</td>
+                            <td>@cmd.CreatedAt.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else if (HasSearched)
+        {
+            <div class="alert alert-info" role="alert">No results found.</div>
+        }
+    </div>
+</div>
+
+@code {
+    // All logic is in the code-behind file (partial class)
+}

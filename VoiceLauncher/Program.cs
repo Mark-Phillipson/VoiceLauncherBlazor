@@ -107,6 +107,7 @@ builder.Services.AddScoped<IExampleRepository, ExampleRepository>();
 builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
+builder.Services.AddScoped<TalonVoiceCommandDataService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

@@ -1,0 +1,200 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using DataAccessLibrary.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace DataAccessLibrary.Services
+{
+    public class TalonVoiceCommandDataService
+    {
+        private readonly ApplicationDbContext _context;
+        public TalonVoiceCommandDataService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
+        {
+            // Remove all existing records before importing new ones
+            _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
+            await _context.SaveChangesAsync();
+            var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
+            var commands = new List<TalonVoiceCommand>();
+            foreach (var file in talonFiles)
+            {
+                var lines = await File.ReadAllLinesAsync(file);
+                string application = "global";
+                string? mode = null;
+                bool inCommandsSection = false;
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    var rawLine = lines[i];
+                    var line = rawLine.Trim();
+                    Debug.WriteLine($"Line {i}: '{rawLine.Replace("\r", "\\r").Replace("\n", "\\n")}' (trimmed: '{line}')");
+                    if (!inCommandsSection)
+                    {
+                        // Robust delimiter check: ignore all whitespace and carriage returns
+                        var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());
+                        if (delimiterCheck == "-")
+                        {
+                            Debug.WriteLine($"Delimiter found at line {i}");
+                            inCommandsSection = true;
+                            continue;
+                        }
+                        if (line.StartsWith("app:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            application = line.Substring(4).Trim();
+                        }
+                        else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            application = line.Substring(12).Trim();
+                        }
+                        else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            mode = line.Substring(5).Trim();
+                        }
+                        // skip os: and other headers
+                        continue;
+                    }
+                    // After delimiter, skip blank lines and comments
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                        continue;
+                    // Multi-line script support
+                    if (line.Contains(":"))
+                    {
+                        var split = line.Split(new[] { ':' }, 2);
+                        var command = split[0].Trim();
+                        var script = split[1].Trim();
+                        // Skip settings() and similar blocks
+                        if (command.EndsWith("()"))
+                            continue;
+                        // Check for indented lines (multi-line script)
+                        int j = i + 1;
+                        while (j < lines.Length && (lines[j].StartsWith("    ") || lines[j].StartsWith("\t")))
+                        {
+                            script += "\n" + lines[j].Trim();
+                            j++;
+                        }
+                        i = j - 1;
+                        commands.Add(new TalonVoiceCommand
+                        {
+                            Command = command.Length > 100 ? command.Substring(0, 100) : command,
+                            Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
+                            Application = application.Length > 100 ? application.Substring(0, 100) : application,
+                            Mode = mode != null && mode.Length > 100 ? mode.Substring(0, 100) : mode,
+                            FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
+                            CreatedAt = File.GetCreationTimeUtc(file)
+                        });
+                    }
+                }
+            }
+            await _context.TalonVoiceCommands.AddRangeAsync(commands);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<TalonVoiceCommand>> SemanticSearchAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
+            }
+            var lowerTerm = searchTerm.ToLower();
+            return await _context.TalonVoiceCommands
+                .Where(c => c.Command.ToLower().Contains(lowerTerm) || c.Script.ToLower().Contains(lowerTerm) || c.Application.ToLower().Contains(lowerTerm) || (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)))
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+        }
+
+        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
+        {
+            // Remove all existing records before importing new ones
+            _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
+            await _context.SaveChangesAsync();
+            var commands = new List<TalonVoiceCommand>();
+            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            string application = "global";
+            List<string> modes = new();
+            bool inCommandsSection = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var rawLine = lines[i];
+                var line = rawLine.Trim();
+                if (!inCommandsSection)
+                {
+                    var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());
+                    if (delimiterCheck == "-")
+                    {
+                        inCommandsSection = true;
+                        continue;
+                    }
+                    if (line.StartsWith("app:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        application = line.Substring(4).Trim();
+                    }
+                    else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        application = line.Substring(12).Trim();
+                    }
+                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var modeValue = line.Substring(5).Trim();
+                        if (!string.IsNullOrEmpty(modeValue))
+                        {
+                            modes.Add(modeValue);
+                        }
+                    }
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                    continue;
+                if (line.Contains(":"))
+                {
+                    var split = line.Split(new[] { ':' }, 2);
+                    var command = split[0].Trim();
+                    var script = split[1].Trim();
+                    if (command.EndsWith("()"))
+                        continue;
+                    int j = i + 1;
+                    while (j < lines.Length && (lines[j].StartsWith("    ") || lines[j].StartsWith("\t")))
+                    {
+                        script += "\n" + lines[j].Trim();
+                        j++;
+                    }
+                    i = j - 1;
+                    commands.Add(new TalonVoiceCommand
+                    {
+                        Command = command.Length > 100 ? command.Substring(0, 100) : command,
+                        Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
+                        Application = application.Length > 100 ? application.Substring(0, 100) : application,
+                        Mode = modes.Count > 0 ? string.Join("|", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
+                        FilePath = fileName,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+            await _context.TalonVoiceCommands.AddRangeAsync(commands);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> ImportAllTalonFilesFromDirectoryAsync(string rootFolder)
+        {
+            // Remove all existing records before importing new ones
+            _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
+            await _context.SaveChangesAsync();
+            var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
+            int totalImported = 0;
+            foreach (var file in talonFiles)
+            {
+                var content = await File.ReadAllTextAsync(file);
+                totalImported += await ImportTalonFileContentAsync(content, file);
+            }
+            return totalImported;
+        }
+    }
+}

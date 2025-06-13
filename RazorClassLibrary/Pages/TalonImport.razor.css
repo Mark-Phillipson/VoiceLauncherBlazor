@@ -1,0 +1,13 @@
+/* TalonImport.razor.css - Scoped styles for TalonImport page */
+
+input[type="file"] {
+    max-width: 400px;
+}
+
+.spinner-border {
+    margin-left: 10px;
+}
+
+.alert {
+    margin-top: 1rem;
+}
