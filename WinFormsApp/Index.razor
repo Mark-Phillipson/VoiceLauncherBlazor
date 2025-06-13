@@ -1,8 +1,7 @@
 ﻿@page "/"
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
-<CascadingBlazoredModal>
-	@if (!showAIChat)
+<CascadingBlazoredModal>	@if (!showAIChat && !showTalonSearch)
 	{
 		<div class='m-2' style="text-align: center;">
 			<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
@@ -15,12 +14,17 @@
 			</button>
 			<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
 				@AIChatButtonCaption</button>
+			<button accesskey="T" class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())"><u>T</u>alon
+				@TalonSearchButtonCaption</button>
 		</div>
-	}
-	<div class='m-2'>
+	}	<div class='m-2'>
 		@if (showAIChat)
 		{
 			<AIChatComponent RunningInBlazorHybrid="true" />
+		}
+		else if (showTalonSearch)
+		{
+			<TalonVoiceCommandSearch />
 		}
 		else if (languageAndCategoryListing)
 		{

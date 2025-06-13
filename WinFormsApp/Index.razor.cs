@@ -17,16 +17,22 @@ namespace WinFormsApp
 		private string message = "";
 		private string[]? arguments;
 		string searchTerm = "";
-		private bool languageAndCategoryListing = false;
-		private bool launcher = false;
+		private bool languageAndCategoryListing = false;		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
-	// Property for dynamic AI Chat button caption
+		private bool showTalonSearch = false;	// Property for dynamic AI Chat button caption
 	private string AIChatButtonCaption => showAIChat ? 
 		(arguments != null && arguments.Length > 1 && 
 		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
 		  (arguments.Length >= 3 && arguments[2].Contains("AIChat"))) ? "Close" : "← Back") : 
 		"Chat";
+
+	// Property for dynamic Talon Search button caption
+	private string TalonSearchButtonCaption => showTalonSearch ?
+		(arguments != null && arguments.Length > 1 &&
+		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") && arguments[1].Contains("search"))) ||
+		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") && arguments[2].Contains("search")))) ? "Close" : "← Back") :
+		"Talon Search";
 
 		protected override async Task OnInitializedAsync()
 		{
@@ -35,10 +41,10 @@ namespace WinFormsApp
 			{
 				return;
 			}			if (arguments.Count() < 2)
-			{
-				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
+			{				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
 				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
 				 arguments = new string[] { arguments[0], "Launcher", "AIChat" };
+				// arguments = new string[] { arguments[0], "Talon search" };
 				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
 			}		string categoryName = "";
 		if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
@@ -50,6 +56,16 @@ namespace WinFormsApp
 		{
 			SetTitle("AI Chat");
 			showAIChat = true;
+		}
+		else if (arguments.Count() >= 2 && arguments[1].Contains("Talon") && arguments[1].Contains("search"))
+		{
+			SetTitle("Talon Voice Command Search");
+			showTalonSearch = true;
+		}
+		else if (arguments.Count() >= 3 && arguments[2].Contains("Talon") && arguments[2].Contains("search"))
+		{
+			SetTitle("Talon Voice Command Search");
+			showTalonSearch = true;
 		}
 		else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
 		{
@@ -102,8 +118,7 @@ namespace WinFormsApp
 		}		private async void SetTitle(string title)
 		{
 			await SetTitleCallback.InvokeAsync(title);
-		}
-			private void ShowAIChat()
+		}			private void ShowAIChat()
 	{
 		if (showAIChat)
 		{
@@ -128,6 +143,11 @@ namespace WinFormsApp
 					launcher = true;
 					SetTitle($"Launch Applications");
 				}
+				else if (arguments[1].Contains("Talon") && arguments[1].Contains("search"))
+				{
+					showTalonSearch = true;
+					SetTitle("Talon Voice Command Search");
+				}
 				else
 				{
 					SetTitle("Filtering Snippets by Display Value");
@@ -141,7 +161,57 @@ namespace WinFormsApp
 			// Reset other views when showing AI Chat
 			languageAndCategoryListing = false;
 			launcher = false;
+			showTalonSearch = false;
 			SetTitle("AI Chat Assistant");
+		}
+		StateHasChanged();
+	}
+
+	private void ShowTalonSearch()
+	{
+		if (showTalonSearch)
+		{
+			// Turning off Talon Search - restore previous view based on arguments
+			showTalonSearch = false;
+			if (arguments != null && arguments.Length > 1)
+			{
+				if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") && arguments[1].Contains("search"))) ||
+				    (arguments.Length >= 3 && (arguments[2].Contains("Talon") && arguments[2].Contains("search"))))
+				{
+					// If we launched directly into Talon search, close the application when going back
+					CloseWindow();
+					return;
+				}
+				else if (arguments[1].Contains("SearchIntelliSense"))
+				{
+					languageAndCategoryListing = true;
+					SetTitle("Search Snippets");
+				}
+				else if (arguments[1].Contains("Launcher"))
+				{
+					launcher = true;
+					SetTitle($"Launch Applications");
+				}
+				else if (arguments[1].Contains("AIChat"))
+				{
+					showAIChat = true;
+					SetTitle("AI Chat Assistant");
+				}
+				else
+				{
+					SetTitle("Filtering Snippets by Display Value");
+				}
+			}
+		}
+		else
+		{
+			// Turning on Talon Search
+			showTalonSearch = true;
+			// Reset other views when showing Talon Search
+			languageAndCategoryListing = false;
+			launcher = false;
+			showAIChat = false;
+			SetTitle("Talon Voice Command Search");
 		}
 		StateHasChanged();
 	}

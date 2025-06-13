@@ -86,14 +86,13 @@ namespace WinFormsApp
 			services.AddScoped<ILauncherDataService, LauncherDataService>();
 			services.AddScoped<ICustomIntelliSenseDataService, CustomIntelliSenseDataService>();
 			services.AddScoped<IPromptDataService, PromptDataService>();
-			services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
-
-			// Add additional services
+			services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();			// Add additional services
 			services.AddScoped<GeneralLookupService>();
 			services.AddScoped<AdditionalCommandService>();
 			services.AddScoped<CustomIntellisenseService>();
 			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
-			services.AddScoped<LauncherService>();			// Add UI services
+			services.AddScoped<LauncherService>();
+			services.AddScoped<TalonVoiceCommandDataService>();// Add UI services
 			services.AddBlazoredModal();
 			services.AddBlazoredToast();
 
