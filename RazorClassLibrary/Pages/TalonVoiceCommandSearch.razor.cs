@@ -11,6 +11,8 @@ namespace RazorClassLibrary.Pages
 {
     public partial class TalonVoiceCommandSearch : ComponentBase
     {
+        private ElementReference searchInput;
+        
         public string SearchTerm { get; set; } = string.Empty;
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
@@ -29,7 +31,13 @@ namespace RazorClassLibrary.Pages
             Results = new List<TalonVoiceCommand>();
         }
 
-        protected async Task OnSearch()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await searchInput.FocusAsync();
+            }
+        }        protected async Task OnSearch()
         {
             IsLoading = true;
             HasSearched = true;
@@ -39,15 +47,21 @@ namespace RazorClassLibrary.Pages
                 var allCommands = await TalonService.SemanticSearchAsync(""); // get all
                 if (UseSemanticMatching && !string.IsNullOrWhiteSpace(SearchTerm) && SearchTerm.Length > 2)
                 {
-                    var candidates = allCommands.Select(c => (Item: c, Text: c.Command + " " + c.Script)).ToList();
+                    var candidates = allCommands.Select((c, index) => (Item: c, Text: c.Command + " " + c.Script, Index: index)).ToList();
                     using var embedder = new LocalEmbedder();
                     var matchedResults = embedder.EmbedRange(candidates.Select(x => x.Text).ToList());
                     var results = LocalEmbedder.FindClosestWithScore(embedder.Embed(SearchTerm), matchedResults, maxResults: maxResults);
-                    var resultItems = results.Select(r => r.Item).ToList();
-                    var similarityScores = results.ToDictionary(r => r.Item, r => r.Similarity);
+                    
+                    // Create a lookup that can handle duplicate keys
+                    var scoreLookup = results
+                        .GroupBy(r => r.Item)
+                        .ToDictionary(g => g.Key, g => g.Max(x => x.Similarity));
+                    
+                    var resultTexts = results.Select(r => r.Item).ToHashSet();
+                    
                     Results = candidates
-                        .Where(c => resultItems.Contains(c.Text))
-                        .OrderByDescending(c => similarityScores[c.Text])
+                        .Where(c => resultTexts.Contains(c.Text))
+                        .OrderByDescending(c => scoreLookup.GetValueOrDefault(c.Text, 0))
                         .Select(c => c.Item)
                         .ToList();
                 }
@@ -78,6 +92,12 @@ namespace RazorClassLibrary.Pages
         {
             // PreventDefault is not available in Blazor, but using @onclick on <a href="#"> avoids navigation
             await OpenFileInVSCode(filePath);
+        }        public string GetFileName(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return string.Empty;
+            
+            return System.IO.Path.GetFileName(filePath);
         }
     }
 }

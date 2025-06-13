@@ -3,51 +3,61 @@
 
 
 <div class="container mt-4">
-    <h2>Talon Voice Command Search</h2>
-    <form class="mb-3" @onsubmit="OnSearch">
-        <div class="input-group mb-2">
-            <input class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" @onblur="OnSearch" />
-            <button class="btn btn-primary" type="submit" aria-label="Search">Search</button>
+    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch">        <div class="input-group mb-2">
+            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" aria-label="Search" @onblur="OnSearch" />
+            <button class="btn btn-primary" type="submit" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                Search
+            </button>
         </div>
         <div class="form-check form-switch mb-2">
             <input class="form-check-input" type="checkbox" id="semanticToggle" @bind="UseSemanticMatching" />
             <label class="form-check-label" for="semanticToggle">Semantic Search</label>
         </div>
-    </form>
-    <div>
+    </form>    <div>
         @if (IsLoading)
         {
             <div class="spinner-border" role="status" aria-label="Loading"></div>
         }
         else if (Results?.Any() == true)
         {
-            <table class="table table-striped table-hover table-responsive" aria-label="Search Results">
-                <thead>
-                    <tr>
-                        <th>Command</th>
-                        <th>Script</th>
-                        <th>Application</th>
-                        <th>Mode</th>
-                        <th>File Path</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var cmd in Results)
-                    {
-                        <tr tabindex="0">
-                            <td>@cmd.Command</td>
-                            <td><pre>@cmd.Script</pre></td>
-                            <td>@cmd.Application</td>
-                            <td>@cmd.Mode</td>
-                            <td>
-                                <a href="#" @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" tabindex="0" class="text-decoration-underline" title="Open in VS Code">@cmd.FilePath</a>
-                            </td>
-                            <td>@cmd.CreatedAt.ToLocalTime().ToString("g")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="row" aria-label="Search Results">
+                @foreach (var cmd in Results)
+                {
+                    <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                        <div class="card h-100" tabindex="0">
+                            <div class="card-header">
+                                <h5 class="card-title mb-1">@cmd.Command</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">@cmd.Application</small>
+                                    <span class="badge bg-secondary">@cmd.Mode</span>
+                                </div>
+                            </div>
+                            <div class="card-body">                                <div class="mb-3">
+                                    <h6 class="card-subtitle text-muted">Script:</h6>
+                                    <pre class="card-text script-content p-2 rounded border">@cmd.Script</pre>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    @if (!string.IsNullOrWhiteSpace(cmd.FilePath))
+                                    {                                        <button class="btn btn-outline-primary btn-sm" 
+                                                @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" 
+                                                title="Open @cmd.FilePath in VS Code"
+                                                aria-label="Open @GetFileName(cmd.FilePath) in VS Code">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-code" viewBox="0 0 16 16">
+                                                <path d="M6.854 4.646a.5.5 0 0 1 0 .708L4.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0zM9.146 4.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L11.793 8 9.146 5.354a.5.5 0 0 1 0-.708z"/>
+                                                <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm0 1h12v12H2V2z"/>
+                                            </svg> @GetFileName(cmd.FilePath)
+                                        </button>
+                                    }
+                                    <small class="text-muted">@cmd.CreatedAt.ToLocalTime().ToString("g")</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         }
         else if (HasSearched)
         {
