@@ -142,3 +142,103 @@
     background-color: var(--bs-secondary);
     color: var(--bs-dark);
 }
+
+/* Filter dropdown color matching */
+.filter-mode {
+    border-color: var(--bs-secondary) !important;
+    background-color: rgba(var(--bs-secondary-rgb), 0.1) !important;
+}
+
+.filter-mode:focus {
+    border-color: var(--bs-secondary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-secondary-rgb), 0.25) !important;
+}
+
+.filter-tags {
+    border-color: var(--bs-warning) !important;
+    background-color: rgba(var(--bs-warning-rgb), 0.1) !important;
+}
+
+.filter-tags:focus {
+    border-color: var(--bs-warning) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-warning-rgb), 0.25) !important;
+}
+
+.filter-os {
+    border-color: var(--bs-info) !important;
+    background-color: rgba(var(--bs-info-rgb), 0.1) !important;
+}
+
+.filter-os:focus {
+    border-color: var(--bs-info) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-info-rgb), 0.25) !important;
+}
+
+.filter-repository {
+    border-color: var(--bs-primary) !important;
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+}
+
+.filter-repository:focus {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+/* Dark mode adjustments for filter dropdowns */
+[data-bs-theme="dark"] .filter-mode {
+    background-color: rgba(var(--bs-secondary-rgb), 0.15) !important;
+}
+
+[data-bs-theme="dark"] .filter-tags {
+    background-color: rgba(var(--bs-warning-rgb), 0.15) !important;
+}
+
+[data-bs-theme="dark"] .filter-os {
+    background-color: rgba(var(--bs-info-rgb), 0.15) !important;
+}
+
+[data-bs-theme="dark"] .filter-repository {
+    background-color: rgba(var(--bs-primary-rgb), 0.15) !important;
+}
+
+/* Fix dropdown option visibility in both light and dark modes */
+.filter-mode option,
+.filter-tags option,
+.filter-os option,
+.filter-repository option {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Light mode dropdown options */
+[data-bs-theme="light"] .filter-mode option,
+[data-bs-theme="light"] .filter-tags option,
+[data-bs-theme="light"] .filter-os option,
+[data-bs-theme="light"] .filter-repository option {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+}
+
+/* Dark mode dropdown options */
+[data-bs-theme="dark"] .filter-mode option,
+[data-bs-theme="dark"] .filter-tags option,
+[data-bs-theme="dark"] .filter-os option,
+[data-bs-theme="dark"] .filter-repository option {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+}
+
+/* Ensure the select elements have proper text color */
+.filter-mode,
+.filter-tags,
+.filter-os,
+.filter-repository {
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .filter-mode,
+[data-bs-theme="dark"] .filter-tags,
+[data-bs-theme="dark"] .filter-os,
+[data-bs-theme="dark"] .filter-repository {
+    color: #ffffff !important;
+}

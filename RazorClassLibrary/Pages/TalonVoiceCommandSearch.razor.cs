@@ -428,6 +428,37 @@ namespace RazorClassLibrary.Pages
             return System.IO.Path.GetFileName(filePath);
         }
 
+        public string GetTrimmedScript(string script)
+        {
+            if (string.IsNullOrWhiteSpace(script))
+                return string.Empty;
+            
+            // Split into lines, remove leading and trailing empty lines
+            var lines = script.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+            
+            // Find first non-empty line
+            int firstNonEmptyLine = 0;
+            while (firstNonEmptyLine < lines.Length && string.IsNullOrWhiteSpace(lines[firstNonEmptyLine]))
+            {
+                firstNonEmptyLine++;
+            }
+            
+            // Find last non-empty line
+            int lastNonEmptyLine = lines.Length - 1;
+            while (lastNonEmptyLine >= 0 && string.IsNullOrWhiteSpace(lines[lastNonEmptyLine]))
+            {
+                lastNonEmptyLine--;
+            }
+            
+            // If all lines are empty, return empty string
+            if (firstNonEmptyLine > lastNonEmptyLine)
+                return string.Empty;
+            
+            // Extract non-empty lines and rejoin
+            var trimmedLines = lines.Skip(firstNonEmptyLine).Take(lastNonEmptyLine - firstNonEmptyLine + 1);
+            return string.Join(Environment.NewLine, trimmedLines);
+        }
+
         public void Dispose()
         {
             _searchCancellationTokenSource?.Cancel();
