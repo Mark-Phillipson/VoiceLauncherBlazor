@@ -483,3 +483,30 @@ u {
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
+
+/* Expanded script with lists styling */
+.script-content.bg-light {
+    background-color: #f1f3f4 !important;
+    border-left: 4px solid #6f42c1;
+    position: relative;
+}
+
+[data-bs-theme="dark"] .script-content.bg-light {
+    background-color: #2a2d31 !important;
+    border-left: 4px solid #8b5cf6;
+    color: #e2e8f0 !important;
+}
+
+.card-subtitle svg {
+    vertical-align: baseline;
+}
+
+/* Visual indicator for list expansion */
+.script-content.bg-light::before {
+    content: "📋";
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    opacity: 0.6;
+    font-size: 12px;
+}

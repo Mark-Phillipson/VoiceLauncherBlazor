@@ -1231,9 +1231,9 @@ IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'20250613121500_AddRepositoryField'
 )
--- BEGIN
---     ALTER TABLE [TalonVoiceCommands] ADD [Repository] nvarchar(100) NULL;
--- END;
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Repository] nvarchar(100) NULL;
+END;
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
@@ -1248,9 +1248,9 @@ IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'20250614062301_AddTagsColumnToTalonVoiceCommands'
 )
--- BEGIN
---     ALTER TABLE [TalonVoiceCommands] ADD [Repository] nvarchar(100) NULL;
--- END;
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Repository] nvarchar(100) NULL;
+END;
 
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
@@ -1267,6 +1267,32 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'20250614062301_AddTagsColumnToTalonVoiceCommands', N'9.0.0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250614171123_AddTalonListTable'
+)
+BEGIN
+    CREATE TABLE [TalonLists] (
+        [Id] int NOT NULL IDENTITY,
+        [ListName] nvarchar(100) NOT NULL,
+        [SpokenForm] nvarchar(100) NOT NULL,
+        [ListValue] nvarchar(500) NOT NULL,
+        [SourceFile] nvarchar(250) NULL,
+        [CreatedAt] datetime2 NOT NULL,
+        [ImportedAt] datetime2 NOT NULL,
+        CONSTRAINT [PK_TalonLists] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250614171123_AddTalonListTable'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250614171123_AddTalonListTable', N'9.0.0');
 END;
 
 COMMIT;

@@ -4,12 +4,15 @@
 
 <div class="container mt-4">
     <h2>Import Talon Scripts</h2>
-    <p>Import .talon files into the database for semantic search and management.</p>
-    <div class="mb-3">
+    <p>Import .talon files into the database for semantic search and management.</p>    <div class="mb-3">
         <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
     </div>
     <button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>
-    <button class="btn btn-secondary ms-2" @onclick="ImportAllFromDirectory" aria-label="Import All">Import All from Directory</button>
+    
+    <div class="mb-3 mt-3">
+        <input class="form-control" type="text" @bind="DirectoryPath" placeholder="Directory to import all .talon files from..." aria-label="Directory path" />
+    </div>
+    <button class="btn btn-secondary" @onclick="ImportAllFromDirectory" aria-label="Import All">Import All from Directory</button>
     <div class="mt-3">
         @if (IsLoading)
         {
@@ -34,9 +37,14 @@
             <div class="alert alert-danger" role="alert">
                 @ErrorMessage
             </div>
-        }
-    </div>
-    <div class="mb-3 mt-3">
-        <input class="form-control" type="text" @bind="DirectoryPath" placeholder="Directory to import all .talon files from..." aria-label="Directory path" />
-    </div>
+        }    </div>
+    
+    <hr />
+    
+    <h3>Import Talon Lists</h3>
+    <p>Import your exported TalonLists.txt file to enable list expansion in search results.</p>
+    <div class="mb-3">
+        <input class="form-control" type="text" @bind="ListsFilePath" placeholder="Path to TalonLists.txt file..." aria-label="Lists file path" />
+    </div>    <button class="btn btn-primary" @onclick="ImportListsFromFile" disabled="@IsLoading" aria-label="Import Lists">Import Lists</button>
+    
 </div>

@@ -41,8 +41,8 @@ namespace RazorClassLibrary.Pages
         public IJSRuntime? JSRuntime { get; set; }
 
         private List<TalonVoiceCommand>? _allCommandsCache;
-        private bool _isLoadingFilters = false;
-        private CancellationTokenSource? _searchCancellationTokenSource;
+        private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
+        private Dictionary<int, string> _expandedScriptsCache = new();
 
         private static bool _staticFiltersLoaded = false;
         private static List<string> _staticAvailableApplications = new();
@@ -201,32 +201,32 @@ namespace RazorClassLibrary.Pages
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }
-
-        protected async Task OnSearch()
+        }        protected async Task OnSearch()
         {
-            // Don't search if no criteria are specified - check for default filter states
-            bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
-            bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
-            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
-            bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
-            bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
-            bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
-            
-            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter)
+            try
             {
-                Results = new List<TalonVoiceCommand>();
-                HasSearched = false;
-                await EnsureSearchFocus();
-                return;
-            }
+                // Don't search if no criteria are specified - check for default filter states
+                bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
+                bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
+                bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
+                bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+                bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
+                bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
+                
+                if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter)
+                {
+                    Results = new List<TalonVoiceCommand>();
+                    HasSearched = false;
+                    await EnsureSearchFocus();
+                    return;
+                }
 
-            IsLoading = true;
-            HasSearched = true;
-            StateHasChanged();
-            
-            // Small delay to ensure spinner is visible
-            await Task.Delay(100);
+                IsLoading = true;
+                HasSearched = true;
+                StateHasChanged();
+                
+                // Small delay to ensure spinner is visible
+                await Task.Delay(100);
             
             if (TalonService is not null)
             {
@@ -263,30 +263,59 @@ namespace RazorClassLibrary.Pages
                         c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
                 }
-                
-                if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
+                  if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
                 {
-                    var candidates = filteredCommands.Select((c, index) => (Item: c, Text: c.Command + " " + c.Script, Index: index)).ToList();
-                    using var embedder = new LocalEmbedder();
-                    var matchedResults = embedder.EmbedRange(candidates.Select(x => x.Text).ToList());
-                    var results = LocalEmbedder.FindClosestWithScore(embedder.Embed(SearchTerm), matchedResults, maxResults: maxResults);
+                    // Use list-aware semantic search
+                    var semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm);
                     
-                    // Create a lookup that can handle duplicate keys
-                    var scoreLookup = results
-                        .GroupBy(r => r.Item)
-                        .ToDictionary(g => g.Key, g => g.Max(x => x.Similarity));
+                    // Apply filters to semantic results
+                    var finalResults = semanticResults.AsEnumerable();
                     
-                    var resultTexts = results.Select(r => r.Item).ToHashSet();
+                    if (hasApplicationFilter)
+                    {
+                        finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                    }
                     
-                    Results = candidates
-                        .Where(c => resultTexts.Contains(c.Text))
-                        .OrderByDescending(c => scoreLookup.GetValueOrDefault(c.Text, 0))
-                        .ThenBy(c => c.Item.Mode ?? "")
-                        .ThenBy(c => c.Item.Application)
-                        .ThenBy(c => c.Item.Command)
-                        .Select(c => c.Item)
-                        .ToList();
-                }                else
+                    if (hasModeFilter)
+                    {
+                        finalResults = finalResults.Where(c => c.Mode == SelectedMode);
+                    }
+                    
+                    if (hasOSFilter)
+                    {
+                        finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
+                    }
+                    
+                    if (hasRepositoryFilter)
+                    {
+                        finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
+                    }
+                    
+                    if (hasTagsFilter)
+                    {
+                        finalResults = finalResults.Where(c => 
+                            !string.IsNullOrWhiteSpace(c.Tags) && 
+                            c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                    }
+                    
+                    Results = finalResults.Take(maxResults).ToList();
+                    
+                    // Precompute expanded scripts for commands that contain lists
+                    _expandedScriptsCache.Clear();
+                    foreach (var cmd in Results.Where(c => ScriptContainsLists(c.Script)))
+                    {
+                        try
+                        {
+                            var expandedScript = await TalonService.ExpandListsInScriptAsync(cmd.Script);
+                            _expandedScriptsCache[cmd.Id] = expandedScript;
+                        }
+                        catch
+                        {
+                            _expandedScriptsCache[cmd.Id] = cmd.Script; // Fallback to original script
+                        }
+                    }
+                }else
                 {
                     // Apply text search on filtered results
                     if (hasSearchTerm)
@@ -301,8 +330,7 @@ namespace RazorClassLibrary.Pages
                             .ToList();
                     }
                     else
-                    {
-                        Results = filteredCommands
+                    {                        Results = filteredCommands
                             .OrderBy(c => c.Mode ?? "")
                             .ThenBy(c => c.Application)
                             .ThenBy(c => c.Command)
@@ -310,13 +338,26 @@ namespace RazorClassLibrary.Pages
                             .ToList();
                     }
                 }
+                
+                // Precompute expanded scripts for commands that contain lists
+                _expandedScriptsCache.Clear();
+                foreach (var cmd in Results.Where(c => ScriptContainsLists(c.Script)))
+                {
+                    try
+                    {
+                        var expandedScript = await TalonService.ExpandListsInScriptAsync(cmd.Script);
+                        _expandedScriptsCache[cmd.Id] = expandedScript;
+                    }
+                    catch
+                    {
+                        _expandedScriptsCache[cmd.Id] = cmd.Script; // Fallback to original script
+                    }
+                }
             }
             else
             {
                 Results = new List<TalonVoiceCommand>();
-            }
-
-            IsLoading = false;
+            }            IsLoading = false;
             StateHasChanged();
             
             // Only restore focus if the search was triggered intentionally
@@ -326,6 +367,19 @@ namespace RazorClassLibrary.Pages
                 await EnsureSearchFocus();
             }
         }
+        catch (Exception ex)
+        {
+            // Log the error and show user-friendly message
+            Console.WriteLine($"Search error: {ex.Message}");
+            Results = new List<TalonVoiceCommand>();
+            HasSearched = true;
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
 
         public async Task ClearFilters()
         {
@@ -459,6 +513,32 @@ namespace RazorClassLibrary.Pages
             return string.Join(Environment.NewLine, trimmedLines);
         }
 
+        public string GetExpandedScript(int commandId, string originalScript)
+        {
+            return _expandedScriptsCache.TryGetValue(commandId, out var expandedScript) 
+                ? expandedScript 
+                : originalScript;
+        }
+
+        public async Task<string> GetExpandedScriptAsync(string script)
+        {
+            if (TalonService == null)
+                return script;
+                
+            try
+            {
+                return await TalonService.ExpandListsInScriptAsync(script);
+            }
+            catch
+            {
+                return script; // Return original script if expansion fails
+            }
+        }
+
+        public bool ScriptContainsLists(string script)
+        {
+            return !string.IsNullOrEmpty(script) && script.Contains('{') && script.Contains('}');
+        }
         public void Dispose()
         {
             _searchCancellationTokenSource?.Cancel();

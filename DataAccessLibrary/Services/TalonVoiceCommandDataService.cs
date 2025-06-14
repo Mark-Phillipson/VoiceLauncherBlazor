@@ -297,11 +297,181 @@ namespace DataAccessLibrary.Services
                 var commandsFromThisFile = await ImportTalonFileContentAsync(content, file);
                 totalImported += commandsFromThisFile;
                 filesProcessed++;
-                
-                // Report progress: (filesProcessed, totalFiles, totalCommandsSoFar)
+                  // Report progress: (filesProcessed, totalFiles, totalCommandsSoFar)
                 progressCallback?.Invoke(filesProcessed, talonFiles.Length, totalImported);
             }
             return totalImported;
+        }
+
+        /// <summary>
+        /// Imports Talon lists from the TalonLists.txt file
+        /// </summary>
+        public async Task<int> ImportTalonListsFromFileAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"TalonLists.txt file not found at: {filePath}");
+
+            var lines = await File.ReadAllLinesAsync(filePath);
+            var talonLists = new List<TalonList>();
+            
+            string? currentListName = null;
+            
+            foreach (var line in lines)
+            {
+                var trimmedLine = line.Trim();
+                
+                // Skip empty lines and header
+                if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith("All Talon Lists"))
+                    continue;
+                
+                // Check for list definition: "List: user.list_name"
+                if (trimmedLine.StartsWith("List: "))
+                {
+                    currentListName = trimmedLine.Substring(6); // Remove "List: " prefix
+                    continue;
+                }
+                
+                // Check for list item: "  - spoken_form: list_value"
+                if (trimmedLine.StartsWith("- ") && currentListName != null)
+                {
+                    var itemContent = trimmedLine.Substring(2); // Remove "- " prefix
+                    var colonIndex = itemContent.IndexOf(':');
+                    
+                    if (colonIndex > 0)
+                    {
+                        var spokenForm = itemContent.Substring(0, colonIndex).Trim();
+                        var listValue = itemContent.Substring(colonIndex + 1).Trim();
+                        
+                        talonLists.Add(new TalonList
+                        {
+                            ListName = currentListName,
+                            SpokenForm = spokenForm,
+                            ListValue = listValue
+                        });
+                    }
+                }
+            }
+            
+            // Clear existing lists and add new ones
+            _context.TalonLists.RemoveRange(_context.TalonLists);
+            await _context.SaveChangesAsync();
+            
+            _context.TalonLists.AddRange(talonLists);
+            await _context.SaveChangesAsync();
+            
+            return talonLists.Count;
+        }
+
+        /// <summary>
+        /// Expands list references in a script (e.g., {user.git_argument} becomes the actual list values)
+        /// </summary>
+        public async Task<string> ExpandListsInScriptAsync(string script)
+        {
+            if (string.IsNullOrEmpty(script) || !script.Contains("{"))
+                return script;
+
+            var pattern = @"\{([^}]+)\}";
+            var matches = Regex.Matches(script, pattern);
+            var expandedScript = script;
+
+            foreach (Match match in matches)
+            {
+                var listReference = match.Groups[1].Value; // e.g., "user.git_argument"
+                
+                // Try to find the list with exact name match first
+                var listValues = await _context.TalonLists
+                    .Where(l => l.ListName == listReference)
+                    .Select(l => l.SpokenForm)
+                    .ToListAsync();
+
+                // If not found and the reference doesn't start with "user.", try adding "user." prefix
+                if (!listValues.Any() && !listReference.StartsWith("user."))
+                {
+                    listValues = await _context.TalonLists
+                        .Where(l => l.ListName == $"user.{listReference}")
+                        .Select(l => l.SpokenForm)
+                        .ToListAsync();
+                }
+
+                if (listValues.Any())
+                {
+                    // Show first few values with an indication if there are more
+                    var displayValues = listValues.Take(5).ToList();
+                    var expandedList = displayValues.Count < listValues.Count 
+                        ? $"[{string.Join(" | ", displayValues)} | ... and {listValues.Count - displayValues.Count} more]"
+                        : $"[{string.Join(" | ", displayValues)}]";
+                    expandedScript = expandedScript.Replace(match.Value, expandedList);
+                }
+                else
+                {
+                    // If no list found, indicate this in the expansion
+                    expandedScript = expandedScript.Replace(match.Value, $"[{listReference} - list not found]");
+                }
+            }
+
+            return expandedScript;
+        }
+
+        /// <summary>
+        /// Enhanced search that includes list expansions and searches within list values
+        /// </summary>
+        public async Task<List<TalonVoiceCommand>> SemanticSearchWithListsAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
+            }
+
+            var lowerTerm = searchTerm.ToLower();
+            
+            // First, get commands that match directly
+            var directMatches = await _context.TalonVoiceCommands
+                .Where(c => c.Command.ToLower().Contains(lowerTerm) || 
+                           c.Script.ToLower().Contains(lowerTerm) || 
+                           c.Application.ToLower().Contains(lowerTerm) || 
+                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)))
+                .ToListAsync();
+
+            // Also search within list values that might be referenced
+            var listMatches = await _context.TalonLists
+                .Where(l => l.SpokenForm.ToLower().Contains(lowerTerm) || 
+                           l.ListValue.ToLower().Contains(lowerTerm))
+                .Select(l => l.ListName)
+                .Distinct()
+                .ToListAsync();
+
+            // Find commands that reference these lists
+            var listReferencingCommands = new List<TalonVoiceCommand>();
+            foreach (var listName in listMatches)
+            {
+                var shortListName = listName.Replace("user.", "");
+                var commandsWithListRefs = await _context.TalonVoiceCommands
+                    .Where(c => c.Script.Contains($"{{{listName}}}") || 
+                               c.Script.Contains($"{{{shortListName}}}"))
+                    .ToListAsync();
+                listReferencingCommands.AddRange(commandsWithListRefs);
+            }
+
+            // Combine and deduplicate results
+            var allMatches = directMatches.Union(listReferencingCommands, new TalonVoiceCommandComparer())
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(100)
+                .ToList();
+
+            return allMatches;
+        }
+
+        // Helper class for deduplicating commands
+        private class TalonVoiceCommandComparer : IEqualityComparer<TalonVoiceCommand>
+        {
+            public bool Equals(TalonVoiceCommand? x, TalonVoiceCommand? y)
+            {
+                if (x == null && y == null) return true;
+                if (x == null || y == null) return false;
+                return x.Id == y.Id;
+            }            public int GetHashCode(TalonVoiceCommand obj)
+            {
+                return obj?.Id.GetHashCode() ?? 0;            }
         }
     }
 }

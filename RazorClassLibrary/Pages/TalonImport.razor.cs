@@ -16,6 +16,7 @@ namespace RazorClassLibrary.Pages
         public string? ImportResult { get; set; }
         public string? ErrorMessage { get; set; }
         public string? DirectoryPath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user";
+        public string? ListsFilePath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user\mystuff\talon_my_stuff\TalonLists.txt";
         public int ImportProgress { get; set; } = 0;
         public int ImportTotal { get; set; } = 0;
 
@@ -85,6 +86,34 @@ namespace RazorClassLibrary.Pages
             catch (Exception ex)
             {
                 ErrorMessage = $"Error importing from directory: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        protected async Task ImportListsFromFile()
+        {
+            if (string.IsNullOrWhiteSpace(ListsFilePath))
+            {
+                ErrorMessage = "Please provide a valid path to the TalonLists.txt file.";
+                return;
+            }
+
+            IsLoading = true;
+            ImportResult = null;
+            ErrorMessage = null;
+            StateHasChanged();
+
+            try
+            {
+                var listsImported = await TalonServiceField.ImportTalonListsFromFileAsync(ListsFilePath);
+                ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error importing lists: {ex.Message}";
             }
             finally
             {
