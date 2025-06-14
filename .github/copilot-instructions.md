@@ -48,3 +48,13 @@
 - Create the commandline  commands for copying pasting
 - Do not run the commands directly
 - Always create a script and do not use "Update Database."
+
+## Database Configuration
+- **Database Type**: SQL Server (not SQLite)
+- **Entity Framework**: Uses Entity Framework Core with SQL Server provider
+- **Connection**: The application connects to a SQL Server database
+- **SQL Syntax**: When writing SQL queries, use SQL Server T-SQL syntax, not SQLite syntax
+- **Examples**:
+  - Use `SELECT TOP 10` instead of `LIMIT 10`
+  - Use `ISNULL()` instead of `IFNULL()`
+  - Use SQL Server date functions like `GETDATE()` instead of SQLite equivalents

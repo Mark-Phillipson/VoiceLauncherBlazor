@@ -8,6 +8,7 @@ using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Web;
 using System.Threading;
 using System;
+using System.Text.RegularExpressions;
 
 namespace RazorClassLibrary.Pages
 {
@@ -533,11 +534,21 @@ namespace RazorClassLibrary.Pages
             {
                 return script; // Return original script if expansion fails
             }
-        }
-
-        public bool ScriptContainsLists(string script)
+        }        public bool ScriptContainsLists(string script)
         {
-            return !string.IsNullOrEmpty(script) && script.Contains('{') && script.Contains('}');
+            if (string.IsNullOrEmpty(script))
+                return false;
+
+            // Pattern 1: Check for {list_name} references
+            if (script.Contains('{') && script.Contains('}'))
+                return true;
+
+            // Pattern 2: Check for function call patterns that might contain list references
+            // Common Talon functions that often use lists: key, insert, type, press, etc.
+            var functionPattern = @"(\w+)\(([a-zA-Z_][a-zA-Z0-9_]*)\)";
+            var matches = Regex.Matches(script, functionPattern);
+            
+            return matches.Count > 0;
         }
         public void Dispose()
         {

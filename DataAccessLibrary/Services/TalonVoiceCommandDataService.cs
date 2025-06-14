@@ -360,56 +360,86 @@ namespace DataAccessLibrary.Services
             await _context.SaveChangesAsync();
             
             return talonLists.Count;
-        }
-
-        /// <summary>
-        /// Expands list references in a script (e.g., {user.git_argument} becomes the actual list values)
+        }        /// <summary>
+        /// Expands list references in a script, handling both {list_name} and function call patterns like key(arrow_key)
         /// </summary>
         public async Task<string> ExpandListsInScriptAsync(string script)
         {
-            if (string.IsNullOrEmpty(script) || !script.Contains("{"))
+            if (string.IsNullOrEmpty(script))
                 return script;
 
-            var pattern = @"\{([^}]+)\}";
-            var matches = Regex.Matches(script, pattern);
             var expandedScript = script;
 
-            foreach (Match match in matches)
+            // Pattern 1: Handle {list_name} references
+            if (script.Contains("{"))
             {
-                var listReference = match.Groups[1].Value; // e.g., "user.git_argument"
-                
-                // Try to find the list with exact name match first
-                var listValues = await _context.TalonLists
-                    .Where(l => l.ListName == listReference)
-                    .Select(l => l.SpokenForm)
-                    .ToListAsync();
+                var curlyBracePattern = @"\{([^}]+)\}";
+                var curlyMatches = Regex.Matches(script, curlyBracePattern);
 
-                // If not found and the reference doesn't start with "user.", try adding "user." prefix
-                if (!listValues.Any() && !listReference.StartsWith("user."))
+                foreach (Match match in curlyMatches)
                 {
-                    listValues = await _context.TalonLists
-                        .Where(l => l.ListName == $"user.{listReference}")
-                        .Select(l => l.SpokenForm)
-                        .ToListAsync();
-                }
-
-                if (listValues.Any())
-                {
-                    // Show first few values with an indication if there are more
-                    var displayValues = listValues.Take(5).ToList();
-                    var expandedList = displayValues.Count < listValues.Count 
-                        ? $"[{string.Join(" | ", displayValues)} | ... and {listValues.Count - displayValues.Count} more]"
-                        : $"[{string.Join(" | ", displayValues)}]";
+                    var listReference = match.Groups[1].Value; // e.g., "user.git_argument"
+                    var expandedList = await GetExpandedListString(listReference);
                     expandedScript = expandedScript.Replace(match.Value, expandedList);
                 }
-                else
+            }
+
+            // Pattern 2: Handle function call patterns like key(arrow_key), insert(text), etc.
+            var functionPattern = @"(\w+)\(([a-zA-Z_][a-zA-Z0-9_]*)\)";
+            var functionMatches = Regex.Matches(expandedScript, functionPattern);
+
+            foreach (Match match in functionMatches)
+            {
+                var functionName = match.Groups[1].Value; // e.g., "key", "insert"
+                var parameter = match.Groups[2].Value; // e.g., "arrow_key", "text"
+                
+                // Check if the parameter is a list reference
+                var expandedList = await GetExpandedListString(parameter);
+                
+                // Only replace if we found a matching list (not a "list not found" message)
+                if (!expandedList.Contains("list not found"))
                 {
-                    // If no list found, indicate this in the expansion
-                    expandedScript = expandedScript.Replace(match.Value, $"[{listReference} - list not found]");
+                    var replacement = $"{functionName}({expandedList})";
+                    expandedScript = expandedScript.Replace(match.Value, replacement);
                 }
             }
 
             return expandedScript;
+        }
+
+        /// <summary>
+        /// Helper method to get expanded list string for a given list reference
+        /// </summary>
+        private async Task<string> GetExpandedListString(string listReference)
+        {
+            // Try to find the list with exact name match first
+            var listValues = await _context.TalonLists
+                .Where(l => l.ListName == listReference)
+                .Select(l => l.SpokenForm)
+                .ToListAsync();
+
+            // If not found and the reference doesn't start with "user.", try adding "user." prefix
+            if (!listValues.Any() && !listReference.StartsWith("user."))
+            {
+                listValues = await _context.TalonLists
+                    .Where(l => l.ListName == $"user.{listReference}")
+                    .Select(l => l.SpokenForm)
+                    .ToListAsync();
+            }
+
+            if (listValues.Any())
+            {
+                // Show first few values with an indication if there are more
+                var displayValues = listValues.Take(5).ToList();
+                return displayValues.Count < listValues.Count 
+                    ? $"[{string.Join(" | ", displayValues)} | ... and {listValues.Count - displayValues.Count} more]"
+                    : $"[{string.Join(" | ", displayValues)}]";
+            }
+            else
+            {
+                // If no list found, indicate this in the expansion
+                return $"[{listReference} - list not found]";
+            }
         }
 
         /// <summary>
