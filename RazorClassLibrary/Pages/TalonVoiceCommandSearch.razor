@@ -1,27 +1,28 @@
 @page "/talon-voice-command-search"
 @using DataAccessLibrary.Models
+@using Microsoft.AspNetCore.Components
 
 
 <div class="container mt-4">
-    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        <div class="input-group mb-2">
-            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts..." @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" /><button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading">
+    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        <div class="input-group mb-2">            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="e">
                 @if (IsLoading)
                 {
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Searching...</span>
                 }
                 else
                 {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
                         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>                }                
-                    @(IsLoading ? "Searching..." : "Search")
+                    </svg>
+                    <span>S<u>e</u>arch</span>
+                }
             </button>
         </div>        <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" />
-            <label class="form-check-label" for="semanticToggle">Semantic Search</label>
-        </div>        <div class="row mb-2">
-            <div class="col-md-3">
-                <label class="form-label small">Filter by Application:</label>                <select class="form-select form-select-sm" @onchange="OnApplicationFilterChange" aria-label="Filter by Application" disabled="@IsLoading" value="@SelectedApplication">
+            <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
+            <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
+        </div><div class="row mb-2">            <div class="col-md-3">
+                <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label><select class="form-select form-select-sm" @onchange="OnApplicationFilterChange" aria-label="Filter by Application" disabled="@IsLoading" value="@SelectedApplication" accesskey="a">
                     <option value="">All Applications</option>
                     @if (AvailableApplications != null)
                     {
@@ -32,7 +33,7 @@
                     }
                 </select>
             </div>            <div class="col-md-3">
-                <label class="form-label small">Filter by Mode:</label>                <select class="form-select form-select-sm filter-mode" @onchange="OnModeFilterChange" aria-label="Filter by Mode" disabled="@IsLoading" value="@SelectedMode">
+                <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label><select class="form-select form-select-sm filter-mode" @onchange="OnModeFilterChange" aria-label="Filter by Mode" disabled="@IsLoading" value="@SelectedMode" accesskey="m">
                     <option value="">All Modes</option>
                     @if (AvailableModes != null)
                     {
@@ -43,7 +44,7 @@
                     }
                 </select>
             </div>            <div class="col-md-3">
-                <label class="form-label small">Filter by Tags:</label>                <select class="form-select form-select-sm filter-tags" @onchange="OnTagsFilterChange" aria-label="Filter by Tags" disabled="@IsLoading" value="@SelectedTags">
+                <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label><select class="form-select form-select-sm filter-tags" @onchange="OnTagsFilterChange" aria-label="Filter by Tags" disabled="@IsLoading" value="@SelectedTags" accesskey="t">
                     <option value="">All Tags</option>
                     @if (AvailableTags != null)
                     {
@@ -54,7 +55,7 @@
                     }
                 </select>
             </div>            <div class="col-md-3">
-                <label class="form-label small">Filter by OS:</label>                <select class="form-select form-select-sm filter-os" @onchange="OnOSFilterChange" aria-label="Filter by Operating System" disabled="@IsLoading" value="@SelectedOperatingSystem">
+                <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label><select class="form-select form-select-sm filter-os" @onchange="OnOSFilterChange" aria-label="Filter by Operating System" disabled="@IsLoading" value="@SelectedOperatingSystem" accesskey="o">
                     <option value="">All Operating Systems</option>
                     @if (AvailableOperatingSystems != null)
                     {
@@ -66,7 +67,7 @@
                 </select>
             </div>
         </div>        <div class="row mb-2">            <div class="col-md-3">
-                <label class="form-label small">Filter by Repository:</label>                <select class="form-select form-select-sm filter-repository" @onchange="OnRepositoryFilterChange" aria-label="Filter by Repository" disabled="@IsLoading" value="@SelectedRepository">
+                <label class="form-label small label-repository">Filter by <span class="underline-repository">R</span>epository:</label><select class="form-select form-select-sm filter-repository" @onchange="OnRepositoryFilterChange" aria-label="Filter by Repository" disabled="@IsLoading" value="@SelectedRepository" accesskey="r">
                     <option value="">All Repositories</option>
                     @if (AvailableRepositories != null)
                     {
@@ -76,12 +77,11 @@
                         }
                     }
                 </select>
-            </div>            <div class="col-md-9 d-flex align-items-end justify-content-between">
-                <div>
-                    <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ClearFilters" type="button" disabled="@IsLoading">
+            </div><div class="col-md-9 d-flex align-items-end justify-content-between">                <div>                    <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Clearing...</span>
                         }
                         else
                         {
@@ -89,13 +89,13 @@
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
                             </svg>
+                            <span><u>C</u>lear Filters</span>
                         }
-                        @(IsLoading ? "Clearing..." : "Clear Filters")
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading">
+                    </button>                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Refreshing...</span>
                         }
                         else
                         {
@@ -103,8 +103,8 @@
                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
                             </svg>
+                            <span>Re<u>f</u>resh Filters</span>
                         }
-                        @(IsLoading ? "Refreshing..." : "Refresh Filters")
                     </button>
                 </div>
                 @if (Results?.Any() == true)
@@ -136,25 +136,24 @@
                         <div class="card h-100" tabindex="0">                            <div class="card-header">
                                 <h5 class="card-title mb-1">@cmd.Command</h5>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">
-                                        @if (!string.IsNullOrWhiteSpace(cmd.Mode))
+                                    <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">                                        @if (!string.IsNullOrWhiteSpace(cmd.Mode))
                                         {
-                                            <span class="badge bg-secondary">@cmd.Mode</span>
+                                            <span class="badge bg-secondary badge-with-underline badge-mode" title="Filter by Mode (Alt+M)">@cmd.Mode</span>
                                         }
                                         @if (!string.IsNullOrWhiteSpace(cmd.Tags))
                                         {
                                             @foreach (var tag in cmd.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()))
                                             {
-                                                <span class="badge bg-warning text-dark">@tag</span>
+                                                <span class="badge bg-warning text-dark badge-with-underline badge-tags" title="Filter by Tags (Alt+T)">@tag</span>
                                             }
                                         }
                                         @if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem))
                                         {
-                                            <span class="badge bg-info">@cmd.OperatingSystem</span>
+                                            <span class="badge bg-info badge-with-underline badge-os" title="Filter by OS (Alt+O)">@cmd.OperatingSystem</span>
                                         }
                                         @if (!string.IsNullOrWhiteSpace(cmd.Repository))
                                         {
-                                            <span class="badge bg-primary">@cmd.Repository</span>
+                                            <span class="badge bg-primary badge-with-underline badge-repository" title="Filter by Repository (Alt+R)">@cmd.Repository</span>
                                         }
                                     </div>
                                 </div>

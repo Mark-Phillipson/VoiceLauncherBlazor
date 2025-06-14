@@ -31,9 +31,8 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableModes { get; set; } = new();
         public List<string> AvailableOperatingSystems { get; set; } = new();
         public List<string> AvailableRepositories { get; set; } = new();
-        public List<string> AvailableTags { get; set; } = new();
-        
-        private int maxResults = 20;
+        public List<string> AvailableTags { get; set; } = new();        
+        private int maxResults = 100;
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }
@@ -287,8 +286,7 @@ namespace RazorClassLibrary.Pages
                         .ThenBy(c => c.Item.Command)
                         .Select(c => c.Item)
                         .ToList();
-                }
-                else
+                }                else
                 {
                     // Apply text search on filtered results
                     if (hasSearchTerm)
@@ -299,6 +297,7 @@ namespace RazorClassLibrary.Pages
                             .OrderBy(c => c.Mode ?? "")
                             .ThenBy(c => c.Application)
                             .ThenBy(c => c.Command)
+                            .Take(maxResults)
                             .ToList();
                     }
                     else
@@ -307,6 +306,7 @@ namespace RazorClassLibrary.Pages
                             .OrderBy(c => c.Mode ?? "")
                             .ThenBy(c => c.Application)
                             .ThenBy(c => c.Command)
+                            .Take(maxResults)
                             .ToList();
                     }
                 }

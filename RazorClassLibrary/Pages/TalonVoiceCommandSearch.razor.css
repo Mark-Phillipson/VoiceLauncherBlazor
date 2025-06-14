@@ -242,3 +242,244 @@
 [data-bs-theme="dark"] .filter-repository {
     color: #ffffff !important;
 }
+
+/* Access key styling */
+[accesskey] {
+    position: relative;
+}
+
+/* Make underlined access keys more visible */
+u {
+    text-decoration: underline;
+    text-decoration-color: var(--bs-primary);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+/* Button access key styling */
+.btn u {
+    text-decoration-color: currentColor;
+}
+
+/* Label access key styling */
+.form-label u {
+    text-decoration-color: var(--bs-primary);
+    font-weight: 600;
+}
+
+/* Specific colored underlines for different filter types - MUST come after general rule */
+.label-application u {
+    text-decoration-color: var(--bs-primary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+.label-mode u {
+    text-decoration-color: var(--bs-secondary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+.label-tags u {
+    text-decoration-color: var(--bs-warning) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+.label-os u {
+    text-decoration-color: var(--bs-info) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+.label-repository u {
+    text-decoration-color: var(--bs-primary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+/* Dark mode access key adjustments */
+[data-bs-theme="dark"] u {
+    text-decoration-color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .form-label u {
+    text-decoration-color: var(--bs-info);
+}
+
+/* Dark mode specific colored underlines - MUST come after general dark mode rules */
+[data-bs-theme="dark"] .label-application u {
+    text-decoration-color: var(--bs-primary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-mode u {
+    text-decoration-color: var(--bs-secondary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-tags u {
+    text-decoration-color: var(--bs-warning) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-os u {
+    text-decoration-color: var(--bs-info) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-repository u {
+    text-decoration-color: var(--bs-primary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+/* Hover effects for access key elements */
+[accesskey]:hover u,
+[accesskey]:focus u {
+    text-decoration-thickness: 3px;
+    text-shadow: 0 0 2px var(--bs-primary);
+}
+
+/* Button hover effects for access keys */
+.btn:hover u,
+.btn:focus u {
+    text-shadow: 0 0 2px currentColor;
+}
+
+/* Enhanced button access key styling */
+.btn-primary u {
+    text-decoration-color: #ffffff !important;
+    font-weight: 600;
+}
+
+.btn-outline-secondary u {
+    text-decoration-color: var(--bs-secondary) !important;
+}
+
+.btn-outline-primary u {
+    text-decoration-color: var(--bs-primary) !important;
+}
+
+/* Badge underlines to match filter colors */
+.badge-with-underline {
+    position: relative;
+    border-bottom: 3px solid transparent;
+    padding-bottom: 2px;
+}
+
+.badge-mode {
+    border-bottom-color: var(--bs-secondary) !important;
+}
+
+.badge-tags {
+    border-bottom-color: var(--bs-warning) !important;
+}
+
+.badge-os {
+    border-bottom-color: var(--bs-info) !important;
+}
+
+.badge-repository {
+    border-bottom-color: var(--bs-primary) !important;
+}
+
+/* Hover effects for badges */
+.badge-with-underline:hover {
+    border-bottom-width: 4px;
+    transform: translateY(-1px);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Dark mode adjustments for badge underlines */
+[data-bs-theme="dark"] .badge-mode {
+    border-bottom-color: var(--bs-secondary) !important;
+}
+
+[data-bs-theme="dark"] .badge-tags {
+    border-bottom-color: var(--bs-warning) !important;
+}
+
+[data-bs-theme="dark"] .badge-os {
+    border-bottom-color: var(--bs-info) !important;
+}
+
+[data-bs-theme="dark"] .badge-repository {
+    border-bottom-color: var(--bs-primary) !important;
+}
+
+/* Additional visual enhancement for badge connection to filters */
+.badge-with-underline {
+    cursor: help;
+    transition: all 0.2s ease-in-out;
+}
+
+.badge-with-underline:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bs-dark);
+    color: var(--bs-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Colored underlines for filter label access keys */
+.underline-application {
+    text-decoration: underline;
+    text-decoration-color: #ffffff;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+[data-bs-theme="dark"] .underline-application {
+    text-decoration-color: #f8f9fa;
+}
+
+.underline-mode {
+    text-decoration: underline;
+    text-decoration-color: #6c757d;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-tags {
+    text-decoration: underline;
+    text-decoration-color: #ffc107;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-os {
+    text-decoration: underline;
+    text-decoration-color: #0dcaf0;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-repository {
+    text-decoration: underline;
+    text-decoration-color: #0d6efd;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
