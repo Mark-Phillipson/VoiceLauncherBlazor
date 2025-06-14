@@ -67,7 +67,8 @@ namespace DataAccessLibrary.Services
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 string application = "global";
-                string? mode = null;
+                List<string> modes = new();
+                List<string> tags = new();
                 string? operatingSystem = null;
                 bool inCommandsSection = false;
                 for (int i = 0; i < lines.Length; i++)
@@ -94,7 +95,19 @@ namespace DataAccessLibrary.Services
                             application = line.Substring(12).Trim();
                         }                        else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                         {
-                            mode = line.Substring(5).Trim();
+                            var modeValue = line.Substring(5).Trim();
+                            if (!string.IsNullOrEmpty(modeValue))
+                            {
+                                modes.Add(modeValue);
+                            }
+                        }
+                        else if (line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var tagValue = line.Substring(4).Trim();
+                            if (!string.IsNullOrEmpty(tagValue))
+                            {
+                                tags.Add(tagValue);
+                            }
                         }
                         else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
                         {
@@ -127,10 +140,11 @@ namespace DataAccessLibrary.Services
                             Command = command.Length > 100 ? command.Substring(0, 100) : command,
                             Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
                             Application = application.Length > 100 ? application.Substring(0, 100) : application,
-                            Mode = mode != null && mode.Length > 100 ? mode.Substring(0, 100) : mode,
+                            Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
                             OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                             FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
                             Repository = ExtractRepositoryFromPath(file),
+                            Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)) : null,
                             CreatedAt = File.GetCreationTimeUtc(file)                        });
                         
                         // Debug logging - remove after testing
@@ -166,9 +180,9 @@ namespace DataAccessLibrary.Services
         {
             // Do NOT clear the table here; only add new commands
             var commands = new List<TalonVoiceCommand>();
-            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-            string application = "global";
+            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);            string application = "global";
             List<string> modes = new();
+            List<string> tags = new();
             string? operatingSystem = null;
             bool inCommandsSection = false;
             for (int i = 0; i < lines.Length; i++)
@@ -189,13 +203,20 @@ namespace DataAccessLibrary.Services
                     }
                     else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
                     {
-                        application = line.Substring(12).Trim();
-                    }                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
+                        application = line.Substring(12).Trim();                    }                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                     {
                         var modeValue = line.Substring(5).Trim();
                         if (!string.IsNullOrEmpty(modeValue))
                         {
                             modes.Add(modeValue);
+                        }
+                    }
+                    else if (line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var tagValue = line.Substring(4).Trim();
+                        if (!string.IsNullOrEmpty(tagValue))
+                        {
+                            tags.Add(tagValue);
                         }
                     }
                     else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
@@ -224,10 +245,11 @@ namespace DataAccessLibrary.Services
                         Command = command.Length > 100 ? command.Substring(0, 100) : command,
                         Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
                         Application = application.Length > 100 ? application.Substring(0, 100) : application,
-                        Mode = modes.Count > 0 ? string.Join("|", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
+                        Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
                         OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
                         FilePath = fileName,
                         Repository = ExtractRepositoryFromPath(fileName),
+                        Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)) : null,
                         CreatedAt = DateTime.UtcNow
                     });
                 }            }

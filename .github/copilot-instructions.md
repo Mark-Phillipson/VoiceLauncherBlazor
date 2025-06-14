@@ -43,3 +43,8 @@
 - **DO NOT use Release builds** as they can break existing applications that depend on this codebase.
 - When building the solution, use: `dotnet build --configuration Debug`
 - Avoid commands like `dotnet build --configuration Release` or any Release configuration builds.
+
+## Entity Framework Migrations
+- Create the commandline  commands for copying pasting
+- Do not run the commands directly
+- Always create a script and do not use "Update Database."

@@ -19,26 +19,41 @@ namespace RazorClassLibrary.Pages
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
-        public bool UseSemanticMatching { get; set; } = true;          // Filter properties
-        public string SelectedApplication { get; set; } = string.Empty;        public string SelectedMode { get; set; } = string.Empty;
+        public bool UseSemanticMatching { get; set; } = true;
+
+        // Filter properties
+        public string SelectedApplication { get; set; } = string.Empty;
+        public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
         public string SelectedRepository { get; set; } = string.Empty;
+        public string SelectedTags { get; set; } = string.Empty;
         public List<string> AvailableApplications { get; set; } = new();
-        public List<string> AvailableModes { get; set; } = new();        public List<string> AvailableOperatingSystems { get; set; } = new();
+        public List<string> AvailableModes { get; set; } = new();
+        public List<string> AvailableOperatingSystems { get; set; } = new();
         public List<string> AvailableRepositories { get; set; } = new();
+        public List<string> AvailableTags { get; set; } = new();
         
         private int maxResults = 20;
 
         [Inject]
-        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
-        public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
+        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }
+
+        [Inject]
+        public IJSRuntime? JSRuntime { get; set; }
+
+        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;
-        private CancellationTokenSource? _searchCancellationTokenSource;private static bool _staticFiltersLoaded = false;
+        private CancellationTokenSource? _searchCancellationTokenSource;
+
+        private static bool _staticFiltersLoaded = false;
         private static List<string> _staticAvailableApplications = new();
         private static List<string> _staticAvailableModes = new();
         private static List<string> _staticAvailableOperatingSystems = new();
         private static List<string> _staticAvailableRepositories = new();
-        private static readonly object _filterLock = new object();        /// <summary>
+        private static List<string> _staticAvailableTags = new();
+        private static readonly object _filterLock = new object();
+
+        /// <summary>
         /// Clears the static filter cache to force reload after data changes
         /// </summary>
         public static void InvalidateFilterCache()
@@ -50,6 +65,7 @@ namespace RazorClassLibrary.Pages
                 _staticAvailableModes.Clear();
                 _staticAvailableOperatingSystems.Clear();
                 _staticAvailableRepositories.Clear();
+                _staticAvailableTags.Clear();
             }
         }
 
@@ -65,26 +81,33 @@ namespace RazorClassLibrary.Pages
                 _staticAvailableModes.Clear();
                 _staticAvailableOperatingSystems.Clear();
                 _staticAvailableRepositories.Clear();
+                _staticAvailableTags.Clear();
             }
             
             await LoadFilterOptions();
-        }        protected override async Task OnInitializedAsync()
+        }
+
+        protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
             
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
-        }private async Task LoadFilterOptions()
+        }
+
+        private async Task LoadFilterOptions()
         {
             if (_isLoadingFilters || TalonService is null) return;
             
             lock (_filterLock)
-            {                if (_staticFiltersLoaded)
+            {
+                if (_staticFiltersLoaded)
                 {
                     AvailableApplications = _staticAvailableApplications;
                     AvailableModes = _staticAvailableModes;
                     AvailableOperatingSystems = _staticAvailableOperatingSystems;
                     AvailableRepositories = _staticAvailableRepositories;
+                    AvailableTags = _staticAvailableTags;
                     return;
                 }
                 
@@ -93,7 +116,8 @@ namespace RazorClassLibrary.Pages
             }
             
             try
-            {                // Cache all commands to avoid multiple database calls
+            {
+                // Cache all commands to avoid multiple database calls
                 _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
                 
                 var applications = _allCommandsCache
@@ -108,21 +132,33 @@ namespace RazorClassLibrary.Pages
                     .Select(c => c.Mode!)
                     .Distinct()
                     .OrderBy(m => m)
-                    .ToList();                var operatingSystems = _allCommandsCache
+                    .ToList();
+
+                var operatingSystems = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
                     .Select(c => c.OperatingSystem!)
                     .Distinct()
                     .OrderBy(os => os)
                     .ToList();
-                  var repositories = _allCommandsCache
+
+                var repositories = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
                     .Select(c => c.Repository!)
                     .Distinct()
                     .OrderBy(r => r)
                     .ToList();
+
+                var tags = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
+                    .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()))
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
                 
                 // Debug output
                 Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
+                Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
                 
                 // Update both instance and static collections
                 lock (_filterLock)
@@ -131,6 +167,7 @@ namespace RazorClassLibrary.Pages
                     AvailableModes = _staticAvailableModes = modes;
                     AvailableOperatingSystems = _staticAvailableOperatingSystems = operatingSystems;
                     AvailableRepositories = _staticAvailableRepositories = repositories;
+                    AvailableTags = _staticAvailableTags = tags;
                     _staticFiltersLoaded = true;
                 }
                 
@@ -140,12 +177,15 @@ namespace RazorClassLibrary.Pages
             {
                 _isLoadingFilters = false;
             }
-        }protected override async Task OnAfterRenderAsync(bool firstRender)
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 await searchInput.FocusAsync();
-            }            // Note: We avoid calling EnsureSearchFocus on every render to prevent 
+            }
+            // Note: We avoid calling EnsureSearchFocus on every render to prevent 
             // performance issues and potential infinite loops
         }
 
@@ -162,7 +202,9 @@ namespace RazorClassLibrary.Pages
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }        protected async Task OnSearch()
+        }
+
+        protected async Task OnSearch()
         {
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
@@ -170,8 +212,9 @@ namespace RazorClassLibrary.Pages
             bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
             bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
             bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
+            bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
             
-            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter)
+            if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter)
             {
                 Results = new List<TalonVoiceCommand>();
                 HasSearched = false;
@@ -198,11 +241,13 @@ namespace RazorClassLibrary.Pages
                 {
                     filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
                 }
-                  if (hasModeFilter)
+                
+                if (hasModeFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
                 }
-                  if (hasOSFilter)
+                
+                if (hasOSFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.OperatingSystem == SelectedOperatingSystem);
                 }
@@ -210,6 +255,14 @@ namespace RazorClassLibrary.Pages
                 if (hasRepositoryFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.Repository == SelectedRepository);
+                }
+
+                if (hasTagsFilter)
+                {
+                    filteredCommands = filteredCommands.Where(c => 
+                        !string.IsNullOrWhiteSpace(c.Tags) && 
+                        c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
                 }
                 
                 if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
@@ -225,7 +278,8 @@ namespace RazorClassLibrary.Pages
                         .ToDictionary(g => g.Key, g => g.Max(x => x.Similarity));
                     
                     var resultTexts = results.Select(r => r.Item).ToHashSet();
-                      Results = candidates
+                    
+                    Results = candidates
                         .Where(c => resultTexts.Contains(c.Text))
                         .OrderByDescending(c => scoreLookup.GetValueOrDefault(c.Text, 0))
                         .ThenBy(c => c.Item.Mode ?? "")
@@ -234,7 +288,8 @@ namespace RazorClassLibrary.Pages
                         .Select(c => c.Item)
                         .ToList();
                 }
-                else                {
+                else
+                {
                     // Apply text search on filtered results
                     if (hasSearchTerm)
                     {
@@ -259,7 +314,9 @@ namespace RazorClassLibrary.Pages
             else
             {
                 Results = new List<TalonVoiceCommand>();
-            }            IsLoading = false;
+            }
+
+            IsLoading = false;
             StateHasChanged();
             
             // Only restore focus if the search was triggered intentionally
@@ -267,16 +324,22 @@ namespace RazorClassLibrary.Pages
             if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
             {
                 await EnsureSearchFocus();
-            }        }public async Task ClearFilters()
+            }
+        }
+
+        public async Task ClearFilters()
         {
             SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
             SelectedRepository = string.Empty;
+            SelectedTags = string.Empty;
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;
-            StateHasChanged();            // Restore focus to search input after clearing
+            StateHasChanged();
+            
+            // Restore focus to search input after clearing
             await EnsureSearchFocus();
         }
 
@@ -290,7 +353,9 @@ namespace RazorClassLibrary.Pages
         {
             SelectedMode = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
-        }        protected void OnOSFilterChange(ChangeEventArgs e)
+        }
+
+        protected void OnOSFilterChange(ChangeEventArgs e)
         {
             SelectedOperatingSystem = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
@@ -299,6 +364,12 @@ namespace RazorClassLibrary.Pages
         protected void OnRepositoryFilterChange(ChangeEventArgs e)
         {
             SelectedRepository = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }
+
+        protected void OnTagsFilterChange(ChangeEventArgs e)
+        {
+            SelectedTags = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
         }
 
@@ -347,13 +418,17 @@ namespace RazorClassLibrary.Pages
         {
             // PreventDefault is not available in Blazor, but using @onclick on <a href="#"> avoids navigation
             await OpenFileInVSCode(filePath);
-        }        public string GetFileName(string filePath)
+        }
+
+        public string GetFileName(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 return string.Empty;
             
             return System.IO.Path.GetFileName(filePath);
-        }        public void Dispose()
+        }
+
+        public void Dispose()
         {
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
