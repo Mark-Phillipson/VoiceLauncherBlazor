@@ -3,6 +3,7 @@
     border: 1px solid var(--bs-border-color);
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
+    cursor: pointer;
 }
 
 .card:hover {
@@ -17,6 +18,28 @@
 .card:focus-within {
     outline: 2px solid var(--bs-primary);
     outline-offset: 2px;
+}
+
+/* Enhanced hover effect for clickable cards */
+.card:hover::after {
+    content: "Click to focus";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--bs-primary);
+    color: var(--bs-white);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    z-index: 10;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/* Focus mode specific styling */
+.card.focused {
+    border: 2px solid var(--bs-primary);
+    box-shadow: 0 8px 16px rgba(13, 110, 253, 0.3);
 }
 
 .card-text pre,

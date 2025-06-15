@@ -55,8 +55,16 @@
 - **Database Type**: SQL Server (not SQLite)
 - **Entity Framework**: Uses Entity Framework Core with SQL Server provider
 - **Connection**: The application connects to a SQL Server database
-- **SQL Syntax**: When writing SQL queries, use SQL Server T-SQL syntax, not SQLite syntax
+- **SQL Syntax**: When writing SQL queries, use SQL Server T-SQL syntax, not SQL Server syntax
 - **Examples**:
   - Use `SELECT TOP 10` instead of `LIMIT 10`
   - Use `ISNULL()` instead of `IFNULL()`
   - Use SQL Server date functions like `GETDATE()` instead of SQLite equivalents
+
+## Deployment Guidelines
+
+Note: This application is currently built for Mark’s personal use.
+
+Blazor Server: Deployed using the dotnet publish command from the command line.
+
+Blazor Hybrid WinForms: Deployed by running the build command in Release mode.

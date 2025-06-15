@@ -42,10 +42,13 @@ namespace RazorClassLibrary.Pages
         public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;
         private CancellationTokenSource? _searchCancellationTokenSource;
-        
-        // For list display functionality
+          // For list display functionality
         private Dictionary<string, List<TalonList>> _listContentsCache = new();
         private HashSet<string> _expandedLists = new();
+
+        // For focused card functionality
+        private TalonVoiceCommand? _focusedCommand = null;
+        private bool _isFocusMode = false;
 
         private static bool _staticFiltersLoaded = false;
         private static List<string> _staticAvailableApplications = new();
@@ -203,12 +206,15 @@ namespace RazorClassLibrary.Pages
             // Trigger search when the search input loses focus
             await OnSearch();
         }
-        
-        protected async Task OnSearch()
+          protected async Task OnSearch()
         {
             // Clear the list contents cache when performing a new search
             _listContentsCache.Clear();
             _expandedLists.Clear();
+            
+            // Clear focus mode when performing a new search
+            _focusedCommand = null;
+            _isFocusMode = false;
             
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
@@ -426,13 +432,15 @@ namespace RazorClassLibrary.Pages
             IsLoading = false;
             StateHasChanged();
         }
-    }
-
-        public async Task ClearFilters()
+    }        public async Task ClearFilters()
         {
             // Clear the list contents cache when clearing filters
             _listContentsCache.Clear();
             _expandedLists.Clear();
+            
+            // Clear focus mode when clearing filters
+            _focusedCommand = null;
+            _isFocusMode = false;
             
             SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
@@ -735,6 +743,46 @@ namespace RazorClassLibrary.Pages
                 "<span class=\"capture-highlight\">&lt;$1&gt;</span>");
 
             return highlightedCommand;
+        }
+
+        /// <summary>
+        /// Sets focus mode to show only the selected command card
+        /// </summary>
+        public void FocusOnCommand(TalonVoiceCommand command)
+        {
+            _focusedCommand = command;
+            _isFocusMode = true;
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// Exits focus mode and shows all results again
+        /// </summary>
+        public void ExitFocusMode()
+        {
+            _focusedCommand = null;
+            _isFocusMode = false;
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// Gets the commands to display based on focus mode
+        /// </summary>
+        public List<TalonVoiceCommand> GetDisplayedCommands()
+        {
+            if (_isFocusMode && _focusedCommand != null)
+            {
+                return new List<TalonVoiceCommand> { _focusedCommand };
+            }
+            return Results ?? new List<TalonVoiceCommand>();
+        }
+
+        /// <summary>
+        /// Checks if the component is in focus mode
+        /// </summary>
+        public bool IsInFocusMode()
+        {
+            return _isFocusMode;
         }
 
         public void Dispose()

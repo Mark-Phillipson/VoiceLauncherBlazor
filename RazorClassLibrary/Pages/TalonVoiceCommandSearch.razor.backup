@@ -22,16 +22,7 @@
 </style>
 
 <div class="container mt-4">
-    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        @if (IsInFocusMode())
-        {
-            <div class="alert alert-info mb-3" role="alert">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
-                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                </svg>
-                <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
-            </div>
-        }        <div class="input-group mb-2">            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="e">
+    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        <div class="input-group mb-2">            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="e">
                 @if (IsLoading)
                 {
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -133,28 +124,13 @@
                             <span>Re<u>f</u>resh Filters</span>
                         }
                     </button>
-                </div>                @if (Results?.Any() == true)
+                </div>
+                @if (Results?.Any() == true)
                 {
                     <div>
                         <span class="badge bg-info fs-6">
-                            @if (IsInFocusMode())
-                            {
-                                <text>Focused on 1 result</text>
-                            }
-                            else
-                            {
-                                <text>@Results.Count @(Results.Count == 1 ? "result" : "results") found</text>
-                            }
+                            @Results.Count @(Results.Count == 1 ? "result" : "results") found
                         </span>
-                        @if (IsInFocusMode())
-                        {
-                            <button class="btn btn-outline-secondary btn-sm ms-2" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                                </svg>
-                                E<u>x</u>it Focus
-                            </button>
-                        }
                     </div>
                 }
             </div>        </div></form>
@@ -170,11 +146,142 @@
             </div>
         }        else if (Results?.Any() == true)
         {
-            <div class="row" aria-label="Search Results">
-                @foreach (var cmd in GetDisplayedCommands())
-                {
-                    <div class="col-12 col-lg-6 col-xl-4 mb-3">                        <div class="card h-100 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            <div class="card-header">
+            @if (HasSelectedCard)
+            {
+                <!-- Focused view showing only the selected card -->
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <h4 class="text-primary">Focused View</h4>
+                    <button class="btn btn-outline-secondary" @onclick="ClearSelectedCard" title="Back to all results" accesskey="b">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                        </svg>
+                        <u>B</u>ack to All Results
+                    </button>
+                </div>
+                <div class="row justify-content-center" aria-label="Focused Card View">
+                    <div class="col-12 col-lg-8 col-xl-6">
+                        @{
+                            var cmd = SelectedCard;
+                        }
+                        <div class="card h-100 border-primary" tabindex="0" style="box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);">
+                            <div class="card-header bg-primary-subtle">
                                 <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted">@cmd.Application</small>
+                                    <div class="d-flex gap-1">
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Mode))
+                                        {
+                                            <span class="badge bg-secondary badge-with-underline badge-mode" title="Filter by Mode (Alt+M)">@cmd.Mode</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Tags))
+                                        {
+                                            @foreach (var tag in cmd.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()))
+                                            {
+                                                <span class="badge bg-warning text-dark badge-with-underline badge-tags" title="Filter by Tags (Alt+T)">@tag</span>
+                                            }
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem))
+                                        {
+                                            <span class="badge bg-info badge-with-underline badge-os" title="Filter by OS (Alt+O)">@cmd.OperatingSystem</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Repository))
+                                        {
+                                            <span class="badge bg-primary badge-with-underline badge-repository" title="Filter by Repository (Alt+R)">@cmd.Repository</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h6 class="card-subtitle text-muted">Script:</h6>
+                                    <pre class="card-text script-content p-3 rounded border">@GetTrimmedScript(cmd.Script)</pre>
+                                    @{
+                                        var listsUsed = GetListsUsedInCommand(cmd.Command);
+                                        var capturesUsed = GetCapturesUsedInCommand(cmd.Command);
+                                    }
+                                    @if (listsUsed.Any() || capturesUsed.Any())
+                                    {
+                                        <div class="mt-3">
+                                            <h6 class="card-subtitle text-muted">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul me-1" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                                                </svg>
+                                                Lists & Captures Used:
+                                            </h6>
+                                            <div class="mb-2">
+                                                @* Display clickable lists *@
+                                                @foreach (var listName in listsUsed)
+                                                {
+                                                    <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
+                                                            @onclick="() => ToggleListDisplay(listName)"
+                                                            title="Click to view list contents">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-list me-1" viewBox="0 0 16 16">
+                                                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                                        </svg>
+                                                        @listName
+                                                        @if (IsListExpanded(listName))
+                                                        {…}
+                                                        else
+                                                        {…}
+                                                    </button>
+                                                }
+                                                @* Display non-clickable captures with different styling *@
+                                                @foreach (var captureName in capturesUsed)
+                                                {
+                                                    <span class="badge bg-warning text-dark me-2 mb-1" 
+                                                          title="Capture (not a list) - used for parsing input">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-code me-1" viewBox="0 0 16 16">
+                                                        </svg>
+                                                        &lt;@captureName&gt;
+                                                    </span>
+                                                }
+                                            </div>
+                                            @foreach (var listName in listsUsed)
+                                            {
+                                                @if (IsListExpanded(listName))
+                                                {
+                                                    var listContents = GetListContents(listName);
+                                                    <div class="card border-secondary mb-2" style="background-color: var(--bs-dark, #2d3748); color: var(--bs-light, #f8f9fa);">
+                                                        <div class="card-header py-2" style="background-color: var(--bs-secondary, #6c757d); color: var(--bs-light, #f8f9fa);">
+                                                        </div>
+                                                        <div class="card-body py-2">
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    @if (!string.IsNullOrWhiteSpace(cmd.FilePath))
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm" 
+                                                @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" 
+                                                title="Open @cmd.FilePath in VS Code"
+                                                aria-label="Open @GetFileName(cmd.FilePath) in VS Code">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-code" viewBox="0 0 16 16">
+                                                <path d="M6.854 4.646a.5.5 0 0 1 0 .708L4.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0zM9.146 4.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L11.793 8 9.146 5.354a.5.5 0 0 1 0-.708z"/>
+                                                <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm0 1h12v12H2V2z"/>
+                                            </svg> @GetFileName(cmd.FilePath)
+                                        </button>
+                                    }
+                                    <small class="text-muted">@cmd.CreatedAt.ToLocalTime().ToString("g")</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Normal grid view showing all results -->
+                <div class="row" aria-label="Search Results">
+                    @foreach (var cmd in Results)
+                    {
+                        <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                            <div class="card h-100" tabindex="0" @onclick="() => SelectCard(cmd)" style="cursor: pointer;" title="Click to focus on this card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">                                        @if (!string.IsNullOrWhiteSpace(cmd.Mode))
                                         {
