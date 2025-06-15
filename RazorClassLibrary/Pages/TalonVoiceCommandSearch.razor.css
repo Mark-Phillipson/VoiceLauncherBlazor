@@ -510,3 +510,20 @@ u {
     opacity: 0.6;
     font-size: 12px;
 }
+
+/* Capture highlighting in command text */
+.capture-highlight {
+    background-color: #ffc107 !important; /* Yellow background - same as warning badge */
+    color: #212529 !important; /* Dark text for readability */
+    padding: 1px 3px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+    font-size: 0.9em !important;
+    display: inline !important;
+}
+
+/* Dark mode adjustments for capture highlighting */
+[data-bs-theme="dark"] .capture-highlight {
+    background-color: #ffc107 !important; /* Keep yellow in dark mode */
+    color: #000 !important; /* Black text for better contrast in dark mode */
+}

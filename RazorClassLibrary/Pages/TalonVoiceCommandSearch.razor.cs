@@ -713,7 +713,22 @@ namespace RazorClassLibrary.Pages
         public bool ScriptContainsLists(string script)
         {
             return false; // Scripts don't contain list references, commands do
+        }        /// <summary>
+        /// Highlights captures in a command string by wrapping them with HTML span tags
+        /// </summary>
+        public string HighlightCapturesInCommand(string command)
+        {
+            if (string.IsNullOrEmpty(command))
+                return command;
+
+            // Pattern to match captures like <user.text>, <user.model>, etc.
+            var pattern = @"<([a-zA-Z_][a-zA-Z0-9_.]+)>";
+            var highlightedCommand = Regex.Replace(command, pattern, 
+                "<span class=\"capture-highlight\">&lt;$1&gt;</span>");
+
+            return highlightedCommand;
         }
+
         public void Dispose()
         {
             _searchCancellationTokenSource?.Cancel();
