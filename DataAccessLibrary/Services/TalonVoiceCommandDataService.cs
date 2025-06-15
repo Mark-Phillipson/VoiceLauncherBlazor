@@ -154,19 +154,15 @@ namespace DataAccessLibrary.Services
                         }
                         i = j - 1;                        commands.Add(new TalonVoiceCommand
                         {
-                            Command = command.Length > 100 ? command.Substring(0, 100) : command,
-                            Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
-                            Application = application.Length > 100 ? application.Substring(0, 100) : application,
-                            Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
-                            OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
-                            FilePath = file.Length > 250 ? file.Substring(file.Length - 250) : file,
-                            Repository = ExtractRepositoryFromPath(file),
-                            Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)) : null,
+                            Command = command.Length > 200 ? command.Substring(0, 200) : command,
+                            Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
+                            Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                            Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
+                            OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
+                            FilePath = file.Length > 500 ? file.Substring(file.Length - 500) : file,
+                            Repository = ExtractRepositoryFromPath(file)?.Length > 200 ? ExtractRepositoryFromPath(file)?.Substring(0, 200) : ExtractRepositoryFromPath(file),
+                            Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Substring(0, Math.Min(500, string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Length)) : null,
                             CreatedAt = File.GetCreationTimeUtc(file)                        });
-                        
-                        // Debug logging - remove after testing
-                        Debug.WriteLine($"File: {file}");
-                        Debug.WriteLine($"Extracted Repository: {ExtractRepositoryFromPath(file)}");
                     }
                 }
             }
@@ -275,14 +271,14 @@ namespace DataAccessLibrary.Services
                     }
                     i = j - 1;                    commands.Add(new TalonVoiceCommand
                     {
-                        Command = command.Length > 100 ? command.Substring(0, 100) : command,
-                        Script = script.Length > 1000 ? script.Substring(0, 1000) : script,
-                        Application = application.Length > 100 ? application.Substring(0, 100) : application,
-                        Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)) : null,
-                        OperatingSystem = operatingSystem != null && operatingSystem.Length > 50 ? operatingSystem.Substring(0, 50) : operatingSystem,
-                        FilePath = fileName,
-                        Repository = ExtractRepositoryFromPath(fileName),
-                        Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)) : null,
+                        Command = command.Length > 200 ? command.Substring(0, 200) : command,
+                        Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
+                        Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                        Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
+                        OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
+                        FilePath = fileName.Length > 500 ? fileName.Substring(fileName.Length - 500) : fileName,
+                        Repository = ExtractRepositoryFromPath(fileName)?.Length > 200 ? ExtractRepositoryFromPath(fileName)?.Substring(0, 200) : ExtractRepositoryFromPath(fileName),
+                        Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Substring(0, Math.Min(500, string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Length)) : null,
                         CreatedAt = DateTime.UtcNow
                     });
                 }            }

@@ -1295,6 +1295,127 @@ BEGIN
     VALUES (N'20250614171123_AddTalonListTable', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var17 sysname;
+    SELECT @var17 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Tags');
+    IF @var17 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var17 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Tags] nvarchar(500) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var18 sysname;
+    SELECT @var18 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Script');
+    IF @var18 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var18 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Script] nvarchar(2000) NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var19 sysname;
+    SELECT @var19 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Repository');
+    IF @var19 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var19 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Repository] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var20 sysname;
+    SELECT @var20 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'OperatingSystem');
+    IF @var20 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var20 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [OperatingSystem] nvarchar(100) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var21 sysname;
+    SELECT @var21 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Mode');
+    IF @var21 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var21 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Mode] nvarchar(300) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var22 sysname;
+    SELECT @var22 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'FilePath');
+    IF @var22 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var22 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [FilePath] nvarchar(500) NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var23 sysname;
+    SELECT @var23 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Command');
+    IF @var23 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var23 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Command] nvarchar(200) NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    DECLARE @var24 sysname;
+    SELECT @var24 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonVoiceCommands]') AND [c].[name] = N'Application');
+    IF @var24 IS NOT NULL EXEC(N'ALTER TABLE [TalonVoiceCommands] DROP CONSTRAINT [' + @var24 + '];');
+    ALTER TABLE [TalonVoiceCommands] ALTER COLUMN [Application] nvarchar(200) NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615102541_IncreaseColumnSizes'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250615102541_IncreaseColumnSizes', N'9.0.0');
+END;
+
 COMMIT;
 GO
 

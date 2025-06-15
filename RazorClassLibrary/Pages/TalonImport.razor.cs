@@ -44,10 +44,9 @@ namespace RazorClassLibrary.Pages
                     totalCommandsImported += commandsFromThisFile;
                 }
                 ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
-            }
-            catch (Exception ex)
+            }            catch (Exception ex)
             {
-                ErrorMessage = $"Error importing files: {ex.Message}";
+                ErrorMessage = $"Error importing files: {GetFullErrorMessage(ex)}";
             }
             finally
             {
@@ -82,10 +81,9 @@ namespace RazorClassLibrary.Pages
                 
                 // Invalidate the filter cache so repository dropdown gets updated
                 TalonVoiceCommandSearch.InvalidateFilterCache();
-            }
-            catch (Exception ex)
+            }            catch (Exception ex)
             {
-                ErrorMessage = $"Error importing from directory: {ex.Message}";
+                ErrorMessage = $"Error importing from directory: {GetFullErrorMessage(ex)}";
             }
             finally
             {
@@ -110,15 +108,28 @@ namespace RazorClassLibrary.Pages
             {
                 var listsImported = await TalonServiceField.ImportTalonListsFromFileAsync(ListsFilePath);
                 ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
-            }
-            catch (Exception ex)
+            }            catch (Exception ex)
             {
-                ErrorMessage = $"Error importing lists: {ex.Message}";
+                ErrorMessage = $"Error importing lists: {GetFullErrorMessage(ex)}";
             }
             finally
             {
                 IsLoading = false;
             }
+        }
+
+        private string GetFullErrorMessage(Exception ex)
+        {
+            var errorParts = new List<string>();
+            var currentEx = ex;
+            
+            while (currentEx != null)
+            {
+                errorParts.Add(currentEx.Message);
+                currentEx = currentEx.InnerException;
+            }
+            
+            return string.Join(" | Inner Exception: ", errorParts);
         }
     }
 }
