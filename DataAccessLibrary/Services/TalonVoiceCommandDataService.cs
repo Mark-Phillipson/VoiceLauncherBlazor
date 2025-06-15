@@ -987,6 +987,8 @@ namespace DataAccessLibrary.Services
             
             return details.ToString();        }        /// <summary>
         /// Gets all contents (spoken forms and list values) for a specific list
+        /// <summary>
+        /// Gets the contents of a specific Talon list by exact name match
         /// </summary>
         public async Task<List<TalonList>> GetListContentsAsync(string listName)
         {
@@ -995,64 +997,56 @@ namespace DataAccessLibrary.Services
 
             Console.WriteLine($"[DEBUG] Loading list contents for: '{listName}'");
 
-            // Try multiple variations of the list name
-            var searchNames = new List<string> { listName };
-            
-            // If listName doesn't start with "user.", try adding it
-            if (!listName.StartsWith("user."))
-            {
-                searchNames.Add($"user.{listName}");
-            }
-            
-            // If listName starts with "user.", try without it
-            if (listName.StartsWith("user."))
-            {
-                searchNames.Add(listName.Substring(5)); // Remove "user." prefix
-            }
-
-            // Try some common variations for modelPrompt
-            if (listName.Contains("modelPrompt") || listName.Contains("model"))
-            {
-                searchNames.Add("user.model");
-                searchNames.Add("model");
-                searchNames.Add("user.modelPrompt");
-                searchNames.Add("modelPrompt");
-            }
-
-            Console.WriteLine($"[DEBUG] Searching for list names: {string.Join(", ", searchNames)}");
-
-            // First, let's see what lists actually exist in the database
-            var allLists = await _context.TalonLists
-                .Select(l => l.ListName)
-                .Distinct()
-                .OrderBy(l => l)
-                .ToListAsync();
-            
-            Console.WriteLine($"[DEBUG] All available lists in database: {string.Join(", ", allLists)}");
-
+            // Start with exact match search
             var results = await _context.TalonLists
-                .Where(l => searchNames.Contains(l.ListName))
+                .Where(l => l.ListName == listName)
                 .OrderBy(l => l.SpokenForm)
                 .ThenBy(l => l.ListValue)
                 .ToListAsync();
 
-            Console.WriteLine($"[DEBUG] Found {results.Count} list items for any of: {string.Join(", ", searchNames)}");
+            // If no exact match found, try with/without "user." prefix as fallback
+            if (results.Count == 0)
+            {
+                string alternateListName;
+                if (listName.StartsWith("user."))
+                {
+                    // Try without "user." prefix
+                    alternateListName = listName.Substring(5);
+                }
+                else
+                {
+                    // Try with "user." prefix
+                    alternateListName = $"user.{listName}";
+                }
+
+                Console.WriteLine($"[DEBUG] No exact match for '{listName}', trying alternate: '{alternateListName}'");
+
+                results = await _context.TalonLists
+                    .Where(l => l.ListName == alternateListName)
+                    .OrderBy(l => l.SpokenForm)
+                    .ThenBy(l => l.ListValue)
+                    .ToListAsync();
+            }
+
+            Console.WriteLine($"[DEBUG] Found {results.Count} list items for '{listName}'");
             
             // Debug: Show what we found
             if (results.Any())
             {
                 Console.WriteLine($"[DEBUG] Sample items: {string.Join(", ", results.Take(3).Select(r => $"{r.SpokenForm}→{r.ListValue}"))}");
+                Console.WriteLine($"[DEBUG] Actual list name in results: '{results.First().ListName}'");
             }
             else
             {
-                // If no results, try a broader search to see if the list exists with any variation
-                var partialMatches = await _context.TalonLists
-                    .Where(l => searchNames.Any(name => l.ListName.Contains(name) || name.Contains(l.ListName)))
+                // For debugging: show what list names actually exist that are similar
+                var similarLists = await _context.TalonLists
+                    .Where(l => l.ListName.Contains(listName) || listName.Contains(l.ListName))
                     .Select(l => l.ListName)
                     .Distinct()
+                    .Take(5)
                     .ToListAsync();
                 
-                Console.WriteLine($"[DEBUG] Partial matches found: {string.Join(", ", partialMatches)}");
+                Console.WriteLine($"[DEBUG] No results found. Similar list names: {string.Join(", ", similarLists)}");
             }
             
             return results;

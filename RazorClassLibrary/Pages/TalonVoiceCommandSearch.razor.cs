@@ -206,6 +206,10 @@ namespace RazorClassLibrary.Pages
         
         protected async Task OnSearch()
         {
+            // Clear the list contents cache when performing a new search
+            _listContentsCache.Clear();
+            _expandedLists.Clear();
+            
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
@@ -426,6 +430,10 @@ namespace RazorClassLibrary.Pages
 
         public async Task ClearFilters()
         {
+            // Clear the list contents cache when clearing filters
+            _listContentsCache.Clear();
+            _expandedLists.Clear();
+            
             SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
@@ -733,6 +741,16 @@ namespace RazorClassLibrary.Pages
         {
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
+        }
+
+        /// <summary>
+        /// Manually clear the list contents cache - useful for debugging list display issues
+        /// </summary>
+        public void ClearListCache()
+        {
+            _listContentsCache.Clear();
+            _expandedLists.Clear();
+            StateHasChanged();
         }
     }
 }
