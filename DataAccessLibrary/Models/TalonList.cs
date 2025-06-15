@@ -14,9 +14,7 @@ namespace DataAccessLibrary.Models
 
         [StringLength(100)]
         [Required]
-        public required string SpokenForm { get; set; }
-
-        [StringLength(500)]
+        public required string SpokenForm { get; set; }        [StringLength(700)]
         [Required]
         public required string ListValue { get; set; }
 

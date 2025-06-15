@@ -1416,6 +1416,29 @@ BEGIN
     VALUES (N'20250615102541_IncreaseColumnSizes', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615110350_IncreaseTalonListValueColumnSize'
+)
+BEGIN
+    DECLARE @var25 sysname;
+    SELECT @var25 = [d].[name]
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[TalonLists]') AND [c].[name] = N'ListValue');
+    IF @var25 IS NOT NULL EXEC(N'ALTER TABLE [TalonLists] DROP CONSTRAINT [' + @var25 + '];');
+    ALTER TABLE [TalonLists] ALTER COLUMN [ListValue] nvarchar(700) NOT NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250615110350_IncreaseTalonListValueColumnSize'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250615110350_IncreaseTalonListValueColumnSize', N'9.0.0');
+END;
+
 COMMIT;
 GO
 
