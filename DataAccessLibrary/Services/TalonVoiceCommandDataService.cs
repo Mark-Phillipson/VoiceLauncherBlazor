@@ -986,12 +986,82 @@ namespace DataAccessLibrary.Services
                     details.AppendLine();
                 }
             }
-            
-            if (details.Length == 0)
+              if (details.Length == 0)
             {
                 details.AppendLine("No oversized values found!");
             }
             
-            return details.ToString();
-        }    }
+            return details.ToString();        }        /// <summary>
+        /// Gets all contents (spoken forms and list values) for a specific list
+        /// </summary>
+        public async Task<List<TalonList>> GetListContentsAsync(string listName)
+        {
+            if (string.IsNullOrWhiteSpace(listName))
+                return new List<TalonList>();
+
+            Console.WriteLine($"[DEBUG] Loading list contents for: '{listName}'");
+
+            // Try multiple variations of the list name
+            var searchNames = new List<string> { listName };
+            
+            // If listName doesn't start with "user.", try adding it
+            if (!listName.StartsWith("user."))
+            {
+                searchNames.Add($"user.{listName}");
+            }
+            
+            // If listName starts with "user.", try without it
+            if (listName.StartsWith("user."))
+            {
+                searchNames.Add(listName.Substring(5)); // Remove "user." prefix
+            }
+
+            // Try some common variations for modelPrompt
+            if (listName.Contains("modelPrompt") || listName.Contains("model"))
+            {
+                searchNames.Add("user.model");
+                searchNames.Add("model");
+                searchNames.Add("user.modelPrompt");
+                searchNames.Add("modelPrompt");
+            }
+
+            Console.WriteLine($"[DEBUG] Searching for list names: {string.Join(", ", searchNames)}");
+
+            // First, let's see what lists actually exist in the database
+            var allLists = await _context.TalonLists
+                .Select(l => l.ListName)
+                .Distinct()
+                .OrderBy(l => l)
+                .ToListAsync();
+            
+            Console.WriteLine($"[DEBUG] All available lists in database: {string.Join(", ", allLists)}");
+
+            var results = await _context.TalonLists
+                .Where(l => searchNames.Contains(l.ListName))
+                .OrderBy(l => l.SpokenForm)
+                .ThenBy(l => l.ListValue)
+                .ToListAsync();
+
+            Console.WriteLine($"[DEBUG] Found {results.Count} list items for any of: {string.Join(", ", searchNames)}");
+            
+            // Debug: Show what we found
+            if (results.Any())
+            {
+                Console.WriteLine($"[DEBUG] Sample items: {string.Join(", ", results.Take(3).Select(r => $"{r.SpokenForm}→{r.ListValue}"))}");
+            }
+            else
+            {
+                // If no results, try a broader search to see if the list exists with any variation
+                var partialMatches = await _context.TalonLists
+                    .Where(l => searchNames.Any(name => l.ListName.Contains(name) || name.Contains(l.ListName)))
+                    .Select(l => l.ListName)
+                    .Distinct()
+                    .ToListAsync();
+                
+                Console.WriteLine($"[DEBUG] Partial matches found: {string.Join(", ", partialMatches)}");
+            }
+            
+            return results;
+        }
+    }
 }

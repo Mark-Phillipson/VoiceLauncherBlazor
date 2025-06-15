@@ -159,17 +159,100 @@
                                 </div>
                             </div>                            <div class="card-body">                                <div class="mb-3">
                                     <h6 class="card-subtitle text-muted">Script:</h6>
-                                    <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>
-                                    @if (ScriptContainsLists(cmd.Script))
+                                    <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>                                    @{
+                                        var listsUsed = GetListsUsedInCommand(cmd.Command);
+                                        var capturesUsed = GetCapturesUsedInCommand(cmd.Command);
+                                    }
+                                    @if (listsUsed.Any() || capturesUsed.Any())
                                     {
-                                        <div class="mt-2">
-                                            <h6 class="card-subtitle text-muted">
+                                        <div class="mt-2">                                            <h6 class="card-subtitle text-muted">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul me-1" viewBox="0 0 16 16">
                                                     <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                                                 </svg>
-                                                Expanded with Lists:
+                                                Lists & Captures Used:
                                             </h6>
-                                            <pre class="card-text script-content p-2 rounded border bg-light">@GetExpandedScript(cmd.Id, cmd.Script)</pre>
+                                            <div class="mb-2">
+                                                @* Display clickable lists *@
+                                                @foreach (var listName in listsUsed)
+                                                {
+                                                    <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
+                                                            @onclick="() => ToggleListDisplay(listName)"
+                                                            title="Click to view list contents">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-list me-1" viewBox="0 0 16 16">
+                                                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                                        </svg>
+                                                        @listName
+                                                        @if (IsListExpanded(listName))
+                                                        {
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up ms-1" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                                                            </svg>
+                                                        }
+                                                        else
+                                                        {
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down ms-1" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                                                            </svg>
+                                                        }
+                                                    </button>
+                                                }
+                                                @* Display non-clickable captures with different styling *@
+                                                @foreach (var captureName in capturesUsed)
+                                                {
+                                                    <span class="badge bg-warning text-dark me-2 mb-1" 
+                                                          title="Capture (not a list) - used for parsing input">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-code me-1" viewBox="0 0 16 16">
+                                                            <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
+                                                        </svg>
+                                                        &lt;@captureName&gt;
+                                                    </span>
+                                                }
+                                            </div>
+                                            @foreach (var listName in listsUsed)
+                                            {                                                @if (IsListExpanded(listName))
+                                                {
+                                                    var listContents = GetListContents(listName);
+                                                    <div class="card border-secondary mb-2" style="background-color: var(--bs-dark, #2d3748); color: var(--bs-light, #f8f9fa);">
+                                                        <div class="card-header py-2" style="background-color: var(--bs-secondary, #6c757d); color: var(--bs-light, #f8f9fa);">
+                                                            <strong>@listName</strong> (@listContents.Count items)
+                                                        </div>
+                                                        <div class="card-body py-2">
+                                                            @if (listContents.Any())
+                                                            {
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm table-dark table-striped mb-0">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Spoken Form</th>
+                                                                                <th>Value</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var item in listContents.Take(20))
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="font-monospace">@item.SpokenForm</td>
+                                                                                    <td class="font-monospace">@item.ListValue</td>
+                                                                                </tr>
+                                                                            }
+                                                                            @if (listContents.Count > 20)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td colspan="2" class="text-muted text-center">... and @(listContents.Count - 20) more items</td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="text-muted mb-0">No items found for this list.</p>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
                                         </div>
                                     }
                                 </div>

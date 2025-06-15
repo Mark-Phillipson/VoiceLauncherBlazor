@@ -5,7 +5,7 @@ FROM TalonLists
 ORDER BY ListName;
 
 SELECT ListName, ListValue,SpokenForm FROM TalonLists
- WHERE ListName='user.model'
+ WHERE ListName LIKE '%modelPrompt%'
  GROUP BY ListName,ListValue,SpokenForm ORDER BY ListName,ListValue;
 
   SELECT Command,Mode,Script,Application,Repository FROM TalonVoiceCommands WHERE  Command LIKE 'talon lists%'  ORDER BY Command
