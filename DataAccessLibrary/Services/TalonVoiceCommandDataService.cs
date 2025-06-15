@@ -551,24 +551,18 @@ namespace DataAccessLibrary.Services
             {
                 var shortListName = listName.Replace("user.", "");
                 System.Console.WriteLine($"[DEBUG] Searching for commands referencing list '{listName}' (short: '{shortListName}')");
-                
-                // Search for multiple reference patterns:
-                // 1. {list_name} format
+                  // Search for specific Talon list reference patterns only:
+                // 1. {list_name} format in commands - this is the main Talon syntax
                 // 2. {short_name} format (without user. prefix)
-                // 3. list_name as a word in script (for other reference patterns)
-                // 4. Variable references like <list_name> format
+                // Removed: broad text matching that was causing false positives with "model"
                 var commandsWithListRefs = await _context.TalonVoiceCommands
-                    .Where(c => c.Script.Contains($"{{{listName}}}") ||
-                               c.Script.Contains($"{{{shortListName}}}") ||
-                               c.Script.Contains($"<{listName}>") ||
-                               c.Script.Contains($"<{shortListName}>") ||
-                               c.Script.ToLower().Contains(listName.ToLower()) ||
-                               c.Script.ToLower().Contains(shortListName.ToLower()) ||
-                               c.Command.ToLower().Contains(listName.ToLower()) ||
-                               c.Command.ToLower().Contains(shortListName.ToLower()))
+                    .Where(c => c.Command.Contains($"{{{listName}}}") ||
+                               c.Command.Contains($"{{{shortListName}}}") ||
+                               c.Script.Contains($"{{{listName}}}") ||
+                               c.Script.Contains($"{{{shortListName}}}"))
                     .ToListAsync();
                 
-                System.Console.WriteLine($"[DEBUG] Found {commandsWithListRefs.Count} commands referencing '{listName}'");
+                System.Console.WriteLine($"[DEBUG] Found {commandsWithListRefs.Count} commands with exact list references for '{listName}'");
                 listReferencingCommands.AddRange(commandsWithListRefs);
             }            // Combine and deduplicate results, prioritizing list matches for better relevance
             var allMatches = new List<TalonVoiceCommand>();

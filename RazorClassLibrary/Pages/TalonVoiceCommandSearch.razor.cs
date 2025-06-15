@@ -198,13 +198,13 @@ namespace RazorClassLibrary.Pages
             {
                 await OnSearch();
             }
-        }
-
-        protected async Task OnSearchInputBlur()
+        }        protected async Task OnSearchInputBlur()
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }        protected async Task OnSearch()
+        }
+        
+        protected async Task OnSearch()
         {
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
@@ -279,9 +279,9 @@ namespace RazorClassLibrary.Pages
                     // Debug logging
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}'");
-                    }
-                      // Use list-aware semantic search
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}'");                    }
+                    
+                    // Use list-aware semantic search
                     var semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
                     
                     // Debug logging
@@ -318,15 +318,17 @@ namespace RazorClassLibrary.Pages
                         finalResults = finalResults.Where(c => 
                             !string.IsNullOrWhiteSpace(c.Tags) && 
                             c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
-                    }
-                      Results = finalResults.Take(maxResults).ToList();
+                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));                    }
+                    
+                    Results = finalResults.Take(maxResults).ToList();
                     
                     // Debug logging
                     if (JSRuntime != null)
                     {
                         await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
-                    }}else
+                    }
+                }
+                else
                 {
                     // Apply text search on filtered results (including list search)
                     if (hasSearchTerm)
@@ -334,9 +336,9 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search (includes lists) for term: '{SearchTerm}'");
-                        }
-                          // Use the same list-aware search but without semantic ranking
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search (includes lists) for term: '{SearchTerm}'");                        }
+                        
+                        // Use the same list-aware search but without semantic ranking
                         var searchResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
                         
                         // Debug logging
@@ -381,22 +383,24 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
-                        }
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");                        }
                     }
                     else
-                    {                        Results = filteredCommands
-                            .OrderBy(c => c.Mode ?? "")                            .ThenBy(c => c.Application)
+                    {
+                        Results = filteredCommands
+                            .OrderBy(c => c.Mode ?? "")
+                            .ThenBy(c => c.Application)
                             .ThenBy(c => c.Command)
                             .Take(maxResults)
                             .ToList();
-                    }
-                }
+                    }                }
             }
             else
             {
                 Results = new List<TalonVoiceCommand>();
-            }IsLoading = false;
+            }
+            
+            IsLoading = false;
             StateHasChanged();
             
             // Only restore focus if the search was triggered intentionally
