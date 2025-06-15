@@ -57,8 +57,7 @@ namespace DataAccessLibrary.Services
             }
         }
 
-        public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
-        {
+        public async Task<int> ImportFromTalonFilesAsync(string rootFolder)        {
             // Remove all existing records before importing new ones
             _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
             await _context.SaveChangesAsync();
@@ -71,6 +70,24 @@ namespace DataAccessLibrary.Services
                 List<string> tags = new();
                 string? operatingSystem = null;
                 bool inCommandsSection = false;
+                
+                // First pass: check if there's a header section (look for delimiter)
+                bool hasHeaderSection = lines.Any(line => 
+                {
+                    var trimmed = line.Trim();
+                    var delimiterCheck = new string(trimmed.Where(c => !char.IsWhiteSpace(c)).ToArray());
+                    return delimiterCheck == "-";
+                });
+                
+                // If no header section, start processing commands immediately
+                // All commands will be treated as global since there's no application/mode specification
+                if (!hasHeaderSection)
+                {
+                    inCommandsSection = true;
+                    // application remains "global" (default value)
+                    // modes remains empty (default value)
+                }
+                
                 for (int i = 0; i < lines.Length; i++)
                 {
                     var rawLine = lines[i];
@@ -176,8 +193,7 @@ namespace DataAccessLibrary.Services
         {
             // Return ALL commands for building filter dropdowns
             return await _context.TalonVoiceCommands.ToListAsync();
-        }        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
-        {
+        }        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)        {
             // Do NOT clear the table here; only add new commands
             var commands = new List<TalonVoiceCommand>();
             var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);            string application = "global";
@@ -185,6 +201,23 @@ namespace DataAccessLibrary.Services
             List<string> tags = new();
             string? operatingSystem = null;
             bool inCommandsSection = false;
+            
+            // First pass: check if there's a header section (look for delimiter)
+            bool hasHeaderSection = lines.Any(line => 
+            {
+                var trimmed = line.Trim();
+                var delimiterCheck = new string(trimmed.Where(c => !char.IsWhiteSpace(c)).ToArray());
+                return delimiterCheck == "-";
+            });
+              // If no header section, start processing commands immediately
+            // All commands will be treated as global since there's no application/mode specification
+            if (!hasHeaderSection)
+            {
+                inCommandsSection = true;
+                // application remains "global" (default value)
+                // modes remains empty (default value)
+            }
+            
             for (int i = 0; i < lines.Length; i++)
             {
                 var rawLine = lines[i];
