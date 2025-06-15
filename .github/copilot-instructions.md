@@ -39,7 +39,9 @@
  -When running things in the terminal do not keep creating new terminals try to use the existing one!
 
 ## Build Configuration
-- **IMPORTANT**: Always use Debug builds when testing or building the application. 
+- **IMPORTANT**: Always use Debug builds when testing or building the application.
+- **Unit Tests**: Use XUnit for unit testing. Ensure all tests pass before committing changes. Project Name: TestProjectxUnit
+-  do not create console apps to run tests 
 - **DO NOT use Release builds** as they can break existing applications that depend on this codebase.
 - When building the solution, use: `dotnet build --configuration Debug`
 - Avoid commands like `dotnet build --configuration Release` or any Release configuration builds.

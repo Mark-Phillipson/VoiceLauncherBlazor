@@ -9,3 +9,5 @@ SELECT ListName, ListValue FROM TalonLists
  GROUP BY ListName,ListValue ORDER BY ListName,ListValue;
 
   SELECT Command,Mode,Script,Application,Repository FROM TalonVoiceCommands WHERE  Command LIKE 'talon lists%'  ORDER BY Command
+
+  SELECT COUNT(*) as TotalCommands FROM TalonVoiceCommands;
