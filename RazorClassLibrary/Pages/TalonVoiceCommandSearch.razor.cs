@@ -20,7 +20,7 @@ namespace RazorClassLibrary.Pages
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
-        public bool UseSemanticMatching { get; set; } = true;
+        public bool UseSemanticMatching { get; set; } = false;
 
         // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
@@ -204,15 +204,22 @@ namespace RazorClassLibrary.Pages
             await OnSearch();
         }        protected async Task OnSearch()
         {
+            // Don't search if no criteria are specified - check for default filter states
+            bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
+            bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
+            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
+            bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+            bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
+            bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
+            
             try
             {
-                // Don't search if no criteria are specified - check for default filter states
-                bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
-                bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
-                bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);
-                bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
-                bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
-                bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
+                
+                // Debug logging
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
+                }
                 
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter)
                 {
@@ -264,10 +271,22 @@ namespace RazorClassLibrary.Pages
                         c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
                 }
-                  if (UseSemanticMatching && hasSearchTerm && SearchTerm.Length > 2)
+
+                if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
                 {
-                    // Use list-aware semantic search
-                    var semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm);
+                    // Debug logging
+                    if (JSRuntime != null)
+                    {
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}'");
+                    }
+                      // Use list-aware semantic search
+                    var semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
+                    
+                    // Debug logging
+                    if (JSRuntime != null)
+                    {
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
+                    }
                     
                     // Apply filters to semantic results
                     var finalResults = semanticResults.AsEnumerable();
@@ -302,6 +321,12 @@ namespace RazorClassLibrary.Pages
                     
                     Results = finalResults.Take(maxResults).ToList();
                     
+                    // Debug logging
+                    if (JSRuntime != null)
+                    {
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                    }
+                    
                     // Precompute expanded scripts for commands that contain lists
                     _expandedScriptsCache.Clear();
                     foreach (var cmd in Results.Where(c => ScriptContainsLists(c.Script)))
@@ -315,20 +340,63 @@ namespace RazorClassLibrary.Pages
                         {
                             _expandedScriptsCache[cmd.Id] = cmd.Script; // Fallback to original script
                         }
-                    }
-                }else
+                    }                }else
                 {
-                    // Apply text search on filtered results
+                    // Apply text search on filtered results (including list search)
                     if (hasSearchTerm)
                     {
-                        Results = filteredCommands
-                            .Where(c => c.Command.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                                       c.Script.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
-                            .OrderBy(c => c.Mode ?? "")
-                            .ThenBy(c => c.Application)
-                            .ThenBy(c => c.Command)
-                            .Take(maxResults)
-                            .ToList();
+                        // Debug logging
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search (includes lists) for term: '{SearchTerm}'");
+                        }
+                          // Use the same list-aware search but without semantic ranking
+                        var searchResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
+                        
+                        // Debug logging
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                        }
+                        
+                        // Apply filters to search results
+                        var finalResults = searchResults.AsEnumerable();
+                        
+                        if (hasApplicationFilter)
+                        {
+                            finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                        }
+                        
+                        if (hasModeFilter)
+                        {
+                            finalResults = finalResults.Where(c => c.Mode == SelectedMode);
+                        }
+                        
+                        if (hasOSFilter)
+                        {
+                            finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
+                        }
+                        
+                        if (hasRepositoryFilter)
+                        {
+                            finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
+                        }
+                        
+                        if (hasTagsFilter)
+                        {
+                            finalResults = finalResults.Where(c => 
+                                !string.IsNullOrWhiteSpace(c.Tags) && 
+                                c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                        }
+                        
+                        Results = finalResults.Take(maxResults).ToList();
+                        
+                        // Debug logging
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                        }
                     }
                     else
                     {                        Results = filteredCommands

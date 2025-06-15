@@ -516,10 +516,7 @@ namespace DataAccessLibrary.Services
                 // If no list found, indicate this in the expansion
                 return $"[{listReference} - list not found]";
             }
-        }
-
-        /// <summary>
-        /// Enhanced search that includes list expansions and searches within list values
+        }        /// <summary>        /// Enhanced search that includes list expansions and searches within list values
         /// </summary>
         public async Task<List<TalonVoiceCommand>> SemanticSearchWithListsAsync(string searchTerm)
         {
@@ -538,7 +535,7 @@ namespace DataAccessLibrary.Services
                            (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)))
                 .ToListAsync();
 
-            // Also search within list values that might be referenced
+            // Search within list values that might be referenced
             var listMatches = await _context.TalonLists
                 .Where(l => l.SpokenForm.ToLower().Contains(lowerTerm) ||
                            l.ListValue.ToLower().Contains(lowerTerm))
@@ -546,25 +543,56 @@ namespace DataAccessLibrary.Services
                 .Distinct()
                 .ToListAsync();
 
-            // Find commands that reference these lists
+            System.Console.WriteLine($"[DEBUG] Found {listMatches.Count} list matches for '{searchTerm}': {string.Join(", ", listMatches)}");
+
+            // Find commands that reference these lists in various formats
             var listReferencingCommands = new List<TalonVoiceCommand>();
             foreach (var listName in listMatches)
             {
                 var shortListName = listName.Replace("user.", "");
+                System.Console.WriteLine($"[DEBUG] Searching for commands referencing list '{listName}' (short: '{shortListName}')");
+                
+                // Search for multiple reference patterns:
+                // 1. {list_name} format
+                // 2. {short_name} format (without user. prefix)
+                // 3. list_name as a word in script (for other reference patterns)
+                // 4. Variable references like <list_name> format
                 var commandsWithListRefs = await _context.TalonVoiceCommands
                     .Where(c => c.Script.Contains($"{{{listName}}}") ||
-                               c.Script.Contains($"{{{shortListName}}}"))
+                               c.Script.Contains($"{{{shortListName}}}") ||
+                               c.Script.Contains($"<{listName}>") ||
+                               c.Script.Contains($"<{shortListName}>") ||
+                               c.Script.ToLower().Contains(listName.ToLower()) ||
+                               c.Script.ToLower().Contains(shortListName.ToLower()) ||
+                               c.Command.ToLower().Contains(listName.ToLower()) ||
+                               c.Command.ToLower().Contains(shortListName.ToLower()))
                     .ToListAsync();
+                
+                System.Console.WriteLine($"[DEBUG] Found {commandsWithListRefs.Count} commands referencing '{listName}'");
                 listReferencingCommands.AddRange(commandsWithListRefs);
+            }            // Combine and deduplicate results, prioritizing list matches for better relevance
+            var allMatches = new List<TalonVoiceCommand>();
+            
+            // Add list-referencing commands first (higher priority for list-based searches)
+            allMatches.AddRange(listReferencingCommands);
+            
+            // Add direct matches that aren't already included
+            foreach (var directMatch in directMatches)
+            {
+                if (!allMatches.Any(existing => existing.Id == directMatch.Id))
+                {
+                    allMatches.Add(directMatch);
+                }
             }
-
-            // Combine and deduplicate results
-            var allMatches = directMatches.Union(listReferencingCommands, new TalonVoiceCommandComparer())
-                .OrderByDescending(c => c.CreatedAt)
+            
+            // Take top results and order by creation date
+            var finalResults = allMatches
                 .Take(100)
+                .OrderByDescending(c => c.CreatedAt)
                 .ToList();
 
-            return allMatches;
+            System.Console.WriteLine($"[DEBUG] Final results: {directMatches.Count} direct matches + {listReferencingCommands.Count} list-referencing commands = {finalResults.Count} total");
+            return finalResults;
         }
 
         // Helper class for deduplicating commands

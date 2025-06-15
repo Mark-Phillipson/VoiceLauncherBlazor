@@ -1,0 +1,7 @@
+{
+    "copilot.instructions": [
+        "When the user needs to test changes in the Blazor application, always ask them to run 'dotnet watch' manually instead of trying to start/stop services programmatically. This avoids port conflicts and service management issues.",
+        "Never use taskkill or process termination commands - let the user manage the dotnet watch process manually.",
+        "When debugging is needed, add console logging and ask the user to check the browser console or terminal output while the app is running."
+    ]
+}

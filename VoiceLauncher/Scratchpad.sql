@@ -4,9 +4,9 @@
 FROM TalonLists 
 ORDER BY ListName;
 
-SELECT ListName, ListValue FROM TalonLists
+SELECT ListName, ListValue,SpokenForm FROM TalonLists
  WHERE ListName='user.model'
- GROUP BY ListName,ListValue ORDER BY ListName,ListValue;
+ GROUP BY ListName,ListValue,SpokenForm ORDER BY ListName,ListValue;
 
   SELECT Command,Mode,Script,Application,Repository FROM TalonVoiceCommands WHERE  Command LIKE 'talon lists%'  ORDER BY Command
 
