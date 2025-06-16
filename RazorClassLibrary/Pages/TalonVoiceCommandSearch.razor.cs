@@ -336,13 +336,17 @@ namespace RazorClassLibrary.Pages
                     {
                         finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
                     }
-                    
-                    if (hasTagsFilter)
+                      if (hasTagsFilter)
                     {
                         finalResults = finalResults.Where(c => 
                             !string.IsNullOrWhiteSpace(c.Tags) && 
                             c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                 .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));                    }
+                    
+                    if (hasTitleFilter)
+                    {
+                        finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                    }
                     
                     Results = finalResults.Take(maxResults).ToList();
                     
@@ -393,13 +397,17 @@ namespace RazorClassLibrary.Pages
                         {
                             finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
                         }
-                        
-                        if (hasTagsFilter)
+                          if (hasTagsFilter)
                         {
                             finalResults = finalResults.Where(c => 
                                 !string.IsNullOrWhiteSpace(c.Tags) && 
                                 c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                     .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                        }
+                        
+                        if (hasTitleFilter)
+                        {
+                            finalResults = finalResults.Where(c => c.Title == SelectedTitle);
                         }
                         
                         Results = finalResults.Take(maxResults).ToList();
