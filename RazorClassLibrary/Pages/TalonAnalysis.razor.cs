@@ -5,7 +5,7 @@ using RazorClassLibrary.Services;
 
 namespace RazorClassLibrary.Pages
 {
-    public partial class TalonAnalysis
+    public partial class TalonAnalysis : ComponentBase
     {
         [Inject] private ITalonAnalysisService TalonAnalysisService { get; set; } = default!;
         [Inject] private ILogger<TalonAnalysis> Logger { get; set; } = default!;

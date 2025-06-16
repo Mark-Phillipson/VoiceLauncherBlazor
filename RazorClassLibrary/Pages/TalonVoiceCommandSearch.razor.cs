@@ -239,9 +239,14 @@ namespace RazorClassLibrary.Pages
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }          public async Task OnSearch()
+        }        public async Task OnSearch()
         {
             System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
+            
+            // Cancel any existing search operation
+            _searchCancellationTokenSource?.Cancel();
+            _searchCancellationTokenSource?.Dispose();
+            _searchCancellationTokenSource = new CancellationTokenSource();
             
             // Clear the list contents cache when performing a new search
             _listContentsCache.Clear();

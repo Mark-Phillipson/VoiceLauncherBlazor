@@ -140,8 +140,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     // string? history = "";
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
-    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();
-    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel(); private string model = "o3-mini";
+    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel(); 
     IChatCompletionService? chatService;
     private ElementReference inputElement;
     private ElementReference responseElement;

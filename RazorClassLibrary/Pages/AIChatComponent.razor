@@ -198,8 +198,7 @@
         @if (selectedPrompt != null)
         {
             <label class='m-1 text-light'><i class="fa-solid fa-info-circle"></i> Current Prompt:</label>
-        }
-        @foreach (var item in chatHistory)
+        }        @foreach (var item in chatHistory)
         {
             if (item == null) // Add this check to skip null items
             {
@@ -239,8 +238,7 @@
                             <i class="fa-solid fa-user me-1"></i> You
                         </div>                        <div class="bubble-text">
                             @(item.Content ?? string.Empty) // item is non-null here, item.Content can be null
-                        </div>
-                    </div>
+                        </div>                    </div>
                 </div>
             }
         }

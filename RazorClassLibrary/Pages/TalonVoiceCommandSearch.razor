@@ -37,16 +37,9 @@
                     <i class="oi oi-cloud-upload me-1"></i> Import Scripts
                 </a>
             </div>
-        </div>
-    </div>
-    
-    <div class="alert alert-info mb-3" role="alert">
-        <i class="oi oi-graph me-2"></i>
-        View command statistics, repository breakdowns, and conflict analysis with the 
-        <a href="/talon-analysis" class="alert-link">Talon Command Analysis</a> report.
-    </div>
+        </div>    </div>
 
-    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        @if (IsInFocusMode())
+    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">@if (IsInFocusMode())
         {
             <div class="alert alert-info mb-3" role="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
