@@ -21,10 +21,9 @@
 		@if (showAIChat)
 		{
 			<AIChatComponent RunningInBlazorHybrid="true" />
-		}
-		else if (showTalonSearch)
+		}		else if (showTalonSearch)
 		{
-			<TalonVoiceCommandSearch />
+			<TalonVoiceCommandSearch InitialSearchTerm="@searchTerm" />
 		}
 		else if (languageAndCategoryListing)
 		{

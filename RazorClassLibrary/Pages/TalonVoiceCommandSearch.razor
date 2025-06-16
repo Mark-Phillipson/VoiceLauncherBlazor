@@ -21,8 +21,7 @@
 }
 </style>
 
-<div class="container mt-4">
-    <h2>Talon Voice Command Search</h2>    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        @if (IsInFocusMode())
+<div class="container mt-4">    <h2>Talon Voice Command Search</h2><form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">        @if (IsInFocusMode())
         {
             <div class="alert alert-info mb-3" role="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">

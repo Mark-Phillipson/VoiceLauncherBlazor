@@ -2,6 +2,7 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.ComponentModel;
+using System.Linq;
 
 namespace WinFormsApp
 {
@@ -31,23 +32,46 @@ namespace WinFormsApp
 		(arguments != null && arguments.Length > 1 &&
 		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
 		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))) ? "Close" : "← Back") :
-		"Talon Search";
-		protected override async Task OnInitializedAsync()
+		"Talon Search";		protected override async Task OnInitializedAsync()
 		{
 			arguments = Environment.GetCommandLineArgs();
+			
+			// Debug: Log all command line arguments
+			System.Diagnostics.Debug.WriteLine($"Command line arguments count: {arguments?.Length ?? 0}");
+			if (arguments != null)
+			{
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					System.Diagnostics.Debug.WriteLine($"Argument {i}: '{arguments[i]}'");
+				}
+			}
+			
 			if (arguments == null || arguments.Length == 0)
 			{
 				return;
-			}
-
-			// Check for search/Talon command line arguments
-			if (arguments.Length >= 2 && 
-				(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) || 
-				 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+			}		// Check for search/Talon command line arguments
+		if (arguments.Length >= 2 && 
+			(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) || 
+			 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+		{
+			showTalonSearch = true;
+					// Check if there are additional arguments to use as search terms
+			if (arguments.Length >= 3)
 			{
-				showTalonSearch = true;
-				return;
+				// Join all arguments from index 2 onwards as the search term
+				searchTerm = string.Join(" ", arguments.Skip(2));
+				
+				// Clean up the search term - remove forward slashes and trim
+				searchTerm = searchTerm.Replace("/", "").Trim();
+				
+				System.Diagnostics.Debug.WriteLine($"Search term set to: '{searchTerm}'");
 			}
+			else
+			{
+				System.Diagnostics.Debug.WriteLine("No additional arguments for search term");
+			}
+			return;
+		}
 
 			if (arguments.Count() < 2)
 			{				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
@@ -69,12 +93,29 @@ namespace WinFormsApp
 		{
 			SetTitle("Talon Voice Command Search");
 			showTalonSearch = true;
+			
+			// Check if there are additional arguments to use as search terms
+			if (arguments.Length >= 3)
+			{
+				// Join all arguments from index 2 onwards as the search term
+				searchTerm = string.Join(" ", arguments.Skip(2));
+				// Clean up the search term - remove forward slashes and trim
+				searchTerm = searchTerm.Replace("/", "").Trim();
+			}
 		}
 		else if (arguments.Count() >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))
 		{
 			SetTitle("Talon Voice Command Search");
 			showTalonSearch = true;
-		}
+			
+			// Check if there are additional arguments to use as search terms  
+			if (arguments.Length >= 4)
+			{
+				// Join all arguments from index 3 onwards as the search term
+				searchTerm = string.Join(" ", arguments.Skip(3));
+				// Clean up the search term - remove forward slashes and trim
+				searchTerm = searchTerm.Replace("/", "").Trim();
+			}		}
 		else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
 		{
 			SetTitle("Search Snippets");

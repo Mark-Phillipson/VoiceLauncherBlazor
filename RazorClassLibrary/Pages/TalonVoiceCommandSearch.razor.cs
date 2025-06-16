@@ -11,10 +11,11 @@ using System;
 using System.Text.RegularExpressions;
 
 namespace RazorClassLibrary.Pages
-{
-    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
+{    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
         private ElementReference searchInput;
+        
+        [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;
         
         public string SearchTerm { get; set; } = string.Empty;
         public List<TalonVoiceCommand> Results { get; set; } = new();
@@ -91,14 +92,30 @@ namespace RazorClassLibrary.Pages
             }
             
             await LoadFilterOptions();
-        }
-
-        protected override async Task OnInitializedAsync()
+        }        protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
             
+            // Debug: Log the initial search term
+            System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
+            
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
+            
+            System.Diagnostics.Debug.WriteLine("OnInitializedAsync completed");
+        }        protected override async Task OnParametersSetAsync()
+        {
+            System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
+            
+            // Set the initial search term if provided and not already set
+            if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                // Clean up the search term - remove forward slashes and trim
+                SearchTerm = InitialSearchTerm.Replace("/", "").Trim();
+                System.Diagnostics.Debug.WriteLine($"SearchTerm set from parameter to: '{SearchTerm}'");
+            }
+            
+            await base.OnParametersSetAsync();
         }
 
         private async Task LoadFilterOptions()
@@ -191,13 +208,21 @@ namespace RazorClassLibrary.Pages
             {
                 _isLoadingFilters = false;
             }
-        }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        }        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - firstRender: {firstRender}, SearchTerm: '{SearchTerm}', HasSearched: {HasSearched}");
+            
             if (firstRender)
             {
                 await searchInput.FocusAsync();
+                
+                // If we have a search term from command line, perform the search after the first render
+                if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
+                {
+                    System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - Performing automatic search for: '{SearchTerm}'");
+                    await OnSearch();
+                    StateHasChanged(); // Force UI update after search
+                }
             }
             // Note: We avoid calling EnsureSearchFocus on every render to prevent 
             // performance issues and potential infinite loops
@@ -214,9 +239,10 @@ namespace RazorClassLibrary.Pages
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }
-          public async Task OnSearch()
+        }          public async Task OnSearch()
         {
+            System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
+            
             // Clear the list contents cache when performing a new search
             _listContentsCache.Clear();
             _expandedLists.Clear();
@@ -228,13 +254,13 @@ namespace RazorClassLibrary.Pages
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
-            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);            bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
             bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
             bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
             bool hasTitleFilter = !string.IsNullOrWhiteSpace(SelectedTitle);
-            
-            try
+              try
             {
+                System.Diagnostics.Debug.WriteLine($"OnSearch - hasSearchTerm: {hasSearchTerm}, hasApplicationFilter: {hasApplicationFilter}, hasModeFilter: {hasModeFilter}");
                 
                 // Debug logging
                 if (JSRuntime != null)
@@ -244,12 +270,14 @@ namespace RazorClassLibrary.Pages
                 
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter)
                 {
+                    System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
                     Results = new List<TalonVoiceCommand>();
                     HasSearched = false;
                     await EnsureSearchFocus();
                     return;
                 }
 
+                System.Diagnostics.Debug.WriteLine("OnSearch - Proceeding with search");
                 IsLoading = true;
                 HasSearched = true;
                 StateHasChanged();
