@@ -5,7 +5,30 @@
 
 <div class="container mt-4">
     <h2>Import Talon Scripts</h2>
-    <p>Import .talon files into the database for semantic search and management.</p>    <div class="mb-3">
+    <p>Import .talon files into the database for semantic search and management.</p>
+    
+    <!-- Navigation Links -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                <a href="/talon-voice-command-search" class="btn btn-outline-primary">
+                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                </a>
+                <a href="/talon-analysis" class="btn btn-outline-info">
+                    <i class="oi oi-graph me-1"></i> Analysis Report
+                </a>
+                <span class="btn btn-primary disabled">
+                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info" role="alert">
+        <i class="oi oi-graph me-2"></i>
+        After importing, view command statistics and conflicts with the 
+        <a href="/talon-analysis" class="alert-link">Talon Command Analysis</a> report.
+    </div><div class="mb-3">
         <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
     </div>
     <button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>

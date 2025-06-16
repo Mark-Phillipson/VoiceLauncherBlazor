@@ -1,0 +1,342 @@
+@page "/talon-analysis"
+@using VoiceLauncher.Models
+@using VoiceLauncher.Services
+
+<PageTitle>Talon Command Analysis</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-chart-bar me-2"></i>
+                Talon Command Analysis
+            </h1>
+            
+            <!-- Navigation Links -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                        <a href="/talon-voice-command-search" class="btn btn-outline-primary">
+                            <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                        </a>
+                        <span class="btn btn-info disabled">
+                            <i class="oi oi-graph me-1"></i> Analysis Report
+                        </span>
+                        <a href="/talon-import" class="btn btn-outline-secondary">
+                            <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing Talon commands...</p>
+                </div>
+            }
+            else if (analysisResult != null)
+            {
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.TotalCommands.ToString("N0")</h4>
+                                        <p class="card-text">Total Commands</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-list fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.UniqueCommands.ToString("N0")</h4>
+                                        <p class="card-text">Unique Commands</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-filter fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.TotalConflicts.ToString("N0")</h4>
+                                        <p class="card-text">Total Conflicts</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.GlobalConflicts.ToString("N0")</h4>
+                                        <p class="card-text">Critical Conflicts</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-times-circle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repository Statistics -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-code-branch me-2"></i>
+                                    Repository Statistics
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Repository</th>
+                                                <th class="text-end">Commands</th>
+                                                <th class="text-end">Conflicts</th>
+                                                <th class="text-end">Conflict %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var repo in analysisResult.RepositoryStats)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge bg-secondary">@repo.Repository</span>
+                                                    </td>
+                                                    <td class="text-end">@repo.CommandCount.ToString("N0")</td>
+                                                    <td class="text-end">
+                                                        @if (repo.ConflictCount > 0)
+                                                        {
+                                                            <span class="badge bg-warning">@repo.ConflictCount</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">0</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-end">
+                                                        @if (repo.ConflictPercentage > 0)
+                                                        {
+                                                            <span class="text-warning">@repo.ConflictPercentage.ToString("F1")%</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">0%</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Command Distribution
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="repositoryChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Conflicts -->
+                @if (analysisResult.GlobalConflictDetails.Any())
+                {
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                                Critical Global Conflicts (@analysisResult.GlobalConflicts)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="globalConflictsAccordion">
+                                @for (int i = 0; i < Math.Min(analysisResult.GlobalConflictDetails.Count, 10); i++)
+                                {
+                                    var conflict = analysisResult.GlobalConflictDetails[i];
+                                    var accordionId = $"globalConflict{i}";
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" 
+                                                    data-bs-toggle="collapse" data-bs-target="#@accordionId">
+                                                <div class="w-100">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span>
+                                                            <strong>'@conflict.Command'</strong>
+                                                            @if (conflict.HasDifferentImplementations)
+                                                            {
+                                                                <span class="badge bg-danger ms-2">Different Implementations</span>
+                                                            }
+                                                        </span>
+                                                        <span class="badge bg-warning">@string.Join(" vs ", conflict.Repositories)</span>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="@accordionId" class="accordion-collapse collapse" 
+                                             data-bs-parent="#globalConflictsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6>Conflict Details:</h6>
+                                                        <ul class="list-unstyled">
+                                                            <li><strong>Application:</strong> @conflict.Application</li>
+                                                            <li><strong>Instances:</strong> @conflict.InstanceCount</li>
+                                                            <li><strong>Repositories:</strong> @string.Join(", ", conflict.Repositories)</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6>Implementations:</h6>
+                                                        @foreach (var impl in conflict.Implementations)
+                                                        {
+                                                            <div class="mb-2">
+                                                                <strong>[@impl.Repository] (@impl.Context):</strong>
+                                                                <code class="d-block mt-1 p-2 bg-light">@impl.Script</code>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            
+                            @if (analysisResult.GlobalConflictDetails.Count > 10)
+                            {
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Showing top 10 conflicts. Total: @analysisResult.GlobalConflictDetails.Count
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Application-Specific Conflicts -->
+                @if (analysisResult.AppConflictDetails.Any())
+                {
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-desktop me-2 text-warning"></i>
+                                Application-Specific Conflicts (@analysisResult.AppSpecificConflicts)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Command</th>
+                                            <th>Application</th>
+                                            <th>Repositories</th>
+                                            <th class="text-center">Different Scripts</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var conflict in analysisResult.AppConflictDetails)
+                                        {
+                                            <tr>
+                                                <td><code>@conflict.Command</code></td>
+                                                <td><span class="badge bg-primary">@conflict.Application</span></td>
+                                                <td>@string.Join(", ", conflict.Repositories)</td>
+                                                <td class="text-center">
+                                                    @if (conflict.HasDifferentImplementations)
+                                                    {
+                                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-check text-success"></i>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Unable to load analysis data. Please try refreshing the page.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    window.initRepositoryChart = (data) => {
+        const ctx = document.getElementById('repositoryChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(d => d.repository),
+                datasets: [{
+                    data: data.map(d => d.commandCount),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#36A2EB'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    };
+</script>

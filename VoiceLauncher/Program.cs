@@ -14,6 +14,7 @@ using SmartComponents.Inference.OpenAI;
 using SmartComponents.LocalEmbeddings;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
+using RazorClassLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,7 @@ builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 builder.Services.AddScoped<TalonVoiceCommandDataService>();
+builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

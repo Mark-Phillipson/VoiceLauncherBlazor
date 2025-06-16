@@ -11,6 +11,14 @@
 ## Development Practices
 
 - **Component Organization**: Each Blazor component consists of a `.razor` file (markup/UI) and a `.razor.cs` file (logic/code-behind).
+- **Component Placement**: 
+  - **CRITICAL**: All new Blazor components, models, and services should be created in the `RazorClassLibrary` project, NOT in the main `VoiceLauncher` project.
+  - When creating new features like TalonAnalysis, TalonImport, etc., place all related files in the appropriate folders within `RazorClassLibrary`:
+    - Components: `RazorClassLibrary/Pages/` (with both `.razor` and `.razor.cs` files)
+    - Models: `RazorClassLibrary/Models/`
+    - Services: `RazorClassLibrary/Services/`
+  - The main `VoiceLauncher` project should only contain program startup logic and dependency injection configuration.
+  - If components are accidentally created in `VoiceLauncher`, they must be moved to `RazorClassLibrary` and all references updated.
 - **CSS Isolation**: Always use CSS isolation files (`.razor.css`) for component-specific styles instead of inline `<style>` tags. This provides better separation of concerns, scoped styling, and maintainability.
 - **Styling**: Use Bootstrap classes for layout and controls. Ensure all interactive elements are accessible via keyboard and screen readers.
 - **Accessibility**:
