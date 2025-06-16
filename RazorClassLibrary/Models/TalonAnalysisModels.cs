@@ -36,9 +36,7 @@ namespace RazorClassLibrary.Models
         public string Repository { get; set; } = string.Empty;
         public string Script { get; set; } = string.Empty;
         public string Context { get; set; } = string.Empty; // "global" or app title
-    }
-
-    public class TalonCommand
+    }    public class TalonCommand
     {
         public string Command { get; set; } = string.Empty;
         public string Mode { get; set; } = string.Empty;
@@ -46,5 +44,6 @@ namespace RazorClassLibrary.Models
         public string Application { get; set; } = string.Empty;
         public string Repository { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string Tags { get; set; } = string.Empty;
     }
 }

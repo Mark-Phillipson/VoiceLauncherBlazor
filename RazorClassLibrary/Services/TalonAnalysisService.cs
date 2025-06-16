@@ -39,15 +39,15 @@ namespace RazorClassLibrary.Services
         {
             // Get all Talon voice commands from the database
             var dbCommands = await _talonDataService.GetAllCommandsForFiltersAsync();
-            
-            return dbCommands.Select(cmd => new TalonCommand
+              return dbCommands.Select(cmd => new TalonCommand
             {
                 Command = cmd.Command ?? string.Empty,
                 Mode = cmd.Mode ?? string.Empty,
                 Script = cmd.Script ?? string.Empty,
                 Application = cmd.Application ?? string.Empty,
                 Repository = cmd.Repository ?? string.Empty,
-                Title = cmd.Title ?? string.Empty
+                Title = cmd.Title ?? string.Empty,
+                Tags = cmd.Tags ?? string.Empty
             }).ToList();
         }
 
@@ -114,13 +114,17 @@ namespace RazorClassLibrary.Services
                 .OrderByDescending(c => c.InstanceCount)
                 .Take(20)
                 .ToList();
-        }
-
-        private bool HasTrueConflict(List<TalonCommand> commandInstances)
+        }        private bool HasTrueConflict(List<TalonCommand> commandInstances)
         {
             var repositories = commandInstances.Select(c => c.Repository.ToLower().Trim()).Distinct().ToList();
             
             if (repositories.Count <= 1) return false;
+            
+            // Check if commands are mutually exclusive due to tags
+            if (AreCommandsMutuallyExclusiveByTags(commandInstances))
+            {
+                return false; // Not a conflict if they can't be active simultaneously
+            }
             
             var trueGlobalCommands = commandInstances.Where(c => 
                 string.IsNullOrEmpty(c.Title) || 
@@ -137,6 +141,69 @@ namespace RazorClassLibrary.Services
             
             return trueGlobalCommands.GroupBy(c => c.Repository.ToLower().Trim()).Count() > 1 ||
                    (trueGlobalCommands.Any() && appSpecificCommands.Any());
+        }
+
+        private bool AreCommandsMutuallyExclusiveByTags(List<TalonCommand> commands)
+        {
+            // Group commands by repository to analyze tag conflicts
+            var commandsByRepo = commands.GroupBy(c => c.Repository.ToLower().Trim()).ToList();
+            
+            // If all commands are from the same repository, no conflict
+            if (commandsByRepo.Count <= 1) return true;
+            
+            // Check if any two commands from different repositories could be active simultaneously
+            for (int i = 0; i < commandsByRepo.Count; i++)
+            {
+                for (int j = i + 1; j < commandsByRepo.Count; j++)
+                {
+                    var repo1Commands = commandsByRepo[i].ToList();
+                    var repo2Commands = commandsByRepo[j].ToList();
+                    
+                    // Check if any command from repo1 could conflict with any command from repo2
+                    foreach (var cmd1 in repo1Commands)
+                    {
+                        foreach (var cmd2 in repo2Commands)
+                        {
+                            if (CouldCommandsBeActiveSimultaneously(cmd1, cmd2))
+                            {
+                                return false; // Found a potential conflict
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return true; // All commands are mutually exclusive
+        }
+
+        private bool CouldCommandsBeActiveSimultaneously(TalonCommand cmd1, TalonCommand cmd2)
+        {
+            var tags1 = ParseTags(cmd1.Tags);
+            var tags2 = ParseTags(cmd2.Tags);
+            
+            // If either command has no tags, they could potentially be active simultaneously
+            if (!tags1.Any() || !tags2.Any())
+            {
+                return true;
+            }
+            
+            // If the commands share any common tags, they could be active simultaneously
+            // If they have completely different tag sets, they're mutually exclusive
+            return tags1.Intersect(tags2, StringComparer.OrdinalIgnoreCase).Any();
+        }
+
+        private List<string> ParseTags(string tagString)
+        {
+            if (string.IsNullOrWhiteSpace(tagString))
+            {
+                return new List<string>();
+            }
+            
+            // Tags are typically comma-separated in the database
+            return tagString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                           .Select(t => t.Trim())
+                           .Where(t => !string.IsNullOrEmpty(t))
+                           .ToList();
         }
 
         private ConflictDetail CreateConflictDetail(List<TalonCommand> commands, string application)
