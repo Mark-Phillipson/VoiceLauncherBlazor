@@ -20,9 +20,7 @@ namespace RazorClassLibrary.Pages
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
-        public bool UseSemanticMatching { get; set; } = false;
-        
-        // Filter properties
+        public bool UseSemanticMatching { get; set; } = false;        // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
         public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
@@ -38,13 +36,13 @@ namespace RazorClassLibrary.Pages
         private int maxResults = 100;
 
         [Inject]
-        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
-        public IJSRuntime? JSRuntime { get; set; }
-        
-        private List<TalonVoiceCommand>? _allCommandsCache;
-        private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
-        
-        // For list display functionality
+        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }
+
+        [Inject]
+        public IJSRuntime? JSRuntime { get; set; }        private List<TalonVoiceCommand>? _allCommandsCache;
+        private bool _isLoadingFilters = false;
+        private CancellationTokenSource? _searchCancellationTokenSource;
+          // For list display functionality
         private Dictionary<string, List<TalonList>> _listContentsCache = new();
         private HashSet<string> _expandedLists = new();
 
@@ -57,9 +55,8 @@ namespace RazorClassLibrary.Pages
         private static List<string> _staticAvailableOperatingSystems = new();
         private static List<string> _staticAvailableRepositories = new();
         private static List<string> _staticAvailableTags = new();
-        private static List<string> _staticAvailableTitles = new();        private static readonly object _filterLock = new object();
-
-        /// <summary>
+        private static List<string> _staticAvailableTitles = new();
+        private static readonly object _filterLock = new object();        /// <summary>
         /// Clears the static filter cache to force reload after data changes
         /// </summary>
         public static void InvalidateFilterCache()
@@ -74,10 +71,11 @@ namespace RazorClassLibrary.Pages
                 _staticAvailableTags.Clear();
                 _staticAvailableTitles.Clear();
             }
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Forces a refresh of filter options from the database
-        /// </summary>
-        public async Task RefreshFiltersAsync()
+        /// </summary>        public async Task RefreshFiltersAsync()
         {
             lock (_filterLock)
             {
@@ -104,9 +102,9 @@ namespace RazorClassLibrary.Pages
         private async Task LoadFilterOptions()
         {
             if (_isLoadingFilters || TalonService is null) return;
-              lock (_filterLock)
-            {
-                if (_staticFiltersLoaded)
+            
+            lock (_filterLock)
+            {                if (_staticFiltersLoaded)
                 {
                     AvailableApplications = _staticAvailableApplications;
                     AvailableModes = _staticAvailableModes;
@@ -215,7 +213,7 @@ namespace RazorClassLibrary.Pages
             // Trigger search when the search input loses focus
             await OnSearch();
         }
-          public async Task OnSearch()
+          protected async Task OnSearch()
         {
             // Clear the list contents cache when performing a new search
             _listContentsCache.Clear();
@@ -242,7 +240,7 @@ namespace RazorClassLibrary.Pages
                     await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
                 }
                 
-                if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter)
+                if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter)
                 {
                     Results = new List<TalonVoiceCommand>();
                     HasSearched = false;
@@ -293,11 +291,6 @@ namespace RazorClassLibrary.Pages
                             .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
                 }
 
-                if (hasTitleFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.Title == SelectedTitle);
-                }
-                
                 if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
                 {
                     // Debug logging
@@ -455,12 +448,12 @@ namespace RazorClassLibrary.Pages
             // Clear focus mode when clearing filters
             _focusedCommand = null;
             _isFocusMode = false;
-              SelectedApplication = string.Empty;
+            
+            SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
             SelectedRepository = string.Empty;
             SelectedTags = string.Empty;
-            SelectedTitle = string.Empty;
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;

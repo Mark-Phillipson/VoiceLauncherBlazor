@@ -178,9 +178,7 @@ namespace DataAccessLibrary.Services
             await _context.TalonVoiceCommands.AddRangeAsync(commands);
             await _context.SaveChangesAsync();
             return commands.Count;
-        }
-
-        public async Task<List<TalonVoiceCommand>> SemanticSearchAsync(string searchTerm)
+        }        public async Task<List<TalonVoiceCommand>> SemanticSearchAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -188,7 +186,7 @@ namespace DataAccessLibrary.Services
             }
             var lowerTerm = searchTerm.ToLower();
             return await _context.TalonVoiceCommands
-                .Where(c => c.Command.ToLower().Contains(lowerTerm) || c.Script.ToLower().Contains(lowerTerm) || c.Application.ToLower().Contains(lowerTerm) || (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)))
+                .Where(c => c.Command.ToLower().Contains(lowerTerm) || c.Script.ToLower().Contains(lowerTerm) || c.Application.ToLower().Contains(lowerTerm) || (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) || (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
                 .OrderByDescending(c => c.CreatedAt)
                 .Take(100)
                 .ToListAsync();
@@ -533,14 +531,13 @@ namespace DataAccessLibrary.Services
                 return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
             }
 
-            var lowerTerm = searchTerm.ToLower();
-
-            // First, get commands that match directly
+            var lowerTerm = searchTerm.ToLower();            // First, get commands that match directly
             var directMatches = await _context.TalonVoiceCommands
                 .Where(c => c.Command.ToLower().Contains(lowerTerm) ||
                            c.Script.ToLower().Contains(lowerTerm) ||
                            c.Application.ToLower().Contains(lowerTerm) ||
-                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)))
+                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) ||
+                           (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
                 .ToListAsync();
 
             // Search within list values that might be referenced

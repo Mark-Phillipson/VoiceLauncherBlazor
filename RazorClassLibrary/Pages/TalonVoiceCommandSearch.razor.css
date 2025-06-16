@@ -207,6 +207,16 @@
     box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25) !important;
 }
 
+.filter-title {
+    border-color: var(--bs-success) !important;
+    background-color: rgba(var(--bs-success-rgb), 0.1) !important;
+}
+
+.filter-title:focus {
+    border-color: var(--bs-success) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-success-rgb), 0.25) !important;
+}
+
 /* Dark mode adjustments for filter dropdowns */
 [data-bs-theme="dark"] .filter-mode {
     background-color: rgba(var(--bs-secondary-rgb), 0.15) !important;
@@ -224,11 +234,16 @@
     background-color: rgba(var(--bs-primary-rgb), 0.15) !important;
 }
 
+[data-bs-theme="dark"] .filter-title {
+    background-color: rgba(var(--bs-success-rgb), 0.15) !important;
+}
+
 /* Fix dropdown option visibility in both light and dark modes */
 .filter-mode option,
 .filter-tags option,
 .filter-os option,
-.filter-repository option {
+.filter-repository option,
+.filter-title option {
     background-color: var(--bs-body-bg) !important;
     color: var(--bs-body-color) !important;
 }
@@ -237,7 +252,8 @@
 [data-bs-theme="light"] .filter-mode option,
 [data-bs-theme="light"] .filter-tags option,
 [data-bs-theme="light"] .filter-os option,
-[data-bs-theme="light"] .filter-repository option {
+[data-bs-theme="light"] .filter-repository option,
+[data-bs-theme="light"] .filter-title option {
     background-color: #ffffff !important;
     color: #212529 !important;
 }
@@ -246,7 +262,8 @@
 [data-bs-theme="dark"] .filter-mode option,
 [data-bs-theme="dark"] .filter-tags option,
 [data-bs-theme="dark"] .filter-os option,
-[data-bs-theme="dark"] .filter-repository option {
+[data-bs-theme="dark"] .filter-repository option,
+[data-bs-theme="dark"] .filter-title option {
     background-color: #212529 !important;
     color: #ffffff !important;
 }
@@ -255,14 +272,16 @@
 .filter-mode,
 .filter-tags,
 .filter-os,
-.filter-repository {
+.filter-repository,
+.filter-title {
     color: var(--bs-body-color) !important;
 }
 
 [data-bs-theme="dark"] .filter-mode,
 [data-bs-theme="dark"] .filter-tags,
 [data-bs-theme="dark"] .filter-os,
-[data-bs-theme="dark"] .filter-repository {
+[data-bs-theme="dark"] .filter-repository,
+[data-bs-theme="dark"] .filter-title {
     color: #ffffff !important;
 }
 
@@ -326,6 +345,13 @@ u {
     text-underline-offset: 2px !important;
 }
 
+.label-title u {
+    text-decoration-color: var(--bs-success) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
 /* Dark mode access key adjustments */
 [data-bs-theme="dark"] u {
     text-decoration-color: var(--bs-primary);
@@ -371,6 +397,13 @@ u {
     text-underline-offset: 2px !important;
 }
 
+[data-bs-theme="dark"] .label-title u {
+    text-decoration-color: var(--bs-success) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
 /* Hover effects for access key elements */
 [accesskey]:hover u,
 [accesskey]:focus u {
@@ -409,6 +442,10 @@ u {
     border-bottom-color: var(--bs-secondary) !important;
 }
 
+.badge-title {
+    border-bottom-color: var(--bs-success) !important;
+}
+
 .badge-tags {
     border-bottom-color: var(--bs-warning) !important;
 }
@@ -431,6 +468,10 @@ u {
 /* Dark mode adjustments for badge underlines */
 [data-bs-theme="dark"] .badge-mode {
     border-bottom-color: var(--bs-secondary) !important;
+}
+
+[data-bs-theme="dark"] .badge-title {
+    border-bottom-color: var(--bs-success) !important;
 }
 
 [data-bs-theme="dark"] .badge-tags {
@@ -507,6 +548,13 @@ u {
     text-underline-offset: 2px;
 }
 
+.underline-title {
+    text-decoration: underline;
+    text-decoration-color: #198754;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
 /* Expanded script with lists styling */
 .script-content.bg-light {
     background-color: #f1f3f4 !important;
@@ -549,4 +597,19 @@ u {
 [data-bs-theme="dark"] .capture-highlight {
     background-color: #ffc107 !important; /* Keep yellow in dark mode */
     color: #000 !important; /* Black text for better contrast in dark mode */
+}
+
+/* Dark mode title underline styling */
+[data-bs-theme="dark"] .underline-repository {
+    text-decoration-color: var(--bs-primary) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .underline-title {
+    text-decoration-color: var(--bs-success) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
 }
