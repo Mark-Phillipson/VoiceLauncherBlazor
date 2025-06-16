@@ -99,20 +99,18 @@ namespace DataAccessLibrary.Services
                     if (!inCommandsSection)
                     {
                         // Robust delimiter check: ignore all whitespace and carriage returns
-                        var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());
-                        if (delimiterCheck == "-")
+                        var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());                        if (delimiterCheck == "-")
                         {
                             Debug.WriteLine($"Delimiter found at line {i}");
                             inCommandsSection = true;
                             continue;
                         }
-                        if (line.StartsWith("app:", StringComparison.OrdinalIgnoreCase))
+                        
+                        // Try to parse application using the helper method
+                        var parsedApp = ParseApplicationFromHeaderLine(line);
+                        if (parsedApp != null)
                         {
-                            application = line.Substring(4).Trim();
-                        }
-                        else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
-                        {
-                            application = line.Substring(12).Trim();
+                            application = parsedApp;
                         }
                         else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                         {
@@ -228,20 +226,18 @@ namespace DataAccessLibrary.Services
                 var rawLine = lines[i];
                 var line = rawLine.Trim();
                 if (!inCommandsSection)
-                {
-                    var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());
+                {                    var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());
                     if (delimiterCheck == "-")
                     {
                         inCommandsSection = true;
                         continue;
                     }
-                    if (line.StartsWith("app:", StringComparison.OrdinalIgnoreCase))
+                    
+                    // Try to parse application using the helper method
+                    var parsedApp = ParseApplicationFromHeaderLine(line);
+                    if (parsedApp != null)
                     {
-                        application = line.Substring(4).Trim();
-                    }
-                    else if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        application = line.Substring(12).Trim();
+                        application = parsedApp;
                     }
                     else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                     {
@@ -1055,6 +1051,42 @@ namespace DataAccessLibrary.Services
             }
             
             return results;
+        }        /// <summary>
+        /// Parses a header line to extract application name, handling complex patterns like "and app.name:"
+        /// </summary>
+        private string? ParseApplicationFromHeaderLine(string line)
+        {
+            // Handle direct patterns
+            if (line.StartsWith("app:", StringComparison.OrdinalIgnoreCase))
+            {
+                return line.Substring(4).Trim();
+            }
+            if (line.StartsWith("application:", StringComparison.OrdinalIgnoreCase))
+            {
+                return line.Substring(12).Trim();
+            }
+            
+            // Handle "app.exe:" pattern - common in Talon files
+            if (line.StartsWith("app.exe:", StringComparison.OrdinalIgnoreCase))
+            {
+                return line.Substring(8).Trim();
+            }
+            
+            // Handle "and app.name:" pattern - extract the application name after the colon
+            if (line.Contains("app.name:", StringComparison.OrdinalIgnoreCase))
+            {
+                var appNameIndex = line.IndexOf("app.name:", StringComparison.OrdinalIgnoreCase);
+                if (appNameIndex >= 0)
+                {
+                    var colonIndex = line.IndexOf(':', appNameIndex + "app.name".Length);
+                    if (colonIndex >= 0 && colonIndex + 1 < line.Length)
+                    {
+                        return line.Substring(colonIndex + 1).Trim();
+                    }
+                }
+            }
+            
+            return null;
         }
     }
 }
