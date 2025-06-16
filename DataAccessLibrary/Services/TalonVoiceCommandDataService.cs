@@ -66,12 +66,12 @@ namespace DataAccessLibrary.Services
             await _context.SaveChangesAsync();
             var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
             var commands = new List<TalonVoiceCommand>(); foreach (var file in talonFiles)
-            {
-                var lines = await File.ReadAllLinesAsync(file);
+            {                var lines = await File.ReadAllLinesAsync(file);
                 string application = "global";
                 List<string> modes = new();
                 List<string> tags = new();
                 string? operatingSystem = null;
+                string? title = null;
                 bool inCommandsSection = false;
 
                 // First pass: check if there's a header section (look for delimiter)
@@ -129,10 +129,13 @@ namespace DataAccessLibrary.Services
                             {
                                 tags.Add(tagValue);
                             }
-                        }
-                        else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
+                        }                        else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
                         {
                             operatingSystem = line.Substring(3).Trim();
+                        }
+                        else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            title = line.Substring(6).Trim();
                         }
                         // skip other headers
                         continue;
@@ -156,11 +159,12 @@ namespace DataAccessLibrary.Services
                             script += "\n" + lines[j].Trim();
                             j++;
                         }
-                        i = j - 1; commands.Add(new TalonVoiceCommand
+                        i = j - 1;                        commands.Add(new TalonVoiceCommand
                         {
                             Command = command.Length > 200 ? command.Substring(0, 200) : command,
                             Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
                             Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                            Title = title != null && title.Length > 200 ? title.Substring(0, 200) : title,
                             Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
                             OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
                             FilePath = file.Length > 500 ? file.Substring(file.Length - 500) : file,
@@ -198,11 +202,11 @@ namespace DataAccessLibrary.Services
         public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
         {
             // Do NOT clear the table here; only add new commands
-            var commands = new List<TalonVoiceCommand>();
-            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); string application = "global";
+            var commands = new List<TalonVoiceCommand>();            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); string application = "global";
             List<string> modes = new();
             List<string> tags = new();
             string? operatingSystem = null;
+            string? title = null;
             bool inCommandsSection = false;
 
             // First pass: check if there's a header section (look for delimiter)
@@ -256,10 +260,13 @@ namespace DataAccessLibrary.Services
                         {
                             tags.Add(tagValue);
                         }
-                    }
-                    else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
+                    }                    else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
                     {
                         operatingSystem = line.Substring(3).Trim();
+                    }
+                    else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        title = line.Substring(6).Trim();
                     }
                     continue;
                 }
@@ -278,11 +285,12 @@ namespace DataAccessLibrary.Services
                         script += "\n" + lines[j].Trim();
                         j++;
                     }
-                    i = j - 1; commands.Add(new TalonVoiceCommand
+                    i = j - 1;                    commands.Add(new TalonVoiceCommand
                     {
                         Command = command.Length > 200 ? command.Substring(0, 200) : command,
                         Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
                         Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                        Title = title != null && title.Length > 200 ? title.Substring(0, 200) : title,
                         Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
                         OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
                         FilePath = fileName.Length > 500 ? fileName.Substring(fileName.Length - 500) : fileName,

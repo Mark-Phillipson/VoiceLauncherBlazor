@@ -247,5 +247,199 @@ namespace TestProjectxUnit
             // Assert
             Assert.Equal(expectedRepository, result);
         }
+
+        [Fact]
+        public async Task ImportFromTalonFilesAsync_ParsesTitleFromHeader_SavesCommandsWithTitle()
+        {
+            // Arrange
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempDir);
+            var talonFile = Path.Combine(tempDir, "test_with_title.talon");
+            await File.WriteAllLinesAsync(talonFile, new[]
+            {
+                "app: vscode",
+                "title: My Custom Title",
+                "mode: command",
+                "-",
+                "open file: user.open_file()",
+                "save file: user.save_file()"
+            });
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var count = await service.ImportFromTalonFilesAsync(tempDir);
+
+            // Assert
+            var commands = dbContext.TalonVoiceCommands.ToList();
+            Assert.Equal(2, count);
+            Assert.Equal(2, commands.Count);
+            
+            // Verify both commands have the title from the header
+            Assert.All(commands, command => 
+            {
+                Assert.Equal("My Custom Title", command.Title);
+                Assert.Equal("vscode", command.Application);
+                Assert.Equal("command", command.Mode);
+            });
+            
+            // Verify specific commands
+            Assert.Contains(commands, c => c.Command == "open file" && c.Script == "user.open_file()");
+            Assert.Contains(commands, c => c.Command == "save file" && c.Script == "user.save_file()");
+
+            // Cleanup
+            Directory.Delete(tempDir, true);
+        }
+
+        [Fact]
+        public async Task ImportTalonFileContentAsync_ParsesTitleFromHeader_SavesCommandsWithTitle()
+        {
+            // Arrange
+            var fileContent = @"app: chrome
+title: ChatGPT Shortcuts
+mode: chat
+-
+new chat: 
+    key(ctrl-shift-o)
+
+focus input: 
+    key(shift-esc)
+
+copy code block: 
+    key(ctrl-shift-;)";
+
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+            var fileName = "test_chatgpt.talon";
+
+            // Act
+            var count = await service.ImportTalonFileContentAsync(fileContent, fileName);
+
+            // Assert
+            var commands = dbContext.TalonVoiceCommands.ToList();
+            Assert.Equal(3, count);
+            Assert.Equal(3, commands.Count);
+            
+            // Verify all commands have the title from the header
+            Assert.All(commands, command => 
+            {
+                Assert.Equal("ChatGPT Shortcuts", command.Title);
+                Assert.Equal("chrome", command.Application);
+                Assert.Equal("chat", command.Mode);
+            });
+            
+            // Verify specific commands
+            Assert.Contains(commands, c => c.Command == "new chat" && c.Script.Contains("key(ctrl-shift-o)"));
+            Assert.Contains(commands, c => c.Command == "focus input" && c.Script.Contains("key(shift-esc)"));
+            Assert.Contains(commands, c => c.Command == "copy code block" && c.Script.Contains("key(ctrl-shift-;)"));
+        }
+
+        [Fact]
+        public async Task ImportFromTalonFilesAsync_NoTitleInHeader_SavesCommandsWithNullTitle()
+        {
+            // Arrange
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempDir);
+            var talonFile = Path.Combine(tempDir, "test_no_title.talon");
+            await File.WriteAllLinesAsync(talonFile, new[]
+            {
+                "app: notepad",
+                "mode: command",
+                "-",
+                "save file: key(ctrl-s)",
+                "open file: key(ctrl-o)"
+            });
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var count = await service.ImportFromTalonFilesAsync(tempDir);
+
+            // Assert
+            var commands = dbContext.TalonVoiceCommands.ToList();
+            Assert.Equal(2, commands.Count);
+            
+            // Verify commands have null title when not specified in header
+            Assert.All(commands, command => 
+            {
+                Assert.Null(command.Title);
+                Assert.Equal("notepad", command.Application);
+                Assert.Equal("command", command.Mode);
+            });
+
+            // Cleanup
+            Directory.Delete(tempDir, true);
+        }
+
+        [Fact]
+        public async Task ImportFromTalonFilesAsync_LongTitleTruncation_SavesCommandsWithTruncatedTitle()
+        {
+            // Arrange
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempDir);
+            var talonFile = Path.Combine(tempDir, "test_long_title.talon");
+            
+            // Create a title longer than 200 characters
+            var longTitle = new string('A', 250); // 250 characters
+            await File.WriteAllLinesAsync(talonFile, new[]
+            {
+                "app: test_app",
+                $"title: {longTitle}",
+                "-",
+                "test command: key(ctrl-t)"
+            });
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var count = await service.ImportFromTalonFilesAsync(tempDir);
+
+            // Assert
+            var commands = dbContext.TalonVoiceCommands.ToList();
+            Assert.Single(commands);
+            
+            var command = commands.First();
+            Assert.NotNull(command.Title);
+            Assert.Equal(200, command.Title.Length); // Should be truncated to 200 characters
+            Assert.Equal(new string('A', 200), command.Title); // Should be first 200 'A' characters
+
+            // Cleanup
+            Directory.Delete(tempDir, true);
+        }
+
+        [Fact]
+        public async Task ImportFromTalonFilesAsync_NoHeaderSection_SavesCommandsWithNullTitle()
+        {
+            // Arrange
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempDir);
+            var talonFile = Path.Combine(tempDir, "test_no_header.talon");
+            await File.WriteAllLinesAsync(talonFile, new[]
+            {
+                "# This file has no header section, commands start immediately",
+                "global command: key(ctrl-g)",
+                "another command: insert('Hello World')"
+            });
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+
+            // Act
+            var count = await service.ImportFromTalonFilesAsync(tempDir);
+
+            // Assert
+            var commands = dbContext.TalonVoiceCommands.ToList();
+            Assert.Equal(2, commands.Count);
+            
+            // Verify commands have null title and global application when no header section
+            Assert.All(commands, command => 
+            {
+                Assert.Null(command.Title);
+                Assert.Equal("global", command.Application);
+                Assert.Null(command.Mode);
+            });
+
+            // Cleanup
+            Directory.Delete(tempDir, true);
+        }
     }
 }

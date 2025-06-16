@@ -1439,6 +1439,23 @@ BEGIN
     VALUES (N'20250615110350_IncreaseTalonListValueColumnSize', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616083951_AddTitle'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Title] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616083951_AddTitle'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250616083951_AddTitle', N'9.0.0');
+END;
+
 COMMIT;
 GO
 

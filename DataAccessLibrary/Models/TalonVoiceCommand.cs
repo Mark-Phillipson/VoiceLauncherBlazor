@@ -6,7 +6,8 @@ namespace DataAccessLibrary.Models
     public class TalonVoiceCommand
     {
         [Key]
-        public int Id { get; set; }        [StringLength(200)]
+        public int Id { get; set; }
+        [StringLength(200)]
         [Required]
         public required string Command { get; set; }
 
@@ -16,13 +17,18 @@ namespace DataAccessLibrary.Models
 
         [StringLength(200)]
         [Required]
-        public required string Application { get; set; } = "global";        [StringLength(300)]
+        public required string Application { get; set; } = "global";
+        [StringLength(200)]
+        public string? Title { get; set; }
+        [StringLength(300)]
         public string? Mode { get; set; }
 
         [StringLength(100)]
-        public string? OperatingSystem { get; set; }        [StringLength(500)]
+        public string? OperatingSystem { get; set; }
+        [StringLength(500)]
         [Required]
-        public required string FilePath { get; set; }        [StringLength(200)]
+        public required string FilePath { get; set; }
+        [StringLength(200)]
         public string? Repository { get; set; }
 
         [StringLength(500)]

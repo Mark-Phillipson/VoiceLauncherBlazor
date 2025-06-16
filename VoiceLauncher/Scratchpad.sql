@@ -5,9 +5,11 @@ FROM TalonLists
 ORDER BY ListName;
 
 SELECT ListName, ListValue,SpokenForm FROM TalonLists
- WHERE ListName LIKE '%modelPrompt%'
+ WHERE ListName LIKE '%running%'
  GROUP BY ListName,ListValue,SpokenForm ORDER BY ListName,ListValue;
 
-  SELECT Command,Mode,Script,Application,Repository FROM TalonVoiceCommands WHERE  Command LIKE 'talon lists%'  ORDER BY Command
+  SELECT Command,Mode,Script,Application,Repository,Title FROM TalonVoiceCommands 
+  --WHERE  Command LIKE 'talon lists%'  
+  ORDER BY Title desc
 
   SELECT COUNT(*) as TotalCommands FROM TalonVoiceCommands;
