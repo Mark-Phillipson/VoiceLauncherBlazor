@@ -1,9 +1,9 @@
 ﻿@page "/"
 <PageTitle>Voice Admin🎙️ Homepage</PageTitle>
-<div class='m-1'>
-	<header>
-		<h1 class="d-none d-lg-block p-2" style="font-size: 10.5rem;">
-			Voice Admin🎙️
+<div class='m-1'>	<header>
+		<h1 class="d-none d-lg-block p-2 d-flex justify-content-between align-items-center" style="font-size: 10.5rem;">
+			<span>Voice Admin</span>
+			<span>🎙️</span>
 		</h1>
 	</header>
 	<main>
@@ -38,9 +38,8 @@
 					<p class="card-text">MVC ASP.NET Web Applications</p>
 				</div>
 			</div>
-		</article>
-		<div class="d-none d-lg-block">
-			<article style="display:flex;flex-direction:row">
+		</article>		<div class="d-none d-lg-block w-100">
+			<article class="d-flex justify-content-between w-100">
 				<div class="card m-2 p-2" style="width: 16rem;">
 					<a href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank">
 						<img src="/images/CSharpLogo.jpeg" class="card-img-top border border-dark border-2"
@@ -88,60 +87,54 @@
 							a wide range of programming languages and development tasks, making it a powerful IDE for
 							developers.</p>
 					</div>
-				</div>
-
-			</article>
-			<article style="display:flex;flex-direction:row">
-				<div class="card m-2 p-2" style="width: 18rem;">
+				</div>			</article>			<article class="d-flex justify-content-between w-100">				<div class="card m-2 p-2" style="width: 12rem;">
 					<a href="https://portal.azure.com/#home" target="_blank">
 						<img src="/images/Azure.jpeg" class="card-img-top border border-dark border-2"
-							alt="Azure Logo and a link to azure portal homesite">
+							alt="Azure Logo and a link to Azure portal homesite">
 					</a>
 					<div class="card-body">
-						<div class="card-title fs-3">Azure</div>
-						<p class="card-text">Cloud Computing</p>
+						<div class="card-title fs-3">Microsoft Azure</div>
+						<p class="card-text">Cloud platform for hosting Blazor Server applications, Azure SQL Database, Azure App Service, and DevOps CI/CD pipelines for scalable deployment.</p>
 					</div>
 				</div>
-				<div class="card m-2 p-2" style="width: 9rem;">
+				<div class="card m-2 p-2" style="width: 12rem;">
 					<a href="https://getbootstrap.com/" target="_blank"><img src="/images/bootstrap-logo-shadow.png"
-							class="card-img-top" alt="Talon Logo and a link to the bootstrap site"></a>
-					<div class="card-body">
+							class="card-img-top" alt="Talon Logo and a link to the bootstrap site"></a>					<div class="card-body">
 						<div class="card-title fs-5">Bootstrap</div>
-						<p class="card-text">Build fast, responsive sites.</p>
+						<p class="card-text">CSS framework providing accessible, responsive components for consistent UI styling across all Blazor pages.</p>
 					</div>
 				</div>
-				<div class="card m-2 p-2" style="width: 9rem;">
+				<div class="card m-2 p-2" style="width: 12rem;">
 					<a href="https://code.visualstudio.com/" target="_blank">
 						<img src="/images/VisualStudioCode.jpeg" class="card-img-top border border-dark border-2"
 							alt="Dot Net Logo and a link to Visual Studio Code">
-					</a>
-					<div class="card-body">
+					</a>					<div class="card-body">
 						<div class="card-title fs-5">VSCode</div>
-						<p class="card-text">Visual Studio Code text editor</p>
+						<p class="card-text">Primary IDE for hands-free Blazor development with Talon Voice and Cursorless extension integration.</p>
 					</div>
-				</div>
-				<div class="card m-2 p-2" style="width: 9rem;">
+				</div>				<div class="card m-2 p-2" style="width: 12rem;">
 					<a href="https://www.microasoft.com/en-us/sql-server/" target="_blank">
 						<img src="/images/SQLServerLogo.jpeg" class="card-img-top border border-dark border-2"
 							alt="SQLServer Logo and a link to SQL server Microsoft site">
+					</a>					<div class="card-body">
+						<div class="card-title fs-5">MS SQL Server</div>
+						<p class="card-text">Enterprise database platform for storing Talon voice commands, user configurations, and application data with Entity Framework Core integration.</p>					</div>
+				</div>
+				<div class="card m-2 p-2" style="width: 12rem;">
+					<a href="https://talonvoice.com/" target="_blank">
+						<img src="/images/Talon.png" class="d-block mx-auto" 
+							style="object-fit: contain; max-width: 100px; height: auto;" alt="Talon Logo and a link to Talon Voice">
 					</a>
 					<div class="card-body">
-						<div class="card-title fs-5">MS SQL Server</div>
-						<p class="card-text">Database management system.</p>
+						<div class="card-title fs-5">Talon Voice</div>
+						<p class="card-text">Advanced voice control software enabling hands-free coding, navigation, and accessibility workflows.</p>
 					</div>
 				</div>
-				<div class="card m-2 p-2" style="width: 9rem;">
-					<a href="https://talonvoice.com/" target="_blank"><img src="/images/Talon.png" class="card-img-top"
-							alt="Talon Logo and a link to talon voice"></a>
-					<div class="card-body">
-						<div class="card-title fs-5">Talon</div>
-						<p class="card-text">Powerful hands-free input</p>
-					</div>
-				</div>
-				<div class="card m-2 p-2" style="width: 10rem;">
+				<div class="card m-2 p-2" style="width: 12rem;">
 					<a href="https://www.cursorless.org/" target="_blank">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1920 1920"
-							title="Logo and a link to Cursorless organization" width="130px" height="130px">
+							title="Logo and a link to Cursorless organization" width="100px" height="100px" 
+							class="d-block mx-auto">
 							<path fill="currentColor"
 								d="M960.001 237.896c180.579 0 346.359 72.247 476.599 192.984C1388.26 184.524 1193.47 0 960.001 0 726.538 0 531.747 184.524 483.405 431.206c130.24-120.738 296.024-193.31 476.596-193.31M960.001 1681.92c-180.572 0-346.356-72.3-476.596-193.13C531.747 1735.34 726.538 1920 960.001 1920c233.469 0 428.259-184.66 476.599-431.21-130.24 120.83-296.02 193.13-476.599 193.13M238.075 960c0-180.571 72.302-346.356 193.131-476.595C184.663 531.747 0 726.537 0 960c0 233.47 184.663 428.26 431.206 476.6-120.503-130.24-193.131-296.02-193.131-476.6M1681.92 960c0 180.58-72.3 346.36-193.13 476.6C1735.34 1388.26 1920 1193.47 1920 960c0-233.463-184.66-428.253-431.21-476.595C1609.62 613.644 1681.92 779.429 1681.92 960">
 							</path>
@@ -149,7 +142,7 @@
 					</a>
 					<div class="card-body">
 						<div class="card-title fs-5">Cursorless</div>
-						<p class="card-text">VSCode Extension.</p>
+						<p class="card-text">VS Code extension for rapid, voice-driven code editing with visual targets for hands-free programming.</p>
 					</div>
 				</div>
 			</article>
@@ -158,25 +151,22 @@
 </div>
 
 <p>My Details:</p>
-<section class="center-content" title='My Details'>
-	<article style="display:flex;flex-direction:row">
-		<div class="card m-2 p-2" style="width: 20rem;">
-			<a target='_blank' title='My Github Site' href="https://github.com/Mark-Phillipson/">
-				<img alt="Github Logo Enclosed in a link to my Github" width="300" src='/images/githublogo.png' />
+<section class="center-content" title='My Details'>	<article class="d-flex justify-content-between w-100">		<div class="card m-2 p-2" style="width: 20rem;">
+			<a target='_blank' title='VoiceLauncherBlazor Repository on Github' href="https://github.com/Mark-Phillipson/VoiceLauncherBlazor">
+				<img alt="Github Logo Enclosed in a link to VoiceLauncherBlazor Repository" width="300" src='/images/githublogo.png' />
 			</a>
 			<div class="card-body">
-				<div class="card-title fs-1">My Github</div>
-				<p class="card-text">My Source Code Repositories on Github</p>
+				<div class="card-title fs-1">VoiceLauncherBlazor</div>
+				<p class="card-text">Voice-controlled Blazor application for hands-free development and accessibility</p>
 			</div>
 		</div>
 		<div class="card m-2 p-2" style="width: 20rem;">
 			<iframe title='My Voice Coding Demo on YouTube 37 minutes long but has chapters' width="300" height="200"
 				src="https://www.youtube.com/embed/UtnEG0E_rg8" frameborder="0"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen></iframe>
-			<div class="card-body">
+				allowfullscreen></iframe>			<div class="card-body">
 				<div id="focusMe" class="card-title fs-1">Voice Coding</div>
-				<p class="card-text">Voice Coding Demo on YouTube</p>
+				<p class="card-text">Comprehensive demonstration of hands-free development using Talon Voice and Cursorless. Watch real-world coding workflows, voice command techniques, and accessibility solutions in action. Perfect for developers interested in RSI prevention and efficient voice-driven programming.</p>
 				<a class='text-light' href="https://www.youtube.com/@@MPhillipson007">YouTube Channel</a>
 			</div>
 		</div>
@@ -185,11 +175,9 @@
 				class="btn btn-lg btn-outline-primary">
 				<img src="/images/Upworklogo.png" alt="Upwork Logo and a link to my Upwork profile"
 					class="d-block mx-auto img-responsive" width="250" />
-			</a>
-			<div class="card-body">
+			</a>			<div class="card-body">
 				<div class="card-title fs-1">Upwork Freelancer</div>
-				<p class="card-text">Fullstack developer in Blazor, Blazor Hybrid and ASP.NET, MVC, Web API, Entity
-					Framework Core.
+				<p class="card-text">Specialized fullstack developer with expertise in Blazor Server/WebAssembly, Blazor Hybrid, ASP.NET Core, MVC, Web API, and Entity Framework Core. Passionate about accessibility-focused development, voice-controlled applications, and hands-free coding solutions for developers with RSI or mobility challenges.
 				</p>
 			</div>
 		</div>
