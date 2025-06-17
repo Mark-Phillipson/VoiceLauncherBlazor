@@ -729,5 +729,110 @@ copy code block:
             Assert.Single(results);
             Assert.Equal("Window Management Tools", results.First().Title);
         }
+
+        [Fact]
+        public async Task ImportTalonFileContentAsync_ParsesCodeLanguageFromHeader_SavesCommandsWithCodeLanguage()
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+            
+            var fileContent = @"application: vscode
+code.language: python
+language: en
+hostname: mycomputer
+-
+python function: user.insert_python_function()
+python class: user.insert_python_class()";
+            
+            var fileName = "python_commands.talon";
+
+            // Act
+            var count = await service.ImportTalonFileContentAsync(fileContent, fileName);
+
+            // Assert
+            Assert.Equal(2, count);
+            var commands = await dbContext.TalonVoiceCommands.ToListAsync();
+            Assert.Equal(2, commands.Count);
+            
+            // Verify all commands have the code language set
+            Assert.All(commands, command => 
+            {
+                Assert.Equal("python", command.CodeLanguage);
+                Assert.Equal("en", command.Language);
+                Assert.Equal("mycomputer", command.Hostname);
+                Assert.Equal("vscode", command.Application);
+            });
+            
+            // Verify specific commands
+            var pythonFunction = commands.First(c => c.Command == "python function");
+            Assert.Equal("user.insert_python_function()", pythonFunction.Script);
+            
+            var pythonClass = commands.First(c => c.Command == "python class");
+            Assert.Equal("user.insert_python_class()", pythonClass.Script);
+        }
+
+        [Fact]
+        public async Task ImportTalonFileContentAsync_ParsesMultipleCodeLanguages_CombinesThemCorrectly()
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+            
+            var fileContent = @"application: vscode
+code.language: python
+code.language: javascript
+code.language: typescript
+-
+multi language command: user.insert_code()";
+            
+            var fileName = "multi_language_commands.talon";
+
+            // Act
+            var count = await service.ImportTalonFileContentAsync(fileContent, fileName);
+
+            // Assert
+            Assert.Equal(1, count);
+            var commands = await dbContext.TalonVoiceCommands.ToListAsync();
+            var command = commands.Single();
+            
+            // Verify multiple code languages are combined
+            Assert.Equal("python, javascript, typescript", command.CodeLanguage);
+            Assert.Equal("multi language command", command.Command);
+            Assert.Equal("user.insert_code()", command.Script);
+        }        [Fact]
+        public async Task ImportTalonFileContentAsync_IntegrationTest_ParsesCodeLanguagesFromRealFile()
+        {
+            // Arrange
+            var dbContext = GetInMemoryDbContext();
+            var service = new TalonVoiceCommandDataService(dbContext);
+              // Read the test file we created
+            var baseDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "";
+            var testFilePath = Path.Combine(baseDirectory, "..", "..", "..", "test_code_languages.talon");
+            var resolvedPath = Path.GetFullPath(testFilePath);
+            var fileContent = await File.ReadAllTextAsync(resolvedPath);
+            
+            // Act
+            var count = await service.ImportTalonFileContentAsync(fileContent, resolvedPath);
+
+            // Assert
+            Assert.Equal(3, count);
+            var commands = await dbContext.TalonVoiceCommands.ToListAsync();
+            Assert.Equal(3, commands.Count);
+            
+            // Verify all commands have the code language set
+            Assert.All(commands, command => 
+            {
+                Assert.Equal("python, javascript", command.CodeLanguage);
+                Assert.Equal("coding", command.Tags);
+                Assert.Equal("command", command.Mode);
+                Assert.Equal("vscode", command.Application);
+            });
+            
+            // Verify specific commands exist
+            Assert.Contains(commands, c => c.Command == "python function");
+            Assert.Contains(commands, c => c.Command == "javascript function");
+            Assert.Contains(commands, c => c.Command == "typescript interface");
+        }
     }
 }

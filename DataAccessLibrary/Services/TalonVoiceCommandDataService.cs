@@ -289,10 +289,33 @@ namespace DataAccessLibrary.Services
                     }                    else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
                     {
                         operatingSystem = line.Substring(3).Trim();
-                    }
-                    else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
+                    }                    else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
                     {
                         title = line.Substring(6).Trim();
+                    }
+                    else if (line.StartsWith("code.language:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var codeLanguageValue = line.Substring(14).Trim();
+                        if (!string.IsNullOrEmpty(codeLanguageValue))
+                        {
+                            codeLanguages.Add(codeLanguageValue);
+                        }
+                    }
+                    else if (line.StartsWith("language:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var languageValue = line.Substring(9).Trim();
+                        if (!string.IsNullOrEmpty(languageValue))
+                        {
+                            languages.Add(languageValue);
+                        }
+                    }
+                    else if (line.StartsWith("hostname:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var hostnameValue = line.Substring(9).Trim();
+                        if (!string.IsNullOrEmpty(hostnameValue))
+                        {
+                            hostnames.Add(hostnameValue);
+                        }
                     }
                     continue;
                 }

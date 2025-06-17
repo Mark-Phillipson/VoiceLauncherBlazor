@@ -103,7 +103,7 @@ namespace RazorClassLibrary.Pages
             ImportResult = null;
             ErrorMessage = null;
             StateHasChanged();
-
+ 
             try
             {
                 var listsImported = await TalonServiceField.ImportTalonListsFromFileAsync(ListsFilePath);
