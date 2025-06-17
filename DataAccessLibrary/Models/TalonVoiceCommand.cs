@@ -29,10 +29,17 @@ namespace DataAccessLibrary.Models
         [Required]
         public required string FilePath { get; set; }
         [StringLength(200)]
-        public string? Repository { get; set; }
-
-        [StringLength(500)]
+        public string? Repository { get; set; }        [StringLength(500)]
         public string? Tags { get; set; }
+        
+        [StringLength(100)]
+        public string? CodeLanguage { get; set; }
+        
+        [StringLength(50)]
+        public string? Language { get; set; }
+        
+        [StringLength(100)]
+        public string? Hostname { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

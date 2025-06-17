@@ -53,3 +53,29 @@
 .accordion-body strong {
     color: #1565c0 !important;
 }
+
+/* Fix light text contrast issues */
+.accordion-body .col-md-6 {
+    color: #ffffff !important;
+}
+
+/* Improve conflict details text */
+.accordion-body h6 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Fix list text color */
+.accordion-body .list-unstyled li {
+    color: #e0e0e0 !important;
+}
+
+/* Improve strong text in conflict details */
+.accordion-body strong {
+    color: #ffffff !important;
+}
+
+/* Fix implementation headers */
+.accordion-body .mb-2 strong {
+    color: #ffffff !important;
+}

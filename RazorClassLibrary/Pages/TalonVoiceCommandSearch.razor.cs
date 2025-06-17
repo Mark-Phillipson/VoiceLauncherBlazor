@@ -22,20 +22,21 @@ namespace RazorClassLibrary.Pages
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
         public bool UseSemanticMatching { get; set; } = false;
-        
-        // Filter properties
+          // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
         public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
         public string SelectedRepository { get; set; } = string.Empty;
         public string SelectedTags { get; set; } = string.Empty;
         public string SelectedTitle { get; set; } = string.Empty;
+        public string SelectedCodeLanguage { get; set; } = string.Empty;
         public List<string> AvailableApplications { get; set; } = new();
         public List<string> AvailableModes { get; set; } = new();
         public List<string> AvailableOperatingSystems { get; set; } = new();
         public List<string> AvailableRepositories { get; set; } = new();
         public List<string> AvailableTags { get; set; } = new();
         public List<string> AvailableTitles { get; set; } = new();
+        public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
 
         [Inject]
@@ -52,13 +53,13 @@ namespace RazorClassLibrary.Pages
         // For focused card functionality
         private TalonVoiceCommand? _focusedCommand = null;
         private bool _isFocusMode = false;
-        private static bool _staticFiltersLoaded = false;
-        private static List<string> _staticAvailableApplications = new();
+        private static bool _staticFiltersLoaded = false;        private static List<string> _staticAvailableApplications = new();
         private static List<string> _staticAvailableModes = new();
         private static List<string> _staticAvailableOperatingSystems = new();
         private static List<string> _staticAvailableRepositories = new();
         private static List<string> _staticAvailableTags = new();
-        private static List<string> _staticAvailableTitles = new();        private static readonly object _filterLock = new object();
+        private static List<string> _staticAvailableTitles = new();
+        private static List<string> _staticAvailableCodeLanguages = new();private static readonly object _filterLock = new object();
 
         /// <summary>
         /// Clears the static filter cache to force reload after data changes
@@ -122,8 +123,7 @@ namespace RazorClassLibrary.Pages
         {
             if (_isLoadingFilters || TalonService is null) return;
               lock (_filterLock)
-            {
-                if (_staticFiltersLoaded)
+            {                if (_staticFiltersLoaded)
                 {
                     AvailableApplications = _staticAvailableApplications;
                     AvailableModes = _staticAvailableModes;
@@ -131,6 +131,7 @@ namespace RazorClassLibrary.Pages
                     AvailableRepositories = _staticAvailableRepositories;
                     AvailableTags = _staticAvailableTags;
                     AvailableTitles = _staticAvailableTitles;
+                    AvailableCodeLanguages = _staticAvailableCodeLanguages;
                     return;
                 }
                 
@@ -177,20 +178,25 @@ namespace RazorClassLibrary.Pages
                         .Select(t => t.Trim()))
                     .Distinct()
                     .OrderBy(t => t)
-                    .ToList();
-
-                var titles = _allCommandsCache
+                    .ToList();                var titles = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.Title))
                     .Select(c => c.Title!)
                     .Distinct()
                     .OrderBy(t => t)
                     .ToList();
+
+                var codeLanguages = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
+                    .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(cl => cl.Trim()))
+                    .Distinct()
+                    .OrderBy(cl => cl)
+                    .ToList();
                 
                 // Debug output
                 Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
                 Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
-                
-                // Update both instance and static collections
+                  // Update both instance and static collections
                 lock (_filterLock)
                 {
                     AvailableApplications = _staticAvailableApplications = applications;
@@ -199,6 +205,7 @@ namespace RazorClassLibrary.Pages
                     AvailableRepositories = _staticAvailableRepositories = repositories;
                     AvailableTags = _staticAvailableTags = tags;
                     AvailableTitles = _staticAvailableTitles = titles;
+                    AvailableCodeLanguages = _staticAvailableCodeLanguages = codeLanguages;
                     _staticFiltersLoaded = true;
                 }
                 
@@ -255,14 +262,14 @@ namespace RazorClassLibrary.Pages
             // Clear focus mode when performing a new search
             _focusedCommand = null;
             _isFocusMode = false;
-            
-            // Don't search if no criteria are specified - check for default filter states
+              // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
             bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
             bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
             bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
             bool hasTitleFilter = !string.IsNullOrWhiteSpace(SelectedTitle);
+            bool hasCodeLanguageFilter = !string.IsNullOrWhiteSpace(SelectedCodeLanguage);
               try
             {
                 System.Diagnostics.Debug.WriteLine($"OnSearch - hasSearchTerm: {hasSearchTerm}, hasApplicationFilter: {hasApplicationFilter}, hasModeFilter: {hasModeFilter}");
@@ -273,7 +280,7 @@ namespace RazorClassLibrary.Pages
                     await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
                 }
                 
-                if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter)
+                if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter)
                 {
                     System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
                     Results = new List<TalonVoiceCommand>();
@@ -324,11 +331,17 @@ namespace RazorClassLibrary.Pages
                         !string.IsNullOrWhiteSpace(c.Tags) && 
                         c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
-                }
-
-                if (hasTitleFilter)
+                }                if (hasTitleFilter)
                 {
                     filteredCommands = filteredCommands.Where(c => c.Title == SelectedTitle);
+                }
+
+                if (hasCodeLanguageFilter)
+                {
+                    filteredCommands = filteredCommands.Where(c => 
+                        !string.IsNullOrWhiteSpace(c.CodeLanguage) && 
+                        c.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Any(lang => lang.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase)));
                 }
                 
                 if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
@@ -495,13 +508,13 @@ namespace RazorClassLibrary.Pages
             
             // Clear focus mode when clearing filters
             _focusedCommand = null;
-            _isFocusMode = false;
-              SelectedApplication = string.Empty;
+            _isFocusMode = false;            SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
             SelectedRepository = string.Empty;
             SelectedTags = string.Empty;
             SelectedTitle = string.Empty;
+            SelectedCodeLanguage = string.Empty;
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;
@@ -544,6 +557,12 @@ namespace RazorClassLibrary.Pages
         protected void OnTitleFilterChange(ChangeEventArgs e)
         {
             SelectedTitle = e.Value?.ToString() ?? string.Empty;
+            // Don't auto-search, let user control when to search
+        }
+
+        protected void OnCodeLanguageFilterChange(ChangeEventArgs e)
+        {
+            SelectedCodeLanguage = e.Value?.ToString() ?? string.Empty;
             // Don't auto-search, let user control when to search
         }
 

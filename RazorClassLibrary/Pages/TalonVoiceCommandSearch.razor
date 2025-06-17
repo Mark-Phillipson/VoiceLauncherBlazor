@@ -132,6 +132,20 @@
                         }
                     }
                 </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
+                <select class="form-select form-select-sm filter-code-language" @onchange="OnCodeLanguageFilterChange" aria-label="Filter by Code Language" disabled="@IsLoading" value="@SelectedCodeLanguage" accesskey="c">
+                    <option value="">All Code Languages</option>
+                    @if (AvailableCodeLanguages != null)
+                    {
+                        @foreach (var codeLanguage in AvailableCodeLanguages)
+                        {
+                            <option value="@codeLanguage">@codeLanguage</option>
+                        }
+                    }
+                </select>
             </div><div class="col-md-6 d-flex align-items-end justify-content-between"><div>                    <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
                         @if (IsLoading)
                         {

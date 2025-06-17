@@ -66,10 +66,12 @@ namespace DataAccessLibrary.Services
             await _context.SaveChangesAsync();
             var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
             var commands = new List<TalonVoiceCommand>(); foreach (var file in talonFiles)
-            {                var lines = await File.ReadAllLinesAsync(file);
-                string application = "global";
+            {                var lines = await File.ReadAllLinesAsync(file);                string application = "global";
                 List<string> modes = new();
                 List<string> tags = new();
+                List<string> codeLanguages = new();
+                List<string> languages = new();
+                List<string> hostnames = new();
                 string? operatingSystem = null;
                 string? title = null;
                 bool inCommandsSection = false;
@@ -126,14 +128,38 @@ namespace DataAccessLibrary.Services
                             if (!string.IsNullOrEmpty(tagValue))
                             {
                                 tags.Add(tagValue);
-                            }
-                        }                        else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
+                            }                        }
+                        else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
                         {
                             operatingSystem = line.Substring(3).Trim();
                         }
                         else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
                         {
                             title = line.Substring(6).Trim();
+                        }
+                        else if (line.StartsWith("code.language:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var codeLanguageValue = line.Substring(14).Trim();
+                            if (!string.IsNullOrEmpty(codeLanguageValue))
+                            {
+                                codeLanguages.Add(codeLanguageValue);
+                            }
+                        }
+                        else if (line.StartsWith("language:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var languageValue = line.Substring(9).Trim();
+                            if (!string.IsNullOrEmpty(languageValue))
+                            {
+                                languages.Add(languageValue);
+                            }
+                        }
+                        else if (line.StartsWith("hostname:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var hostnameValue = line.Substring(9).Trim();
+                            if (!string.IsNullOrEmpty(hostnameValue))
+                            {
+                                hostnames.Add(hostnameValue);
+                            }
                         }
                         // skip other headers
                         continue;
@@ -168,6 +194,9 @@ namespace DataAccessLibrary.Services
                             FilePath = file.Length > 500 ? file.Substring(file.Length - 500) : file,
                             Repository = ExtractRepositoryFromPath(file)?.Length > 200 ? ExtractRepositoryFromPath(file)?.Substring(0, 200) : ExtractRepositoryFromPath(file),
                             Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Substring(0, Math.Min(500, string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Length)) : null,
+                            CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
+                            Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
+                            Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
                             CreatedAt = File.GetCreationTimeUtc(file)
                         });
                     }
@@ -201,6 +230,9 @@ namespace DataAccessLibrary.Services
             var commands = new List<TalonVoiceCommand>();            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); string application = "global";
             List<string> modes = new();
             List<string> tags = new();
+            List<string> codeLanguages = new();
+            List<string> languages = new();
+            List<string> hostnames = new();
             string? operatingSystem = null;
             string? title = null;
             bool inCommandsSection = false;
@@ -290,6 +322,9 @@ namespace DataAccessLibrary.Services
                         FilePath = fileName.Length > 500 ? fileName.Substring(fileName.Length - 500) : fileName,
                         Repository = ExtractRepositoryFromPath(fileName)?.Length > 200 ? ExtractRepositoryFromPath(fileName)?.Substring(0, 200) : ExtractRepositoryFromPath(fileName),
                         Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Substring(0, Math.Min(500, string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Length)) : null,
+                        CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
+                        Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
+                        Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
                         CreatedAt = DateTime.UtcNow
                     });
                 }

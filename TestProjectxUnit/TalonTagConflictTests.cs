@@ -1,5 +1,8 @@
 using RazorClassLibrary.Services;
 using RazorClassLibrary.Models;
+using DataAccessLibrary.Services;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace TestProjectxUnit
@@ -27,20 +30,21 @@ namespace TestProjectxUnit
             var cmd3 = new TalonCommand
             {
                 Command = "choose <number_small>",
-                Tags = "command.user.dictation_command,user.gaze_ocr_disambiguation,talon-gaze-ocr",
-                Repository = "talon-gaze-ocr"
+                Tags = "command.user.dictation_command,user.gaze_ocr_disambiguation,talon-gaze-ocr",                Repository = "talon-gaze-ocr"
             };
 
-            var analysisService = new TalonAnalysisService();
-
-            // Use reflection to access private method for testing
+            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockLogger = new Mock<ILogger<TalonAnalysisService>>();
+            var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);            // Use reflection to access private method for testing
             var method = typeof(TalonAnalysisService).GetMethod("CouldCommandsBeActiveSimultaneously", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            Assert.NotNull(method); // Ensure method was found
 
             // Act & Assert
-            var result1vs2 = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 });
-            var result1vs3 = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd3 });
-            var result2vs3 = (bool)method.Invoke(analysisService, new object[] { cmd2, cmd3 });
+            var result1vs2 = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 })!;
+            var result1vs3 = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd3 })!;
+            var result2vs3 = (bool)method.Invoke(analysisService, new object[] { cmd2, cmd3 })!;
 
             // These should all return false because the commands have different tag sets
             Assert.False(result1vs2, "Commands with different tags should not be able to be active simultaneously");
@@ -57,23 +61,25 @@ namespace TestProjectxUnit
                 Command = "test command",
                 Tags = "user.mode1,shared_tag",
                 Repository = "repo1"
-            };
-
-            var cmd2 = new TalonCommand
+            };            var cmd2 = new TalonCommand
             {
                 Command = "test command",
                 Tags = "user.mode2,shared_tag",
                 Repository = "repo2"
             };
 
-            var analysisService = new TalonAnalysisService();
+            // Arrange service with mocks
+            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockLogger = new Mock<ILogger<TalonAnalysisService>>();            var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);
 
             // Use reflection to access private method for testing
             var method = typeof(TalonAnalysisService).GetMethod("CouldCommandsBeActiveSimultaneously", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            Assert.NotNull(method); // Ensure method was found
 
             // Act
-            var result = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 });
+            var result = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 })!;
 
             // Assert - should return true because they share "shared_tag"
             Assert.True(result, "Commands with overlapping tags could be active simultaneously");
@@ -88,23 +94,24 @@ namespace TestProjectxUnit
                 Command = "test command",
                 Tags = "",
                 Repository = "repo1"
-            };
-
-            var cmd2 = new TalonCommand
+            };            var cmd2 = new TalonCommand
             {
                 Command = "test command",
-                Tags = null,
+                Tags = string.Empty,
                 Repository = "repo2"
             };
 
-            var analysisService = new TalonAnalysisService();
-
-            // Use reflection to access private method for testing
+            // Arrange service with mocks
+            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockLogger = new Mock<ILogger<TalonAnalysisService>>();
+            var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);            // Use reflection to access private method for testing
             var method = typeof(TalonAnalysisService).GetMethod("CouldCommandsBeActiveSimultaneously", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            Assert.NotNull(method); // Ensure method was found
 
             // Act
-            var result = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 });
+            var result = (bool)method.Invoke(analysisService, new object[] { cmd1, cmd2 })!;
 
             // Assert - should return true because without tags, we can't determine exclusivity
             Assert.True(result, "Commands with no tags should be considered potentially conflicting");

@@ -18,9 +18,7 @@ namespace RazorClassLibrary.Models
         public int CommandCount { get; set; }
         public int ConflictCount { get; set; }
         public double ConflictPercentage => CommandCount > 0 ? (double)ConflictCount / CommandCount * 100 : 0;
-    }
-
-    public class ConflictDetail
+    }    public class ConflictDetail
     {
         public string Command { get; set; } = string.Empty;
         public string Application { get; set; } = string.Empty;
@@ -28,7 +26,15 @@ namespace RazorClassLibrary.Models
         public List<string> Repositories { get; set; } = new();
         public int InstanceCount { get; set; }
         public bool HasDifferentImplementations { get; set; }
+        public bool IsTrueConflict { get; set; } = true; // New property to distinguish real conflicts from alternatives
+        public ConflictType ConflictType { get; set; } = ConflictType.TrueConflict;
         public List<ImplementationDetail> Implementations { get; set; } = new();
+    }    public enum ConflictType
+    {
+        TrueConflict,           // Same repo duplicates or very similar implementations
+        AlternativeImplementations, // Different approaches across repos (not actually conflicts)
+        TagBasedMutuallyExclusive,  // Different tags, can't be active simultaneously
+        OperatingSystemSpecific     // OS-specific commands that don't conflict
     }
 
     public class ImplementationDetail
@@ -36,6 +42,12 @@ namespace RazorClassLibrary.Models
         public string Repository { get; set; } = string.Empty;
         public string Script { get; set; } = string.Empty;
         public string Context { get; set; } = string.Empty; // "global" or app title
+        public string Mode { get; set; } = string.Empty;
+        public string Tags { get; set; } = string.Empty;
+        public string OperatingSystem { get; set; } = string.Empty;
+        public string CodeLanguage { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public string Hostname { get; set; } = string.Empty;
     }    public class TalonCommand
     {
         public string Command { get; set; } = string.Empty;
@@ -45,5 +57,9 @@ namespace RazorClassLibrary.Models
         public string Repository { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
+        public string OperatingSystem { get; set; } = string.Empty;
+        public string CodeLanguage { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public string Hostname { get; set; } = string.Empty;
     }
 }

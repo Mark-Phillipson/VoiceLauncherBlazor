@@ -1456,6 +1456,39 @@ BEGIN
     VALUES (N'20250616083951_AddTitle', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616160838_AddLanguagesAndHostName'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [CodeLanguage] nvarchar(100) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616160838_AddLanguagesAndHostName'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Hostname] nvarchar(100) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616160838_AddLanguagesAndHostName'
+)
+BEGIN
+    ALTER TABLE [TalonVoiceCommands] ADD [Language] nvarchar(50) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20250616160838_AddLanguagesAndHostName'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20250616160838_AddLanguagesAndHostName', N'9.0.0');
+END;
+
 COMMIT;
 GO
 

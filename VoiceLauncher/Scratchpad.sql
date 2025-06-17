@@ -8,8 +8,9 @@ SELECT ListName, ListValue,SpokenForm FROM TalonLists
  WHERE ListName LIKE '%running%'
  GROUP BY ListName,ListValue,SpokenForm ORDER BY ListName,ListValue;
 
-  SELECT Command,Mode,Script,Application,Repository,Title,tags FROM TalonVoiceCommands 
+  SELECT Command,Mode,Script,Application,Repository,Title,tags,language,codelanguage FROM TalonVoiceCommands 
   --WHERE  Command LIKE 'talon lists%'  
-  ORDER BY Title desc
+  ORDER BY codelanguage desc
 
   SELECT COUNT(*) as TotalCommands FROM TalonVoiceCommands;
+  

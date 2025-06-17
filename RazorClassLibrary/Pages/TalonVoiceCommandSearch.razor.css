@@ -352,6 +352,13 @@ u {
     text-underline-offset: 2px !important;
 }
 
+.label-code-language u {
+    text-decoration-color: var(--bs-purple) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
 /* Dark mode access key adjustments */
 [data-bs-theme="dark"] u {
     text-decoration-color: var(--bs-primary);
@@ -399,6 +406,13 @@ u {
 
 [data-bs-theme="dark"] .label-title u {
     text-decoration-color: var(--bs-success) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-code-language u {
+    text-decoration-color: var(--bs-purple) !important;
     text-decoration-line: underline !important;
     text-decoration-thickness: 3px !important;
     text-underline-offset: 2px !important;

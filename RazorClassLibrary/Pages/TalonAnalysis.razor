@@ -184,10 +184,9 @@
                 @if (analysisResult.GlobalConflictDetails.Any())
                 {
                     <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">
+                        <div class="card-header">                            <h5 class="mb-0">
                                 <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-                                Critical Global Conflicts (@analysisResult.GlobalConflicts)
+                                Global Command Analysis (@analysisResult.GlobalConflictDetails.Count items, @analysisResult.GlobalConflicts conflicts)
                             </h5>
                         </div>
                         <div class="card-body">
@@ -201,13 +200,22 @@
                                         <h2 class="accordion-header">
                                             <button class="accordion-button collapsed" type="button" 
                                                     data-bs-toggle="collapse" data-bs-target="#@accordionId">
-                                                <div class="w-100">
-                                                    <div class="d-flex justify-content-between align-items-center">
+                                                <div class="w-100">                                                    <div class="d-flex justify-content-between align-items-center">
                                                         <span>
-                                                            <strong>'@conflict.Command'</strong>
-                                                            @if (conflict.HasDifferentImplementations)
+                                                            <strong>'@conflict.Command'</strong>                                                            @switch (conflict.ConflictType)
                                                             {
-                                                                <span class="badge bg-danger ms-2">Different Implementations</span>
+                                                                case ConflictType.TrueConflict:
+                                                                    <span class="badge bg-danger ms-2">True Conflict</span>
+                                                                    break;
+                                                                case ConflictType.AlternativeImplementations:
+                                                                    <span class="badge bg-info ms-2">Alternative Implementations</span>
+                                                                    break;
+                                                                case ConflictType.TagBasedMutuallyExclusive:
+                                                                    <span class="badge bg-success ms-2">Tag-based (No Conflict)</span>
+                                                                    break;
+                                                                case ConflictType.OperatingSystemSpecific:
+                                                                    <span class="badge bg-secondary ms-2">OS-specific (No Conflict)</span>
+                                                                    break;
                                                             }
                                                         </span>
                                                         <span class="badge bg-warning">@string.Join(" vs ", conflict.Repositories)</span>
@@ -228,11 +236,36 @@
                                                         </ul>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <h6>Implementations:</h6>
-                                                        @foreach (var impl in conflict.Implementations)
+                                                        <h6>Implementations:</h6>                                                        @foreach (var impl in conflict.Implementations)
                                                         {
-                                                            <div class="mb-2">
+                                                            <div class="mb-3">
                                                                 <strong>[@impl.Repository] (@impl.Context):</strong>
+                                                                <div class="mt-1">
+                                                                    @if (!string.IsNullOrEmpty(impl.Mode))
+                                                                    {
+                                                                        <span class="badge bg-primary me-1">Mode: @impl.Mode</span>
+                                                                    }
+                                                                    @if (!string.IsNullOrEmpty(impl.Tags))
+                                                                    {
+                                                                        <span class="badge bg-info me-1">Tags: @impl.Tags</span>
+                                                                    }
+                                                                    @if (!string.IsNullOrEmpty(impl.OperatingSystem))
+                                                                    {
+                                                                        <span class="badge bg-secondary me-1">OS: @impl.OperatingSystem</span>
+                                                                    }
+                                                                    @if (!string.IsNullOrEmpty(impl.CodeLanguage))
+                                                                    {
+                                                                        <span class="badge bg-success me-1">Code Lang: @impl.CodeLanguage</span>
+                                                                    }
+                                                                    @if (!string.IsNullOrEmpty(impl.Language))
+                                                                    {
+                                                                        <span class="badge bg-warning text-dark me-1">Language: @impl.Language</span>
+                                                                    }
+                                                                    @if (!string.IsNullOrEmpty(impl.Hostname))
+                                                                    {
+                                                                        <span class="badge bg-dark me-1">Host: @impl.Hostname</span>
+                                                                    }
+                                                                </div>
                                                                 <code class="d-block mt-1 p-2 bg-light">@impl.Script</code>
                                                             </div>
                                                         }
