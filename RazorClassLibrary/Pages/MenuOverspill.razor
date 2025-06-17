@@ -1,163 +1,247 @@
 ﻿@page "/overspill"
-<PageTitle>Overspill</PageTitle>
+<PageTitle>Menu Overview</PageTitle>
 
-<div class="row">
-    <div class="col-4">
-        <ul class="nav flex-column">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="tasksbreakdown">
-                    <span class="oi oi-task" aria-hidden="true"></span> Tasks Breakdown
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="bootstrap">
-                    <span class="oi oi-bold" aria-hidden="true"></span> Bootstrap Components
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" target="_blank"
-                    href="https://www.youtube.com/channel/UCagNNvjqAX003KNIANSkGXA">
-                    <span class="oi oi-video" aria-hidden="true"></span><span>YouTube Channel</span>
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="b" class="nav-link" target="_blank" href="githublinks">
-                    <span class="oi oi-fork" aria-hidden="true"></span><span>Githu<u>b</u></span>
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="examples">
-                    <span class="oi oi-microphone" aria-hidden="true"></span> Examples
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="htmltags">
-                    <span class="oi oi-tag" aria-hidden="true"></span> Html Tags
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="g" class="nav-link" href="generallookups">
-                    <span class="oi oi-eye" aria-hidden="true"></span><u>G</u>eneral Lookups
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="categoriestable">
-                    <span class="oi oi-tag" aria-hidden="true"></span>Categories
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="v" class="nav-link" href="visualstudiocommandoverview">
-                    <span class="oi oi-code" aria-hidden="true"></span>VS Commands
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="customintellisenses">
-                    <span class="oi oi-code" aria-hidden="true"></span>Custom Intellisenses
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="talonalphabets">
-                    <span class="oi oi-tag" aria-hidden="true"></span>Talon Alphabet
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="cssproperties">
-                    <span class="oi oi-project" aria-hidden="true"></span>CSS Properties
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="transactions">
-                    <span class="oi oi-transfer" aria-hidden="true"></span>Transactions
-                </NavLink>
-            </li>            <li class="nav-item px-3">
-                <NavLink accesskey="@("/")" class="nav-link" href="formatters">
-                    <span class="oi oi-wrench" aria-hidden="true"></span> Talon Formatters
-                </NavLink>
-            </li>
-        </ul>
+<div class="container-fluid">
+    <div class="row g-3">
+        <!-- Development Tools -->
+        <div class="col-12 col-lg-3">
+            <div class="menu-section">
+                <h5 class="category-header">Development Tools</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="bootstrap">
+                            <span class="oi oi-bold" aria-hidden="true"></span>
+                            <span>Bootstrap Components</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="htmltags">
+                            <span class="oi oi-tag" aria-hidden="true"></span>
+                            <span>HTML Tags</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="cssproperties">
+                            <span class="oi oi-project" aria-hidden="true"></span>
+                            <span>CSS Properties</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="visualstudiocommandoverview">
+                            <span class="oi oi-code" aria-hidden="true"></span>
+                            <span>VS Commands</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="customintellisenses">
+                            <span class="oi oi-code" aria-hidden="true"></span>
+                            <span>Custom Intellisenses</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Voice & Speech -->
+        <div class="col-12 col-lg-3">
+            <div class="menu-section">
+                <h5 class="category-header">Voice & Speech</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="talon-voice-command-search">
+                            <span class="oi oi-microphone" aria-hidden="true"></span>
+                            <span>Talon Command Search</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="talon-analysis">
+                            <span class="oi oi-graph" aria-hidden="true"></span>
+                            <span>Talon Analysis</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="talon-import">
+                            <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+                            <span>Import Talon Scripts</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="talonalphabets">
+                            <span class="oi oi-tag" aria-hidden="true"></span>
+                            <span>Talon Alphabet</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="formatters">
+                            <span class="oi oi-wrench" aria-hidden="true"></span>
+                            <span>Talon Formatters</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="microphones">
+                            <span class="oi oi-microphone" aria-hidden="true"></span>
+                            <span>Microphones</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Data & Management -->
+        <div class="col-12 col-lg-3">
+            <div class="menu-section">
+                <h5 class="category-header">Data & Management</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="categoriestable">
+                            <span class="oi oi-tag" aria-hidden="true"></span>
+                            <span>Categories</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="generallookups">
+                            <span class="oi oi-eye" aria-hidden="true"></span>
+                            <span>General Lookups</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="applicationdetails">
+                            <span class="oi oi-tag" aria-hidden="true"></span>
+                            <span>Applications</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="transactions">
+                            <span class="oi oi-transfer" aria-hidden="true"></span>
+                            <span>Transactions</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="valuestoinsert">
+                            <span class="oi oi-book" aria-hidden="true"></span>
+                            <span>Values</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="tasksbreakdown">
+                            <span class="oi oi-task" aria-hidden="true"></span>
+                            <span>Tasks</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Commands & Examples -->
+        <div class="col-12 col-lg-3">
+            <div class="menu-section">
+                <h5 class="category-header">Commands & Examples</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="commands">
+                            <span class="oi oi-microphone" aria-hidden="true"></span>
+                            <span>Commands</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="windowsspeechvoicecommands">
+                            <i class="oi fa-solid fa-database"></i>
+                            <span>Windows Commands</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="examples">
+                            <span class="oi oi-microphone" aria-hidden="true"></span>
+                            <span>Examples</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="grammarnames">
+                            <span class="oi oi-book" aria-hidden="true"></span>
+                            <span>Grammars</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="phraselistgrammars">
+                            <span class="oi oi-random" aria-hidden="true"></span>
+                            <span>Phrase List Grammar</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="idiosyncrasies">
+                            <span class="oi oi-random" aria-hidden="true"></span>
+                            <span>Idiosyncrasies</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="col-4">
-        <ul class="nav flex-column">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="applicationdetails">
-                    <span class="oi oi-tag" aria-hidden="true"></span>Applications
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="idiosyncrasies">
-                    <span class="oi oi-random" aria-hidden="true"></span> Idiosyncrasies
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="phraselistgrammars">
-                    <span class="oi oi-random" aria-hidden="true"></span> Phrase List Grammar
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="grammarnames">
-                    <span class="oi oi-book" aria-hidden="true"></span> Grammars
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="microphones">
-                    <span class="oi oi-microphone" aria-hidden="true"></span> Microphones
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="prompts">
-                    <span class="oi oi-code" aria-hidden="true"></span> Prompts
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="quickpromptstable">
-                    <span class="oi oi-chat" aria-hidden="true"></span> Quick Prompts
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="commands">
-                    <span class="oi oi-microphone" aria-hidden="true"></span> Commands
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="w" class="nav-link" href="windowsspeechvoicecommands">
-                    <i class="oi fa-solid fa-database"></i> <u>W</u>indows Commands
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="-" class="nav-link" href="valuestoinsert">
-                    <span class="oi oi-book" aria-hidden="true"></span> Values [<u>-</u>]
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="category-select">
-                    <span class="oi oi-book" aria-hidden="true"></span> Demo Category Select
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink accesskey="-" class="nav-link" href="boldselect">
-                    <span class="oi oi-book" aria-hidden="true"></span> Demo Bold Select
-                </NavLink>
-            </li>
-        </ul>
-    </div>
-    <div class="col-4">
-        <ul class="nav flex-column">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link d-flex align-items-center gap-1" href="talon-voice-command-search">
-                    <span class="oi oi-microphone" aria-hidden="true"></span>
-                    <span class="ms-1">Talon Voice Command Search</span>
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="talon-analysis">
-                    <span class="oi oi-graph" aria-hidden="true"></span> Talon Command Analysis
-                </NavLink>
-            </li>
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="talon-import">
-                    <span class="oi oi-cloud-upload" aria-hidden="true"></span> Import Talon Scripts
-                </NavLink>
-            </li>
-        </ul>
+
+    <!-- Secondary Row for Remaining Items -->
+    <div class="row g-3 mt-2">
+        <!-- AI & Prompts -->
+        <div class="col-12 col-lg-4">
+            <div class="menu-section">
+                <h5 class="category-header">AI & Prompts</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="prompts">
+                            <span class="oi oi-code" aria-hidden="true"></span>
+                            <span>Prompts</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="quickpromptstable">
+                            <span class="oi oi-chat" aria-hidden="true"></span>
+                            <span>Quick Prompts</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Demo & Testing -->
+        <div class="col-12 col-lg-4">
+            <div class="menu-section">
+                <h5 class="category-header">Demo & Testing</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="category-select">
+                            <span class="oi oi-book" aria-hidden="true"></span>
+                            <span>Demo Category Select</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" href="boldselect">
+                            <span class="oi oi-book" aria-hidden="true"></span>
+                            <span>Demo Bold Select</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- External Links -->
+        <div class="col-12 col-lg-4">
+            <div class="menu-section">
+                <h5 class="category-header">External Resources</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" target="_blank"
+                            href="https://www.youtube.com/channel/UCagNNvjqAX003KNIANSkGXA">
+                            <span class="oi oi-video" aria-hidden="true"></span>
+                            <span>YouTube Channel</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link compact" target="_blank" href="githublinks">
+                            <span class="oi oi-fork" aria-hidden="true"></span>
+                            <span>Github</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>

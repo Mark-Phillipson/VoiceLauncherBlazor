@@ -1,52 +1,316 @@
-﻿.navbar-brand {
-	font-size: 1.1rem;
+﻿/* Ukrainian Flag Inspired Dark Mode Menu Design */
+:root {
+    --ukraine-blue: #0057B7;
+    --ukraine-yellow: #FFD700;
+    --ukraine-blue-light: #1a73e8;
+    --ukraine-blue-dark: #003d82;
+    --ukraine-yellow-light: #FFF4B3;
+    --ukraine-yellow-dark: #E6C200;
+    --dark-bg: #1a1a1a;
+    --dark-card: #2d2d2d;
+    --dark-card-hover: #3a3a3a;
+    --dark-text: #ffffff;
+    --dark-text-secondary: #e0e0e0;
+    --menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --menu-border-radius: 12px;
+}
+
+.navbar-brand {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--ukraine-blue);
 }
 
 .oi {
-	width: 3rem;
-	font-size: 1.9rem;
-	vertical-align: text-top;
-	top: -2px;
+    width: 2.5rem;
+    font-size: 1.4rem;
+    vertical-align: middle;
+    margin-right: 0.75rem;
+    color: var(--ukraine-yellow);
+    transition: all 0.3s ease;
 }
 
 .nav-item {
-	font-size: 0.9rem;
-	padding-bottom: 0.5rem;
+    font-size: 1rem;
+    padding: 0.25rem 0;
+    margin-bottom: 0.5rem;
 }
 
-	.nav-item:first-of-type {
-		padding-top: 1rem;
-	}
+    .nav-item:first-of-type {
+        padding-top: 1rem;
+    }
 
-	.nav-item:last-of-type {
-		padding-bottom: 1rem;
-	}
+    .nav-item:last-of-type {
+        padding-bottom: 1rem;
+        margin-bottom: 0;
+    }    .nav-item ::deep a {
+        color: var(--ukraine-blue-light);
+        background: linear-gradient(135deg, var(--dark-card) 0%, #333333 100%);
+        border: 2px solid #404040;
+        border-radius: var(--menu-border-radius);
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+        padding: 0 1.25rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--menu-shadow);
+        position: relative;
+        overflow: hidden;
+        min-width: 280px;
+        max-width: 400px;
+    }
 
-	.nav-item ::deep a {
-		color: #d7d7d7;
-		border-radius: 4px;
-		height: 3rem;
-		display: flex;
-		align-items: center;
-		line-height: 3rem;
-		max-width: 730px;
-	}
+        .nav-item ::deep a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
 
-		.nav-item ::deep a.active {
-			background-color: rgba(255,255,255,0.25);
-			color: white;
-		}
+        .nav-item ::deep a:hover::before {
+            left: 100%;
+        }        .nav-item ::deep a.active {
+            background: linear-gradient(135deg, var(--ukraine-blue) 0%, var(--ukraine-blue-light) 100%);
+            color: var(--dark-text);
+            border-color: var(--ukraine-yellow);
+            box-shadow: 0 6px 20px rgba(0, 87, 183, 0.4);
+            transform: translateY(-1px);
+        }
 
-		.nav-item ::deep a:hover {
-			background-color: rgba(255,255,255,0.1);
-			color: white;
-		}
+        .nav-item ::deep a.active .oi {
+            color: var(--ukraine-yellow);
+            transform: scale(1.1);
+        }.nav-item ::deep a:hover {
+            background: linear-gradient(135deg, var(--dark-card-hover) 0%, #454545 100%);
+            color: var(--dark-text);
+            border-color: var(--ukraine-yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+        }
 
+        .nav-item ::deep a:hover .oi {
+            color: var(--ukraine-yellow-light);
+            transform: scale(1.15);
+        }
+
+        .nav-item ::deep a:active {
+            transform: translateY(-1px);
+            transition: transform 0.1s ease;
+        }
+
+        /* Additional Ukrainian flag accent */
+        .nav-item ::deep a::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: linear-gradient(180deg, var(--ukraine-blue) 0%, var(--ukraine-yellow) 100%);
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item ::deep a:hover::after {
+            opacity: 1;
+        }        .nav-item ::deep a.active::after {
+            opacity: 1;
+            background: linear-gradient(180deg, var(--ukraine-yellow) 0%, var(--ukraine-yellow-light) 100%);
+        }
+
+/* Special styling for underlined access keys */
+.nav-item ::deep a u {
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--ukraine-yellow);
+    color: var(--dark-bg);
+    font-weight: 700;
+    margin: 0 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item ::deep a.active u {
+    background-color: var(--ukraine-yellow);
+    color: var(--dark-bg);
+}
+
+.nav-item ::deep a:hover u {
+    background-color: var(--ukraine-yellow-light);
+    color: var(--dark-bg);
+    transform: scale(1.05);
+}
+
+/* Menu section container styling */
+.menu-section {
+    padding: 1.5rem;
+    background: var(--dark-card);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid #404040;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--ukraine-blue) 0%, var(--ukraine-yellow) 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.menu-section:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    border-color: var(--ukraine-yellow);
+}
+
+/* Category Headers */
+.category-header {
+    color: var(--ukraine-yellow);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ukraine-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Compact layout for menu items */
+.nav-link.compact {
+    height: 2.8rem !important;
+    font-size: 0.9rem;
+    padding: 0 1rem !important;
+    min-width: 240px !important;
+    max-width: 300px !important;
+}
+
+.nav-link.compact .oi {
+    width: 2rem;
+    font-size: 1.2rem;
+    margin-right: 0.6rem;
+}
+
+/* Tighter spacing for compact view */
 .nav-item {
-	min-width: 590px;
-	max-width: 1000px;
+    margin-bottom: 0.3rem;
 }
 
-.nav-link {
-	min-width: 540px;
+/* Reduced menu section padding */
+.menu-section {
+    padding: 1rem;
+}
+
+/* Smaller container spacing */
+.container-fluid {
+    padding: 1rem 0.5rem;
+}
+
+/* Secondary row spacing */
+.row.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+/* Responsive adjustments for compact view */
+@media (max-width: 992px) {
+    .nav-link.compact {
+        min-width: 200px !important;
+        font-size: 0.85rem;
+        height: 2.5rem !important;
+    }
+    
+    .category-header {
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .menu-section {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-link.compact {
+        min-width: 180px !important;
+        max-width: 250px !important;
+    }
+}
+
+/* Animation for page load */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-section {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.menu-section:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.menu-section:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* Scroll indicator for long lists */
+.nav {
+    position: relative;
+}
+
+.nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ukraine-blue), var(--ukraine-yellow));
+    border-radius: 2px;
+    opacity: 0.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-item ::deep a {
+        min-width: 240px;
+        font-size: 0.9rem;
+        height: 3rem;
+        padding: 0 1rem;
+    }
+    
+    .oi {
+        width: 2rem;
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Focus states for accessibility */
+.nav-item ::deep a:focus {
+    outline: 3px solid var(--ukraine-yellow);
+    outline-offset: 2px;
 }
