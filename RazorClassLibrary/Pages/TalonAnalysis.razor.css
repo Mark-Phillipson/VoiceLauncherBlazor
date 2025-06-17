@@ -14,11 +14,12 @@
     border: 1px solid #991b1b !important;
 }
 
-/* Improve implementation code blocks */
-.accordion-body code.bg-light {
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-    border: 1px solid #dee2e6 !important;
+/* Fix code blocks for dark mode */
+.accordion-body code.bg-light,
+.accordion-body code.d-block {
+    background-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #4a5568 !important;
 }
 
 /* Better contrast for repository info badges */
@@ -78,4 +79,191 @@
 /* Fix implementation headers */
 .accordion-body .mb-2 strong {
     color: #ffffff !important;
+}
+
+/* Dark mode fixes for Bootstrap accordion */
+.accordion-item {
+    background-color: #374151 !important;
+    border: 1px solid #4b5563 !important;
+}
+
+.accordion-button {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    box-shadow: none !important;
+}
+
+.accordion-button:hover {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+.accordion-button:focus {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+}
+
+.accordion-button::after {
+    filter: invert(1) !important;
+}
+
+.accordion-body {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-top: 1px solid #4b5563 !important;
+}
+
+.accordion-collapse {
+    background-color: #111827 !important;
+}
+
+/* Fix all badge text for dark mode */
+.badge.bg-warning {
+    background-color: #d97706 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-info {
+    background-color: #0ea5e9 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-success {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6b7280 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-primary {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-dark {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+/* Override specific badge that was causing issues */
+.badge.bg-warning.text-dark {
+    color: #ffffff !important;
+}
+
+/* Fix tooltip styling for dark mode */
+.tooltip .tooltip-inner {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #1f2937 !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #1f2937 !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #1f2937 !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #1f2937 !important;
+}
+
+/* Fix dropdown menus for dark mode */
+.dropdown-menu {
+    background-color: #1f2937 !important;
+    border: 1px solid #4b5563 !important;
+}
+
+.dropdown-item {
+    color: #f9fafb !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+/* Fix form controls for dark mode */
+.form-control,
+.form-select {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border: 1px solid #4b5563 !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
+}
+
+.form-control::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Fix option elements in select dropdowns */
+.form-select option {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+/* Fix button focus states */
+.btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
+}
+
+/* Fix alert styling for better dark mode contrast */
+.alert-warning {
+    background-color: #92400e !important;
+    color: #fef3c7 !important;
+    border-color: #d97706 !important;
+}
+
+.alert-info {
+    background-color: #075985 !important;
+    color: #e0f2fe !important;
+    border-color: #0ea5e9 !important;
+}
+
+/* Ensure tables have good contrast */
+.table {
+    color: #f9fafb !important;
+}
+
+.table th {
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.table td {
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
 }

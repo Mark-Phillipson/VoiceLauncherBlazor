@@ -359,6 +359,20 @@ u {
     text-underline-offset: 2px !important;
 }
 
+.label-language u {
+    text-decoration-color: var(--bs-dark) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+.label-hostname u {
+    text-decoration-color: var(--bs-light) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
 /* Dark mode access key adjustments */
 [data-bs-theme="dark"] u {
     text-decoration-color: var(--bs-primary);
@@ -418,6 +432,20 @@ u {
     text-underline-offset: 2px !important;
 }
 
+[data-bs-theme="dark"] .label-language u {
+    text-decoration-color: var(--bs-light) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
+[data-bs-theme="dark"] .label-hostname u {
+    text-decoration-color: var(--bs-info) !important;
+    text-decoration-line: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 2px !important;
+}
+
 /* Hover effects for access key elements */
 [accesskey]:hover u,
 [accesskey]:focus u {
@@ -472,6 +500,18 @@ u {
     border-bottom-color: var(--bs-primary) !important;
 }
 
+.badge-code-language {
+    border-bottom-color: var(--bs-danger) !important;
+}
+
+.badge-language {
+    border-bottom-color: var(--bs-dark) !important;
+}
+
+.badge-hostname {
+    border-bottom-color: var(--bs-light) !important;
+}
+
 /* Hover effects for badges */
 .badge-with-underline:hover {
     border-bottom-width: 4px;
@@ -498,6 +538,18 @@ u {
 
 [data-bs-theme="dark"] .badge-repository {
     border-bottom-color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="dark"] .badge-code-language {
+    border-bottom-color: var(--bs-danger) !important;
+}
+
+[data-bs-theme="dark"] .badge-language {
+    border-bottom-color: var(--bs-light) !important;
+}
+
+[data-bs-theme="dark"] .badge-hostname {
+    border-bottom-color: var(--bs-info) !important;
 }
 
 /* Additional visual enhancement for badge connection to filters */
@@ -565,6 +617,27 @@ u {
 .underline-title {
     text-decoration: underline;
     text-decoration-color: #198754;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-code-language {
+    text-decoration: underline;
+    text-decoration-color: #dc3545;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-language {
+    text-decoration: underline;
+    text-decoration-color: #212529;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 2px;
+}
+
+.underline-hostname {
+    text-decoration: underline;
+    text-decoration-color: #6c757d;
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }

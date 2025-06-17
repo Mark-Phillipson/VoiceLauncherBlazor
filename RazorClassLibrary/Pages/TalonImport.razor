@@ -2,24 +2,27 @@
 @using DataAccessLibrary.Services
 <PageTitle>Voice Admin🎙️ Homepage</PageTitle>
 @inject TalonVoiceCommandDataService TalonServiceField
+@inject IJSRuntime JSRuntime
 
 <div class="container mt-4">
     <h2>Import Talon Scripts</h2>
     <p>Import .talon files into the database for semantic search and management.</p>
-    
-    <!-- Navigation Links -->
+      <!-- Navigation Links -->
     <div class="row mb-3">
         <div class="col-12">
             <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
                 <a href="/talon-voice-command-search" class="btn btn-outline-primary">
                     <i class="oi oi-magnifying-glass me-1"></i> Search Commands
                 </a>
-                <a href="/talon-analysis" class="btn btn-outline-info">
-                    <i class="oi oi-graph me-1"></i> Analysis Report
-                </a>
-                <span class="btn btn-primary disabled">
-                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                </span>
+                @if (!isHybridMode)
+                {
+                    <a href="/talon-analysis" class="btn btn-outline-info">
+                        <i class="oi oi-graph me-1"></i> Analysis Report
+                    </a>
+                    <span class="btn btn-primary disabled">
+                        <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                    </span>
+                }
             </div>
         </div>    </div>
     

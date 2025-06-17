@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -19,6 +20,27 @@ namespace RazorClassLibrary.Pages
         public string? ListsFilePath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user\mystuff\talon_my_stuff\TalonLists.txt";
         public int ImportProgress { get; set; } = 0;
         public int ImportTotal { get; set; } = 0;
+        private bool isHybridMode = false;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await DetectHybridModeAsync();
+        }
+
+        private async Task DetectHybridModeAsync()
+        {
+            try
+            {
+                // Check if we're running in a WebView (Blazor Hybrid)
+                isHybridMode = await JSRuntime.InvokeAsync<bool>("eval", 
+                    "window.chrome && window.chrome.webview != null");
+            }
+            catch
+            {
+                // If detection fails, default to false (server mode)
+                isHybridMode = false;
+            }
+        }
 
         protected void OnFileSelected(InputFileChangeEventArgs e)
         {

@@ -38,6 +38,7 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableTitles { get; set; } = new();
         public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
+        private bool isHybridMode = false;
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
@@ -100,11 +101,32 @@ namespace RazorClassLibrary.Pages
             // Debug: Log the initial search term
             System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
             
+            // Detect if running in hybrid mode
+            await DetectHybridModeAsync();
+            
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
             
             System.Diagnostics.Debug.WriteLine("OnInitializedAsync completed");
-        }        protected override async Task OnParametersSetAsync()
+        }
+
+        private async Task DetectHybridModeAsync()
+        {
+            try
+            {
+                // Check if we're running in a WebView (Blazor Hybrid)
+                if (JSRuntime != null)
+                {
+                    isHybridMode = await JSRuntime.InvokeAsync<bool>("eval", 
+                        "window.chrome && window.chrome.webview != null");
+                }
+            }
+            catch
+            {
+                // If detection fails, default to false (server mode)
+                isHybridMode = false;
+            }
+        }protected override async Task OnParametersSetAsync()
         {
             System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
             

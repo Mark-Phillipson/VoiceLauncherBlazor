@@ -28,12 +28,15 @@
                 <span class="btn btn-primary disabled">
                     <i class="oi oi-magnifying-glass me-1"></i> Search Commands
                 </span>
-                <a href="/talon-analysis" class="btn btn-outline-info">
-                    <i class="oi oi-graph me-1"></i> Analysis Report
-                </a>
-                <a href="/talon-import" class="btn btn-outline-secondary">
-                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                </a>
+                @if (!isHybridMode)
+                {
+                    <a href="/talon-analysis" class="btn btn-outline-info">
+                        <i class="oi oi-graph me-1"></i> Analysis Report
+                    </a>
+                    <a href="/talon-import" class="btn btn-outline-secondary">
+                        <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                    </a>
+                }
             </div>
         </div>
         <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
@@ -261,10 +264,30 @@
                                         @if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem))
                                         {
                                             <span class="badge bg-info badge-with-underline badge-os" title="Filter by OS (Alt+O)">@cmd.OperatingSystem</span>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(cmd.Repository))
+                                        }                                        @if (!string.IsNullOrWhiteSpace(cmd.Repository))
                                         {
                                             <span class="badge bg-primary badge-with-underline badge-repository" title="Filter by Repository (Alt+R)">@cmd.Repository</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.CodeLanguage))
+                                        {
+                                            @foreach (var codeLanguage in cmd.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(cl => cl.Trim()))
+                                            {
+                                                <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+C)">@codeLanguage</span>
+                                            }
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Language))
+                                        {
+                                            @foreach (var language in cmd.Language.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()))
+                                            {
+                                                <span class="badge bg-dark badge-with-underline badge-language" title="Filter by Language (Alt+L)">@language</span>
+                                            }
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Hostname))
+                                        {
+                                            @foreach (var hostname in cmd.Hostname.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(h => h.Trim()))
+                                            {
+                                                <span class="badge bg-light text-dark badge-with-underline badge-hostname" title="Filter by Hostname (Alt+H)">@hostname</span>
+                                            }
                                         }
                                     </div>
                                 </div>

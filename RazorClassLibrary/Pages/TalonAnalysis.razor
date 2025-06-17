@@ -1,6 +1,7 @@
 @page "/talon-analysis"
 @using RazorClassLibrary.Models
 @using RazorClassLibrary.Services
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Talon Command Analysis</PageTitle>
 
@@ -11,20 +12,22 @@
                 <i class="fas fa-chart-bar me-2"></i>
                 Talon Command Analysis
             </h1>
-            
-            <!-- Navigation Links -->
+              <!-- Navigation Links -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
                         <a href="/talon-voice-command-search" class="btn btn-outline-primary">
                             <i class="oi oi-magnifying-glass me-1"></i> Search Commands
                         </a>
-                        <span class="btn btn-info disabled">
-                            <i class="oi oi-graph me-1"></i> Analysis Report
-                        </span>
-                        <a href="/talon-import" class="btn btn-outline-secondary">
-                            <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                        </a>
+                        @if (!isHybridMode)
+                        {
+                            <span class="btn btn-info disabled">
+                                <i class="oi oi-graph me-1"></i> Analysis Report
+                            </span>
+                            <a href="/talon-import" class="btn btn-outline-secondary">
+                                <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
@@ -171,10 +174,22 @@
                                 <h5 class="mb-0">
                                     <i class="fas fa-chart-pie me-2"></i>
                                     Command Distribution
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="repositoryChart" width="400" height="200"></canvas>
+                                </h5>                            </div>                            <div class="card-body">
+                                <div style="position: relative; height: 400px; width: 100%;">
+                                    <canvas id="applicationChart"></canvas>
+                                </div>
+                                <div class="mt-3">
+                                    <small class="text-muted">Distribution of commands by application</small>
+                                    @if (analysisResult?.ApplicationStats != null && analysisResult.ApplicationStats.Any())
+                                    {                                        <div class="mt-2">
+                                            <small class="text-info">Found @analysisResult.ApplicationStats.Count applications</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="mt-2">
+                                            <small class="text-warning">No application data available</small>
+                                        </div>                                    }                                </div>
                             </div>
                         </div>
                     </div>
@@ -346,30 +361,155 @@
     </div>
 </div>
 
-<script>
-    window.initRepositoryChart = (data) => {
-        const ctx = document.getElementById('repositoryChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: data.map(d => d.repository),
-                datasets: [{
-                    data: data.map(d => d.commandCount),
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#36A2EB'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>    
+    window.initApplicationChart = (data) => {        // Store data for potential retry
+        window.lastChartData = data;
+        
+        const initChart = (retryCount = 0) => {
+            try {
+                
+                // Ensure data is an array
+                let chartDataArray;
+                if (Array.isArray(data)) {
+                    chartDataArray = data;
+                } else if (data && typeof data === 'object') {
+                    // If it's a single object, wrap it in an array
+                    chartDataArray = [data];
+                } else {
+                    console.error('Invalid data format:', data);
+                    return;
+                }
+                  console.log('Chart data array length:', chartDataArray.length);
+                console.log('First few items:', chartDataArray.slice(0, 3));
+                console.log('All chart data:', chartDataArray);
+                
+                // Check if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js is not loaded');
+                    return;
+                }
+                
+                // Get the canvas element
+                const canvas = document.getElementById('applicationChart');
+                if (!canvas) {
+                    if (retryCount < 10) {
+                        console.log('Canvas not found, retrying in 100ms...');
+                        setTimeout(() => initChart(retryCount + 1), 100);
+                        return;
+                    } else {
+                        console.error('Canvas element with id "applicationChart" not found after 10 retries');
+                        return;
                     }
                 }
+                
+                console.log('Canvas found:', canvas);
+                const ctx = canvas.getContext('2d');                // Prepare data - group items less than 3% into "Others"
+                const sortedData = chartDataArray.sort((a, b) => b.commandCount - a.commandCount);
+                const mainApplications = sortedData.filter(app => app.percentage >= 3.0);
+                const smallApplications = sortedData.filter(app => app.percentage < 3.0);
+                
+                let chartData = [...mainApplications];
+                
+                // If there are small applications, group them as "Others"
+                if (smallApplications.length > 0) {
+                    const othersCount = smallApplications.reduce((sum, app) => sum + app.commandCount, 0);
+                    const othersPercentage = smallApplications.reduce((sum, app) => sum + app.percentage, 0);
+                    chartData.push({
+                        application: 'Others',
+                        commandCount: othersCount,
+                        percentage: othersPercentage
+                    });
+                }
+                  console.log('Chart data prepared:', chartData);
+                console.log('Chart labels:', chartData.map(d => d.application));
+                console.log('Chart values:', chartData.map(d => d.commandCount));
+                console.log('Chart percentages:', chartData.map(d => d.percentage.toFixed(1) + '%'));
+                
+                // Destroy existing chart if it exists
+                if (window.applicationChart && typeof window.applicationChart.destroy === 'function') {
+                    window.applicationChart.destroy();
+                }
+                  window.applicationChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartData.map(d => d.application || 'Unknown'),
+                        datasets: [{
+                            data: chartData.map(d => d.commandCount),
+                            backgroundColor: chartData.map((d, index) => {
+                                // Special color for "Others" to make it distinct
+                                if (d.application === 'Others') {
+                                    return '#6c757d'; // Gray color for Others
+                                }
+                                // Use different colors for main applications
+                                const colors = [
+                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                    '#9966FF', '#FF9F40', '#FF6B6B', '#4ECDC4',
+                                    '#45B7D1', '#96CEB4', '#FFEAA7'
+                                ];
+                                return colors[index % colors.length];
+                            }),
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1,                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        color: '#f8f9fa', // Very light color for maximum visibility
+                                        font: {
+                                            size: 14,
+                                            weight: 'bold',
+                                            family: 'Arial, sans-serif'
+                                        },
+                                        boxWidth: 15,
+                                        boxHeight: 15,
+                                        generateLabels: function(chart) {
+                                            const data = chart.data;
+                                            if (data.labels.length && data.datasets.length) {
+                                                return data.labels.map((label, i) => {
+                                                    const dataset = data.datasets[0];
+                                                    const value = dataset.data[i];
+                                                    const percentage = chartData[i].percentage;
+                                                    return {
+                                                        text: `${label}: ${value} (${percentage.toFixed(1)}%)`,
+                                                        fillStyle: dataset.backgroundColor[i],
+                                                        strokeStyle: '#ffffff',
+                                                        lineWidth: 2,
+                                                        index: i,
+                                                        fontColor: '#ffffff' // Force white text color
+                                                    };
+                                                });
+                                            }
+                                            return [];
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const data = chartData[context.dataIndex];
+                                            return `${context.label}: ${context.parsed} commands (${data.percentage.toFixed(1)}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                });
+                
+                console.log('Chart created successfully:', window.applicationChart);
+            } catch (error) {
+                console.error('Error creating application chart:', error);
             }
-        });
+        };
+        
+        // Start the initialization
+        initChart();
     };
 </script>

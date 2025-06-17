@@ -8,6 +8,7 @@ namespace RazorClassLibrary.Models
         public int GlobalConflicts { get; set; }
         public int AppSpecificConflicts { get; set; }
         public List<RepositoryStats> RepositoryStats { get; set; } = new();
+        public List<ApplicationStats> ApplicationStats { get; set; } = new();
         public List<ConflictDetail> GlobalConflictDetails { get; set; } = new();
         public List<ConflictDetail> AppConflictDetails { get; set; } = new();
     }
@@ -18,7 +19,9 @@ namespace RazorClassLibrary.Models
         public int CommandCount { get; set; }
         public int ConflictCount { get; set; }
         public double ConflictPercentage => CommandCount > 0 ? (double)ConflictCount / CommandCount * 100 : 0;
-    }    public class ConflictDetail
+    }
+
+    public class ConflictDetail
     {
         public string Command { get; set; } = string.Empty;
         public string Application { get; set; } = string.Empty;
@@ -61,5 +64,12 @@ namespace RazorClassLibrary.Models
         public string CodeLanguage { get; set; } = string.Empty;
         public string Language { get; set; } = string.Empty;
         public string Hostname { get; set; } = string.Empty;
+    }    public class ApplicationStats
+    {
+        public string Application { get; set; } = string.Empty;
+        public int CommandCount { get; set; }
+        public int ConflictCount { get; set; }
+        public double ConflictPercentage => CommandCount > 0 ? (double)ConflictCount / CommandCount * 100 : 0;
+        public double Percentage { get; set; } // Percentage of total commands
     }
 }

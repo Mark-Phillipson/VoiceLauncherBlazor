@@ -69,9 +69,20 @@ namespace RazorClassLibrary.Services
                 {
                     Repository = g.Key,
                     CommandCount = g.Count()
+                })                .OrderByDescending(r => r.CommandCount)
+                .ToList();            // Application statistics
+            result.ApplicationStats = commands
+                .GroupBy(c => c.Application, StringComparer.OrdinalIgnoreCase)
+                .Select(g => new ApplicationStats
+                {
+                    Application = g.Key,
+                    CommandCount = g.Count(),
+                    Percentage = commands.Count > 0 ? (double)g.Count() / commands.Count * 100 : 0
                 })
-                .OrderByDescending(r => r.CommandCount)
-                .ToList();            // Global conflicts analysis
+                .OrderByDescending(a => a.CommandCount)
+                .ToList();
+
+            // Global conflicts analysis
             var globalConflicts = AnalyzeGlobalConflicts(commands);
             result.GlobalConflictDetails = globalConflicts;
             result.GlobalConflicts = globalConflicts.Count(c => c.IsTrueConflict);
@@ -423,7 +434,6 @@ namespace RazorClassLibrary.Services
                 {
                     repoStat.ConflictCount = conflictCount;
                 }
-            }
-        }
+            }        }
     }
 }
