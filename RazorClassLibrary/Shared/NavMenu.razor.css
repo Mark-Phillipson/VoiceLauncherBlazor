@@ -40,7 +40,6 @@
 		line-height: 3rem;
 		max-width: 230px;
 	}
-
 		.nav-item ::deep a.active {
 			background-color: rgba(255,255,255,0.25);
 			color: white;
@@ -49,6 +48,8 @@
 		.nav-item ::deep a:hover {
 			background-color: rgba(255,255,255,0.1);
 			color: white;
+			margin-top: 8px;
+			border-radius: 4px;
 		}
 
 /* Bold, noticeable alternating menu item background colors */

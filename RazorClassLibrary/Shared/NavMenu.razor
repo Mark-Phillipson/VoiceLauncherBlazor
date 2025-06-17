@@ -16,13 +16,7 @@
 					<path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
 				</svg>
 			</button>
-		</li>
-		<li class="nav-item px-3">
-<li class="nav-item px-3">
-			<NavLink accesskey='l' class="nav-link" href="accessible-launchers">
-				<span class="oi oi-list-rich" aria-hidden="true"></span> Peda<u>l</u>
-			</NavLink>
-		</li>
+		</li>		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey(">")" class="nav-link" href="" Match="NavLinkMatch.All"
 				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
@@ -37,8 +31,27 @@
 							<path
 								d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
 						</svg>
+					}				</span> <span>&nbsp; Home </span>
+			</NavLink>
+		</li>
+		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey("l")" class="nav-link" href="accessible-launchers" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>l</kbd>
 					}
-				</span> <span>&nbsp; Home </span>
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-controller" viewBox="0 0 16 16">
+							<path
+								d="M11.5 6.027a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m2.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m-6.5-3h1v1h1v1h-1v1h-1v-1h-1v-1h1z" />
+							<path
+								d="M3.051 3.26a.5.5 0 0 1 .354-.613l1.932-.518a.5.5 0 0 1 .62.39c.655-.079 1.35-.117 2.043-.117.72 0 1.443.041 2.12.126a.5.5 0 0 1 .622-.399l1.932.518a.5.5 0 0 1 .306.729c.14.09.266.19.373.297.408.408.78 1.05 1.095 1.772.32.733.599 1.591.805 2.466.206.875.34 1.78.364 2.606.024.816-.059 1.602-.328 2.21a1.42 1.42 0 0 1-1.445.83c-.636-.067-1.115-.394-1.513-.773-.245-.232-.496-.526-.739-.808-.126-.148-.25-.292-.368-.423-.728-.804-1.597-1.527-3.224-1.527s-2.496.723-3.224 1.527c-.119.131-.242.275-.368.423-.243.282-.494.575-.739.808-.398.38-.877.706-1.513.773a1.42 1.42 0 0 1-1.445-.83c-.27-.608-.352-1.394-.329-2.21.024-.826.16-1.73.365-2.606.206-.875.486-1.733.805-2.466.315-.722.687-1.364 1.094-1.772.107-.107.233-.207.373-.297a.5.5 0 0 1 .30-.729M2 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2m7-2a1 1 0 1 1 2 0 1 1 0 0 1-2 0" />
+						</svg>
+					}
+				</span> <span>&nbsp; Pedal </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
