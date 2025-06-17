@@ -21,11 +21,9 @@
 }
 </style>
 
-<div class="container mt-4">    <h2>Talon Voice Command Search</h2>
-    
-    <!-- Navigation Links -->
+<div class="container mt-4">    <h2>Talon Voice Command Search</h2>    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
     <div class="row mb-3">
-        <div class="col-12">
+        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
             <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
                 <span class="btn btn-primary disabled">
                     <i class="oi oi-magnifying-glass me-1"></i> Search Commands
@@ -37,35 +35,51 @@
                     <i class="oi oi-cloud-upload me-1"></i> Import Scripts
                 </a>
             </div>
-        </div>    </div>
-
-    <form class="mb-3" @onsubmit="OnSearch" @onsubmit:preventDefault="true">@if (IsInFocusMode())
-        {
-            <div class="alert alert-info mb-3" role="alert">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
-                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                </svg>
-                <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
+        </div>
+        <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+            <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
+                <div class="input-group">
+                    <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                    <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h">
+                        @if (IsLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Searching...</span>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
+                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                            </svg>
+                            <span>Searc<u>h</u></span>
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-2 col-md-12 d-flex align-items-center">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
+                <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
             </div>
-        }        <div class="input-group mb-2">            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h">
-                @if (IsLoading)
-                {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Searching...</span>
-                }
-                else
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                    <span>Searc<u>h</u></span>
-                }
-            </button>
-        </div>        <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
-            <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
-        </div><div class="row mb-2">            <div class="col-md-3">
+        </div>
+    </div>
+
+    <!-- Focus Mode Alert -->
+    @if (IsInFocusMode())
+    {
+        <div class="alert alert-info mb-3" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
+                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+            </svg>
+            <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
+        </div>
+    }
+
+    <!-- Filter Form -->
+    <form class="mb-3">
+        <div class="row mb-2"><div class="col-md-3">
                 <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label><select class="form-select form-select-sm" @onchange="OnApplicationFilterChange" aria-label="Filter by Application" disabled="@IsLoading" value="@SelectedApplication" accesskey="a">
                     <option value="">All Applications</option>
                     @if (AvailableApplications != null)
@@ -145,8 +159,11 @@
                             <option value="@codeLanguage">@codeLanguage</option>
                         }
                     }
-                </select>
-            </div><div class="col-md-6 d-flex align-items-end justify-content-between"><div>                    <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
+                </select>            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -160,7 +177,8 @@
                             </svg>
                             <span><u>C</u>lear Filters</span>
                         }
-                    </button>                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -175,9 +193,15 @@
                             <span>Re<u>f</u>resh Filters</span>
                         }
                     </button>
-                </div>                @if (Results?.Any() == true)
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-12 d-flex justify-content-end">
+                @if (Results?.Any() == true)
                 {
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-info fs-6">
                             @if (IsInFocusMode())
                             {
@@ -190,16 +214,16 @@
                         </span>
                         @if (IsInFocusMode())
                         {
-                            <button class="btn btn-outline-secondary btn-sm ms-2" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                                 </svg>
                                 E<u>x</u>it Focus
-                            </button>
-                        }
+                            </button>                        }
                     </div>
                 }
-            </div>        </div></form>
+            </div>
+        </div></form>
 
     <div>
         @if (IsLoading)
