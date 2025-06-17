@@ -16,7 +16,8 @@
 					<path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
 				</svg>
 			</button>
-		</li>		<li class="nav-item px-3">
+		</li>
+		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey(">")" class="nav-link" href="" Match="NavLinkMatch.All"
 				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
@@ -31,15 +32,16 @@
 							<path
 								d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
 						</svg>
-					}				</span> <span>&nbsp; Home </span>
+					}
+ </span> <span>&nbsp; Home </span>
 			</NavLink>
-		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("l")" class="nav-link" href="accessible-launchers" @onclick="MenuItemSelected">
+		</li>		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey("#")" class="nav-link" href="accessible-launchers"
+				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
 					@if (accessKeysEnabled)
 					{
-						<kbd class='mr-1'>l</kbd>
+						<kbd class='mr-1'>#</kbd>
 					}
 					else
 					{
@@ -134,7 +136,7 @@
 				</span> <span>&nbsp; Favorites </span>
 			</NavLink>
 		</li>
-		
+
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("*")" class="nav-link" href="languages" @onclick="MenuItemSelected">
 				<span aria-hidden="true">
@@ -194,25 +196,6 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="formatters">
-				<span aria-hidden="true">
-					@if (accessKeysEnabled)
-					{
-						<kbd class='mr-1'>/</kbd>
-					}
-					else
-					{
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-mic"
-							viewBox="0 0 16 16">
-							<path
-								d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5" />
-							<path
-								d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3" />
-						</svg>
-					}
-				</span> <span>&nbsp; Formatters </span>
-			</NavLink>
-		</li>		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("=")" class="nav-link" href="cursorlesscheatsheetitems">
 				<span aria-hidden="true">
 					@if (accessKeysEnabled)
@@ -228,6 +211,24 @@
 						</svg>
 					}
 				</span> <span>&nbsp; Cursorless </span>
+			</NavLink>
+		</li>
+		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="talon-voice-command-search" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>/</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							class="bi bi-search" viewBox="0 0 16 16">
+							<path
+								d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+						</svg>
+					}
+				</span> <span>&nbsp; Talon Search </span>
 			</NavLink>
 		</li>
 		@if (Environment.MachineName == "J40L4V3")
@@ -249,7 +250,7 @@
 									d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
 							</svg>
 						}
-	 </span> <span>&nbsp; Calendar </span>
+					</span> <span>&nbsp; Calendar </span>
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
@@ -289,11 +290,18 @@
 						}
 					</span> <span>&nbsp; Todo </span>
 				</NavLink>
-			</li>
-		}
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="chat">
-				<span class="oi oi-chat" aria-hidden="true"></span> AI Chatbot
+			</li>		}		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey("+")" class="nav-link" href="chat" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (accessKeysEnabled)
+					{
+						<kbd class='mr-1'>+</kbd>
+					}
+					else
+					{
+						<span class="oi oi-chat" aria-hidden="true"></span>
+					}
+				</span> <span>&nbsp; AI Chatbot </span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
@@ -308,3 +316,4 @@
 		</div> *@
 	</ul>
 </div>
+
