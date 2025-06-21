@@ -391,5 +391,27 @@ namespace RazorClassLibrary.Pages
 			}
 			return null;
 		}
+        protected async Task ResetFilter()
+        {
+            // Clear the local search term and message
+            searchTerm = null;
+            Message = string.Empty;
+
+            // Reload data from service and cache using forceRefresh
+            await LoadData(true);
+
+            // Apply default filter (no search term)
+            ApplyFilter();
+
+            // Set focus back to search input
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+                }
+            }
+            catch { }
+        }
 	}
 }

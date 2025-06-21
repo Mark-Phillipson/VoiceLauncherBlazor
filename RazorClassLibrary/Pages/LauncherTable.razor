@@ -54,8 +54,14 @@
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-auto me-4">
-            <input @ref="SearchInput" accesskey="3" class="form-control" style="width: 200px;" @bind="@SearchTerm"
-                @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
+            <div class="input-group" style="width: 200px;">
+                <input @ref="SearchInput" accesskey="3" type="text" class="form-control"
+                       @bind="SearchTerm" @bind:event="oninput"
+                       id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
+                <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
         </div>
     }
 </div>

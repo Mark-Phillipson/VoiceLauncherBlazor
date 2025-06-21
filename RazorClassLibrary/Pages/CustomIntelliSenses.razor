@@ -30,9 +30,14 @@
 				placeholder="Category Filter (2)" class="mx-1 form-control" />
 		</div>
 		<div class='col-6 col-lg-2'>
-			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
-				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" class="form-control mx-1" accesskey="3"
-				placeholder="Blur to Filter (3)" />
+			<div class="input-group mx-1">
+				<input title='Filter by Display and Send Keys' @bind="SearchTerm"
+					@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
+					accesskey="3" placeholder="Blur to Filter (3)" />
+				<button class="btn btn-outline-secondary" type="button" accesskey="4" title="Reset Filters (Alt+4)" @onclick="RemoveFilter">
+					<i class="fa-solid fa-filter-circle-xmark"></i>
+				</button>
+			</div>
 		</div>
 		@if (!RunningInBlazorHybrid)
 		{

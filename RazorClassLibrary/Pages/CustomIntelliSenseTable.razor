@@ -25,8 +25,14 @@
 			<div class='m-1'><span>Page #: </span>@pageNumber</div>
 		</div>
 		<div class="col-md-3">
-			<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-				@bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+			<div class="input-group my-1">
+				<input @ref="SearchInput" accesskey="i" type="text" class="form-control"
+					@bind="SearchTerm" @bind:event="oninput"
+					id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+				<button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
+					<i class="fas fa-redo"></i>
+				</button>
+			</div>
 		</div>
 	}
 	else

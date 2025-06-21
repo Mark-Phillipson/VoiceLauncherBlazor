@@ -24,7 +24,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public EventCallback CloseApplication { get; set; }
 		[Parameter] public EventCallback MaximizeApplication { get; set; }
 		private string Title { get; set; } = "Snippets";
-		private bool useSemanticMatching = true;
+		private bool useSemanticMatching = false;
 		private string? _languageFilter = "";
 		private string? _categoryFilter = "";
 		[Inject] public AdditionalCommandService? AdditionalCommandService { get; set; }
@@ -120,14 +120,24 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task RemoveFilter()
 		{
+			// Clear all filters
 			CategoryIdFilter = null;
 			LanguageIdFilter = null;
-			SearchTerm = "";
+			SearchTerm = string.Empty;
 			category = null;
 			language = null;
 			_languageFilter = null;
 			_categoryFilter = null;
+
+			// Reload data
 			await LoadData();
+
+			// Refocus the search input
+			try
+			{
+				await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+			}
+			catch { }
 		}
 		private async Task LoadData()
 		{

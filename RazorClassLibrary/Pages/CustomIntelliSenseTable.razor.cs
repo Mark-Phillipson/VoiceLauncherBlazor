@@ -93,6 +93,29 @@ namespace RazorClassLibrary.Pages
          await LoadData();
       }
 
+      // Reset the filter and clear cache
+      protected async Task ResetFilter()
+      {
+         // Clear local search term
+         searchTerm = null;
+
+         // Invalidate cache and reload data
+         await InvalidateCache();
+
+         // Apply default filter (no search term)
+         await ApplyFilter();
+
+         // Refocus search input
+         try
+         {
+            if (JSRuntime != null)
+            {
+               await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+            }
+         }
+         catch { }
+      }
+
         private void PrefetchNextPage()
         {
             try

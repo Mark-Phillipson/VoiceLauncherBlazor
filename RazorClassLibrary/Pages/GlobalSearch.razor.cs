@@ -101,5 +101,31 @@ namespace RazorClassLibrary.Pages
             _countdownTimer?.Stop();
             _countdownTimer?.Dispose();
         }
+        // Resets the global search input and state
+        protected async Task ResetFilter()
+        {
+            // Stop and dispose timers
+            _debounceTimer?.Stop(); _debounceTimer?.Dispose();
+            _countdownTimer?.Stop(); _countdownTimer?.Dispose();
+
+            // Clear input and search term
+            _inputValue = string.Empty;
+            searchTerm = string.Empty;
+            _isCountingDown = false;
+            _remainingMs = DebounceDelay;
+
+            // Trigger UI update
+            await InvokeAsync(StateHasChanged);
+
+            // Refocus search input
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("window.setFocus", "searchTerm");
+                }
+            }
+            catch { }
+        }
     }
 }
