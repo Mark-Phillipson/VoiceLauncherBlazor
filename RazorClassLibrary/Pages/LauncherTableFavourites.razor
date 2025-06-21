@@ -7,9 +7,15 @@
 	<div class="col-md-1">
 	</div>
 	<div class="col-md-4">
-		<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-			@bind:event="oninput" id="SearchInput" name="SearchTerm"
-			placeholder="Filter by Name/Command Line (Alt+I)" />
+		<div class="input-group my-1">
+			<input @ref="SearchInput" accesskey="i" type="text" class="form-control"
+				@bind="SearchTerm" @bind:event="oninput"
+				id="SearchInput" name="SearchTerm"
+				placeholder="Filter by Name/Command Line (Alt+I)" />
+			<button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
+				<i class="fas fa-redo"></i>
+			</button>
+		</div>
 	</div>
 </div>
 @if (!string.IsNullOrWhiteSpace(Message))

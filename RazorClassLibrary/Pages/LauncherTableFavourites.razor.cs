@@ -243,5 +243,27 @@ namespace RazorClassLibrary.Pages
 			await LauncherDataService.UpdateLauncher(launcher, "TBC");
 			await LoadData();
 		}
+        protected async Task ResetFilter()
+        {
+            // Clear the search term and message
+            searchTerm = null;
+            Message = string.Empty;
+            
+            // Reload data from the service to reset cache
+            await LoadData();
+
+            // Reapply default filter (no search term)
+            ApplyFilter();
+
+            // Set focus back to search input
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+                }
+            }
+            catch { }
+        }
 	}
 }
