@@ -48,6 +48,7 @@ builder.Services.AddScoped<VisualStudioCommandService>();
 builder.Services.AddScoped<CommandSetService>();
 builder.Services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
 builder.Services.AddSingleton<NotifierService>();
+builder.Services.AddSingleton<IWindowsService, WindowsService>();
 try
 {
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Threading;
 using System;
 using System.Text.RegularExpressions;
+using RazorClassLibrary.Services;
 
 namespace RazorClassLibrary.Pages
 {    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
@@ -43,10 +44,29 @@ namespace RazorClassLibrary.Pages
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
         public IJSRuntime? JSRuntime { get; set; }
+        [Inject]
+        public IWindowsService? WindowsService { get; set; }
+
+        public string CurrentApplication { get; set; } = string.Empty;
         
         private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
-        
+        private Timer? _refreshTimer;
+
+        public bool AutoFilterByCurrentApp { get; set; } = false;
+        private string _lastAutoFilteredAppName = string.Empty;
+
+        private string? MapProcessToApplication(string processName)
+        {
+            if (string.IsNullOrWhiteSpace(processName) || AvailableApplications == null) return null;
+            var exact = AvailableApplications.FirstOrDefault(a => a.Equals(processName, StringComparison.OrdinalIgnoreCase));
+            if (exact != null) return exact;
+            var partial = AvailableApplications.FirstOrDefault(a =>
+                a.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                processName.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0);
+            return partial;
+        }
+
         // For list display functionality
         private Dictionary<string, List<TalonList>> _listContentsCache = new();
         private HashSet<string> _expandedLists = new();
@@ -106,8 +126,39 @@ namespace RazorClassLibrary.Pages
             
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
-            
-            System.Diagnostics.Debug.WriteLine("OnInitializedAsync completed");
+
+            // start auto-refresh every 30 seconds
+            StartAutoRefresh();
+            System.Diagnostics.Debug.WriteLine("Auto-refresh timer started (30s interval)");
+
+            // initial application name
+            CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        }
+
+        private void StartAutoRefresh()
+        {
+            _refreshTimer = new Timer(async _ =>
+            {
+                var appName = WindowsService?.GetActiveProcessName() ?? string.Empty;
+                // Auto-filter if enabled and changed
+                if (AutoFilterByCurrentApp && appName != _lastAutoFilteredAppName)
+                {
+                    var mapped = MapProcessToApplication(appName);
+                    if (!string.IsNullOrEmpty(mapped) && mapped != SelectedApplication)
+                    {
+                        SelectedApplication = mapped;
+                        await InvokeAsync(() => OnSearch());
+                    }
+                    _lastAutoFilteredAppName = appName;
+                }
+                // regular refresh
+                if (HasSearched)
+                {
+                    await InvokeAsync(async () => await OnSearch());
+                }
+                // update current application display
+                await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
+            }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
         }
 
         private async Task DetectHybridModeAsync()
@@ -891,6 +942,7 @@ namespace RazorClassLibrary.Pages
         {
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
+            _refreshTimer?.Dispose();
         }
 
         /// <summary>

@@ -21,15 +21,19 @@
 }
 </style>
 
-<div class="container mt-4">    <h2>Talon Voice Command Search</h2>    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
+<div class="container mt-4">   
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Talon Voice Command Search</h2>
+        <span class="text-muted">Current App: @CurrentApplication</span>
+    </div>    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
     <div class="row mb-3">
         <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
             <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
-                <span class="btn btn-primary disabled">
-                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
-                </span>
                 @if (!isHybridMode)
                 {
+                    <span class="btn btn-primary disabled">
+                        <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                    </span>
                     <a href="/talon-analysis" class="btn btn-outline-info">
                         <i class="oi oi-graph me-1"></i> Analysis Report
                     </a>
@@ -39,7 +43,7 @@
                 }
             </div>
         </div>
-        <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
             <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
                 <div class="input-group">
                     <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
@@ -60,10 +64,14 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-2 col-md-12 d-flex align-items-center">
+        <div class="col-lg-4 col-md-12 d-flex align-items-center">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
                 <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
+            </div>
+            <div class="form-check form-switch ms-3">
+                <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                <label class="form-check-label" for="autoFilterToggle">Auto-Filter by App</label>
             </div>
         </div>
     </div>

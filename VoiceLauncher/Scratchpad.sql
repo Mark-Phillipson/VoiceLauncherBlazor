@@ -13,4 +13,10 @@ SELECT ListName, ListValue,SpokenForm FROM TalonLists
   ORDER BY codelanguage desc
 
   SELECT COUNT(*) as TotalCommands FROM TalonVoiceCommands;
-  
+
+SELECT DISTINCT
+    *
+FROM
+    dbo.Categories
+ORDER BY
+    [Category];  
