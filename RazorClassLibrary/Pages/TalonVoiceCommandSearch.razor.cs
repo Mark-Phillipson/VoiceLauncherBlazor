@@ -54,6 +54,11 @@ namespace RazorClassLibrary.Pages
         private Timer? _refreshTimer;
 
         public bool AutoFilterByCurrentApp { get; set; } = false;
+        /// <summary>
+        /// Toggles displaying full card body or just header
+        /// </summary>
+        public bool ShowFullCards { get; set; } = false;
+
         private string _lastAutoFilteredAppName = string.Empty;
 
         private string? MapProcessToApplication(string processName)
@@ -901,11 +906,16 @@ namespace RazorClassLibrary.Pages
         /// <summary>
         /// Sets focus mode to show only the selected command card
         /// </summary>
-        public void FocusOnCommand(TalonVoiceCommand command)
+        public async Task FocusOnCommand(TalonVoiceCommand command)
         {
             _focusedCommand = command;
             _isFocusMode = true;
             StateHasChanged();
+           // scroll focused card into view
+           if (JSRuntime != null)
+           {
+               await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
+           }
         }
 
         /// <summary>
