@@ -7,44 +7,45 @@
         <h2 class="mb-0">Talon Voice Command Search</h2>
         <span class="text-muted">Current App: @CurrentApplication</span>
     </div>    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
-    <div class="row mb-3">
-        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
-            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
-                @if (!isHybridMode)
-                {
-                    <span class="btn btn-primary disabled">
-                        <i class="oi oi-magnifying-glass me-1"></i> Search Commands
-                    </span>
-                    <a href="/talon-analysis" class="btn btn-outline-info">
-                        <i class="oi oi-graph me-1"></i> Analysis Report
-                    </a>
-                    <a href="/talon-import" class="btn btn-outline-secondary">
-                        <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                    </a>
-                }
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-            <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
-                <div class="input-group">
-                    <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
-                    <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h">
-                        @if (IsLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span>Searching...</span>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                            </svg>
-                            <span>Searc<u>h</u></span>
-                        }
-                    </button>
+        <div class="row mb-3">
+            @if (!IsBlazorHybrid)
+            {
+                <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+                        <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                                <span class="btn btn-primary disabled">
+                                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                                </span>
+                                <a href="/talon-analysis" class="btn btn-outline-info">
+                                    <i class="oi oi-graph me-1"></i> Analysis Report
+                                </a>
+                                <a href="/talon-import" class="btn btn-outline-secondary">
+                                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                                </a>
+                        </div>
                 </div>
-            </form>
-        </div>
+            }
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
+                        <div class="input-group">
+                            <input @ref="searchInput" class="form-control" type="text" placeholder="Search commands or scripts... (Alt+S)" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h">
+                                @if (IsLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>Searching...</span>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
+                                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                    </svg>
+                                    <span>Searc<u>h</u></span>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            
         <div class="col-lg-4 col-md-12 d-flex align-items-center">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
@@ -52,7 +53,7 @@
             </div>
             <div class="form-check form-switch ms-3">
                 <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
-                <label class="form-check-label" for="autoFilterToggle">Auto-Filter by App</label>
+                <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
             </div>
         </div>
     </div>
@@ -235,15 +236,26 @@
                 @foreach (var cmd in GetDisplayedCommands())
                 {
                     <div class="col-12 col-lg-6 col-xl-4 mb-3">                        
-                        <div class="card h-100 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
+                        <div class="card h-110 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
                         @if (AutoFilterByCurrentApp) { 
-                            <div class="card-header">
-                                <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
+                            <div class="card-header px-3 py-2">
+                                <div class="d-flex flex-wrap align-items-center w-100">
+                                    <span class="command-text flex-grow-1" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                        @((MarkupString)HighlightCapturesInCommand(cmd.Command))
+                                    </span>
+                                    @if (!string.IsNullOrWhiteSpace(cmd.Title))
+                                    {
+                                        <span class="badge bg-success badge-with-underline badge-title ms-auto mt-2 mt-md-0" title="Filter by Title (Alt+I)">
+                                            @cmd.Title
+                                        </span>
+                                    }
+                                </div>
                             </div>
                         }
-                        else {
-                        <div class="card-header">
-                                <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
+                        else 
+                        {
+                        <div class="card-header d-flex">
+                                <h5 class="card-title mb-1 me-2">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">
                                         @if (!string.IsNullOrWhiteSpace(cmd.Title))
@@ -292,6 +304,7 @@
                                     </div>
                                 </div>
                             </div>                            
+
                             <div class="card-body">                                
                                 <div class="mb-3">
                                     <h6 class="card-subtitle text-muted">Script:</h6>
@@ -335,13 +348,14 @@
                                                 @* Display non-clickable captures with different styling *@
                                                 @foreach (var captureName in capturesUsed)
                                                 {
-                                                    <span class="badge bg-warning text-dark me-2 mb-1" 
-                                                          title="Capture (not a list) - used for parsing input">
+                                                    <button class="badge bg-warning text-dark me-2 mb-1 capture-badge"
+                                                            title="Ask Copilot about this capture"
+                                                            @onclick="() => OnCaptureClick(captureName)">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-code me-1" viewBox="0 0 16 16">
                                                             <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
                                                         </svg>
                                                         &lt;@captureName&gt;
-                                                    </span>
+                                                    </button>
                                                 }
                                             </div>
                                             @foreach (var listName in listsUsed)

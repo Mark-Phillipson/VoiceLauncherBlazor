@@ -700,3 +700,15 @@ u {
     text-decoration-thickness: 3px !important;
     text-underline-offset: 2px !important;
 }
+
+.capture-badge {
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.capture-badge:focus {
+    box-shadow: 0 0 0 2px var(--bs-warning);
+}

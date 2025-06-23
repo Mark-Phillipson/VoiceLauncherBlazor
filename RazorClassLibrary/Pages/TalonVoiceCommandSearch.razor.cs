@@ -17,6 +17,7 @@ namespace RazorClassLibrary.Pages
         private ElementReference searchInput;
         
         [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;
+        [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
         
         public string SearchTerm { get; set; } = string.Empty;
         public List<TalonVoiceCommand> Results { get; set; } = new();
@@ -39,7 +40,6 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableTitles { get; set; } = new();
         public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
-        private bool isHybridMode = false;
 
         [Inject]
         public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
@@ -127,9 +127,6 @@ namespace RazorClassLibrary.Pages
             // Debug: Log the initial search term
             System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
             
-            // Detect if running in hybrid mode
-            await DetectHybridModeAsync();
-            
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
 
@@ -168,24 +165,7 @@ namespace RazorClassLibrary.Pages
                 await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
             }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
         }
-
-        private async Task DetectHybridModeAsync()
-        {
-            try
-            {
-                // Check if we're running in a WebView (Blazor Hybrid)
-                if (JSRuntime != null)
-                {
-                    isHybridMode = await JSRuntime.InvokeAsync<bool>("eval", 
-                        "window.chrome && window.chrome.webview != null");
-                }
-            }
-            catch
-            {
-                // If detection fails, default to false (server mode)
-                isHybridMode = false;
-            }
-        }protected override async Task OnParametersSetAsync()
+        protected override async Task OnParametersSetAsync()
         {
             System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
             
@@ -582,7 +562,7 @@ namespace RazorClassLibrary.Pages
             StateHasChanged();
         }
     }        public async Task ClearFilters()
-        {
+    {
             // Clear the list contents cache when clearing filters
             _listContentsCache.Clear();
             _expandedLists.Clear();
@@ -967,6 +947,21 @@ namespace RazorClassLibrary.Pages
             _listContentsCache.Clear();
             _expandedLists.Clear();
             StateHasChanged();
+        }
+
+        public async Task OnCaptureClick(string captureName)
+        {
+            var question = $"What values are available for the Talon capture <{captureName}>?";
+            if (JSRuntime != null && _focusedCommand != null && !string.IsNullOrWhiteSpace(_focusedCommand.FilePath))
+            {
+                // Copy question to clipboard
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", question);
+
+                // Open the script file in VS Code
+                var filePath = _focusedCommand.FilePath.Replace("\\", "/");
+                var uri = $"vscode://file/{filePath}";
+                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+            }
         }
     }
 }
