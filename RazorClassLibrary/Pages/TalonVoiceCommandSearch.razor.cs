@@ -53,7 +53,7 @@ namespace RazorClassLibrary.Pages
         private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _refreshTimer;
 
-        public bool AutoFilterByCurrentApp { get; set; } = false;
+        public bool AutoFilterByCurrentApp { get; set; } = true;
         /// <summary>
         /// Toggles displaying full card body or just header
         /// </summary>
@@ -166,7 +166,7 @@ namespace RazorClassLibrary.Pages
 
                 // update current application display
                 await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
-            }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+            }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
         }
 
         private async Task DetectHybridModeAsync()
