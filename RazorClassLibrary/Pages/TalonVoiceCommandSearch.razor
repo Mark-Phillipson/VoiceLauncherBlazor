@@ -256,8 +256,9 @@
                         {
                         <div class="card-header d-flex">
                                 <h5 class="card-title mb-1 me-2">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                    <small class="text-muted">@cmd.Application</small>
+                                    <div class="d-flex flex-wrap gap-1 align-items-center">
                                         @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                         {
                                             <span class="badge bg-success badge-with-underline badge-title" title="Filter by Title (Alt+I)">@cmd.Title</span>
@@ -276,7 +277,8 @@
                                         @if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem))
                                         {
                                             <span class="badge bg-info badge-with-underline badge-os" title="Filter by OS (Alt+O)">@cmd.OperatingSystem</span>
-                                        }                                        @if (!string.IsNullOrWhiteSpace(cmd.Repository))
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Repository))
                                         {
                                             <span class="badge bg-primary badge-with-underline badge-repository" title="Filter by Repository (Alt+R)">@cmd.Repository</span>
                                         }
