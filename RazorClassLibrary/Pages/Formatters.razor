@@ -1,40 +1,87 @@
 @page "/formatters"
 <PageTitle>Talon Voice Formatters</PageTitle>
 
-<h1>FORMATTERS</h1>
-<ol style='font-size:30px'>
-    <li> camel</li>
+<h1>Talon Voice Formatters & Snap Commands</h1>
 
-    customerName
-
-    <li> smash</li>
-
-    customername
-
-    <li>all down</li>
-
-    customer name
-
-    <li>all up</li>
-
-    CUSTOMER NAME
-
-    <li> sentence</li>
-
-    Customer name
-
-    <li> title</li>
-
-    Customer Name
-
-    <li> dub string</li>
-
-    "customer name"
-
-    <li> string</li>
-
-    'customer name'
-    <li> dotted </li>
-    customer.name
-</ol>
-
+<ul class="nav nav-tabs" id="formatterTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="formatters-tab" data-bs-toggle="tab" data-bs-target="#formatters" type="button" role="tab" aria-controls="formatters" aria-selected="true">Formatters</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="snap-tab" data-bs-toggle="tab" data-bs-target="#snap" type="button" role="tab" aria-controls="snap" aria-selected="false">Snap Commands</button>
+  </li>
+</ul>
+<div class="tab-content mt-3" id="formatterTabsContent">
+  <div class="tab-pane fade show active" id="formatters" role="tabpanel" aria-labelledby="formatters-tab">
+    <ol style='font-size:30px'>
+      <li>camel</li>
+      customerName
+      <li>smash</li>
+      customername
+      <li>all down</li>
+      customer name
+      <li>all up</li>
+      CUSTOMER NAME
+      <li>sentence</li>
+      Customer name
+      <li>title</li>
+      Customer Name
+      <li>dub string</li>
+      "customer name"
+      <li>string</li>
+      'customer name'
+      <li>dotted</li>
+      customer.name
+    </ol>
+  </div>
+  <div class="tab-pane fade" id="snap" role="tabpanel" aria-labelledby="snap-tab">
+    <div class="table-responsive mt-2">
+      <table class="table table-bordered table-striped table-hover align-middle" aria-label="Snap Commands Table">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Snap Command</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>snap left</td><td>Move window to the left half of the screen</td></tr>
+          <tr><td>snap right</td><td>Move window to the right half of the screen</td></tr>
+          <tr><td>snap up</td><td>Move window to the top half of the screen</td></tr>
+          <tr><td>snap down</td><td>Move window to the bottom half of the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap maximize</td><td>Maximize the window</td></tr>
+          <tr><td>snap minimize</td><td>Minimize the window</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap restore</td><td>Restore window to previous size</td></tr>
+          <tr><td>snap center</td><td>Center the window on the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap top left</td><td>Move window to the top left corner</td></tr>
+          <tr><td>snap top right</td><td>Move window to the top right corner</td></tr>
+          <tr><td>snap bottom left</td><td>Move window to the bottom left corner</td></tr>
+          <tr><td>snap bottom right</td><td>Move window to the bottom right corner</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap left third</td><td>Move window to the left third of the screen</td></tr>
+          <tr><td>snap center third</td><td>Move window to the center third of the screen</td></tr>
+          <tr><td>snap right third</td><td>Move window to the right third of the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap left two thirds</td><td>Move window to the left two thirds of the screen</td></tr>
+          <tr><td>snap right two thirds</td><td>Move window to the right two thirds of the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap top half</td><td>Move window to the top half of the screen</td></tr>
+          <tr><td>snap bottom half</td><td>Move window to the bottom half of the screen</td></tr>
+          <tr><td>snap left half</td><td>Move window to the left half of the screen</td></tr>
+          <tr><td>snap right half</td><td>Move window to the right half of the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap top third</td><td>Move window to the top third of the screen</td></tr>
+          <tr><td>snap middle third</td><td>Move window to the middle third of the screen</td></tr>
+          <tr><td>snap bottom third</td><td>Move window to the bottom third of the screen</td></tr>
+          <tr><td colspan="2">&nbsp;</td></tr>
+          <tr><td>snap top left quarter</td><td>Move window to the top left quarter of the screen</td></tr>
+          <tr><td>snap top right quarter</td><td>Move window to the top right quarter of the screen</td></tr>
+          <tr><td>snap bottom left quarter</td><td>Move window to the bottom left quarter of the screen</td></tr>
+          <tr><td>snap bottom right quarter</td><td>Move window to the bottom right quarter of the screen</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
