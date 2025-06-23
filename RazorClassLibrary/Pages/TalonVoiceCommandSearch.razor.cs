@@ -60,6 +60,7 @@ namespace RazorClassLibrary.Pages
         public bool ShowFullCards { get; set; } = false;
 
         private string _lastAutoFilteredAppName = string.Empty;
+        private string _lastAutoRefreshedAppName = string.Empty;
 
         private string? MapProcessToApplication(string processName)
         {
@@ -156,11 +157,13 @@ namespace RazorClassLibrary.Pages
                     }
                     _lastAutoFilteredAppName = appName;
                 }
-                // regular refresh
-                if (HasSearched)
+                // only refresh when the active application has changed since last auto-refresh
+                if (AutoFilterByCurrentApp && appName != _lastAutoRefreshedAppName)
                 {
-                    await InvokeAsync(async () => await OnSearch());
+                    _lastAutoRefreshedAppName = appName;
+                    await InvokeAsync(() => OnSearch());
                 }
+
                 // update current application display
                 await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
             }, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
@@ -908,6 +911,7 @@ namespace RazorClassLibrary.Pages
         /// </summary>
         public async Task FocusOnCommand(TalonVoiceCommand command)
         {
+            AutoFilterByCurrentApp= false; // Disable auto-filtering when focusing on a command
             _focusedCommand = command;
             _isFocusMode = true;
             StateHasChanged();

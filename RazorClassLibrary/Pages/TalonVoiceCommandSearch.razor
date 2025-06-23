@@ -1,25 +1,6 @@
 @page "/talon-voice-command-search"
-@using DataAccessLibrary.Models
-@using Microsoft.AspNetCore.Components
 
-<style>
-/* Capture highlighting in command text */
-.capture-highlight {
-    background-color: #ffc107 !important; /* Yellow background - same as warning badge */
-    color: #212529 !important; /* Dark text for readability */
-    padding: 1px 3px !important;
-    border-radius: 3px !important;
-    font-weight: 600 !important;
-    font-size: 0.9em !important;
-    display: inline !important;
-}
-
-/* Dark mode adjustments for capture highlighting */
-[data-bs-theme="dark"] .capture-highlight {
-    background-color: #ffc107 !important; /* Keep yellow in dark mode */
-    color: #000 !important; /* Black text for better contrast in dark mode */
-}
-</style>
+@* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
 <div class="container mt-4">   
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -112,7 +93,8 @@
                         }
                     }
                 </select>
-            </div>            <div class="col-md-3">
+            </div>            
+            <div class="col-md-3">
                 <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label><select class="form-select form-select-sm filter-tags" @onchange="OnTagsFilterChange" aria-label="Filter by Tags" disabled="@IsLoading" value="@SelectedTags" accesskey="t">
                     <option value="">All Tags</option>
                     @if (AvailableTags != null)
@@ -123,7 +105,8 @@
                         }
                     }
                 </select>
-            </div>            <div class="col-md-3">
+            </div>            
+            <div class="col-md-3">
                 <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label><select class="form-select form-select-sm filter-os" @onchange="OnOSFilterChange" aria-label="Filter by Operating System" disabled="@IsLoading" value="@SelectedOperatingSystem" accesskey="o">
                     <option value="">All Operating Systems</option>
                     @if (AvailableOperatingSystems != null)
@@ -170,7 +153,8 @@
                             <option value="@codeLanguage">@codeLanguage</option>
                         }
                     }
-                </select>            </div>
+                </select>            
+            </div>
 
             <div class="col-md-3 d-flex align-items-end">
                 <div class="d-flex gap-2">
@@ -250,7 +234,15 @@
             <div class="row" aria-label="Search Results">
                 @foreach (var cmd in GetDisplayedCommands())
                 {
-                    <div class="col-12 col-lg-6 col-xl-4 mb-3">                        <div class="card h-100 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            <div class="card-header">
+                    <div class="col-12 col-lg-6 col-xl-4 mb-3">                        
+                        <div class="card h-100 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
+                        @if (AutoFilterByCurrentApp) { 
+                            <div class="card-header">
+                                <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
+                            </div>
+                        }
+                        else {
+                        <div class="card-header">
                                 <h5 class="card-title mb-1">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small class="text-muted">@cmd.Application</small>                                    <div class="d-flex gap-1">
@@ -299,7 +291,9 @@
                                         }
                                     </div>
                                 </div>
-                            </div>                            <div class="card-body">                                <div class="mb-3">
+                            </div>                            
+                            <div class="card-body">                                
+                                <div class="mb-3">
                                     <h6 class="card-subtitle text-muted">Script:</h6>
                                     <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>                                    @{
                                         var listsUsed = GetListsUsedInCommand(cmd.Command);
@@ -400,7 +394,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     @if (!string.IsNullOrWhiteSpace(cmd.FilePath))
-                                    {                                        <button class="btn btn-outline-primary btn-sm" 
+                                    {           <button class="btn btn-outline-primary btn-sm" 
                                                 @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" 
                                                 title="Open @cmd.FilePath in VS Code"
                                                 aria-label="Open @GetFileName(cmd.FilePath) in VS Code">
@@ -413,6 +407,7 @@
                                     <small class="text-muted">@cmd.CreatedAt.ToLocalTime().ToString("g")</small>
                                 </div>
                             </div>
+                            }
                         </div>
                     </div>
                 }
