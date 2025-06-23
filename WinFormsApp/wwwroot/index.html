@@ -48,7 +48,7 @@
 			}
 			element.focus();
 			//element.select();
-		}		window.myJsFunctions = {
+		} window.myJsFunctions = {
 			focusElement: function (element) {
 				element.focus();
 			}
@@ -63,7 +63,7 @@
 						console.log(error);
 					});
 			}
-		};		window.blazorHybrid = {
+		}; window.blazorHybrid = {
 			testConnection: function () {
 				console.log("Testing JSInterop connection...");
 				DotNet.invokeMethodAsync('WinFormsApp', 'TestMethod')
@@ -77,7 +77,7 @@
 			triggerPaste: function () {
 				// First test the connection
 				this.testConnection();
-				
+
 				// Call the C# method to handle paste functionality
 				console.log("Attempting to trigger paste...");
 				DotNet.invokeMethodAsync('WinFormsApp', 'TriggerPasteToActiveWindow')
@@ -95,6 +95,12 @@
 		window.closeForm = function () {
 			DotNet.invokeMethodAsync('WinFormsApp', 'CloseForm');
 		}
+		window.scrollFocusedIntoView = () => {
+			const focused = document.querySelector('.card.focused');
+			if (focused) {
+				focused.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+		};
 
 	</script>
 

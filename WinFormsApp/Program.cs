@@ -1,5 +1,6 @@
 using System.Runtime.Versioning;
 using Microsoft.Extensions.Configuration;
+using RazorClassLibrary.Services;
 
 namespace WinFormsApp
 {
