@@ -9,9 +9,10 @@
 }
 
 <div class='row'>
-    <div class='col-md-5 bg-dark text-light p-2 rounded'>        @if (prompts != null)
+    <div class='col-md-5 bg-dark text-light p-2 rounded'>        
+        @if (prompts != null)
         {
-            <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a Predefined
+            <label for='selectedPromptId' class="form-label text-light"><i class="fa-solid fa-list"></i> Select a <u>P</u>redefined
                 Prompt</label>
             @if (!RunningInBlazorHybrid)
             {
@@ -20,7 +21,7 @@
                     <i class="fa-solid fa-pen-to-square"></i> Manage
                 </a>
             }
-            <InputSelect id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
+            <InputSelect accesskey="p" id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
                 ValueChanged="@((int value) => OnValueChangedMethodName(value))"
                 class="form-select bg-success text-light m-1">
                 @foreach (var item in prompts)
@@ -42,16 +43,18 @@
             placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
             @bind-value='PromptInput' @bind-value:event='oninput'
             @onkeydown="OnInputKeyDown"></textarea>
-        <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
-            <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;"
+        <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
+            <input accesskey="d" id="debounceToggle" type="checkbox" class="form-check-input align-middle" style="margin-bottom: 0; margin-right: 4px;"
                 @bind="DebounceEnabled" />
-            <label for="debounceToggle" class="form-label text-light mb-0 me-2">Debounce</label>            <div class="d-none d-md-flex align-items-center">
-                <label for="debounceBox" class="form-label text-light mb-0" style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2 align-middle"><u>D</u>ebounce</label>
+            <div class="d-none d-md-flex align-items-center ms-2">
+                <label for="debounceBox" class="form-label text-light mb-0 align-middle" style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
                 <input id="debounceBox" type="number" min="100" max="10000" step="100"
-                    class="form-control bg-dark text-light border-success text-end"
+                    class="form-control bg-dark text-light border-success text-end align-middle"
                     style="display: inline-block; margin-bottom: 0;width: 100px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
                     disabled="@(DebounceEnabled ? null : "disabled")" />
-            </div>            @if (DebounceEnabled && debounceCountdown > 0)
+            </div>
+            @if (DebounceEnabled && debounceCountdown > 0)
             {
                 <div class="ms-2 debounce-progress-container">
                     <div class="d-flex align-items-center debounce-progress-text">
@@ -106,9 +109,10 @@
             }
         </div>
           <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
+        @if (chatHistory?.Count> 0 || !string.IsNullOrWhiteSpace(AIComments) || !string.IsNullOrWhiteSpace(TextBlock)) { 
         <div class="mt-3">
             <label class="form-label text-light">
-                <i class="fa-solid fa-bolt"></i> Quick Prompts
+                <i class="fa-solid fa-bolt"></i> <u>Q</u>uick Prompts
                 <button type="button" class="btn btn-outline-info btn-sm ms-2" @onclick="ToggleQuickPromptPanel">
                     <i class="fa-solid @(showQuickPrompts ? "fa-eye-slash" : "fa-eye")"></i>
                     @(showQuickPrompts ? "Hide" : "Show")
@@ -123,7 +127,7 @@
             </label>
             
             <div class="input-group">
-                <input type="text" 
+                <input accesskey="q" type="text" 
                        class="form-control bg-dark text-light border-success quick-prompt-search" 
                        style="background-color: #2a2a2a !important;"
                        placeholder="Search quick prompts (command, type, description)..."
@@ -170,7 +174,7 @@
                 </div>
             }
         </div>
-
+        }
         @if (processing)
         {
             <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" role="status"
@@ -268,14 +272,14 @@
         }
     </div>
     <div class='col-md-7 bg-dark text-light p-2 rounded'>
-        @if (responseHistory?.Count > 0)
+        @if (responseHistory?.Count > 0 )
         {
-            <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
-                <i class="fa-solid fa-font"></i>
-                @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
-            </button>
             @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
             {
+                <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
+                    <i class="fa-solid fa-font"></i>
+                    @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
+                </button>
                 <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                     @onclick="@(() => CopyItemAsync(TextBlock))">
                     <i class="fa-regular fa-copy"></i> Cop<u>y</u>
@@ -283,6 +287,12 @@
             }
             @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
             {
+                @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content)) { 
+                    <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                        @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content))">
+                        <i class="fa-regular fa-copy"></i> Cop<u>y</u>
+                    </button>
+                }
                 <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
             }
             else
@@ -298,7 +308,7 @@
         }
         else {
             <div class="d-flex justify-content-center align-items-center border border-light" style="width:100%;height:300px;">
-                <span class="text-muted">The Results Will Appear Here..</span>
+                <span class="text-muted">The Results Will Appear Here.. 🙂</span>
             </div>
         }
     </div>

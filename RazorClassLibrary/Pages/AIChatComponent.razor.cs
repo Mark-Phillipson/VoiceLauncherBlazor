@@ -16,7 +16,17 @@ public partial class AIChatComponent : ComponentBase, IDisposable
 {
     [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
     private bool useCascadiaCodeFont = true;
-    public bool DebounceEnabled { get; set; } =  false ;
+    public bool DebounceEnabled
+    {
+        get => debounceEnabled;
+        set
+        {
+            debounceEnabled = value;
+            // Focus the textarea when debounce checkbox is changed
+            _ = FocusInputElementAsync();
+        }
+    }
+    private bool debounceEnabled = false;
     private string PromptInput
     {
         get => prompt;
@@ -203,6 +213,18 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             return;
         }
+        // If the prompt is exactly 'testing', skip AI and just add to results
+        if (prompt.Trim().Equals("testing", StringComparison.OrdinalIgnoreCase))
+        {
+            responseHistory.AddAssistantMessage("testing");
+            revertTo = responseHistory.Count - 1;
+            prompt = "";
+            await inputElement.FocusAsync();
+            processing = false;
+            StateHasChanged();
+            return;
+        }
+
         Message = "";
         // Add a check if chatService failed to initialize due to missing key
         if (chatService == null)
@@ -571,5 +593,14 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             .OrderBy(q => q.Type).ThenBy(q => q.Command)
             .Take(10) // Limit to top 10 results for performance
             .ToList();
+    }
+
+    private async Task FocusInputElementAsync()
+    {
+        try
+        {
+            await inputElement.FocusAsync();
+        }
+        catch { }
     }
 }
