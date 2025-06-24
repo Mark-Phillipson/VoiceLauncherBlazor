@@ -1,5 +1,5 @@
 ﻿@page "/chat"
-<PageTitle>AI Chat Component </PageTitle>
+<PageTitle>AI Chat Component</PageTitle>
 @using RazorClassLibrary.Components
 
 <h4 class="text-light mb-1"><i class="fa-solid fa-comments"></i> AI Chat (Using o3-mini)</h4>
@@ -39,8 +39,8 @@
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
+            placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
             @bind-value='PromptInput' @bind-value:event='oninput'
-            placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Enter or click Chat.'
             @onkeydown="OnInputKeyDown"></textarea>
         <div class="mb-2" style="display: flex; align-items: center; gap: 10px;">
             <input id="debounceToggle" type="checkbox" class="form-check-input" style="margin-bottom: 0;"
