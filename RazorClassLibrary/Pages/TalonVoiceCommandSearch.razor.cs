@@ -12,7 +12,15 @@ using System.Text.RegularExpressions;
 using RazorClassLibrary.Services;
 
 namespace RazorClassLibrary.Pages
-{    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
+{
+    public enum SearchScope
+    {
+        CommandNamesOnly,
+        Script,
+        All
+    }
+
+    public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
         private ElementReference searchInput;
         
@@ -24,7 +32,9 @@ namespace RazorClassLibrary.Pages
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
         public bool UseSemanticMatching { get; set; } = false;
-          // Filter properties
+        public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
+        
+        // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
         public string SelectedMode { get; set; } = string.Empty;
         public string SelectedOperatingSystem { get; set; } = string.Empty;
@@ -410,10 +420,23 @@ namespace RazorClassLibrary.Pages
                     // Debug logging
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}'");                    }
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                    }
                     
-                    // Use list-aware semantic search
-                    var semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
+                    // Use appropriate search method based on scope
+                    List<TalonVoiceCommand> semanticResults;
+                    switch (SelectedSearchScope)
+                    {
+                        case SearchScope.CommandNamesOnly:
+                            semanticResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                            break;
+                        case SearchScope.Script:
+                            semanticResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                            break;
+                        case SearchScope.All:
+                        default:
+                            semanticResults = await TalonService.SearchAllAsync(SearchTerm!);
+                            break;
+                    }
                     
                     // Debug logging
                     if (JSRuntime != null)
@@ -465,16 +488,29 @@ namespace RazorClassLibrary.Pages
                 }
                 else
                 {
-                    // Apply text search on filtered results (including list search)
+                    // Apply text search on filtered results based on scope
                     if (hasSearchTerm)
                     {
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search (includes lists) for term: '{SearchTerm}'");                        }
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                        }
                         
-                        // Use the same list-aware search but without semantic ranking
-                        var searchResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
+                        // Use appropriate search method based on scope
+                        List<TalonVoiceCommand> searchResults;
+                        switch (SelectedSearchScope)
+                        {
+                            case SearchScope.CommandNamesOnly:
+                                searchResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                                break;
+                            case SearchScope.Script:
+                                searchResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                                break;
+                            case SearchScope.All:
+                            default:
+                                searchResults = await TalonService.SearchAllAsync(SearchTerm!);
+                                break;
+                        }
                         
                         // Debug logging
                         if (JSRuntime != null)
@@ -631,6 +667,27 @@ namespace RazorClassLibrary.Pages
         {
             UseSemanticMatching = e.Value != null && (bool)e.Value;
             // Don't auto-search, let user control when to search
+        }
+
+        protected void OnSearchScopeChange(ChangeEventArgs e)
+        {
+            if (Enum.TryParse<SearchScope>(e.Value?.ToString(), out var scope))
+            {
+                SelectedSearchScope = scope;
+                // Update placeholder text based on scope
+                StateHasChanged();
+            }
+        }
+
+        private string GetSearchPlaceholder()
+        {
+            return SelectedSearchScope switch
+            {
+                SearchScope.CommandNamesOnly => "Search names only... (Alt+S)",
+                SearchScope.Script => "Search script content... (Alt+S)",
+                SearchScope.All => "Search all (commands, scripts, lists)... (Alt+S)",
+                _ => "Search commands... (Alt+S)"
+            };
         }
 
         private async Task EnsureSearchFocus()

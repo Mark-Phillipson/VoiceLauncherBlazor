@@ -648,6 +648,63 @@ namespace DataAccessLibrary.Services
             return finalResults;
         }
 
+        /// <summary>
+        /// Searches only command names
+        /// </summary>
+        public async Task<List<TalonVoiceCommand>> SearchCommandNamesOnlyAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
+            }
+
+            var lowerTerm = searchTerm.ToLower();
+            
+            // Only search within command names
+            var commandMatches = await _context.TalonVoiceCommands
+                .Where(c => c.Command.ToLower().Contains(lowerTerm))
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+
+            System.Console.WriteLine($"[DEBUG] Command names only search for '{searchTerm}': {commandMatches.Count} results");
+            return commandMatches;
+        }
+
+        /// <summary>
+        /// Searches only script content
+        /// </summary>
+        public async Task<List<TalonVoiceCommand>> SearchScriptOnlyAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
+            }
+
+            var lowerTerm = searchTerm.ToLower();
+            
+            // Only search within script content
+            var scriptMatches = await _context.TalonVoiceCommands
+                .Where(c => c.Script.ToLower().Contains(lowerTerm))
+                .OrderByDescending(c => c.CreatedAt)
+                .Take(100)
+                .ToListAsync();
+
+            System.Console.WriteLine($"[DEBUG] Script only search for '{searchTerm}': {scriptMatches.Count} results");
+            return scriptMatches;
+        }
+
+        /// <summary>
+        /// Searches all fields (commands, scripts, applications, modes, titles) with list support
+        /// </summary>
+        public async Task<List<TalonVoiceCommand>> SearchAllAsync(string searchTerm)
+        {
+            // Use the existing comprehensive search method
+            return await SemanticSearchWithListsAsync(searchTerm);
+        }
+
+        // ...existing code...
+
         // Helper class for deduplicating commands
         private class TalonVoiceCommandComparer : IEqualityComparer<TalonVoiceCommand>
         {
