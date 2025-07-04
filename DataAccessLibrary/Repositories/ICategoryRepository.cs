@@ -12,6 +12,7 @@ namespace VoiceLauncher.Repositories
         Task<IEnumerable<CategoryDTO>> GetAllCategoriesByTypeAsync(string categoryType);
         Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(int maxRows, string categoryType, int
         languageId);
+        Task<IEnumerable<CategoryGroupedByLanguageDTO>> GetCategoriesGroupedByLanguageAsync(string categoryType);
         Task<IEnumerable<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm);
         Task<CategoryDTO?> GetCategoryByIdAsync(int Id);
         Task<CategoryDTO?> UpdateCategoryAsync(CategoryDTO categoryDTO);

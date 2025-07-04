@@ -3,6 +3,7 @@ using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using DataAccessLibrary.DTO;
+using RazorClassLibrary.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -25,8 +26,11 @@ namespace RazorClassLibrary.Pages
 		public string pageTitle { get; set; } = "Snippet Categories";
 		public List<CategoryDTO>? CategoryDTO { get; set; }
 		public List<CategoryDTO>? FilteredCategoryDTO { get; set; }
+		public List<CategoryGroupedByLanguageDTO>? GroupedCategoryDTO { get; set; }
+		public List<CategoryGroupedByLanguageDTO>? FilteredGroupedCategoryDTO { get; set; }
 		protected CategoryAddEdit? CategoryAddEdit { get; set; }
 		private bool useSemanticMatching = false;
+		private bool _groupByLanguage = true; // Default to grouped view
 		ElementReference SearchInput;
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
@@ -87,19 +91,27 @@ namespace RazorClassLibrary.Pages
 					{
 						pageTitle = "Launcher Categories";
 					}
-					List<CategoryDTO> result;
+					
 					if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
 					{
-						result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, 0);
+						// Load grouped data for normal view
+						var groupedResult = await CategoryDataService.GetCategoriesGroupedByLanguageAsync(CategoryType);
+						GroupedCategoryDTO = groupedResult.ToList();
+						FilteredGroupedCategoryDTO = groupedResult.ToList();
+						
+						// Also load flat data for compatibility
+						var flatResult = await CategoryDataService.GetAllCategoriesAsync(CategoryType, 0);
+						CategoryDTO = flatResult.ToList();
+						FilteredCategoryDTO = flatResult.ToList();
 					}
 					else
 					{
+						// For search, use flat view
+						_groupByLanguage = false;
 						_ShowCards = false;
-						result = await CategoryDataService.SearchCategoriesAsync(GlobalSearchTerm);
-					}
-					if (result != null)
-					{
+						var result = await CategoryDataService.SearchCategoriesAsync(GlobalSearchTerm);
 						CategoryDTO = result.ToList();
+						FilteredCategoryDTO = result.ToList();
 					}
 				}
 
@@ -110,9 +122,17 @@ namespace RazorClassLibrary.Pages
 				_loadFailed = true;
 				ExceptionMessage = e.Message;
 			}
-			FilteredCategoryDTO = CategoryDTO;
-			Title = $"Categories ({FilteredCategoryDTO?.Count})";
-
+			
+			// Update title based on current view
+			if (_groupByLanguage && FilteredGroupedCategoryDTO != null)
+			{
+				var totalCategories = FilteredGroupedCategoryDTO.Sum(g => g.Categories.Count);
+				Title = $"Categories ({totalCategories})";
+			}
+			else if (FilteredCategoryDTO != null)
+			{
+				Title = $"Categories ({FilteredCategoryDTO.Count})";
+			}
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
@@ -150,6 +170,61 @@ namespace RazorClassLibrary.Pages
 		}
 
 		private void ApplyFilter()
+		{
+			if (_groupByLanguage)
+			{
+				ApplyFilterGrouped();
+			}
+			else
+			{
+				ApplyFilterFlat();
+			}
+		}
+		
+		private void ApplyFilterGrouped()
+		{
+			if (FilteredGroupedCategoryDTO == null || GroupedCategoryDTO == null)
+			{
+				return;
+			}
+			
+			if (string.IsNullOrEmpty(SearchTerm))
+			{
+				FilteredGroupedCategoryDTO = GroupedCategoryDTO.ToList();
+				var totalCategories = FilteredGroupedCategoryDTO.Sum(g => g.Categories.Count);
+				Title = $"All Categories ({totalCategories})";
+			}
+			else
+			{
+				var temporary = SearchTerm.ToLower().Trim();
+				var filteredGroups = new List<CategoryGroupedByLanguageDTO>();
+				
+				foreach (var group in GroupedCategoryDTO)
+				{
+					var filteredCategories = group.Categories.Where(c =>
+						(c.CategoryName != null && c.CategoryName.ToLower().Contains(temporary)) ||
+						(c.CategoryType != null && c.CategoryType.ToLower().Contains(temporary))
+					).ToList();
+					
+					if (filteredCategories.Any())
+					{
+						filteredGroups.Add(new CategoryGroupedByLanguageDTO
+						{
+							LanguageId = group.LanguageId,
+							LanguageName = group.LanguageName,
+							LanguageColour = group.LanguageColour,
+							Categories = filteredCategories
+						});
+					}
+				}
+				
+				FilteredGroupedCategoryDTO = filteredGroups;
+				var totalCategories = FilteredGroupedCategoryDTO.Sum(g => g.Categories.Count);
+				Title = $"Filtered Categories ({totalCategories})";
+			}
+		}
+		
+		private void ApplyFilterFlat()
 		{
 			if (FilteredCategoryDTO == null || CategoryDTO == null)
 			{
@@ -198,6 +273,20 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
+		private void OnGroupingChanged(ChangeEventArgs e)
+		{
+			_groupByLanguage = bool.Parse(e.Value?.ToString() ?? "false");
+			if (_groupByLanguage)
+			{
+				ApplyFilterGrouped();
+			}
+			else
+			{
+				ApplyFilterFlat();
+			}
+			StateHasChanged();
+		}
+		
 		protected void SortCategory(string sortColumn)
 		{
 			Guard.Against.Null(sortColumn, nameof(sortColumn));

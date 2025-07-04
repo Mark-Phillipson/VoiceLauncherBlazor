@@ -29,6 +29,11 @@ public class CategoryDataService : ICategoryDataService
         var Categories = await _categoryRepository.GetAllCategoriesAsync(300, categoryType, languageId);
         return Categories.ToList();
     }
+    public async Task<List<CategoryGroupedByLanguageDTO>> GetCategoriesGroupedByLanguageAsync(string categoryType)
+    {
+        var Categories = await _categoryRepository.GetCategoriesGroupedByLanguageAsync(categoryType);
+        return Categories.ToList();
+    }
     public async Task<List<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm)
     {
         var Categories = await _categoryRepository.SearchCategoriesAsync(serverSearchTerm);
