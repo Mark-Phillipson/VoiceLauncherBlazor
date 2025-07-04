@@ -1,7 +1,6 @@
 using Ardalis.GuardClauses;
 using AutoMapper;
 using DataAccessLibrary.DTO;
-using RazorClassLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

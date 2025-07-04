@@ -1,6 +1,5 @@
 using AutoMapper;
 using DataAccessLibrary.DTO;
-using RazorClassLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
 

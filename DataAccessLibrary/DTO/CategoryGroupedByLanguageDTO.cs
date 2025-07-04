@@ -1,6 +1,6 @@
-using DataAccessLibrary.DTO;
+using System.Collections.Generic;
 
-namespace RazorClassLibrary.Models
+namespace DataAccessLibrary.DTO
 {
     public class CategoryGroupedByLanguageDTO
     {
