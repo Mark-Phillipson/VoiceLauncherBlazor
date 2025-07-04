@@ -1,6 +1,7 @@
 using Ardalis.GuardClauses;
 using AutoMapper;
 using DataAccessLibrary.DTO;
+using RazorClassLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,11 @@ public class CategoryDataService : ICategoryDataService
     public async Task<List<CategoryDTO>> GetAllCategoriesAsync(string categoryType, int languageId)
     {
         var Categories = await _categoryRepository.GetAllCategoriesAsync(300, categoryType, languageId);
+        return Categories.ToList();
+    }
+    public async Task<List<CategoryGroupedByLanguageDTO>> GetCategoriesGroupedByLanguageAsync(string categoryType)
+    {
+        var Categories = await _categoryRepository.GetCategoriesGroupedByLanguageAsync(categoryType);
         return Categories.ToList();
     }
     public async Task<List<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm)

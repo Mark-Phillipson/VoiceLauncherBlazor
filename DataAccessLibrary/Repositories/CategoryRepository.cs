@@ -1,5 +1,6 @@
 using AutoMapper;
 using DataAccessLibrary.DTO;
+using RazorClassLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
 
@@ -93,6 +94,88 @@ namespace VoiceLauncher.Repositories
 			}
 			return CategoriesDTO;
 		}
+		public async Task<IEnumerable<CategoryGroupedByLanguageDTO>> GetCategoriesGroupedByLanguageAsync(string categoryType)
+		{
+			using var context = _contextFactory.CreateDbContext();
+			
+			// Get all categories with their CustomIntelliSense and Languages
+			var categoriesWithLanguages = await context.Categories
+				.Include(c => c.CustomIntelliSense)
+				.ThenInclude(ci => ci.Language)
+				.Where(c => c.CategoryType == categoryType)
+				.ToListAsync();
+
+			// Group categories by language
+			var groupedCategories = new List<CategoryGroupedByLanguageDTO>();
+			
+			// Create a dictionary to track languages and their categories
+			var languageGroups = new Dictionary<int, CategoryGroupedByLanguageDTO>();
+			
+			foreach (var category in categoriesWithLanguages)
+			{
+				// Get unique languages for this category
+				var languages = category.CustomIntelliSense
+					.Where(ci => ci.Language != null)
+					.Select(ci => ci.Language!)
+					.Distinct()
+					.ToList();
+
+				// If category has no languages, add it to a "No Language" group
+				if (!languages.Any())
+				{
+					const int noLanguageId = 0;
+					if (!languageGroups.ContainsKey(noLanguageId))
+					{
+						languageGroups[noLanguageId] = new CategoryGroupedByLanguageDTO
+						{
+							LanguageId = noLanguageId,
+							LanguageName = "No Language",
+							LanguageColour = "#808080",
+							Categories = new List<CategoryDTO>()
+						};
+					}
+					
+					var categoryDTO = _mapper.Map<Category, CategoryDTO>(category);
+					categoryDTO.CountOfCustomIntellisense = category.CustomIntelliSense?.Count() ?? 0;
+					languageGroups[noLanguageId].Categories.Add(categoryDTO);
+				}
+				else
+				{
+					// Add category to each language group it belongs to
+					foreach (var language in languages)
+					{
+						if (!languageGroups.ContainsKey(language.Id))
+						{
+							languageGroups[language.Id] = new CategoryGroupedByLanguageDTO
+							{
+								LanguageId = language.Id,
+								LanguageName = language.LanguageName,
+								LanguageColour = language.Colour,
+								Categories = new List<CategoryDTO>()
+							};
+						}
+						
+						var categoryDTO = _mapper.Map<Category, CategoryDTO>(category);
+						categoryDTO.CountOfCustomIntellisense = category.CustomIntelliSense?.Count(ci => ci.LanguageId == language.Id) ?? 0;
+						languageGroups[language.Id].Categories.Add(categoryDTO);
+					}
+				}
+			}
+
+			// Convert to list and sort by language name
+			groupedCategories = languageGroups.Values
+				.OrderBy(g => g.LanguageName)
+				.ToList();
+
+			// Sort categories within each language group
+			foreach (var group in groupedCategories)
+			{
+				group.Categories = group.Categories.OrderBy(c => c.CategoryName).ToList();
+			}
+
+			return groupedCategories;
+		}
+
 		public async Task<IEnumerable<CategoryDTO>> SearchCategoriesAsync(string serverSearchTerm)
 		{
 			using var context = _contextFactory.CreateDbContext();

@@ -17,14 +17,23 @@
 							@bind="@_ShowCards" />
 					</div>
 					<div class="col-2">
+						<label for='group-by-language'>Group by Language</label>
+					</div>
+					<div class="col-2">
+						<input id='group-by-language' title="Group by Language" class="form-checkbox" type="checkbox"
+							@bind="@_groupByLanguage" @bind:event="onchange" @onchange="OnGroupingChanged" />
+					</div>
+					<div class="col-2">
 						<label for='useSemanticMatching'>Semantic?</label>
 					</div>
 					<div class="col-2">
 						<input id='useSemanticMatching' title="Use Semantic Matching" class="form-checkbox" type="checkbox"
-							@="@useSemanticMatching" />
+							@bind="@useSemanticMatching" />
 					</div>
-					@if (useSemanticMatching)
-					{
+				</div>
+				@if (useSemanticMatching)
+				{
+					<div class="row mt-2">
 						<div class="col-2">
 							<label for='maxResults'># Results</label>
 						</div>
@@ -32,8 +41,8 @@
 							<input id='maxResults' title="Number of Results to Return" class="form-control" type="number"
 								@bind="@maxResults" />
 						</div>
-					}
-				</div>
+					</div>
+				}
 			</div>
 		</div>
 		<div class="col-md-2">
@@ -51,126 +60,224 @@
 	}
 </div>
 
-@if (FilteredCategoryDTO == null && _loadFailed == true)
+@if ((_groupByLanguage && FilteredGroupedCategoryDTO == null) || (!_groupByLanguage && FilteredCategoryDTO == null))
 {
-	<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-	<button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
-	<h6 class="text-danger">@ExceptionMessage</h6>
+	@if (_loadFailed)
+	{
+		<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+		<button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+		<h6 class="text-danger">@ExceptionMessage</h6>
+	}
+	else
+	{
+		<div style="display:normal;margin:auto" class="loader"></div>
+	}
 }
-else if (FilteredCategoryDTO == null)
-{
-	<div style="display:normal;margin:auto" class="loader"></div>
-}
-else if (FilteredCategoryDTO.Count == 0)
+else if ((_groupByLanguage && FilteredGroupedCategoryDTO != null && FilteredGroupedCategoryDTO.Sum(g => g.Categories.Count) == 0) || 
+         (!_groupByLanguage && FilteredCategoryDTO != null && FilteredCategoryDTO.Count == 0))
 {
 	<p>No Category match the criteria @GlobalSearchTerm</p>
 	<button @onclick="AddNewCategoryAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
 }
 else
 {
-	@if (_ShowCards)
+	@if (_groupByLanguage && FilteredGroupedCategoryDTO != null)
 	{
-		<div class="layout-as-cards">
-			@{
-				counter = -1;
-			}
-			@foreach (var category in FilteredCategoryDTO)
-			{
-				@if (counter < 9)
+		@* Grouped view *@
+		@foreach (var languageGroup in FilteredGroupedCategoryDTO.Where(g => g.Categories.Any()))
+		{
+			<div class="language-group mb-4">
+				<h4 class="language-header p-2 rounded" style="background-color: @(languageGroup.LanguageColour ?? "#f0f0f0")">
+					@languageGroup.LanguageName (@languageGroup.Categories.Count)
+				</h4>
+				
+				@if (_ShowCards)
 				{
-					counter++;
-				}
-				else
-				{
-					counter = null;
-				}
-				<div class='btn btn-outline-danger'>
-					<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
-						<div accesskey="@counter" class="card-body"
-							Style="background-color:@category.Colour;height:100px;align-content:center">
-							@if (@category.Icon != null)
+					<div class="layout-as-cards">
+						@{
+							counter = -1;
+						}
+						@foreach (var category in languageGroup.Categories)
+						{
+							@if (counter < 9)
 							{
-								<h2> @((MarkupString)category.Icon) </h2>
-							}
-							@if (CategoryType == "Launch Applications")
-							{
-								<h4 class="card-title"><u>@counter</u> @category.CategoryName <span>(@category.CountOfLaunchers)</span>
-								</h4>
+								counter++;
 							}
 							else
 							{
-								<h6><u>@counter</u></h6>
-								<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
+								counter = null;
 							}
-							<div class="card-text">
-								@if (category.Sensitive)
-								{
-									<h6 class='text-danger'>Sensitive</h6>
-								}
+							<div class='btn btn-outline-danger'>
+								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
+									<div accesskey="@counter" class="card-body"
+										Style="background-color:@category.Colour;height:100px;align-content:center">
+										@if (@category.Icon != null)
+										{
+											<h2> @((MarkupString)category.Icon) </h2>
+										}
+										@if (CategoryType == "Launch Applications")
+										{
+											<h4 class="card-title"><u>@counter</u> @category.CategoryName <span>(@category.CountOfLaunchers)</span>
+											</h4>
+										}
+										else
+										{
+											<h6><u>@counter</u></h6>
+											<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
+										}
+										<div class="card-text">
+											@if (category.Sensitive)
+											{
+												<h6 class='text-danger'>Sensitive</h6>
+											}
+										</div>
+									</div>
+								</a>
 							</div>
-						</div>
-					</a>
-				</div>
-			}
-		</div>
+						}
+					</div>
+				}
+				else
+				{
+					<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+						<thead>
+							<tr>
+								<th>Category</th>
+								<th>Category Type</th>
+								<th>Sensitive</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var category in languageGroup.Categories)
+							{
+								<tr>
+									<td style='font-size:30px'>@category.CategoryName</td>
+									<td>@category.CategoryType</td>
+									<td>@category.Sensitive</td>
+									<td class="btn-group-vertical">
+										<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
+											<i class="fas fa-edit"></i>
+										</button>
+										<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
+											<i class="fas fa-trash"></i>
+										</button>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</div>
+		}
 	}
-	else
+	else if (!_groupByLanguage && FilteredCategoryDTO != null)
 	{
-		<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
-			<thead>
-				<tr>
-					<th>
-						<button class="btn" @onclick="@(() => SortCategory("Category"))">
-							<i class="fas fa-sort-alpha-up"></i>
-						</button>
-						<button class="btn" @onclick="@(() => SortCategory("Category Desc"))">
-							<i class="fas fa-sort-alpha-up-alt"></i>
-						</button>
-						Category
-					</th>
-					<th>
-						<button class="btn" @onclick="@(() => SortCategory("CategoryType"))">
-							<i class="fas fa-sort-alpha-up"></i>
-						</button>
-						<button class="btn" @onclick="@(() => SortCategory("CategoryType Desc"))">
-							<i class="fas fa-sort-alpha-up-alt"></i>
-						</button>
-						Category Type
-					</th>
-					<th>
-						<button class="btn" @onclick="@(() => SortCategory("Sensitive"))">
-							<i class="fas fa-sort-alpha-up"></i>
-						</button>
-						<button class="btn" @onclick="@(() => SortCategory("Sensitive Desc"))">
-							<i class="fas fa-sort-alpha-up-alt"></i>
-						</button>
-						Sensitive
-					</th>
-					<th>
-						<button accesskey="+" @onclick="       AddNewCategoryAsync" class="btn btn-success">
-							<i class="fas fa-plus"></i>
-						</button>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
+		@* Flat view (original) *@
+		@if (_ShowCards)
+		{
+			<div class="layout-as-cards">
+				@{
+					counter = -1;
+				}
 				@foreach (var category in FilteredCategoryDTO)
 				{
-					<tr>
-						<td style='font-size:30px'>@category.CategoryName</td>
-						<td>@category.CategoryType</td>
-						<td>@category.Sensitive</td>
-						<td class="btn-group-vertical">
-							<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
-								<i class="fas fa-edit"></i>
-							</button>
-							<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
-								<i class="fas fa-trash"></i>
-							</button>
-						</td>
-					</tr>
+					@if (counter < 9)
+					{
+						counter++;
+					}
+					else
+					{
+						counter = null;
+					}
+					<div class='btn btn-outline-danger'>
+						<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
+							<div accesskey="@counter" class="card-body"
+								Style="background-color:@category.Colour;height:100px;align-content:center">
+								@if (@category.Icon != null)
+								{
+									<h2> @((MarkupString)category.Icon) </h2>
+								}
+								@if (CategoryType == "Launch Applications")
+								{
+									<h4 class="card-title"><u>@counter</u> @category.CategoryName <span>(@category.CountOfLaunchers)</span>
+									</h4>
+								}
+								else
+								{
+									<h6><u>@counter</u></h6>
+									<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
+								}
+								<div class="card-text">
+									@if (category.Sensitive)
+									{
+										<h6 class='text-danger'>Sensitive</h6>
+									}
+								</div>
+							</div>
+						</a>
+					</div>
 				}
-			</tbody>
-		</table>
+			</div>
+		}
+		else
+		{
+			<table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+				<thead>
+					<tr>
+						<th>
+							<button class="btn" @onclick="@(() => SortCategory("Category"))">
+								<i class="fas fa-sort-alpha-up"></i>
+							</button>
+							<button class="btn" @onclick="@(() => SortCategory("Category Desc"))">
+								<i class="fas fa-sort-alpha-up-alt"></i>
+							</button>
+							Category
+						</th>
+						<th>
+							<button class="btn" @onclick="@(() => SortCategory("CategoryType"))">
+								<i class="fas fa-sort-alpha-up"></i>
+							</button>
+							<button class="btn" @onclick="@(() => SortCategory("CategoryType Desc"))">
+								<i class="fas fa-sort-alpha-up-alt"></i>
+							</button>
+							Category Type
+						</th>
+						<th>
+							<button class="btn" @onclick="@(() => SortCategory("Sensitive"))">
+								<i class="fas fa-sort-alpha-up"></i>
+							</button>
+							<button class="btn" @onclick="@(() => SortCategory("Sensitive Desc"))">
+								<i class="fas fa-sort-alpha-up-alt"></i>
+							</button>
+							Sensitive
+						</th>
+						<th>
+							<button accesskey="+" @onclick="AddNewCategoryAsync" class="btn btn-success">
+								<i class="fas fa-plus"></i>
+							</button>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var category in FilteredCategoryDTO)
+					{
+						<tr>
+							<td style='font-size:30px'>@category.CategoryName</td>
+							<td>@category.CategoryType</td>
+							<td>@category.Sensitive</td>
+							<td class="btn-group-vertical">
+								<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
+									<i class="fas fa-edit"></i>
+								</button>
+								<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
+									<i class="fas fa-trash"></i>
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	}
 }
