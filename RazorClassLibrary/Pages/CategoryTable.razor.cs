@@ -3,6 +3,7 @@ using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using DataAccessLibrary.DTO;
+using RazorClassLibrary.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;

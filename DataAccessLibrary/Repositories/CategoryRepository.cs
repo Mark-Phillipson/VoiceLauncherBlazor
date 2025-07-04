@@ -1,7 +1,6 @@
 using AutoMapper;
 using DataAccessLibrary.DTO;
 using Microsoft.EntityFrameworkCore;
-using Ardalis.GuardClauses;
 
 using DataAccessLibrary.Models;
 using System.Threading.Tasks;
