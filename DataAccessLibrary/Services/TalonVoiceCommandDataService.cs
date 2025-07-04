@@ -8,12 +8,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
+using SmartComponents.LocalEmbeddings;
 
 namespace DataAccessLibrary.Services
 {
     public class TalonVoiceCommandDataService
     {
         private readonly ApplicationDbContext _context;
+        private static readonly LocalEmbedder _embedder = new LocalEmbedder();
+        
         public TalonVoiceCommandDataService(ApplicationDbContext context)
         {
             _context = context;
@@ -211,12 +214,58 @@ namespace DataAccessLibrary.Services
             {
                 return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
             }
-            var lowerTerm = searchTerm.ToLower();
-            return await _context.TalonVoiceCommands
-                .Where(c => c.Command.ToLower().Contains(lowerTerm) || c.Script.ToLower().Contains(lowerTerm) || c.Application.ToLower().Contains(lowerTerm) || (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) || (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
-                .OrderByDescending(c => c.CreatedAt)
+
+            try
+            {
+                // Get all commands from database in a single call
+                var allCommands = await _context.TalonVoiceCommands.ToListAsync();
+                
+                if (allCommands.Count == 0)
+                {
+                    return new List<TalonVoiceCommand>();
+                }
+
+                // Create embeddings for search term
+                var searchEmbedding = _embedder.Embed(searchTerm);
+                
+                // Calculate similarity scores and get top results
+                var commandsWithScores = allCommands.Select(cmd =>
+                {
+                    // Create a combined text for semantic comparison
+                    var combinedText = $"{cmd.Command} {cmd.Script} {cmd.Title ?? ""} {cmd.Application}".Trim();
+                    
+                    // Get embedding for this command
+                    var commandEmbedding = _embedder.Embed(combinedText);
+                    
+                    // Calculate cosine similarity
+                    var similarity = LocalEmbedder.Similarity(searchEmbedding, commandEmbedding);
+                    
+                    return new { Command = cmd, Similarity = similarity };
+                })
+                .Where(x => x.Similarity > 0.3f) // Filter by minimum similarity threshold
+                .OrderByDescending(x => x.Similarity)
                 .Take(100)
-                .ToListAsync();
+                .Select(x => x.Command)
+                .ToList();
+
+                Console.WriteLine($"[DEBUG] Semantic search for '{searchTerm}': found {commandsWithScores.Count} results");
+                return commandsWithScores;
+            }
+            catch (Exception ex)
+            {
+                // Fallback to basic text search if semantic search fails
+                Console.WriteLine($"[DEBUG] Semantic search failed, falling back to text search: {ex.Message}");
+                var lowerTerm = searchTerm.ToLower();
+                return await _context.TalonVoiceCommands
+                    .Where(c => c.Command.ToLower().Contains(lowerTerm) || 
+                               c.Script.ToLower().Contains(lowerTerm) || 
+                               c.Application.ToLower().Contains(lowerTerm) || 
+                               (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) || 
+                               (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(100)
+                    .ToListAsync();
+            }
         }
 
         public async Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
@@ -585,67 +634,101 @@ namespace DataAccessLibrary.Services
                 return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
             }
 
-            var lowerTerm = searchTerm.ToLower();            // First, get commands that match directly
-            var directMatches = await _context.TalonVoiceCommands
-                .Where(c => c.Command.ToLower().Contains(lowerTerm) ||
-                           c.Script.ToLower().Contains(lowerTerm) ||
-                           c.Application.ToLower().Contains(lowerTerm) ||
-                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) ||
-                           (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
-                .ToListAsync();
+            var lowerTerm = searchTerm.ToLower();
 
-            // Search within list values that might be referenced
-            var listMatches = await _context.TalonLists
-                .Where(l => l.SpokenForm.ToLower().Contains(lowerTerm) ||
-                           l.ListValue.ToLower().Contains(lowerTerm))
-                .Select(l => l.ListName)
-                .Distinct()
-                .ToListAsync();
-
-            System.Console.WriteLine($"[DEBUG] Found {listMatches.Count} list matches for '{searchTerm}': {string.Join(", ", listMatches)}");
-
-            // Find commands that reference these lists in various formats
-            var listReferencingCommands = new List<TalonVoiceCommand>();
-            foreach (var listName in listMatches)
+            try
             {
-                var shortListName = listName.Replace("user.", "");
-                System.Console.WriteLine($"[DEBUG] Searching for commands referencing list '{listName}' (short: '{shortListName}')");
-                  // Search for specific Talon list reference patterns only:
-                // 1. {list_name} format in commands - this is the main Talon syntax
-                // 2. {short_name} format (without user. prefix)
-                // Removed: broad text matching that was causing false positives with "model"
-                var commandsWithListRefs = await _context.TalonVoiceCommands
-                    .Where(c => c.Command.Contains($"{{{listName}}}") ||
-                               c.Command.Contains($"{{{shortListName}}}") ||
-                               c.Script.Contains($"{{{listName}}}") ||
-                               c.Script.Contains($"{{{shortListName}}}"))
-                    .ToListAsync();
+                // Get all required data in single database calls to avoid DbContext concurrency issues
+                var allCommands = await _context.TalonVoiceCommands.ToListAsync();
+                var allLists = await _context.TalonLists.ToListAsync();
                 
-                System.Console.WriteLine($"[DEBUG] Found {commandsWithListRefs.Count} commands with exact list references for '{listName}'");
-                listReferencingCommands.AddRange(commandsWithListRefs);
-            }            // Combine and deduplicate results, prioritizing list matches for better relevance
-            var allMatches = new List<TalonVoiceCommand>();
-            
-            // Add list-referencing commands first (higher priority for list-based searches)
-            allMatches.AddRange(listReferencingCommands);
-            
-            // Add direct matches that aren't already included
-            foreach (var directMatch in directMatches)
-            {
-                if (!allMatches.Any(existing => existing.Id == directMatch.Id))
+                if (allCommands.Count == 0)
                 {
-                    allMatches.Add(directMatch);
+                    return new List<TalonVoiceCommand>();
                 }
-            }
-            
-            // Take top results and order by creation date
-            var finalResults = allMatches
-                .Take(100)
-                .OrderByDescending(c => c.CreatedAt)
+
+                // Perform semantic search on the in-memory data
+                var searchEmbedding = _embedder.Embed(searchTerm);
+                var semanticMatches = allCommands.Select(cmd =>
+                {
+                    // Create a combined text for semantic comparison
+                    var combinedText = $"{cmd.Command} {cmd.Script} {cmd.Title ?? ""} {cmd.Application}".Trim();
+                    
+                    // Get embedding for this command
+                    var commandEmbedding = _embedder.Embed(combinedText);
+                    
+                    // Calculate cosine similarity
+                    var similarity = LocalEmbedder.Similarity(searchEmbedding, commandEmbedding);
+                    
+                    return new { Command = cmd, Similarity = similarity };
+                })
+                .Where(x => x.Similarity > 0.3f) // Filter by minimum similarity threshold
+                .OrderByDescending(x => x.Similarity)
+                .Select(x => x.Command)
                 .ToList();
 
-            System.Console.WriteLine($"[DEBUG] Final results: {directMatches.Count} direct matches + {listReferencingCommands.Count} list-referencing commands = {finalResults.Count} total");
-            return finalResults;
+                // Find matching lists from in-memory data
+                var listMatches = allLists
+                    .Where(l => l.SpokenForm.ToLower().Contains(lowerTerm) ||
+                               l.ListValue.ToLower().Contains(lowerTerm))
+                    .Select(l => l.ListName)
+                    .Distinct()
+                    .ToList();
+
+                System.Console.WriteLine($"[DEBUG] Found {listMatches.Count} list matches for '{searchTerm}': {string.Join(", ", listMatches)}");
+
+                // Find commands that reference these lists from in-memory data
+                var listReferencingCommands = new List<TalonVoiceCommand>();
+                foreach (var listName in listMatches)
+                {
+                    var shortListName = listName.Replace("user.", "");
+                    
+                    var commandsWithListRefs = allCommands
+                        .Where(c => c.Command.Contains($"{{{listName}}}") ||
+                                   c.Command.Contains($"{{{shortListName}}}") ||
+                                   c.Script.Contains($"{{{listName}}}") ||
+                                   c.Script.Contains($"{{{shortListName}}}"))
+                        .ToList();
+                    
+                    listReferencingCommands.AddRange(commandsWithListRefs);
+                }
+
+                // Combine semantic matches and list-referencing commands, removing duplicates
+                var allMatches = new List<TalonVoiceCommand>();
+                allMatches.AddRange(semanticMatches);
+                
+                foreach (var listCommand in listReferencingCommands)
+                {
+                    if (!allMatches.Any(existing => existing.Id == listCommand.Id))
+                    {
+                        allMatches.Add(listCommand);
+                    }
+                }
+
+                var finalResults = allMatches
+                    .Take(100)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToList();
+
+                System.Console.WriteLine($"[DEBUG] Final results: {semanticMatches.Count} semantic matches + {listReferencingCommands.Count} list-referencing commands = {finalResults.Count} total");
+                return finalResults;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"[DEBUG] SemanticSearchWithListsAsync failed, falling back to basic search: {ex.Message}");
+                // Fallback to the original text-based implementation
+                var directMatches = await _context.TalonVoiceCommands
+                    .Where(c => c.Command.ToLower().Contains(lowerTerm) ||
+                               c.Script.ToLower().Contains(lowerTerm) ||
+                               c.Application.ToLower().Contains(lowerTerm) ||
+                               (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) ||
+                               (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(100)
+                    .ToListAsync();
+                
+                return directMatches;
+            }
         }
 
         /// <summary>

@@ -422,19 +422,22 @@ namespace RazorClassLibrary.Pages
                     {
                         await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                    }
                     
-                    // Use appropriate search method based on scope
+                    // Use semantic search methods which search across all fields
                     List<TalonVoiceCommand> semanticResults;
                     switch (SelectedSearchScope)
                     {
                         case SearchScope.CommandNamesOnly:
-                            semanticResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                            // Use semantic search but filter results to only show command name matches
+                            semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
                             break;
                         case SearchScope.Script:
-                            semanticResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                            // Use semantic search but filter results to show script matches
+                            semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
                             break;
                         case SearchScope.All:
                         default:
-                            semanticResults = await TalonService.SearchAllAsync(SearchTerm!);
+                            // Use the proper semantic search method that includes list expansions
+                            semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
                             break;
                     }
                     
