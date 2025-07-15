@@ -12,7 +12,7 @@
   width: 260px;
   min-width: 260px;
   max-width: 260px;
-  height: 200px;
+  height: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,12 +20,12 @@
   background: #23272f;
   border-radius: 18px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-  padding: 1.25rem;
+  padding: 0.5rem;
   transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .card > * {
-  margin: 2px !important; /* Only 2px margin for direct children inside card */
+  margin: 1px !important; /* Reduced margin for direct children inside card */
 }
 
 .card:hover {
@@ -34,20 +34,31 @@
 }
 
 .card img {
-  max-width: 88px;
-  max-height: 88px;
+  max-width: 200px;
+  max-height: 140px;
   object-fit: contain;
   /* margin-bottom removed, handled by card > * margin */
 }
 
 .card span.p-3 {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  font-size: 1.1rem;
+  justify-content: space-between;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #fff;
   padding: 0.1rem 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.card span.p-3 > span:first-child {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
 }
 
 .card .form-checkbox {

@@ -65,14 +65,14 @@ else
 							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
 								? launcher.Icon
 								: $"/images/{launcher.Icon}";
-							<img height="75" src="@iconSrc" />
+							<img class="w-100 h-auto" style="max-height: 150px; object-fit: contain;" src="@iconSrc" />
 						}
 						else
 						{
 							<i style='font-size:45px'>🚀</i>
 						}
-						<span class='p-3'>
-							<u>@counter</u> @launcher.Name
+						<span class='p-3 d-flex align-items-center justify-content-between w-100'>
+							<span><u>@counter</u> @launcher.Name</span>
 							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
 								@onblur="@(() => UpdateFavorite(launcher))" />
 						</span>
@@ -87,15 +87,14 @@ else
 							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
 								? launcher.Icon
 								: $"/images/{launcher.Icon}";
-							<img class="" height="75" src="@iconSrc" />
+							<img class="w-100 h-auto" style="max-height: 150px; object-fit: contain;" src="@iconSrc" />
 						}
 						else
 						{
 							<i style='font-size:45px'>🚀</i>
 						}
-						<span class='p-3'>
-							<u>@counter</u>
-							@launcher.Name
+						<span class='p-3 d-flex align-items-center justify-content-between w-100'>
+							<span><u>@counter</u> @launcher.Name</span>
 							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
 								@onblur="@(() => UpdateFavorite(launcher))" />
 						</span>
