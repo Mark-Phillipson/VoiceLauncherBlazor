@@ -12,11 +12,11 @@ SELECT ListName, ListValue,SpokenForm FROM TalonLists
   --WHERE  Command LIKE 'talon lists%'  
   ORDER BY codelanguage desc
 
-  SELECT COUNT(*) as TotalCommands FROM TalonVoiceCommands;
+  SELECT *  FROM Languages 
 
-SELECT DISTINCT
+SELECT
     *
 FROM
     dbo.Categories
-ORDER BY
-    [Category];  
+     WHERE Category='Folders'
+     ORDER BY Category

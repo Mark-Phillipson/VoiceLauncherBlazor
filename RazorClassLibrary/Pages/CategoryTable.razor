@@ -65,7 +65,7 @@
 	@if (_loadFailed)
 	{
 		<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-		<button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+		<button class="btn btn-danger" type="button" @onclick="@(() => LoadData())">Reload</button>
 		<h6 class="text-danger">@ExceptionMessage</h6>
 	}
 	else
@@ -73,8 +73,9 @@
 		<div style="display:normal;margin:auto" class="loader"></div>
 	}
 }
-else if ((_groupByLanguage && FilteredGroupedCategoryDTO != null && FilteredGroupedCategoryDTO.Sum(g => g.Categories.Count) == 0) || 
-         (!_groupByLanguage && FilteredCategoryDTO != null && FilteredCategoryDTO.Count == 0))
+else if ((_groupByLanguage && FilteredGroupedCategoryDTO != null && FilteredGroupedCategoryDTO.Sum(g =>
+g.Categories.Count) == 0) ||
+(!_groupByLanguage && FilteredCategoryDTO != null && FilteredCategoryDTO.Count == 0))
 {
 	<p>No Category match the criteria @GlobalSearchTerm</p>
 	<button @onclick="AddNewCategoryAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
@@ -87,10 +88,12 @@ else
 		@foreach (var languageGroup in FilteredGroupedCategoryDTO.Where(g => g.Categories.Any()))
 		{
 			<div class="language-group mb-4">
-				<h4 class="language-header p-2 rounded" style="background-color: @(languageGroup.LanguageColour ?? "#f0f0f0")">
-					@languageGroup.LanguageName (@languageGroup.Categories.Count)
-				</h4>
-				
+				@if (languageGroup.LanguageName != "No Language")
+				{
+					<h4 class="language-header p-2 rounded" style="background-color: @(languageGroup.LanguageColour ?? "#f0f0f0")">
+						@languageGroup.LanguageName (@languageGroup.Categories.Count)
+					</h4>
+				}
 				@if (_ShowCards)
 				{
 					<div class="layout-as-cards">
@@ -117,13 +120,15 @@ else
 										}
 										@if (CategoryType == "Launch Applications")
 										{
-											<h4 class="card-title"><u>@counter</u> @category.CategoryName <span>(@category.CountOfLaunchers)</span>
+											<h4 class="card-title"><u>@counter</u> @category.CategoryName
+												<span>(@category.CountOfLaunchers)</span>
 											</h4>
 										}
 										else
 										{
 											<h6><u>@counter</u></h6>
-											<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span></h6>
+											<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span>
+											</h6>
 										}
 										<div class="card-text">
 											@if (category.Sensitive)

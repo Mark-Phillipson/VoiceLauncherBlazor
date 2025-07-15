@@ -119,7 +119,7 @@ namespace VoiceLauncher.Repositories
 					.ToList();
 
 				// If category has no languages, add it to a "No Language" group
-				if (!languages.Any())
+				if (!languages.Any() || category.CategoryType == "Launch Applications")
 				{
 					const int noLanguageId = 0;
 					if (!languageGroups.ContainsKey(noLanguageId))
