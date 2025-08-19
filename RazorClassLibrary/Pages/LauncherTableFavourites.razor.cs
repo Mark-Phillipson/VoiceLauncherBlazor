@@ -66,7 +66,6 @@ namespace RazorClassLibrary.Pages
 				if (CategoryDataService != null)
 				{
 					category = await CategoryDataService.GetCategoryById(CategoryId);
-
 				}
 			}
 			catch (Exception e)
