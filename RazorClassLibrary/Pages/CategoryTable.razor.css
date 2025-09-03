@@ -1,3 +1,44 @@
+/* Scoped styles for CategoryTable.razor to make checkboxes easier to click */
+
+/* Visually enlarge the native checkbox control */
+input.form-checkbox {
+  -webkit-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  transform: scale(1.5); /* larger visual size */
+  margin-right: 0.5rem; /* spacing between checkbox and label */
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Ensure the label is larger and a clear click target */
+.form-group .row > div > label {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.35rem 0.6rem; /* increase hit area */
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* For accessibility, increase the font-size slightly so it's easier to read */
+.form-group .row > div > label,
+input.form-checkbox {
+  font-size: 1rem;
+}
+
+/* Make the checkbox touch/click target bigger on small screens too */
+@media (max-width: 768px) {
+  input.form-checkbox {
+    -webkit-transform: scale(1.7);
+    -ms-transform: scale(1.7);
+    transform: scale(1.7);
+  }
+  .form-group .row > div > label {
+    padding: 0.5rem 0.75rem;
+  }
+}
 
 .layout-as-cards {
     display: flex;

@@ -110,7 +110,7 @@ else
 							{
 								counter = null;
 							}
-							<div class='btn btn-outline-danger'>
+							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
 								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
 									<div accesskey="@counter" class="card-body"
 										Style="background-color:@category.Colour;height:100px;align-content:center">
@@ -120,20 +120,18 @@ else
 										}
 										@if (CategoryType == "Launch Applications")
 										{
-											<h4 class="card-title"><u>@counter</u> @category.CategoryName
-												<span>(@category.CountOfLaunchers)</span>
-											</h4>
+											<h4 class="card-title"><u>@counter</u> @category.CategoryName</h4>
 										}
 										else
 										{
 											<h6><u>@counter</u></h6>
-											<h6 class="card-title"> @category.CategoryName <span>(@category.CountOfCustomIntellisense)</span>
+											<h6 class="card-title"> @category.CategoryName 
 											</h6>
 										}
 										<div class="card-text">
 											@if (category.Sensitive)
 											{
-												<h6 class='text-danger'>Sensitive</h6>
+												<i class="fas fa-shield-alt text-danger" title="Sensitive" aria-label="Sensitive" role="img"></i>
 											}
 										</div>
 									</div>
@@ -185,7 +183,7 @@ else
 				@{
 					counter = -1;
 				}
-				@foreach (var category in FilteredCategoryDTO)
+						@foreach (var category in FilteredCategoryDTO)
 				{
 					@if (counter < 9)
 					{
@@ -195,7 +193,7 @@ else
 					{
 						counter = null;
 					}
-					<div class='btn btn-outline-danger'>
+							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
 						<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
 							<div accesskey="@counter" class="card-body"
 								Style="background-color:@category.Colour;height:100px;align-content:center">
@@ -216,7 +214,7 @@ else
 								<div class="card-text">
 									@if (category.Sensitive)
 									{
-										<h6 class='text-danger'>Sensitive</h6>
+										<i class="fas fa-shield-alt text-danger" title="Sensitive" aria-label="Sensitive" role="img"></i>
 									}
 								</div>
 							</div>
