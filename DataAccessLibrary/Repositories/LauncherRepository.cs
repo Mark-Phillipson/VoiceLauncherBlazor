@@ -38,7 +38,7 @@ namespace DataAccessLibrary.Repositories;
 				return launchersDTO;
 			}
 			launchers = await context.Launcher
-								.Where(v => v.LauncherCategoryBridges.Any(b => b.CategoryId == CategoryId))
+								.Where(v => v.LauncherCategoryBridges.Any(b => b.CategoryId == CategoryId) || v.CategoryId == CategoryId)
 								.OrderBy(v => v.SortOrder)
 								.ThenBy(x => x.Name)
 								.ToListAsync();

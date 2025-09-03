@@ -27,15 +27,10 @@ namespace DataAccessLibrary.Services
 
         public async Task<List<LauncherDTO>> GetAllLaunchersAsync(int CategoryID)
         {
-            string cacheKey = $"{LAUNCHERS_CACHE_KEY}_{CategoryID}";
-            
-            if (!_cache.TryGetValue(cacheKey, out List<LauncherDTO>? launchers))
-            {
-                var result = await _launcherRepository.GetAllLaunchersAsync(CategoryID);
-                launchers = result?.ToList() ?? new List<LauncherDTO>();
-                _cache.Set(cacheKey, launchers, _cacheDuration);
-            }
-            
+            List<LauncherDTO>? launchers;
+            var result = await _launcherRepository.GetAllLaunchersAsync(CategoryID);
+            launchers = result?.ToList() ?? new List<LauncherDTO>();
+
             return launchers ?? new List<LauncherDTO>();
         }
 
@@ -49,7 +44,7 @@ namespace DataAccessLibrary.Services
         public async Task<LauncherDTO?> GetLauncherById(int Id)
         {
             string cacheKey = $"{LAUNCHERS_CACHE_KEY}_item_{Id}";
-            
+
             if (!_cache.TryGetValue(cacheKey, out LauncherDTO? launcher))
             {
                 launcher = await _launcherRepository.GetLauncherByIdAsync(Id);
@@ -58,7 +53,7 @@ namespace DataAccessLibrary.Services
                     _cache.Set(cacheKey, launcher, _cacheDuration);
                 }
             }
-            
+
             return launcher;
         }
 
@@ -70,7 +65,7 @@ namespace DataAccessLibrary.Services
                 launchers = result?.ToList() ?? new List<LauncherDTO>();
                 _cache.Set(FAVORITE_LAUNCHERS_CACHE_KEY, launchers, _cacheDuration);
             }
-            
+
             return launchers ?? new List<LauncherDTO>();
         }
 
@@ -110,14 +105,14 @@ namespace DataAccessLibrary.Services
             // Remove all launcher-related cache entries
             var field = typeof(MemoryCache).GetField("_entries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var entries = field?.GetValue(_cache) as System.Collections.IDictionary;
-            
+
             if (entries != null)
             {
                 var keys = entries.Keys.Cast<object>()
                                 .Where(k => k.ToString()?.StartsWith(LAUNCHERS_CACHE_KEY) == true ||
                                           k.ToString()?.StartsWith(FAVORITE_LAUNCHERS_CACHE_KEY) == true)
                                 .ToList();
-                
+
                 foreach (var key in keys)
                 {
                     _cache.Remove(key);
