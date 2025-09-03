@@ -20,6 +20,11 @@
 
 .nav-item {
 	font-size: 1.0rem;
+	/* Give the item equal top and bottom spacing so the hover/background
+	   block sits visually centered within the item. Previously only
+	   bottom padding was set which made the highlight touch the top.
+	*/
+	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
 }
 
@@ -34,10 +39,14 @@
 	.nav-item ::deep a {
 		color: #d7d7d7;
 		border-radius: 4px;
-		height: 3rem;
+		/* Remove fixed height so the anchor can grow and be padded symmetrically.
+		   Use vertical padding to create matching top/bottom space for the
+		   hover/background block so it appears centered within the list item. */
 		display: flex;
 		align-items: center;
-		line-height: 3rem;
+		padding: 0.5rem 0.5rem;
+		box-sizing: border-box;
+		width: 100%;
 		max-width: 230px;
 	}
 		.nav-item ::deep a.active {
