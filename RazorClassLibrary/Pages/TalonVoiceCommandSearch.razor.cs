@@ -775,7 +775,8 @@ namespace RazorClassLibrary.Pages
             // This method name is misleading - we should actually parse the voice command, not the script
             // But keeping the same name to avoid breaking changes
             return new List<string>();
-        }        public List<string> GetListsUsedInCommand(string command)
+        }
+        public List<string> GetListsUsedInCommand(string command)
         {
             var lists = new List<string>();
             if (string.IsNullOrEmpty(command))
@@ -784,22 +785,22 @@ namespace RazorClassLibrary.Pages
             Console.WriteLine($"[DEBUG] Analyzing voice command for lists: '{command}'");
 
             // NOTE: In Talon syntax:
-            // <capture> = captures (functions that parse input) - NOT lists
-            // {list} = actual list references - THESE are what we want
+            // {capture} = captures (functions that parse input)
+            // <list> = actual list references - THESE are what we want
             // [optional] = optional elements
 
-            // Pattern 1: {list_name} references in voice commands (actual lists)
-            var curlyBracePattern = @"\{([a-zA-Z_][a-zA-Z0-9_.]*)\}";
-            var curlyMatches = Regex.Matches(command, curlyBracePattern);
-            Console.WriteLine($"[DEBUG] Found {curlyMatches.Count} {{list}} matches in command");
-            foreach (Match match in curlyMatches)
+            // Pattern 1: <list_name> references in voice commands (actual lists)
+            var angleBracePattern = @"<([a-zA-Z_][a-zA-Z0-9_.]*)>";
+            var angleMatches = Regex.Matches(command, angleBracePattern);
+            Console.WriteLine($"[DEBUG] Found {angleMatches.Count} <list> matches in command");
+            foreach (Match match in angleMatches)
             {
                 var listName = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Found list reference: '{{{listName}}}'");
+                Console.WriteLine($"[DEBUG] Found list reference: '<{listName}>'");
                 lists.Add(listName);
             }
 
-            // Pattern 2: [optional] sections that may contain {list} references
+            // Pattern 2: [optional] sections that may contain <list> references
             var squareBracePattern = @"\[([^\]]+)\]";
             var squareMatches = Regex.Matches(command, squareBracePattern);
             Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
@@ -807,20 +808,21 @@ namespace RazorClassLibrary.Pages
             {
                 var content = match.Groups[1].Value;
                 Console.WriteLine($"[DEBUG] Checking optional section: '[{content}]'");
-                
-                // Only look for {list} references inside optional sections, ignore <captures>
-                var innerCurlyMatches = Regex.Matches(content, @"\{([a-zA-Z_][a-zA-Z0-9_.]*)\}");
-                
-                foreach (Match innerMatch in innerCurlyMatches)
+
+                // Only look for <list> references inside optional sections, ignore {captures}
+                var innerAngleMatches = Regex.Matches(content, @"<([a-zA-Z_][a-zA-Z0-9_.]*)>");
+
+                foreach (Match innerMatch in innerAngleMatches)
                 {
                     var listName = innerMatch.Groups[1].Value;
-                    Console.WriteLine($"[DEBUG] Found optional list reference: '[{{{listName}}}]'");
-                    lists.Add(listName);                }
+                    Console.WriteLine($"[DEBUG] Found optional list reference: '[<{listName}>]'");
+                    lists.Add(listName);
+                }
             }
 
             var finalLists = lists.Distinct().ToList();
             Console.WriteLine($"[DEBUG] Final lists found in command: {string.Join(", ", finalLists)}");
-            Console.WriteLine($"[DEBUG] Note: Captures like <user.modelPrompt> are ignored as they are not lists");
+            Console.WriteLine($"[DEBUG] Note: Captures like {"{user.text}"} are ignored as they are not lists");
             return finalLists;
         }
 
@@ -832,18 +834,18 @@ namespace RazorClassLibrary.Pages
 
             Console.WriteLine($"[DEBUG] Analyzing voice command for captures: '{command}'");
 
-            // Pattern 1: <capture_name> references in voice commands
-            var angleBracePattern = @"<([a-zA-Z_][a-zA-Z0-9_.]+)>";
-            var angleMatches = Regex.Matches(command, angleBracePattern);
-            Console.WriteLine($"[DEBUG] Found {angleMatches.Count} <capture> matches in command");
-            foreach (Match match in angleMatches)
+            // Pattern 1: {capture_name} references in voice commands
+            var curlyCapturePattern = @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}";
+            var curlyMatches = Regex.Matches(command, curlyCapturePattern);
+            Console.WriteLine($"[DEBUG] Found {curlyMatches.Count} {{capture}} matches in command");
+            foreach (Match match in curlyMatches)
             {
                 var captureName = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Found capture: '<{captureName}>'");
+                Console.WriteLine($"[DEBUG] Found capture: '{{{captureName}}}'");
                 captures.Add(captureName);
             }
 
-            // Pattern 2: [optional] sections that may contain <capture> references
+            // Pattern 2: [optional] sections that may contain {capture} references
             var squareBracePattern = @"\[([^\]]+)\]";
             var squareMatches = Regex.Matches(command, squareBracePattern);
             Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
@@ -851,14 +853,14 @@ namespace RazorClassLibrary.Pages
             {
                 var content = match.Groups[1].Value;
                 Console.WriteLine($"[DEBUG] Checking optional section for captures: '[{content}]'");
-                
-                // Look for <capture> references inside optional sections
-                var innerAngleMatches = Regex.Matches(content, @"<([a-zA-Z_][a-zA-Z0-9_.]+)>");
-                
-                foreach (Match innerMatch in innerAngleMatches)
+
+                // Look for {capture} references inside optional sections
+                var innerCurlyMatches = Regex.Matches(content, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}");
+
+                foreach (Match innerMatch in innerCurlyMatches)
                 {
                     var captureName = innerMatch.Groups[1].Value;
-                    Console.WriteLine($"[DEBUG] Found optional capture: '[<{captureName}>]'");
+                    Console.WriteLine($"[DEBUG] Found optional capture: '[{{{captureName}}}]'");
                     captures.Add(captureName);
                 }
             }
@@ -938,12 +940,18 @@ namespace RazorClassLibrary.Pages
             if (string.IsNullOrEmpty(command))
                 return command;
 
-            // Pattern to match captures like <user.text>, <user.model>, etc.
-            var pattern = @"<([a-zA-Z_][a-zA-Z0-9_.]+)>";
-            var highlightedCommand = Regex.Replace(command, pattern, 
-                "<span class=\"capture-highlight\">&lt;$1&gt;</span>");
-
-            return highlightedCommand;
+            // Pattern to match captures like {user.text}, {user.model}, etc.
+            var pattern = @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}";
+            try
+            {
+                var highlighted = Regex.Replace(command, pattern, m =>
+                    $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode("{" + m.Groups[1].Value + "}")}</span>");
+                return highlighted;
+            }
+            catch
+            {
+                return command;
+            }
         }
 
         /// <summary>
