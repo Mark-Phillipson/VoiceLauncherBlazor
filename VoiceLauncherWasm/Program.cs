@@ -32,8 +32,16 @@ builder.Services.AddScoped<TalonListService>();
 
 var host = builder.Build();
 
-// Initialize IndexedDB
-var indexedDBService = host.Services.GetRequiredService<IIndexedDBService>();
-await indexedDBService.InitializeAsync();
+Console.WriteLine("Program: host built, starting RunAsync");
 
-await host.RunAsync();
+try
+{
+	await host.RunAsync();
+}
+catch (Exception ex)
+{
+	Console.Error.WriteLine($"Program: host.RunAsync failed: {ex}");
+	// Also surface to browser console via a small JS call when possible
+	try { Console.WriteLine("Program: attempting to report error to window.console"); } catch { }
+	throw;
+}

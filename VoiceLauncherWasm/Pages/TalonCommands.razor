@@ -127,7 +127,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCommands();
+    Console.WriteLine("TalonCommands: OnInitializedAsync - loading commands");
+    await LoadCommands();
     }
 
     private async Task LoadCommands()

@@ -118,7 +118,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadLists();
+    Console.WriteLine("TalonLists: OnInitializedAsync - loading lists");
+    await LoadLists();
     }
 
     private async Task LoadLists()

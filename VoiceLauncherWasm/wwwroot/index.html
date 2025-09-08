@@ -26,8 +26,56 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script>
+        // Global error handlers to surface early errors (before Blazor can render error UI)
+        (function () {
+            function showBlazorError(message) {
+                try {
+                    console.error(message);
+                    var ui = document.getElementById('blazor-error-ui');
+                    if (ui) {
+                        ui.style.display = 'block';
+                        // append detailed message
+                        var pre = document.createElement('pre');
+                        pre.style.whiteSpace = 'pre-wrap';
+                        pre.style.maxHeight = '200px';
+                        pre.style.overflow = 'auto';
+                        pre.textContent = typeof message === 'string' ? message : JSON.stringify(message, null, 2);
+                        // remove previous detail if present
+                        var existing = ui.querySelector('pre');
+                        if (existing) existing.remove();
+                        ui.appendChild(pre);
+                    }
+                } catch (e) {
+                    console.error('Error showing blazor UI message', e);
+                }
+            }
+
+            window.addEventListener('error', function (ev) {
+                var msg = ev && ev.error && ev.error.stack ? ev.error.stack : (ev && ev.message) || String(ev);
+                showBlazorError('Global error: ' + msg);
+            });
+
+            window.addEventListener('unhandledrejection', function (ev) {
+                var reason = ev && ev.reason ? (ev.reason.stack || ev.reason) : ev;
+                showBlazorError('Unhandled rejection: ' + (typeof reason === 'string' ? reason : JSON.stringify(reason)));
+            });
+        })();
+    </script>
     <script src="js/indexeddb.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js"
+            onload="console.log('blazor.webassembly.js loaded')"
+            onerror="console.error('Failed to load blazor.webassembly.js', event)"></script>
+    <script>
+        // Diagnostic: after a short delay check whether the DotNet runtime is present
+        setTimeout(function () {
+            if (!window.DotNet) {
+                console.error('DotNet runtime not detected on window after 5s');
+            } else {
+                console.log('DotNet runtime detected');
+            }
+        }, 5000);
+    </script>
 </body>
 
 </html>

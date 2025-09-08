@@ -1,12 +1,5 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿<!-- DEBUG: temporarily render a minimal UI to check whether Blazor can render at all -->
+<div class="container mt-5">
+    <h1>Debug: Blazor runtime rendered this static content</h1>
+    <p>If you see this, the runtime and component rendering are working — the problem is likely in routing or a page component.</p>
+</div>

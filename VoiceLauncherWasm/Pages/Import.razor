@@ -136,7 +136,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await RefreshCounts();
+    Console.WriteLine("Import: OnInitializedAsync - refreshing counts");
+    await RefreshCounts();
     }
 
     private void HandleTalonFilesSelected(InputFileChangeEventArgs e)
