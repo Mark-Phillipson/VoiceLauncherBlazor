@@ -1,6 +1,6 @@
 @page "/talon-voice-command-search"
-@page "/talon-voice-command-search"
 
+@using RazorClassLibrary.Components
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
 <div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
@@ -95,102 +95,116 @@
         <div class="row mb-2">
             <div class="col-md-3">
                 <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
-                <select class="form-select form-select-sm" @onchange="OnApplicationFilterChange" aria-label="Filter by Application" disabled="@IsLoading" value="@SelectedApplication" accesskey="a">
-                    <option value="">All Applications</option>
-                    @if (AvailableApplications != null)
-                    {
-                        @foreach (var app in AvailableApplications)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
+                        @if (string.IsNullOrWhiteSpace(SelectedApplication))
                         {
-                            <option value="@app">@app</option>
+                            <span>All Applications</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedApplication</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label>
-                <select class="form-select form-select-sm filter-mode" @onchange="OnModeFilterChange" aria-label="Filter by Mode" disabled="@IsLoading" value="@SelectedMode" accesskey="m">
-                    <option value="">All Modes</option>
-                    @if (AvailableModes != null)
-                    {
-                        @foreach (var mode in AvailableModes)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowModeModal" disabled="@IsLoading" accesskey="m" title="Filter by Mode">
+                        @if (string.IsNullOrWhiteSpace(SelectedMode))
                         {
-                            <option value="@mode">@mode</option>
+                            <span>All Modes</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedMode</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label>
-                <select class="form-select form-select-sm filter-tags" @onchange="OnTagsFilterChange" aria-label="Filter by Tags" disabled="@IsLoading" value="@SelectedTags" accesskey="t">
-                    <option value="">All Tags</option>
-                    @if (AvailableTags != null)
-                    {
-                        @foreach (var tag in AvailableTags)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowTagsModal" disabled="@IsLoading" accesskey="t" title="Filter by Tags">
+                        @if (string.IsNullOrWhiteSpace(SelectedTags))
                         {
-                            <option value="@tag">@tag</option>
+                            <span>All Tags</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedTags</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label>
-                <select class="form-select form-select-sm filter-os" @onchange="OnOSFilterChange" aria-label="Filter by Operating System" disabled="@IsLoading" value="@SelectedOperatingSystem" accesskey="o">
-                    <option value="">All Operating Systems</option>
-                    @if (AvailableOperatingSystems != null)
-                    {
-                        @foreach (var os in AvailableOperatingSystems)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowOSModal" disabled="@IsLoading" accesskey="o" title="Filter by Operating System">
+                        @if (string.IsNullOrWhiteSpace(SelectedOperatingSystem))
                         {
-                            <option value="@os">@os</option>
+                            <span>All Operating Systems</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedOperatingSystem</span>
+                        }
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="row mb-2">
             <div class="col-md-3">
                 <label class="form-label small label-repository">Filter by <span class="underline-repository">R</span>epository:</label>
-                <select class="form-select form-select-sm filter-repository" @onchange="OnRepositoryFilterChange" aria-label="Filter by Repository" disabled="@IsLoading" value="@SelectedRepository" accesskey="r">
-                    <option value="">All Repositories</option>
-                    @if (AvailableRepositories != null)
-                    {
-                        @foreach (var repo in AvailableRepositories)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowRepositoryModal" disabled="@IsLoading" accesskey="r" title="Filter by Repository">
+                        @if (string.IsNullOrWhiteSpace(SelectedRepository))
                         {
-                            <option value="@repo">@repo</option>
+                            <span>All Repositories</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedRepository</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-title">Filter by T<span class="underline-title">i</span>tle:</label>
-                <select class="form-select form-select-sm filter-title" @onchange="OnTitleFilterChange" aria-label="Filter by Title" disabled="@IsLoading" value="@SelectedTitle" accesskey="i">
-                    <option value="">All Titles</option>
-                    @if (AvailableTitles != null)
-                    {
-                        @foreach (var title in AvailableTitles)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowTitleModal" disabled="@IsLoading" accesskey="i" title="Filter by Title">
+                        @if (string.IsNullOrWhiteSpace(SelectedTitle))
                         {
-                            <option value="@title">@title</option>
+                            <span>All Titles</span>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            <span>@SelectedTitle</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
-                <select class="form-select form-select-sm filter-code-language" @onchange="OnCodeLanguageFilterChange" aria-label="Filter by Code Language" disabled="@IsLoading" value="@SelectedCodeLanguage" accesskey="c">
-                    <option value="">All Code Languages</option>
-                    @if (AvailableCodeLanguages != null)
-                    {
-                        @foreach (var codeLanguage in AvailableCodeLanguages)
+                <div class="d-flex">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="c" title="Filter by Code Language">
+                        @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                         {
-                            <option value="@codeLanguage">@codeLanguage</option>
+                            <span>All Code Languages</span>
                         }
-                    }
-                </select>            
+                        else
+                        {
+                            <span>@SelectedCodeLanguage</span>
+                        }
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-3 d-flex align-items-end">
@@ -492,3 +506,6 @@
 @code {
     // All logic is in the code-behind file (partial class)
 }
+
+@* Reusable selection modal instance (populated by code-behind) *@
+<SelectionModal @ref="_selectionModal" Title="@SelectionModalTitle" Items="@SelectionModalItems" OnSelected="OnModalSelected" />

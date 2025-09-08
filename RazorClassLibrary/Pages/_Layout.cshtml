@@ -42,6 +42,17 @@
 	<script src="https://kit.fontawesome.com/4ec6a2fd0a.js" crossorigin="anonymous"></script>
 	<script src="/scripts/prism.js"></script>
 	<script src="js/bootstrap.bundle.min.js"></script>
+	<script type="module">
+		// Eagerly import the selection modal interop module so it can attach fallback helpers and log its load status
+		(async () => {
+			try {
+				const m = await import('/_content/RazorClassLibrary/selectionModalInterop.js');
+				console.log('selectionModalInterop module eagerly imported');
+			} catch (e) {
+				console.warn('selectionModalInterop eager import failed', e);
+			}
+		})();
+	</script>
 	<script>
 		function CallChange(elementId) {
 			var element = document.getElementById(elementId);

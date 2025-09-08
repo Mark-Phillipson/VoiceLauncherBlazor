@@ -1,1 +1,1 @@
- can we add a option to show the search results as a single line showing just the top part of the card or showing the complete card in the search results that would refresh dynamically when changed
+Can we make the modal wider and never taller than the current window so we can always see the close button?

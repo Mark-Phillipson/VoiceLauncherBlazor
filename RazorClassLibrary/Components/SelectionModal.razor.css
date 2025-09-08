@@ -1,0 +1,66 @@
+.selection-card {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    background-color: #1f2933; /* dark card background to match app */
+    color: #f1f5f9; /* light text */
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 0;
+    text-align: left;
+}
+.selection-card .card-body { min-height: 56px; display:flex; align-items:center; padding-left:12px; padding-right:12px; }
+.selection-card .text-truncate { font-size: 14px; font-weight: 500; }
+.selection-card:focus, .selection-card:hover { outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.18); transform: translateY(-1px); }
+
+/* Strong overrides so utility classes (bg-*) don't force light cards inside the selector */
+.selection-card,
+.selection-card .card-body,
+.selection-card.card,
+button.selection-card {
+    background-color: #1f2933 !important;
+    color: #f1f5f9 !important;
+}
+
+/* If an item provides a bg-* utility, make it subtle on dark cards */
+.selection-card .bg-light,
+.selection-card .bg-info,
+.selection-card .bg-warning,
+.selection-card .bg-success {
+    background-color: rgba(255,255,255,0.06) !important;
+    color: #f1f5f9 !important;
+}
+
+/* Provide a few common color classes for item badges (kept as-is) */
+.bg-light { background-color: #f8f9fa !important; }
+.bg-info { background-color: #e9f7ff !important; }
+.bg-warning { background-color: #fff8e6 !important; }
+.bg-success { background-color: #e9fbe9 !important; }
+
+/* Filter input styles */
+.selection-filter { max-width: 100%; box-sizing: border-box; }
+
+/* Make the modal content slightly larger for long lists */
+.modal .selection-card .card-body { min-height: 64px; }
+
+/* Force light text on selection cards for dark theme */
+.selection-card { color: #f1f5f9 !important; }
+
+/* Make the selection modal wider and constrain its height to the viewport
+   so the header (and close button) remain visible. The body becomes scrollable. */
+#selectionModal .modal-dialog {
+    max-width: 90vw; /* allow wide modal across large screens */
+    width: auto;
+}
+
+#selectionModal .modal-content {
+    max-height: calc(100vh - 40px); /* leave some breathing room from window top/bottom */
+}
+
+#selectionModal .modal-body {
+    overflow-y: auto; /* scroll content inside the modal body if it would grow too tall */
+}
+
+/* On very small screens, allow near-full width but keep margins */
+@media (max-width: 576px) {
+    #selectionModal .modal-dialog { max-width: 98vw; }
+}

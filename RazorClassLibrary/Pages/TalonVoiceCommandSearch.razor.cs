@@ -10,6 +10,8 @@ using System.Threading;
 using System;
 using System.Text.RegularExpressions;
 using RazorClassLibrary.Services;
+using RazorClassLibrary.Models;
+using RazorClassLibrary.Components;
 
 namespace RazorClassLibrary.Pages
 {
@@ -22,6 +24,167 @@ namespace RazorClassLibrary.Pages
 
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
+    // Shared modal state (used to populate the reusable modal)
+        public List<SelectionItem> SelectionModalItems { get; set; } = new();
+        public string SelectionModalTitle { get; set; } = "Select";
+        private string _openFilterTarget = string.Empty;
+
+    protected SelectionModal? _selectionModal;
+    private IJSObjectReference? _selectionModule;
+    private bool _selectionModuleLoaded = false;
+
+    // Helper to convert string lists to SelectionItem
+        private List<SelectionItem> ToSelectionItems(List<string>? items, string? defaultColor = "")
+        {
+            if (items == null) return new List<SelectionItem>();
+            return items.Select(i => new SelectionItem { Id = i, Label = i, ColorClass = defaultColor }).ToList();
+        }
+
+        // Show modal handlers for each filter
+        public async Task ShowApplicationModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableApplications, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Applications" });
+            SelectionModalTitle = "Select Application";
+            _openFilterTarget = "application";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowModeModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableModes, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Modes" });
+            SelectionModalTitle = "Select Mode";
+            _openFilterTarget = "mode";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowTagsModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableTags, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Tags" });
+            SelectionModalTitle = "Select Tag";
+            _openFilterTarget = "tags";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowOSModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableOperatingSystems, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Operating Systems" });
+            SelectionModalTitle = "Select Operating System";
+            _openFilterTarget = "os";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowRepositoryModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableRepositories, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Repositories" });
+            SelectionModalTitle = "Select Repository";
+            _openFilterTarget = "repository";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowTitleModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableTitles, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
+            SelectionModalTitle = "Select Title";
+            _openFilterTarget = "title";
+            if (_selectionModule != null)
+            {
+                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+            }
+        }
+
+        public async Task ShowCodeLanguageModal()
+        {
+            SelectionModalItems = ToSelectionItems(AvailableCodeLanguages, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Code Languages" });
+            SelectionModalTitle = "Select Code Language";
+            _openFilterTarget = "codelanguage";
+            await ShowSelectionModalAsync("#selectionModal");
+        }
+
+        // Helper that invokes the JS module if loaded, or falls back to the global bootstrapInterop
+        private async Task ShowSelectionModalAsync(string selector)
+        {
+            try
+            {
+                if (_selectionModule != null && _selectionModuleLoaded)
+                {
+                    await _selectionModule.InvokeVoidAsync("showModal", selector);
+                }
+                else if (JSRuntime != null)
+                {
+                    // Fallback to global
+                    await JSRuntime.InvokeVoidAsync("bootstrapInterop.showModal", selector);
+                }
+                else
+                {
+                    Console.WriteLine("No JS runtime available to show modal");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ShowSelectionModalAsync error: " + ex.Message);
+                // Try fallback
+                try
+                {
+                    if (JSRuntime != null)
+                        await JSRuntime.InvokeVoidAsync("bootstrapInterop.showModal", selector);
+                }
+                catch { }
+            }
+        }
+
+        // Called by the modal when a selection is made
+        public async Task OnModalSelected(SelectionItem sel)
+        {
+            var value = sel?.Id ?? string.Empty;
+            switch (_openFilterTarget)
+            {
+                case "application":
+                    SelectedApplication = value;
+                    break;
+                case "mode":
+                    SelectedMode = value;
+                    break;
+                case "tags":
+                    SelectedTags = value;
+                    break;
+                case "os":
+                    SelectedOperatingSystem = value;
+                    break;
+                case "repository":
+                    SelectedRepository = value;
+                    break;
+                case "title":
+                    SelectedTitle = value;
+                    break;
+                case "codelanguage":
+                    SelectedCodeLanguage = value;
+                    break;
+            }
+            _openFilterTarget = string.Empty;
+            await InvokeAsync(StateHasChanged);
+        }
         private ElementReference searchInput;
         
         [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;
@@ -293,6 +456,33 @@ namespace RazorClassLibrary.Pages
             if (firstRender)
             {
                 await searchInput.FocusAsync();
+
+                // Load the selection modal JS module from static web assets
+                try
+                {
+                    if (JSRuntime != null && !_selectionModuleLoaded)
+                    {
+                        _selectionModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/RazorClassLibrary/selectionModalInterop.js");
+                        _selectionModuleLoaded = true;
+                        Console.WriteLine("Selection modal JS module loaded.");
+                        try
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.debug", "Selection modal JS module loaded (client)");
+                        }
+                        catch { }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // best effort, fallback to window.bootstrapInterop if available
+                    Console.WriteLine("Selection modal JS module failed to load: " + ex.Message);
+                    try
+                    {
+                        if (JSRuntime != null)
+                            await JSRuntime.InvokeVoidAsync("console.error", "Selection modal JS module failed to load (client):", ex?.Message);
+                    }
+                    catch { }
+                }
                 
                 // If we have a search term from command line, perform the search after the first render
                 if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
