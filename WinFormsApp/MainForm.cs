@@ -16,6 +16,8 @@ using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
+using System.Diagnostics;
+using Microsoft.Web.WebView2.Core;
 
 
 namespace WinFormsApp
@@ -117,7 +119,107 @@ namespace WinFormsApp
 				  {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
 				  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
 			 });
+
+				// Setup WebView2 logging, DevTools and console forwarding
+	#if DEBUG
+				_ = SetupWebViewLoggingAsync();
+	#endif
 		}
+
+		private Task SetupWebViewLoggingAsync()
+			{
+				try
+				{
+					var webview = blazorWebView1?.WebView;
+					if (webview == null)
+					{
+						Debug.WriteLine("WebView control not available for logging setup");
+						return Task.CompletedTask;
+					}
+
+					// If CoreWebView2 is already created by the host, use it; otherwise wait for initialization
+					if (webview.CoreWebView2 != null)
+					{
+						_ = InitializeCoreWebView2Async(webview.CoreWebView2);
+					}
+					else
+					{
+						// Subscribe once to initialization completed
+						void Handler(object? s, CoreWebView2InitializationCompletedEventArgs e)
+						{
+							try
+							{
+								webview.CoreWebView2InitializationCompleted -= Handler;
+								if (e.IsSuccess && webview.CoreWebView2 != null)
+								{
+									_ = InitializeCoreWebView2Async(webview.CoreWebView2);
+								}
+								else
+								{
+									Debug.WriteLine("CoreWebView2 initialization failed or was not successful.");
+								}
+							}
+							catch (Exception ex)
+							{
+								Debug.WriteLine("CoreWebView2 Initialization handler error: " + ex.Message);
+							}
+						}
+
+						webview.CoreWebView2InitializationCompleted += Handler;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine("SetupWebViewLoggingAsync error: " + ex.Message);
+				}
+				return Task.CompletedTask;
+			}
+
+			private async Task InitializeCoreWebView2Async(CoreWebView2 core)
+			{
+				try
+				{
+					// Open DevTools for interactive inspection if available
+					try { core.OpenDevToolsWindow(); } catch { }
+
+					// Receive postMessage calls from the page
+					core.WebMessageReceived += (s, e) =>
+					{
+						try
+						{
+							var msg = e.TryGetWebMessageAsString();
+							Debug.WriteLine("From JS via postMessage: " + msg);
+						}
+						catch { }
+					};
+
+					// Inject script to forward console.* calls to host via chrome.webview.postMessage
+					var script = @"(function(){
+	  const origLog = console.log;
+	  const origError = console.error;
+	  const origWarn = console.warn;
+	  function post(level, args){
+		try { window.chrome.webview.postMessage(JSON.stringify({ level: level, args: args })); } catch(e){}
+	  }
+	  console.log = function(...args){ post('log', args); origLog.apply(console, args); };
+	  console.error = function(...args){ post('error', args); origError.apply(console, args); };
+	  console.warn = function(...args){ post('warn', args); origWarn.apply(console, args); };
+	})();";
+
+					try
+					{
+						await core.AddScriptToExecuteOnDocumentCreatedAsync(script);
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine("Failed to inject console-forwarding script: " + ex.Message);
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine("InitializeCoreWebView2Async error: " + ex.Message);
+				}
+			}
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			// Minimize to system tray instead of closing

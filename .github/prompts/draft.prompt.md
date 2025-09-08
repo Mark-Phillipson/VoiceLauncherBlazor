@@ -1,1 +1,0 @@
- Can we have an appropriate icon for each of the buttons for example filter by application and filter by code language

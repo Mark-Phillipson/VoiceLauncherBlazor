@@ -25,6 +25,44 @@
 		<a class="dismiss">🗙</a>
 	</div>
 
+	<script>
+		// Try local bootstrap first; if it's not available, load from CDN to ensure window.bootstrap exists
+		(function () {
+			function loadScript(src, onload) {
+				var s = document.createElement('script');
+				s.src = src;
+				s.defer = true;
+				s.onload = onload;
+				s.onerror = function () { console.warn('Failed to load script', src); };
+				document.head.appendChild(s);
+			}
+
+			// If bootstrap already present, do nothing
+			if (window.bootstrap && window.bootstrap.Modal) {
+				console.debug('bootstrap already available');
+				return;
+			}
+
+			// Try local path first
+			var testLocal = '/js/bootstrap/bootstrap.bundle.min.js';
+			var xhr = new XMLHttpRequest();
+			xhr.open('HEAD', testLocal, true);
+			xhr.onload = function () {
+				if (xhr.status >= 200 && xhr.status < 400) {
+					loadScript(testLocal);
+				} else {
+					// Fallback to CDN
+					console.warn('Local bootstrap not found, loading from CDN');
+					loadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js');
+				}
+			};
+			xhr.onerror = function () {
+				console.warn('Error checking local bootstrap, loading from CDN');
+				loadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js');
+			};
+			xhr.send();
+		})();
+	</script>
 	<script src="_framework/blazor.webview.js"></script>
 	<script src="https://kit.fontawesome.com/4ec6a2fd0a.js" crossorigin="anonymous"></script>
 	<script src="/scripts/prism.js"></script>

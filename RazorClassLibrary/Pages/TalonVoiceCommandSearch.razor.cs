@@ -47,6 +47,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Applications" });
             SelectionModalTitle = "Select Application";
             _openFilterTarget = "application";
+            // Ensure the component receives new parameters
+            await InvokeAsync(StateHasChanged);
+            if (_selectionModal != null)
+            {
+                await _selectionModal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -59,6 +66,12 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Modes" });
             SelectionModalTitle = "Select Mode";
             _openFilterTarget = "mode";
+            await InvokeAsync(StateHasChanged);
+            if (_selectionModal != null)
+            {
+                    await _selectionModal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -71,6 +84,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Tags" });
             SelectionModalTitle = "Select Tag";
             _openFilterTarget = "tags";
+            await InvokeAsync(StateHasChanged);
+            var modal = _selectionModal;
+            if (modal != null)
+            {
+                await modal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -83,6 +103,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Operating Systems" });
             SelectionModalTitle = "Select Operating System";
             _openFilterTarget = "os";
+            await InvokeAsync(StateHasChanged);
+            var modal = _selectionModal;
+            if (modal != null)
+            {
+                await modal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -95,6 +122,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Repositories" });
             SelectionModalTitle = "Select Repository";
             _openFilterTarget = "repository";
+            await InvokeAsync(StateHasChanged);
+            var modal = _selectionModal;
+            if (modal != null)
+            {
+                await modal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -107,6 +141,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
             SelectionModalTitle = "Select Title";
             _openFilterTarget = "title";
+            await InvokeAsync(StateHasChanged);
+            var modal = _selectionModal;
+            if (modal != null)
+            {
+                await modal.ShowAsync();
+                return;
+            }
             if (_selectionModule != null)
             {
                 await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
@@ -119,6 +160,13 @@ namespace RazorClassLibrary.Pages
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Code Languages" });
             SelectionModalTitle = "Select Code Language";
             _openFilterTarget = "codelanguage";
+            await InvokeAsync(StateHasChanged);
+            var modal = _selectionModal;
+            if (modal != null)
+            {
+                await modal.ShowAsync();
+                return;
+            }
             await ShowSelectionModalAsync("#selectionModal");
         }
 
@@ -127,6 +175,14 @@ namespace RazorClassLibrary.Pages
         {
             try
             {
+                // Prefer the SelectionModal component reference so Blazor applies
+                // the latest parameter values before any JS interaction.
+                var modal = _selectionModal;
+                if (modal != null)
+                {
+                    await modal.ShowAsync();
+                    return;
+                }
                 if (_selectionModule != null && _selectionModuleLoaded)
                 {
                     await _selectionModule.InvokeVoidAsync("showModal", selector);
