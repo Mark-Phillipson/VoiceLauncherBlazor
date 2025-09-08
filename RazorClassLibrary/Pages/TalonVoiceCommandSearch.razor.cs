@@ -939,18 +939,25 @@ namespace RazorClassLibrary.Pages
         {
             if (string.IsNullOrEmpty(command))
                 return command;
+            // HTML-encode entire command so raw '<' '>' are visible as text
+            var encoded = System.Net.WebUtility.HtmlEncode(command);
 
-            // Pattern to match captures like {user.text}, {user.model}, etc.
-            var pattern = @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}";
             try
             {
-                var highlighted = Regex.Replace(command, pattern, m =>
-                    $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode("{" + m.Groups[1].Value + "}")}</span>");
-                return highlighted;
+                // Highlight lists which are encoded as &lt;name&gt;
+                encoded = Regex.Replace(encoded, @"&lt;([a-zA-Z_][a-zA-Z0-9_.]*)&gt;", m =>
+                    $"<span class=\"list-highlight\">{m.Value}</span>");
+
+                // Highlight captures which remain as {name} after encoding
+                encoded = Regex.Replace(encoded, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}", m =>
+                    $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode(m.Value)}</span>");
+
+                return encoded;
             }
             catch
             {
-                return command;
+                // Fallback to safe encoded string
+                return System.Net.WebUtility.HtmlEncode(command);
             }
         }
 
