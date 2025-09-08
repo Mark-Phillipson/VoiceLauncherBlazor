@@ -684,10 +684,18 @@ namespace DataAccessLibrary.Services
                     var shortListName = listName.Replace("user.", "");
                     
                     var commandsWithListRefs = allCommands
-                        .Where(c => c.Command.Contains($"{{{listName}}}") ||
+                        .Where(c =>
+                                   // {list} references
+                                   c.Command.Contains($"{{{listName}}}") ||
                                    c.Command.Contains($"{{{shortListName}}}") ||
                                    c.Script.Contains($"{{{listName}}}") ||
-                                   c.Script.Contains($"{{{shortListName}}}"))
+                                   c.Script.Contains($"{{{shortListName}}}") ||
+                                   // <capture> references - e.g. <user.arrow_key> or <arrow_key>
+                                   c.Command.Contains($"<{listName}>") ||
+                                   c.Command.Contains($"<{shortListName}>") ||
+                                   c.Script.Contains($"<{listName}>") ||
+                                   c.Script.Contains($"<{shortListName}>")
+                                   )
                         .ToList();
                     
                     listReferencingCommands.AddRange(commandsWithListRefs);
@@ -740,18 +748,182 @@ namespace DataAccessLibrary.Services
             {
                 return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
             }
+            // Tokenize search term into words and match as whole words.
+            var tokens = Regex.Split(searchTerm.Trim(), "\\s+")
+                .Select(t => t.Trim().ToLower())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToList();
 
+            if (!tokens.Any())
+            {
+                return await _context.TalonVoiceCommands.OrderByDescending(c => c.CreatedAt).Take(100).ToListAsync();
+            }
+
+            // Load commands and lists into memory to allow combined token matching across command text and list spoken forms
+            var allCommands = await _context.TalonVoiceCommands.ToListAsync();
+            var allLists = await _context.TalonLists.ToListAsync();
+
+            Console.WriteLine($"[DEBUG] SearchCommandNamesOnlyAsync - tokenized '{searchTerm}' -> [{string.Join(", ", tokens)}]");
+
+            bool MatchesWholeWord(string sourceLower, string token)
+            {
+                if (string.IsNullOrEmpty(sourceLower)) return false;
+                // Use simple word boundary matching
+                return Regex.IsMatch(sourceLower, $"\\b{Regex.Escape(token)}\\b", RegexOptions.CultureInvariant);
+            }
+
+            // Prebuild map of listName -> list of spoken forms (lowercase)
+            var listSpokenMap = allLists
+                .GroupBy(l => l.ListName)
+                .ToDictionary(g => g.Key, g => g.Select(x => (x.SpokenForm ?? "").ToLower()).ToList());
+
+            // Also build maps for short names (without user. prefix)
+            var shortToFullListNames = new Dictionary<string, List<string>>(); // short -> full names
+            foreach (var fullName in listSpokenMap.Keys)
+            {
+                var shortName = fullName.StartsWith("user.") ? fullName.Substring("user.".Length) : fullName;
+                if (!shortToFullListNames.TryGetValue(shortName, out var list))
+                {
+                    list = new List<string>();
+                    shortToFullListNames[shortName] = list;
+                }
+                list.Add(fullName);
+            }
+
+            // Identify tokens that look like list names (either full or short). For such tokens we will require
+            // that candidate commands reference the corresponding list(s).
+            var listNameTokens = new Dictionary<string, List<string>>(); // token -> matching full list names
+            foreach (var token in tokens)
+            {
+                var tokenAsFull = token;
+                var tokenAsShort = token;
+                var matches = new List<string>();
+                // direct full-name match
+                if (listSpokenMap.ContainsKey(tokenAsFull)) matches.Add(tokenAsFull);
+                // token might equal short name; map to full names
+                if (shortToFullListNames.TryGetValue(tokenAsShort, out var fulls)) matches.AddRange(fulls);
+
+                if (matches.Any())
+                {
+                    listNameTokens[token] = matches.Distinct().ToList();
+                }
+            }
+
+            // Helper to get referenced list names from a command string (both {name} and <name> patterns)
+            List<string> GetReferencedListNames(string cmd)
+            {
+                var referenced = new List<string>();
+                if (string.IsNullOrEmpty(cmd)) return referenced;
+
+                // {list} patterns
+                var curly = Regex.Matches(cmd, "\\{([^}]+)\\}");
+                foreach (Match m in curly)
+                {
+                    var name = m.Groups[1].Value;
+                    referenced.Add(name);
+                    if (!name.StartsWith("user.")) referenced.Add("user." + name);
+                }
+
+                // <capture> patterns (treat capture names as potential list names)
+                var angle = Regex.Matches(cmd, "<([^>]+)>");
+                foreach (Match m in angle)
+                {
+                    var name = m.Groups[1].Value;
+                    referenced.Add(name);
+                    if (!name.StartsWith("user.")) referenced.Add("user." + name);
+                }
+
+                return referenced.Distinct().ToList();
+            }
+
+            var results = new List<TalonVoiceCommand>();
+
+            foreach (var cmd in allCommands)
+            {
+                var cmdLower = (cmd.Command ?? string.Empty).ToLower();
+
+                // Get referenced lists for this command
+                var referencedLists = GetReferencedListNames(cmd.Command ?? string.Empty);
+
+                // For each token, check if token is satisfied by either command text or any referenced list's spoken forms
+                bool allTokensMatch = true;
+                foreach (var token in tokens)
+                {
+                    bool tokenMatched = false;
+
+                    // Check command text
+                    if (MatchesWholeWord(cmdLower, token)) tokenMatched = true;
+
+                    // Check referenced lists' spoken forms
+                    if (!tokenMatched && referencedLists.Any())
+                    {
+                        foreach (var listName in referencedLists)
+                        {
+                            if (listSpokenMap.TryGetValue(listName, out var spokenForms))
+                            {
+                                if (spokenForms.Any(sf => MatchesWholeWord(sf, token)))
+                                {
+                                    tokenMatched = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!tokenMatched)
+                    {
+                        allTokensMatch = false;
+                        break;
+                    }
+                }
+
+                // If there were list-name tokens in the query, ensure this command references at least one of the
+                // matching lists for each such token. This prevents returning commands that don't reference the
+                // intended list even if they match other tokens.
+                if (allTokensMatch && listNameTokens.Any())
+                {
+                    bool listTokensSatisfied = true;
+                    foreach (var kv in listNameTokens)
+                    {
+                        var token = kv.Key;
+                        var matchingFullNames = kv.Value; // full list names that the token could refer to
+
+                        // Command must reference at least one of matchingFullNames
+                        if (!referencedLists.Any(r => matchingFullNames.Contains(r)))
+                        {
+                            listTokensSatisfied = false;
+                            break;
+                        }
+                    }
+
+                    if (!listTokensSatisfied)
+                    {
+                        allTokensMatch = false;
+                    }
+                }
+
+                if (allTokensMatch)
+                {
+                    results.Add(cmd);
+                }
+            }
+
+            // As a fallback include any direct command substring matches (existing behavior), but keep uniqueness
             var lowerTerm = searchTerm.ToLower();
-            
-            // Only search within command names
-            var commandMatches = await _context.TalonVoiceCommands
-                .Where(c => c.Command.ToLower().Contains(lowerTerm))
+            var fallback = allCommands.Where(c => (c.Command ?? string.Empty).ToLower().Contains(lowerTerm)).ToList();
+            foreach (var f in fallback)
+            {
+                if (!results.Any(r => r.Id == f.Id)) results.Add(f);
+            }
+
+            Console.WriteLine($"[DEBUG] Command names only search for '{searchTerm}': {results.Count} results (word-matching + fallback)");
+
+            var final = results
                 .OrderByDescending(c => c.CreatedAt)
                 .Take(100)
-                .ToListAsync();
+                .ToList();
 
-            System.Console.WriteLine($"[DEBUG] Command names only search for '{searchTerm}': {commandMatches.Count} results");
-            return commandMatches;
+            return final;
         }
 
         /// <summary>

@@ -79,3 +79,7 @@ Blazor Hybrid WinForms: Deployed by running the build command in Release mode.
 
 ## Github Repository
 - Repo Link: https://github.com/Mark-Phillipson/VoiceLauncherBlazor
+
+## Talon Lists and Captures
+
+ Please note that in talon files a talon capture will be enclosed in {}  and a talon list will be enclosed in <>
