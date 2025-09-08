@@ -1,0 +1,231 @@
+@page "/talon-lists"
+@using VoiceLauncherWasm.Services
+@using VoiceLauncherWasm.Models
+@inject TalonListService TalonListService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Talon Lists</PageTitle>
+
+<h1>Talon Lists</h1>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search lists..." @bind="searchTerm" @onkeypress="HandleKeyPress" />
+            <button class="btn btn-outline-secondary" type="button" @onclick="SearchLists">
+                Search
+            </button>
+            <button class="btn btn-outline-danger" type="button" @onclick="ClearSearch">
+                Clear
+            </button>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" value="@selectedListName" @onchange="OnListNameChanged">
+            <option value="">All Lists</option>
+            @foreach (var listName in uniqueListNames)
+            {
+                <option value="@listName">@listName</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <p class="text-muted">Total Lists: @totalLists | Displaying: @filteredLists.Count() items</p>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (filteredLists.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>List Name</th>
+                    <th>Spoken Form</th>
+                    <th>List Value</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var list in filteredLists.Take(200))
+                {
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary">@list.ListName</span>
+                        </td>
+                        <td>
+                            <strong>@list.SpokenForm</strong>
+                        </td>
+                        <td>
+                            <code class="small">@TruncateText(list.ListValue, 150)</code>
+                        </td>
+                        <td>
+                            <small>@list.CreatedAt.ToString("yyyy-MM-dd")</small>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (filteredLists.Count() > 200)
+    {
+        <div class="alert alert-info">
+            <strong>Note:</strong> Showing first 200 results. Use search or filter to narrow results.
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-warning">
+        <strong>No lists found.</strong> 
+        @if (!string.IsNullOrEmpty(searchTerm) || !string.IsNullOrEmpty(selectedListName))
+        {
+            <text>Try adjusting your search criteria or filter.</text>
+        }
+        else
+        {
+            <text>Import some Talon list files to get started.</text>
+        }
+    </div>
+}
+
+@code {
+    private IEnumerable<TalonList> allLists = new List<TalonList>();
+    private IEnumerable<TalonList> filteredLists = new List<TalonList>();
+    private IEnumerable<string> uniqueListNames = new List<string>();
+    private string searchTerm = "";
+    private string selectedListName = "";
+
+    private async Task OnListNameChanged(ChangeEventArgs e)
+    {
+        selectedListName = e.Value?.ToString() ?? "";
+        await FilterByListName();
+    }
+    private bool isLoading = true;
+    private int totalLists = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLists();
+    }
+
+    private async Task LoadLists()
+    {
+        isLoading = true;
+        try
+        {
+            allLists = await TalonListService.GetAllAsync();
+            filteredLists = allLists;
+            totalLists = await TalonListService.GetCountAsync();
+            uniqueListNames = allLists.Select(l => l.ListName).Distinct().OrderBy(name => name);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lists: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SearchLists()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await ApplyFilters();
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var searchResults = await TalonListService.SearchAsync(searchTerm);
+            
+            if (!string.IsNullOrEmpty(selectedListName))
+            {
+                filteredLists = searchResults.Where(l => l.ListName == selectedListName);
+            }
+            else
+            {
+                filteredLists = searchResults;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching lists: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ClearSearch()
+    {
+        searchTerm = "";
+        selectedListName = "";
+        await LoadLists();
+    }
+
+    private async Task FilterByListName()
+    {
+        await ApplyFilters();
+    }
+
+    private async Task ApplyFilters()
+    {
+        isLoading = true;
+        try
+        {
+            var baseResults = string.IsNullOrWhiteSpace(searchTerm) 
+                ? allLists 
+                : await TalonListService.SearchAsync(searchTerm);
+
+            if (!string.IsNullOrEmpty(selectedListName))
+            {
+                filteredLists = baseResults.Where(l => l.ListName == selectedListName);
+            }
+            else
+            {
+                filteredLists = baseResults;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error applying filters: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchLists();
+        }
+    }
+
+    private string TruncateText(string text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+            return text;
+
+        return text.Substring(0, maxLength) + "...";
+    }
+}

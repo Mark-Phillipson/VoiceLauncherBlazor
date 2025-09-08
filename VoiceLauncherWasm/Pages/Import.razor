@@ -1,0 +1,252 @@
+@page "/import"
+@using VoiceLauncherWasm.Services
+@using VoiceLauncherWasm.Models
+@inject TalonVoiceCommandService TalonCommandService
+@inject TalonListService TalonListService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Import</PageTitle>
+
+<h1>Import Talon Files</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Import Talon Command Files (.talon)</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="talonFileInput" class="form-label">Select .talon files</label>
+                    <InputFile id="talonFileInput" class="form-control" OnChange="HandleTalonFilesSelected" multiple accept=".talon" />
+                    <div class="form-text">Select one or more .talon files to import voice commands.</div>
+                </div>
+                
+                @if (importingCommands)
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        <span>Importing commands... (@importProgress)</span>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-primary" @onclick="ImportTalonFiles" disabled="@(!selectedTalonFiles.Any())">
+                        Import Command Files
+                    </button>
+                }
+
+                @if (!string.IsNullOrEmpty(commandImportResult))
+                {
+                    <div class="alert alert-success mt-3">
+                        @commandImportResult
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Import Talon Lists (.txt)</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="listFileInput" class="form-label">Select TalonLists.txt file</label>
+                    <InputFile id="listFileInput" class="form-control" OnChange="HandleListFileSelected" accept=".txt" />
+                    <div class="form-text">Select a TalonLists.txt file to import voice command lists.</div>
+                </div>
+                
+                @if (importingLists)
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        <span>Importing lists...</span>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-primary" @onclick="ImportListFile" disabled="@(selectedListFile == null)">
+                        Import List File
+                    </button>
+                }
+
+                @if (!string.IsNullOrEmpty(listImportResult))
+                {
+                    <div class="alert alert-success mt-3">
+                        @listImportResult
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Current Database Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-primary">@commandCount</h3>
+                            <p>Voice Commands</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-info">@listCount</h3>
+                            <p>List Items</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <button class="btn btn-warning" @onclick="RefreshCounts">
+                                Refresh Counts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-danger" @onclick="ClearAllData" @onclick:preventDefault="true">
+                        Clear All Data
+                    </button>
+                    <small class="text-muted d-block">This will remove all imported commands and lists from local storage.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<IBrowserFile> selectedTalonFiles = new();
+    private IBrowserFile? selectedListFile;
+    private bool importingCommands = false;
+    private bool importingLists = false;
+    private string commandImportResult = "";
+    private string listImportResult = "";
+    private string importProgress = "";
+    private int commandCount = 0;
+    private int listCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshCounts();
+    }
+
+    private void HandleTalonFilesSelected(InputFileChangeEventArgs e)
+    {
+        selectedTalonFiles = e.GetMultipleFiles().ToList();
+        commandImportResult = "";
+    }
+
+    private void HandleListFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedListFile = e.File;
+        listImportResult = "";
+    }
+
+    private async Task ImportTalonFiles()
+    {
+        if (!selectedTalonFiles.Any()) return;
+
+        importingCommands = true;
+        commandImportResult = "";
+        int totalImported = 0;
+
+        try
+        {
+            for (int i = 0; i < selectedTalonFiles.Count; i++)
+            {
+                var file = selectedTalonFiles[i];
+                importProgress = $"{i + 1} of {selectedTalonFiles.Count}";
+                StateHasChanged();
+
+                using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB limit
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+
+                var imported = await TalonCommandService.ImportFromTalonFileContentAsync(content, file.Name);
+                totalImported += imported;
+            }
+
+            commandImportResult = $"Successfully imported {totalImported} commands from {selectedTalonFiles.Count} files.";
+            selectedTalonFiles.Clear();
+            await RefreshCounts();
+        }
+        catch (Exception ex)
+        {
+            commandImportResult = $"Error importing files: {ex.Message}";
+        }
+        finally
+        {
+            importingCommands = false;
+            importProgress = "";
+        }
+    }
+
+    private async Task ImportListFile()
+    {
+        if (selectedListFile == null) return;
+
+        importingLists = true;
+        listImportResult = "";
+
+        try
+        {
+            using var stream = selectedListFile.OpenReadStream(maxAllowedSize: 50 * 1024 * 1024); // 50MB limit
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+
+            var imported = await TalonListService.ImportFromTalonListsFileAsync(content);
+            listImportResult = $"Successfully imported {imported} list items.";
+            selectedListFile = null;
+            await RefreshCounts();
+        }
+        catch (Exception ex)
+        {
+            listImportResult = $"Error importing list file: {ex.Message}";
+        }
+        finally
+        {
+            importingLists = false;
+        }
+    }
+
+    private async Task RefreshCounts()
+    {
+        try
+        {
+            commandCount = await TalonCommandService.GetCountAsync();
+            listCount = await TalonListService.GetCountAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error refreshing counts: {ex.Message}");
+        }
+    }
+
+    private async Task ClearAllData()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear all data? This cannot be undone.");
+        if (!confirmed) return;
+
+        try
+        {
+            await TalonCommandService.ClearAllCommandsAsync();
+            await TalonListService.ClearAllListsAsync();
+            await RefreshCounts();
+            commandImportResult = "All data cleared successfully.";
+            listImportResult = "";
+        }
+        catch (Exception ex)
+        {
+            commandImportResult = $"Error clearing data: {ex.Message}";
+        }
+    }
+}
