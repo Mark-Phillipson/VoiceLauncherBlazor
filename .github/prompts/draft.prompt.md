@@ -1,1 +1,1 @@
-By default can we have the auto filter by app set to false?
+ can we add a option to show the search results as a single line showing just the top part of the card or showing the complete card in the search results that would refresh dynamically when changed
