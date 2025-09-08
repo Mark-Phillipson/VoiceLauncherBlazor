@@ -199,6 +199,14 @@
                             <span>@SelectedTitle</span>
                         }
                     </button>
+                    <!-- Backwards-compatible hidden select used by tests and some tools -->
+                    <select class="form-select form-select-sm filter-title visually-hidden" @onchange="OnTitleFilterChange" aria-label="Filter by Title" accesskey="i">
+                        <option value="">All Titles</option>
+                        @foreach (var t in AvailableTitles ?? new List<string>())
+                        {
+                            <option value="@t">@t</option>
+                        }
+                    </select>
                 </div>
             </div>
 

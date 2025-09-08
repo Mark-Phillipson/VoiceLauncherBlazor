@@ -33,7 +33,7 @@ namespace TestProjectxUnit
                 Tags = "command.user.dictation_command,user.gaze_ocr_disambiguation,talon-gaze-ocr",                Repository = "talon-gaze-ocr"
             };
 
-            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockTalonDataService = new Mock<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
             var mockLogger = new Mock<ILogger<TalonAnalysisService>>();
             var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);            // Use reflection to access private method for testing
             var method = typeof(TalonAnalysisService).GetMethod("CouldCommandsBeActiveSimultaneously", 
@@ -69,7 +69,7 @@ namespace TestProjectxUnit
             };
 
             // Arrange service with mocks
-            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockTalonDataService = new Mock<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
             var mockLogger = new Mock<ILogger<TalonAnalysisService>>();            var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);
 
             // Use reflection to access private method for testing
@@ -102,7 +102,7 @@ namespace TestProjectxUnit
             };
 
             // Arrange service with mocks
-            var mockTalonDataService = new Mock<TalonVoiceCommandDataService>();
+            var mockTalonDataService = new Mock<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
             var mockLogger = new Mock<ILogger<TalonAnalysisService>>();
             var analysisService = new TalonAnalysisService(mockTalonDataService.Object, mockLogger.Object);            // Use reflection to access private method for testing
             var method = typeof(TalonAnalysisService).GetMethod("CouldCommandsBeActiveSimultaneously", 

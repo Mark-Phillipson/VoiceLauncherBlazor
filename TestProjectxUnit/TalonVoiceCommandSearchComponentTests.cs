@@ -16,6 +16,13 @@ namespace TestProjectxUnit
 {
     public class TalonVoiceCommandSearchComponentTests : TestContext
     {
+        public TalonVoiceCommandSearchComponentTests()
+        {
+            // Ensure the Windows service dependency is available for component tests
+            Services.AddSingleton<RazorClassLibrary.Services.IWindowsService>(new TestProjectxUnit.TestStubs.WindowsServiceStub());
+                // Configure JSInterop stubs for modal interactions
+                TestProjectxUnit.TestStubs.JsInteropStubs.ConfigureSelectionModalInterop(this);
+        }
         private ApplicationDbContext GetInMemoryDbContext()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()

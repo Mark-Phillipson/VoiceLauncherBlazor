@@ -225,6 +225,19 @@ namespace DataAccessLibrary.Services
                     return new List<TalonVoiceCommand>();
                 }
 
+                // If any exact substring matches exist in Title, Command, or Script, prefer those literal matches
+                var literalMatches = allCommands.Where(c =>
+                    (!string.IsNullOrEmpty(c.Title) && c.Title.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(c.Command) && c.Command.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(c.Script) && c.Script.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+                ).OrderByDescending(c => c.CreatedAt).ToList();
+
+                if (literalMatches.Any())
+                {
+                    Console.WriteLine($"[DEBUG] Semantic search for '{searchTerm}': using literal substring matches: {literalMatches.Count} results");
+                    return literalMatches;
+                }
+
                 // Create embeddings for search term
                 var searchEmbedding = _embedder.Embed(searchTerm);
                 

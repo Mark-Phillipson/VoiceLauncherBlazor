@@ -12,10 +12,10 @@ namespace RazorClassLibrary.Services
 
     public class TalonAnalysisService : ITalonAnalysisService
     {
-        private readonly TalonVoiceCommandDataService _talonDataService;
+        private readonly DataAccessLibrary.Services.ITalonVoiceCommandDataService _talonDataService;
         private readonly ILogger<TalonAnalysisService> _logger;
 
-        public TalonAnalysisService(TalonVoiceCommandDataService talonDataService, ILogger<TalonAnalysisService> logger)
+        public TalonAnalysisService(DataAccessLibrary.Services.ITalonVoiceCommandDataService talonDataService, ILogger<TalonAnalysisService> logger)
         {
             _talonDataService = talonDataService;
             _logger = logger;

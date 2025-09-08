@@ -354,14 +354,14 @@ namespace RazorClassLibrary.Pages
             Results = new List<TalonVoiceCommand>();
             
             // Debug: Log the initial search term
-            System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
+            // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
             
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
 
             // start auto-refresh every 30 seconds
             StartAutoRefresh();
-            System.Diagnostics.Debug.WriteLine("Auto-refresh timer started (30s interval)");
+            // System.Diagnostics.Debug.WriteLine("Auto-refresh timer started (30s interval)");
 
             // initial application name
             CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
@@ -396,14 +396,14 @@ namespace RazorClassLibrary.Pages
         }
         protected override async Task OnParametersSetAsync()
         {
-            System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
+            // System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
             
             // Set the initial search term if provided and not already set
             if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && string.IsNullOrWhiteSpace(SearchTerm))
             {
                 // Clean up the search term - remove forward slashes and trim
                 SearchTerm = InitialSearchTerm.Replace("/", "").Trim();
-                System.Diagnostics.Debug.WriteLine($"SearchTerm set from parameter to: '{SearchTerm}'");
+                // System.Diagnostics.Debug.WriteLine($"SearchTerm set from parameter to: '{SearchTerm}'");
             }
             
             await base.OnParametersSetAsync();
@@ -507,7 +507,7 @@ namespace RazorClassLibrary.Pages
             }
         }        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - firstRender: {firstRender}, SearchTerm: '{SearchTerm}', HasSearched: {HasSearched}");
+            // System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - firstRender: {firstRender}, SearchTerm: '{SearchTerm}', HasSearched: {HasSearched}");
             
             if (firstRender)
             {
@@ -543,7 +543,7 @@ namespace RazorClassLibrary.Pages
                 // If we have a search term from command line, perform the search after the first render
                 if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
                 {
-                    System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - Performing automatic search for: '{SearchTerm}'");
+                    // System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - Performing automatic search for: '{SearchTerm}'");
                     await OnSearch();
                     StateHasChanged(); // Force UI update after search
                 }
@@ -565,7 +565,7 @@ namespace RazorClassLibrary.Pages
             await OnSearch();
         }        public async Task OnSearch()
         {
-            System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
+            // System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
             
             // Cancel any existing search operation
             _searchCancellationTokenSource?.Cancel();
@@ -589,7 +589,7 @@ namespace RazorClassLibrary.Pages
             bool hasCodeLanguageFilter = !string.IsNullOrWhiteSpace(SelectedCodeLanguage);
               try
             {
-                System.Diagnostics.Debug.WriteLine($"OnSearch - hasSearchTerm: {hasSearchTerm}, hasApplicationFilter: {hasApplicationFilter}, hasModeFilter: {hasModeFilter}");
+                // System.Diagnostics.Debug.WriteLine($"OnSearch - hasSearchTerm: {hasSearchTerm}, hasApplicationFilter: {hasApplicationFilter}, hasModeFilter: {hasModeFilter}");
                 
                 // Debug logging
                 if (JSRuntime != null)
@@ -599,14 +599,14 @@ namespace RazorClassLibrary.Pages
                 
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter)
                 {
-                    System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
+                    // System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
                     Results = new List<TalonVoiceCommand>();
                     HasSearched = false;
                     await EnsureSearchFocus();
                     return;
                 }
 
-                System.Diagnostics.Debug.WriteLine("OnSearch - Proceeding with search");
+                // System.Diagnostics.Debug.WriteLine("OnSearch - Proceeding with search");
                 IsLoading = true;
                 HasSearched = true;
                 StateHasChanged();
@@ -864,8 +864,9 @@ namespace RazorClassLibrary.Pages
             // Don't automatically search after clearing - let user type in search box
             Results = new List<TalonVoiceCommand>();
             HasSearched = false;
-            StateHasChanged();
-            
+            // Ensure StateHasChanged runs on the renderer/Dispatcher thread
+            await InvokeAsync(() => StateHasChanged());
+
             // Restore focus to search input after clearing
             await EnsureSearchFocus();
         }
@@ -1028,7 +1029,7 @@ namespace RazorClassLibrary.Pages
             if (string.IsNullOrEmpty(command))
                 return lists;
 
-            Console.WriteLine($"[DEBUG] Analyzing voice command for lists: '{command}'");
+            // Console.WriteLine($"[DEBUG] Analyzing voice command for lists: '{command}'");
 
             // NOTE: In Talon syntax:
             // {capture} = captures (functions that parse input)
@@ -1038,22 +1039,22 @@ namespace RazorClassLibrary.Pages
             // Pattern 1: <list_name> references in voice commands (actual lists)
             var angleBracePattern = @"<([a-zA-Z_][a-zA-Z0-9_.]*)>";
             var angleMatches = Regex.Matches(command, angleBracePattern);
-            Console.WriteLine($"[DEBUG] Found {angleMatches.Count} <list> matches in command");
+            // Console.WriteLine($"[DEBUG] Found {angleMatches.Count} <list> matches in command");
             foreach (Match match in angleMatches)
             {
                 var listName = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Found list reference: '<{listName}>'");
+                // Console.WriteLine($"[DEBUG] Found list reference: '<{listName}>'");
                 lists.Add(listName);
             }
 
             // Pattern 2: [optional] sections that may contain <list> references
             var squareBracePattern = @"\[([^\]]+)\]";
             var squareMatches = Regex.Matches(command, squareBracePattern);
-            Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
+            // Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
             foreach (Match match in squareMatches)
             {
                 var content = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Checking optional section: '[{content}]'");
+                // Console.WriteLine($"[DEBUG] Checking optional section: '[{content}]'");
 
                 // Only look for <list> references inside optional sections, ignore {captures}
                 var innerAngleMatches = Regex.Matches(content, @"<([a-zA-Z_][a-zA-Z0-9_.]*)>");
@@ -1061,14 +1062,14 @@ namespace RazorClassLibrary.Pages
                 foreach (Match innerMatch in innerAngleMatches)
                 {
                     var listName = innerMatch.Groups[1].Value;
-                    Console.WriteLine($"[DEBUG] Found optional list reference: '[<{listName}>]'");
+                    // Console.WriteLine($"[DEBUG] Found optional list reference: '[<{listName}>]'");
                     lists.Add(listName);
                 }
             }
 
             var finalLists = lists.Distinct().ToList();
-            Console.WriteLine($"[DEBUG] Final lists found in command: {string.Join(", ", finalLists)}");
-            Console.WriteLine($"[DEBUG] Note: Captures like {"{user.text}"} are ignored as they are not lists");
+            // Console.WriteLine($"[DEBUG] Final lists found in command: {string.Join(", ", finalLists)}");
+            // Console.WriteLine($"[DEBUG] Note: Captures like {"{user.text}"} are ignored as they are not lists");
             return finalLists;
         }
 
@@ -1078,27 +1079,27 @@ namespace RazorClassLibrary.Pages
             if (string.IsNullOrEmpty(command))
                 return captures;
 
-            Console.WriteLine($"[DEBUG] Analyzing voice command for captures: '{command}'");
+            // Console.WriteLine($"[DEBUG] Analyzing voice command for captures: '{command}'");
 
             // Pattern 1: {capture_name} references in voice commands
             var curlyCapturePattern = @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}";
             var curlyMatches = Regex.Matches(command, curlyCapturePattern);
-            Console.WriteLine($"[DEBUG] Found {curlyMatches.Count} {{capture}} matches in command");
+            // Console.WriteLine($"[DEBUG] Found {curlyMatches.Count} {{capture}} matches in command");
             foreach (Match match in curlyMatches)
             {
                 var captureName = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Found capture: '{{{captureName}}}'");
+                // Console.WriteLine($"[DEBUG] Found capture: '{{{captureName}}}'");
                 captures.Add(captureName);
             }
 
             // Pattern 2: [optional] sections that may contain {capture} references
             var squareBracePattern = @"\[([^\]]+)\]";
             var squareMatches = Regex.Matches(command, squareBracePattern);
-            Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
+            // Console.WriteLine($"[DEBUG] Found {squareMatches.Count} [optional] sections in command");
             foreach (Match match in squareMatches)
             {
                 var content = match.Groups[1].Value;
-                Console.WriteLine($"[DEBUG] Checking optional section for captures: '[{content}]'");
+                // Console.WriteLine($"[DEBUG] Checking optional section for captures: '[{content}]'");
 
                 // Look for {capture} references inside optional sections
                 var innerCurlyMatches = Regex.Matches(content, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}");
@@ -1106,13 +1107,13 @@ namespace RazorClassLibrary.Pages
                 foreach (Match innerMatch in innerCurlyMatches)
                 {
                     var captureName = innerMatch.Groups[1].Value;
-                    Console.WriteLine($"[DEBUG] Found optional capture: '[{{{captureName}}}]'");
+                    // Console.WriteLine($"[DEBUG] Found optional capture: '[{{{captureName}}}]'");
                     captures.Add(captureName);
                 }
             }
 
             var finalCaptures = captures.Distinct().ToList();
-            Console.WriteLine($"[DEBUG] Final captures found in command: {string.Join(", ", finalCaptures)}");
+            // Console.WriteLine($"[DEBUG] Final captures found in command: {string.Join(", ", finalCaptures)}");
             return finalCaptures;
         }
 
