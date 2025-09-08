@@ -175,6 +175,106 @@
     color: var(--bs-dark);
 }
 
+/* Filter buttons: make their backgrounds match the underscore/badge colors used elsewhere
+   Scoped to this component via Razor CSS isolation. Use !important to override
+   the btn-outline-secondary base when needed. */
+.filter-btn-application {
+    /* Use true black for Application filter button as requested */
+    background-color: #000 !important;
+    color: var(--bs-light) !important;
+    border-color: #000 !important;
+}
+.filter-btn-application:hover,
+.filter-btn-application:focus {
+    /* Slightly lighter black on hover for a subtle affordance */
+    background-color: #111 !important;
+    color: var(--bs-light) !important;
+}
+
+.filter-btn-mode {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-secondary) !important;
+}
+
+.filter-btn-mode:hover,
+.filter-btn-mode:focus {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-light) !important;
+}
+
+.filter-btn-tags {
+    background-color: var(--bs-warning) !important;
+    color: var(--bs-dark) !important;
+    border-color: var(--bs-warning) !important;
+}
+
+.filter-btn-tags:hover,
+.filter-btn-tags:focus {
+    background-color: var(--bs-warning) !important;
+    color: var(--bs-dark) !important;
+}
+
+.filter-btn-os {
+    background-color: var(--bs-info) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-info) !important;
+}
+
+.filter-btn-os:hover,
+.filter-btn-os:focus {
+    background-color: var(--bs-info) !important;
+    color: var(--bs-light) !important;
+}
+
+.filter-btn-repository {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.filter-btn-repository:hover,
+.filter-btn-repository:focus {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+}
+
+.filter-btn-title {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-success) !important;
+}
+
+.filter-btn-title:hover,
+.filter-btn-title:focus {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-light) !important;
+}
+
+.filter-btn-code-language {
+    background-color: var(--bs-danger) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-danger) !important;
+}
+
+.filter-btn-code-language:hover,
+.filter-btn-code-language:focus {
+    background-color: var(--bs-danger) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Disabled state tweaks so disabled buttons still hint at their color */
+.filter-btn-application:disabled,
+.filter-btn-mode:disabled,
+.filter-btn-tags:disabled,
+.filter-btn-os:disabled,
+.filter-btn-repository:disabled,
+.filter-btn-title:disabled,
+.filter-btn-code-language:disabled {
+    opacity: 0.85;
+}
+
+
 /* Filter dropdown color matching */
 .filter-mode {
     border-color: var(--bs-secondary) !important;
@@ -300,6 +400,22 @@
 }
 
 /* Make underlined access keys more visible */
+
+/* Icon inline sizing for filter buttons */
+.filter-btn-icon {
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Ensure inline SVGs inside filter icons size correctly and inherit text color */
+.filter-btn-icon svg {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+}
+
 u {
     text-decoration: underline;
     text-decoration-color: var(--bs-primary);

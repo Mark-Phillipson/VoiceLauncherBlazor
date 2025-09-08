@@ -1,1 +1,1 @@
-Can we make the modal wider and never taller than the current window so we can always see the close button?
+ Can we have an appropriate icon for each of the buttons for example filter by application and filter by code language
