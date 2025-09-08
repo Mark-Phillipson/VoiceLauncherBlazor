@@ -63,7 +63,7 @@ namespace RazorClassLibrary.Pages
         private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _refreshTimer;
 
-        public bool AutoFilterByCurrentApp { get; set; } = true;
+    public bool AutoFilterByCurrentApp { get; set; } = false;
         /// <summary>
         /// Toggles displaying full card body or just header
         /// </summary>

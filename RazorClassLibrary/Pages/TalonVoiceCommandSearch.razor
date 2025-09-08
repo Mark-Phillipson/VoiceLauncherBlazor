@@ -2,7 +2,7 @@
 
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
-<div class="container mt-4">   
+<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Talon Voice Command Search</h2>
         <span class="text-muted">Current App: @CurrentApplication</span>
@@ -247,12 +247,12 @@
             <div class="row" aria-label="Search Results">
                 @foreach (var cmd in GetDisplayedCommands())
                 {
-                    <div class="col-12 col-lg-6 col-xl-4 mb-3">                        
-                        <div class="card h-110 @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
+                    <div class="@(IsBlazorHybrid ? "col-12 col-sm-6 col-md-4 col-lg-3 mb-3" : "col-12 col-lg-6 col-xl-4 mb-3")">                        
+                        <div class="card @(IsBlazorHybrid ? "h-auto" : "h-110") @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
                         @if (AutoFilterByCurrentApp) { 
                             <div class="card-header px-3 py-2">
                                 <div class="d-flex flex-wrap align-items-center w-100">
-                                    <span class="command-text flex-grow-1" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    <span class="command-text flex-grow-1" style="@((IsBlazorHybrid) ? "min-width:0; white-space:normal; overflow-wrap:break-word;" : "min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;")">
                                         @((MarkupString)HighlightCapturesInCommand(cmd.Command))
                                     </span>
                                     @if (!string.IsNullOrWhiteSpace(cmd.Title))
@@ -267,7 +267,7 @@
                         else 
                         {
                         <div class="card-header d-flex">
-                                <h5 class="card-title mb-1 me-2">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
+                                <h5 class="card-title mb-1 me-2" style="@(IsBlazorHybrid ? "white-space:normal; word-break:break-word;" : "")">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
                                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
                                     <small class="text-muted">@cmd.Application</small>
                                     <div class="d-flex flex-wrap gap-1 align-items-center">
@@ -322,7 +322,7 @@
                             <div class="card-body">                                
                                 <div class="mb-3">
                                     <h6 class="card-subtitle text-muted">Script:</h6>
-                                    <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>                                    @{
+                                    <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>                                    @{ 
                                         var listsUsed = GetListsUsedInCommand(cmd.Command);
                                         var capturesUsed = GetCapturesUsedInCommand(cmd.Command);
                                     }
