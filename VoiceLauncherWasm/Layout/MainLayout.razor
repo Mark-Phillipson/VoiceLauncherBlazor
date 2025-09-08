@@ -1,13 +1,12 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-    <IndexedDBInitializer />
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <h3 class="text-white">Voice Launcher WASM</h3>
         </div>
 
         <article class="content px-4">
@@ -15,13 +14,3 @@
         </article>
     </main>
 </div>
-
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Console.WriteLine("MainLayout: OnAfterRenderAsync firstRender");
-        }
-    }
-}

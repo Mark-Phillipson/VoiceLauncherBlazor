@@ -1,4 +1,4 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Voice Launcher WASM</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -8,19 +8,19 @@
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+    <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="talon-commands">
+            <NavLink class="nav-link" href="commands">
                 <span class="bi bi-mic-fill-nav-menu" aria-hidden="true"></span> Talon Commands
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="talon-lists">
+            <NavLink class="nav-link" href="lists">
                 <span class="bi bi-list-ul-nav-menu" aria-hidden="true"></span> Talon Lists
             </NavLink>
         </div>

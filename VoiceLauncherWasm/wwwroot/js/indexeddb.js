@@ -1,172 +1,105 @@
-window.voiceIndexedDB = {
-    db: null,
-    dbName: '',
-    version: 1,
+let db;
+const DB_NAME = 'VoiceLauncherDB';
+const DB_VERSION = 1;
 
-    initialize: function (databaseName, version) {
-        return new Promise((resolve, reject) => {
-            this.dbName = databaseName;
-            this.version = version;
-
-            const request = indexedDB.open(databaseName, version);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                this.db = request.result;
-                resolve();
-            };
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-
-                // Create TalonVoiceCommands store
-                if (!db.objectStoreNames.contains('TalonVoiceCommands')) {
-                    const talonCommandsStore = db.createObjectStore('TalonVoiceCommands', { keyPath: 'id', autoIncrement: true });
-                    talonCommandsStore.createIndex('command', 'command', { unique: false });
-                    talonCommandsStore.createIndex('application', 'application', { unique: false });
-                    talonCommandsStore.createIndex('repository', 'repository', { unique: false });
-                    talonCommandsStore.createIndex('createdAt', 'createdAt', { unique: false });
-                }
-
-                // Create TalonLists store
-                if (!db.objectStoreNames.contains('TalonLists')) {
-                    const talonListsStore = db.createObjectStore('TalonLists', { keyPath: 'id', autoIncrement: true });
-                    talonListsStore.createIndex('listName', 'listName', { unique: false });
-                    talonListsStore.createIndex('spokenForm', 'spokenForm', { unique: false });
-                    talonListsStore.createIndex('createdAt', 'createdAt', { unique: false });
-                }
-            };
-        });
-    },
-
-    getAll: function (storeName) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
+export async function initializeDatabase() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+        };
+        
+        request.onupgradeneeded = (event) => {
+            db = event.target.result;
+            
+            // Create commands store
+            if (!db.objectStoreNames.contains('commands')) {
+                const commandStore = db.createObjectStore('commands', { keyPath: 'id', autoIncrement: true });
+                commandStore.createIndex('voiceCommand', 'voiceCommand', { unique: false });
+                commandStore.createIndex('application', 'application', { unique: false });
+                commandStore.createIndex('repository', 'repository', { unique: false });
             }
-
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.getAll();
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(JSON.stringify(request.result));
-        });
-    },
-
-    getById: function (storeName, id) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
+            
+            // Create lists store
+            if (!db.objectStoreNames.contains('lists')) {
+                const listStore = db.createObjectStore('lists', { keyPath: 'id', autoIncrement: true });
+                listStore.createIndex('listName', 'listName', { unique: false });
+                listStore.createIndex('repository', 'repository', { unique: false });
             }
+        };
+    });
+}
 
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.get(id);
+export async function getAllCommands() {
+    if (!db) await initializeDatabase();
+    
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commands'], 'readonly');
+        const store = transaction.objectStore('commands');
+        const request = store.getAll();
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(JSON.stringify(request.result));
+    });
+}
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result ? JSON.stringify(request.result) : null);
-        });
-    },
+export async function getAllLists() {
+    if (!db) await initializeDatabase();
+    
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['lists'], 'readonly');
+        const store = transaction.objectStore('lists');
+        const request = store.getAll();
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(JSON.stringify(request.result));
+    });
+}
 
-    add: function (storeName, itemJson) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
+export async function addCommand(commandJson) {
+    if (!db) await initializeDatabase();
+    
+    const command = JSON.parse(commandJson);
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commands'], 'readwrite');
+        const store = transaction.objectStore('commands');
+        const request = store.add(command);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+    });
+}
 
-            const item = JSON.parse(itemJson);
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.add(item);
+export async function addList(listJson) {
+    if (!db) await initializeDatabase();
+    
+    const list = JSON.parse(listJson);
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['lists'], 'readwrite');
+        const store = transaction.objectStore('lists');
+        const request = store.add(list);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+    });
+}
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
-    },
-
-    update: function (storeName, itemJson) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
-
-            const item = JSON.parse(itemJson);
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.put(item);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
-    },
-
-    delete: function (storeName, id) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
-
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.delete(id);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve();
-        });
-    },
-
-    clear: function (storeName) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
-
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.clear();
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve();
-        });
-    },
-
-    query: function (storeName, indexName, keyRange) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
-
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const index = store.index(indexName);
-            const request = index.getAll(keyRange);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(JSON.stringify(request.result));
-        });
-    },
-
-    count: function (storeName) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) {
-                reject(new Error('Database not initialized'));
-                return;
-            }
-
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.count();
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
-    }
-};
+export async function clearAllData() {
+    if (!db) await initializeDatabase();
+    
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['commands', 'lists'], 'readwrite');
+        
+        const commandStore = transaction.objectStore('commands');
+        const listStore = transaction.objectStore('lists');
+        
+        commandStore.clear();
+        listStore.clear();
+        
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}

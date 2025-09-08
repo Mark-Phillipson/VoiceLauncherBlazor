@@ -1,70 +1,75 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Voice Launcher WASM</PageTitle>
 
-<h1>Voice Launcher WASM</h1>
+<div class="mb-4">
+    <h1>Welcome to Voice Launcher WASM</h1>
+    <p class="lead">A Blazor WebAssembly application for managing Talon Voice commands and lists using IndexedDB.</p>
+</div>
 
 <div class="row">
     <div class="col-md-8">
         <div class="card">
+            <div class="card-header">
+                <h3>Features</h3>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Welcome to Voice Launcher WASM</h5>
-                <p class="card-text">
-                    This is a Blazor WebAssembly application that provides local browser-based storage and management 
-                    of Talon Voice commands and lists using IndexedDB. All data is stored locally in your browser.
-                </p>
-                
-                <h6>Features:</h6>
-                <ul>
-                    <li><strong>Local Storage:</strong> All data is stored in your browser's IndexedDB - no server required</li>
-                    <li><strong>Talon Command Management:</strong> Import, search, and browse your Talon voice commands</li>
-                    <li><strong>List Management:</strong> Import and manage Talon command lists</li>
-                    <li><strong>Advanced Search:</strong> Search by command names, scripts, or all fields</li>
-                    <li><strong>File Import:</strong> Import .talon files and TalonLists.txt files directly</li>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong>Local Storage:</strong> All data is stored in your browser's IndexedDB - no server required
+                    </li>
+                    <li class="mb-2">
+                        <strong>File Import:</strong> Import .talon files and TalonLists.txt files directly from your device
+                    </li>
+                    <li class="mb-2">
+                        <strong>Search & Browse:</strong> Search through your commands and lists with real-time filtering
+                    </li>
+                    <li class="mb-2">
+                        <strong>Offline Ready:</strong> Works completely offline after initial load
+                    </li>
                 </ul>
+            </div>
+        </div>
 
-                <h6>Getting Started:</h6>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Getting Started</h3>
+            </div>
+            <div class="card-body">
                 <ol>
                     <li>Go to the <a href="/import" class="text-decoration-none">Import</a> page</li>
                     <li>Upload your .talon files and/or TalonLists.txt files</li>
-                    <li>Browse your commands in the <a href="/talon-commands" class="text-decoration-none">Talon Commands</a> section</li>
-                    <li>Explore your lists in the <a href="/talon-lists" class="text-decoration-none">Talon Lists</a> section</li>
+                    <li>Browse your commands in the <a href="/commands" class="text-decoration-none">Talon Commands</a> section</li>
+                    <li>Explore your lists in the <a href="/lists" class="text-decoration-none">Talon Lists</a> section</li>
                 </ol>
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Quick Actions</h6>
+                <h4>Quick Actions</h4>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="/import" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Import Files
-                    </a>
-                    <a href="/talon-commands" class="btn btn-outline-primary">
-                        <i class="bi bi-mic"></i> Browse Commands
-                    </a>
-                    <a href="/talon-lists" class="btn btn-outline-info">
-                        <i class="bi bi-list-ul"></i> Browse Lists
-                    </a>
+                    <a href="/import" class="btn btn-primary">Import Files</a>
+                    <a href="/commands" class="btn btn-outline-primary">Browse Commands</a>
+                    <a href="/lists" class="btn btn-info">Browse Lists</a>
                 </div>
             </div>
         </div>
 
-        <div class="card mt-3">
+        <div class="card mt-4">
             <div class="card-header">
-                <h6 class="card-title">About IndexedDB Storage</h6>
+                <h4>About IndexedDB Storage</h4>
             </div>
             <div class="card-body">
-                <p class="card-text small">
-                    This application uses your browser's IndexedDB for local storage. 
-                    Your data persists between sessions and is private to your browser. 
-                    Data is not sent to any server.
+                <p class="small">
+                    This application uses your browser's IndexedDB for local storage. Your data 
+                    persists between sessions and is private to your browser. Data is not sent to any server.
                 </p>
-                <p class="card-text small">
+                <p class="small text-warning">
                     <strong>Note:</strong> Clearing your browser data will remove all imported commands and lists.
                 </p>
             </div>
