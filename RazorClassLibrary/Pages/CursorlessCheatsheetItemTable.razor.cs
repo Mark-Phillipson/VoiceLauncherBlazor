@@ -21,7 +21,7 @@ using Ardalis.GuardClauses;
 using RazorClassLibrary.Shared;
 using DataAccessLibrary.Services;
 using Microsoft.Extensions.Logging;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 
 
 

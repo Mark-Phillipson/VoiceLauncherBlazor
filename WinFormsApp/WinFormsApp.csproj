@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
+  <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
+  <ProjectReference Include="..\VoiceLauncher\VoiceLauncher.csproj" />
   </ItemGroup>
 
   <ItemGroup>

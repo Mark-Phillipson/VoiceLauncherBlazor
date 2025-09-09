@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DataAccessLibrary.DTOs
+namespace DataAccessLibrary.DTO
 {
     public partial class TransactionDTO
     {

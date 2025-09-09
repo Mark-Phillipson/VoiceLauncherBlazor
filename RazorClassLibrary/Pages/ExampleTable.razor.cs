@@ -20,7 +20,7 @@ using System.Security.Claims;
 using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using DataAccessLibrary.Services;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using RazorClassLibrary.Shared;
 namespace RazorClassLibrary.Pages
 {

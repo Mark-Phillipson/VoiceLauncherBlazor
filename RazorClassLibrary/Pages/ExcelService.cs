@@ -1,4 +1,4 @@
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using System.Text;
 using System.IO;
 namespace RazorClassLibrary.Pages

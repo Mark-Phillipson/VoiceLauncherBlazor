@@ -70,6 +70,122 @@ namespace DataAccessLibrary.Services
             });
         }
 
+        // Backwards-compatible wrappers for other UI methods
+        public async Task<IEnumerable<TalonVoiceCommandDto>> GetAllCommandsForFiltersAsync()
+        {
+            return await GetAllCommandsAsync();
+        }
+
+        public async Task<IEnumerable<TalonVoiceCommandDto>> SemanticSearchAsync(string searchTerm)
+        {
+            var cmds = await _inner.SemanticSearchAsync(searchTerm);
+            return cmds.Select(c => new TalonVoiceCommandDto
+            {
+                Id = c.Id,
+                Command = c.Command,
+                Script = c.Script,
+                Application = c.Application,
+                Title = c.Title,
+                Mode = c.Mode,
+                OperatingSystem = c.OperatingSystem,
+                FilePath = c.FilePath,
+                Repository = c.Repository,
+                Tags = c.Tags,
+                CodeLanguage = c.CodeLanguage,
+                Language = c.Language,
+                Hostname = c.Hostname,
+                CreatedAt = c.CreatedAt
+            });
+        }
+
+        public async Task<IEnumerable<TalonVoiceCommandDto>> SemanticSearchWithListsAsync(string searchTerm)
+        {
+            var cmds = await _inner.SemanticSearchWithListsAsync(searchTerm);
+            return cmds.Select(c => new TalonVoiceCommandDto
+            {
+                Id = c.Id,
+                Command = c.Command,
+                Script = c.Script,
+                Application = c.Application,
+                Title = c.Title,
+                Mode = c.Mode,
+                OperatingSystem = c.OperatingSystem,
+                FilePath = c.FilePath,
+                Repository = c.Repository,
+                Tags = c.Tags,
+                CodeLanguage = c.CodeLanguage,
+                Language = c.Language,
+                Hostname = c.Hostname,
+                CreatedAt = c.CreatedAt
+            });
+        }
+
+        public async Task<IEnumerable<TalonVoiceCommandDto>> SearchCommandNamesOnlyAsync(string searchTerm)
+        {
+            var cmds = await _inner.SearchCommandNamesOnlyAsync(searchTerm);
+            return cmds.Select(c => new TalonVoiceCommandDto
+            {
+                Id = c.Id,
+                Command = c.Command,
+                Script = c.Script,
+                Application = c.Application,
+                Title = c.Title,
+                Mode = c.Mode,
+                OperatingSystem = c.OperatingSystem,
+                FilePath = c.FilePath,
+                Repository = c.Repository,
+                Tags = c.Tags,
+                CodeLanguage = c.CodeLanguage,
+                Language = c.Language,
+                Hostname = c.Hostname,
+                CreatedAt = c.CreatedAt
+            });
+        }
+
+        public async Task<IEnumerable<TalonVoiceCommandDto>> SearchScriptOnlyAsync(string searchTerm)
+        {
+            var cmds = await _inner.SearchScriptOnlyAsync(searchTerm);
+            return cmds.Select(c => new TalonVoiceCommandDto
+            {
+                Id = c.Id,
+                Command = c.Command,
+                Script = c.Script,
+                Application = c.Application,
+                Title = c.Title,
+                Mode = c.Mode,
+                OperatingSystem = c.OperatingSystem,
+                FilePath = c.FilePath,
+                Repository = c.Repository,
+                Tags = c.Tags,
+                CodeLanguage = c.CodeLanguage,
+                Language = c.Language,
+                Hostname = c.Hostname,
+                CreatedAt = c.CreatedAt
+            });
+        }
+
+        public async Task<IEnumerable<TalonVoiceCommandDto>> SearchAllAsync(string searchTerm)
+        {
+            var cmds = await _inner.SearchAllAsync(searchTerm);
+            return cmds.Select(c => new TalonVoiceCommandDto
+            {
+                Id = c.Id,
+                Command = c.Command,
+                Script = c.Script,
+                Application = c.Application,
+                Title = c.Title,
+                Mode = c.Mode,
+                OperatingSystem = c.OperatingSystem,
+                FilePath = c.FilePath,
+                Repository = c.Repository,
+                Tags = c.Tags,
+                CodeLanguage = c.CodeLanguage,
+                Language = c.Language,
+                Hostname = c.Hostname,
+                CreatedAt = c.CreatedAt
+            });
+        }
+
         public async Task<IEnumerable<TalonVoiceCommandDto>> SearchCommandsAsync(string searchTerm)
         {
             var results = await _inner.SearchAllAsync(searchTerm);

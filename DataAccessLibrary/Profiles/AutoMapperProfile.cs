@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 
 using DataAccessLibrary.DTO;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
 
 

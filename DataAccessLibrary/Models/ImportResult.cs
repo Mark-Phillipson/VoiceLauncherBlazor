@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 
 namespace DataAccessLibrary.Models;
 

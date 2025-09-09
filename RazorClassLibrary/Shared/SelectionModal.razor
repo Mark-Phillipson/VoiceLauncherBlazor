@@ -1,0 +1,35 @@
+@using SharedContracts.Models
+<div class="modal fade" id="selectionModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Items != null)
+                {
+                    <ul class="list-group">
+                        @foreach (var it in Items)
+                        {
+                            <li class="list-group-item" @onclick="() => OnSelect(it)">@it.Label</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Select";
+    [Parameter] public List<SelectionItem>? Items { get; set; }
+    [Parameter] public EventCallback<SelectionItem> OnSelected { get; set; }
+
+    public Task ShowAsync() => Task.CompletedTask;
+    private async Task OnSelect(SelectionItem it)
+    {
+        if (OnSelected.HasDelegate)
+            await OnSelected.InvokeAsync(it);
+    }
+}

@@ -3,7 +3,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
 using DataAccessLibrary.Models;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;

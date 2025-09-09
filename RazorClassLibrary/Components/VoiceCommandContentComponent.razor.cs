@@ -1,5 +1,5 @@
 ﻿using Blazored.Toast.Services;
-using DataAccessLibrary.Models.KnowbrainerCommands;
+using SharedContracts.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -9,7 +9,7 @@ namespace RazorClassLibrary.Components
 	{
 		[Inject] public IJSRuntime? JavaScriptRuntime { get; set; }
 		[Inject] public required IToastService ToastService { get; set; }
-		[Parameter] public VoiceCommandContent? VoiceCommandContent { get; set; }
+	[Parameter] public SharedContracts.Models.VoiceCommandContentDto? VoiceCommandContent { get; set; }
 		[Parameter] public string? SearchTermCodeContains { get; set; } = "";
 		public string? _result { get; set; }
 		private async Task CopyTextToClipboard(string text)

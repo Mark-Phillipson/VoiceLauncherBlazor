@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 
 namespace DataAccessLibrary.Services
 {

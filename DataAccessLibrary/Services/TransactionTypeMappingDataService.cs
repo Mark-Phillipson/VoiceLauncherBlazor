@@ -1,6 +1,6 @@
 using Ardalis.GuardClauses;
 using AutoMapper;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using DataAccessLibrary.Repositories;
 using System;
 using System.Collections.Generic;

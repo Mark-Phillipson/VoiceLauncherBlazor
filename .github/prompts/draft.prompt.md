@@ -1,4 +1,6 @@
- we need to remove the link to the data access library as the client will be offline and have no access to SQL Server
+Can we proceed with the refactor please and remove all the local Blazor components in the wasm project  as follows:
 
-  the wasm project in theory should only need to use two dTOs - TalonList and TalonVoiceCommand
-
+Commands.razor
+Lists.razor
+TalonVoiceCommandSearchLocal.razor
+TalonVoiceCommandSearch.razor

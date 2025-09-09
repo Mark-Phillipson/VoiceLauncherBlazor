@@ -17,7 +17,7 @@ using Blazored.Toast;
 using Blazored.Toast.Services;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
-using DataAccessLibrary.DTOs;
+using DataAccessLibrary.DTO;
 using DataAccessLibrary.Services;
 
 using System.Threading.Tasks;
