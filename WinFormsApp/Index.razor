@@ -21,7 +21,8 @@
 		@if (showAIChat)
 		{
 			<AIChatComponent RunningInBlazorHybrid="true" />
-		}		else if (showTalonSearch)
+		}		
+		else if (showTalonSearch)
 		{
 			<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" />
 		}

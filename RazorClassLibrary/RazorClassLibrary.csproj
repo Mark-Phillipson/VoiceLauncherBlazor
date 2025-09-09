@@ -98,6 +98,9 @@
 			<RazorComponent Include="Shared\TemplatedDialog.razor" />
 			<RazorComponent Include="Components\VoiceCommandListComponent.razor" />
 			<RazorComponent Include="Components\VoiceCommandContentComponent.razor" />
+			<Compile Include="..\RCLTalonShared\Services\TalonImportService.cs" />
+			<Compile Include="..\RCLTalonShared\Models\TalonVoiceCommand.cs" />
+			<Compile Include="..\RCLTalonShared\Models\TalonList.cs" />
 
 		</ItemGroup>
 

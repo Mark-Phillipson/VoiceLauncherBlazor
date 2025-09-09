@@ -15,6 +15,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
+		<ProjectReference Include="..\RCLTalonShared\RCLTalonShared.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="appsettings.json" />

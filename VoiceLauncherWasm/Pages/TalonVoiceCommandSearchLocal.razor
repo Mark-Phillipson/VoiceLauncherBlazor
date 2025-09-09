@@ -1,33 +1,8 @@
-@inject SharedContracts.Services.ITalonVoiceCommandRepository TalonService
+@page "/talon-voice-command-search"
+@inject RCLTalonShared.Services.ITalonRepository TalonRepository
 
-<h3>Talon Voice Command Search (Local)</h3>
-
-<input @bind="term" placeholder="Search..." />
-<button @onclick="DoSearch">Search</button>
-
-@if (results != null)
-{
-    <ul>
-    @foreach (var r in results)
-    {
-        <li>@r.Command - @r.Application</li>
-    }
-    </ul>
-}
+<h3>Local Talon Voice Command Search (placeholder)</h3>
+<p class="text-muted">This host doesn't reference the full RazorClassLibrary; use the WASM search page or run the hybrid app for the complete UI.</p>
 
 @code {
-    private string term = string.Empty;
-    private IEnumerable<SharedContracts.Models.TalonVoiceCommandDto>? results;
-
-    private async Task DoSearch()
-    {
-        if (string.IsNullOrWhiteSpace(term))
-        {
-            results = await TalonService.GetAllCommandsForFiltersAsync();
-        }
-        else
-        {
-            results = await TalonService.SearchAllAsync(term);
-        }
-    }
 }

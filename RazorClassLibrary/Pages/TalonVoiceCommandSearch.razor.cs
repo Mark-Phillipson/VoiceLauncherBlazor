@@ -354,13 +354,14 @@ namespace RazorClassLibrary.Pages
             }
             
             await LoadFilterOptions();
-        }        protected override async Task OnInitializedAsync()
+        }
+        protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
-            
+
             // Debug: Log the initial search term
             // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
-            
+
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
 
@@ -1203,6 +1204,13 @@ namespace RazorClassLibrary.Pages
                 // Highlight captures which remain as {name} after encoding
                 encoded = Regex.Replace(encoded, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}", m =>
                     $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode(m.Value)}</span>");
+
+                // Ensure any literal '@' characters from command text are HTML-encoded
+                // so they cannot be interpreted as attribute names by client-side DOM APIs.
+                if (encoded.Contains("@"))
+                {
+                    encoded = encoded.Replace("@", "&#64;");
+                }
 
                 return encoded;
             }

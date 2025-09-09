@@ -5,7 +5,7 @@ using RazorClassLibrary.Services;
 
 namespace VoiceLauncher.Services
 {
-    public class ServerTalonAnalysisService
+    public class ServerTalonAnalysisService : RazorClassLibrary.Services.ITalonAnalysisService
     {
         private readonly ITalonVoiceCommandDataService _talonDataService;
         private readonly ILogger<ServerTalonAnalysisService> _logger;

@@ -12,7 +12,7 @@ using SmartComponents.LocalEmbeddings;
 
 namespace DataAccessLibrary.Services
 {
-    public class TalonVoiceCommandDataService
+    public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         private readonly ApplicationDbContext _context;
         private static readonly LocalEmbedder _embedder = new LocalEmbedder();

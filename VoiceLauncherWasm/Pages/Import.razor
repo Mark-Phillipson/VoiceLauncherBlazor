@@ -1,6 +1,7 @@
 @page "/import"
 @inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
-@inject VoiceLauncherWasm.Services.TalonParserService TalonParserService
+@using RCLTalonShared.Models
+@inject RCLTalonShared.Services.TalonImportService TalonImportService
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
@@ -172,9 +173,10 @@
                 using var reader = new StreamReader(stream);
                 var content = await reader.ReadToEndAsync();
 
-                var commands = TalonParserService.ParseTalonFile(content, file.Name, repositoryName);
+                var commands = TalonImportService.ParseTalonFile(content, file.Name, repositoryName);
                 foreach (var command in commands)
                 {
+                    // map shared model to client model or store directly depending on IndexedDB contract
                     await IndexedDBService.AddCommandAsync(command);
                     commandsImported++;
                 }
@@ -190,7 +192,7 @@
                 using var reader = new StreamReader(stream);
                 var content = await reader.ReadToEndAsync();
 
-                var lists = TalonParserService.ParseTalonListsFile(content, repositoryName);
+                var lists = TalonImportService.ParseTalonListsFile(content, repositoryName);
                 foreach (var list in lists)
                 {
                     await IndexedDBService.AddListAsync(list);

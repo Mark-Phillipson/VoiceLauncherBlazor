@@ -1,0 +1,12 @@
+```aspnetcorerazor
+@* Server wrapper retained for reference, but no longer declares a route to avoid conflict with the client import page. *@
+
+@inject IJSRuntime JSRuntime
+
+<div class="container mt-4">
+    <h2>Talon Import (server wrapper — reference only)</h2>
+    <p class="text-muted">Removed the <code>@@page "/talon-import"</code> declaration here to avoid ambiguous routing with the native client import page.
+       The client page at <code>/talon-import</code> (implemented in <code>TalonImportClient.razor</code>) is active. If you want to re-enable this wrapper, give it a different route.</p>
+</div>
+
+```

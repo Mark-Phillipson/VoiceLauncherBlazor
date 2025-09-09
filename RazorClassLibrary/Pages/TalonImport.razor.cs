@@ -4,9 +4,8 @@ using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using DataAccessLibrary.Services;
-using DataAccessLibrary;
-using DataAccessLibrary.Models;
+using RCLTalonShared.Services;
+using RCLTalonShared.Models;
 
 namespace RazorClassLibrary.Pages
 {
@@ -62,8 +61,10 @@ namespace RazorClassLibrary.Pages
                     using var stream = file.OpenReadStream();
                     using var reader = new StreamReader(stream);
                     var content = await reader.ReadToEndAsync();
-                    var commandsFromThisFile = await TalonServiceField.ImportTalonFileContentAsync(content, file.Name);
-                    totalCommandsImported += commandsFromThisFile;
+                    // Parse commands using shared import service and save via repository
+                    var parsed = TalonImportService.ParseTalonFile(content, file.Name, null);
+                    await TalonRepository.SaveCommandsAsync(parsed);
+                    totalCommandsImported += parsed.Count;
                 }
                 ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
             }            catch (Exception ex)
@@ -92,12 +93,23 @@ namespace RazorClassLibrary.Pages
                 ImportTotal = talonFiles.Length;
                 
                 // Use the new service method with progress callback
-                var totalCommandsImported = await TalonServiceField.ImportAllTalonFilesWithProgressAsync(DirectoryPath, 
-                    (filesProcessed, totalFiles, commandsSoFar) =>
-                    {
-                        ImportProgress = filesProcessed;
-                        StateHasChanged();
-                    });
+                // For RCL hosted in server mode, we still try to reuse the existing TalonServiceField behavior if available.
+                // Fallback: perform a simple directory parse using TalonImportService and TalonRepository.
+                var talonFiles = Directory.GetFiles(DirectoryPath, "*.talon", SearchOption.AllDirectories);
+                ImportTotal = talonFiles.Length;
+                int commandsSoFar = 0;
+                int filesProcessed = 0;
+                foreach(var f in talonFiles)
+                {
+                    var content = await File.ReadAllTextAsync(f);
+                    var parsed = TalonImportService.ParseTalonFile(content, Path.GetFileName(f), f);
+                    await TalonRepository.SaveCommandsAsync(parsed);
+                    commandsSoFar += parsed.Count;
+                    filesProcessed++;
+                    ImportProgress = filesProcessed;
+                    StateHasChanged();
+                }
+                var totalCommandsImported = commandsSoFar;
                 
                 ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files in directory.";
                 
@@ -128,8 +140,10 @@ namespace RazorClassLibrary.Pages
  
             try
             {
-                var listsImported = await TalonServiceField.ImportTalonListsFromFileAsync(ListsFilePath);
-                ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
+                var listsContent = await File.ReadAllTextAsync(ListsFilePath);
+                var parsedLists = TalonImportService.ParseTalonListsFile(listsContent, ListsFilePath);
+                await TalonRepository.SaveListsAsync(parsedLists);
+                ImportResult = $"Successfully imported {parsedLists.Count} list items from {Path.GetFileName(ListsFilePath)}.";
             }            catch (Exception ex)
             {
                 ErrorMessage = $"Error importing lists: {GetFullErrorMessage(ex)}";

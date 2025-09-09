@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using VoiceLauncherWasm.Models;
+using RCLTalonShared.Models;
 using VoiceLauncherWasm.Services;
 using SharedContracts.Services;
 using SharedContracts.Models;
@@ -26,10 +26,10 @@ namespace VoiceLauncherWasm.Services
         public async Task<IEnumerable<TalonVoiceCommandDto>> GetAllCommandsAsync()
         {
             var commands = await _indexedDb.GetAllCommandsAsync();
-            // Map VoiceLauncherWasm.Models.TalonVoiceCommand -> SharedContracts.Models.TalonVoiceCommandDto
+            // Map RCLTalonShared.Models.TalonVoiceCommand -> SharedContracts.Models.TalonVoiceCommandDto
             return commands.Select(c => new TalonVoiceCommandDto
             {
-                Id = c.Id,
+                Id = 0,
                 Command = c.VoiceCommand ?? string.Empty,
                 Script = c.TalonScript ?? string.Empty,
                 Application = string.IsNullOrWhiteSpace(c.Application) ? "global" : c.Application,
@@ -93,7 +93,7 @@ namespace VoiceLauncherWasm.Services
         {
             var lists = await _indexedDb.GetAllListsAsync();
             var matches = lists.Where(l => l.ListName == listName || (listName.StartsWith("user.") ? l.ListName == listName : l.ListName == $"user.{listName}"))
-                               .Select(l => new TalonListDto { Id = l.Id, ListName = l.ListName, SpokenForm = l.ListName, ListValue = l.Value, SourceFile = l.Repository, CreatedAt = l.DateCreated })
+                               .Select(l => new TalonListDto { Id = 0, ListName = l.ListName, SpokenForm = l.ListName, ListValue = l.Value, SourceFile = l.Repository, CreatedAt = l.DateCreated })
                                .ToList();
             return matches;
         }

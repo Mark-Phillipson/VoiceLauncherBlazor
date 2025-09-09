@@ -1,5 +1,5 @@
 using Microsoft.JSInterop;
-using VoiceLauncherWasm.Models;
+using RCLTalonShared.Models;
 using System.Text.Json;
 
 namespace VoiceLauncherWasm.Services
@@ -7,10 +7,10 @@ namespace VoiceLauncherWasm.Services
     public interface IIndexedDBService
     {
         Task InitializeAsync();
-        Task<List<TalonVoiceCommand>> GetAllCommandsAsync();
-        Task<List<TalonList>> GetAllListsAsync();
-        Task AddCommandAsync(TalonVoiceCommand command);
-        Task AddListAsync(TalonList list);
+    Task<List<TalonVoiceCommand>> GetAllCommandsAsync();
+    Task<List<TalonList>> GetAllListsAsync();
+    Task AddCommandAsync(TalonVoiceCommand command);
+    Task AddListAsync(TalonList list);
         Task ClearAllDataAsync();
     }
 
@@ -44,14 +44,14 @@ namespace VoiceLauncherWasm.Services
             return JsonSerializer.Deserialize<List<TalonList>>(result) ?? new List<TalonList>();
         }
 
-        public async Task AddCommandAsync(TalonVoiceCommand command)
+    public async Task AddCommandAsync(TalonVoiceCommand command)
         {
             if (_indexedDbModule == null) await InitializeAsync();
             var json = JsonSerializer.Serialize(command);
             await _indexedDbModule!.InvokeVoidAsync("addCommand", json);
         }
 
-        public async Task AddListAsync(TalonList list)
+    public async Task AddListAsync(TalonList list)
         {
             if (_indexedDbModule == null) await InitializeAsync();
             var json = JsonSerializer.Serialize(list);

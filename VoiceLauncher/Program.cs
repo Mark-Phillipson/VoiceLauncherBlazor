@@ -29,6 +29,8 @@ builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
 string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+// Register EF-backed implementation of the shared ITalonRepository so RazorClassLibrary components can persist
+builder.Services.AddScoped<RCLTalonShared.Services.ITalonRepository, DataAccessLibrary.Services.EfCoreTalonRepository>();
 builder.Services.AddSmartComponents()
 	.WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
@@ -110,6 +112,8 @@ builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 builder.Services.AddScoped<TalonVoiceCommandDataService>();
+// Ensure the interface is registered so services depending on ITalonVoiceCommandDataService can be resolved
+builder.Services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, DataAccessLibrary.Services.TalonVoiceCommandDataService>();
 // Register server-side Talon analysis implementation (kept as concrete type to avoid compile-time coupling during migration)
 builder.Services.AddScoped(typeof(RazorClassLibrary.Services.ITalonAnalysisService), typeof(VoiceLauncher.Services.ServerTalonAnalysisService));
 // Register configuration

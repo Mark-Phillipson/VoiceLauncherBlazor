@@ -1,6 +1,1 @@
-Can we proceed with the refactor please and remove all the local Blazor components in the wasm project  as follows:
-
-Commands.razor
-Lists.razor
-TalonVoiceCommandSearchLocal.razor
-TalonVoiceCommandSearch.razor
+There still seems to be a lot of confusion here the plan was to use the reset class library components in the wasm client but again you've built the import completely new when it already exists in the razor classical library is it not possible to use the Razor class library and do we need to copy code out of it instead because the import routines we have currently it's just a click of one button and it imports in old files not individually and a similar thing with the talon lists

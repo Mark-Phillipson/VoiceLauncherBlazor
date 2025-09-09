@@ -1,7 +1,8 @@
 @page "/talon-import"
-@using DataAccessLibrary.Services
-<PageTitle>Voice Admin🎙️ Homepage</PageTitle>
-@inject TalonVoiceCommandDataService TalonServiceField
+@using RCLTalonShared.Services
+@using RCLTalonShared.Models
+@inject ITalonRepository TalonRepository
+@inject TalonImportService TalonImportService
 @inject IJSRuntime JSRuntime
 
 <div class="container mt-4">
