@@ -98,7 +98,8 @@ namespace WinFormsApp
 			services.AddScoped<CustomIntellisenseService>();
 			services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
 			services.AddScoped<LauncherService>();
-			services.AddScoped<TalonVoiceCommandDataService>();// Add UI services
+			// Register the talon data service under its interface so Razor components can resolve it
+			services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, TalonVoiceCommandDataService>();// Add UI services
 			services.AddBlazoredModal();
 			services.AddBlazoredToast();
 

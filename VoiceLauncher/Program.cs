@@ -109,7 +109,8 @@ builder.Services.AddScoped<IExampleRepository, ExampleRepository>();
 builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
-builder.Services.AddScoped<TalonVoiceCommandDataService>();
+// Register Talon voice command data service with its interface so dependent services can be resolved
+builder.Services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, TalonVoiceCommandDataService>();
 builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
