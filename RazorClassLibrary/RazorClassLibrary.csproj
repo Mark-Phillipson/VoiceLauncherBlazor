@@ -45,6 +45,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
+		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
 	</ItemGroup>
 
 		<!-- Temporary: limit compilation to a minimal subset (Talon search + small shared components)
@@ -70,6 +71,12 @@
 			<Compile Include="Services\ComponentCacheService.cs" />
 			<!-- TalonAnalysisService depends on server-only DataAccessLibrary types; exclude from minimal client-safe build -->
 			<!-- Models and services needed by the page -->
+			<!-- Include analysis models referenced by server-side services -->
+			<Compile Include="Models\TalonAnalysisModels.cs" />
+			<!-- Include the ITalonAnalysisService interface so hosts can register server implementations -->
+			<Compile Include="Services\ITalonAnalysisService.cs" />
+			<!-- Include TalonAnalysisService (server logic) so tests and hosts depending on it compile -->
+			<Compile Include="Services\TalonAnalysisService.cs" />
 			<Compile Include="Models\SelectionItem.cs" />
 			<Compile Include="Shared\SelectionModal.cs" />
 			<Compile Include="Components\VoiceCommandListComponent.razor.cs" />
@@ -80,6 +87,8 @@
 			<Content Include="Pages\TalonVoiceCommandSearch.razor.css" />
 			<!-- Include NavMenu used by MainLayout -->
 			<RazorComponent Include="Shared\NavMenu.razor" />
+			<!-- NavMenu code-behind -->
+			<Compile Include="Shared\NavMenu.razor.cs" />
 			<!-- Include shared MainLayout so host projects can reference it -->
 			<RazorComponent Include="Shared\MainLayout.razor" />
 			<Content Include="Shared\MainLayout.razor.css" />

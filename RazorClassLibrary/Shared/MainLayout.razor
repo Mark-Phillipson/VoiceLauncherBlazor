@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
+@using Blazored.Toast
 @using RazorClassLibrary.Shared
+@using Microsoft.AspNetCore.Components.Routing
 @inject NavigationManager NavigationManager
 
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome"
@@ -49,7 +51,7 @@
         NavigationManager.LocationChanged += HandleLocationChanged;
     }
 
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
         // Ensure NavMenu is shown by default and remove page-specific hiding logic
         ShowNavMenu = true;
