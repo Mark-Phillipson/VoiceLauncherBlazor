@@ -1,0 +1,33 @@
+@inject SharedContracts.Services.ITalonVoiceCommandRepository TalonService
+
+<h3>Talon Voice Command Search (Local)</h3>
+
+<input @bind="term" placeholder="Search..." />
+<button @onclick="DoSearch">Search</button>
+
+@if (results != null)
+{
+    <ul>
+    @foreach (var r in results)
+    {
+        <li>@r.Command - @r.Application</li>
+    }
+    </ul>
+}
+
+@code {
+    private string term = string.Empty;
+    private IEnumerable<SharedContracts.Models.TalonVoiceCommandDto>? results;
+
+    private async Task DoSearch()
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            results = await TalonService.GetAllCommandsForFiltersAsync();
+        }
+        else
+        {
+            results = await TalonService.SearchAllAsync(term);
+        }
+    }
+}

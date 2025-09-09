@@ -270,8 +270,8 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
 
-        [Inject]
-        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
+    [Inject]
+    public SharedContracts.Services.ITalonVoiceCommandRepository? TalonService { get; set; }        [Inject]
         public IJSRuntime? JSRuntime { get; set; }
         [Inject]
         public IWindowsService? WindowsService { get; set; }

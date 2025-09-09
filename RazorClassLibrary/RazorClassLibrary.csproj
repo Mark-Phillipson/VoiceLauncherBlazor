@@ -34,7 +34,6 @@
 
 		
 		<PackageReference Include="System.Net.Http.Json" Version="9.0.0" />
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="System.Reflection.Metadata" Version="9.0.0" />
 		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
@@ -42,7 +41,7 @@
 		<Folder Include="Areas\MyFeature\Pages\" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
+		<ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
 	</ItemGroup>
 
 </Project>
