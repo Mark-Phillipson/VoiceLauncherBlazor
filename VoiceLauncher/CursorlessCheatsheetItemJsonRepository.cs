@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Hosting;
@@ -30,30 +30,30 @@ public class CursorlessCheatsheetItemJsonRepository : ICursorlessCheatsheetItemJ
       this.cursorlessCheatsheetItemRepository = cursorlessCheatsheetItemRepository;
    }
 
-   public IEnumerable<DataAccessLibrary.DTO.CursorlessCheatsheetItemDTO> GetAllCursorlessCheatsheetItemsAsync(int maxRows = 400)
+   public IEnumerable<CursorlessCheatsheetItemDTO> GetAllCursorlessCheatsheetItemsAsync(int maxRows = 400)
    {
       string path = Path.Combine(_webHostEnvironment.WebRootPath, "CursorlessCheatsheetData.json");
       string jsonData = File.ReadAllText(path);
       List<CursorlessCheatsheetItem>? items;
-   try
+      try
       {
          items = JsonSerializer.Deserialize<List<CursorlessCheatsheetItem>>(jsonData);
       }
       catch (System.Exception exception)
       {
          System.Console.WriteLine(exception);
-      return new List<DataAccessLibrary.DTO.CursorlessCheatsheetItemDTO>();
+         return new List<CursorlessCheatsheetItemDTO>();
       }
-   var limitedItems = items?.Take(maxRows) ?? Enumerable.Empty<CursorlessCheatsheetItem>();
-   return _mapper.Map<IEnumerable<DataAccessLibrary.DTO.CursorlessCheatsheetItemDTO>>(limitedItems);
+      var limitedItems = items?.Take(maxRows) ?? Enumerable.Empty<CursorlessCheatsheetItem>();
+      return _mapper.Map<IEnumerable<CursorlessCheatsheetItemDTO>>(limitedItems);
    }
 
-   public async Task<IEnumerable<DataAccessLibrary.DTO.CursorlessCheatsheetItemDTO>> SearchCursorlessCheatsheetItemsAsync(string serverSearchTerm)
+   public async Task<IEnumerable<CursorlessCheatsheetItemDTO>> SearchCursorlessCheatsheetItemsAsync(string serverSearchTerm)
    {
       var jsonData = await File.ReadAllTextAsync(_jsonFilePath);
       var items = JsonSerializer.Deserialize<List<CursorlessCheatsheetItem>>(jsonData);
-   var filteredItems = items?.Where(item => item.SpokenForm.Contains(serverSearchTerm, StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<CursorlessCheatsheetItem>();
-   return _mapper.Map<IEnumerable<DataAccessLibrary.DTO.CursorlessCheatsheetItemDTO>>(filteredItems);
+      var filteredItems = items?.Where(item => item.SpokenForm.Contains(serverSearchTerm, StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<CursorlessCheatsheetItem>();
+      return _mapper.Map<IEnumerable<CursorlessCheatsheetItemDTO>>(filteredItems);
    }
    public async Task<bool> ExportToJsonAsync()
    {

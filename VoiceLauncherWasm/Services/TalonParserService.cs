@@ -117,11 +117,11 @@ namespace VoiceLauncherWasm.Services
         {
             return new TalonVoiceCommand
             {
-                VoiceCommand = voiceCommand,
-                TalonScript = string.Join("\n", scriptLines),
+                Command = voiceCommand,
+                Script = string.Join("\n", scriptLines),
                 Application = application ?? "General",
                 Repository = repository,
-                FilePath = filePath
+                FileName = filePath
             };
         }
     }

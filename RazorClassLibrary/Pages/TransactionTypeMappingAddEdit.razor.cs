@@ -18,7 +18,7 @@ using Blazored.Toast;
 using Blazored.Toast.Services;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Services;
 
 namespace RazorClassLibrary.Pages

@@ -110,8 +110,7 @@ builder.Services.AddScoped<IExampleDataService, ExampleDataService>();
 builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 builder.Services.AddScoped<TalonVoiceCommandDataService>();
-// Register server-side Talon analysis implementation (kept as concrete type to avoid compile-time coupling during migration)
-builder.Services.AddScoped(typeof(RazorClassLibrary.Services.ITalonAnalysisService), typeof(VoiceLauncher.Services.ServerTalonAnalysisService));
+builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 

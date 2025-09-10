@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataAccessLibrary.Repositories;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 
 
 namespace DataAccessLibrary.Services

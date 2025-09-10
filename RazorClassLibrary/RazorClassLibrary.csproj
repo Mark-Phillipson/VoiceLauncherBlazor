@@ -2,9 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
-		<!-- Disable SDK implicit items so we can explicitly include a minimal set during migration -->
-		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -37,6 +34,7 @@
 
 		
 		<PackageReference Include="System.Net.Http.Json" Version="9.0.0" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="System.Reflection.Metadata" Version="9.0.0" />
 		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
@@ -44,61 +42,7 @@
 		<Folder Include="Areas\MyFeature\Pages\" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
 		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
 	</ItemGroup>
-
-		<!-- Temporary: limit compilation to a minimal subset (Talon search + small shared components)
-				 This reduces build noise while migrating the library to SharedContracts.
-				 Remove this block once the full migration is complete. -->
-		<ItemGroup>
-			<!-- remove pages and code-behind files so only explicit includes are compiled -->
-			<Content Remove="Pages\**\*.razor" />
-			<!-- remove all scoped css implicit items so explicit includes don't duplicate or leave orphans -->
-			<Content Remove="**\*.razor.css" />
-			<None Remove="**\*.razor.css" />
-			<EmbeddedResource Remove="**\*.razor.css" />
-			<Compile Remove="Pages\**\*.razor.cs" />
-			<!-- also remove default SDK implicit items for Shared razor components so explicit includes don't duplicate -->
-			<Content Remove="Shared\**\*.razor" />
-			<Content Remove="Shared\**\*.razor.css" />
-			<Compile Remove="Shared\**\*.razor.cs" />
-			<!-- Explicit minimal set for TalonVoiceCommandSearch and its small dependencies -->
-			<!-- Compile sources -->
-			<Compile Include="Pages\TalonVoiceCommandSearch.razor.cs" />
-			<Compile Include="Shared\TemplatedDialog.razor.cs" />
-			<!-- Layout and services needed by host projects -->
-			<Compile Include="Services\ComponentCacheService.cs" />
-			<!-- TalonAnalysisService depends on server-only DataAccessLibrary types; exclude from minimal client-safe build -->
-			<!-- Models and services needed by the page -->
-			<!-- Include analysis models referenced by server-side services -->
-			<Compile Include="Models\TalonAnalysisModels.cs" />
-			<!-- Include the ITalonAnalysisService interface so hosts can register server implementations -->
-			<Compile Include="Services\ITalonAnalysisService.cs" />
-			<!-- Include TalonAnalysisService (server logic) so tests and hosts depending on it compile -->
-			<Compile Include="Services\TalonAnalysisService.cs" />
-			<Compile Include="Models\SelectionItem.cs" />
-			<Compile Include="Shared\SelectionModal.cs" />
-			<Compile Include="Components\VoiceCommandListComponent.razor.cs" />
-			<Compile Include="Components\VoiceCommandContentComponent.razor.cs" />
-			<Compile Include="Services\WindowsService.cs" />
-			<!-- Razor components and scoped css (explicit) -->
-			<RazorComponent Include="Pages\TalonVoiceCommandSearch.razor" />
-			<Content Include="Pages\TalonVoiceCommandSearch.razor.css" />
-			<!-- Include NavMenu used by MainLayout -->
-			<RazorComponent Include="Shared\NavMenu.razor" />
-			<!-- NavMenu code-behind -->
-			<Compile Include="Shared\NavMenu.razor.cs" />
-			<!-- Include shared MainLayout so host projects can reference it -->
-			<RazorComponent Include="Shared\MainLayout.razor" />
-			<Content Include="Shared\MainLayout.razor.css" />
-			<RazorComponent Include="Shared\CustomIntellisenseList.razor" />
-			<!-- CustomIntellisenseList scoped css intentionally omitted in minimal build -->
-			<RazorComponent Include="Shared\LauncherList.razor" />
-			<RazorComponent Include="Shared\TemplatedDialog.razor" />
-			<RazorComponent Include="Components\VoiceCommandListComponent.razor" />
-			<RazorComponent Include="Components\VoiceCommandContentComponent.razor" />
-
-		</ItemGroup>
 
 </Project>

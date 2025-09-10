@@ -1,7 +1,5 @@
 ﻿using Blazored.Toast.Services;
-using SharedContracts.Models;
-using CommandSet = SharedContracts.Models.CommandSetDto;
-using VoiceCommand = SharedContracts.Models.VoiceCommandDto;
+using DataAccessLibrary.Models.KnowbrainerCommands;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
