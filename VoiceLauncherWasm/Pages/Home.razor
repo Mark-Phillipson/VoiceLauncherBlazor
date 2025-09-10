@@ -1,0 +1,86 @@
+@page "/"
+
+<PageTitle>Voice Launcher WASM</PageTitle>
+
+<div class="mb-4">
+    <h1>Welcome to Voice Launcher WASM</h1>
+    <p class="lead">A Blazor WebAssembly application for managing Talon Voice commands and lists using IndexedDB.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Features</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <strong>Local Storage:</strong> All data is stored in your browser's IndexedDB - no server required
+                    </li>
+                    <li class="mb-2">
+                        <strong>File Import:</strong> Import .talon files and TalonLists.txt files directly from your device
+                    </li>
+                    <li class="mb-2">
+                        <strong>Folder Import:</strong> Select entire folders to import all .talon files and subfolders
+                    </li>
+                    <li class="mb-2">
+                        <strong>Advanced Search:</strong> Search by command names, scripts, or all fields with real-time filtering
+                    </li>
+                    <li class="mb-2">
+                        <strong>Analysis Reports:</strong> View comprehensive analysis of your command conflicts and usage patterns
+                    </li>
+                    <li class="mb-2">
+                        <strong>Offline Ready:</strong> Works completely offline after initial load
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Getting Started</h3>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Go to the <a href="/talon-import" class="text-decoration-none">Import</a> page</li>
+                    <li>Upload your .talon files and/or TalonLists.txt files</li>
+                    <li>Browse your commands in the <a href="/talon-voice-command-search" class="text-decoration-none">Search Commands</a> section</li>
+                    <li>Explore your lists in the <a href="/lists" class="text-decoration-none">Talon Lists</a> section</li>
+                    <li>View analysis reports in the <a href="/analysis" class="text-decoration-none">Analysis</a> section</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Quick Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/talon-import" class="btn btn-primary">Import Files</a>
+                    <a href="/talon-voice-command-search" class="btn btn-outline-primary">Browse Commands</a>
+                    <a href="/lists" class="btn btn-info">Browse Lists</a>
+                    <a href="/analysis" class="btn btn-outline-info">View Analysis</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>About IndexedDB Storage</h4>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    This application uses your browser's IndexedDB for local storage. Your data 
+                    persists between sessions and is private to your browser. Data is not sent to any server.
+                </p>
+                <p class="small text-warning">
+                    <strong>Note:</strong> Clearing your browser data will remove all imported commands and lists.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

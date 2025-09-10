@@ -1,0 +1,264 @@
+@page "/import"
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@inject VoiceLauncherWasm.Services.TalonParserService TalonParserService
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<PageTitle>Import Talon Scripts - Voice Launcher WASM</PageTitle>
+
+<div class="container mt-4">
+    <h2>Import Talon Scripts</h2>
+    <p>Import .talon files into the browser database for local storage and management.</p>
+    
+    <!-- Navigation Links -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                <a href="/commands" class="btn btn-outline-primary">
+                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                </a>
+                <a href="/analysis" class="btn btn-outline-info">
+                    <i class="oi oi-graph me-1"></i> Analysis Report
+                </a>
+                <span class="btn btn-primary disabled">
+                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                </span>
+            </div>
+        </div>
+    </div></div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>File Upload</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="talonFiles" class="form-label">Select .talon files</label>
+                    <InputFile id="talonFiles" OnChange="HandleTalonFilesSelected" multiple accept=".talon" class="form-control" />
+                    <div class="form-text">Select one or more .talon files to import voice commands.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="listFiles" class="form-label">Select TalonLists.txt files</label>
+                    <InputFile id="listFiles" OnChange="HandleListFilesSelected" multiple accept=".txt" class="form-control" />
+                    <div class="form-text">Select TalonLists.txt files to import command lists.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="repository" class="form-label">Repository Name (Optional)</label>
+                    <input type="text" id="repository" @bind="repositoryName" class="form-control" 
+                           placeholder="e.g., talon-community, my-talon-config" />
+                    <div class="form-text">Helps organize your imported commands by source.</div>
+                </div>
+
+                @if (isProcessing)
+                {
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        Processing files... (@processingStatus)
+                    </div>
+                }
+                else
+                {
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" @onclick="ProcessFiles" disabled="@(!HasFilesToProcess)">
+                            Import Selected Files
+                        </button>
+                        <button class="btn btn-outline-danger" @onclick="ClearAllData">
+                            Clear All Data
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Import Summary</h4>
+            </div>
+            <div class="card-body">
+                @if (selectedTalonFiles.Any())
+                {
+                    <div class="mb-3">
+                        <h6>Talon Files (@selectedTalonFiles.Count)</h6>
+                        <ul class="list-unstyled small">
+                            @foreach (var file in selectedTalonFiles.Take(5))
+                            {
+                                <li>• @file.Name</li>
+                            }
+                            @if (selectedTalonFiles.Count > 5)
+                            {
+                                <li class="text-muted">... and @(selectedTalonFiles.Count - 5) more</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                @if (selectedListFiles.Any())
+                {
+                    <div class="mb-3">
+                        <h6>List Files (@selectedListFiles.Count)</h6>
+                        <ul class="list-unstyled small">
+                            @foreach (var file in selectedListFiles.Take(5))
+                            {
+                                <li>• @file.Name</li>
+                            }
+                            @if (selectedListFiles.Count > 5)
+                            {
+                                <li class="text-muted">... and @(selectedListFiles.Count - 5) more</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                @if (importResults.Any())
+                {
+                    <div class="alert alert-success">
+                        <h6>Last Import Results</h6>
+                        @foreach (var result in importResults)
+                        {
+                            <div class="small">@result</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Help</h4>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <p><strong>Talon Files:</strong> These contain voice commands with their corresponding scripts.</p>
+                    <p><strong>List Files:</strong> These contain lists of values that can be used in voice commands.</p>
+                    <p><strong>Repository:</strong> Optional field to help organize your commands by source project.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<IBrowserFile> selectedTalonFiles = new();
+    private List<IBrowserFile> selectedListFiles = new();
+    private List<string> importResults = new();
+    private string repositoryName = string.Empty;
+    private bool isProcessing = false;
+    private string processingStatus = string.Empty;
+    
+    private bool HasFilesToProcess => selectedTalonFiles.Any() || selectedListFiles.Any();
+
+    private void HandleTalonFilesSelected(InputFileChangeEventArgs e)
+    {
+        selectedTalonFiles = e.GetMultipleFiles(100).ToList();
+        StateHasChanged();
+    }
+
+    private void HandleListFilesSelected(InputFileChangeEventArgs e)
+    {
+        selectedListFiles = e.GetMultipleFiles(100).ToList();
+        StateHasChanged();
+    }
+
+    private async Task ProcessFiles()
+    {
+        if (!HasFilesToProcess) return;
+
+        isProcessing = true;
+        importResults.Clear();
+        int commandsImported = 0;
+        int listsImported = 0;
+
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+
+            // Process Talon files
+            foreach (var file in selectedTalonFiles)
+            {
+                processingStatus = $"Processing {file.Name}...";
+                StateHasChanged();
+
+                using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024); // 1MB limit
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+
+                var commands = TalonParserService.ParseTalonFile(content, file.Name, repositoryName);
+                foreach (var command in commands)
+                {
+                    await IndexedDBService.AddCommandAsync(command);
+                    commandsImported++;
+                }
+            }
+
+            // Process List files
+            foreach (var file in selectedListFiles)
+            {
+                processingStatus = $"Processing {file.Name}...";
+                StateHasChanged();
+
+                using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024); // 1MB limit
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+
+                var lists = TalonParserService.ParseTalonListsFile(content, repositoryName);
+                foreach (var list in lists)
+                {
+                    await IndexedDBService.AddListAsync(list);
+                    listsImported++;
+                }
+            }
+
+            // Show results
+            if (commandsImported > 0)
+                importResults.Add($"Imported {commandsImported} voice commands");
+            if (listsImported > 0)
+                importResults.Add($"Imported {listsImported} list items");
+
+            // Clear selections
+            selectedTalonFiles.Clear();
+            selectedListFiles.Clear();
+        }
+        catch (Exception ex)
+        {
+            importResults.Add($"Error: {ex.Message}");
+            Console.WriteLine($"Import error: {ex}");
+        }
+        finally
+        {
+            isProcessing = false;
+            processingStatus = string.Empty;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClearAllData()
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear all imported data? This cannot be undone."))
+            return;
+
+        try
+        {
+            await IndexedDBService.ClearAllDataAsync();
+            importResults.Clear();
+            importResults.Add("All data cleared successfully");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            importResults.Add($"Error clearing data: {ex.Message}");
+            Console.WriteLine($"Clear data error: {ex}");
+            StateHasChanged();
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+}

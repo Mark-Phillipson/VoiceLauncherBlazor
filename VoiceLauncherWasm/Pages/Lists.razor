@@ -1,0 +1,182 @@
+@page "/lists"
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@implements IAsyncDisposable
+
+<PageTitle>Talon Lists</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Talon Lists</h1>
+    <div class="text-muted">
+        @lists.Count list items loaded
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search list names or values..." 
+                   @bind="searchQuery" @oninput="OnSearchInput" />
+        </div>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" @bind="SelectedListName">
+            <option value="">All Lists</option>
+            @foreach (var listName in listNames)
+            {
+                <option value="@listName">@listName</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading lists...</p>
+    </div>
+}
+else if (groupedLists.Count == 0)
+{
+    <div class="alert alert-info text-center">
+        @if (lists.Count == 0)
+        {
+            <p class="mb-2">No lists found. <a href="/import" class="text-decoration-none">Import a TalonLists.txt file</a> to get started.</p>
+        }
+        else
+        {
+            <p class="mb-2">No lists match your search criteria.</p>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ClearFilters">Clear Filters</button>
+        }
+    </div>
+}
+else
+{
+    @foreach (var group in groupedLists.Take(50))
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <span class="badge bg-info me-2">@group.Key</span>
+                    (@group.Count() items)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var item in group.Take(20))
+                    {
+                        <div class="col-md-6 col-lg-4 mb-2">
+                            <div class="bg-light p-2 rounded">
+                                <code class="small">@item.Value</code>
+                                @if (!string.IsNullOrEmpty(item.Repository))
+                                {
+                                    <div>
+                                        <small class="text-muted">@item.Repository</small>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (group.Count() > 20)
+                {
+                    <div class="mt-2">
+                        <small class="text-muted">Showing first 20 of @group.Count() items...</small>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (groupedLists.Count > 50)
+    {
+        <div class="alert alert-info mt-3">
+            Showing first 50 lists of @groupedLists.Count total matches. Use search to narrow down results.
+        </div>
+    }
+}
+
+@code {
+    private List<VoiceLauncherWasm.Models.TalonList> lists = new();
+    private List<IGrouping<string, VoiceLauncherWasm.Models.TalonList>> groupedLists = new();
+    private List<string> listNames = new();
+    private string searchQuery = string.Empty;
+    private string selectedListName = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            lists = await IndexedDBService.GetAllListsAsync();
+            listNames = lists.Select(l => l.ListName).Distinct().OrderBy(n => n).ToList();
+            FilterLists();
+            isLoading = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lists: {ex.Message}");
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string _selectedListName = string.Empty;
+    private string SelectedListName
+    {
+        get => _selectedListName;
+        set
+        {
+            _selectedListName = value;
+            selectedListName = value;
+            FilterLists();
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+        FilterLists();
+    }
+
+    private void FilterLists()
+    {
+        var filteredLists = lists.Where(list =>
+        {
+            var matchesSearch = string.IsNullOrEmpty(searchQuery) ||
+                               list.ListName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                               list.Value.Contains(searchQuery, StringComparison.OrdinalIgnoreCase);
+
+            var matchesList = string.IsNullOrEmpty(selectedListName) ||
+                             list.ListName.Equals(selectedListName, StringComparison.OrdinalIgnoreCase);
+
+            return matchesSearch && matchesList;
+        });
+
+        groupedLists = filteredLists
+            .GroupBy(l => l.ListName)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    private void ClearFilters()
+    {
+        searchQuery = string.Empty;
+        selectedListName = string.Empty;
+        FilterLists();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+}

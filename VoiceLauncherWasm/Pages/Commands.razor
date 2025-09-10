@@ -1,0 +1,168 @@
+@page "/commands"
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@implements IAsyncDisposable
+
+<PageTitle>Talon Commands</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Talon Voice Commands</h1>
+    <div class="text-muted">
+        @commands.Count commands loaded
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search commands, scripts, or applications..." 
+                   @bind="searchQuery" @oninput="OnSearchInput" />
+        </div>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" @bind="SelectedApplication">
+            <option value="">All Applications</option>
+            @foreach (var app in applications)
+            {
+                <option value="@app">@app</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading commands...</p>
+    </div>
+}
+else if (filteredCommands.Count == 0)
+{
+    <div class="alert alert-info text-center">
+        @if (commands.Count == 0)
+        {
+            <p class="mb-2">No commands found. <a href="/import" class="text-decoration-none">Import some .talon files</a> to get started.</p>
+        }
+        else
+        {
+            <p class="mb-2">No commands match your search criteria.</p>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ClearFilters">Clear Filters</button>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var command in filteredCommands.Take(100))
+        {
+            <div class="col-lg-6 col-xl-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <span class="badge bg-primary me-2">@command.Application</span>
+                            @command.VoiceCommand
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <pre class="small bg-light p-2 rounded"><code>@command.TalonScript</code></pre>
+                        @if (!string.IsNullOrEmpty(command.Repository))
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted">Repository: @command.Repository</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (filteredCommands.Count > 100)
+    {
+        <div class="alert alert-info mt-3">
+            Showing first 100 results of @filteredCommands.Count total matches. Use search to narrow down results.
+        </div>
+    }
+}
+
+@code {
+    private List<VoiceLauncherWasm.Models.TalonVoiceCommand> commands = new();
+    private List<VoiceLauncherWasm.Models.TalonVoiceCommand> filteredCommands = new();
+    private List<string> applications = new();
+    private string searchQuery = string.Empty;
+    private string selectedApplication = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            commands = await IndexedDBService.GetAllCommandsAsync();
+            applications = commands.Select(c => c.Application).Distinct().OrderBy(a => a).ToList();
+            filteredCommands = commands;
+            isLoading = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading commands: {ex.Message}");
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string _selectedApplication = string.Empty;
+    private string SelectedApplication
+    {
+        get => _selectedApplication;
+        set
+        {
+            _selectedApplication = value;
+            selectedApplication = value;
+            FilterCommands();
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+        FilterCommands();
+    }
+
+    private void FilterCommands()
+    {
+        filteredCommands = commands.Where(cmd =>
+        {
+            var matchesSearch = string.IsNullOrEmpty(searchQuery) ||
+                               cmd.VoiceCommand.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                               cmd.TalonScript.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                               cmd.Application.Contains(searchQuery, StringComparison.OrdinalIgnoreCase);
+
+            var matchesApp = string.IsNullOrEmpty(selectedApplication) ||
+                            cmd.Application.Equals(selectedApplication, StringComparison.OrdinalIgnoreCase);
+
+            return matchesSearch && matchesApp;
+        }).ToList();
+
+        StateHasChanged();
+    }
+
+    private void ClearFilters()
+    {
+        searchQuery = string.Empty;
+        selectedApplication = string.Empty;
+        filteredCommands = commands;
+        StateHasChanged();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+}

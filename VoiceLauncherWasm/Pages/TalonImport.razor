@@ -1,0 +1,258 @@
+@page "/talon-import"
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@inject VoiceLauncherWasm.Services.TalonParserService TalonParserService
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<PageTitle>Import Talon Scripts - Voice Launcher WASM</PageTitle>
+
+<div class="container mt-4">
+    <h2>Import Talon Scripts</h2>
+    <p>Import .talon files into the browser database for local storage and management.</p>
+    
+    <!-- Navigation Links -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                <a href="/commands" class="btn btn-outline-primary">
+                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                </a>
+                <a href="/analysis" class="btn btn-outline-info">
+                    <i class="oi oi-graph me-1"></i> Analysis Report
+                </a>
+                <span class="btn btn-primary disabled">
+                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Individual File Upload -->
+    <div class="mb-3">
+        <label class="form-label">Select individual .talon files</label>
+        <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
+        <div class="form-text">Select one or more individual .talon files to import voice commands.</div>
+    </div>
+    
+    <!-- Folder Upload -->
+    <div class="mb-3">
+        <label class="form-label">Select folder containing .talon files</label>
+        <InputFile class="form-control" OnChange="OnFolderSelected" multiple webkitdirectory="true" aria-label="Select folder" />
+        <div class="form-text">Select a folder to import all .talon files from that folder and its subfolders.</div>
+    </div>
+    
+    <button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>
+    
+    <div class="mt-3">
+        @if (IsLoading)
+        {
+            <div class="spinner-border" role="status" aria-label="Importing"></div>
+            @if (ImportTotal > 0)
+            {
+                <div class="progress mt-2" style="height: 24px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: @(ImportProgress * 100.0 / ImportTotal)%" aria-valuenow="@ImportProgress" aria-valuemin="0" aria-valuemax="@ImportTotal">
+                        @ImportProgress / @ImportTotal
+                    </div>
+                </div>
+            }
+        }
+        else if (!string.IsNullOrEmpty(ImportResult))
+        {
+            <div class="alert alert-success" role="alert">
+                @ImportResult
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ErrorMessage
+            </div>
+        }
+    </div>
+    }
+    
+    <hr />
+    
+    <h3>Import Talon Lists</h3>
+    <p>Import your TalonLists.txt files to enable list expansion in search results.</p>
+    <div class="mb-3">
+        <label class="form-label">Select TalonLists.txt files</label>
+        <InputFile class="form-control" OnChange="OnListFilesSelected" multiple accept=".txt" aria-label="Select list files" />
+        <div class="form-text">Select TalonLists.txt files to import command lists.</div>
+    </div>
+    <button class="btn btn-primary" @onclick="ImportListFiles" disabled="@(SelectedListFiles == null || !SelectedListFiles.Any() || IsLoading)" aria-label="Import Lists">Import Lists</button>
+    
+    <hr />
+    
+    <h3>Repository Settings</h3>
+    <div class="mb-3">
+        <label class="form-label">Repository Name (Optional)</label>
+        <input type="text" @bind="repositoryName" class="form-control" 
+               placeholder="e.g., talon-community, my-talon-config" />
+        <div class="form-text">Helps organize your imported commands by source.</div>
+    </div>
+    
+    <div class="mt-3">
+        <button class="btn btn-outline-danger" @onclick="ClearAllData">
+            Clear All Data
+        </button>
+    </div>
+</div>
+
+@code {
+    public IReadOnlyList<IBrowserFile>? SelectedFiles { get; set; }
+    public IReadOnlyList<IBrowserFile>? SelectedListFiles { get; set; }
+    public bool IsLoading { get; set; } = false;
+    public string? ImportResult { get; set; }
+    public string? ErrorMessage { get; set; }
+    public int ImportProgress { get; set; } = 0;
+    public int ImportTotal { get; set; } = 0;
+    private string repositoryName = string.Empty;
+
+    protected void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        SelectedFiles = e.GetMultipleFiles(1000);
+        ImportResult = null;
+        ErrorMessage = null;
+    }
+
+    protected void OnFolderSelected(InputFileChangeEventArgs e)
+    {
+        // Filter for .talon files when folder is selected
+        var allFiles = e.GetMultipleFiles(10000);
+        var talonFiles = allFiles.Where(f => f.Name.EndsWith(".talon", StringComparison.OrdinalIgnoreCase)).ToList();
+        SelectedFiles = talonFiles;
+        ImportResult = null;
+        ErrorMessage = null;
+        StateHasChanged();
+    }
+
+    protected void OnListFilesSelected(InputFileChangeEventArgs e)
+    {
+        SelectedListFiles = e.GetMultipleFiles(100);
+        ImportResult = null;
+        ErrorMessage = null;
+    }
+
+    protected async Task ImportFiles()
+    {
+        if (SelectedFiles == null || SelectedFiles.Count == 0)
+            return;
+
+        IsLoading = true;
+        ImportResult = null;
+        ErrorMessage = null;
+        ImportProgress = 0;
+        ImportTotal = SelectedFiles.Count;
+        int totalCommandsImported = 0;
+
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+
+            foreach (var file in SelectedFiles)
+            {
+                ImportProgress++;
+                StateHasChanged();
+
+                using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024); // 1MB limit
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+
+                var commands = TalonParserService.ParseTalonFile(content, file.Name, repositoryName);
+                foreach (var command in commands)
+                {
+                    await IndexedDBService.AddCommandAsync(command);
+                    totalCommandsImported++;
+                }
+            }
+
+            ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error importing files: {GetFullErrorMessage(ex)}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    protected async Task ImportListFiles()
+    {
+        if (SelectedListFiles == null || SelectedListFiles.Count == 0)
+            return;
+
+        IsLoading = true;
+        ImportResult = null;
+        ErrorMessage = null;
+        int totalListsImported = 0;
+
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+
+            foreach (var file in SelectedListFiles)
+            {
+                using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024);
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+
+                var lists = TalonParserService.ParseTalonListsFile(content, repositoryName);
+                foreach (var list in lists)
+                {
+                    await IndexedDBService.AddListAsync(list);
+                    totalListsImported++;
+                }
+            }
+
+            ImportResult = $"Successfully imported {totalListsImported} list item(s) from {SelectedListFiles.Count} file(s).";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error importing lists: {GetFullErrorMessage(ex)}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task ClearAllData()
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to clear all imported data? This cannot be undone."))
+            return;
+
+        try
+        {
+            await IndexedDBService.ClearAllDataAsync();
+            ImportResult = "All data cleared successfully";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error clearing data: {GetFullErrorMessage(ex)}";
+            StateHasChanged();
+        }
+    }
+
+    private string GetFullErrorMessage(Exception ex)
+    {
+        var errorParts = new List<string>();
+        var currentEx = ex;
+        
+        while (currentEx != null)
+        {
+            errorParts.Add(currentEx.Message);
+            currentEx = currentEx.InnerException;
+        }
+        
+        return string.Join(" | Inner Exception: ", errorParts);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+}
