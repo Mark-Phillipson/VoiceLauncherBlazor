@@ -1,2 +1,3 @@
-Can you using the tools create a Github issue for this implementation plan and state that it needs to be done in a new branch off main called wasm-indexeddb? The issue should be tagged with the "enhancement" label. The title should be "Implement Blazor WASM with IndexedDB for Talon Voice Commands". The body should contain the following text:
-Implement a Blazor WebAssembly (WASM) application that uses IndexedDB for local storage of Talon voice commands and lists. This implementation should follow the outlined architecture and repository abstraction to ensure seamless integration with existing services.
+ the current file data voice command data service has been copied across from a different project that uses SQL server to save the models.
+
+  can we refactor this code so that it saves the models into local storage instead?

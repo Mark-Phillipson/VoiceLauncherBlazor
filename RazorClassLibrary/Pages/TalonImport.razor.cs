@@ -74,7 +74,8 @@ namespace RazorClassLibrary.Pages
             {
                 IsLoading = false;
             }
-        }        protected async Task ImportAllFromDirectory()
+        }
+        protected async Task ImportAllFromDirectory()
         {
             if (string.IsNullOrWhiteSpace(DirectoryPath))
             {
@@ -90,20 +91,21 @@ namespace RazorClassLibrary.Pages
             {
                 var talonFiles = Directory.GetFiles(DirectoryPath, "*.talon", SearchOption.AllDirectories);
                 ImportTotal = talonFiles.Length;
-                
+
                 // Use the new service method with progress callback
-                var totalCommandsImported = await TalonServiceField.ImportAllTalonFilesWithProgressAsync(DirectoryPath, 
+                var totalCommandsImported = await TalonServiceField.ImportAllTalonFilesWithProgressAsync(DirectoryPath,
                     (filesProcessed, totalFiles, commandsSoFar) =>
                     {
                         ImportProgress = filesProcessed;
                         StateHasChanged();
                     });
-                
+
                 ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files in directory.";
-                
+
                 // Invalidate the filter cache so repository dropdown gets updated
                 TalonVoiceCommandSearch.InvalidateFilterCache();
-            }            catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 ErrorMessage = $"Error importing from directory: {GetFullErrorMessage(ex)}";
             }

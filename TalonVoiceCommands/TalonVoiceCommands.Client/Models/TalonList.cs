@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DataAccessLibrary.Models
+namespace TalonVoiceCommands.Client.Models
 {
     public class TalonList
     {
