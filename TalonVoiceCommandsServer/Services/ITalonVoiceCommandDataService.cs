@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace TalonVoiceCommands.Client.Services;
+namespace TalonVoiceCommandsServer.Services;
     public interface ITalonVoiceCommandDataService
     {
     Task<int> ImportFromTalonFilesAsync(string rootFolder);

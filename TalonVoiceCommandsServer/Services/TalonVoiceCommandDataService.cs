@@ -8,21 +8,25 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using System.Text.Json;
-using TalonVoiceCommands.Client.Models;
+using System.Net.Http;
+using System.Net.Http.Json;
+using TalonVoiceCommandsServer.Models;
 
-namespace TalonVoiceCommands.Client.Services;
+namespace TalonVoiceCommandsServer.Services;
 
 public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 {
     private readonly IJSRuntime _jsRuntime;
+    private readonly HttpClient _httpClient;
     private List<TalonVoiceCommand> _commands = new();
     private List<TalonList> _talonLists = new();
     private const string CommandsStorageKey = "talonVoiceCommands";
     private const string ListsStorageKey = "talonLists";
 
-    public TalonVoiceCommandDataService(IJSRuntime jsRuntime)
+    public TalonVoiceCommandDataService(IJSRuntime jsRuntime, HttpClient httpClient)
     {
         _jsRuntime = jsRuntime;
+        _httpClient = httpClient;
         _ = LoadFromLocalStorageAsync();
     }
 
@@ -138,153 +142,48 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 
     public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
     {
-        // Remove all existing records before importing new ones
-        // _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
-        // await _context.SaveChangesAsync();
+        try
+        {
+            // Clean the path to remove any leading slashes
+            rootFolder = rootFolder.TrimStart('/');
 
-        var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
-        var commands = new List<TalonVoiceCommand>(); foreach (var file in talonFiles)
-        {                var lines = await File.ReadAllLinesAsync(file);                string application = "global";
-            List<string> modes = new();
-            List<string> tags = new();
-            List<string> codeLanguages = new();
-            List<string> languages = new();
-            List<string> hostnames = new();
-            string? operatingSystem = null;
-            string? title = null;
-            bool inCommandsSection = false;
+            // Call the server API to get talon files
+            var response = await _httpClient.GetAsync($"api/Talon/files?directoryPath={Uri.EscapeDataString(rootFolder)}");
+            response.EnsureSuccessStatusCode();
 
-            // First pass: check if there's a header section (look for delimiter)
-            bool hasHeaderSection = lines.Any(line =>
+            var filePaths = await response.Content.ReadFromJsonAsync<string[]>();
+            if (filePaths == null || filePaths.Length == 0)
             {
-                var trimmed = line.Trim();
-                var delimiterCheck = new string(trimmed.Where(c => !char.IsWhiteSpace(c)).ToArray());
-                return delimiterCheck == "-";
-            });
-
-            // If no header section, start processing commands immediately
-            // All commands will be treated as global since there's no application/mode specification
-            if (!hasHeaderSection)
-            {
-                inCommandsSection = true;
-                // application remains "global" (default value)
-                // modes remains empty (default value)
+                return 0;
             }
 
-            for (int i = 0; i < lines.Length; i++)
+            var totalCommandsImported = 0;
+            foreach (var filePath in filePaths)
             {
-                var rawLine = lines[i];
-                var line = rawLine.Trim();
-                Debug.WriteLine($"Line {i}: '{rawLine.Replace("\r", "\\r").Replace("\n", "\\n")}' (trimmed: '{line}')");
-                if (!inCommandsSection)
+                try
                 {
-                    // Robust delimiter check: ignore all whitespace and carriage returns
-                    var delimiterCheck = new string(line.Where(c => !char.IsWhiteSpace(c)).ToArray());                        if (delimiterCheck == "-")
-                    {
-                        Debug.WriteLine($"Delimiter found at line {i}");
-                        inCommandsSection = true;
-                        continue;
-                    }
-                    
-                    // Try to parse application using the helper method
-                    var parsedApp = ParseApplicationFromHeaderLine(line);
-                    if (parsedApp != null)
-                    {
-                        application = parsedApp;
-                    }
-                    else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var modeValue = line.Substring(5).Trim();
-                        if (!string.IsNullOrEmpty(modeValue))
-                        {
-                            modes.Add(modeValue);
-                        }
-                    }
-                    else if (line.StartsWith("tag:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var tagValue = line.Substring(4).Trim();
-                        if (!string.IsNullOrEmpty(tagValue))
-                        {
-                            tags.Add(tagValue);
-                        }                        }
-                    else if (line.StartsWith("os:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        operatingSystem = line.Substring(3).Trim();
-                    }
-                    else if (line.StartsWith("title:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        title = line.Substring(6).Trim();
-                    }
-                    else if (line.StartsWith("code.language:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var codeLanguageValue = line.Substring(14).Trim();
-                        if (!string.IsNullOrEmpty(codeLanguageValue))
-                        {
-                            codeLanguages.Add(codeLanguageValue);
-                        }
-                    }
-                    else if (line.StartsWith("language:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var languageValue = line.Substring(9).Trim();
-                        if (!string.IsNullOrEmpty(languageValue))
-                        {
-                            languages.Add(languageValue);
-                        }
-                    }
-                    else if (line.StartsWith("hostname:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var hostnameValue = line.Substring(9).Trim();
-                        if (!string.IsNullOrEmpty(hostnameValue))
-                        {
-                            hostnames.Add(hostnameValue);
-                        }
-                    }
-                    // skip other headers
-                    continue;
+                    var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
+                    var commandsFromFile = await ImportTalonFileContentAsync(fileContent, Path.GetFileName(filePath));
+                    totalCommandsImported += commandsFromFile;
                 }
-                // After delimiter, skip blank lines and comments
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                    continue;
-                // Multi-line script support
-                if (line.Contains(":"))
+                catch (Exception ex)
                 {
-                    var split = line.Split(new[] { ':' }, 2);
-                    var command = split[0].Trim();
-                    var script = split[1].Trim();
-                    // Skip settings() and similar blocks
-                    if (command.EndsWith("()"))
-                        continue;
-                    // Check for indented lines (multi-line script)
-                    int j = i + 1;
-                    while (j < lines.Length && (lines[j].StartsWith("    ") || lines[j].StartsWith("\t")))
-                    {
-                        script += "\n" + lines[j].Trim();
-                        j++;
-                    }
-                    i = j - 1;                        commands.Add(new TalonVoiceCommand
-                    {
-                        Id = GenerateNextCommandId(),
-                        Command = command.Length > 200 ? command.Substring(0, 200) : command,
-                        Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
-                        Application = application.Length > 200 ? application.Substring(0, 200) : application,
-                        Title = title != null && title.Length > 200 ? title.Substring(0, 200) : title,
-                        Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
-                        OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
-                        FilePath = file.Length > 500 ? file.Substring(file.Length - 500) : file,
-                        Repository = ExtractRepositoryFromPath(file)?.Length > 200 ? ExtractRepositoryFromPath(file)?.Substring(0, 200) : ExtractRepositoryFromPath(file),
-                        Tags = tags.Count > 0 ? string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Substring(0, Math.Min(500, string.Join(", ", tags.Select(t => t.Length > 50 ? t.Substring(0, 50) : t)).Length)) : null,
-                        CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
-                        Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
-                        Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
-                        CreatedAt = File.GetCreationTimeUtc(file)
-                    });
+                    Console.WriteLine($"Error processing file {filePath}: {ex.Message}");
                 }
             }
+
+            return totalCommandsImported;
         }
-        // Add commands to local storage
-        _commands.AddRange(commands);
-        await SaveCommandsToLocalStorageAsync();
-        return commands.Count;
+        catch (Exception ex)
+        {
+            throw new Exception($"Error importing from directory: {ex.Message}", ex);
+        }
+    }
+
+    private class ImportResult
+    {
+        public int TotalFiles { get; set; }
+        public int TotalCommandsImported { get; set; }
     }        
 
     public async Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
@@ -430,17 +329,40 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 
     public async Task<int> ImportAllTalonFilesFromDirectoryAsync(string rootFolder)
     {
-        // Remove all existing records before importing new ones
-        // _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
-        // await _context.SaveChangesAsync();
-        var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
-        int totalImported = 0;
-        foreach (var file in talonFiles)
+        try
         {
-            var content = await File.ReadAllTextAsync(file);
-            totalImported += await ImportTalonFileContentAsync(content, file);
+            // Clean the path to remove any leading slashes
+            rootFolder = rootFolder.TrimStart('/');
+
+            // Call the server API to get talon files
+            var response = await _httpClient.GetAsync($"api/Talon/files?directoryPath={Uri.EscapeDataString(rootFolder)}");
+            response.EnsureSuccessStatusCode();
+
+            var filePaths = await response.Content.ReadFromJsonAsync<string[]>();
+            if (filePaths == null || filePaths.Length == 0)
+            {
+                return 0;
+            }
+
+            int totalImported = 0;
+            foreach (var filePath in filePaths)
+            {
+                try
+                {
+                    var content = await System.IO.File.ReadAllTextAsync(filePath);
+                    totalImported += await ImportTalonFileContentAsync(content, Path.GetFileName(filePath));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error processing file {filePath}: {ex.Message}");
+                }
+            }
+            return totalImported;
         }
-        return totalImported;
+        catch (Exception ex)
+        {
+            throw new Exception($"Error importing from directory: {ex.Message}", ex);
+        }
     }
 
     public async Task<int> ClearAllCommandsAsync()
@@ -454,23 +376,23 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 
     public async Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null)
     {
-        // Clear all existing records first
-        await ClearAllCommandsAsync();
-
-        var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
-        int totalImported = 0;
-        int filesProcessed = 0;
-
-        foreach (var file in talonFiles)
+        try
         {
-            var content = await File.ReadAllTextAsync(file);
-            var commandsFromThisFile = await ImportTalonFileContentAsync(content, file);
-            totalImported += commandsFromThisFile;
-            filesProcessed++;
-            // Report progress: (filesProcessed, totalFiles, totalCommandsSoFar)
-            progressCallback?.Invoke(filesProcessed, talonFiles.Length, totalImported);
+            // Clean the path to remove any leading slashes
+            rootFolder = rootFolder.TrimStart('/');
+
+            // Call the server API to import files
+            var request = new { DirectoryPath = rootFolder };
+            var response = await _httpClient.PostAsJsonAsync("api/Talon/import", request);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<ImportResult>();
+            return result?.TotalCommandsImported ?? 0;
         }
-        return totalImported;
+        catch (Exception ex)
+        {
+            throw new Exception($"Error importing from directory: {ex.Message}", ex);
+        }
     }
 
     /// <summary>

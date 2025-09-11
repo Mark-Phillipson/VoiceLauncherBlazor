@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace TalonVoiceCommands.Client.Pages;
+namespace TalonVoiceCommandsServer.Components.Pages;
 
 public partial class TalonImport : ComponentBase
 {
@@ -105,7 +105,7 @@ public partial class TalonImport : ComponentBase
             {
                 try
                 {
-                    totalCommandsImported += await TalonServiceField.ImportTalonFileContentAsync(f.Text, f.Name);
+                    totalCommandsImported += await TalonVoiceCommandDataService.ImportTalonFileContentAsync(f.Text, f.Name);
                 }
                 catch (System.Exception ex)
                 {
@@ -164,7 +164,7 @@ public partial class TalonImport : ComponentBase
                 using var stream = file.OpenReadStream();
                 using var reader = new StreamReader(stream);
                 var content = await reader.ReadToEndAsync();
-                var commandsFromThisFile = await TalonServiceField.ImportTalonFileContentAsync(content, file.Name);
+                var commandsFromThisFile = await TalonVoiceCommandDataService.ImportTalonFileContentAsync(content, file.Name);
                 totalCommandsImported += commandsFromThisFile;
             }
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
@@ -244,7 +244,7 @@ public partial class TalonImport : ComponentBase
                 try
                 {
                     // Use existing service which should call the server API to enumerate files
-                    totalCommandsImported = await TalonServiceField.ImportAllTalonFilesWithProgressAsync(DirectoryPath,
+                    totalCommandsImported = await TalonVoiceCommandDataService.ImportAllTalonFilesWithProgressAsync(DirectoryPath,
                         (filesProcessed, totalFiles, commandsSoFar) =>
                         {
                             ImportProgress = filesProcessed;
@@ -265,7 +265,7 @@ public partial class TalonImport : ComponentBase
             {
                 try
                 {
-                    var commandsFromThisFile = await TalonServiceField.ImportTalonFileContentAsync(f.Text, f.Name);
+                    var commandsFromThisFile = await TalonVoiceCommandDataService.ImportTalonFileContentAsync(f.Text, f.Name);
                     totalCommandsImported += commandsFromThisFile;
                 }
                 catch (Exception ex)
@@ -307,7 +307,7 @@ public partial class TalonImport : ComponentBase
 
         try
         {
-            var listsImported = await TalonServiceField.ImportTalonListsFromFileAsync(ListsFilePath);
+            var listsImported = await TalonVoiceCommandDataService.ImportTalonListsFromFileAsync(ListsFilePath);
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
         }            catch (Exception ex)
         {

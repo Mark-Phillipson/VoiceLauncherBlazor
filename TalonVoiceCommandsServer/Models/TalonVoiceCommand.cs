@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace TalonVoiceCommands.Client.Models;
+namespace TalonVoiceCommandsServer.Models;
 
 public class TalonVoiceCommand
 {
