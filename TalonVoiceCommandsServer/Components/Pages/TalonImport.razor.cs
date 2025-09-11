@@ -3,12 +3,115 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TalonVoiceCommandsServer.Components.Pages;
 
 public partial class TalonImport : ComponentBase
 {
+    // JSRuntime is injected in the `.razor` file via @inject and is available on the partial class
+
+    private const string SettingsDirectoryKey = "TalonImport.DirectoryPath";
+    private const string SettingsListsFileKey = "TalonImport.ListsFilePath";
+    private const string SettingsLockedKey = "TalonImport.SettingsLocked";
+
+    /// <summary>
+    /// When true the Directory/List textboxes and Save button are disabled and cannot be changed.
+    /// This value is persisted to localStorage so it survives restarts of the app in the browser.
+    /// </summary>
+    public bool SettingsLocked { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettingsAsync();
+    }
+
+    private async Task LoadSettingsAsync()
+    {
+        try
+        {
+            if (JSRuntime != null)
+            {
+                var dir = await JSRuntime.InvokeAsync<string>("localStorage.getItem", SettingsDirectoryKey);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    DirectoryPath = dir;
+                }
+
+                var lists = await JSRuntime.InvokeAsync<string>("localStorage.getItem", SettingsListsFileKey);
+                if (!string.IsNullOrEmpty(lists))
+                {
+                    ListsFilePath = lists;
+                }
+
+                var locked = await JSRuntime.InvokeAsync<string>("localStorage.getItem", SettingsLockedKey);
+                if (!string.IsNullOrEmpty(locked) && bool.TryParse(locked, out var parsed))
+                {
+                    SettingsLocked = parsed;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading TalonImport settings: {ex.Message}");
+        }
+    }
+
+    protected async Task SaveSettingsAsync()
+    {
+        try
+        {
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", SettingsDirectoryKey, DirectoryPath ?? string.Empty);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", SettingsListsFileKey, ListsFilePath ?? string.Empty);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", SettingsLockedKey, SettingsLocked.ToString());
+            }
+            // Persisted - now validate existence so the user gets immediate feedback if a path is incorrect
+            var missing = new List<string>();
+            if (!string.IsNullOrWhiteSpace(DirectoryPath) && !Directory.Exists(DirectoryPath))
+            {
+                missing.Add($"Directory does not exist: {DirectoryPath}");
+            }
+            if (!string.IsNullOrWhiteSpace(ListsFilePath) && !File.Exists(ListsFilePath))
+            {
+                missing.Add($"Lists file does not exist: {ListsFilePath}");
+            }
+
+            if (missing.Count > 0)
+            {
+                ImportResult = "Settings saved. One or more paths do not exist.";
+                ErrorMessage = string.Join("; ", missing);
+            }
+            else
+            {
+                ImportResult = "Settings saved.";
+                ErrorMessage = null;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Error saving settings: " + ex.Message;
+        }
+    }
+
+    protected async Task SaveLockStateAsync()
+    {
+        try
+        {
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", SettingsLockedKey, SettingsLocked.ToString());
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving lock state: {ex.Message}");
+        }
+    }
+
     public class RepoItem
     {
         public string Name { get; set; } = string.Empty;
@@ -18,7 +121,7 @@ public partial class TalonImport : ComponentBase
 
     public List<RepoItem>? Repos { get; set; }
 
-    protected async Task PickUserFolderAndListRepos()
+    protected Task PickUserFolderAndListRepos()
     {
         try
         {
@@ -27,29 +130,35 @@ public partial class TalonImport : ComponentBase
             IsLoading = true;
             StateHasChanged();
 
-            var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/fs-access.js");
-            var result = await module.InvokeAsync<System.Text.Json.JsonElement>("pickUserFolderAndListRepos");
-            if (result.ValueKind == System.Text.Json.JsonValueKind.Object)
+            if (string.IsNullOrWhiteSpace(DirectoryPath) || !Directory.Exists(DirectoryPath))
             {
-                var rootName = result.GetProperty("rootName").GetString();
-                var reposArr = result.GetProperty("repos");
-                var list = new List<RepoItem>();
-                foreach (var je in reposArr.EnumerateArray())
+                ErrorMessage = "Please enter a valid directory path.";
+                Repos = null;
+                return Task.CompletedTask;
+            }
+
+            var rootName = Path.GetFileName(DirectoryPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            var list = new List<RepoItem>();
+
+            // Count talon files in root
+            int rootCount = Directory.EnumerateFiles(DirectoryPath, "*.talon", SearchOption.TopDirectoryOnly).Count();
+            list.Add(new RepoItem { Name = rootName, TalonFileCount = rootCount, IsSelected = false });
+
+            foreach (var dir in Directory.GetDirectories(DirectoryPath))
+            {
+                try
                 {
-                    var name = je.GetProperty("name").GetString() ?? "";
-                    var count = je.GetProperty("talonFileCount").GetInt32();
+                    var name = Path.GetFileName(dir);
+                    var count = Directory.EnumerateFiles(dir, "*.talon", SearchOption.TopDirectoryOnly).Count();
                     list.Add(new RepoItem { Name = name, TalonFileCount = count, IsSelected = false });
                 }
-                Repos = list;
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine($"Skipping directory due to error: {ex.Message}");
+                }
             }
-            else
-            {
-                ErrorMessage = "Failed to list repositories from selected folder.";
-            }
-        }
-        catch (JSException jsEx)
-        {
-            ErrorMessage = "Browser file system API error: " + jsEx.Message;
+
+            Repos = list;
         }
         catch (System.Exception ex)
         {
@@ -60,6 +169,8 @@ public partial class TalonImport : ComponentBase
             IsLoading = false;
             StateHasChanged();
         }
+
+        return Task.CompletedTask;
     }
 
     protected async Task ImportSelectedRepos()
@@ -81,20 +192,40 @@ public partial class TalonImport : ComponentBase
 
         try
         {
-            var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/fs-access.js");
-            var filesElem = await module.InvokeAsync<System.Text.Json.JsonElement>("getFilesForRepos", selected);
-            var files = new List<(string Name, string Text)>();
-            if (filesElem.ValueKind == System.Text.Json.JsonValueKind.Array)
+            if (string.IsNullOrWhiteSpace(DirectoryPath) || !Directory.Exists(DirectoryPath))
             {
-                foreach (var je in filesElem.EnumerateArray())
+                ErrorMessage = "Please provide a valid base directory path for the repositories.";
+                return;
+            }
+
+            var files = new List<(string Name, string Text)>();
+            foreach (var repoName in selected)
+            {
+                string repoPath;
+                var rootName = Path.GetFileName(DirectoryPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                if (string.Equals(repoName, rootName, System.StringComparison.OrdinalIgnoreCase))
+                    repoPath = DirectoryPath;
+                else
+                    repoPath = Path.Combine(DirectoryPath, repoName);
+
+                if (Directory.Exists(repoPath))
                 {
-                    try
+                    foreach (var filePath in Directory.EnumerateFiles(repoPath, "*.talon", SearchOption.TopDirectoryOnly))
                     {
-                        var name = je.GetProperty("name").GetString() ?? "unnamed";
-                        var text = je.GetProperty("text").GetString() ?? string.Empty;
-                        files.Add((name, text));
+                        try
+                        {
+                            var txt = await File.ReadAllTextAsync(filePath);
+                            files.Add((Path.GetFileName(filePath), txt));
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Console.WriteLine($"Skipping file {filePath}: {ex.Message}");
+                        }
                     }
-                    catch { }
+                }
+                else
+                {
+                    Console.WriteLine($"Repository path does not exist: {repoPath}");
                 }
             }
 
@@ -118,10 +249,6 @@ public partial class TalonImport : ComponentBase
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected repositories.";
         }
-        catch (JSException jsEx)
-        {
-            ErrorMessage = "Browser JS error while reading files: " + jsEx.Message;
-        }
         catch (System.Exception ex)
         {
             ErrorMessage = "Error importing repositories: " + ex.Message;
@@ -140,6 +267,7 @@ public partial class TalonImport : ComponentBase
     public string? ListsFilePath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user\mystuff\talon_my_stuff\TalonLists.txt";
     public int ImportProgress { get; set; } = 0;
     public int ImportTotal { get; set; } = 0;
+    public bool ShowToast { get; set; } = false;
 
 
     
@@ -184,6 +312,11 @@ public partial class TalonImport : ComponentBase
             ErrorMessage = "Please enter a directory path.";
             return;
         }
+        if (!Directory.Exists(DirectoryPath))
+        {
+            ErrorMessage = $"Directory does not exist: {DirectoryPath}";
+            return;
+        }
         IsLoading = true;
         ImportResult = null;
         ErrorMessage = null;
@@ -191,96 +324,16 @@ public partial class TalonImport : ComponentBase
         ImportTotal = 0;
         try
         {
-            // Try browser directory APIs (File System Access API) via JS interop first
-            List<(string Name, string Text)> files = new();
-            try
-            {
-                var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/js/fs-access.js");
-                System.Text.Json.JsonElement root;
-                try
+            // Use server-side import to enumerate and import all .talon files under the directory
+            int totalCommandsImported = await TalonVoiceCommandDataService.ImportAllTalonFilesWithProgressAsync(DirectoryPath,
+                (filesProcessed, totalFiles, commandsSoFar) =>
                 {
-                    // Prefer pickDirectoryFiles (File System Access API)
-                    root = await module.InvokeAsync<System.Text.Json.JsonElement>("pickDirectoryFiles");
-                }
-                catch (JSException)
-                {
-                    // If pickDirectoryFiles not available or fails, fall back to input-based picker
-                    root = await module.InvokeAsync<System.Text.Json.JsonElement>("readDirectoryViaInput");
-                }
+                    ImportProgress = filesProcessed;
+                    ImportTotal = totalFiles;
+                    StateHasChanged();
+                });
 
-                if (root.ValueKind == System.Text.Json.JsonValueKind.Array)
-                {
-                    foreach (var je in root.EnumerateArray())
-                    {
-                        try
-                        {
-                            var name = je.GetProperty("name").GetString() ?? "unnamed";
-                            var text = je.GetProperty("text").GetString() ?? string.Empty;
-                            files.Add((name, text));
-                        }
-                        catch (System.Exception ex)
-                        {
-                            Console.WriteLine($"Skipping file due to parse error: {ex.Message}");
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("JS picker returned unexpected payload: " + root.ValueKind);
-                }
-            }
-            catch (JSException jsEx)
-            {
-                // If JS import fails entirely, show an error but try server-directory fallback later
-                Console.WriteLine("JS interop error: " + jsEx.Message);
-            }
-
-            ImportTotal = files.Count;
-            int processed = 0;
-            int totalCommandsImported = 0;
-            // If JS did not return any files, attempt the server-side import fallback (if DirectoryPath provided)
-            if (files.Count == 0 && !string.IsNullOrWhiteSpace(DirectoryPath))
-            {
-                try
-                {
-                    // Use existing service which should call the server API to enumerate files
-                    totalCommandsImported = await TalonVoiceCommandDataService.ImportAllTalonFilesWithProgressAsync(DirectoryPath,
-                        (filesProcessed, totalFiles, commandsSoFar) =>
-                        {
-                            ImportProgress = filesProcessed;
-                            ImportTotal = totalFiles;
-                            StateHasChanged();
-                        });
-
-                    ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server fallback).";
-                    return;
-                }
-                catch (System.Exception ex)
-                {
-                    ErrorMessage = "Directory import via browser failed and server fallback also failed: " + GetFullErrorMessage(ex);
-                    return;
-                }
-            }
-            foreach (var f in files)
-            {
-                try
-                {
-                    var commandsFromThisFile = await TalonVoiceCommandDataService.ImportTalonFileContentAsync(f.Text, f.Name);
-                    totalCommandsImported += commandsFromThisFile;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing file {f.Name}: {ex.Message}");
-                }
-                processed++;
-                ImportProgress = processed;
-                StateHasChanged();
-            }
-
-            ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected directory.";
-
-            // Invalidate the filter cache so repository dropdown gets updated
-            // TalonVoiceCommandSearch.InvalidateFilterCache();
+            ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
         }
         catch (Exception ex)
         {
@@ -300,6 +353,12 @@ public partial class TalonImport : ComponentBase
             return;
         }
 
+        if (!File.Exists(ListsFilePath))
+        {
+            ErrorMessage = $"Lists file does not exist: {ListsFilePath}";
+            return;
+        }
+
         IsLoading = true;
         ImportResult = null;
         ErrorMessage = null;
@@ -309,6 +368,15 @@ public partial class TalonImport : ComponentBase
         {
             var listsImported = await TalonVoiceCommandDataService.ImportTalonListsFromFileAsync(ListsFilePath);
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
+            // Show toast in UI
+            ShowToast = true;
+            StateHasChanged();
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(4000);
+                ShowToast = false;
+                await InvokeAsync(StateHasChanged);
+            });
         }            catch (Exception ex)
         {
             ErrorMessage = $"Error importing lists: {GetFullErrorMessage(ex)}";

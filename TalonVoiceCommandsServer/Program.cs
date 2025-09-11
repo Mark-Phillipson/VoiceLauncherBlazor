@@ -46,3 +46,5 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+
+internal record ImportRequest(string? DirectoryPath);

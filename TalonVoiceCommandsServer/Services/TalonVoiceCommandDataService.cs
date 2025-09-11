@@ -144,18 +144,19 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         try
         {
-            // Clean the path to remove any leading slashes
-            rootFolder = rootFolder.TrimStart('/');
-
-            // Call the server API to get talon files
-            var response = await _httpClient.GetAsync($"api/Talon/files?directoryPath={Uri.EscapeDataString(rootFolder)}");
-            response.EnsureSuccessStatusCode();
-
-            var filePaths = await response.Content.ReadFromJsonAsync<string[]>();
-            if (filePaths == null || filePaths.Length == 0)
-            {
+            // Normalize the path
+            if (string.IsNullOrWhiteSpace(rootFolder))
                 return 0;
-            }
+
+            rootFolder = rootFolder.Trim();
+
+            if (!Directory.Exists(rootFolder))
+                return 0;
+
+            // Enumerate .talon files recursively
+            var filePaths = Directory.EnumerateFiles(rootFolder, "*.talon", SearchOption.AllDirectories).ToArray();
+            if (filePaths.Length == 0)
+                return 0;
 
             var totalCommandsImported = 0;
             foreach (var filePath in filePaths)
@@ -163,7 +164,8 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 try
                 {
                     var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
-                    var commandsFromFile = await ImportTalonFileContentAsync(fileContent, Path.GetFileName(filePath));
+                    // Pass full path so repository extraction can work correctly
+                    var commandsFromFile = await ImportTalonFileContentAsync(fileContent, filePath);
                     totalCommandsImported += commandsFromFile;
                 }
                 catch (Exception ex)
@@ -331,18 +333,16 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         try
         {
-            // Clean the path to remove any leading slashes
-            rootFolder = rootFolder.TrimStart('/');
-
-            // Call the server API to get talon files
-            var response = await _httpClient.GetAsync($"api/Talon/files?directoryPath={Uri.EscapeDataString(rootFolder)}");
-            response.EnsureSuccessStatusCode();
-
-            var filePaths = await response.Content.ReadFromJsonAsync<string[]>();
-            if (filePaths == null || filePaths.Length == 0)
-            {
+            if (string.IsNullOrWhiteSpace(rootFolder))
                 return 0;
-            }
+
+            rootFolder = rootFolder.Trim();
+            if (!Directory.Exists(rootFolder))
+                return 0;
+
+            var filePaths = Directory.EnumerateFiles(rootFolder, "*.talon", SearchOption.AllDirectories).ToArray();
+            if (filePaths.Length == 0)
+                return 0;
 
             int totalImported = 0;
             foreach (var filePath in filePaths)
@@ -350,7 +350,7 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 try
                 {
                     var content = await System.IO.File.ReadAllTextAsync(filePath);
-                    totalImported += await ImportTalonFileContentAsync(content, Path.GetFileName(filePath));
+                    totalImported += await ImportTalonFileContentAsync(content, filePath);
                 }
                 catch (Exception ex)
                 {
@@ -378,16 +378,36 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         try
         {
-            // Clean the path to remove any leading slashes
-            rootFolder = rootFolder.TrimStart('/');
+            if (string.IsNullOrWhiteSpace(rootFolder))
+                return 0;
 
-            // Call the server API to import files
-            var request = new { DirectoryPath = rootFolder };
-            var response = await _httpClient.PostAsJsonAsync("api/Talon/import", request);
-            response.EnsureSuccessStatusCode();
+            rootFolder = rootFolder.Trim();
+            if (!Directory.Exists(rootFolder))
+                return 0;
 
-            var result = await response.Content.ReadFromJsonAsync<ImportResult>();
-            return result?.TotalCommandsImported ?? 0;
+            var files = Directory.EnumerateFiles(rootFolder, "*.talon", SearchOption.AllDirectories).ToArray();
+            int totalFiles = files.Length;
+            if (totalFiles == 0)
+                return 0;
+
+            int processed = 0;
+            int totalCommandsImported = 0;
+            foreach (var file in files)
+            {
+                try
+                {
+                    var content = await File.ReadAllTextAsync(file);
+                    totalCommandsImported += await ImportTalonFileContentAsync(content, file);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error importing file {file}: {ex.Message}");
+                }
+                processed++;
+                progressCallback?.Invoke(processed, totalFiles, totalCommandsImported);
+            }
+
+            return totalCommandsImported;
         }
         catch (Exception ex)
         {

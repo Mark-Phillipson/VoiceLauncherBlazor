@@ -1,2 +1,1 @@
- the code was changed by mistake to use a Controller but we should be pulling in the files from the client's local file system is this possible?
- 
+ and they developer tools how can I tell how much space has been taken up by local storage  and how close it is to the maximum allowed?
