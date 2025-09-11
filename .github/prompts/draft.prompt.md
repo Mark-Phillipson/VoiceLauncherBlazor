@@ -1,1 +1,1 @@
- and they developer tools how can I tell how much space has been taken up by local storage  and how close it is to the maximum allowed?
+The settings are being saved to local storage but when the application loads it's not loading them up giving the impression that they're not being saved at all

@@ -21,18 +21,28 @@ public partial class TalonImport : ComponentBase
     /// This value is persisted to localStorage so it survives restarts of the app in the browser.
     /// </summary>
     public bool SettingsLocked { get; set; } = false;
+    // Tracks whether we've successfully loaded settings from the browser (client-side) so we don't retry unnecessarily
+    private bool _settingsLoadedFromClient = false;
 
-    protected override async Task OnInitializedAsync()
+    // Avoid reading browser-only APIs during server prerender. Load settings once the client JS runtime is available.
+    protected override Task OnInitializedAsync()
     {
-        await LoadSettingsAsync();
+        // no-op: we will attempt to load settings in OnAfterRenderAsync when JS is available
+        return Task.CompletedTask;
     }
 
-    private async Task LoadSettingsAsync()
+    /// <summary>
+    /// Attempts to load persisted settings from localStorage. Returns true when the attempt succeeded
+    /// (JS invoked without throwing). Returns false when JS interop was not available (prerender) so
+    /// the caller can retry later.
+    /// </summary>
+    private async Task<bool> LoadSettingsAsync()
     {
         try
         {
             if (JSRuntime != null)
             {
+                // These calls will throw a JSException when JS runtime is not available (for example during server prerender).
                 var dir = await JSRuntime.InvokeAsync<string>("localStorage.getItem", SettingsDirectoryKey);
                 if (!string.IsNullOrEmpty(dir))
                 {
@@ -50,11 +60,39 @@ public partial class TalonImport : ComponentBase
                 {
                     SettingsLocked = parsed;
                 }
+
+                return true; // loaded (or attempted) successfully from JS runtime
             }
         }
-        catch (Exception ex)
+        catch (Microsoft.JSInterop.JSException jsEx)
+        {
+            // JS runtime not available yet (likely prerender). Return false so caller can retry later.
+            Console.WriteLine($"JS not available when loading TalonImport settings: {jsEx.Message}");
+            return false;
+        }
+        catch (System.Exception ex)
         {
             Console.WriteLine($"Error loading TalonImport settings: {ex.Message}");
+            // We did attempt to talk to JS/runtime but failed; treat as loaded to avoid repeated attempts.
+            return true;
+        }
+
+        return false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_settingsLoadedFromClient)
+        {
+            // Try to load settings now that client JS should be available. LoadSettingsAsync returns false when JS
+            // was not available so we can retry on the next render.
+            var ok = await LoadSettingsAsync();
+            if (ok)
+            {
+                _settingsLoadedFromClient = true;
+                // Ensure any bound UI updates are applied
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
 
