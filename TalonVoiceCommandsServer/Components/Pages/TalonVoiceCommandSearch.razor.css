@@ -1,0 +1,33 @@
+.filter-btn-icon {
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.filter-btn-icon svg {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+}
+
+/* Ensure the tags filter button doesn't grow too tall when it contains an inline SVG */
+.filter-btn-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+}
+
+/* Keep the button text from overflowing vertically */
+.filter-btn-tags > span {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Disabled state tweak */
+.filter-btn-tags:disabled {
+    opacity: 0.9;
+}

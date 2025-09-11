@@ -1,0 +1,199 @@
+﻿@using TalonVoiceCommandsServer.Models
+@using System
+@using System.Linq
+@inject IJSRuntime JSRuntime
+@namespace TalonVoiceCommandsServer.Components
+
+<div class="modal fade" tabindex="-1" role="dialog" id="selectionModal" aria-modal="true" aria-labelledby="selectionModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectionModalTitle">@Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex gap-2">
+                        <input id="selectionFilterInput" type="text" class="form-control selection-filter" placeholder="Filter..." aria-label="Filter items" value="@FilterText" @oninput="OnFilterInput" />
+                        <button type="button" class="btn btn-outline-secondary" title="Clear filter" @onclick="ClearFilter">Clear</button>
+                    </div>
+                </div>
+                <div class="row">
+                    @if (FilteredItems != null && FilteredItems.Any())
+                    {
+                        @foreach (var item in FilteredItems)
+                        {
+                            <div class="col-12 col-sm-6 col-md-4 mb-3">
+                                @* If caller provided a ColorClass (e.g. 'bg-light'), use it; otherwise default to dark buttons for contrast *@
+                                @{ var buttonClass = string.IsNullOrWhiteSpace(item.ColorClass) ? "btn-dark text-light" : item.ColorClass; }
+                                <button type="button" class="card selection-card @buttonClass" @onclick="() => SelectItem(item)" aria-label="Select @item.Label" title="@item.Label">
+                                    <div class="card-body p-2">
+                                        <div class="text-truncate">@item.Label</div>
+                                    </div>
+                                </button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">No items</div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Select";
+    [Parameter] public List<SelectionItem> Items { get; set; } = new();
+    [Parameter] public EventCallback<SelectionItem> OnSelected { get; set; }
+
+    private IJSObjectReference? _module;
+    private string FilterText { get; set; } = string.Empty;
+    private List<SelectionItem> FilteredItems { get; set; } = new();
+    // Keep track of the previous Items reference so we can clear filter when switching item sets
+    private IReadOnlyList<SelectionItem>? _previousItemsReference;
+
+    private async Task SelectItem(SelectionItem item)
+    {
+        await HideAsync();
+        if (OnSelected.HasDelegate)
+        {
+            await OnSelected.InvokeAsync(item);
+        }
+    }
+
+    private void UpdateFilteredItems()
+    {
+        if (Items == null)
+        {
+            FilteredItems = new List<SelectionItem>();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FilterText))
+        {
+            FilteredItems = Items.ToList();
+        }
+        else
+        {
+            var q = FilterText.Trim();
+            FilteredItems = Items.Where(i => !string.IsNullOrEmpty(i.Label) && i.Label.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private async Task OnFilterInput(ChangeEventArgs e)
+    {
+        FilterText = e?.Value?.ToString() ?? string.Empty;
+        UpdateFilteredItems();
+        // If only one item remains, auto-select it (capture the item first to avoid races)
+        if (FilteredItems.Count == 1)
+        {
+            var only = FilteredItems.First();
+            // small delay so UI updates feel natural (and to avoid reentrancy issues)
+            await Task.Delay(80);
+            // re-check that the filtered list still contains exactly that item
+            if (FilteredItems.Count == 1 && FilteredItems.First().Id == only.Id)
+            {
+                await SelectItem(only);
+            }
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e, SelectionItem item)
+    {
+        if (e.Key == "Enter" || e.Key == " ")
+        {
+            await SelectItem(item);
+        }
+    }
+
+    private async Task ClearFilter()
+    {
+        FilterText = string.Empty;
+        UpdateFilteredItems();
+        StateHasChanged();
+        // After clearing, focus and select the filter input
+        try
+        {
+            if (_module == null)
+            {
+                _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/selectionModalInterop.js");
+            }
+            if (_module != null)
+            {
+                await _module.InvokeVoidAsync("focusAndSelectFilter", "#selectionModal");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("bootstrapInterop.focusAndSelectFilter", "#selectionModal");
+            }
+        }
+        catch { }
+    }
+
+    public async Task ShowAsync()
+    {
+    // reset filter each time modal opens
+    // Ensure we clear the filter when the Items source changed (switching filter type)
+    if (!ReferenceEquals(Items, _previousItemsReference))
+    {
+        FilterText = string.Empty;
+        _previousItemsReference = Items?.ToList();
+    }
+    UpdateFilteredItems();
+    StateHasChanged();
+        try
+        {
+            if (_module == null)
+            {
+                _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/selectionModalInterop.js");
+            }
+            if (_module != null)
+            {
+                await _module.InvokeVoidAsync("showModal", "#selectionModal");
+                return;
+            }
+        }
+        catch { }
+
+        await JSRuntime.InvokeVoidAsync("bootstrapInterop.showModal", "#selectionModal");
+    }
+
+    public async Task HideAsync()
+    {
+        try
+        {
+            if (_module == null)
+            {
+                _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/selectionModalInterop.js");
+            }
+            if (_module != null)
+            {
+                await _module.InvokeVoidAsync("hideModal", "#selectionModal");
+                return;
+            }
+        }
+        catch { }
+
+        await JSRuntime.InvokeVoidAsync("bootstrapInterop.hideModal", "#selectionModal");
+    }
+
+    // Ensure we populate the filtered list whenever parameters change
+    // This makes the modal show all items immediately when it's opened
+    protected override void OnParametersSet()
+    {
+        // keep current filter text if the user typed something; otherwise default to empty
+        FilterText ??= string.Empty;
+        UpdateFilteredItems();
+        base.OnParametersSet();
+    }
+}

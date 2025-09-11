@@ -1,4 +1,5 @@
 using TalonVoiceCommandsServer.Components;
+using TalonVoiceCommandsServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,9 @@ builder.Services.AddScoped<System.Net.Http.HttpClient>(sp =>
 // Register the Talon voice command data service
 builder.Services.AddScoped<TalonVoiceCommandsServer.Services.ITalonVoiceCommandDataService, TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService>();
 
+// Register a Windows service implementation used by components to query the active window/process
+builder.Services.AddSingleton<IWindowsService, WindowsService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,6 +45,10 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
+// Serve static files from wwwroot (including _content folder for local static assets)
+app.UseStaticFiles();
+
+// Map static web assets and component endpoints
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
