@@ -1,4 +1,4 @@
-using RCLTalonShared.Models;
+using VoiceLauncherWasm.Models;
 using System.Text.RegularExpressions;
 
 namespace VoiceLauncherWasm.Services
@@ -117,11 +117,11 @@ namespace VoiceLauncherWasm.Services
         {
             return new TalonVoiceCommand
             {
-                VoiceCommand = voiceCommand,
-                TalonScript = string.Join("\n", scriptLines),
+                Command = voiceCommand,
+                Script = string.Join("\n", scriptLines),
                 Application = application ?? "General",
-        Repository = repository ?? string.Empty,
-                FilePath = filePath
+                Repository = repository ?? string.Empty,
+                FileName = filePath
             };
         }
     }

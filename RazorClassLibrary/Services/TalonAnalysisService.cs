@@ -5,6 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace RazorClassLibrary.Services
 {
+    public interface ITalonAnalysisService
+    {
+        Task<TalonAnalysisResult> AnalyzeCommandsAsync();
+    }
+
     public class TalonAnalysisService : ITalonAnalysisService
     {
         private readonly DataAccessLibrary.Services.ITalonVoiceCommandDataService _talonDataService;

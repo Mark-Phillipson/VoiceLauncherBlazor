@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.GuardClauses;
 using DataAccessLibrary.Models;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Repositories;
 
 namespace DataAccessLibrary.Repositories

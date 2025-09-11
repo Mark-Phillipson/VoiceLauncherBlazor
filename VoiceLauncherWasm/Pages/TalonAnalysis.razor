@@ -1,0 +1,402 @@
+@page "/analysis"
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@inject IJSRuntime JSRuntime
+@using VoiceLauncherWasm.Models
+
+<PageTitle>Talon Command Analysis - Voice Launcher WASM</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-chart-bar me-2"></i>
+                Talon Command Analysis
+            </h1>
+              
+            <!-- Navigation Links -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                        <a href="/talon-voice-command-search" class="btn btn-outline-primary">
+                            <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                        </a>
+                        <span class="btn btn-info disabled">
+                            <i class="oi oi-graph me-1"></i> Analysis Report
+                        </span>
+                        <a href="/talon-import" class="btn btn-outline-secondary">
+                            <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing Talon commands...</p>
+                </div>
+            }
+            else if (analysisResult != null)
+            {
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.TotalCommands.ToString("N0")</h4>
+                                        <p class="card-text">Total Commands</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-list fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.UniqueCommands.ToString("N0")</h4>
+                                        <p class="card-text">Unique Commands</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-filter fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.TotalConflicts.ToString("N0")</h4>
+                                        <p class="card-text">Total Conflicts</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">@analysisResult.Applications.Count.ToString("N0")</h4>
+                                        <p class="card-text">Applications</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-desktop fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Commands by Application Chart -->
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Commands by Application</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (analysisResult.Applications?.Any() == true)
+                                {
+                                    @foreach (var app in analysisResult.Applications.Take(10))
+                                    {
+                                        var percentage = (double)app.CommandCount / analysisResult.TotalCommands * 100;
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="small">@app.Name</span>
+                                                <span class="small">@app.CommandCount commands</span>
+                                            </div>
+                                            <div class="progress" style="height: 15px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" 
+                                                     style="width: @percentage%" aria-valuenow="@percentage" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (analysisResult.Applications.Count > 10)
+                                    {
+                                        <div class="text-muted small">... and @(analysisResult.Applications.Count - 10) more applications</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No application data available</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Commands by Repository</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (analysisResult.Repositories?.Any() == true)
+                                {
+                                    @foreach (var repo in analysisResult.Repositories.Take(10))
+                                    {
+                                        var percentage = (double)repo.CommandCount / analysisResult.TotalCommands * 100;
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="small">@repo.Name</span>
+                                                <span class="small">@repo.CommandCount commands</span>
+                                            </div>
+                                            <div class="progress" style="height: 15px;">
+                                                <div class="progress-bar bg-info" role="progressbar" 
+                                                     style="width: @percentage%" aria-valuenow="@percentage" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (analysisResult.Repositories.Count > 10)
+                                    {
+                                        <div class="text-muted small">... and @(analysisResult.Repositories.Count - 10) more repositories</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No repository data available</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conflicts Section -->
+                @if (analysisResult.ConflictGroups?.Any() == true)
+                {
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Command Conflicts</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Commands with identical names but different scripts or contexts:</p>
+                                    @foreach (var conflictGroup in analysisResult.ConflictGroups.Take(10))
+                                    {
+                                        <div class="mb-3 border-start border-warning ps-3">
+                                            <h6 class="text-warning">@conflictGroup.Command (@conflictGroup.Commands.Count conflicts)</h6>
+                                            @foreach (var command in conflictGroup.Commands.Take(3))
+                                            {
+                                                <div class="small text-muted mb-1">
+                                                    <strong>@command.Application</strong> - @command.FileName
+                                                    @if (!string.IsNullOrEmpty(command.Mode))
+                                                    {
+                                                        <span class="badge bg-secondary">@command.Mode</span>
+                                                    }
+                                                </div>
+                                            }
+                                            @if (conflictGroup.Commands.Count > 3)
+                                            {
+                                                <div class="small text-muted">... and @(conflictGroup.Commands.Count - 3) more</div>
+                                            }
+                                        </div>
+                                    }
+                                    @if (analysisResult.ConflictGroups.Count > 10)
+                                    {
+                                        <div class="text-muted">... and @(analysisResult.ConflictGroups.Count - 10) more conflict groups</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- File Sources -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Command Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (analysisResult.FileSources?.Any() == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>File</th>
+                                                    <th>Commands</th>
+                                                    <th>Repository</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var file in analysisResult.FileSources.Take(20))
+                                                {
+                                                    <tr>
+                                                        <td class="small">@file.FileName</td>
+                                                        <td>@file.CommandCount</td>
+                                                        <td class="small text-muted">@file.Repository</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @if (analysisResult.FileSources.Count > 20)
+                                    {
+                                        <div class="text-muted small">... and @(analysisResult.FileSources.Count - 20) more files</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No file source data available</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <h5>No Analysis Data Available</h5>
+                    <p class="mb-0">Import some .talon files first to see analysis results. <a href="/talon-import" class="alert-link">Go to Import page</a></p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = true;
+    private TalonAnalysisResult? analysisResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AnalyzeCommandsAsync();
+    }
+
+    private async Task AnalyzeCommandsAsync()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var allCommands = await IndexedDBService.GetAllCommandsAsync();
+            
+            if (!allCommands.Any())
+            {
+                analysisResult = null;
+                return;
+            }
+
+            analysisResult = new TalonAnalysisResult
+            {
+                TotalCommands = allCommands.Count(),
+                UniqueCommands = allCommands.GroupBy(c => c.Command).Count(),
+                Applications = allCommands
+                    .Where(c => !string.IsNullOrEmpty(c.Application))
+                    .GroupBy(c => c.Application)
+                    .Select(g => new ApplicationSummary { Name = g.Key!, CommandCount = g.Count() })
+                    .OrderByDescending(a => a.CommandCount)
+                    .ToList(),
+                Repositories = allCommands
+                    .Where(c => !string.IsNullOrEmpty(c.Repository))
+                    .GroupBy(c => c.Repository)
+                    .Select(g => new RepositorySummary { Name = g.Key!, CommandCount = g.Count() })
+                    .OrderByDescending(r => r.CommandCount)
+                    .ToList(),
+                FileSources = allCommands
+                    .Where(c => !string.IsNullOrEmpty(c.FileName))
+                    .GroupBy(c => new { c.FileName, c.Repository })
+                    .Select(g => new FileSourceSummary 
+                    { 
+                        FileName = g.Key.FileName!, 
+                        Repository = g.Key.Repository ?? "Unknown",
+                        CommandCount = g.Count() 
+                    })
+                    .OrderByDescending(f => f.CommandCount)
+                    .ToList()
+            };
+
+            // Find conflicts (commands with same name but different scripts/contexts)
+            var conflictGroups = allCommands
+                .GroupBy(c => c.Command)
+                .Where(g => g.Count() > 1)
+                .Where(g => g.GroupBy(cmd => new { cmd.Script, cmd.Application, cmd.Mode }).Count() > 1)
+                .Select(g => new ConflictGroup
+                {
+                    Command = g.Key,
+                    Commands = g.ToList()
+                })
+                .OrderByDescending(cg => cg.Commands.Count)
+                .ToList();
+
+            analysisResult.ConflictGroups = conflictGroups;
+            analysisResult.TotalConflicts = conflictGroups.Sum(cg => cg.Commands.Count);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error analyzing commands: {ex.Message}");
+            analysisResult = null;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public class TalonAnalysisResult
+    {
+        public int TotalCommands { get; set; }
+        public int UniqueCommands { get; set; }
+        public int TotalConflicts { get; set; }
+        public List<ApplicationSummary> Applications { get; set; } = new();
+        public List<RepositorySummary> Repositories { get; set; } = new();
+        public List<FileSourceSummary> FileSources { get; set; } = new();
+        public List<ConflictGroup> ConflictGroups { get; set; } = new();
+    }
+
+    public class ApplicationSummary
+    {
+        public string Name { get; set; } = string.Empty;
+        public int CommandCount { get; set; }
+    }
+
+    public class RepositorySummary
+    {
+        public string Name { get; set; } = string.Empty;
+        public int CommandCount { get; set; }
+    }
+
+    public class FileSourceSummary
+    {
+        public string FileName { get; set; } = string.Empty;
+        public string Repository { get; set; } = string.Empty;
+        public int CommandCount { get; set; }
+    }
+
+    public class ConflictGroup
+    {
+        public string Command { get; set; } = string.Empty;
+        public List<TalonVoiceCommand> Commands { get; set; } = new();
+    }
+}

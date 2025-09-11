@@ -20,7 +20,7 @@ using System.Security.Claims;
 using Ardalis.GuardClauses;
 using RazorClassLibrary.Shared;
 using DataAccessLibrary.Services;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using Microsoft.Extensions.Logging;
 using SmartComponents.LocalEmbeddings;
 

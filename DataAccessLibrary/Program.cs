@@ -23,8 +23,6 @@ class Program
             Console.WriteLine($"RESULT: {result ?? "NULL"}");
             Console.WriteLine($"{'=',50}");
         }
-    // Note: register TalonRepositoryAdapter to expose the shared interface
-    // services.AddScoped<ITalonVoiceCommandRepository, TalonRepositoryAdapter>();
     }
 
     static string? ExtractRepositoryFromPath(string filePath)

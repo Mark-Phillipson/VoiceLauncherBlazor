@@ -1,7 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace DataAccessLibrary.DTO
+namespace DataAccessLibrary.DTOs
 {
     public partial class TransactionTypeMappingDTO
     {

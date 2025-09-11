@@ -1,1 +1,3 @@
-There still seems to be a lot of confusion here the plan was to use the reset class library components in the wasm client but again you've built the import completely new when it already exists in the razor classical library is it not possible to use the Razor class library and do we need to copy code out of it instead because the import routines we have currently it's just a click of one button and it imports in old files not individually and a similar thing with the talon lists
+Can we remove the repository name optional TextBox as it's not required the repository can be determined from the location the talon file exists in as each repository has its own folder.
+
+ also can we have the ability to selector folder to automatically import all talon files in that folder and any sub folders instead of having to select three hundred different fires one by one.

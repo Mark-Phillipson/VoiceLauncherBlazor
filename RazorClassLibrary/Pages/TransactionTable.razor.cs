@@ -19,7 +19,7 @@ using Blazored.Toast.Services;
 using System.Security.Claims;
 using Ardalis.GuardClauses;
 using DataAccessLibrary.Services;
-using DataAccessLibrary.DTO;
+using DataAccessLibrary.DTOs;
 using Microsoft.Extensions.Logging;
 using RazorClassLibrary.Shared;
 namespace RazorClassLibrary.Pages

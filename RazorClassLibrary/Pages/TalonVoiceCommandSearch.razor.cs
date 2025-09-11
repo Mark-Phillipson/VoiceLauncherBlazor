@@ -1,11 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using SharedContracts.Models;
-// Alias the original server model type names to the lightweight DTOs in SharedContracts
-// This keeps the rest of the file unchanged while switching the concrete types used
-using TalonVoiceCommand = SharedContracts.Models.TalonVoiceCommandDto;
-using TalonList = SharedContracts.Models.TalonListDto;
+using DataAccessLibrary.Models;
 using SmartComponents.LocalEmbeddings;
 using System.Linq;
 using Microsoft.JSInterop;
@@ -16,7 +12,6 @@ using System.Text.RegularExpressions;
 using RazorClassLibrary.Services;
 using RazorClassLibrary.Models;
 using RazorClassLibrary.Components;
-using RazorClassLibrary.Shared;
 
 namespace RazorClassLibrary.Pages
 {
@@ -275,15 +270,15 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
 
-    [Inject]
-    public SharedContracts.Services.ITalonVoiceCommandRepository? TalonService { get; set; }        [Inject]
+        [Inject]
+        public DataAccessLibrary.Services.TalonVoiceCommandDataService? TalonService { get; set; }        [Inject]
         public IJSRuntime? JSRuntime { get; set; }
         [Inject]
         public IWindowsService? WindowsService { get; set; }
 
         public string CurrentApplication { get; set; } = string.Empty;
         
-    private System.Collections.Generic.IEnumerable<TalonVoiceCommand>? _allCommandsCache;
+        private List<TalonVoiceCommand>? _allCommandsCache;
         private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _refreshTimer;
 
@@ -675,7 +670,7 @@ namespace RazorClassLibrary.Pages
                         await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                    }
                     
                     // Use semantic search methods which search across all fields
-                    System.Collections.Generic.IEnumerable<TalonVoiceCommand> semanticResults;
+                    List<TalonVoiceCommand> semanticResults;
                     switch (SelectedSearchScope)
                     {
                         case SearchScope.CommandNamesOnly:
@@ -696,7 +691,7 @@ namespace RazorClassLibrary.Pages
                     // Debug logging
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count()} results");
+                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
                     }
                     
                     // Apply filters to semantic results
@@ -752,7 +747,7 @@ namespace RazorClassLibrary.Pages
                             await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                        }
                         
                         // Use appropriate search method based on scope
-                        System.Collections.Generic.IEnumerable<TalonVoiceCommand> searchResults;
+                        List<TalonVoiceCommand> searchResults;
                         switch (SelectedSearchScope)
                         {
                             case SearchScope.CommandNamesOnly:
@@ -770,7 +765,7 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count()} results");
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
                         }
                         
                         // Apply filters to search results
@@ -1146,7 +1141,7 @@ namespace RazorClassLibrary.Pages
                     try
                     {
                         var listContents = await TalonService.GetListContentsAsync(listName);
-                        _listContentsCache[listName] = listContents.ToList();
+                        _listContentsCache[listName] = listContents;
                     }
                     catch (Exception ex)
                     {

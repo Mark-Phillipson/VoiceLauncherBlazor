@@ -1,8 +1,465 @@
 @page "/talon-voice-command-search"
-@inject RCLTalonShared.Services.ITalonRepository TalonRepository
+@inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
+@inject IJSRuntime JSRuntime
+@using VoiceLauncherWasm.Models
+@using SharedContracts.Models
+@implements IAsyncDisposable
 
-<h3>Local Talon Voice Command Search (placeholder)</h3>
-<p class="text-muted">This host doesn't reference the full RazorClassLibrary; use the WASM search page or run the hybrid app for the complete UI.</p>
+<PageTitle>Talon Voice Command Search - Voice Launcher WASM</PageTitle>
+
+<div class="container mt-4">   
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Talon Voice Command Search</h2>
+        <span class="text-muted">Commands: @TotalCommands</span>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="row mb-3">
+        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                <span class="btn btn-primary disabled">
+                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                </span>
+                <a href="/analysis" class="btn btn-outline-info">
+                    <i class="oi oi-graph me-1"></i> Analysis Report
+                </a>
+                <a href="/talon-import" class="btn btn-outline-secondary">
+                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+            <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
+                <div class="d-flex w-100 gap-2 align-items-start search-input-row">
+                    <div class="flex-grow-1 d-flex flex-column">
+                        <input @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
+                    </div>
+                    <div class="d-flex flex-column" style="min-width:160px;">
+                        <select class="form-select search-scope-select" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                            <option value="@SearchScope.CommandNamesOnly">Names Only</option>
+                            <option value="@SearchScope.Script">Search Script</option>
+                            <option value="@SearchScope.All">Search All</option>
+                        </select>
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                            @if (IsLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                </svg>
+                            }
+                        </button>
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4 col-md-12 d-flex align-items-center">
+            <div class="form-check form-switch ms-3">
+                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
+                <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form class="mb-3">
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label class="form-label small">Filter by Application:</label>
+                <select class="form-select" value="@SelectedApplication" @onchange="OnApplicationFilterChange" disabled="@IsLoading">
+                    <option value="">All Applications</option>
+                    @foreach (var app in AvailableApplications)
+                    {
+                        <option value="@app">@app</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Filter by Repository:</label>
+                <select class="form-select" value="@SelectedRepository" @onchange="OnRepositoryFilterChange" disabled="@IsLoading">
+                    <option value="">All Repositories</option>
+                    @foreach (var repo in AvailableRepositories)
+                    {
+                        <option value="@repo">@repo</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Filter by Mode:</label>
+                <select class="form-select" value="@SelectedMode" @onchange="OnModeFilterChange" disabled="@IsLoading">
+                    <option value="">All Modes</option>
+                    @foreach (var mode in AvailableModes)
+                    {
+                        <option value="@mode">@mode</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Filter by Tag:</label>
+                <select class="form-select" value="@SelectedTag" @onchange="OnTagFilterChange" disabled="@IsLoading">
+                    <option value="">All Tags</option>
+                    @foreach (var tag in AvailableTags)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </form>
+
+    <!-- Results Display -->
+    <div class="mb-3">
+        @if (IsLoading)
+        {
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (SearchResults?.Any() == true)
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Found @SearchResults.Count() command(s)</span>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="ClearSearch">Clear Search</button>
+            </div>
+            
+            @foreach (var command in SearchResults.Take(MaxDisplayResults))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6 class="card-title">@command.Command</h6>
+                                <small class="text-muted">@command.Application</small>
+                            </div>
+                            <div class="col-md-8">
+                                @if (ShowFullCards)
+                                {
+                                    <div class="mb-2">
+                                        <strong>Script:</strong>
+                                        <pre class="bg-light p-2 small">@command.Script</pre>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(command.Mode))
+                                    {
+                                        <div class="mb-1"><strong>Mode:</strong> @command.Mode</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(command.Tags))
+                                    {
+                                        <div class="mb-1"><strong>Tags:</strong> @command.Tags</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(command.Repository))
+                                    {
+                                        <div class="mb-1"><strong>Repository:</strong> @command.Repository</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(command.FileName))
+                                    {
+                                        <div class="mb-1"><strong>File:</strong> @command.FileName</div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-muted small">
+                                        @command.Script.Take(100)@(command.Script.Length > 100 ? "..." : "")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            @if (SearchResults.Count() > MaxDisplayResults)
+            {
+                <div class="text-center">
+                    <button class="btn btn-outline-primary" @onclick="LoadMoreResults">
+                        Load More (@(SearchResults.Count() - MaxDisplayResults) remaining)
+                    </button>
+                </div>
+            }
+        }
+        else if (!string.IsNullOrEmpty(SearchTerm) || HasActiveFilters())
+        {
+            <div class="alert alert-info">
+                No commands found matching your search criteria.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary">
+                Enter a search term or use filters to find commands. Import .talon files first if you haven't already.
+            </div>
+        }
+    </div>
+</div>
 
 @code {
+    public enum SearchScope
+    {
+        CommandNamesOnly,
+        Script,
+        All
+    }
+
+    // State properties
+    private ElementReference searchInput;
+    private string SearchTerm = string.Empty;
+    private SearchScope SelectedSearchScope = SearchScope.CommandNamesOnly;
+    private bool IsLoading = false;
+    private bool ShowFullCards = false;
+    private int MaxDisplayResults = 20;
+    private int TotalCommands = 0;
+
+    // Filter properties
+    private string SelectedApplication = string.Empty;
+    private string SelectedRepository = string.Empty;
+    private string SelectedMode = string.Empty;
+    private string SelectedTag = string.Empty;
+
+    // Data properties
+    private IEnumerable<TalonVoiceCommand>? SearchResults;
+    private List<string> AvailableApplications = new();
+    private List<string> AvailableRepositories = new();
+    private List<string> AvailableModes = new();
+    private List<string> AvailableTags = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFiltersAsync();
+        await LoadTotalCommandsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await searchInput.FocusAsync();
+        }
+    }
+
+    private async Task LoadFiltersAsync()
+    {
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var allCommands = await IndexedDBService.GetAllCommandsAsync();
+            
+            AvailableApplications = allCommands
+                .Where(c => !string.IsNullOrEmpty(c.Application))
+                .Select(c => c.Application!)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            AvailableRepositories = allCommands
+                .Where(c => !string.IsNullOrEmpty(c.Repository))
+                .Select(c => c.Repository!)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            AvailableModes = allCommands
+                .Where(c => !string.IsNullOrEmpty(c.Mode))
+                .Select(c => c.Mode!)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            AvailableTags = allCommands
+                .Where(c => !string.IsNullOrEmpty(c.Tags))
+                .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading filters: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTotalCommandsAsync()
+    {
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var allCommands = await IndexedDBService.GetAllCommandsAsync();
+            TotalCommands = allCommands.Count();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading total commands: {ex.Message}");
+        }
+    }
+
+    private string GetSearchPlaceholder()
+    {
+        return SelectedSearchScope switch
+        {
+            SearchScope.CommandNamesOnly => "Search command names...",
+            SearchScope.Script => "Search scripts...",
+            SearchScope.All => "Search all fields...",
+            _ => "Search..."
+        };
+    }
+
+    private async Task OnSearch()
+    {
+        await PerformSearchAsync();
+    }
+
+    private async Task OnSearchInputKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await PerformSearchAsync();
+        }
+    }
+
+    private async Task OnSearchScopeChange(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<SearchScope>(e.Value?.ToString(), out var scope))
+        {
+            SelectedSearchScope = scope;
+            if (!string.IsNullOrEmpty(SearchTerm))
+            {
+                await PerformSearchAsync();
+            }
+        }
+    }
+
+    private async Task OnFilterChange()
+    {
+        await PerformSearchAsync();
+    }
+
+    private async Task OnApplicationFilterChange(ChangeEventArgs e)
+    {
+        SelectedApplication = e.Value?.ToString() ?? string.Empty;
+        await PerformSearchAsync();
+    }
+
+    private async Task OnRepositoryFilterChange(ChangeEventArgs e)
+    {
+        SelectedRepository = e.Value?.ToString() ?? string.Empty;
+        await PerformSearchAsync();
+    }
+
+    private async Task OnModeFilterChange(ChangeEventArgs e)
+    {
+        SelectedMode = e.Value?.ToString() ?? string.Empty;
+        await PerformSearchAsync();
+    }
+
+    private async Task OnTagFilterChange(ChangeEventArgs e)
+    {
+        SelectedTag = e.Value?.ToString() ?? string.Empty;
+        await PerformSearchAsync();
+    }
+
+    private async Task PerformSearchAsync()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var allCommands = await IndexedDBService.GetAllCommandsAsync();
+            var filteredCommands = allCommands.AsEnumerable();
+            
+            // Apply text search
+            if (!string.IsNullOrEmpty(SearchTerm))
+            {
+                var searchTerm = SearchTerm.ToLowerInvariant();
+                filteredCommands = filteredCommands.Where(c => SelectedSearchScope switch
+                {
+                    SearchScope.CommandNamesOnly => c.Command?.ToLowerInvariant().Contains(searchTerm) == true,
+                    SearchScope.Script => c.Script?.ToLowerInvariant().Contains(searchTerm) == true,
+                    SearchScope.All => (c.Command?.ToLowerInvariant().Contains(searchTerm) == true) ||
+                                      (c.Script?.ToLowerInvariant().Contains(searchTerm) == true) ||
+                                      (c.Application?.ToLowerInvariant().Contains(searchTerm) == true) ||
+                                      (c.Tags?.ToLowerInvariant().Contains(searchTerm) == true) ||
+                                      (c.Mode?.ToLowerInvariant().Contains(searchTerm) == true),
+                    _ => false
+                });
+            }
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(SelectedApplication))
+            {
+                filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
+            }
+            if (!string.IsNullOrEmpty(SelectedRepository))
+            {
+                filteredCommands = filteredCommands.Where(c => c.Repository == SelectedRepository);
+            }
+            if (!string.IsNullOrEmpty(SelectedMode))
+            {
+                filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
+            }
+            if (!string.IsNullOrEmpty(SelectedTag))
+            {
+                filteredCommands = filteredCommands.Where(c => c.Tags?.Contains(SelectedTag) == true);
+            }
+
+            SearchResults = filteredCommands.OrderBy(c => c.Command).ToList();
+            MaxDisplayResults = 20; // Reset display limit
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error performing search: {ex.Message}");
+            SearchResults = new List<TalonVoiceCommand>();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LoadMoreResults()
+    {
+        MaxDisplayResults += 20;
+        StateHasChanged();
+    }
+
+    private async Task ClearSearch()
+    {
+        SearchTerm = string.Empty;
+        SelectedApplication = string.Empty;
+        SelectedRepository = string.Empty;
+        SelectedMode = string.Empty;
+        SelectedTag = string.Empty;
+        SearchResults = null;
+        await searchInput.FocusAsync();
+    }
+
+    private bool HasActiveFilters()
+    {
+        return !string.IsNullOrEmpty(SelectedApplication) ||
+               !string.IsNullOrEmpty(SelectedRepository) ||
+               !string.IsNullOrEmpty(SelectedMode) ||
+               !string.IsNullOrEmpty(SelectedTag);
+    }
+
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+
 }

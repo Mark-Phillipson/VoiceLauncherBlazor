@@ -1,4 +1,4 @@
-﻿@using SharedContracts.Models
+﻿@inject CustomIntellisenseService IntellisenseService
 <h3>Custom IntelliSense</h3>
 <table class="table table-bordered table-striped" id="table1">
     <thead>
@@ -25,14 +25,13 @@
 </table>
 
 @code {
-    [Parameter] public CategoryDto? Category { get; set; }
-    private List<CustomIntelliSenseDto> intelliSenses = new List<CustomIntelliSenseDto>();
+    [Parameter] public DataAccessLibrary.Models.Category? Category { get; set; }
+    private List<CustomIntelliSense> intelliSenses = new List<CustomIntelliSense>();
 
     protected override async Task OnInitializedAsync()
     {
-        // For incremental compilation keep this simple: load no server data here.
-        intelliSenses = new List<CustomIntelliSenseDto>();
-        await Task.CompletedTask;
+        intelliSenses = await IntellisenseService.GetCustomIntelliSensesAsync(categoryIdFilter: Category!.Id);
     }
+
 
 }

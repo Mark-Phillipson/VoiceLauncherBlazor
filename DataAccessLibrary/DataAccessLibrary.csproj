@@ -13,10 +13,11 @@
 		<Compile Remove="XML_Import\Mapping.cs" />
 		<Watch Include="**\*.cs" Exclude="XML_Import\Mapping.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
-		<ProjectReference Include="..\SharedContracts\SharedContracts.csproj" />
 		<ProjectReference Include="..\RCLTalonShared\RCLTalonShared.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<None Remove="appsettings.json" />
 		<None Remove="XML_Import\MyKBCommandsNewCommands.xml" />
