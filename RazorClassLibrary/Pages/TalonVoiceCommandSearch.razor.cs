@@ -280,6 +280,10 @@ namespace RazorClassLibrary.Pages
         public string CurrentApplication { get; set; } = string.Empty;
         
         private List<TalonVoiceCommand>? _allCommandsCache;
+    // System statistics
+    public int TotalCommands { get; set; } = 0;
+    public int TotalLists { get; set; } = 0;
+    public Dictionary<string, int> RepositoryCounts { get; set; } = new();
         private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _refreshTimer;
 
@@ -413,9 +417,15 @@ namespace RazorClassLibrary.Pages
         private async Task LoadFilterOptions()
         {
             if (_isLoadingFilters || TalonService is null) return;
-              lock (_filterLock)
-            {                if (_staticFiltersLoaded)
+            lock (_filterLock)
+            {
+                if (_staticFiltersLoaded)
                 {
+                    // Reuse the static filter lists for UI population but DO NOT
+                    // return early — we still need to ensure the command cache
+                    // and statistics are available for this instance (e.g. after
+                    // a page refresh). Previously an early return left
+                    // _allCommandsCache null and UI stats empty.
                     AvailableApplications = _staticAvailableApplications;
                     AvailableModes = _staticAvailableModes;
                     AvailableOperatingSystems = _staticAvailableOperatingSystems;
@@ -423,60 +433,73 @@ namespace RazorClassLibrary.Pages
                     AvailableTags = _staticAvailableTags;
                     AvailableTitles = _staticAvailableTitles;
                     AvailableCodeLanguages = _staticAvailableCodeLanguages;
-                    return;
+                    // continue rather than return
                 }
-                
+
                 if (_isLoadingFilters) return;
                 _isLoadingFilters = true;
             }
             
             try
             {
+                // Ensure we have the command cache available even if static filter
+                // lists are already loaded. Previously we returned early when
+                // _staticFiltersLoaded was true which left _allCommandsCache null
+                // for the new component instance and prevented stats/UI from
+                // showing.
+
                 // Cache all commands to avoid multiple database calls
-                _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
-                
-                var applications = _allCommandsCache
+                if (_allCommandsCache == null)
+                {
+                    _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
+                }
+
+                var all = _allCommandsCache ?? new List<TalonVoiceCommand>();
+
+                var applications = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Application))
                     .Select(c => c.Application!)
                     .Distinct()
                     .OrderBy(a => a)
                     .ToList();
 
-                var modes = _allCommandsCache
+                var modes = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
                     .Select(c => c.Mode!)
                     .Distinct()
                     .OrderBy(m => m)
                     .ToList();
 
-                var operatingSystems = _allCommandsCache
+                var operatingSystems = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
                     .Select(c => c.OperatingSystem!)
                     .Distinct()
                     .OrderBy(os => os)
                     .ToList();
 
-                var repositories = _allCommandsCache
+                var repositories = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
                     .Select(c => c.Repository!)
                     .Distinct()
                     .OrderBy(r => r)
                     .ToList();
 
-                var tags = _allCommandsCache
+                var tags = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
                     .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(t => t.Trim()))
                     .Distinct()
                     .OrderBy(t => t)
-                    .ToList();                var titles = _allCommandsCache
+                    .ToList();
+
+                var titles = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Title))
                     .Select(c => c.Title!)
                     .Distinct()
                     .OrderBy(t => t)
                     .ToList();
 
-                var codeLanguages = _allCommandsCache
+                var codeLanguages = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
                     .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(cl => cl.Trim()))
@@ -499,8 +522,26 @@ namespace RazorClassLibrary.Pages
                     AvailableCodeLanguages = _staticAvailableCodeLanguages = codeLanguages;
                     _staticFiltersLoaded = true;
                 }
-                
+
+                // Compute and expose simple system statistics based on cached commands
+                ComputeSystemStatsFromCache();
+
                 StateHasChanged();
+
+                // If the page loaded without a prior search or search term,
+                // perform an initial search so users see results after a refresh.
+                // This ensures the UI isn't empty on first load.
+                if (!HasSearched && string.IsNullOrWhiteSpace(SearchTerm))
+                {
+                    try
+                    {
+                        await OnSearch();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Initial OnSearch failed: " + ex.Message);
+                    }
+                }
             }
             finally
             {
@@ -1023,6 +1064,46 @@ namespace RazorClassLibrary.Pages
             // This method name is misleading - we should actually parse the voice command, not the script
             // But keeping the same name to avoid breaking changes
             return new List<string>();
+        }
+
+        /// <summary>
+        /// Compute simple system statistics from the cached commands.
+        /// Populates TotalCommands, TotalLists, and RepositoryCounts.
+        /// </summary>
+        private void ComputeSystemStatsFromCache()
+        {
+            try
+            {
+                var all = _allCommandsCache ?? new List<TalonVoiceCommand>();
+                TotalCommands = all.Count;
+
+                // Find all list names referenced in commands
+                var lists = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var cmd in all)
+                {
+                    var used = GetListsUsedInCommand(cmd.Command);
+                    foreach (var l in used)
+                        lists.Add(l);
+                }
+                TotalLists = lists.Count;
+
+                // Repository counts
+                var repoCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var cmd in all)
+                {
+                    var repo = string.IsNullOrWhiteSpace(cmd.Repository) ? "(none)" : cmd.Repository!;
+                    if (!repoCounts.ContainsKey(repo)) repoCounts[repo] = 0;
+                    repoCounts[repo]++;
+                }
+                RepositoryCounts = repoCounts.OrderByDescending(kv => kv.Value).ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ComputeSystemStatsFromCache error: " + ex.Message);
+                TotalCommands = 0;
+                TotalLists = 0;
+                RepositoryCounts = new Dictionary<string, int>();
+            }
         }
         public List<string> GetListsUsedInCommand(string command)
         {

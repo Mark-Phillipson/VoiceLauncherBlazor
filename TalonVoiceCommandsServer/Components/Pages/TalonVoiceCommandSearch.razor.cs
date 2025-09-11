@@ -539,7 +539,78 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 }
                 catch { }
             }
-            
+            // Attempt to load any persisted commands/lists from browser localStorage into
+            // the Talon data service now that a JS runtime is available on the client.
+            try
+            {
+                if (TalonService != null)
+                {
+                    // TalonService is an ITalonVoiceCommandDataService, but our concrete
+                    // implementation exposes EnsureLoadedFromLocalStorageAsync. Attempt to
+                    // call it via reflection-safe pattern.
+                    if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
+                    {
+                        await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                        Console.WriteLine("OnAfterRenderAsync: EnsureLoadedFromLocalStorageAsync returned");
+                    }
+                    else
+                    {
+                        // If different implementation, try to call a similarly named method if present
+                        // otherwise fall back to loading filter options which will call the service APIs.
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Preload EnsureLoadedFromLocalStorageAsync failed: " + ex.Message);
+            }
+
+            // Ensure filter options / command cache are loaded on the client after first render.
+            try
+            {
+                if (TalonService != null)
+                {
+                    // Retry a few times because reading localStorage via JS interop
+                    // can be cancelled transiently while the Blazor circuit initializes.
+                    const int maxAttempts = 3;
+                    for (int attempt = 1; attempt <= maxAttempts; attempt++)
+                    {
+                        try
+                        {
+                            // Ask the service to load from localStorage (if present)
+                            if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete2)
+                            {
+                                await concrete2.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                            }
+
+                            // Load filter options which will read the service cache
+                            if ((_allCommandsCache == null || !_staticFiltersLoaded))
+                            {
+                                await LoadFilterOptions();
+                            }
+
+                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt}: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}; _staticFiltersLoaded: {_staticFiltersLoaded}");
+
+                            if ((_allCommandsCache?.Count ?? 0) > 0)
+                            {
+                                break; // success
+                            }
+                        }
+                        catch (Exception innerEx)
+                        {
+                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt} failed: {innerEx.Message}");
+                        }
+
+                        // small backoff before retrying
+                        await Task.Delay(200 * attempt);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Preload LoadFilterOptions failed: " + ex.Message);
+            }
+
             // If we have a search term from command line, perform the search after the first render
             if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
             {

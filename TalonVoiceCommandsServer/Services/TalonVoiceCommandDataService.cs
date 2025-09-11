@@ -27,7 +27,79 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         _jsRuntime = jsRuntime;
         _httpClient = httpClient;
-        _ = LoadFromLocalStorageAsync();
+        // Do not attempt to access browser localStorage from the constructor because
+        // the JS runtime / Blazor circuit may not be available at construction time.
+        // Consumers should call EnsureLoadedFromLocalStorageAsync when running in a
+        // context where JS interop is available (for example, in a component's
+        // OnAfterRenderAsync).
+    }
+
+    private bool _localStorageLoaded = false;
+
+    /// <summary>
+    /// Attempts to load commands/lists from browser localStorage if a JS runtime is available.
+    /// Safe to call multiple times; the load will only occur once.
+    /// </summary>
+    public async Task EnsureLoadedFromLocalStorageAsync(IJSRuntime? jsRuntime)
+    {
+        if (_localStorageLoaded) return;
+        if (jsRuntime == null) return;
+        // Use the provided jsRuntime directly so we don't rely on the service's
+        // injected _jsRuntime which may not be valid for the current circuit.
+        try
+        {
+            // Attempt to read commands
+            try
+            {
+                var commandsJson = await jsRuntime.InvokeAsync<string>("localStorage.getItem", CommandsStorageKey);
+                if (!string.IsNullOrEmpty(commandsJson))
+                {
+                    _commands = JsonSerializer.Deserialize<List<TalonVoiceCommand>>(commandsJson) ?? new List<TalonVoiceCommand>();
+                    _nextCommandId = _commands.Count > 0 ? _commands.Max(c => c.Id) + 1 : 1;
+                    Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: loaded { _commands.Count } commands from localStorage");
+                }
+            }
+            catch (TaskCanceledException tex)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync cancelled while reading commands: {tex.Message}");
+                return; // allow retry later
+            }
+            catch (JSDisconnectedException jsex)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JS disconnected while reading commands: {jsex.Message}");
+                return; // allow retry later
+            }
+
+            // Attempt to read lists
+            try
+            {
+                var listsJson = await jsRuntime.InvokeAsync<string>("localStorage.getItem", ListsStorageKey);
+                if (!string.IsNullOrEmpty(listsJson))
+                {
+                    _talonLists = JsonSerializer.Deserialize<List<TalonList>>(listsJson) ?? new List<TalonList>();
+                    _nextListId = _talonLists.Count > 0 ? _talonLists.Max(l => l.Id) + 1 : 1;
+                    Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: loaded { _talonLists.Count } lists from localStorage");
+                }
+            }
+            catch (TaskCanceledException tex)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync cancelled while reading lists: {tex.Message}");
+                return; // allow retry later
+            }
+            catch (JSDisconnectedException jsex)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JS disconnected while reading lists: {jsex.Message}");
+                return; // allow retry later
+            }
+
+            // If we reached here without exceptions, mark as loaded so we don't retry unnecessarily
+            _localStorageLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"EnsureLoadedFromLocalStorageAsync error: {ex.Message}");
+            // Don't set _localStorageLoaded=true here so a future attempt can retry
+        }
     }
 
     private async Task LoadFromLocalStorageAsync()
@@ -192,6 +264,7 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         // Return ALL commands for building filter dropdowns
         await Task.Yield();
+        Console.WriteLine($"GetAllCommandsForFiltersAsync: in-memory commands={_commands.Count}, lists={_talonLists.Count}");
         return _commands.ToList();
     }
     public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
@@ -593,6 +666,7 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
             // Get all required data from memory
             var allCommands = _commands;
             var allLists = _talonLists;
+            Console.WriteLine($"SemanticSearchWithListsAsync: searchTerm='{searchTerm}', in-memory commands={allCommands.Count}, lists={allLists.Count}");
             
             if (allCommands.Count == 0)
             {
@@ -691,6 +765,7 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 
         var lowerTerm = searchTerm.ToLower();
 
+        Console.WriteLine($"SearchCommandNamesOnlyAsync: searchTerm='{searchTerm}', in-memory commands={_commands.Count}");
         // Simple command name search
         var results = _commands
             .Where(c => (c.Command ?? "").ToLower().Contains(lowerTerm))
