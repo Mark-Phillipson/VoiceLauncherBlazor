@@ -17,5 +17,6 @@ namespace DataAccessLibrary.Services
     Task<int> ImportTalonFileContentAsync(string fileContent, string fileName);
     Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null);
     Task<int> ImportTalonListsFromFileAsync(string filePath);
+    Task<List<DataAccessLibrary.DTO.CommandsBreakdown>> GetTalonCommandsBreakdownAsync();
     }
 }

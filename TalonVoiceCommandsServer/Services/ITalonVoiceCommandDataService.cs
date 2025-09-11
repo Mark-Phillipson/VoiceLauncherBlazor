@@ -16,4 +16,5 @@ namespace TalonVoiceCommandsServer.Services;
     Task<int> ImportTalonFileContentAsync(string fileContent, string fileName);
     Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null);
     Task<int> ImportTalonListsFromFileAsync(string filePath);
+    Task<List<TalonVoiceCommandsServer.Models.TalonCommandBreakdown>> GetTalonCommandsBreakdownAsync();
     }

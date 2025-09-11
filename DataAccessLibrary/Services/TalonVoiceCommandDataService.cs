@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using SmartComponents.LocalEmbeddings;
@@ -1470,6 +1471,27 @@ namespace DataAccessLibrary.Services
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Get breakdown of Talon commands by repository
+        /// </summary>
+        public async Task<List<CommandsBreakdown>> GetTalonCommandsBreakdownAsync()
+        {
+            var commands = await _context.TalonVoiceCommands.ToListAsync();
+            
+            var breakdown = commands
+                .GroupBy(c => c.Repository ?? "Unknown")
+                .Select(g => new CommandsBreakdown
+                {
+                    ApplicationName = g.Key, // Using ApplicationName field for repository name
+                    AutoCreated = false, // Talon commands are not auto-created
+                    Number = g.Count()
+                })
+                .OrderByDescending(b => b.Number)
+                .ToList();
+                
+            return breakdown;
         }
     }
 }

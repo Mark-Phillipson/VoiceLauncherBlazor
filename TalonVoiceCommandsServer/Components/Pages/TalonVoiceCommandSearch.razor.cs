@@ -278,6 +278,13 @@ public ITalonVoiceCommandDataService? TalonService { get; set; }
     public string CurrentApplication { get; set; } = string.Empty;
     
     private List<TalonVoiceCommand>? _allCommandsCache;
+    
+    // System statistics
+    public int TotalCommands { get; set; } = 0;
+    public int TotalLists { get; set; } = 0;
+    public Dictionary<string, int> RepositoryCounts { get; set; } = new();
+    public List<TalonCommandBreakdown> CommandsBreakdown { get; set; } = new();
+    
     private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
     private Timer? _refreshTimer;
 
@@ -355,8 +362,11 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Debug: Log the initial search term
         // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
         
-        // Always load filter options to ensure fresh data
+        // Always load filter options to ensure fresh data and cache commands for search functionality
         await LoadFilterOptions();
+        
+        // Load commands into cache and compute statistics to ensure search works after page refresh
+        await LoadCommandsAndComputeStatistics();
 
         // start auto-refresh every 30 seconds
         StartAutoRefresh();
@@ -496,6 +506,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 AvailableTitles = _staticAvailableTitles = titles;
                 AvailableCodeLanguages = _staticAvailableCodeLanguages = codeLanguages;
                 _staticFiltersLoaded = true;
+                
+                // Compute statistics after loading commands
+                ComputeSystemStatsFromCache();
             }
             
             StateHasChanged();
@@ -1330,6 +1343,66 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         _searchCancellationTokenSource?.Cancel();
         _searchCancellationTokenSource?.Dispose();
         _refreshTimer?.Dispose();
+    }
+
+    /// <summary>
+    /// Load commands into cache and compute system statistics
+    /// </summary>
+    private async Task LoadCommandsAndComputeStatistics()
+    {
+        if (TalonService != null)
+        {
+            // Ensure commands are cached
+            _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
+            
+            // Load breakdown
+            CommandsBreakdown = await TalonService.GetTalonCommandsBreakdownAsync();
+            
+            // Compute statistics
+            ComputeSystemStatsFromCache();
+        }
+    }
+
+    /// <summary>
+    /// Compute simple system statistics from the cached commands.
+    /// Populates TotalCommands, TotalLists, and RepositoryCounts.
+    /// </summary>
+    private void ComputeSystemStatsFromCache()
+    {
+        try
+        {
+            var all = _allCommandsCache ?? new List<TalonVoiceCommand>();
+            TotalCommands = all.Count;
+
+            // Find all list names referenced in commands
+            var lists = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var cmd in all)
+            {
+                var used = GetListsUsedInCommand(cmd.Command);
+                foreach (var l in used)
+                    lists.Add(l);
+            }
+            TotalLists = lists.Count;
+
+            // Repository counts
+            var repoCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var cmd in all)
+            {
+                var repo = cmd.Repository ?? "Unknown";
+                if (repoCounts.ContainsKey(repo))
+                    repoCounts[repo]++;
+                else
+                    repoCounts[repo] = 1;
+            }
+            RepositoryCounts = repoCounts;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error computing system stats: {ex.Message}");
+            TotalCommands = 0;
+            TotalLists = 0;
+            RepositoryCounts = new Dictionary<string, int>();
+        }
     }
 
     /// <summary>

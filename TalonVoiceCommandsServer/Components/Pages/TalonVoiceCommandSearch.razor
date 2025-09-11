@@ -293,6 +293,97 @@
         </div>
     </form>
 
+    <!-- System Statistics -->
+    @if (AvailableApplications.Any() || TotalCommands > 0 || TotalLists > 0)
+    {
+        <div class="card mb-3 bg-light">
+            <div class="card-body py-2">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="oi oi-terminal me-2 text-primary"></i>
+                            <span><strong>@TotalCommands.ToString("N0")</strong> Commands</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="oi oi-list me-2 text-success"></i>
+                            <span><strong>@TotalLists.ToString("N0")</strong> Lists</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-center flex-wrap">
+                            <i class="oi oi-folder me-2 text-info"></i>
+                            <span class="me-2"><strong>Repositories:</strong></span>
+                            @if (CommandsBreakdown.Any())
+                            {
+                                @foreach (var repo in CommandsBreakdown.Take(5))
+                                {
+                                    <span class="badge bg-secondary me-1">@repo.RepositoryName (@repo.CommandCount.ToString("N0"))</span>
+                                }
+                                @if (CommandsBreakdown.Count > 5)
+                                {
+                                    <span class="text-muted">+ @(CommandsBreakdown.Count - 5) more</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Detailed Repository Breakdown -->
+    @if (CommandsBreakdown.Any())
+    {
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="oi oi-bar-chart me-2"></i>
+                    Repository Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Repository</th>
+                                <th class="text-end">Commands</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var repo in CommandsBreakdown)
+                            {
+                                var percentage = TotalCommands > 0 ? (repo.CommandCount * 100.0 / TotalCommands) : 0;
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info me-1">@repo.RepositoryName</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong>@repo.CommandCount.ToString("N0")</strong>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" style="width: @percentage.ToString("0.1")%" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                                @percentage.ToString("0.1")%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
     <div>
         @if (IsLoading)
         {

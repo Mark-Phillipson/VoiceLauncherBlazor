@@ -1306,4 +1306,21 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         
         return null;
     }
+
+    public async Task<List<TalonCommandBreakdown>> GetTalonCommandsBreakdownAsync()
+    {
+        await Task.Yield(); // Make it async-compatible
+        
+        var breakdown = _commands
+            .GroupBy(c => c.Repository ?? "Unknown")
+            .Select(g => new TalonCommandBreakdown
+            {
+                RepositoryName = g.Key,
+                CommandCount = g.Count()
+            })
+            .OrderByDescending(b => b.CommandCount)
+            .ToList();
+            
+        return breakdown;
+    }
 }
