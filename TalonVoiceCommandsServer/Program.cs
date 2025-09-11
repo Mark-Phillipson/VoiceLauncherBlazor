@@ -13,6 +13,9 @@ builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Theme service to toggle light/dark using JS interop and localStorage
+builder.Services.AddScoped<TalonVoiceCommandsServer.Services.ThemeService>();
+
 // Register HttpClient for use by services that expect one (use NavigationManager.BaseUri when available)
 builder.Services.AddScoped<System.Net.Http.HttpClient>(sp =>
 {
