@@ -95,8 +95,6 @@ namespace RazorClassLibrary.Pages
                 // Use the new service method with progress callback
                 // For RCL hosted in server mode, we still try to reuse the existing TalonServiceField behavior if available.
                 // Fallback: perform a simple directory parse using TalonImportService and TalonRepository.
-                var talonFiles = Directory.GetFiles(DirectoryPath, "*.talon", SearchOption.AllDirectories);
-                ImportTotal = talonFiles.Length;
                 int commandsSoFar = 0;
                 int filesProcessed = 0;
                 foreach(var f in talonFiles)

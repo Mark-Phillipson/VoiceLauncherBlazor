@@ -64,12 +64,12 @@ else
                 <div class="card h-100">
                     <div class="card-header">
                         <h6 class="card-title mb-0">
-                            <span class="badge bg-primary me-2">@command.Application</span>
-                            @command.VoiceCommand
+                                            <span class="badge bg-primary me-2">@command.Application</span>
+                                            @command.Command
                         </h6>
                     </div>
                     <div class="card-body">
-                        <pre class="small bg-light p-2 rounded"><code>@command.TalonScript</code></pre>
+                        <pre class="small bg-light p-2 rounded"><code>@command.Script</code></pre>
                         @if (!string.IsNullOrEmpty(command.Repository))
                         {
                             <div class="mt-2">
@@ -91,8 +91,8 @@ else
 }
 
 @code {
-    private List<RCLTalonShared.Models.TalonVoiceCommand> commands = new();
-    private List<RCLTalonShared.Models.TalonVoiceCommand> filteredCommands = new();
+    private List<VoiceLauncherWasm.Models.TalonVoiceCommand> commands = new();
+    private List<VoiceLauncherWasm.Models.TalonVoiceCommand> filteredCommands = new();
     private List<string> applications = new();
     private string searchQuery = string.Empty;
     private string selectedApplication = string.Empty;

@@ -70,6 +70,18 @@
                         <button class="btn btn-outline-danger" @onclick="ClearAllData">
                             Clear All Data
                         </button>
+                        <button class="btn btn-outline-secondary" @onclick="RunDiagnostics">
+                            Run diagnostics
+                        </button>
+                        <button class="btn btn-outline-warning" @onclick="RecreateDatabase">
+                            Recreate DB (delete + init)
+                        </button>
+                        <button class="btn btn-outline-dark" @onclick="ForceCleanup">
+                            Force cleanup (unregister SW + clear caches)
+                        </button>
+                        <button class="btn btn-outline-info" @onclick="RewriteDatabase">
+                            Rewrite DB (normalize in-place)
+                        </button>
                     </div>
                 }
             </div>
@@ -126,6 +138,21 @@
                         }
                     </div>
                 }
+
+                @if (!string.IsNullOrEmpty(diagnosticsOutput))
+                {
+                    <div class="alert alert-info mt-2">
+                        <h6>Diagnostics</h6>
+                        <pre class="small">@diagnosticsOutput</pre>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(lastJsError))
+                {
+                    <div class="alert alert-danger mt-2">
+                        <h6>Last JS error</h6>
+                        <pre class="small">@lastJsError</pre>
+                    </div>
+                }
             </div>
         </div>
 
@@ -153,10 +180,72 @@
     private string processingStatus = string.Empty;
     
     private bool HasFilesToProcess => selectedTalonFiles.Any() || selectedListFiles.Any();
+    private string diagnosticsOutput = string.Empty;
+    private string lastJsError = string.Empty;
 
     private void HandleTalonFilesSelected(InputFileChangeEventArgs e)
     {
         selectedTalonFiles = e.GetMultipleFiles(100).ToList();
+        StateHasChanged();
+    }
+
+    private async Task RewriteDatabase()
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", "This will rewrite all records in the local database to the normalized PascalCase format. Continue?");
+        if (!ok) return;
+
+        try
+        {
+            var res = await IndexedDBService.RewriteDatabaseAsync();
+            if (res != null)
+            {
+                importResults.Add("Rewrite DB result: " + System.Text.Json.JsonSerializer.Serialize(res));
+            }
+            else
+            {
+                importResults.Add("Rewrite DB completed (no details returned)");
+            }
+            await RunDiagnostics();
+        }
+        catch (Exception ex)
+        {
+            importResults.Add("Rewrite DB failed: " + ex.Message);
+            try { var jsErr = await IndexedDBService.GetLastErrorAsync(); if (!string.IsNullOrEmpty(jsErr)) importResults.Add("JS: " + jsErr); } catch { }
+        }
+        StateHasChanged();
+    }
+
+    private async Task ForceCleanup()
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", "This will attempt to unregister service workers, clear caches/localStorage, and delete or migrate the IndexedDB database. Continue?");
+        if (!ok) return;
+
+        try
+        {
+            // Call the JS helper via the C# wrapper. The helper returns a JSON-serializable object; capture as string for display.
+            var result = await IndexedDBService.ForceCleanupAsync();
+            if (result != null)
+            {
+                // display a short summary and include diagnostics
+                importResults.Add("Force cleanup result: " + System.Text.Json.JsonSerializer.Serialize(result));
+            }
+            else
+            {
+                importResults.Add("Force cleanup completed (no details returned)");
+            }
+            // refresh diagnostics to show current DB state
+            await RunDiagnostics();
+        }
+        catch (Exception ex)
+        {
+            importResults.Add("Force cleanup failed: " + ex.Message);
+            try
+            {
+                var jsErr = await IndexedDBService.GetLastErrorAsync();
+                if (!string.IsNullOrEmpty(jsErr)) importResults.Add("JS: " + jsErr);
+            }
+            catch { }
+        }
         StateHasChanged();
     }
 
@@ -192,9 +281,33 @@
                 var commands = TalonImportService.ParseTalonFile(content, file.Name, repositoryName);
                 foreach (var command in commands)
                 {
-                    // map shared model to client model or store directly depending on IndexedDB contract
-                    await IndexedDBService.AddCommandAsync(command);
-                    commandsImported++;
+                    // map shared RCL model to client model
+                    var clientCommand = new VoiceLauncherWasm.Models.TalonVoiceCommand
+                    {
+                        Id = 0,
+                        Command = command.VoiceCommand,
+                        Script = command.TalonScript,
+                        Application = command.Application,
+                        Repository = command.Repository,
+                        FileName = command.FilePath,
+                        DateCreated = command.DateCreated
+                    };
+                    try
+                    {
+                        await IndexedDBService.AddCommandAsync(clientCommand);
+                        commandsImported++;
+                    }
+                    catch (Exception exCmd)
+                    {
+                        importResults.Add($"Failed to store command '{clientCommand.Command}': {exCmd.Message}");
+                        // try to surface JS-side error
+                        try
+                        {
+                            var jsErr = await IndexedDBService.GetLastErrorAsync();
+                            if (!string.IsNullOrEmpty(jsErr)) importResults.Add("JS: " + jsErr);
+                        }
+                        catch { }
+                    }
                 }
             }
 
@@ -211,8 +324,29 @@
                 var lists = TalonImportService.ParseTalonListsFile(content, repositoryName);
                 foreach (var list in lists)
                 {
-                    await IndexedDBService.AddListAsync(list);
-                    listsImported++;
+                    var clientList = new VoiceLauncherWasm.Models.TalonList
+                    {
+                        Id = list.Id,
+                        ListName = list.ListName,
+                        Value = list.Value,
+                        Repository = list.Repository,
+                        DateCreated = list.DateCreated
+                    };
+                    try
+                    {
+                        await IndexedDBService.AddListAsync(clientList);
+                        listsImported++;
+                    }
+                    catch (Exception exList)
+                    {
+                        importResults.Add($"Failed to store list '{clientList.ListName}': {exList.Message}");
+                        try
+                        {
+                            var jsErr = await IndexedDBService.GetLastErrorAsync();
+                            if (!string.IsNullOrEmpty(jsErr)) importResults.Add("JS: " + jsErr);
+                        }
+                        catch { }
+                    }
                 }
             }
 
@@ -225,6 +359,9 @@
             // Clear selections
             selectedTalonFiles.Clear();
             selectedListFiles.Clear();
+
+            // Run diagnostics to show current DB state and JS errors
+            try { await RunDiagnostics(); } catch { }
         }
         catch (Exception ex)
         {
@@ -257,6 +394,65 @@
             Console.WriteLine($"Clear data error: {ex}");
             StateHasChanged();
         }
+    }
+
+    private async Task RunDiagnostics()
+    {
+        diagnosticsOutput = string.Empty;
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var cmds = await IndexedDBService.GetAllCommandsAsync();
+            var lists = await IndexedDBService.GetAllListsAsync();
+            diagnosticsOutput = $"Commands: {cmds?.Count ?? 0}\nLists: {lists?.Count ?? 0}\n\nSample commands:\n";
+            if (cmds != null && cmds.Count > 0)
+            {
+                var sample = cmds.Take(5).Select(c => System.Text.Json.JsonSerializer.Serialize(c));
+                diagnosticsOutput += string.Join('\n', sample);
+            }
+            // get last JS error if present
+            var jsErr = await IndexedDBService.GetLastErrorAsync();
+            lastJsError = jsErr ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            diagnosticsOutput = "Diagnostics failed: " + ex.Message;
+        }
+        StateHasChanged();
+    }
+
+    private async Task RecreateDatabase()
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", "This will delete the local IndexedDB database and reinitialize it. Continue?");
+        if (!ok) return;
+        try
+        {
+            var res = await IndexedDBService.DeleteDatabaseAsync();
+            if (!res)
+            {
+                importResults.Add("Database delete blocked. Attempting an in-place upgrade/migration instead...");
+                StateHasChanged();
+                // Try a force upgrade to trigger onupgradeneeded without deleting the DB
+                var upgradeRes = await IndexedDBService.ForceUpgradeAsync();
+                if (upgradeRes)
+                {
+                    importResults.Add("Force upgrade succeeded. Database migrated.");
+                }
+                else
+                {
+                    importResults.Add("Force upgrade failed. Close other tabs/windows for this origin and retry.");
+                }
+                StateHasChanged();
+                return;
+            }
+            await IndexedDBService.InitializeAsync();
+            importResults.Add("Database recreated");
+        }
+        catch (Exception ex)
+        {
+            importResults.Add("Recreate DB failed: " + ex.Message);
+        }
+        StateHasChanged();
     }
 
     public ValueTask DisposeAsync()

@@ -1,13 +1,28 @@
-@page "/talon-import"
+@page "/talon-import-client"
 @using Microsoft.AspNetCore.Components.Forms
 @inject VoiceLauncherWasm.Services.IIndexedDBService IndexedDBService
 @inject VoiceLauncherWasm.Services.TalonParserService TalonParserService
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
 
 <h2>Import Talon Scripts (client)</h2>
 <p class="text-muted">Upload .talon files and import directly into the client-side IndexedDB store.</p>
 
 <div class="mb-3">
     <InputFile OnChange="OnFileSelected" multiple accept=".talon" class="form-control" />
+</div>
+    
+<div class="mb-3 mt-3">
+    <label class="form-label">Default Import Folder (client)</label>
+    <input class="form-control" @bind="defaultPath" placeholder="Select or type a default path" />
+    <div class="mt-2">
+        <button class="btn btn-secondary me-2" @onclick="SaveDefaultPath">Save Default</button>
+        <button class="btn btn-outline-secondary" @onclick="LoadDefaultPath">Load Default</button>
+    </div>
+</div>
+<div class="mb-3">
+    <button class="btn btn-info me-2" @onclick="RunDiagnostics">Run diagnostics</button>
+    <button class="btn btn-warning" @onclick="ClearIndexedDb">Clear IndexedDB (danger)</button>
 </div>
 <button class="btn btn-primary" @onclick="ImportFiles" disabled="@(selectedFiles == null || !selectedFiles.Any())">Import</button>
 
@@ -19,6 +34,8 @@
 @code {
     private List<IBrowserFile> selectedFiles = new();
     private string message = string.Empty;
+    private string defaultPath = string.Empty;
+    private string debugOutput = string.Empty;
 
     private void OnFileSelected(InputFileChangeEventArgs e)
     {
@@ -28,21 +45,117 @@
     private async Task ImportFiles()
     {
         if (!selectedFiles.Any()) return;
-        await IndexedDBService.InitializeAsync();
         int count = 0;
-        foreach (var file in selectedFiles)
+        int errors = 0;
+        try
         {
-            using var stream = file.OpenReadStream(1024 * 1024);
-            using var reader = new StreamReader(stream);
-            var content = await reader.ReadToEndAsync();
-            var commands = TalonParserService.ParseTalonFile(content, file.Name, null);
-            foreach (var cmd in commands)
+            try
             {
-                await IndexedDBService.AddCommandAsync(cmd);
-                count++;
+                await IndexedDBService.InitializeAsync();
             }
+            catch (Exception exInit)
+            {
+                message = $"Failed initializing IndexedDB: {exInit.Message}";
+                await JSRuntime.InvokeVoidAsync("console.error", "IndexedDB init error", exInit?.Message ?? exInit?.ToString());
+                return;
+            }
+
+            foreach (var file in selectedFiles)
+            {
+                using var stream = file.OpenReadStream(1024 * 1024);
+                using var reader = new StreamReader(stream);
+                var content = await reader.ReadToEndAsync();
+                var commands = TalonParserService.ParseTalonFile(content, file.Name, null);
+                foreach (var cmd in commands)
+                {
+                    try
+                    {
+                        await IndexedDBService.AddCommandAsync(cmd);
+                        count++;
+                    }
+                    catch (Exception exAdd)
+                    {
+                        errors++;
+                        await JSRuntime.InvokeVoidAsync("console.error", "AddCommandAsync failed", exAdd?.Message ?? exAdd?.ToString(), cmd);
+                    }
+                }
+            }
+
+            // Read back stored commands for confirmation
+            try
+            {
+                var all = await IndexedDBService.GetAllCommandsAsync();
+                var stored = all?.Count ?? 0;
+                message = $"Imported {count} commands to local IndexedDB. Stored in DB: {stored}. Errors: {errors}";
+            }
+            catch (Exception exRead)
+            {
+                message = $"Imported {count} commands (errors: {errors}). Failed to read back DB: {exRead.Message}";
+                await JSRuntime.InvokeVoidAsync("console.error", "GetAllCommandsAsync failed", exRead?.Message ?? exRead?.ToString());
+            }
+
+            selectedFiles.Clear();
         }
-        message = $"Imported {count} commands to local IndexedDB.";
-        selectedFiles.Clear();
+        catch (Exception ex)
+        {
+            message = $"Unexpected error during import: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", "ImportFiles unexpected", ex?.Message ?? ex?.ToString());
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDefaultPath();
+    }
+
+    private async Task RunDiagnostics()
+    {
+        debugOutput = string.Empty;
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            var cmds = await IndexedDBService.GetAllCommandsAsync();
+            var lists = await IndexedDBService.GetAllListsAsync();
+            var sampleCmds = cmds.Take(5).ToList();
+            debugOutput = $"Commands: {cmds.Count} \nLists: {lists.Count}\nSampleCommands: {JsonSerializer.Serialize(sampleCmds, new JsonSerializerOptions { WriteIndented = true })}";
+        }
+        catch (Exception ex)
+        {
+            debugOutput = $"Diagnostics failed: {ex.Message}\n{ex.StackTrace}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Diagnostics failed", ex?.Message ?? ex?.ToString());
+        }
+    }
+
+    private async Task ClearIndexedDb()
+    {
+        try
+        {
+            await IndexedDBService.InitializeAsync();
+            await IndexedDBService.ClearAllDataAsync();
+            debugOutput = "Cleared IndexedDB (commands & lists).";
+        }
+        catch (Exception ex)
+        {
+            debugOutput = $"Clear failed: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", "ClearIndexedDb failed", ex?.Message ?? ex?.ToString());
+        }
+    }
+
+    private async Task SaveDefaultPath()
+    {
+        if (JSRuntime is not null)
+        {
+            await JSRuntime.InvokeAsync<bool>("talonImportClient.setDefaultPath", "talonImport_defaultPath", defaultPath);
+        }
+    }
+
+    private async Task LoadDefaultPath()
+    {
+        if (JSRuntime is not null)
+        {
+            var val = await JSRuntime.InvokeAsync<string>("talonImportClient.getDefaultPath", "talonImport_defaultPath");
+            defaultPath = val ?? string.Empty;
+            StateHasChanged();
+        }
     }
 }

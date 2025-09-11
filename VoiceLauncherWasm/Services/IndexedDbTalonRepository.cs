@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using RCLTalonShared.Models;
 using RCLTalonShared.Services;
+using VoiceLauncherWasm.Models;
 
 namespace VoiceLauncherWasm.Services
 {
@@ -19,29 +21,67 @@ namespace VoiceLauncherWasm.Services
             await _indexedDb.ClearAllDataAsync();
         }
 
-        public async Task<IEnumerable<TalonList>> GetListsAsync()
+        public async Task<IEnumerable<RCLTalonShared.Models.TalonList>> GetListsAsync()
         {
-            return await _indexedDb.GetAllListsAsync();
+            var lists = await _indexedDb.GetAllListsAsync();
+            // _indexedDb returns VoiceLauncherWasm.Models.TalonList; map to RCLTalonShared.Models.TalonList
+            return lists.Select(l => new RCLTalonShared.Models.TalonList
+            {
+                Id = l.Id,
+                ListName = l.ListName,
+                Value = l.Value,
+                Repository = l.Repository,
+                DateCreated = l.DateCreated
+            }).ToList();
         }
 
-        public async Task<IEnumerable<TalonVoiceCommand>> GetCommandsAsync()
+        public async Task<IEnumerable<RCLTalonShared.Models.TalonVoiceCommand>> GetCommandsAsync()
         {
-            return await _indexedDb.GetAllCommandsAsync();
+            var commands = await _indexedDb.GetAllCommandsAsync();
+            return commands.Select(c => new RCLTalonShared.Models.TalonVoiceCommand
+            {
+                Id = c.Id.ToString(),
+                VoiceCommand = c.Command,
+                TalonScript = c.Script,
+                Application = c.Application,
+                Repository = c.Repository,
+                FilePath = c.FileName,
+                DateCreated = c.DateCreated
+            }).ToList();
         }
 
-        public async Task SaveCommandsAsync(IEnumerable<TalonVoiceCommand> commands)
+        public async Task SaveCommandsAsync(IEnumerable<RCLTalonShared.Models.TalonVoiceCommand> commands)
         {
             foreach (var c in commands)
             {
-                await _indexedDb.AddCommandAsync(c);
+                // Map RCLTalonShared.Models.TalonVoiceCommand to VoiceLauncherWasm.Models.TalonVoiceCommand
+                var voice = new VoiceLauncherWasm.Models.TalonVoiceCommand
+                {
+                    Id = int.TryParse(c.Id, out var idVal) ? idVal : 0,
+                    Command = c.VoiceCommand,
+                    Script = c.TalonScript,
+                    Application = c.Application,
+                    Repository = c.Repository,
+                    FileName = c.FilePath,
+                    DateCreated = c.DateCreated
+                };
+                await _indexedDb.AddCommandAsync(voice);
             }
         }
 
-        public async Task SaveListsAsync(IEnumerable<TalonList> lists)
+        public async Task SaveListsAsync(IEnumerable<RCLTalonShared.Models.TalonList> lists)
         {
             foreach (var l in lists)
             {
-                await _indexedDb.AddListAsync(l);
+                var list = new VoiceLauncherWasm.Models.TalonList
+                {
+                    Id = l.Id,
+                    ListName = l.ListName,
+                    Value = l.Value,
+                    Repository = l.Repository,
+                    DateCreated = l.DateCreated
+                };
+                await _indexedDb.AddListAsync(list);
             }
         }
 

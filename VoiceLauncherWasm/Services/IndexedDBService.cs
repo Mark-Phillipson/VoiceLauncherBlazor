@@ -1,5 +1,5 @@
 using Microsoft.JSInterop;
-using RCLTalonShared.Models;
+using VoiceLauncherWasm.Models;
 using System.Text.Json;
 
 namespace VoiceLauncherWasm.Services
@@ -11,7 +11,12 @@ namespace VoiceLauncherWasm.Services
     Task<List<TalonList>> GetAllListsAsync();
     Task AddCommandAsync(TalonVoiceCommand command);
     Task AddListAsync(TalonList list);
-        Task ClearAllDataAsync();
+    Task ClearAllDataAsync();
+    Task<bool> DeleteDatabaseAsync();
+    Task<string?> GetLastErrorAsync();
+    Task<bool> ForceUpgradeAsync();
+    Task<object?> ForceCleanupAsync();
+    Task<object?> RewriteDatabaseAsync();
     }
 
     public class IndexedDBService : IIndexedDBService
@@ -62,6 +67,71 @@ namespace VoiceLauncherWasm.Services
         {
             if (_indexedDbModule == null) await InitializeAsync();
             await _indexedDbModule!.InvokeVoidAsync("clearAllData");
+        }
+
+        public async Task<bool> DeleteDatabaseAsync()
+        {
+            if (_indexedDbModule == null) await InitializeAsync();
+            try
+            {
+                return await _indexedDbModule!.InvokeAsync<bool>("deleteDatabase");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ForceUpgradeAsync()
+        {
+            if (_indexedDbModule == null) await InitializeAsync();
+            try
+            {
+                return await _indexedDbModule!.InvokeAsync<bool>("forceUpgrade");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<object?> ForceCleanupAsync()
+        {
+            if (_indexedDbModule == null) await InitializeAsync();
+            try
+            {
+                return await _indexedDbModule!.InvokeAsync<object>("forceCleanup");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<string?> GetLastErrorAsync()
+        {
+            if (_indexedDbModule == null) await InitializeAsync();
+            try
+            {
+                return await _indexedDbModule!.InvokeAsync<string>("getLastError");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<object?> RewriteDatabaseAsync()
+        {
+            if (_indexedDbModule == null) await InitializeAsync();
+            try
+            {
+                return await _indexedDbModule!.InvokeAsync<object>("rewriteDatabase");
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
