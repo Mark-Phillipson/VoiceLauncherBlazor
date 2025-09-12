@@ -51,8 +51,7 @@ app.UseAntiforgery();
 // Serve static files from wwwroot (including _content folder for local static assets)
 app.UseStaticFiles();
 
-// Map static web assets and component endpoints
-app.MapStaticAssets();
+// Map component endpoints
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
