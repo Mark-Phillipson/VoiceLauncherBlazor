@@ -9,6 +9,14 @@ builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions
     options.DetailedErrors = true;
 });
 
+// Configure SignalR timeouts for large data operations
+builder.Services.AddSignalR(options =>
+{
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(5); // Client must send keep-alive within 5 minutes
+    options.HandshakeTimeout = TimeSpan.FromMinutes(2); // 2 minutes for handshake
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15); // Send keep-alive every 15 seconds
+});
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

@@ -377,16 +377,36 @@ public partial class TalonImport : ComponentBase
                     StateHasChanged();
                 });
 
-            // CRITICAL FIX: After import, save to localStorage using the page's JSRuntime
+            // CRITICAL FIX: After import, save to IndexedDB to handle large datasets
             // This ensures the imported data persists for the search functionality
             if (JSRuntime != null)
             {
-                await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
-                Console.WriteLine($"ImportAllFromDirectory: Saved {totalCommandsImported} commands to localStorage");
+                try
+                {
+                    // Try IndexedDB first for large datasets
+                    await TalonVoiceCommandDataService.SaveToIndexedDBAsync(JSRuntime);
+                    Console.WriteLine($"ImportAllFromDirectory: Saved {totalCommandsImported} commands to IndexedDB");
+                }
+                catch (Exception indexedDBEx)
+                {
+                    Console.WriteLine($"ImportAllFromDirectory: IndexedDB save failed, falling back to localStorage: {indexedDBEx.Message}");
+                    
+                    // Fallback to localStorage for smaller datasets
+                    try
+                    {
+                        await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
+                        Console.WriteLine($"ImportAllFromDirectory: Saved {totalCommandsImported} commands to localStorage");
+                    }
+                    catch (Exception localStorageEx)
+                    {
+                        Console.WriteLine($"ImportAllFromDirectory: Both IndexedDB and localStorage failed: {localStorageEx.Message}");
+                        // Data is still in memory, search will work until page refresh
+                    }
+                }
             }
             else
             {
-                Console.WriteLine("ImportAllFromDirectory: Warning - JSRuntime not available, data may not persist to localStorage");
+                Console.WriteLine("ImportAllFromDirectory: Warning - JSRuntime not available, data may not persist");
             }
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
@@ -427,16 +447,36 @@ public partial class TalonImport : ComponentBase
         {
             var listsImported = await TalonVoiceCommandDataService.ImportTalonListsFromFileAsync(ListsFilePath);
             
-            // CRITICAL FIX: After import, save to localStorage using the page's JSRuntime
+            // CRITICAL FIX: After import, save to IndexedDB to handle large datasets
             // This ensures the imported lists persist for the search functionality
             if (JSRuntime != null)
             {
-                await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
-                Console.WriteLine($"ImportListsFromFile: Saved {listsImported} lists to localStorage");
+                try
+                {
+                    // Try IndexedDB first for large datasets
+                    await TalonVoiceCommandDataService.SaveToIndexedDBAsync(JSRuntime);
+                    Console.WriteLine($"ImportListsFromFile: Saved {listsImported} lists to IndexedDB");
+                }
+                catch (Exception indexedDBEx)
+                {
+                    Console.WriteLine($"ImportListsFromFile: IndexedDB save failed, falling back to localStorage: {indexedDBEx.Message}");
+                    
+                    // Fallback to localStorage for smaller datasets
+                    try
+                    {
+                        await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
+                        Console.WriteLine($"ImportListsFromFile: Saved {listsImported} lists to localStorage");
+                    }
+                    catch (Exception localStorageEx)
+                    {
+                        Console.WriteLine($"ImportListsFromFile: Both IndexedDB and localStorage failed: {localStorageEx.Message}");
+                        // Data is still in memory, search will work until page refresh
+                    }
+                }
             }
             else
             {
-                Console.WriteLine("ImportListsFromFile: Warning - JSRuntime not available, data may not persist to localStorage");
+                Console.WriteLine("ImportListsFromFile: Warning - JSRuntime not available, data may not persist");
             }
             
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";

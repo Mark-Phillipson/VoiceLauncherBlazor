@@ -22,6 +22,7 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     private List<TalonList> _talonLists = new();
     private const string CommandsStorageKey = "talonVoiceCommands";
     private const string ListsStorageKey = "talonLists";
+    private bool _indexedDBLoaded = false; // Track IndexedDB loading state
 
     public TalonVoiceCommandDataService(IJSRuntime jsRuntime, HttpClient httpClient)
     {
@@ -54,6 +55,15 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 var commandsJson = await jsRuntime.InvokeAsync<string>("localStorage.getItem", CommandsStorageKey);
                 if (!string.IsNullOrEmpty(commandsJson))
                 {
+                    // Check if the JSON data might be too large
+                    var sizeInMB = (commandsJson.Length * 2.0) / (1024 * 1024);
+                    Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: Commands JSON size: {sizeInMB:F2} MB");
+                    
+                    if (sizeInMB > 8) // Warning if approaching browser limits
+                    {
+                        Console.WriteLine($"WARNING: Commands data is {sizeInMB:F2} MB, approaching localStorage limits!");
+                    }
+                    
                     _commands = JsonSerializer.Deserialize<List<TalonVoiceCommand>>(commandsJson) ?? new List<TalonVoiceCommand>();
                     _nextCommandId = _commands.Count > 0 ? _commands.Max(c => c.Id) + 1 : 1;
                     Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: loaded { _commands.Count } commands from localStorage");
@@ -69,6 +79,17 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JS disconnected while reading commands: {jsex.Message}");
                 return; // allow retry later
             }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JSON parse error for commands: {jsonEx.Message}");
+                Console.WriteLine("This might indicate corrupted localStorage data due to size limits or interrupted saves");
+                return; // allow retry later
+            }
+            catch (Exception ex) when (ex.Message.Contains("quota") || ex.Message.Contains("storage") || ex.Message.Contains("QUOTA_EXCEEDED"))
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync localStorage quota/storage error: {ex.Message}");
+                return; // allow retry later
+            }
 
             // Attempt to read lists
             try
@@ -76,6 +97,15 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 var listsJson = await jsRuntime.InvokeAsync<string>("localStorage.getItem", ListsStorageKey);
                 if (!string.IsNullOrEmpty(listsJson))
                 {
+                    // Check if the JSON data might be too large
+                    var sizeInMB = (listsJson.Length * 2.0) / (1024 * 1024);
+                    Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: Lists JSON size: {sizeInMB:F2} MB");
+                    
+                    if (sizeInMB > 2) // Warning for lists over 2MB
+                    {
+                        Console.WriteLine($"WARNING: Lists data is {sizeInMB:F2} MB, this is quite large for localStorage!");
+                    }
+                    
                     _talonLists = JsonSerializer.Deserialize<List<TalonList>>(listsJson) ?? new List<TalonList>();
                     _nextListId = _talonLists.Count > 0 ? _talonLists.Max(l => l.Id) + 1 : 1;
                     Console.WriteLine($"EnsureLoadedFromLocalStorageAsync: loaded { _talonLists.Count } lists from localStorage");
@@ -91,6 +121,17 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JS disconnected while reading lists: {jsex.Message}");
                 return; // allow retry later
             }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync JSON parse error for lists: {jsonEx.Message}");
+                Console.WriteLine("This might indicate corrupted localStorage data due to size limits or interrupted saves");
+                return; // allow retry later
+            }
+            catch (Exception ex) when (ex.Message.Contains("quota") || ex.Message.Contains("storage") || ex.Message.Contains("QUOTA_EXCEEDED"))
+            {
+                Console.WriteLine($"EnsureLoadedFromLocalStorageAsync localStorage quota/storage error for lists: {ex.Message}");
+                return; // allow retry later
+            }
 
             // If we reached here without exceptions, mark as loaded so we don't retry unnecessarily
             _localStorageLoaded = true;
@@ -99,6 +140,132 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         {
             Console.WriteLine($"EnsureLoadedFromLocalStorageAsync error: {ex.Message}");
             // Don't set _localStorageLoaded=true here so a future attempt can retry
+        }
+    }
+
+    /// <summary>
+    /// Attempts to load commands/lists from browser IndexedDB if a JS runtime is available.
+    /// Safe to call multiple times; the load will only occur once.
+    /// This replaces localStorage to handle large datasets without browser limitations.
+    /// </summary>
+    public async Task EnsureLoadedFromIndexedDBAsync(IJSRuntime? jsRuntime)
+    {
+        if (_indexedDBLoaded) return;
+        if (jsRuntime == null) return;
+        
+        try
+        {
+            Console.WriteLine("EnsureLoadedFromIndexedDBAsync: Starting IndexedDB load...");
+            
+            // Initialize IndexedDB
+            await jsRuntime.InvokeVoidAsync("TalonStorageDB.init");
+            
+            // Check if we need to migrate from localStorage first
+            var localStorageCheck = await jsRuntime.InvokeAsync<dynamic>("TalonStorageDB.checkLocalStorageData");
+            Console.WriteLine($"EnsureLoadedFromIndexedDBAsync: localStorage check completed");
+            
+            // Attempt to load commands from IndexedDB using chunked loading
+            try
+            {
+                var commands = await jsRuntime.InvokeAsync<TalonVoiceCommand[]>("TalonStorageDB.loadCommandsChunked", 1000);
+                if (commands != null && commands.Length > 0)
+                {
+                    _commands = commands.ToList();
+                    _nextCommandId = _commands.Count > 0 ? _commands.Max(c => c.Id) + 1 : 1;
+                    Console.WriteLine($"EnsureLoadedFromIndexedDBAsync: loaded {_commands.Count} commands from IndexedDB (chunked)");
+                }
+                else
+                {
+                    Console.WriteLine("EnsureLoadedFromIndexedDBAsync: No commands found in IndexedDB");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"EnsureLoadedFromIndexedDBAsync error loading commands: {ex.Message}");
+                return; // allow retry later
+            }
+
+            // Attempt to load lists from IndexedDB
+            try
+            {
+                var lists = await jsRuntime.InvokeAsync<TalonList[]>("TalonStorageDB.loadLists");
+                if (lists != null && lists.Length > 0)
+                {
+                    _talonLists = lists.ToList();
+                    _nextListId = _talonLists.Count > 0 ? _talonLists.Max(l => l.Id) + 1 : 1;
+                    Console.WriteLine($"EnsureLoadedFromIndexedDBAsync: loaded {_talonLists.Count} lists from IndexedDB");
+                }
+                else
+                {
+                    Console.WriteLine("EnsureLoadedFromIndexedDBAsync: No lists found in IndexedDB");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"EnsureLoadedFromIndexedDBAsync error loading lists: {ex.Message}");
+                return; // allow retry later
+            }
+
+            // If we reached here without exceptions, mark as loaded
+            _indexedDBLoaded = true;
+            Console.WriteLine("EnsureLoadedFromIndexedDBAsync: IndexedDB load completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"EnsureLoadedFromIndexedDBAsync error: {ex.Message}");
+            // Don't set _indexedDBLoaded=true here so a future attempt can retry
+        }
+    }
+
+    /// <summary>
+    /// Migrates data from localStorage to IndexedDB for users with large datasets
+    /// </summary>
+    public async Task MigrateToIndexedDBAsync(IJSRuntime? jsRuntime)
+    {
+        if (jsRuntime == null) return;
+        
+        try
+        {
+            Console.WriteLine("MigrateToIndexedDBAsync: Starting migration...");
+            var result = await jsRuntime.InvokeAsync<dynamic>("TalonStorageDB.migrateFromLocalStorage");
+            Console.WriteLine($"MigrateToIndexedDBAsync: Migration completed: {result}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"MigrateToIndexedDBAsync error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Saves commands to IndexedDB (replaces SaveToLocalStorageAsync for large datasets)
+    /// </summary>
+    public async Task SaveToIndexedDBAsync(IJSRuntime? jsRuntime)
+    {
+        if (jsRuntime == null) return;
+        
+        try
+        {
+            // Ensure collections are never null
+            var commandsToSave = _commands ?? new List<TalonVoiceCommand>();
+            var listsToSave = _talonLists ?? new List<TalonList>();
+            
+            Console.WriteLine($"SaveToIndexedDBAsync: Saving {commandsToSave.Count} commands and {listsToSave.Count} lists...");
+            
+            // Serialize to JSON first, then pass to JavaScript
+            var commandsJson = JsonSerializer.Serialize(commandsToSave);
+            var listsJson = JsonSerializer.Serialize(listsToSave);
+            
+            // Save commands to IndexedDB
+            await jsRuntime.InvokeVoidAsync("TalonStorageDB.saveCommandsFromJson", commandsJson);
+            
+            // Save lists to IndexedDB
+            await jsRuntime.InvokeVoidAsync("TalonStorageDB.saveListsFromJson", listsJson);
+            
+            Console.WriteLine("SaveToIndexedDBAsync: Save completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SaveToIndexedDBAsync error: {ex.Message}");
         }
     }
 
@@ -291,6 +458,449 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         await Task.Yield();
         Console.WriteLine($"GetAllCommandsForFiltersAsync: in-memory commands={_commands.Count}, lists={_talonLists.Count}");
         return _commands.ToList();
+    }
+
+    public async Task<List<TalonVoiceCommand>> GetFilteredCommandsInMemory(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0)
+    {
+        Console.WriteLine("TalonVoiceCommandDataService: Starting public C#-only in-memory search...");
+        try
+        {
+            await Task.Yield(); // Allow UI to update
+            
+            // Check if we have data in memory - if not, return empty list to avoid IndexedDB loading timeout
+            if (_commands.Count == 0)
+            {
+                Console.WriteLine("TalonVoiceCommandDataService: No commands in memory - returning empty list to avoid timeout");
+                return new List<TalonVoiceCommand>();
+            }
+            
+            Console.WriteLine($"TalonVoiceCommandDataService: Filtering {_commands.Count} commands in memory...");
+            
+            // Do the filtering directly here without calling the private method that loads from IndexedDB
+            var filteredCommands = _commands.AsEnumerable();
+            
+            if (!string.IsNullOrWhiteSpace(application))
+                filteredCommands = filteredCommands.Where(c => c.Application == application);
+            
+            if (!string.IsNullOrWhiteSpace(mode))
+                filteredCommands = filteredCommands.Where(c => c.Mode == mode);
+                
+            if (!string.IsNullOrWhiteSpace(operatingSystem))
+                filteredCommands = filteredCommands.Where(c => c.OperatingSystem == operatingSystem);
+                
+            if (!string.IsNullOrWhiteSpace(repository))
+                filteredCommands = filteredCommands.Where(c => c.Repository == repository);
+                
+            if (!string.IsNullOrWhiteSpace(tags))
+                filteredCommands = filteredCommands.Where(c => 
+                    !string.IsNullOrWhiteSpace(c.Tags) && 
+                    c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Any(tag => tag.Trim().Equals(tags, StringComparison.OrdinalIgnoreCase)));
+                        
+            if (!string.IsNullOrWhiteSpace(title))
+                filteredCommands = filteredCommands.Where(c => c.Title == title);
+                
+            if (!string.IsNullOrWhiteSpace(codeLanguage))
+                filteredCommands = filteredCommands.Where(c => 
+                    !string.IsNullOrWhiteSpace(c.CodeLanguage) && 
+                    c.CodeLanguage.Equals(codeLanguage, StringComparison.OrdinalIgnoreCase));
+
+            // Apply text search if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                if (useSemanticMatching)
+                {
+                    // TODO: Implement semantic search on filtered results
+                    filteredCommands = filteredCommands.Where(c => 
+                        c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    switch (searchScope)
+                    {
+                        case 1: // Names Only
+                            filteredCommands = filteredCommands.Where(c => 
+                                c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                            break;
+                        case 2: // Scripts Only
+                            filteredCommands = filteredCommands.Where(c => 
+                                c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                            break;
+                        default: // All
+                            filteredCommands = filteredCommands.Where(c => 
+                                c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                (c.Title?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
+                                (c.Tags?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true));
+                            break;
+                    }
+                }
+            }
+
+            var results = filteredCommands.ToList();
+            Console.WriteLine($"TalonVoiceCommandDataService: C#-only search completed with {results.Count} results");
+            return results;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"TalonVoiceCommandDataService: Error in public GetFilteredCommandsInMemory: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<List<TalonVoiceCommand>> SearchFilteredCommandsByIdsAsync(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0)
+    {
+        Console.WriteLine("TalonVoiceCommandDataService: Starting filtered search by IDs...");
+        try
+        {
+            Console.WriteLine("TalonVoiceCommandDataService: Calling JavaScript searchFilteredCommandIds function...");
+            
+            // Use a cancellation token with timeout for the JavaScript call
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            
+            var commandIds = await _jsRuntime.InvokeAsync<int[]>("TalonStorageDB.searchFilteredCommandIds", cts.Token, new
+            {
+                searchTerm = searchTerm ?? "",
+                application = application ?? "",
+                mode = mode ?? "",
+                operatingSystem = operatingSystem ?? "",
+                repository = repository ?? "",
+                tags = tags ?? "",
+                title = title ?? "",
+                codeLanguage = codeLanguage ?? "",
+                useSemanticMatching = useSemanticMatching,
+                searchScope = searchScope
+            });
+
+            Console.WriteLine($"TalonVoiceCommandDataService: JavaScript returned {commandIds.Length} command IDs, fetching full commands...");
+            
+            // Now get the full commands for these IDs from our cache
+            var commandDict = _commands.ToDictionary(c => c.Id, c => c);
+            
+            var results = new List<TalonVoiceCommand>();
+            foreach (var id in commandIds)
+            {
+                if (commandDict.TryGetValue(id, out var command))
+                {
+                    results.Add(command);
+                }
+            }
+
+            Console.WriteLine($"TalonVoiceCommandDataService: Successfully found {results.Count} full commands for IDs");
+            return results;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"TalonVoiceCommandDataService: Error in SearchFilteredCommandsByIdsAsync: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"TalonVoiceCommandDataService: Inner exception: {ex.InnerException.Message}");
+            }
+            throw;
+        }
+    }
+
+    public async Task<List<TalonVoiceCommand>> SearchFilteredCommandsAsync(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0)
+    {
+        try
+        {
+            // Search directly in IndexedDB with filters to avoid loading all data
+            Console.WriteLine("SearchFilteredCommandsAsync: Starting filtered search...");
+            var searchParams = new
+            {
+                searchTerm = searchTerm ?? "",
+                application = application ?? "",
+                mode = mode ?? "",
+                operatingSystem = operatingSystem ?? "",
+                repository = repository ?? "",
+                tags = tags ?? "",
+                title = title ?? "",
+                codeLanguage = codeLanguage ?? "",
+                useSemanticMatching,
+                searchScope
+            };
+
+            Console.WriteLine("SearchFilteredCommandsAsync: Calling JavaScript function...");
+            var results = await _jsRuntime.InvokeAsync<TalonVoiceCommand[]>(
+                "TalonStorageDB.searchFilteredCommands", 
+                searchParams);
+
+            Console.WriteLine($"SearchFilteredCommandsAsync: JavaScript returned {results.Length} results, converting to list...");
+            var resultList = results.ToList();
+            Console.WriteLine($"SearchFilteredCommandsAsync: Successfully completed with {resultList.Count} results");
+            return resultList;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SearchFilteredCommandsAsync error: {ex.Message}");
+            // Fallback to in-memory search if IndexedDB fails
+            return await GetFilteredCommandsInMemoryPrivate(searchTerm, application, mode, operatingSystem, repository, tags, title, codeLanguage, useSemanticMatching, searchScope);
+        }
+    }
+
+    // Search and display results directly in JavaScript (no data transfer to C#)
+    public async Task<int> SearchAndDisplayDirectlyAsync(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0,
+        int maxResults = 500)
+    {
+        try
+        {
+            var searchParams = new
+            {
+                searchTerm = searchTerm ?? "",
+                application = application ?? "",
+                mode = mode ?? "",
+                operatingSystem = operatingSystem ?? "",
+                repository = repository ?? "",
+                tags = tags ?? "",
+                title = title ?? "",
+                codeLanguage = codeLanguage ?? "",
+                useSemanticMatching,
+                searchScope
+            };
+
+            Console.WriteLine($"SearchAndDisplayDirectlyAsync: Starting direct JavaScript search and display...");
+            
+            // Short timeout since we're not transferring data, just counting results
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            
+            var resultCount = await _jsRuntime.InvokeAsync<int>(
+                "TalonStorageDB.searchAndDisplayResults", 
+                cts.Token,
+                searchParams, 
+                maxResults);
+
+            Console.WriteLine($"SearchAndDisplayDirectlyAsync: JavaScript displayed {resultCount} results");
+            return resultCount;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SearchAndDisplayDirectlyAsync error: {ex.Message}");
+            return 0;
+        }
+    }
+
+    // Simple limited search to prevent SignalR timeouts
+    public async Task<List<TalonVoiceCommand>> SearchFilteredCommandsSimpleAsync(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0,
+        int maxResults = 500)
+    {
+        try
+        {
+            var searchParams = new
+            {
+                searchTerm = searchTerm ?? "",
+                application = application ?? "",
+                mode = mode ?? "",
+                operatingSystem = operatingSystem ?? "",
+                repository = repository ?? "",
+                tags = tags ?? "",
+                title = title ?? "",
+                codeLanguage = codeLanguage ?? "",
+                useSemanticMatching,
+                searchScope
+            };
+
+            Console.WriteLine($"SearchFilteredCommandsSimpleAsync: Starting simple search with maxResults={maxResults}...");
+            
+            // Use longer timeout since serialization of 105+ objects can take time
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            
+            var commands = await _jsRuntime.InvokeAsync<TalonVoiceCommand[]>(
+                "TalonStorageDB.searchFilteredCommandsSimple", 
+                cts.Token,
+                searchParams, 
+                maxResults);
+
+            Console.WriteLine($"SearchFilteredCommandsSimpleAsync: Found {commands.Length} results");
+            return commands.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SearchFilteredCommandsSimpleAsync error: {ex.Message}");
+            // Fallback to in-memory search if IndexedDB fails
+            var fallbackResults = await GetFilteredCommandsInMemoryPrivate(searchTerm, application, mode, operatingSystem, repository, tags, title, codeLanguage, useSemanticMatching, searchScope);
+            var limitedResults = fallbackResults.Take(maxResults).ToList();
+            Console.WriteLine($"SearchFilteredCommandsSimpleAsync: Fallback returned {limitedResults.Count} results");
+            return limitedResults;
+        }
+    }
+
+    // New limited search method to prevent SignalR timeouts with large datasets
+    public async Task<(List<TalonVoiceCommand> Commands, int TotalMatches, bool Truncated)> SearchFilteredCommandsLimitedAsync(
+        string? searchTerm = null,
+        string? application = null,
+        string? mode = null,
+        string? operatingSystem = null,
+        string? repository = null,
+        string? tags = null,
+        string? title = null,
+        string? codeLanguage = null,
+        bool useSemanticMatching = false,
+        int searchScope = 0,
+        int maxResults = 500)
+    {
+        try
+        {
+            var searchParams = new
+            {
+                searchTerm = searchTerm ?? "",
+                application = application ?? "",
+                mode = mode ?? "",
+                operatingSystem = operatingSystem ?? "",
+                repository = repository ?? "",
+                tags = tags ?? "",
+                title = title ?? "",
+                codeLanguage = codeLanguage ?? "",
+                useSemanticMatching,
+                searchScope
+            };
+
+            Console.WriteLine($"SearchFilteredCommandsLimitedAsync: Starting search with maxResults={maxResults}...");
+            
+            // Use shorter timeout for limited search since it should be faster
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            
+            var searchResult = await _jsRuntime.InvokeAsync<dynamic>(
+                "TalonStorageDB.searchFilteredCommandsLimited", 
+                cts.Token,
+                searchParams, 
+                maxResults);
+
+            var commands = ((JsonElement)searchResult.GetProperty("commands")).Deserialize<TalonVoiceCommand[]>() ?? new TalonVoiceCommand[0];
+            var totalMatches = searchResult.GetProperty("totalMatches").GetInt32();
+            var truncated = searchResult.GetProperty("truncated").GetBoolean();
+
+            Console.WriteLine($"SearchFilteredCommandsLimitedAsync: Found {totalMatches} total matches, returning {commands.Length} commands (truncated: {truncated})");
+            return (commands.ToList(), totalMatches, truncated);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SearchFilteredCommandsLimitedAsync error: {ex.Message}");
+            // Fallback to in-memory search if IndexedDB fails
+            var fallbackResults = await GetFilteredCommandsInMemoryPrivate(searchTerm, application, mode, operatingSystem, repository, tags, title, codeLanguage, useSemanticMatching, searchScope);
+            var truncated = fallbackResults.Count > maxResults;
+            var limitedResults = fallbackResults.Take(maxResults).ToList();
+            return (limitedResults, fallbackResults.Count, truncated);
+        }
+    }
+
+    private async Task<List<TalonVoiceCommand>> GetFilteredCommandsInMemoryPrivate(
+        string? searchTerm, string? application, string? mode, string? operatingSystem, 
+        string? repository, string? tags, string? title, string? codeLanguage,
+        bool useSemanticMatching, int searchScope)
+    {
+        // Ensure data is loaded before filtering
+        if (_commands.Count == 0)
+        {
+            await EnsureLoadedFromIndexedDBAsync(_jsRuntime);
+        }
+        
+        // Fallback: use in-memory filtering (current implementation)
+        var filteredCommands = _commands.AsEnumerable();
+        
+        if (!string.IsNullOrWhiteSpace(application))
+            filteredCommands = filteredCommands.Where(c => c.Application == application);
+        
+        if (!string.IsNullOrWhiteSpace(mode))
+            filteredCommands = filteredCommands.Where(c => c.Mode == mode);
+            
+        if (!string.IsNullOrWhiteSpace(operatingSystem))
+            filteredCommands = filteredCommands.Where(c => c.OperatingSystem == operatingSystem);
+            
+        if (!string.IsNullOrWhiteSpace(repository))
+            filteredCommands = filteredCommands.Where(c => c.Repository == repository);
+            
+        if (!string.IsNullOrWhiteSpace(tags))
+            filteredCommands = filteredCommands.Where(c => 
+                !string.IsNullOrWhiteSpace(c.Tags) && 
+                c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(tag => tag.Trim().Equals(tags, StringComparison.OrdinalIgnoreCase)));
+                    
+        if (!string.IsNullOrWhiteSpace(title))
+            filteredCommands = filteredCommands.Where(c => c.Title == title);
+            
+        if (!string.IsNullOrWhiteSpace(codeLanguage))
+            filteredCommands = filteredCommands.Where(c => 
+                !string.IsNullOrWhiteSpace(c.CodeLanguage) && 
+                c.CodeLanguage.Equals(codeLanguage, StringComparison.OrdinalIgnoreCase));
+
+        // Apply text search if provided
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            if (useSemanticMatching)
+            {
+                // TODO: Implement semantic search on filtered results
+                filteredCommands = filteredCommands.Where(c => 
+                    c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+            else
+            {
+                // Apply scope-based text search
+                filteredCommands = searchScope switch
+                {
+                    0 => filteredCommands.Where(c => c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), // CommandNamesOnly
+                    1 => filteredCommands.Where(c => c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), // ScriptOnly
+                    2 => filteredCommands.Where(c => // All
+                        c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
+                    _ => filteredCommands.Where(c => c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                };
+            }
+        }
+
+        await Task.Yield();
+        return filteredCommands.ToList();
     }
     public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
     {

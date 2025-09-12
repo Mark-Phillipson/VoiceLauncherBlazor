@@ -375,8 +375,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Try to load basic filter options (won't work until localStorage is loaded via button)
         await LoadFilterOptions();
         
-        // Load commands into cache if any are available
-        await LoadCommandsAndComputeStatistics();
+        // DON'T load commands automatically - wait for user to click "Load Data"
+        // This prevents blocking the Blazor connection on tab switch
+        Console.WriteLine("OnInitializedAsync: Skipping automatic data load to prevent connection timeout");
 
         // start auto-refresh every 30 seconds
         StartAutoRefresh();
@@ -486,24 +487,19 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         {
             Console.WriteLine("LoadFilterOptions: Loading fresh data from service");
             
-            // Try to ensure localStorage data is loaded first if JSRuntime is available
-            if (JSRuntime != null && TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
-            {
-                try
-                {
-                    await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                    Console.WriteLine("LoadFilterOptions: localStorage data loaded successfully");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"LoadFilterOptions: localStorage loading failed (will continue): {ex.Message}");
-                    // Continue anyway - the service might have data from other sources
-                }
-            }
+            // Don't automatically load from storage during initialization
+            // Only use data if it's already available in the service
             
-            // Cache all commands to avoid multiple database calls
+            // Cache all commands to avoid multiple database calls (only if data already exists)
             _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
             Console.WriteLine($"LoadFilterOptions: Retrieved {_allCommandsCache.Count} commands from service");
+            
+            // If no commands are available, don't try to load from storage automatically
+            if (_allCommandsCache.Count == 0)
+            {
+                Console.WriteLine("LoadFilterOptions: No commands available - skipping filter population to prevent auto-loading");
+                return;
+            }
             
             var applications = _allCommandsCache
                 .Where(c => !string.IsNullOrWhiteSpace(c.Application))
@@ -619,9 +615,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 catch { }
             }
             
-            // Ensure localStorage data is loaded before attempting any searches
-            // This is critical for search functionality to work after page refresh
-            await EnsureDataIsLoadedForSearch();
+            // Note: localStorage loading is now handled by the manual "Load Data" button
+            // to avoid connection timeouts during page initialization
 
             // If we have a search term from command line, perform the search after the first render
             if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
@@ -637,7 +632,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     
     /// <summary>
     /// Ensures that command and list data is loaded from localStorage before allowing searches.
-    /// This method implements retry logic to handle potential race conditions during page load.
+    /// This is now a simple single-attempt method called only by the Load Data button.
     /// </summary>
     private async Task EnsureDataIsLoadedForSearch()
     {
@@ -645,68 +640,23 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         try
         {
-            Console.WriteLine("EnsureDataIsLoadedForSearch: Starting data load process");
+            Console.WriteLine("EnsureDataIsLoadedForSearch: Loading data from localStorage");
             
-            // Reduced retry attempts and shorter delays for better performance
-            const int maxAttempts = 3;
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            // Single attempt to load from localStorage
+            if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
             {
-                try
-                {
-                    Console.WriteLine($"EnsureDataIsLoadedForSearch: Attempt {attempt}/{maxAttempts}");
-                    
-                    // Ask the service to load from localStorage (if present)
-                    if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
-                    {
-                        await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                        Console.WriteLine($"EnsureDataIsLoadedForSearch: EnsureLoadedFromLocalStorageAsync completed on attempt {attempt}");
-                    }
-
-                    // Load filter options which will read the service cache and populate _allCommandsCache
-                    if ((_allCommandsCache == null || !_staticFiltersLoaded))
-                    {
-                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Loading filter options on attempt {attempt}");
-                        await LoadFilterOptions();
-                    }
-
-                    Console.WriteLine($"EnsureDataIsLoadedForSearch attempt {attempt}: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}; _staticFiltersLoaded: {_staticFiltersLoaded}");
-
-                    // Check if we have successfully loaded data
-                    if ((_allCommandsCache?.Count ?? 0) > 0)
-                    {
-                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Successfully loaded {_allCommandsCache?.Count ?? 0} commands on attempt {attempt}");
-                        break; // success - we have data to search
-                    }
-                    
-                    // If no data yet and this isn't the last attempt, wait briefly and retry
-                    if (attempt < maxAttempts)
-                    {
-                        Console.WriteLine($"EnsureDataIsLoadedForSearch: No data loaded yet, waiting before retry {attempt + 1}");
-                        await Task.Delay(200); // Much shorter fixed delay
-                    }
-                }
-                catch (Exception innerEx)
-                {
-                    Console.WriteLine($"EnsureDataIsLoadedForSearch attempt {attempt} failed: {innerEx.Message}");
-                    
-                    if (attempt < maxAttempts)
-                    {
-                        // Shorter wait before retrying
-                        await Task.Delay(100);
-                    }
-                }
+                await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                Console.WriteLine("EnsureDataIsLoadedForSearch: localStorage load completed");
             }
-            
-            // Log final status
-            var finalCount = _allCommandsCache?.Count ?? 0;
-            if (finalCount > 0)
+
+            // Load filter options which will read the service cache and populate _allCommandsCache
+            if ((_allCommandsCache == null || !_staticFiltersLoaded))
             {
-                Console.WriteLine($"EnsureDataIsLoadedForSearch: Data loading completed successfully with {finalCount} commands");
+                Console.WriteLine("EnsureDataIsLoadedForSearch: Loading filter options");
+                await LoadFilterOptions();
             }
-            else
-            {
-                Console.WriteLine("EnsureDataIsLoadedForSearch: Warning - No commands were loaded after all retry attempts. Search functionality may not work until data is imported.");
-            }
+
+            Console.WriteLine($"EnsureDataIsLoadedForSearch completed: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}");
         }
         catch (Exception ex)
         {
@@ -723,10 +673,22 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
     }        protected async Task OnSearchInputBlur()
     {
-        // Trigger search when the search input loses focus
-        await OnSearch();
-    }        public async Task OnSearch()
+        // Only trigger search when input loses focus if we have cached data available
+        if (_allCommandsCache != null && _allCommandsCache.Count > 0)
+        {
+            await OnSearch();
+        }
+    }        
+    
+    protected async Task OnSearch()
     {
+        Console.WriteLine("=== OnSearch method ENTRY POINT - this should always appear ===");
+        System.Diagnostics.Debug.WriteLine("=== OnSearch method ENTRY POINT - DEBUG ===");
+        
+        var searchStartTime = DateTime.UtcNow;
+        Console.WriteLine($"OnSearch: Starting search at {searchStartTime:HH:mm:ss.fff}");
+        Console.WriteLine("**** ONSEARCH METHOD CALLED - THIS SHOULD APPEAR IN LOGS ****");
+        
         // System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
         
         // Cancel any existing search operation
@@ -778,10 +740,263 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         if (TalonService is not null)
         {
-            // Check if we have cached data, if not show a helpful message
+            // Use direct JavaScript display to avoid SignalR data transfer issues
+            try
+            {
+                Console.WriteLine("OnSearch: Starting direct JavaScript search and display...");
+                
+                // Show the JavaScript results container and hide C# results
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.search-results-container').style.display = 'block'");
+                }
+                
+                var resultCount = await TalonService.SearchAndDisplayDirectlyAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope,
+                    maxResults: 500
+                );
+
+                Console.WriteLine($"OnSearch: Direct display showed {resultCount} results");
+                
+                // Clear C# results since we're using JavaScript display
+                Results = new List<TalonVoiceCommand>();
+                
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Direct search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Direct display failed: {ex.Message}");
+                Console.WriteLine("OnSearch: Falling back to simple search...");
+                
+                // Hide JavaScript results container on error
+                if (JSRuntime != null)
+                {
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.search-results-container').style.display = 'none'");
+                    }
+                    catch { }
+                }
+            }
+
+            // Fallback: Use simple limited search to prevent SignalR timeouts
+            try
+            {
+                Console.WriteLine("OnSearch: Starting simple limited IndexedDB search to prevent timeouts...");
+                var searchResults = await TalonService.SearchFilteredCommandsSimpleAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope,
+                    maxResults: 500
+                );
+
+                Console.WriteLine($"OnSearch: Simple search returned {searchResults.Count} results");
+                Results = searchResults;
+                
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Simple search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Simple search failed: {ex.Message}");
+                Console.WriteLine("OnSearch: Falling back to C#-only search...");
+            }
+
+            // Fallback: Try C#-only search if simple search fails
+            try
+            {
+                Console.WriteLine("OnSearch: Starting C#-only in-memory search...");
+                var searchResults = await TalonService.GetFilteredCommandsInMemory(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                // If we got results OR if there are no search criteria (meaning we should show all results)
+                // then use the C# results. If empty but we have search criteria, fall back to JS approach.
+                if (searchResults.Count > 0 || (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter))
+                {
+                    Console.WriteLine($"OnSearch: C#-only search returned {searchResults.Count} results, setting Results...");
+                    Results = searchResults;
+                    Console.WriteLine("OnSearch: Results set, updating UI state...");
+                    IsLoading = false;
+                    HasSearched = true;
+                    StateHasChanged();
+                    var searchEndTime = DateTime.UtcNow;
+                    var duration = searchEndTime - searchStartTime;
+                    Console.WriteLine($"OnSearch: C#-only search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("OnSearch: C#-only search returned empty results (likely no data in memory)");
+                    Console.WriteLine("OnSearch: Attempting to load data from IndexedDB first...");
+                    
+                    // Try to load data from IndexedDB with a timeout
+                    try
+                    {
+                        using var loadCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                        await TalonService.EnsureLoadedFromIndexedDBAsync(JSRuntime);
+                        Console.WriteLine("OnSearch: Successfully loaded data from IndexedDB, retrying C# search...");
+                        
+                        // Retry the C# search now that data should be loaded
+                        var retryResults = await TalonService.GetFilteredCommandsInMemory(
+                            searchTerm: hasSearchTerm ? SearchTerm : null,
+                            application: hasApplicationFilter ? SelectedApplication : null,
+                            mode: hasModeFilter ? SelectedMode : null,
+                            operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                            repository: hasRepositoryFilter ? SelectedRepository : null,
+                            tags: hasTagsFilter ? SelectedTags : null,
+                            title: hasTitleFilter ? SelectedTitle : null,
+                            codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                            useSemanticMatching: UseSemanticMatching,
+                            searchScope: (int)SelectedSearchScope
+                        );
+                        
+                        Console.WriteLine($"OnSearch: Retry search returned {retryResults.Count} results");
+                        Results = retryResults;
+                        IsLoading = false;
+                        HasSearched = true;
+                        StateHasChanged();
+                        var searchEndTime = DateTime.UtcNow;
+                        var duration = searchEndTime - searchStartTime;
+                        Console.WriteLine($"OnSearch: Data load + search completed in {duration.TotalMilliseconds}ms");
+                        return;
+                    }
+                    catch (Exception loadEx)
+                    {
+                        Console.WriteLine($"OnSearch: Failed to load data from IndexedDB: {loadEx.Message}");
+                        Console.WriteLine("OnSearch: Falling back to ID-based search...");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: C#-only search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to ID-based search...");
+            }
+
+            // Try the ID-based filtered search as first fallback
+            try
+            {
+                Console.WriteLine("OnSearch: Starting ID-based filtered search...");
+                var searchResults = await TalonService.SearchFilteredCommandsByIdsAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                Console.WriteLine($"OnSearch: ID-based search returned {searchResults.Count} results, setting Results...");
+                Results = searchResults;
+                Console.WriteLine("OnSearch: Results set, updating UI state...");
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: ID-based search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: ID-based search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to full object search...");
+            }
+
+            // Fallback to original filtered search
+            try
+            {
+                Console.WriteLine("OnSearch: Starting full object filtered search...");
+                var searchResults = await TalonService.SearchFilteredCommandsAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                Console.WriteLine($"OnSearch: Filtered search returned {searchResults.Count} results, setting Results...");
+                Results = searchResults;
+                Console.WriteLine("OnSearch: Results set, updating UI state...");
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Filtered search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Filtered search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to cache approach...");
+            }
+            
+            // Fallback: Check if we have cached data, if not show a helpful message
             if (_allCommandsCache == null || _allCommandsCache.Count == 0)
             {
-                Console.WriteLine("OnSearch: No cached commands available - user should click Load Data button");
+                Console.WriteLine("OnSearch: No cached commands available and filtered search failed");
                 Results = new List<TalonVoiceCommand>();
                 IsLoading = false;
                 HasSearched = true;
@@ -789,9 +1004,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 return;
             }
             
-            // Use cached data if available, otherwise load it
-            var allCommands = _allCommandsCache ?? await TalonService.GetAllCommandsForFiltersAsync();
-            Console.WriteLine($"OnSearch: Working with {allCommands.Count} commands from cache/service");
+            // Use cached data (which we know is loaded if we get to this point)
+            var allCommands = _allCommandsCache;
+            Console.WriteLine($"OnSearch: Using fallback cache approach with {allCommands.Count} commands");
             
             // Apply filters first
             var filteredCommands = allCommands.AsEnumerable();
@@ -914,69 +1129,71 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 // Apply text search on filtered results based on scope
                 if (hasSearchTerm)
                 {
-                    // Debug logging
-                    if (JSRuntime != null)
+                    // Debug logging with try-catch to prevent JS connection issues
+                    try
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                        }
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                        }
+                    }
+                    catch (Exception jsEx)
+                    {
+                        Console.WriteLine($"[DEBUG] JS logging failed: {jsEx.Message}");
+                    }
                     
-                    // Use appropriate search method based on scope
+                    // Search within the already filtered cache data instead of calling service methods
+                    Console.WriteLine($"[DEBUG] Starting in-memory search for '{SearchTerm}' on {filteredCommands.Count()} filtered commands");
+                    var lowerTerm = SearchTerm!.ToLower();
                     List<TalonVoiceCommand> searchResults;
+                    
+                    var startTime = DateTime.Now;
                     switch (SelectedSearchScope)
                     {
                         case SearchScope.CommandNamesOnly:
-                            searchResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching command names only...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Command.ToLower().Contains(lowerTerm))
+                                .Take(100)
+                                .ToList();
                             break;
                         case SearchScope.Script:
-                            searchResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching scripts only...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Script.ToLower().Contains(lowerTerm))
+                                .Take(100)
+                                .ToList();
                             break;
                         case SearchScope.All:
                         default:
-                            searchResults = await TalonService.SearchAllAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching all fields...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Command.ToLower().Contains(lowerTerm) ||
+                                           c.Script.ToLower().Contains(lowerTerm) ||
+                                           c.Application.ToLower().Contains(lowerTerm) ||
+                                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) ||
+                                           (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
+                                .Take(100)
+                                .ToList();
                             break;
                     }
+                    var elapsed = DateTime.Now - startTime;
+                    Console.WriteLine($"[DEBUG] In-memory search completed in {elapsed.TotalMilliseconds}ms, found {searchResults.Count} results");
                     
-                    // Debug logging
-                    if (JSRuntime != null)
+                    // Debug logging with try-catch to prevent JS connection issues
+                    try
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                        }
+                    }
+                    catch (Exception jsEx)
+                    {
+                        Console.WriteLine($"[DEBUG] JS logging failed: {jsEx.Message}");
                     }
                     
-                    // Apply filters to search results
-                    var finalResults = searchResults.AsEnumerable();
-                    
-                    if (hasApplicationFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                    }
-                    
-                    if (hasModeFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Mode == SelectedMode);
-                    }
-                    
-                    if (hasOSFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
-                    }
-                    
-                    if (hasRepositoryFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
-                    }
-                      if (hasTagsFilter)
-                    {
-                        finalResults = finalResults.Where(c => 
-                            !string.IsNullOrWhiteSpace(c.Tags) && 
-                            c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
-                    }
-                    
-                    if (hasTitleFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Title == SelectedTitle);
-                    }
-                    
-                    Results = finalResults.Take(maxResults).ToList();
+                    Results = searchResults.OrderByDescending(c => c.CreatedAt).ToList();
                     
                     // Debug logging
                     if (JSRuntime != null)
@@ -1018,7 +1235,14 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     finally
     {
         IsLoading = false;
-        StateHasChanged();
+        try
+        {
+            StateHasChanged();
+        }
+        catch (Exception stateEx)
+        {
+            Console.WriteLine($"StateHasChanged error: {stateEx.Message}");
+        }
     }
 }        public async Task ClearFilters()
 {
@@ -1537,47 +1761,6 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         _listContentsCache.Clear();
         _expandedLists.Clear();
         StateHasChanged();
-    }
-
-    /// <summary>
-    /// Load commands and lists data from localStorage when user clicks the Load Data button
-    /// </summary>
-    public async Task LoadDataFromStorage()
-    {
-        if (TalonService == null || IsLoading) return;
-        
-        try
-        {
-            IsLoading = true;
-            StateHasChanged();
-            
-            Console.WriteLine("LoadDataFromStorage: User requested data load from localStorage");
-            
-            // Single attempt to load from localStorage
-            if (JSRuntime != null && TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
-            {
-                await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                Console.WriteLine("LoadDataFromStorage: localStorage load completed");
-            }
-            
-            // Refresh filters and statistics
-            await LoadFilterOptions();
-            await LoadCommandsAndComputeStatistics();
-            
-            var commandCount = _allCommandsCache?.Count ?? 0;
-            Console.WriteLine($"LoadDataFromStorage: Completed - {commandCount} commands loaded");
-            
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"LoadDataFromStorage error: {ex.Message}");
-        }
-        finally
-        {
-            IsLoading = false;
-            StateHasChanged();
-        }
     }
 
     public async Task OnCaptureClick(string captureName)

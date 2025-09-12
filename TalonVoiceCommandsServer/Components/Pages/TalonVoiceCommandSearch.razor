@@ -283,20 +283,6 @@
                             <span><u>C</u>lear Filters</span>
                         }
                     </button>
-                    <button class="btn btn-outline-success btn-sm me-2" @onclick="LoadDataFromStorage" type="button" disabled="@IsLoading" title="Load previously imported commands from browser storage">
-                        @if (IsLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span>Loading...</span>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database me-2" viewBox="0 0 16 16">
-                                <path d="M4.318 2.687C6.068 2.235 8.002 2 8 2s1.932.235 3.682.687C12.644 2.966 13 3.267 13 3.5v1c0 .233-.356.534-1.318.813C10.932 5.765 8.998 6 8 6s-2.932-.235-4.682-.687C2.356 5.034 2 4.733 2 4.5v-1c0-.233.356-.534 1.318-.813ZM13 5.698V7c0 .233-.356.534-1.318.813C10.932 8.265 8.998 8.5 8 8.5s-2.932-.235-4.682-.687C2.356 7.534 2 7.233 2 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 5.096-.777A4.92 4.92 0 0 0 13 5.698ZM14 4.5v5c0 1.5-3.5 2.5-6 2.5s-6-1-6-2.5v-5C2 3 5.5 2 8 2s6 1 6 2.5Z"/>
-                            </svg>
-                            <span>Load Data</span>
-                        }
-                    </button>
                     <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
                         @if (IsLoading)
                         {
@@ -357,7 +343,11 @@
                 <span class="text-muted">Searching Talon voice commands...</span>
             </div>
         }
-        else if (Results?.Any() == true)
+        
+        <!-- JavaScript-rendered search results container -->
+        <div class="search-results-container" style="display: none;"></div>
+        
+        @if (Results?.Any() == true)
         {
             <div class="row" aria-label="Search Results">
                 @foreach (var cmd in GetDisplayedCommands())
@@ -578,8 +568,9 @@
                     <i class="bi bi-database-x me-2"></i>
                     <strong>No data loaded.</strong> 
                     <br />
-                    Please click the <strong>"Load Data"</strong> button above to load previously imported commands from browser storage, 
-                    or go to the <a href="/talon-import" class="alert-link">Import Scripts</a> tab to import new Talon commands.
+                    Please go to the <a href="/talon-import" class="alert-link">Import Scripts</a> tab to import Talon commands.
+                    <br />
+                    <small class="text-muted">Note: Once imported, commands are automatically stored in IndexedDB for persistence across browser sessions.</small>
                 </div>
             }
             else
