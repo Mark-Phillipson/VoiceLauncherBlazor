@@ -1422,8 +1422,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     /// </summary>
     public async Task OnKeyDown(KeyboardEventArgs e)
     {
-        // Handle Ctrl+number shortcuts for tab switching
-        if (e.CtrlKey)
+        // Handle Alt+number shortcuts for tab switching
+        if (e.AltKey)
         {
             switch (e.Key)
             {
