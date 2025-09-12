@@ -286,6 +286,9 @@ public partial class TalonImport : ComponentBase
             }
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected repositories.";
+            
+            // Invalidate the search component's filter cache so it picks up the new data
+            TalonVoiceCommandSearch.InvalidateFilterCache();
         }
         catch (System.Exception ex)
         {
@@ -334,6 +337,9 @@ public partial class TalonImport : ComponentBase
                 totalCommandsImported += commandsFromThisFile;
             }
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
+            
+            // Invalidate the search component's filter cache so it picks up the new data
+            TalonVoiceCommandSearch.InvalidateFilterCache();
         }            catch (Exception ex)
         {
             ErrorMessage = $"Error importing files: {GetFullErrorMessage(ex)}";
@@ -372,6 +378,9 @@ public partial class TalonImport : ComponentBase
                 });
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
+            
+            // Invalidate the search component's filter cache so it picks up the new data
+            TalonVoiceCommandSearch.InvalidateFilterCache();
         }
         catch (Exception ex)
         {
@@ -406,6 +415,10 @@ public partial class TalonImport : ComponentBase
         {
             var listsImported = await TalonVoiceCommandDataService.ImportTalonListsFromFileAsync(ListsFilePath);
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
+            
+            // Invalidate the search component's filter cache so it picks up the new data
+            TalonVoiceCommandSearch.InvalidateFilterCache();
+            
             // Show toast in UI
             ShowToast = true;
             StateHasChanged();

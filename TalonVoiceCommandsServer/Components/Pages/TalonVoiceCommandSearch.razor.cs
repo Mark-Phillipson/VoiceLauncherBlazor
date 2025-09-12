@@ -370,20 +370,23 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         Results = new List<TalonVoiceCommand>();
         
         // Debug: Log the initial search term
-        // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
+        Console.WriteLine($"TalonVoiceCommandSearch.OnInitializedAsync - InitialSearchTerm: '{InitialSearchTerm}'");
         
         // Always load filter options to ensure fresh data and cache commands for search functionality
+        // This is critical for search to work after page refresh
         await LoadFilterOptions();
         
-        // Load commands into cache and compute statistics to ensure search works after page refresh
+        // Load commands into cache and compute statistics to ensure search works after page refresh  
         await LoadCommandsAndComputeStatistics();
 
         // start auto-refresh every 30 seconds
         StartAutoRefresh();
-        // System.Diagnostics.Debug.WriteLine("Auto-refresh timer started (30s interval)");
+        Console.WriteLine("Auto-refresh timer started (30s interval)");
 
         // initial application name
         CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        
+        Console.WriteLine($"OnInitializedAsync completed - Commands in cache: {_allCommandsCache?.Count ?? 0}");
     }
 
     private void StartAutoRefresh()
@@ -431,8 +434,10 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private async Task LoadFilterOptions()
     {
         if (_isLoadingFilters || TalonService is null) return;
-          lock (_filterLock)
-        {                if (_staticFiltersLoaded)
+        
+        lock (_filterLock)
+        {
+            if (_staticFiltersLoaded)
             {
                 AvailableApplications = _staticAvailableApplications;
                 AvailableModes = _staticAvailableModes;
@@ -441,6 +446,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 AvailableTags = _staticAvailableTags;
                 AvailableTitles = _staticAvailableTitles;
                 AvailableCodeLanguages = _staticAvailableCodeLanguages;
+                Console.WriteLine($"LoadFilterOptions: Using cached filters - {AvailableApplications.Count} applications");
                 return;
             }
             
@@ -450,8 +456,26 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         try
         {
+            Console.WriteLine("LoadFilterOptions: Loading fresh data from service");
+            
+            // Try to ensure localStorage data is loaded first if JSRuntime is available
+            if (JSRuntime != null && TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
+            {
+                try
+                {
+                    await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                    Console.WriteLine("LoadFilterOptions: localStorage data loaded successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"LoadFilterOptions: localStorage loading failed (will continue): {ex.Message}");
+                    // Continue anyway - the service might have data from other sources
+                }
+            }
+            
             // Cache all commands to avoid multiple database calls
             _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
+            Console.WriteLine($"LoadFilterOptions: Retrieved {_allCommandsCache.Count} commands from service");
             
             var applications = _allCommandsCache
                 .Where(c => !string.IsNullOrWhiteSpace(c.Application))
@@ -487,7 +511,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     .Select(t => t.Trim()))
                 .Distinct()
                 .OrderBy(t => t)
-                .ToList();                var titles = _allCommandsCache
+                .ToList();
+                
+            var titles = _allCommandsCache
                 .Where(c => !string.IsNullOrWhiteSpace(c.Title))
                 .Select(c => c.Title!)
                 .Distinct()
@@ -505,7 +531,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             // Debug output
             Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
             Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
-              // Update both instance and static collections
+            
+            // Update both instance and static collections
             lock (_filterLock)
             {
                 AvailableApplications = _staticAvailableApplications = applications;
@@ -521,6 +548,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 ComputeSystemStatsFromCache();
             }
             
+            Console.WriteLine($"LoadFilterOptions: Completed successfully - {applications.Count} applications, {modes.Count} modes, {repositories.Count} repositories");
             StateHasChanged();
         }
         finally
@@ -723,8 +751,27 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         if (TalonService is not null)
         {
+            // Check if we have cached data, if not try to load it
+            if (_allCommandsCache == null || _allCommandsCache.Count == 0)
+            {
+                Console.WriteLine("OnSearch: No cached commands available, attempting to reload data");
+                await LoadFilterOptions();
+                await LoadCommandsAndComputeStatistics();
+                
+                if (_allCommandsCache == null || _allCommandsCache.Count == 0)
+                {
+                    Console.WriteLine("OnSearch: Still no commands after reload - data may not be imported yet");
+                    Results = new List<TalonVoiceCommand>();
+                    IsLoading = false;
+                    HasSearched = true;
+                    StateHasChanged();
+                    return;
+                }
+            }
+            
             // Use cached data if available, otherwise load it
             var allCommands = _allCommandsCache ?? await TalonService.GetAllCommandsForFiltersAsync();
+            Console.WriteLine($"OnSearch: Working with {allCommands.Count} commands from cache/service");
             
             // Apply filters first
             var filteredCommands = allCommands.AsEnumerable();
