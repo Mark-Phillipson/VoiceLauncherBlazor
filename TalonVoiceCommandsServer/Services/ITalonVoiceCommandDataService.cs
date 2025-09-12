@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.JSInterop;
 
 namespace TalonVoiceCommandsServer.Services;
     public interface ITalonVoiceCommandDataService
@@ -17,4 +18,5 @@ namespace TalonVoiceCommandsServer.Services;
     Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null);
     Task<int> ImportTalonListsFromFileAsync(string filePath);
     Task<List<TalonVoiceCommandsServer.Models.TalonCommandBreakdown>> GetTalonCommandsBreakdownAsync();
+    Task SaveToLocalStorageAsync(IJSRuntime jsRuntime);
     }

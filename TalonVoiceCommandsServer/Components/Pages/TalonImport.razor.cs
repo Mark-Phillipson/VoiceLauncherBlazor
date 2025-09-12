@@ -377,6 +377,18 @@ public partial class TalonImport : ComponentBase
                     StateHasChanged();
                 });
 
+            // CRITICAL FIX: After import, save to localStorage using the page's JSRuntime
+            // This ensures the imported data persists for the search functionality
+            if (JSRuntime != null)
+            {
+                await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
+                Console.WriteLine($"ImportAllFromDirectory: Saved {totalCommandsImported} commands to localStorage");
+            }
+            else
+            {
+                Console.WriteLine("ImportAllFromDirectory: Warning - JSRuntime not available, data may not persist to localStorage");
+            }
+
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
             
             // Invalidate the search component's filter cache so it picks up the new data
@@ -414,6 +426,19 @@ public partial class TalonImport : ComponentBase
         try
         {
             var listsImported = await TalonVoiceCommandDataService.ImportTalonListsFromFileAsync(ListsFilePath);
+            
+            // CRITICAL FIX: After import, save to localStorage using the page's JSRuntime
+            // This ensures the imported lists persist for the search functionality
+            if (JSRuntime != null)
+            {
+                await TalonVoiceCommandDataService.SaveToLocalStorageAsync(JSRuntime);
+                Console.WriteLine($"ImportListsFromFile: Saved {listsImported} lists to localStorage");
+            }
+            else
+            {
+                Console.WriteLine("ImportListsFromFile: Warning - JSRuntime not available, data may not persist to localStorage");
+            }
+            
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
             
             // Invalidate the search component's filter cache so it picks up the new data
