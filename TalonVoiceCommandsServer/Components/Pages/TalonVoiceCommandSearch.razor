@@ -3,7 +3,7 @@
 @using TalonVoiceCommandsServer.Components
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
-<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")" @onkeydown="OnKeyDown" tabindex="-1">   
+<div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' @onkeydown="OnKeyDown" tabindex="-1">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Talon Voice Command Search</h2>
         <span class="text-muted">Current App: @CurrentApplication</span>
@@ -685,10 +685,9 @@
         <!-- End of Analysis Report Tab -->
     </div>
     <!-- End of Tab Content -->
-    
-</div>
 <!-- End of Main Container -->
 </div>
+
 
 @code {
     // All logic is in the code-behind file (partial class)
