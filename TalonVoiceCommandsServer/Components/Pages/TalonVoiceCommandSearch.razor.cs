@@ -372,11 +372,10 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Debug: Log the initial search term
         Console.WriteLine($"TalonVoiceCommandSearch.OnInitializedAsync - InitialSearchTerm: '{InitialSearchTerm}'");
         
-        // Always load filter options to ensure fresh data and cache commands for search functionality
-        // This is critical for search to work after page refresh
+        // Try to load basic filter options (won't work until localStorage is loaded via button)
         await LoadFilterOptions();
         
-        // Load commands into cache and compute statistics to ensure search works after page refresh  
+        // Load commands into cache if any are available
         await LoadCommandsAndComputeStatistics();
 
         // start auto-refresh every 30 seconds
@@ -648,9 +647,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         {
             Console.WriteLine("EnsureDataIsLoadedForSearch: Starting data load process");
             
-            // Retry a few times because reading localStorage via JS interop
-            // can be cancelled transiently while the Blazor circuit initializes.
-            const int maxAttempts = 5;
+            // Reduced retry attempts and shorter delays for better performance
+            const int maxAttempts = 3;
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
                 try
@@ -676,15 +674,15 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     // Check if we have successfully loaded data
                     if ((_allCommandsCache?.Count ?? 0) > 0)
                     {
-                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Successfully loaded {_allCommandsCache.Count} commands on attempt {attempt}");
+                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Successfully loaded {_allCommandsCache?.Count ?? 0} commands on attempt {attempt}");
                         break; // success - we have data to search
                     }
                     
-                    // If no data yet and this isn't the last attempt, wait and retry
+                    // If no data yet and this isn't the last attempt, wait briefly and retry
                     if (attempt < maxAttempts)
                     {
                         Console.WriteLine($"EnsureDataIsLoadedForSearch: No data loaded yet, waiting before retry {attempt + 1}");
-                        await Task.Delay(500 * attempt); // Progressive backoff
+                        await Task.Delay(200); // Much shorter fixed delay
                     }
                 }
                 catch (Exception innerEx)
@@ -693,8 +691,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     
                     if (attempt < maxAttempts)
                     {
-                        // Wait before retrying
-                        await Task.Delay(300 * attempt);
+                        // Shorter wait before retrying
+                        await Task.Delay(100);
                     }
                 }
             }
@@ -780,22 +778,15 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         if (TalonService is not null)
         {
-            // Check if we have cached data, if not try to load it
+            // Check if we have cached data, if not show a helpful message
             if (_allCommandsCache == null || _allCommandsCache.Count == 0)
             {
-                Console.WriteLine("OnSearch: No cached commands available, attempting to reload data");
-                await LoadFilterOptions();
-                await LoadCommandsAndComputeStatistics();
-                
-                if (_allCommandsCache == null || _allCommandsCache.Count == 0)
-                {
-                    Console.WriteLine("OnSearch: Still no commands after reload - data may not be imported yet");
-                    Results = new List<TalonVoiceCommand>();
-                    IsLoading = false;
-                    HasSearched = true;
-                    StateHasChanged();
-                    return;
-                }
+                Console.WriteLine("OnSearch: No cached commands available - user should click Load Data button");
+                Results = new List<TalonVoiceCommand>();
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                return;
             }
             
             // Use cached data if available, otherwise load it
@@ -1546,6 +1537,47 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         _listContentsCache.Clear();
         _expandedLists.Clear();
         StateHasChanged();
+    }
+
+    /// <summary>
+    /// Load commands and lists data from localStorage when user clicks the Load Data button
+    /// </summary>
+    public async Task LoadDataFromStorage()
+    {
+        if (TalonService == null || IsLoading) return;
+        
+        try
+        {
+            IsLoading = true;
+            StateHasChanged();
+            
+            Console.WriteLine("LoadDataFromStorage: User requested data load from localStorage");
+            
+            // Single attempt to load from localStorage
+            if (JSRuntime != null && TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
+            {
+                await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                Console.WriteLine("LoadDataFromStorage: localStorage load completed");
+            }
+            
+            // Refresh filters and statistics
+            await LoadFilterOptions();
+            await LoadCommandsAndComputeStatistics();
+            
+            var commandCount = _allCommandsCache?.Count ?? 0;
+            Console.WriteLine($"LoadDataFromStorage: Completed - {commandCount} commands loaded");
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadDataFromStorage error: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
     }
 
     public async Task OnCaptureClick(string captureName)
