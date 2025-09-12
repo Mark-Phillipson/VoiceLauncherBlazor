@@ -154,6 +154,31 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         }
     }
 
+    /// <summary>
+    /// Explicitly saves both commands and lists to localStorage using the provided JSRuntime.
+    /// This method should be called after bulk import operations to ensure data persistence.
+    /// </summary>
+    public async Task SaveToLocalStorageAsync(IJSRuntime jsRuntime)
+    {
+        try
+        {
+            // Save commands
+            var commandsJson = JsonSerializer.Serialize(_commands);
+            await jsRuntime.InvokeVoidAsync("localStorage.setItem", CommandsStorageKey, commandsJson);
+            Console.WriteLine($"SaveToLocalStorageAsync: Saved {_commands.Count} commands to localStorage");
+            
+            // Save lists
+            var listsJson = JsonSerializer.Serialize(_talonLists);
+            await jsRuntime.InvokeVoidAsync("localStorage.setItem", ListsStorageKey, listsJson);
+            Console.WriteLine($"SaveToLocalStorageAsync: Saved {_talonLists.Count} lists to localStorage");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in SaveToLocalStorageAsync: {ex.Message}");
+            throw;
+        }
+    }
+
     private int _nextCommandId = 1;
 
     private int GenerateNextCommandId()
