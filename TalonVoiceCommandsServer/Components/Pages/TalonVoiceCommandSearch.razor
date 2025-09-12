@@ -3,32 +3,71 @@
 @using TalonVoiceCommandsServer.Components
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
-<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
+<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")" @onkeydown="OnKeyDown" tabindex="-1">   
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Talon Voice Command Search</h2>
         <span class="text-muted">Current App: @CurrentApplication</span>
     </div>
 
-    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
+    <!-- Tabbed Navigation -->
     <div class="row mb-3">
         @if (!IsBlazorHybrid)
         {
-            <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
-                <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
-                    <span class="btn btn-primary disabled">
-                        <i class="oi oi-magnifying-glass me-1"></i> Search Commands
-                    </span>
-                    @* <a href="/talon-analysis" class="btn btn-outline-info">
-                        <i class="oi oi-graph me-1"></i> Analysis Report
-                    </a> *@
-                    <a href="/talon-import" class="btn btn-outline-secondary">
-                        <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                    </a>
-                </div>
+            <div class="col-12">
+                <ul class="nav nav-tabs" id="talonToolsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(ActiveTab == TabType.SearchCommands ? "active" : "")" 
+                                id="search-tab" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="search" 
+                                aria-selected="@(ActiveTab == TabType.SearchCommands ? "true" : "false")"
+                                @onclick="() => SwitchTab(TabType.SearchCommands)"
+                                accesskey="1">
+                            <i class="oi oi-magnifying-glass me-1"></i> <u>1</u>. Search Commands
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(ActiveTab == TabType.ImportScripts ? "active" : "")" 
+                                id="import-tab" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="import" 
+                                aria-selected="@(ActiveTab == TabType.ImportScripts ? "true" : "false")"
+                                @onclick="() => SwitchTab(TabType.ImportScripts)"
+                                accesskey="2">
+                            <i class="oi oi-cloud-upload me-1"></i> <u>2</u>. Import Scripts
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(ActiveTab == TabType.AnalysisReport ? "active" : "")" 
+                                id="analysis-tab" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="analysis" 
+                                aria-selected="@(ActiveTab == TabType.AnalysisReport ? "true" : "false")"
+                                @onclick="() => SwitchTab(TabType.AnalysisReport)"
+                                accesskey="3">
+                            <i class="oi oi-bar-chart me-1"></i> <u>3</u>. Analysis Report
+                        </button>
+                    </li>
+                </ul>
             </div>
         }
+    </div>
 
-        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+    <!-- Tab Content -->
+    <div class="tab-content" id="talonToolsTabContent">
+        <!-- Search Commands Tab -->
+        <div class="tab-pane fade @(ActiveTab == TabType.SearchCommands ? "show active" : "")" 
+             id="search" 
+             role="tabpanel" 
+             aria-labelledby="search-tab" 
+             tabindex="0">
+            
+            <!-- Search Bar and Semantic Toggle -->
+            <div class="row mb-3">
+                <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
             <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
                 <div class="d-flex w-100 gap-2 align-items-start search-input-row">
                     <div class="flex-grow-1 d-flex flex-column">
@@ -293,98 +332,8 @@
         </div>
     </form>
 
-    <!-- System Statistics -->
-    @if (AvailableApplications.Any() || TotalCommands > 0 || TotalLists > 0)
-    {
-        <div class="card mb-3 bg-light">
-            <div class="card-body py-2">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="oi oi-terminal me-2 text-primary"></i>
-                            <span><strong>@TotalCommands.ToString("N0")</strong> Commands</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <i class="oi oi-list me-2 text-success"></i>
-                            <span><strong>@TotalLists.ToString("N0")</strong> Lists</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center justify-content-center flex-wrap">
-                            <i class="oi oi-folder me-2 text-info"></i>
-                            <span class="me-2"><strong>Repositories:</strong></span>
-                            @if (CommandsBreakdown.Any())
-                            {
-                                @foreach (var repo in CommandsBreakdown.Take(5))
-                                {
-                                    <span class="badge bg-secondary me-1">@repo.RepositoryName (@repo.CommandCount.ToString("N0"))</span>
-                                }
-                                @if (CommandsBreakdown.Count > 5)
-                                {
-                                    <span class="text-muted">+ @(CommandsBreakdown.Count - 5) more</span>
-                                }
-                            }
-                            else
-                            {
-                                <span class="text-muted">None</span>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
-    <!-- Detailed Repository Breakdown -->
-    @if (CommandsBreakdown.Any())
-    {
-        <div class="card mb-3">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0">
-                    <i class="oi oi-bar-chart me-2"></i>
-                    Repository Breakdown
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Repository</th>
-                                <th class="text-end">Commands</th>
-                                <th>Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var repo in CommandsBreakdown)
-                            {
-                                var percentage = TotalCommands > 0 ? (repo.CommandCount * 100.0 / TotalCommands) : 0;
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-info me-1">@repo.RepositoryName</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <strong>@repo.CommandCount.ToString("N0")</strong>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar" role="progressbar" style="width: @percentage.ToString("0.1")%" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
-                                                @percentage.ToString("0.1")%
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    }
-
-    <div>
+            <!-- Search Results Section (only shown in Search tab) -->
+            <div>
         @if (IsLoading)
         {
             <div class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
@@ -611,7 +560,134 @@
         {
             <div class="alert alert-info" role="alert">No results found.</div>
         }
+            </div>
+        </div>
+        <!-- End of Search Commands Tab -->
+
+        <!-- Import Scripts Tab -->
+        <div class="tab-pane fade @(ActiveTab == TabType.ImportScripts ? "show active" : "")" 
+             id="import" 
+             role="tabpanel" 
+             aria-labelledby="import-tab" 
+             tabindex="0">
+            <div class="alert alert-info" role="alert">
+                <i class="oi oi-info me-2"></i>
+                <strong>Import Scripts:</strong> Please navigate to the <a href="/talon-import" class="alert-link">Import Scripts page</a> to import Talon voice command files.
+            </div>
+        </div>
+        <!-- End of Import Scripts Tab -->
+
+        <!-- Analysis Report Tab -->
+        <div class="tab-pane fade @(ActiveTab == TabType.AnalysisReport ? "show active" : "")" 
+             id="analysis" 
+             role="tabpanel" 
+             aria-labelledby="analysis-tab" 
+             tabindex="0">
+            
+            <!-- System Statistics -->
+            @if (AvailableApplications.Any() || TotalCommands > 0 || TotalLists > 0)
+            {
+                <div class="card mb-3 bg-light">
+                    <div class="card-body py-2">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="oi oi-terminal me-2 text-primary"></i>
+                                    <span><strong>@TotalCommands.ToString("N0")</strong> Commands</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="oi oi-list me-2 text-success"></i>
+                                    <span><strong>@TotalLists.ToString("N0")</strong> Lists</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center justify-content-center flex-wrap">
+                                    <i class="oi oi-folder me-2 text-info"></i>
+                                    <span class="me-2"><strong>Repositories:</strong></span>
+                                    @if (CommandsBreakdown.Any())
+                                    {
+                                        @foreach (var repo in CommandsBreakdown.Take(5))
+                                        {
+                                            <span class="badge bg-secondary me-1">@repo.RepositoryName (@repo.CommandCount.ToString("N0"))</span>
+                                        }
+                                        @if (CommandsBreakdown.Count > 5)
+                                        {
+                                            <span class="text-muted">+ @(CommandsBreakdown.Count - 5) more</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">None</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Detailed Repository Breakdown -->
+            @if (CommandsBreakdown.Any())
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="oi oi-bar-chart me-2"></i>
+                            Repository Breakdown
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Repository</th>
+                                        <th class="text-end">Commands</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var repo in CommandsBreakdown)
+                                    {
+                                        var percentage = TotalCommands > 0 ? (repo.CommandCount * 100.0 / TotalCommands) : 0;
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info me-1">@repo.RepositoryName</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <strong>@repo.CommandCount.ToString("N0")</strong>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar" role="progressbar" style="width: @percentage.ToString("0.1")%" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                                        @percentage.ToString("0.1")%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (!CommandsBreakdown.Any() && TotalCommands == 0)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="oi oi-warning me-2"></i>
+                    <strong>No Analysis Data Available:</strong> Please import some Talon voice command files first to see analysis data.
+                </div>
+            }
+        </div>
+        <!-- End of Analysis Report Tab -->
     </div>
+    <!-- End of Tab Content -->
+    
+</div>
+<!-- End of Main Container -->
 </div>
 
 @code {

@@ -315,6 +315,16 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     // For focused card functionality
     private TalonVoiceCommand? _focusedCommand = null;
     private bool _isFocusMode = false;
+    
+    // Tab management for UI improvements
+    public enum TabType
+    {
+        SearchCommands,
+        ImportScripts,
+        AnalysisReport
+    }
+    
+    public TabType ActiveTab { get; set; } = TabType.SearchCommands;
     private static bool _staticFiltersLoaded = false;        private static List<string> _staticAvailableApplications = new();
     private static List<string> _staticAvailableModes = new();
     private static List<string> _staticAvailableOperatingSystems = new();
@@ -552,77 +562,10 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 }
                 catch { }
             }
-            // Attempt to load any persisted commands/lists from browser localStorage into
-            // the Talon data service now that a JS runtime is available on the client.
-            try
-            {
-                if (TalonService != null)
-                {
-                    // TalonService is an ITalonVoiceCommandDataService, but our concrete
-                    // implementation exposes EnsureLoadedFromLocalStorageAsync. Attempt to
-                    // call it via reflection-safe pattern.
-                    if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
-                    {
-                        await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                        Console.WriteLine("OnAfterRenderAsync: EnsureLoadedFromLocalStorageAsync returned");
-                    }
-                    else
-                    {
-                        // If different implementation, try to call a similarly named method if present
-                        // otherwise fall back to loading filter options which will call the service APIs.
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Preload EnsureLoadedFromLocalStorageAsync failed: " + ex.Message);
-            }
-
-            // Ensure filter options / command cache are loaded on the client after first render.
-            try
-            {
-                if (TalonService != null)
-                {
-                    // Retry a few times because reading localStorage via JS interop
-                    // can be cancelled transiently while the Blazor circuit initializes.
-                    const int maxAttempts = 3;
-                    for (int attempt = 1; attempt <= maxAttempts; attempt++)
-                    {
-                        try
-                        {
-                            // Ask the service to load from localStorage (if present)
-                            if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete2)
-                            {
-                                await concrete2.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                            }
-
-                            // Load filter options which will read the service cache
-                            if ((_allCommandsCache == null || !_staticFiltersLoaded))
-                            {
-                                await LoadFilterOptions();
-                            }
-
-                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt}: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}; _staticFiltersLoaded: {_staticFiltersLoaded}");
-
-                            if ((_allCommandsCache?.Count ?? 0) > 0)
-                            {
-                                break; // success
-                            }
-                        }
-                        catch (Exception innerEx)
-                        {
-                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt} failed: {innerEx.Message}");
-                        }
-
-                        // small backoff before retrying
-                        await Task.Delay(200 * attempt);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Preload LoadFilterOptions failed: " + ex.Message);
-            }
+            
+            // Ensure localStorage data is loaded before attempting any searches
+            // This is critical for search functionality to work after page refresh
+            await EnsureDataIsLoadedForSearch();
 
             // If we have a search term from command line, perform the search after the first render
             if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
@@ -634,6 +577,86 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
         // Note: We avoid calling EnsureSearchFocus on every render to prevent 
         // performance issues and potential infinite loops
+    }
+    
+    /// <summary>
+    /// Ensures that command and list data is loaded from localStorage before allowing searches.
+    /// This method implements retry logic to handle potential race conditions during page load.
+    /// </summary>
+    private async Task EnsureDataIsLoadedForSearch()
+    {
+        if (TalonService == null) return;
+        
+        try
+        {
+            Console.WriteLine("EnsureDataIsLoadedForSearch: Starting data load process");
+            
+            // Retry a few times because reading localStorage via JS interop
+            // can be cancelled transiently while the Blazor circuit initializes.
+            const int maxAttempts = 5;
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    Console.WriteLine($"EnsureDataIsLoadedForSearch: Attempt {attempt}/{maxAttempts}");
+                    
+                    // Ask the service to load from localStorage (if present)
+                    if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
+                    {
+                        await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                        Console.WriteLine($"EnsureDataIsLoadedForSearch: EnsureLoadedFromLocalStorageAsync completed on attempt {attempt}");
+                    }
+
+                    // Load filter options which will read the service cache and populate _allCommandsCache
+                    if ((_allCommandsCache == null || !_staticFiltersLoaded))
+                    {
+                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Loading filter options on attempt {attempt}");
+                        await LoadFilterOptions();
+                    }
+
+                    Console.WriteLine($"EnsureDataIsLoadedForSearch attempt {attempt}: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}; _staticFiltersLoaded: {_staticFiltersLoaded}");
+
+                    // Check if we have successfully loaded data
+                    if ((_allCommandsCache?.Count ?? 0) > 0)
+                    {
+                        Console.WriteLine($"EnsureDataIsLoadedForSearch: Successfully loaded {_allCommandsCache.Count} commands on attempt {attempt}");
+                        break; // success - we have data to search
+                    }
+                    
+                    // If no data yet and this isn't the last attempt, wait and retry
+                    if (attempt < maxAttempts)
+                    {
+                        Console.WriteLine($"EnsureDataIsLoadedForSearch: No data loaded yet, waiting before retry {attempt + 1}");
+                        await Task.Delay(500 * attempt); // Progressive backoff
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    Console.WriteLine($"EnsureDataIsLoadedForSearch attempt {attempt} failed: {innerEx.Message}");
+                    
+                    if (attempt < maxAttempts)
+                    {
+                        // Wait before retrying
+                        await Task.Delay(300 * attempt);
+                    }
+                }
+            }
+            
+            // Log final status
+            var finalCount = _allCommandsCache?.Count ?? 0;
+            if (finalCount > 0)
+            {
+                Console.WriteLine($"EnsureDataIsLoadedForSearch: Data loading completed successfully with {finalCount} commands");
+            }
+            else
+            {
+                Console.WriteLine("EnsureDataIsLoadedForSearch: Warning - No commands were loaded after all retry attempts. Search functionality may not work until data is imported.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"EnsureDataIsLoadedForSearch error: {ex.Message}");
+        }
     }
 
     protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
@@ -1336,6 +1359,40 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     public bool IsInFocusMode()
     {
         return _isFocusMode;
+    }
+    
+    /// <summary>
+    /// Switches to the specified tab
+    /// </summary>
+    public void SwitchTab(TabType tab)
+    {
+        ActiveTab = tab;
+        StateHasChanged();
+    }
+    
+    /// <summary>
+    /// Handles keyboard shortcuts for tab navigation
+    /// </summary>
+    public async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        // Handle Ctrl+number shortcuts for tab switching
+        if (e.CtrlKey)
+        {
+            switch (e.Key)
+            {
+                case "1":
+                    SwitchTab(TabType.SearchCommands);
+                    break;
+                case "2":
+                    SwitchTab(TabType.ImportScripts);
+                    break;
+                case "3":
+                    SwitchTab(TabType.AnalysisReport);
+                    break;
+            }
+        }
+        
+        await Task.CompletedTask;
     }
 
     public void Dispose()
