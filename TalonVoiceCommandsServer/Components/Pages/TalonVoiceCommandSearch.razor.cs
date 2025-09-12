@@ -383,8 +383,22 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         StartAutoRefresh();
         Console.WriteLine("Auto-refresh timer started (30s interval)");
 
-        // initial application name
-        CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        // initial application name - handle cross-platform gracefully
+        try
+        {
+            CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        }
+        catch (System.DllNotFoundException)
+        {
+            // Windows APIs not available on non-Windows systems - set default
+            CurrentApplication = string.Empty;
+            Console.WriteLine("Windows API not available - running in cross-platform mode");
+        }
+        catch (Exception ex)
+        {
+            CurrentApplication = string.Empty;
+            Console.WriteLine($"Error getting active process name: {ex.Message}");
+        }
         
         Console.WriteLine($"OnInitializedAsync completed - Commands in cache: {_allCommandsCache?.Count ?? 0}");
     }
@@ -393,7 +407,22 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     {
         _refreshTimer = new Timer(async _ =>
         {
-            var appName = WindowsService?.GetActiveProcessName() ?? string.Empty;
+            var appName = string.Empty;
+            try
+            {
+                appName = WindowsService?.GetActiveProcessName() ?? string.Empty;
+            }
+            catch (System.DllNotFoundException)
+            {
+                // Windows APIs not available on non-Windows systems - use empty string
+                appName = string.Empty;
+            }
+            catch (Exception)
+            {
+                // Handle any other exceptions gracefully
+                appName = string.Empty;
+            }
+            
             // Auto-filter if enabled and changed
             if (AutoFilterByCurrentApp && appName != _lastAutoFilteredAppName)
             {
