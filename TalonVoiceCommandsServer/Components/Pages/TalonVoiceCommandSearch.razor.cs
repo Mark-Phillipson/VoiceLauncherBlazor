@@ -135,8 +135,40 @@ private bool _selectionModuleLoaded = false;
 
     public async Task ShowTitleModal()
     {
+        Console.WriteLine($"ShowTitleModal: AvailableTitles count: {AvailableTitles?.Count ?? 0}");
+        if (AvailableTitles?.Any() == true)
+        {
+            Console.WriteLine($"ShowTitleModal: Sample titles: {string.Join(", ", AvailableTitles.Take(5))}");
+        }
+        else
+        {
+            Console.WriteLine($"ShowTitleModal: _allCommandsCache count: {_allCommandsCache?.Count ?? 0}");
+            if (_allCommandsCache?.Any() == true)
+            {
+                var titlesFromCache = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
+                    .Select(c => c.Title!)
+                    .Distinct()
+                    .Take(5)
+                    .ToList();
+                Console.WriteLine($"ShowTitleModal: Sample titles from cache: {string.Join(", ", titlesFromCache)}");
+            }
+        }
+        
         SelectionModalItems = ToSelectionItems(AvailableTitles, "bg-light");
         SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
+        
+        // Add helpful message if no titles are available
+        if (AvailableTitles?.Any() != true)
+        {
+            SelectionModalItems.Add(new SelectionItem 
+            { 
+                Id = "no-data", 
+                Label = "No titles available - Import Talon scripts first", 
+                ColorClass = "bg-warning text-dark"
+            });
+        }
+        
         SelectionModalTitle = "Select Title";
         _openFilterTarget = "title";
         await InvokeAsync(StateHasChanged);
@@ -248,8 +280,11 @@ private bool _selectionModuleLoaded = false;
     public List<TalonVoiceCommand> Results { get; set; } = new();
     public bool IsLoading { get; set; }
     public bool HasSearched { get; set; }
+    public bool IsUsingJavaScriptDisplay { get; set; } = false; // Track when JavaScript is displaying results
+    public int JavaScriptResultCount { get; set; } = 0; // Track JavaScript result count
     public bool UseSemanticMatching { get; set; } = false;
     public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
+    public string InfoMessage { get; set; } = string.Empty;
     
     // Filter properties
     public string SelectedApplication { get; set; } = string.Empty;
@@ -267,6 +302,39 @@ private bool _selectionModuleLoaded = false;
     public List<string> AvailableTitles { get; set; } = new();
     public List<string> AvailableCodeLanguages { get; set; } = new();
     private int maxResults = 100;
+    
+    // Helper method to clear JavaScript display state
+    private void ClearJavaScriptDisplay()
+    {
+        IsUsingJavaScriptDisplay = false;
+        JavaScriptResultCount = 0;
+    }
+    
+    // Helper method to get the effective result count
+    public int GetEffectiveResultCount()
+    {
+        return IsUsingJavaScriptDisplay ? JavaScriptResultCount : (Results?.Count ?? 0);
+    }
+    
+    // Helper method to check if there are any results to display
+    public bool HasAnyResults()
+    {
+        return IsUsingJavaScriptDisplay ? JavaScriptResultCount > 0 : (Results?.Any() == true);
+    }
+    
+    // Debug method to force reload filter options
+    public async Task ForceReloadFilterOptions()
+    {
+        Console.WriteLine("ForceReloadFilterOptions: Starting manual reload...");
+        lock (_filterLock)
+        {
+            _staticFiltersLoaded = false;
+        }
+        _allCommandsCache = null;
+        await LoadFilterOptions();
+        StateHasChanged();
+        Console.WriteLine("ForceReloadFilterOptions: Completed");
+    }
 
 [Inject]
 public ITalonVoiceCommandDataService? TalonService { get; set; }
@@ -278,6 +346,8 @@ public ITalonVoiceCommandDataService? TalonService { get; set; }
     public string CurrentApplication { get; set; } = string.Empty;
     
     private List<TalonVoiceCommand>? _allCommandsCache;
+    // Tracks whether any data exists either in-memory or persisted in IndexedDB
+    public bool HasAnyData { get; set; } = false;
     
     // System statistics
     public int TotalCommands { get; set; } = 0;
@@ -297,12 +367,26 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private string _lastAutoFilteredAppName = string.Empty;
     private string _lastAutoRefreshedAppName = string.Empty;
 
+    private string NormalizeAppName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+        var n = name.Trim().ToLowerInvariant();
+        if (n == "code" || n == "vscode" || n == "visual studio code" || n == "vs code") return "visual studio code";
+        if (n == "devenv" || n == "visual studio" || n == "vs" || n == "msvs") return "visual studio";
+        if (n == "chrome" || n == "google chrome") return "chrome";
+        if (n == "msedge" || n == "edge" || n == "microsoft edge") return "edge";
+        return name;
+    }
+
     private string? MapProcessToApplication(string processName)
     {
         if (string.IsNullOrWhiteSpace(processName) || AvailableApplications == null) return null;
-        var exact = AvailableApplications.FirstOrDefault(a => a.Equals(processName, StringComparison.OrdinalIgnoreCase));
+        var normalized = NormalizeAppName(processName);
+        var exact = AvailableApplications.FirstOrDefault(a => a.Equals(normalized, StringComparison.OrdinalIgnoreCase) || a.Equals(processName, StringComparison.OrdinalIgnoreCase));
         if (exact != null) return exact;
         var partial = AvailableApplications.FirstOrDefault(a =>
+            a.IndexOf(normalized, StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0 ||
             a.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0 ||
             processName.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0);
         return partial;
@@ -315,6 +399,16 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     // For focused card functionality
     private TalonVoiceCommand? _focusedCommand = null;
     private bool _isFocusMode = false;
+    
+    // Tab management for UI improvements
+    public enum TabType
+    {
+        SearchCommands,
+        ImportScripts,
+        AnalysisReport
+    }
+    
+    public TabType ActiveTab { get; set; } = TabType.SearchCommands;
     private static bool _staticFiltersLoaded = false;        private static List<string> _staticAvailableApplications = new();
     private static List<string> _staticAvailableModes = new();
     private static List<string> _staticAvailableOperatingSystems = new();
@@ -322,6 +416,52 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private static List<string> _staticAvailableTags = new();
     private static List<string> _staticAvailableTitles = new();
     private static List<string> _staticAvailableCodeLanguages = new();private static readonly object _filterLock = new object();
+
+    // Predefined common filter values that users can use immediately without imports
+    private static readonly List<string> _predefinedApplications = new()
+    {
+        "vscode", "code", "visual studio code", "vs code",
+        "chrome", "google chrome", "firefox", "edge", "safari",
+        "terminal", "cmd", "powershell", "bash", "zsh",
+        "word", "excel", "powerpoint", "outlook", "teams",
+        "slack", "discord", "zoom", "skype",
+        "notepad", "sublime", "atom", "vim", "emacs",
+        "windows", "explorer", "finder",
+        "global", "default"
+    };
+    
+    private static readonly List<string> _predefinedModes = new()
+    {
+        "command", "insert", "dictation", "sleep",
+        "user.terminal", "user.bash", "user.powershell",
+        "user.vim", "user.emacs", "user.vscode",
+        "user.chrome", "user.firefox",
+        "user.coding", "user.debugging", "user.git"
+    };
+    
+    private static readonly List<string> _predefinedOperatingSystems = new()
+    {
+        "windows", "linux", "mac", "macos", "ubuntu", "debian"
+    };
+    
+    private static readonly List<string> _predefinedRepositories = new()
+    {
+        "community", "knausj_talon", "talon_community", "user_settings", "personal"
+    };
+    
+    private static readonly List<string> _predefinedTags = new()
+    {
+        "navigation", "editing", "browser", "terminal", "git", "debugging",
+        "file_management", "window_management", "text_manipulation",
+        "code_completion", "refactoring", "search", "replace"
+    };
+    
+    private static readonly List<string> _predefinedCodeLanguages = new()
+    {
+        "python", "javascript", "typescript", "c#", "csharp", "java", "cpp", "c++",
+        "go", "rust", "html", "css", "sql", "json", "xml", "yaml", "markdown",
+        "bash", "powershell", "dockerfile", "terraform"
+    };
 
     /// <summary>
     /// Clears the static filter cache to force reload after data changes
@@ -358,29 +498,63 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     }        protected override async Task OnInitializedAsync()
     {
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Initialize display state
         
         // Debug: Log the initial search term
-        // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
+        Console.WriteLine($"TalonVoiceCommandSearch.OnInitializedAsync - InitialSearchTerm: '{InitialSearchTerm}'");
         
-        // Always load filter options to ensure fresh data and cache commands for search functionality
+        // Try to load basic filter options (won't work until localStorage is loaded via button)
         await LoadFilterOptions();
         
-        // Load commands into cache and compute statistics to ensure search works after page refresh
-        await LoadCommandsAndComputeStatistics();
+        // DON'T load commands automatically - wait for user to click "Load Data"
+        // This prevents blocking the Blazor connection on tab switch
+        Console.WriteLine("OnInitializedAsync: Skipping automatic data load to prevent connection timeout");
 
         // start auto-refresh every 30 seconds
         StartAutoRefresh();
-        // System.Diagnostics.Debug.WriteLine("Auto-refresh timer started (30s interval)");
+        Console.WriteLine("Auto-refresh timer started (30s interval)");
 
-        // initial application name
-        CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        // initial application name - handle cross-platform gracefully
+        try
+        {
+            CurrentApplication = WindowsService?.GetActiveProcessName() ?? string.Empty;
+        }
+        catch (System.DllNotFoundException)
+        {
+            // Windows APIs not available on non-Windows systems - set default
+            CurrentApplication = string.Empty;
+            Console.WriteLine("Windows API not available - running in cross-platform mode");
+        }
+        catch (Exception ex)
+        {
+            CurrentApplication = string.Empty;
+            Console.WriteLine($"Error getting active process name: {ex.Message}");
+        }
+        
+        Console.WriteLine($"OnInitializedAsync completed - Commands in cache: {_allCommandsCache?.Count ?? 0}");
+        await UpdateHasAnyDataAsync();
     }
 
     private void StartAutoRefresh()
     {
         _refreshTimer = new Timer(async _ =>
         {
-            var appName = WindowsService?.GetActiveProcessName() ?? string.Empty;
+            var appName = string.Empty;
+            try
+            {
+                appName = WindowsService?.GetActiveProcessName() ?? string.Empty;
+            }
+            catch (System.DllNotFoundException)
+            {
+                // Windows APIs not available on non-Windows systems - use empty string
+                appName = string.Empty;
+            }
+            catch (Exception)
+            {
+                // Handle any other exceptions gracefully
+                appName = string.Empty;
+            }
+            
             // Auto-filter if enabled and changed
             if (AutoFilterByCurrentApp && appName != _lastAutoFilteredAppName)
             {
@@ -401,6 +575,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
             // update current application display
             await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
+            await UpdateHasAnyDataAsync();
         }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
     }
     protected override async Task OnParametersSetAsync()
@@ -418,11 +593,50 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         await base.OnParametersSetAsync();
     }
 
+    /// <summary>
+    /// Loads predefined filter values that users can use immediately without importing data
+    /// </summary>
+    private void LoadPredefinedFilterValues()
+    {
+        Console.WriteLine("LoadPredefinedFilterValues: Loading predefined filter values for immediate use");
+        
+        lock (_filterLock)
+        {
+            // Set predefined values directly to instance properties
+            AvailableApplications = _predefinedApplications.ToList();
+            AvailableModes = _predefinedModes.ToList();
+            AvailableOperatingSystems = _predefinedOperatingSystems.ToList();
+            AvailableRepositories = _predefinedRepositories.ToList();
+            AvailableTags = _predefinedTags.ToList();
+            AvailableTitles = new List<string>(); // Will be populated from imported data
+            AvailableCodeLanguages = _predefinedCodeLanguages.ToList();
+            
+            Console.WriteLine($"LoadPredefinedFilterValues: Loaded {AvailableApplications.Count} applications, {AvailableModes.Count} modes, {AvailableOperatingSystems.Count} operating systems");
+        }
+        
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Merges predefined filter values with data from imported commands
+    /// </summary>
+    private List<string> MergeWithPredefined(List<string> importedValues, List<string> predefinedValues)
+    {
+        var merged = new HashSet<string>(predefinedValues, StringComparer.OrdinalIgnoreCase);
+        foreach (var value in importedValues)
+        {
+            merged.Add(value);
+        }
+        return merged.OrderBy(v => v, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
     private async Task LoadFilterOptions()
     {
         if (_isLoadingFilters || TalonService is null) return;
-          lock (_filterLock)
-        {                if (_staticFiltersLoaded)
+        
+        lock (_filterLock)
+        {
+            if (_staticFiltersLoaded)
             {
                 AvailableApplications = _staticAvailableApplications;
                 AvailableModes = _staticAvailableModes;
@@ -431,6 +645,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 AvailableTags = _staticAvailableTags;
                 AvailableTitles = _staticAvailableTitles;
                 AvailableCodeLanguages = _staticAvailableCodeLanguages;
+                Console.WriteLine($"LoadFilterOptions: Using cached filters - {AvailableApplications.Count} applications");
                 return;
             }
             
@@ -440,78 +655,118 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         try
         {
-            // Cache all commands to avoid multiple database calls
+            Console.WriteLine("LoadFilterOptions: Starting filter loading process");
+            
+            // STEP 1: Always load predefined values first so users have immediate filter options
+            LoadPredefinedFilterValues();
+            
+            // STEP 2: Try to get imported data from the service to enhance the predefined values
             _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
+            Console.WriteLine($"LoadFilterOptions: Retrieved {_allCommandsCache.Count} commands from service");
             
-            var applications = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Application))
-                .Select(c => c.Application!)
-                .Distinct()
-                .OrderBy(a => a)
-                .ToList();
-
-            var modes = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
-                .Select(c => c.Mode!)
-                .Distinct()
-                .OrderBy(m => m)
-                .ToList();
-
-            var operatingSystems = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
-                .Select(c => c.OperatingSystem!)
-                .Distinct()
-                .OrderBy(os => os)
-                .ToList();
-
-            var repositories = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
-                .Select(c => c.Repository!)
-                .Distinct()
-                .OrderBy(r => r)
-                .ToList();
-
-            var tags = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
-                .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim()))
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();                var titles = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Title))
-                .Select(c => c.Title!)
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();
-
-            var codeLanguages = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
-                .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(cl => cl.Trim()))
-                .Distinct()
-                .OrderBy(cl => cl)
-                .ToList();
-            
-            // Debug output
-            Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
-            Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
-              // Update both instance and static collections
-            lock (_filterLock)
+            // STEP 3: If we have imported data, merge it with predefined values for enhanced filtering
+            if (_allCommandsCache.Count > 0)
             {
-                AvailableApplications = _staticAvailableApplications = applications;
-                AvailableModes = _staticAvailableModes = modes;
-                AvailableOperatingSystems = _staticAvailableOperatingSystems = operatingSystems;
-                AvailableRepositories = _staticAvailableRepositories = repositories;
-                AvailableTags = _staticAvailableTags = tags;
-                AvailableTitles = _staticAvailableTitles = titles;
-                AvailableCodeLanguages = _staticAvailableCodeLanguages = codeLanguages;
-                _staticFiltersLoaded = true;
+                Console.WriteLine("LoadFilterOptions: Enhancing predefined filters with imported data");
                 
-                // Compute statistics after loading commands
-                ComputeSystemStatsFromCache();
+                var importedApplications = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Application))
+                    .Select(c => c.Application!)
+                    .Distinct()
+                    .ToList();
+
+                var importedModes = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
+                    .Select(c => c.Mode!)
+                    .Distinct()
+                    .ToList();
+
+                var importedOperatingSystems = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
+                    .Select(c => c.OperatingSystem!)
+                    .Distinct()
+                    .ToList();
+
+                var importedRepositories = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
+                    .Select(c => c.Repository!)
+                    .Distinct()
+                    .ToList();
+
+                var importedTags = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
+                    .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()))
+                    .Distinct()
+                    .ToList();
+                    
+                var importedTitles = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
+                    .Select(c => c.Title!)
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+
+                Console.WriteLine($"LoadFilterOptions: Found {importedTitles.Count} unique titles in cache");
+                if (importedTitles.Any())
+                {
+                    Console.WriteLine($"LoadFilterOptions: Sample titles: {string.Join(", ", importedTitles.Take(5))}");
+                }
+
+                var importedCodeLanguages = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
+                    .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(cl => cl.Trim()))
+                    .Distinct()
+                    .ToList();
+                
+                // Merge imported data with predefined values
+                lock (_filterLock)
+                {
+                    AvailableApplications = _staticAvailableApplications = MergeWithPredefined(importedApplications, _predefinedApplications);
+                    AvailableModes = _staticAvailableModes = MergeWithPredefined(importedModes, _predefinedModes);
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems = MergeWithPredefined(importedOperatingSystems, _predefinedOperatingSystems);
+                    AvailableRepositories = _staticAvailableRepositories = MergeWithPredefined(importedRepositories, _predefinedRepositories);
+                    AvailableTags = _staticAvailableTags = MergeWithPredefined(importedTags, _predefinedTags);
+                    AvailableTitles = _staticAvailableTitles = importedTitles; // Titles come only from imported data
+                    Console.WriteLine($"LoadFilterOptions: Set AvailableTitles to {AvailableTitles.Count} items");
+                    AvailableCodeLanguages = _staticAvailableCodeLanguages = MergeWithPredefined(importedCodeLanguages, _predefinedCodeLanguages);
+                    _staticFiltersLoaded = true;
+                    
+                    // Compute statistics after loading commands
+                    ComputeSystemStatsFromCache();
+                }
+                
+                Console.WriteLine($"LoadFilterOptions: Enhanced filters - {AvailableApplications.Count} applications, {AvailableModes.Count} modes, {AvailableRepositories.Count} repositories");
+                Console.WriteLine($"LoadFilterOptions: Found {importedRepositories.Count} imported repositories: {string.Join(", ", importedRepositories)}");
+                Console.WriteLine($"LoadFilterOptions: Found {importedTags.Count} imported tags: {string.Join(", ", importedTags.Take(10))}");
+            }
+            else
+            {
+                Console.WriteLine("LoadFilterOptions: No imported data available, using predefined values only");
+                
+                // Still cache the predefined values as static for consistency
+                lock (_filterLock)
+                {
+                    _staticAvailableApplications = AvailableApplications.ToList();
+                    _staticAvailableModes = AvailableModes.ToList();
+                    _staticAvailableOperatingSystems = AvailableOperatingSystems.ToList();
+                    _staticAvailableRepositories = AvailableRepositories.ToList();
+                    _staticAvailableTags = AvailableTags.ToList();
+                    _staticAvailableTitles = AvailableTitles.ToList();
+                    _staticAvailableCodeLanguages = AvailableCodeLanguages.ToList();
+                    _staticFiltersLoaded = true;
+                }
             }
             
+            Console.WriteLine($"LoadFilterOptions: Completed successfully - {AvailableApplications.Count} applications, {AvailableModes.Count} modes");
             StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadFilterOptions: Error occurred - {ex.Message}");
+            // Even if there's an error, ensure users have predefined values to work with
+            LoadPredefinedFilterValues();
         }
         finally
         {
@@ -552,77 +807,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 }
                 catch { }
             }
-            // Attempt to load any persisted commands/lists from browser localStorage into
-            // the Talon data service now that a JS runtime is available on the client.
-            try
-            {
-                if (TalonService != null)
-                {
-                    // TalonService is an ITalonVoiceCommandDataService, but our concrete
-                    // implementation exposes EnsureLoadedFromLocalStorageAsync. Attempt to
-                    // call it via reflection-safe pattern.
-                    if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
-                    {
-                        await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                        Console.WriteLine("OnAfterRenderAsync: EnsureLoadedFromLocalStorageAsync returned");
-                    }
-                    else
-                    {
-                        // If different implementation, try to call a similarly named method if present
-                        // otherwise fall back to loading filter options which will call the service APIs.
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Preload EnsureLoadedFromLocalStorageAsync failed: " + ex.Message);
-            }
-
-            // Ensure filter options / command cache are loaded on the client after first render.
-            try
-            {
-                if (TalonService != null)
-                {
-                    // Retry a few times because reading localStorage via JS interop
-                    // can be cancelled transiently while the Blazor circuit initializes.
-                    const int maxAttempts = 3;
-                    for (int attempt = 1; attempt <= maxAttempts; attempt++)
-                    {
-                        try
-                        {
-                            // Ask the service to load from localStorage (if present)
-                            if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete2)
-                            {
-                                await concrete2.EnsureLoadedFromLocalStorageAsync(JSRuntime);
-                            }
-
-                            // Load filter options which will read the service cache
-                            if ((_allCommandsCache == null || !_staticFiltersLoaded))
-                            {
-                                await LoadFilterOptions();
-                            }
-
-                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt}: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}; _staticFiltersLoaded: {_staticFiltersLoaded}");
-
-                            if ((_allCommandsCache?.Count ?? 0) > 0)
-                            {
-                                break; // success
-                            }
-                        }
-                        catch (Exception innerEx)
-                        {
-                            Console.WriteLine($"OnAfterRenderAsync attempt {attempt} failed: {innerEx.Message}");
-                        }
-
-                        // small backoff before retrying
-                        await Task.Delay(200 * attempt);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Preload LoadFilterOptions failed: " + ex.Message);
-            }
+            
+            // Note: localStorage loading is now handled by the manual "Load Data" button
+            // to avoid connection timeouts during page initialization
 
             // If we have a search term from command line, perform the search after the first render
             if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
@@ -635,6 +822,84 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Note: We avoid calling EnsureSearchFocus on every render to prevent 
         // performance issues and potential infinite loops
     }
+    
+    /// <summary>
+    /// Ensures that command and list data is loaded from localStorage before allowing searches.
+    /// This is now a simple single-attempt method called only by the Load Data button.
+    /// </summary>
+    private async Task EnsureDataIsLoadedForSearch()
+    {
+        if (TalonService == null) return;
+        
+        try
+        {
+            Console.WriteLine("EnsureDataIsLoadedForSearch: Loading data from localStorage");
+            
+            // Single attempt to load from localStorage
+            if (TalonService is TalonVoiceCommandsServer.Services.TalonVoiceCommandDataService concrete)
+            {
+                await concrete.EnsureLoadedFromLocalStorageAsync(JSRuntime);
+                Console.WriteLine("EnsureDataIsLoadedForSearch: localStorage load completed");
+            }
+
+            // Load filter options which will read the service cache and populate _allCommandsCache
+            if ((_allCommandsCache == null || !_staticFiltersLoaded))
+            {
+                Console.WriteLine("EnsureDataIsLoadedForSearch: Loading filter options");
+                await LoadFilterOptions();
+            }
+
+            Console.WriteLine($"EnsureDataIsLoadedForSearch completed: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}");
+            await UpdateHasAnyDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"EnsureDataIsLoadedForSearch error: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateHasAnyDataAsync()
+    {
+        try
+        {
+            if ((_allCommandsCache?.Count ?? 0) > 0)
+            {
+                HasAnyData = true;
+                return;
+            }
+            if (JSRuntime != null)
+            {
+                var info = await JSRuntime.InvokeAsync<object>("TalonStorageDB.getStorageInfo");
+                var json = System.Text.Json.JsonSerializer.Serialize(info);
+                // If metadata says we have commands, trust it
+                if (json.Contains("\"commands\":") && !json.Contains("\"commands\":{\"count\":0"))
+                {
+                    HasAnyData = true;
+                }
+                else
+                {
+                    // Fallback: directly count records in the commands store
+                    try
+                    {
+                        var count = await JSRuntime.InvokeAsync<int>("TalonStorageDB.getCommandsCount");
+                        HasAnyData = count > 0;
+                    }
+                    catch
+                    {
+                        HasAnyData = false;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // ignore, keep previous value
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
 
     protected async Task OnSearchInputKeyUp(KeyboardEventArgs e)
     {
@@ -645,10 +910,22 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
     }        protected async Task OnSearchInputBlur()
     {
-        // Trigger search when the search input loses focus
-        await OnSearch();
-    }        public async Task OnSearch()
+        // Only trigger search when input loses focus if we have cached data available
+        if (_allCommandsCache != null && _allCommandsCache.Count > 0)
+        {
+            await OnSearch();
+        }
+    }        
+    
+    protected async Task OnSearch()
     {
+        Console.WriteLine("=== OnSearch method ENTRY POINT - this should always appear ===");
+        System.Diagnostics.Debug.WriteLine("=== OnSearch method ENTRY POINT - DEBUG ===");
+        
+        var searchStartTime = DateTime.UtcNow;
+        Console.WriteLine($"OnSearch: Starting search at {searchStartTime:HH:mm:ss.fff}");
+        Console.WriteLine("**** ONSEARCH METHOD CALLED - THIS SHOULD APPEAR IN LOGS ****");
+        
         // System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
         
         // Cancel any existing search operation
@@ -698,10 +975,327 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             // Small delay to ensure spinner is visible
             await Task.Delay(100);
         
-        if (TalonService is not null)
+    if (TalonService is not null)
         {
-            // Use cached data if available, otherwise load it
-            var allCommands = _allCommandsCache ?? await TalonService.GetAllCommandsForFiltersAsync();
+            // Use direct JavaScript display to avoid SignalR data transfer issues
+            try
+            {
+                Console.WriteLine("OnSearch: Starting direct JavaScript search and display...");
+                
+                // Show the JavaScript results container and hide C# results
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.search-results-container').style.display = 'block'");
+                }
+                
+                var resultCount = await TalonService.SearchAndDisplayDirectlyAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope,
+                    maxResults: 500
+                );
+
+                Console.WriteLine($"OnSearch: Direct display showed {resultCount} results");
+                JavaScriptResultCount = resultCount; // Store the result count for display
+                // If no results and an application filter is set, try again without the app filter
+                if (resultCount == 0 && hasApplicationFilter)
+                {
+                    Console.WriteLine("OnSearch: Zero results with app filter; retrying without application filter as fallback...");
+                    var fallbackCount = await TalonService.SearchAndDisplayDirectlyAsync(
+                        searchTerm: hasSearchTerm ? SearchTerm : null,
+                        application: null,
+                        mode: hasModeFilter ? SelectedMode : null,
+                        operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                        repository: hasRepositoryFilter ? SelectedRepository : null,
+                        tags: hasTagsFilter ? SelectedTags : null,
+                        title: hasTitleFilter ? SelectedTitle : null,
+                        codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                        useSemanticMatching: UseSemanticMatching,
+                        searchScope: (int)SelectedSearchScope,
+                        maxResults: 500
+                    );
+                    if (fallbackCount > 0)
+                    {
+                        InfoMessage = $"Showing {fallbackCount} results across all applications (no matches found for '{SelectedApplication}').";
+                    }
+                }
+                
+                // Clear C# results since we're using JavaScript display
+                Results = new List<TalonVoiceCommand>();
+                IsUsingJavaScriptDisplay = true; // Set flag to indicate JavaScript display is active
+                
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Direct search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Direct display failed: {ex.Message}");
+                Console.WriteLine("OnSearch: Falling back to simple search...");
+                
+                // Hide JavaScript results container on error
+                if (JSRuntime != null)
+                {
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("eval", "document.querySelector('.search-results-container').style.display = 'none'");
+                    }
+                    catch { }
+                }
+            }
+
+            // Fallback: Use simple limited search to prevent SignalR timeouts
+            try
+            {
+                Console.WriteLine("OnSearch: Starting simple limited IndexedDB search to prevent timeouts...");
+                var searchResults = await TalonService.SearchFilteredCommandsSimpleAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope,
+                    maxResults: 500
+                );
+
+                Console.WriteLine($"OnSearch: Simple search returned {searchResults.Count} results");
+                if (searchResults.Count == 0 && hasApplicationFilter)
+                {
+                    Console.WriteLine("OnSearch: Zero results with app filter (simple); retry without application filter...");
+                    var fallback = await TalonService.SearchFilteredCommandsSimpleAsync(
+                        searchTerm: hasSearchTerm ? SearchTerm : null,
+                        application: null,
+                        mode: hasModeFilter ? SelectedMode : null,
+                        operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                        repository: hasRepositoryFilter ? SelectedRepository : null,
+                        tags: hasTagsFilter ? SelectedTags : null,
+                        title: hasTitleFilter ? SelectedTitle : null,
+                        codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                        useSemanticMatching: UseSemanticMatching,
+                        searchScope: (int)SelectedSearchScope,
+                        maxResults: 500
+                    );
+                    if (fallback.Count > 0)
+                    {
+                        searchResults = fallback;
+                        InfoMessage = $"Showing {fallback.Count} results across all applications (no matches found for '{SelectedApplication}').";
+                    }
+                }
+                Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
+                
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Simple search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Simple search failed: {ex.Message}");
+                Console.WriteLine("OnSearch: Falling back to C#-only search...");
+            }
+
+            // Fallback: Try C#-only search if simple search fails
+            try
+            {
+                Console.WriteLine("OnSearch: Starting C#-only in-memory search...");
+                var searchResults = await TalonService.GetFilteredCommandsInMemory(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                // If we got results OR if there are no search criteria (meaning we should show all results)
+                // then use the C# results. If empty but we have search criteria, fall back to JS approach.
+                if (searchResults.Count > 0 || (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter))
+                {
+                    Console.WriteLine($"OnSearch: C#-only search returned {searchResults.Count} results, setting Results...");
+                    Results = searchResults;
+                    ClearJavaScriptDisplay(); // Clear JavaScript display state
+                    Console.WriteLine("OnSearch: Results set, updating UI state...");
+                    IsLoading = false;
+                    HasSearched = true;
+                    StateHasChanged();
+                    var searchEndTime = DateTime.UtcNow;
+                    var duration = searchEndTime - searchStartTime;
+                    Console.WriteLine($"OnSearch: C#-only search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("OnSearch: C#-only search returned empty results (likely no data in memory)");
+                    Console.WriteLine("OnSearch: Attempting to load data from IndexedDB first...");
+                    
+                    // Try to load data from IndexedDB with a timeout
+                    try
+                    {
+                        using var loadCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                        await TalonService.EnsureLoadedFromIndexedDBAsync(JSRuntime);
+                        Console.WriteLine("OnSearch: Successfully loaded data from IndexedDB, retrying C# search...");
+                        
+                        // Retry the C# search now that data should be loaded
+                        var retryResults = await TalonService.GetFilteredCommandsInMemory(
+                            searchTerm: hasSearchTerm ? SearchTerm : null,
+                            application: hasApplicationFilter ? SelectedApplication : null,
+                            mode: hasModeFilter ? SelectedMode : null,
+                            operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                            repository: hasRepositoryFilter ? SelectedRepository : null,
+                            tags: hasTagsFilter ? SelectedTags : null,
+                            title: hasTitleFilter ? SelectedTitle : null,
+                            codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                            useSemanticMatching: UseSemanticMatching,
+                            searchScope: (int)SelectedSearchScope
+                        );
+                        
+                        Console.WriteLine($"OnSearch: Retry search returned {retryResults.Count} results");
+                        Results = retryResults;
+                        ClearJavaScriptDisplay(); // Clear JavaScript display state
+                        IsLoading = false;
+                        HasSearched = true;
+                        StateHasChanged();
+                        var searchEndTime = DateTime.UtcNow;
+                        var duration = searchEndTime - searchStartTime;
+                        Console.WriteLine($"OnSearch: Data load + search completed in {duration.TotalMilliseconds}ms");
+                        return;
+                    }
+                    catch (Exception loadEx)
+                    {
+                        Console.WriteLine($"OnSearch: Failed to load data from IndexedDB: {loadEx.Message}");
+                        Console.WriteLine("OnSearch: Falling back to ID-based search...");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: C#-only search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to ID-based search...");
+            }
+
+            // Try the ID-based filtered search as first fallback
+            try
+            {
+                Console.WriteLine("OnSearch: Starting ID-based filtered search...");
+                var searchResults = await TalonService.SearchFilteredCommandsByIdsAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                Console.WriteLine($"OnSearch: ID-based search returned {searchResults.Count} results, setting Results...");
+                Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
+                Console.WriteLine("OnSearch: Results set, updating UI state...");
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: ID-based search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: ID-based search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to full object search...");
+            }
+
+            // Fallback to original filtered search
+            try
+            {
+                Console.WriteLine("OnSearch: Starting full object filtered search...");
+                var searchResults = await TalonService.SearchFilteredCommandsAsync(
+                    searchTerm: hasSearchTerm ? SearchTerm : null,
+                    application: hasApplicationFilter ? SelectedApplication : null,
+                    mode: hasModeFilter ? SelectedMode : null,
+                    operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                    repository: hasRepositoryFilter ? SelectedRepository : null,
+                    tags: hasTagsFilter ? SelectedTags : null,
+                    title: hasTitleFilter ? SelectedTitle : null,
+                    codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                    useSemanticMatching: UseSemanticMatching,
+                    searchScope: (int)SelectedSearchScope
+                );
+
+                Console.WriteLine($"OnSearch: Filtered search returned {searchResults.Count} results, setting Results...");
+                Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
+                Console.WriteLine("OnSearch: Results set, updating UI state...");
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                var searchEndTime = DateTime.UtcNow;
+                var duration = searchEndTime - searchStartTime;
+                Console.WriteLine($"OnSearch: Filtered search completed successfully in {duration.TotalMilliseconds}ms at {searchEndTime:HH:mm:ss.fff}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnSearch: Filtered search failed with exception: {ex.Message}");
+                Console.WriteLine($"OnSearch: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"OnSearch: Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine("OnSearch: Falling back to cache approach...");
+            }
+            
+            // Fallback: Check if we have cached data, if not show a helpful message
+            if (_allCommandsCache == null || _allCommandsCache.Count == 0)
+            {
+                Console.WriteLine("OnSearch: No cached commands available and filtered search failed");
+                Results = new List<TalonVoiceCommand>();
+                ClearJavaScriptDisplay(); // Clear display state when clearing results
+                IsLoading = false;
+                HasSearched = true;
+                StateHasChanged();
+                return;
+            }
+            
+            // Use cached data (which we know is loaded if we get to this point)
+            var allCommands = _allCommandsCache;
+            Console.WriteLine($"OnSearch: Using fallback cache approach with {allCommands.Count} commands");
             
             // Apply filters first
             var filteredCommands = allCommands.AsEnumerable();
@@ -824,69 +1418,71 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 // Apply text search on filtered results based on scope
                 if (hasSearchTerm)
                 {
-                    // Debug logging
-                    if (JSRuntime != null)
+                    // Debug logging with try-catch to prevent JS connection issues
+                    try
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                        }
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                        }
+                    }
+                    catch (Exception jsEx)
+                    {
+                        Console.WriteLine($"[DEBUG] JS logging failed: {jsEx.Message}");
+                    }
                     
-                    // Use appropriate search method based on scope
+                    // Search within the already filtered cache data instead of calling service methods
+                    Console.WriteLine($"[DEBUG] Starting in-memory search for '{SearchTerm}' on {filteredCommands.Count()} filtered commands");
+                    var lowerTerm = SearchTerm!.ToLower();
                     List<TalonVoiceCommand> searchResults;
+                    
+                    var startTime = DateTime.Now;
                     switch (SelectedSearchScope)
                     {
                         case SearchScope.CommandNamesOnly:
-                            searchResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching command names only...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Command.ToLower().Contains(lowerTerm))
+                                .Take(100)
+                                .ToList();
                             break;
                         case SearchScope.Script:
-                            searchResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching scripts only...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Script.ToLower().Contains(lowerTerm))
+                                .Take(100)
+                                .ToList();
                             break;
                         case SearchScope.All:
                         default:
-                            searchResults = await TalonService.SearchAllAsync(SearchTerm!);
+                            Console.WriteLine("[DEBUG] Searching all fields...");
+                            searchResults = filteredCommands
+                                .Where(c => c.Command.ToLower().Contains(lowerTerm) ||
+                                           c.Script.ToLower().Contains(lowerTerm) ||
+                                           c.Application.ToLower().Contains(lowerTerm) ||
+                                           (c.Mode != null && c.Mode.ToLower().Contains(lowerTerm)) ||
+                                           (c.Title != null && c.Title.ToLower().Contains(lowerTerm)))
+                                .Take(100)
+                                .ToList();
                             break;
                     }
+                    var elapsed = DateTime.Now - startTime;
+                    Console.WriteLine($"[DEBUG] In-memory search completed in {elapsed.TotalMilliseconds}ms, found {searchResults.Count} results");
                     
-                    // Debug logging
-                    if (JSRuntime != null)
+                    // Debug logging with try-catch to prevent JS connection issues
+                    try
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                        if (JSRuntime != null)
+                        {
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                        }
+                    }
+                    catch (Exception jsEx)
+                    {
+                        Console.WriteLine($"[DEBUG] JS logging failed: {jsEx.Message}");
                     }
                     
-                    // Apply filters to search results
-                    var finalResults = searchResults.AsEnumerable();
-                    
-                    if (hasApplicationFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                    }
-                    
-                    if (hasModeFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Mode == SelectedMode);
-                    }
-                    
-                    if (hasOSFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
-                    }
-                    
-                    if (hasRepositoryFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
-                    }
-                      if (hasTagsFilter)
-                    {
-                        finalResults = finalResults.Where(c => 
-                            !string.IsNullOrWhiteSpace(c.Tags) && 
-                            c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
-                    }
-                    
-                    if (hasTitleFilter)
-                    {
-                        finalResults = finalResults.Where(c => c.Title == SelectedTitle);
-                    }
-                    
-                    Results = finalResults.Take(maxResults).ToList();
+                    Results = searchResults.OrderByDescending(c => c.CreatedAt).ToList();
                     
                     // Debug logging
                     if (JSRuntime != null)
@@ -906,6 +1502,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         else
         {
             Results = new List<TalonVoiceCommand>();
+            IsUsingJavaScriptDisplay = false; // Clear flag when clearing results
         }
         
         IsLoading = false;
@@ -923,12 +1520,20 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Log the error and show user-friendly message
         Console.WriteLine($"Search error: {ex.Message}");
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Clear display state when clearing results
         HasSearched = true;
     }
     finally
     {
         IsLoading = false;
-        StateHasChanged();
+        try
+        {
+            StateHasChanged();
+        }
+        catch (Exception stateEx)
+        {
+            Console.WriteLine($"StateHasChanged error: {stateEx.Message}");
+        }
     }
 }        public async Task ClearFilters()
 {
@@ -947,6 +1552,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         SelectedCodeLanguage = string.Empty;
         // Don't automatically search after clearing - let user type in search box
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Clear display state when clearing results
         HasSearched = false;
         // Ensure StateHasChanged runs on the renderer/Dispatcher thread
         await InvokeAsync(() => StateHasChanged());
@@ -1293,6 +1899,244 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     }
 
     /// <summary>
+    /// Highlights content in text based on active filters
+    /// </summary>
+    public string HighlightFilteredContent(string text, string filterType)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var encoded = System.Net.WebUtility.HtmlEncode(text);
+        
+        try
+        {
+            switch (filterType.ToLower())
+            {
+                case "application":
+                    if (!string.IsNullOrWhiteSpace(SelectedApplication))
+                    {
+                        encoded = HighlightText(encoded, SelectedApplication, "highlight-application");
+                    }
+                    break;
+                case "mode":
+                    if (!string.IsNullOrWhiteSpace(SelectedMode))
+                    {
+                        encoded = HighlightText(encoded, SelectedMode, "highlight-mode");
+                    }
+                    break;
+                case "tags":
+                    if (!string.IsNullOrWhiteSpace(SelectedTags))
+                    {
+                        encoded = HighlightText(encoded, SelectedTags, "highlight-tags");
+                    }
+                    break;
+                case "os":
+                    if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
+                    {
+                        encoded = HighlightText(encoded, SelectedOperatingSystem, "highlight-os");
+                    }
+                    break;
+                case "repository":
+                    if (!string.IsNullOrWhiteSpace(SelectedRepository))
+                    {
+                        encoded = HighlightText(encoded, SelectedRepository, "highlight-repository");
+                    }
+                    break;
+                case "title":
+                    if (!string.IsNullOrWhiteSpace(SelectedTitle))
+                    {
+                        encoded = HighlightText(encoded, SelectedTitle, "highlight-title");
+                    }
+                    break;
+                case "codelanguage":
+                    if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage))
+                    {
+                        encoded = HighlightText(encoded, SelectedCodeLanguage, "highlight-code-language");
+                    }
+                    break;
+            }
+            return encoded;
+        }
+        catch
+        {
+            return System.Net.WebUtility.HtmlEncode(text);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to highlight specific text with a CSS class
+    /// </summary>
+    private string HighlightText(string text, string searchText, string cssClass)
+    {
+        if (string.IsNullOrEmpty(searchText))
+            return text;
+
+        try
+        {
+            // Case-insensitive replacement
+            var regex = new Regex(Regex.Escape(searchText), RegexOptions.IgnoreCase);
+            return regex.Replace(text, match => 
+                $"<span class=\"{cssClass}\">{match.Value}</span>");
+        }
+        catch
+        {
+            return text;
+        }
+    }
+
+    /// <summary>
+    /// Highlights multiple filter matches in a single text
+    /// </summary>
+    public string HighlightAllFilterMatches(string text, TalonVoiceCommand command)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var result = System.Net.WebUtility.HtmlEncode(text);
+
+        try
+        {
+            // Highlight active filter matches
+            if (!string.IsNullOrWhiteSpace(SelectedApplication) && 
+                !string.IsNullOrWhiteSpace(command.Application) &&
+                command.Application.Contains(SelectedApplication, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedApplication, "highlight-application");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedMode) && 
+                !string.IsNullOrWhiteSpace(command.Mode) &&
+                command.Mode.Contains(SelectedMode, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedMode, "highlight-mode");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTags) && 
+                !string.IsNullOrWhiteSpace(command.Tags) &&
+                command.Tags.Contains(SelectedTags, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedTags, "highlight-tags");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem) && 
+                !string.IsNullOrWhiteSpace(command.OperatingSystem) &&
+                command.OperatingSystem.Contains(SelectedOperatingSystem, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedOperatingSystem, "highlight-os");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedRepository) && 
+                !string.IsNullOrWhiteSpace(command.Repository) &&
+                command.Repository.Contains(SelectedRepository, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedRepository, "highlight-repository");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTitle) && 
+                !string.IsNullOrWhiteSpace(command.Title) &&
+                command.Title.Contains(SelectedTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedTitle, "highlight-title");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage) && 
+                !string.IsNullOrWhiteSpace(command.CodeLanguage) &&
+                command.CodeLanguage.Contains(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedCodeLanguage, "highlight-code-language");
+            }
+
+            return result;
+        }
+        catch
+        {
+            return System.Net.WebUtility.HtmlEncode(text);
+        }
+    }
+
+    /// <summary>
+    /// Combines capture highlighting with filter highlighting for display
+    /// </summary>
+    public string HighlightCapturesAndFilters(string command, TalonVoiceCommand cmd)
+    {
+        if (string.IsNullOrEmpty(command))
+            return command;
+
+        // First apply capture highlighting (this already HTML encodes)
+        var result = HighlightCapturesInCommand(command);
+
+        try
+        {
+            // Then apply filter highlighting to the already-encoded result
+            // Note: Since result is already HTML, we need to search for the original text patterns
+            if (!string.IsNullOrWhiteSpace(SelectedApplication) && 
+                !string.IsNullOrWhiteSpace(cmd.Application) &&
+                command.Contains(SelectedApplication, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedApplication, "highlight-application");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedMode) && 
+                !string.IsNullOrWhiteSpace(cmd.Mode) &&
+                command.Contains(SelectedMode, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedMode, "highlight-mode");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTags) && 
+                !string.IsNullOrWhiteSpace(cmd.Tags) &&
+                command.Contains(SelectedTags, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedTags, "highlight-tags");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedRepository) && 
+                !string.IsNullOrWhiteSpace(cmd.Repository) &&
+                command.Contains(SelectedRepository, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedRepository, "highlight-repository");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTitle) && 
+                !string.IsNullOrWhiteSpace(cmd.Title) &&
+                command.Contains(SelectedTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedTitle, "highlight-title");
+            }
+
+            return result;
+        }
+        catch
+        {
+            return HighlightCapturesInCommand(command);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to highlight text within already-HTML content
+    /// </summary>
+    private string HighlightTextInHtml(string html, string searchText, string cssClass)
+    {
+        if (string.IsNullOrEmpty(searchText))
+            return html;
+
+        try
+        {
+            // HTML encode the search text to match what's in the HTML
+            var encodedSearchText = System.Net.WebUtility.HtmlEncode(searchText);
+            
+            // Case-insensitive replacement in HTML content
+            var regex = new Regex(Regex.Escape(encodedSearchText), RegexOptions.IgnoreCase);
+            return regex.Replace(html, match => 
+                $"<span class=\"{cssClass}\">{match.Value}</span>");
+        }
+        catch
+        {
+            return html;
+        }
+    }
+
+    /// <summary>
     /// Sets focus mode to show only the selected command card
     /// </summary>
     public async Task FocusOnCommand(TalonVoiceCommand command)
@@ -1336,6 +2180,40 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     public bool IsInFocusMode()
     {
         return _isFocusMode;
+    }
+    
+    /// <summary>
+    /// Switches to the specified tab
+    /// </summary>
+    public void SwitchTab(TabType tab)
+    {
+        ActiveTab = tab;
+        StateHasChanged();
+    }
+    
+    /// <summary>
+    /// Handles keyboard shortcuts for tab navigation
+    /// </summary>
+    public async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        // Handle Alt+number shortcuts for tab switching
+        if (e.AltKey)
+        {
+            switch (e.Key)
+            {
+                case "1":
+                    SwitchTab(TabType.SearchCommands);
+                    break;
+                case "2":
+                    SwitchTab(TabType.ImportScripts);
+                    break;
+                case "3":
+                    SwitchTab(TabType.AnalysisReport);
+                    break;
+            }
+        }
+        
+        await Task.CompletedTask;
     }
 
     public void Dispose()

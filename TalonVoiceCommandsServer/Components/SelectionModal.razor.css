@@ -1,0 +1,86 @@
+/* Theme-aware selection modal styles for TalonVoiceCommandsServer */
+
+.selection-card {
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+    text-align: left;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.selection-card .card-body { 
+    min-height: 56px; 
+    display: flex; 
+    align-items: center; 
+    padding-left: 12px; 
+    padding-right: 12px; 
+}
+
+.selection-card .text-truncate { 
+    font-size: 14px; 
+    font-weight: 500; 
+}
+
+.selection-card:focus, 
+.selection-card:hover { 
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.18); 
+    transform: translateY(-1px); 
+}
+
+/* Light theme - default Bootstrap behavior */
+:root,
+[data-bs-theme="light"] {
+    --selection-bg: #ffffff;
+    --selection-text: #212529;
+    --selection-border: rgba(0,0,0,0.125);
+    --selection-hover-bg: #f8f9fa;
+}
+
+/* Dark theme - ensure good contrast */
+[data-bs-theme="dark"] {
+    --selection-bg: #495057;
+    --selection-text: #f8f9fa;
+    --selection-border: rgba(255,255,255,0.125);
+    --selection-hover-bg: #6c757d;
+}
+
+/* Apply theme-aware colors to selection cards - use !important to override Bootstrap */
+.selection-card,
+.selection-card.card,
+button.selection-card,
+.selection-card.btn-outline-secondary {
+    background-color: var(--selection-bg) !important;
+    color: var(--selection-text) !important;
+    border-color: var(--selection-border) !important;
+}
+
+.selection-card:hover,
+.selection-card:focus,
+.selection-card.btn-outline-secondary:hover,
+.selection-card.btn-outline-secondary:focus {
+    background-color: var(--selection-hover-bg) !important;
+    color: var(--selection-text) !important;
+    border-color: var(--selection-border) !important;
+}
+
+/* Modal sizing */
+#selectionModal .modal-dialog {
+    max-width: 90vw;
+    width: auto;
+}
+
+#selectionModal .modal-content {
+    max-height: calc(100vh - 40px);
+}
+
+#selectionModal .modal-body {
+    overflow-y: auto;
+}
+
+/* On very small screens */
+@media (max-width: 576px) {
+    #selectionModal .modal-dialog { 
+        max-width: 98vw; 
+    }
+}

@@ -6,11 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TalonVoiceCommandsServer.Components.Pages;
+namespace TalonVoiceCommandsServer.Components.Shared;
 
-public partial class TalonImport : ComponentBase
+public partial class TalonImportComponent : ComponentBase
 {
-    // JSRuntime is injected in the `.razor` file via @inject and is available on the partial class
+    [Inject] protected IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] protected Services.ITalonVoiceCommandDataService TalonVoiceCommandDataService { get; set; } = default!;
 
     private const string SettingsDirectoryKey = "TalonImport.DirectoryPath";
     private const string SettingsListsFileKey = "TalonImport.ListsFilePath";
@@ -23,6 +24,25 @@ public partial class TalonImport : ComponentBase
     public bool SettingsLocked { get; set; } = false;
     // Tracks whether we've successfully loaded settings from the browser (client-side) so we don't retry unnecessarily
     private bool _settingsLoadedFromClient = false;
+
+    public IReadOnlyList<IBrowserFile>? SelectedFiles { get; set; }
+    public bool IsLoading { get; set; } = false;
+    public string? ImportResult { get; set; }
+    public string? ErrorMessage { get; set; }
+    public string? DirectoryPath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user";
+    public string? ListsFilePath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user\mystuff\talon_my_stuff\TalonLists.txt";
+    public int ImportProgress { get; set; } = 0;
+    public int ImportTotal { get; set; } = 0;
+    public bool ShowToast { get; set; } = false;
+
+    public class RepoItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public int TalonFileCount { get; set; }
+        public bool IsSelected { get; set; }
+    }
+
+    public List<RepoItem>? Repos { get; set; }
 
     // Avoid reading browser-only APIs during server prerender. Load settings once the client JS runtime is available.
     protected override Task OnInitializedAsync()
@@ -149,15 +169,6 @@ public partial class TalonImport : ComponentBase
             Console.WriteLine($"Error saving lock state: {ex.Message}");
         }
     }
-
-    public class RepoItem
-    {
-        public string Name { get; set; } = string.Empty;
-        public int TalonFileCount { get; set; }
-        public bool IsSelected { get; set; }
-    }
-
-    public List<RepoItem>? Repos { get; set; }
 
     protected Task PickUserFolderAndListRepos()
     {
@@ -288,7 +299,7 @@ public partial class TalonImport : ComponentBase
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected repositories.";
             
             // Invalidate the search component's filter cache so it picks up the new data
-            TalonVoiceCommandSearch.InvalidateFilterCache();
+            TalonVoiceCommandsServer.Components.Pages.TalonVoiceCommandSearch.InvalidateFilterCache();
         }
         catch (System.Exception ex)
         {
@@ -300,25 +311,15 @@ public partial class TalonImport : ComponentBase
             StateHasChanged();
         }
     }
-    public IReadOnlyList<IBrowserFile>? SelectedFiles { get; set; }
-    public bool IsLoading { get; set; } = false;
-    public string? ImportResult { get; set; }
-    public string? ErrorMessage { get; set; }
-    public string? DirectoryPath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user";
-    public string? ListsFilePath { get; set; } = @"C:\Users\MPhil\AppData\Roaming\talon\user\mystuff\talon_my_stuff\TalonLists.txt";
-    public int ImportProgress { get; set; } = 0;
-    public int ImportTotal { get; set; } = 0;
-    public bool ShowToast { get; set; } = false;
-
-
-    
 
     protected void OnFileSelected(InputFileChangeEventArgs e)
     {
         SelectedFiles = e.GetMultipleFiles();
         ImportResult = null;
         ErrorMessage = null;
-    }        protected async Task ImportFiles()
+    }
+
+    protected async Task ImportFiles()
     {
         if (SelectedFiles == null || SelectedFiles.Count == 0)
             return;
@@ -339,8 +340,9 @@ public partial class TalonImport : ComponentBase
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {SelectedFiles.Count} file(s).";
             
             // Invalidate the search component's filter cache so it picks up the new data
-            TalonVoiceCommandSearch.InvalidateFilterCache();
-        }            catch (Exception ex)
+            TalonVoiceCommandsServer.Components.Pages.TalonVoiceCommandSearch.InvalidateFilterCache();
+        }            
+        catch (Exception ex)
         {
             ErrorMessage = $"Error importing files: {GetFullErrorMessage(ex)}";
         }
@@ -349,6 +351,7 @@ public partial class TalonImport : ComponentBase
             IsLoading = false;
         }
     }
+
     protected async Task ImportAllFromDirectory()
     {
         if (string.IsNullOrWhiteSpace(DirectoryPath))
@@ -412,7 +415,7 @@ public partial class TalonImport : ComponentBase
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
             
             // Invalidate the search component's filter cache so it picks up the new data
-            TalonVoiceCommandSearch.InvalidateFilterCache();
+            TalonVoiceCommandsServer.Components.Pages.TalonVoiceCommandSearch.InvalidateFilterCache();
         }
         catch (Exception ex)
         {
@@ -482,7 +485,7 @@ public partial class TalonImport : ComponentBase
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
             
             // Invalidate the search component's filter cache so it picks up the new data
-            TalonVoiceCommandSearch.InvalidateFilterCache();
+            TalonVoiceCommandsServer.Components.Pages.TalonVoiceCommandSearch.InvalidateFilterCache();
             
             // Show toast in UI
             ShowToast = true;
@@ -493,7 +496,8 @@ public partial class TalonImport : ComponentBase
                 ShowToast = false;
                 await InvokeAsync(StateHasChanged);
             });
-        }            catch (Exception ex)
+        }            
+        catch (Exception ex)
         {
             ErrorMessage = $"Error importing lists: {GetFullErrorMessage(ex)}";
         }
@@ -517,4 +521,3 @@ public partial class TalonImport : ComponentBase
         return string.Join(" | Inner Exception: ", errorParts);
     }
 }
-// Note: IBrowserFile does not provide the full path for security reasons. For browser uploads, only the filename is available. For server-side directory imports, the full path is already used.
