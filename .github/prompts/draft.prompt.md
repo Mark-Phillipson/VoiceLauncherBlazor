@@ -1,1 +1,1 @@
-Presently the filter items only get populated after doing a four import of all the talon voice commands but we do not want this to have to be the case for example a user should just be able to open the application and filter by items in the list straightaway without having to do an import first can we achieve this?
+ currently when we click the import script tab it shows a link below that we then have to click on can we have it so that as soon as we click on the import scripts tab it loads the importcomponent?

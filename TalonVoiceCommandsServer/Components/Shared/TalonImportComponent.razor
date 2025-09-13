@@ -1,0 +1,93 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Services
+
+<!-- Import Scripts Content -->
+<div class="mb-3">
+    <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
+</div>
+<button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>
+
+<div class="mb-3 mt-3">
+    <label class="form-label">Talon base directory</label>
+    <input class="form-control" type="text" @bind="DirectoryPath" placeholder="Directory to import all .talon files from..." aria-label="Directory path" disabled="@SettingsLocked" />
+</div>
+<button class="btn btn-secondary me-2" @onclick="ImportAllFromDirectory" aria-label="Import All">Import All from Directory</button>
+<button class="btn btn-outline-secondary me-2" @onclick="SaveSettingsAsync" disabled="@SettingsLocked" aria-label="Save Settings">Save Settings</button>
+<div class="form-check form-check-inline align-middle ms-2">
+    <input class="form-check-input" type="checkbox" id="settingsLocked" @bind="SettingsLocked" @bind:after="SaveLockStateAsync" />
+    <label class="form-check-label" for="settingsLocked">Lock settings</label>
+</div>
+
+@if (Repos?.Any() == true)
+{
+    <div class="mt-3">
+        <label class="form-label">Repositories found under selected user folder:</label>
+        <div class="list-group">
+            @foreach (var r in Repos)
+            {
+                <label class="list-group-item">
+                    <input type="checkbox" @bind="r.IsSelected" />
+                    <strong class="ms-2">@r.Name</strong>
+                    <span class="badge bg-secondary ms-2">@r.TalonFileCount</span>
+                </label>
+            }
+        </div>
+        <button class="btn btn-primary mt-2" @onclick="ImportSelectedRepos">Import Selected Repos</button>
+    </div>
+}
+
+<div class="mt-3">
+    @if (IsLoading)
+    {
+        <div class="spinner-border" role="status" aria-label="Importing"></div>
+        @if (ImportTotal > 0)
+        {
+            <div class="progress mt-2" style="height: 24px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: @(ImportProgress * 100 / ImportTotal)%" aria-valuenow="@ImportProgress" aria-valuemin="0" aria-valuemax="@ImportTotal">
+                    @ImportProgress / @ImportTotal
+                </div>
+            </div>
+        }
+        <!-- Toast container -->
+        <div aria-live="polite" aria-atomic="true" class="position-relative">
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                @if (ShowToast && !string.IsNullOrEmpty(ImportResult))
+                {
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Import</strong>
+                            <small class="text-muted">just now</small>
+                            <button type="button" class="btn-close ms-2 mb-1" aria-label="Close" @onclick="() => ShowToast = false"></button>
+                        </div>
+                        <div class="toast-body">
+                            @ImportResult
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ImportResult))
+    {
+        <div class="alert alert-success" role="alert">
+            @ImportResult
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+</div>
+
+<hr />
+
+<h3>Import Talon Lists</h3>
+<p>Import your exported TalonLists.txt file to enable list expansion in search results.</p>
+<div class="mb-3">
+    <label class="form-label">TalonLists.txt path</label>
+    <input class="form-control" type="text" @bind="ListsFilePath" placeholder="Path to TalonLists.txt file..." aria-label="Lists file path" disabled="@SettingsLocked" />
+</div>
+<button class="btn btn-primary me-2" @onclick="ImportListsFromFile" disabled="@IsLoading" aria-label="Import Lists">Import Lists</button>

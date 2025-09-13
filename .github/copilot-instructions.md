@@ -87,3 +87,5 @@ Blazor Hybrid WinForms: Deployed by running the build command in Release mode.
 ## Important Current Process
 
 Currently we are embarking on making changes to the talon voice commands server project only any other changes to any other projects like the razor class library should be avoided at all costs it's fine to read these other projects but do not make any changes because they currently work.
+
+## 

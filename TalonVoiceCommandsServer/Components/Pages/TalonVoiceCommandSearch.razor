@@ -591,10 +591,15 @@
              role="tabpanel" 
              aria-labelledby="import-tab" 
              tabindex="0">
-            <div class="alert alert-info" role="alert">
-                <i class="oi oi-info me-2"></i>
-                <strong>Import Scripts:</strong> Please navigate to the <a href="/talon-import" class="alert-link">Import Scripts page</a> to import Talon voice command files.
+            
+            <div class="mb-3">
+                <h3><i class="oi oi-cloud-upload me-2"></i>Import Talon Scripts</h3>
+                <p>Import .talon files into the database for semantic search and management.</p>
             </div>
+            
+            <!-- Embedded Import Component -->
+            <TalonVoiceCommandsServer.Components.Shared.TalonImportComponent />
+            
         </div>
         <!-- End of Import Scripts Tab -->
 
