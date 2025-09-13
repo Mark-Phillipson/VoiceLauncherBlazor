@@ -58,3 +58,27 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Search results layout tweaks */
+.search-results .results-header {
+    width: 100%;
+    padding-left: 0.25rem;
+}
+
+.search-results .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.search-results .col-12 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Ensure long script content wraps inside result cards and doesn't overflow */
+.script-content {
+    white-space: pre-wrap; /* preserve newlines but wrap long lines */
+    word-break: break-word; /* break long words/paths if necessary */
+    max-height: 25rem; /* prevent extremely long scripts from making cards huge */
+    overflow: auto; /* scroll if content exceeds max height */
+}

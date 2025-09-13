@@ -634,30 +634,35 @@ const TalonStorageDB = {
             return;
         }
 
-        // Create results HTML
+        // Create results HTML using a responsive two-column grid (Bootstrap)
+        // Header spans full width, each result becomes a column (col-12 on xs, col-md-6 on md+)
         let html = `<div class="search-results">`;
         html += `<div class="results-header mb-3"><strong>Found ${commands.length} results</strong></div>`;
-        
+        html += `<div class="row">`;
+
         commands.forEach((command, index) => {
             html += `
-                <div class="result-item card mb-2" data-command-id="${command.Id || index}">
-                    <div class="card-body">
-                        <h6 class="card-title">${this.escapeHtml(command.Command || 'No command')}</h6>
-                        <p class="card-text"><small class="text-muted">App: ${this.escapeHtml(command.Application || 'N/A')}</small></p>
-                        <pre class="script-content">${this.escapeHtml(command.Script || 'No script')}</pre>
-                        <div class="command-details">
-                            <small class="text-muted">
-                                ${command.Mode ? `Mode: ${this.escapeHtml(command.Mode)} | ` : ''}
-                                ${command.Repository ? `Repo: ${this.escapeHtml(command.Repository)} | ` : ''}
-                                ${command.FilePath ? `File: ${this.escapeHtml(command.FilePath)}` : ''}
-                            </small>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="result-item card h-100" data-command-id="${command.Id || index}">
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">${this.escapeHtml(command.Command || 'No command')}</h6>
+                            <p class="card-text"><small class="text-muted">App: ${this.escapeHtml(command.Application || 'N/A')}</small></p>
+                            <pre class="script-content mb-2">${this.escapeHtml(command.Script || 'No script')}</pre>
+                            <div class="mt-auto command-details">
+                                <small class="text-muted d-block">
+                                    ${command.Mode ? `Mode: ${this.escapeHtml(command.Mode)} | ` : ''}
+                                    ${command.Repository ? `Repo: ${this.escapeHtml(command.Repository)} | ` : ''}
+                                    ${command.FilePath ? `File: ${this.escapeHtml(command.FilePath)}` : ''}
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
         });
-        
-        html += `</div>`;
+
+        html += `</div>`; // .row
+        html += `</div>`; // .search-results
         resultsContainer.innerHTML = html;
     },
 
