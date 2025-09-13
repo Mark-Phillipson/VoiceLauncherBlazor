@@ -1,1 +1,1 @@
- I have a query with a search result I know for a fact when I'm in Visual Studio I can say the phrase pilot chat and this moves the keyboard focus to the Github copilot chat however when I search for this command it reports no results found and also an outdated message that needs to be removed no data loaded can we fix this and figure out why it's not finding it
+When I click on all titles to filter by a particular title there is none in the list it just has all titles aspen quin shot can we investigate why this has not been populated?

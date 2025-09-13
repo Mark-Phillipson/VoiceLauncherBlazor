@@ -231,7 +231,14 @@
                         <span class="filter-btn-icon me-2" aria-hidden="true">🔖</span>
                         @if (string.IsNullOrWhiteSpace(SelectedTitle))
                         {
-                            <span>All Titles</span>
+                            @if (AvailableTitles?.Any() == true)
+                            {
+                                <span>All Titles</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">All Titles (No data imported)</span>
+                            }
                         }
                         else
                         {
@@ -304,7 +311,7 @@
 
         <div class="row mb-2">
             <div class="col-12 d-flex justify-content-end">
-                @if (Results?.Any() == true)
+                @if (HasAnyResults())
                 {
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-info fs-6">
@@ -314,7 +321,8 @@
                             }
                             else
                             {
-                                <text>@Results.Count @(Results.Count == 1 ? "result" : "results") found</text>
+                                var count = GetEffectiveResultCount();
+                                <text>@count @(count == 1 ? "result" : "results") found</text>
                             }
                         </span>
                         @if (IsInFocusMode())
@@ -566,7 +574,7 @@
                 }
             </div>
         }
-        else if (HasSearched)
+        else if (HasSearched && !IsUsingJavaScriptDisplay)
         {
             @if (!HasAnyData)
             {

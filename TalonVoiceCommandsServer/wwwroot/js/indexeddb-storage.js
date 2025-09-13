@@ -683,12 +683,20 @@ const TalonStorageDB = {
                     <div class="result-item card h-100" data-command-id="${command.Id || index}">
                         <div class="card-body d-flex flex-column">
                             <h6 class="card-title">${this.escapeHtml(command.Command || 'No command')}</h6>
-                            <p class="card-text"><small class="text-muted">App: ${this.escapeHtml(command.Application || 'N/A')}</small></p>
+                            <div class="mb-2">
+                                <small class="text-muted">App: ${this.escapeHtml(command.Application || 'N/A')}</small>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    ${command.Title ? `<span class="badge bg-success" title="Title">${this.escapeHtml(command.Title)}</span>` : ''}
+                                    ${command.Mode ? `<span class="badge bg-secondary" title="Mode">${this.escapeHtml(command.Mode)}</span>` : ''}
+                                    ${command.Repository ? `<span class="badge bg-primary" title="Repository">${this.escapeHtml(command.Repository)}</span>` : ''}
+                                    ${command.Tags ? command.Tags.split(',').map(tag => `<span class="badge bg-warning text-dark" title="Tag">${this.escapeHtml(tag.trim())}</span>`).join('') : ''}
+                                    ${command.CodeLanguage ? `<span class="badge bg-danger" title="Code Language">${this.escapeHtml(command.CodeLanguage)}</span>` : ''}
+                                    ${command.OperatingSystem ? `<span class="badge bg-info" title="Operating System">${this.escapeHtml(command.OperatingSystem)}</span>` : ''}
+                                </div>
+                            </div>
                             <pre class="script-content mb-2">${this.escapeHtml(command.Script || 'No script')}</pre>
                             <div class="mt-auto command-details">
                                 <small class="text-muted d-block">
-                                    ${command.Mode ? `Mode: ${this.escapeHtml(command.Mode)} | ` : ''}
-                                    ${command.Repository ? `Repo: ${this.escapeHtml(command.Repository)} | ` : ''}
                                     ${command.FilePath ? `File: ${this.escapeHtml(command.FilePath)}` : ''}
                                 </small>
                             </div>

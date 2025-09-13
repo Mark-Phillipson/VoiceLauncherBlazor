@@ -135,8 +135,40 @@ private bool _selectionModuleLoaded = false;
 
     public async Task ShowTitleModal()
     {
+        Console.WriteLine($"ShowTitleModal: AvailableTitles count: {AvailableTitles?.Count ?? 0}");
+        if (AvailableTitles?.Any() == true)
+        {
+            Console.WriteLine($"ShowTitleModal: Sample titles: {string.Join(", ", AvailableTitles.Take(5))}");
+        }
+        else
+        {
+            Console.WriteLine($"ShowTitleModal: _allCommandsCache count: {_allCommandsCache?.Count ?? 0}");
+            if (_allCommandsCache?.Any() == true)
+            {
+                var titlesFromCache = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
+                    .Select(c => c.Title!)
+                    .Distinct()
+                    .Take(5)
+                    .ToList();
+                Console.WriteLine($"ShowTitleModal: Sample titles from cache: {string.Join(", ", titlesFromCache)}");
+            }
+        }
+        
         SelectionModalItems = ToSelectionItems(AvailableTitles, "bg-light");
         SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
+        
+        // Add helpful message if no titles are available
+        if (AvailableTitles?.Any() != true)
+        {
+            SelectionModalItems.Add(new SelectionItem 
+            { 
+                Id = "no-data", 
+                Label = "No titles available - Import Talon scripts first", 
+                ColorClass = "bg-warning text-dark"
+            });
+        }
+        
         SelectionModalTitle = "Select Title";
         _openFilterTarget = "title";
         await InvokeAsync(StateHasChanged);
@@ -248,6 +280,8 @@ private bool _selectionModuleLoaded = false;
     public List<TalonVoiceCommand> Results { get; set; } = new();
     public bool IsLoading { get; set; }
     public bool HasSearched { get; set; }
+    public bool IsUsingJavaScriptDisplay { get; set; } = false; // Track when JavaScript is displaying results
+    public int JavaScriptResultCount { get; set; } = 0; // Track JavaScript result count
     public bool UseSemanticMatching { get; set; } = false;
     public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
     public string InfoMessage { get; set; } = string.Empty;
@@ -268,6 +302,39 @@ private bool _selectionModuleLoaded = false;
     public List<string> AvailableTitles { get; set; } = new();
     public List<string> AvailableCodeLanguages { get; set; } = new();
     private int maxResults = 100;
+    
+    // Helper method to clear JavaScript display state
+    private void ClearJavaScriptDisplay()
+    {
+        IsUsingJavaScriptDisplay = false;
+        JavaScriptResultCount = 0;
+    }
+    
+    // Helper method to get the effective result count
+    public int GetEffectiveResultCount()
+    {
+        return IsUsingJavaScriptDisplay ? JavaScriptResultCount : (Results?.Count ?? 0);
+    }
+    
+    // Helper method to check if there are any results to display
+    public bool HasAnyResults()
+    {
+        return IsUsingJavaScriptDisplay ? JavaScriptResultCount > 0 : (Results?.Any() == true);
+    }
+    
+    // Debug method to force reload filter options
+    public async Task ForceReloadFilterOptions()
+    {
+        Console.WriteLine("ForceReloadFilterOptions: Starting manual reload...");
+        lock (_filterLock)
+        {
+            _staticFiltersLoaded = false;
+        }
+        _allCommandsCache = null;
+        await LoadFilterOptions();
+        StateHasChanged();
+        Console.WriteLine("ForceReloadFilterOptions: Completed");
+    }
 
 [Inject]
 public ITalonVoiceCommandDataService? TalonService { get; set; }
@@ -431,6 +498,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     }        protected override async Task OnInitializedAsync()
     {
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Initialize display state
         
         // Debug: Log the initial search term
         Console.WriteLine($"TalonVoiceCommandSearch.OnInitializedAsync - InitialSearchTerm: '{InitialSearchTerm}'");
@@ -639,6 +707,12 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     .OrderBy(t => t)
                     .ToList();
 
+                Console.WriteLine($"LoadFilterOptions: Found {importedTitles.Count} unique titles in cache");
+                if (importedTitles.Any())
+                {
+                    Console.WriteLine($"LoadFilterOptions: Sample titles: {string.Join(", ", importedTitles.Take(5))}");
+                }
+
                 var importedCodeLanguages = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
                     .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -655,6 +729,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     AvailableRepositories = _staticAvailableRepositories = MergeWithPredefined(importedRepositories, _predefinedRepositories);
                     AvailableTags = _staticAvailableTags = MergeWithPredefined(importedTags, _predefinedTags);
                     AvailableTitles = _staticAvailableTitles = importedTitles; // Titles come only from imported data
+                    Console.WriteLine($"LoadFilterOptions: Set AvailableTitles to {AvailableTitles.Count} items");
                     AvailableCodeLanguages = _staticAvailableCodeLanguages = MergeWithPredefined(importedCodeLanguages, _predefinedCodeLanguages);
                     _staticFiltersLoaded = true;
                     
@@ -928,6 +1003,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 );
 
                 Console.WriteLine($"OnSearch: Direct display showed {resultCount} results");
+                JavaScriptResultCount = resultCount; // Store the result count for display
                 // If no results and an application filter is set, try again without the app filter
                 if (resultCount == 0 && hasApplicationFilter)
                 {
@@ -953,6 +1029,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 
                 // Clear C# results since we're using JavaScript display
                 Results = new List<TalonVoiceCommand>();
+                IsUsingJavaScriptDisplay = true; // Set flag to indicate JavaScript display is active
                 
                 IsLoading = false;
                 HasSearched = true;
@@ -1020,6 +1097,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     }
                 }
                 Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
                 
                 IsLoading = false;
                 HasSearched = true;
@@ -1058,6 +1136,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 {
                     Console.WriteLine($"OnSearch: C#-only search returned {searchResults.Count} results, setting Results...");
                     Results = searchResults;
+                    ClearJavaScriptDisplay(); // Clear JavaScript display state
                     Console.WriteLine("OnSearch: Results set, updating UI state...");
                     IsLoading = false;
                     HasSearched = true;
@@ -1095,6 +1174,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                         
                         Console.WriteLine($"OnSearch: Retry search returned {retryResults.Count} results");
                         Results = retryResults;
+                        ClearJavaScriptDisplay(); // Clear JavaScript display state
                         IsLoading = false;
                         HasSearched = true;
                         StateHasChanged();
@@ -1140,6 +1220,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
                 Console.WriteLine($"OnSearch: ID-based search returned {searchResults.Count} results, setting Results...");
                 Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
                 Console.WriteLine("OnSearch: Results set, updating UI state...");
                 IsLoading = false;
                 HasSearched = true;
@@ -1179,6 +1260,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
                 Console.WriteLine($"OnSearch: Filtered search returned {searchResults.Count} results, setting Results...");
                 Results = searchResults;
+                ClearJavaScriptDisplay(); // Clear JavaScript display state
                 Console.WriteLine("OnSearch: Results set, updating UI state...");
                 IsLoading = false;
                 HasSearched = true;
@@ -1204,6 +1286,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             {
                 Console.WriteLine("OnSearch: No cached commands available and filtered search failed");
                 Results = new List<TalonVoiceCommand>();
+                ClearJavaScriptDisplay(); // Clear display state when clearing results
                 IsLoading = false;
                 HasSearched = true;
                 StateHasChanged();
@@ -1419,6 +1502,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         else
         {
             Results = new List<TalonVoiceCommand>();
+            IsUsingJavaScriptDisplay = false; // Clear flag when clearing results
         }
         
         IsLoading = false;
@@ -1436,6 +1520,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         // Log the error and show user-friendly message
         Console.WriteLine($"Search error: {ex.Message}");
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Clear display state when clearing results
         HasSearched = true;
     }
     finally
@@ -1467,6 +1552,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         SelectedCodeLanguage = string.Empty;
         // Don't automatically search after clearing - let user type in search box
         Results = new List<TalonVoiceCommand>();
+        ClearJavaScriptDisplay(); // Clear display state when clearing results
         HasSearched = false;
         // Ensure StateHasChanged runs on the renderer/Dispatcher thread
         await InvokeAsync(() => StateHasChanged());
