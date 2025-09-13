@@ -333,6 +333,52 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private static List<string> _staticAvailableTitles = new();
     private static List<string> _staticAvailableCodeLanguages = new();private static readonly object _filterLock = new object();
 
+    // Predefined common filter values that users can use immediately without imports
+    private static readonly List<string> _predefinedApplications = new()
+    {
+        "vscode", "code", "visual studio code", "vs code",
+        "chrome", "google chrome", "firefox", "edge", "safari",
+        "terminal", "cmd", "powershell", "bash", "zsh",
+        "word", "excel", "powerpoint", "outlook", "teams",
+        "slack", "discord", "zoom", "skype",
+        "notepad", "sublime", "atom", "vim", "emacs",
+        "windows", "explorer", "finder",
+        "global", "default"
+    };
+    
+    private static readonly List<string> _predefinedModes = new()
+    {
+        "command", "insert", "dictation", "sleep",
+        "user.terminal", "user.bash", "user.powershell",
+        "user.vim", "user.emacs", "user.vscode",
+        "user.chrome", "user.firefox",
+        "user.coding", "user.debugging", "user.git"
+    };
+    
+    private static readonly List<string> _predefinedOperatingSystems = new()
+    {
+        "windows", "linux", "mac", "macos", "ubuntu", "debian"
+    };
+    
+    private static readonly List<string> _predefinedRepositories = new()
+    {
+        "community", "knausj_talon", "talon_community", "user_settings", "personal"
+    };
+    
+    private static readonly List<string> _predefinedTags = new()
+    {
+        "navigation", "editing", "browser", "terminal", "git", "debugging",
+        "file_management", "window_management", "text_manipulation",
+        "code_completion", "refactoring", "search", "replace"
+    };
+    
+    private static readonly List<string> _predefinedCodeLanguages = new()
+    {
+        "python", "javascript", "typescript", "c#", "csharp", "java", "cpp", "c++",
+        "go", "rust", "html", "css", "sql", "json", "xml", "yaml", "markdown",
+        "bash", "powershell", "dockerfile", "terraform"
+    };
+
     /// <summary>
     /// Clears the static filter cache to force reload after data changes
     /// </summary>
@@ -460,6 +506,43 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         await base.OnParametersSetAsync();
     }
 
+    /// <summary>
+    /// Loads predefined filter values that users can use immediately without importing data
+    /// </summary>
+    private void LoadPredefinedFilterValues()
+    {
+        Console.WriteLine("LoadPredefinedFilterValues: Loading predefined filter values for immediate use");
+        
+        lock (_filterLock)
+        {
+            // Set predefined values directly to instance properties
+            AvailableApplications = _predefinedApplications.ToList();
+            AvailableModes = _predefinedModes.ToList();
+            AvailableOperatingSystems = _predefinedOperatingSystems.ToList();
+            AvailableRepositories = _predefinedRepositories.ToList();
+            AvailableTags = _predefinedTags.ToList();
+            AvailableTitles = new List<string>(); // Will be populated from imported data
+            AvailableCodeLanguages = _predefinedCodeLanguages.ToList();
+            
+            Console.WriteLine($"LoadPredefinedFilterValues: Loaded {AvailableApplications.Count} applications, {AvailableModes.Count} modes, {AvailableOperatingSystems.Count} operating systems");
+        }
+        
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Merges predefined filter values with data from imported commands
+    /// </summary>
+    private List<string> MergeWithPredefined(List<string> importedValues, List<string> predefinedValues)
+    {
+        var merged = new HashSet<string>(predefinedValues, StringComparer.OrdinalIgnoreCase);
+        foreach (var value in importedValues)
+        {
+            merged.Add(value);
+        }
+        return merged.OrderBy(v => v, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
     private async Task LoadFilterOptions()
     {
         if (_isLoadingFilters || TalonService is null) return;
@@ -485,95 +568,111 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         try
         {
-            Console.WriteLine("LoadFilterOptions: Loading fresh data from service");
+            Console.WriteLine("LoadFilterOptions: Starting filter loading process");
             
-            // Don't automatically load from storage during initialization
-            // Only use data if it's already available in the service
+            // STEP 1: Always load predefined values first so users have immediate filter options
+            LoadPredefinedFilterValues();
             
-            // Cache all commands to avoid multiple database calls (only if data already exists)
+            // STEP 2: Try to get imported data from the service to enhance the predefined values
             _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
             Console.WriteLine($"LoadFilterOptions: Retrieved {_allCommandsCache.Count} commands from service");
             
-            // If no commands are available, don't try to load from storage automatically
-            if (_allCommandsCache.Count == 0)
+            // STEP 3: If we have imported data, merge it with predefined values for enhanced filtering
+            if (_allCommandsCache.Count > 0)
             {
-                Console.WriteLine("LoadFilterOptions: No commands available - skipping filter population to prevent auto-loading");
-                return;
+                Console.WriteLine("LoadFilterOptions: Enhancing predefined filters with imported data");
+                
+                var importedApplications = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Application))
+                    .Select(c => c.Application!)
+                    .Distinct()
+                    .ToList();
+
+                var importedModes = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
+                    .Select(c => c.Mode!)
+                    .Distinct()
+                    .ToList();
+
+                var importedOperatingSystems = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
+                    .Select(c => c.OperatingSystem!)
+                    .Distinct()
+                    .ToList();
+
+                var importedRepositories = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
+                    .Select(c => c.Repository!)
+                    .Distinct()
+                    .ToList();
+
+                var importedTags = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
+                    .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()))
+                    .Distinct()
+                    .ToList();
+                    
+                var importedTitles = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
+                    .Select(c => c.Title!)
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+
+                var importedCodeLanguages = _allCommandsCache
+                    .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
+                    .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(cl => cl.Trim()))
+                    .Distinct()
+                    .ToList();
+                
+                // Merge imported data with predefined values
+                lock (_filterLock)
+                {
+                    AvailableApplications = _staticAvailableApplications = MergeWithPredefined(importedApplications, _predefinedApplications);
+                    AvailableModes = _staticAvailableModes = MergeWithPredefined(importedModes, _predefinedModes);
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems = MergeWithPredefined(importedOperatingSystems, _predefinedOperatingSystems);
+                    AvailableRepositories = _staticAvailableRepositories = MergeWithPredefined(importedRepositories, _predefinedRepositories);
+                    AvailableTags = _staticAvailableTags = MergeWithPredefined(importedTags, _predefinedTags);
+                    AvailableTitles = _staticAvailableTitles = importedTitles; // Titles come only from imported data
+                    AvailableCodeLanguages = _staticAvailableCodeLanguages = MergeWithPredefined(importedCodeLanguages, _predefinedCodeLanguages);
+                    _staticFiltersLoaded = true;
+                    
+                    // Compute statistics after loading commands
+                    ComputeSystemStatsFromCache();
+                }
+                
+                Console.WriteLine($"LoadFilterOptions: Enhanced filters - {AvailableApplications.Count} applications, {AvailableModes.Count} modes, {AvailableRepositories.Count} repositories");
+                Console.WriteLine($"LoadFilterOptions: Found {importedRepositories.Count} imported repositories: {string.Join(", ", importedRepositories)}");
+                Console.WriteLine($"LoadFilterOptions: Found {importedTags.Count} imported tags: {string.Join(", ", importedTags.Take(10))}");
+            }
+            else
+            {
+                Console.WriteLine("LoadFilterOptions: No imported data available, using predefined values only");
+                
+                // Still cache the predefined values as static for consistency
+                lock (_filterLock)
+                {
+                    _staticAvailableApplications = AvailableApplications.ToList();
+                    _staticAvailableModes = AvailableModes.ToList();
+                    _staticAvailableOperatingSystems = AvailableOperatingSystems.ToList();
+                    _staticAvailableRepositories = AvailableRepositories.ToList();
+                    _staticAvailableTags = AvailableTags.ToList();
+                    _staticAvailableTitles = AvailableTitles.ToList();
+                    _staticAvailableCodeLanguages = AvailableCodeLanguages.ToList();
+                    _staticFiltersLoaded = true;
+                }
             }
             
-            var applications = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Application))
-                .Select(c => c.Application!)
-                .Distinct()
-                .OrderBy(a => a)
-                .ToList();
-
-            var modes = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
-                .Select(c => c.Mode!)
-                .Distinct()
-                .OrderBy(m => m)
-                .ToList();
-
-            var operatingSystems = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
-                .Select(c => c.OperatingSystem!)
-                .Distinct()
-                .OrderBy(os => os)
-                .ToList();
-
-            var repositories = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
-                .Select(c => c.Repository!)
-                .Distinct()
-                .OrderBy(r => r)
-                .ToList();
-
-            var tags = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
-                .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim()))
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();
-                
-            var titles = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.Title))
-                .Select(c => c.Title!)
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();
-
-            var codeLanguages = _allCommandsCache
-                .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
-                .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(cl => cl.Trim()))
-                .Distinct()
-                .OrderBy(cl => cl)
-                .ToList();
-            
-            // Debug output
-            Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
-            Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
-            
-            // Update both instance and static collections
-            lock (_filterLock)
-            {
-                AvailableApplications = _staticAvailableApplications = applications;
-                AvailableModes = _staticAvailableModes = modes;
-                AvailableOperatingSystems = _staticAvailableOperatingSystems = operatingSystems;
-                AvailableRepositories = _staticAvailableRepositories = repositories;
-                AvailableTags = _staticAvailableTags = tags;
-                AvailableTitles = _staticAvailableTitles = titles;
-                AvailableCodeLanguages = _staticAvailableCodeLanguages = codeLanguages;
-                _staticFiltersLoaded = true;
-                
-                // Compute statistics after loading commands
-                ComputeSystemStatsFromCache();
-            }
-            
-            Console.WriteLine($"LoadFilterOptions: Completed successfully - {applications.Count} applications, {modes.Count} modes, {repositories.Count} repositories");
+            Console.WriteLine($"LoadFilterOptions: Completed successfully - {AvailableApplications.Count} applications, {AvailableModes.Count} modes");
             StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadFilterOptions: Error occurred - {ex.Message}");
+            // Even if there's an error, ensure users have predefined values to work with
+            LoadPredefinedFilterValues();
         }
         finally
         {
@@ -1603,6 +1702,244 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         {
             // Fallback to safe encoded string
             return System.Net.WebUtility.HtmlEncode(command);
+        }
+    }
+
+    /// <summary>
+    /// Highlights content in text based on active filters
+    /// </summary>
+    public string HighlightFilteredContent(string text, string filterType)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var encoded = System.Net.WebUtility.HtmlEncode(text);
+        
+        try
+        {
+            switch (filterType.ToLower())
+            {
+                case "application":
+                    if (!string.IsNullOrWhiteSpace(SelectedApplication))
+                    {
+                        encoded = HighlightText(encoded, SelectedApplication, "highlight-application");
+                    }
+                    break;
+                case "mode":
+                    if (!string.IsNullOrWhiteSpace(SelectedMode))
+                    {
+                        encoded = HighlightText(encoded, SelectedMode, "highlight-mode");
+                    }
+                    break;
+                case "tags":
+                    if (!string.IsNullOrWhiteSpace(SelectedTags))
+                    {
+                        encoded = HighlightText(encoded, SelectedTags, "highlight-tags");
+                    }
+                    break;
+                case "os":
+                    if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
+                    {
+                        encoded = HighlightText(encoded, SelectedOperatingSystem, "highlight-os");
+                    }
+                    break;
+                case "repository":
+                    if (!string.IsNullOrWhiteSpace(SelectedRepository))
+                    {
+                        encoded = HighlightText(encoded, SelectedRepository, "highlight-repository");
+                    }
+                    break;
+                case "title":
+                    if (!string.IsNullOrWhiteSpace(SelectedTitle))
+                    {
+                        encoded = HighlightText(encoded, SelectedTitle, "highlight-title");
+                    }
+                    break;
+                case "codelanguage":
+                    if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage))
+                    {
+                        encoded = HighlightText(encoded, SelectedCodeLanguage, "highlight-code-language");
+                    }
+                    break;
+            }
+            return encoded;
+        }
+        catch
+        {
+            return System.Net.WebUtility.HtmlEncode(text);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to highlight specific text with a CSS class
+    /// </summary>
+    private string HighlightText(string text, string searchText, string cssClass)
+    {
+        if (string.IsNullOrEmpty(searchText))
+            return text;
+
+        try
+        {
+            // Case-insensitive replacement
+            var regex = new Regex(Regex.Escape(searchText), RegexOptions.IgnoreCase);
+            return regex.Replace(text, match => 
+                $"<span class=\"{cssClass}\">{match.Value}</span>");
+        }
+        catch
+        {
+            return text;
+        }
+    }
+
+    /// <summary>
+    /// Highlights multiple filter matches in a single text
+    /// </summary>
+    public string HighlightAllFilterMatches(string text, TalonVoiceCommand command)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        var result = System.Net.WebUtility.HtmlEncode(text);
+
+        try
+        {
+            // Highlight active filter matches
+            if (!string.IsNullOrWhiteSpace(SelectedApplication) && 
+                !string.IsNullOrWhiteSpace(command.Application) &&
+                command.Application.Contains(SelectedApplication, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedApplication, "highlight-application");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedMode) && 
+                !string.IsNullOrWhiteSpace(command.Mode) &&
+                command.Mode.Contains(SelectedMode, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedMode, "highlight-mode");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTags) && 
+                !string.IsNullOrWhiteSpace(command.Tags) &&
+                command.Tags.Contains(SelectedTags, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedTags, "highlight-tags");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem) && 
+                !string.IsNullOrWhiteSpace(command.OperatingSystem) &&
+                command.OperatingSystem.Contains(SelectedOperatingSystem, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedOperatingSystem, "highlight-os");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedRepository) && 
+                !string.IsNullOrWhiteSpace(command.Repository) &&
+                command.Repository.Contains(SelectedRepository, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedRepository, "highlight-repository");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTitle) && 
+                !string.IsNullOrWhiteSpace(command.Title) &&
+                command.Title.Contains(SelectedTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedTitle, "highlight-title");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage) && 
+                !string.IsNullOrWhiteSpace(command.CodeLanguage) &&
+                command.CodeLanguage.Contains(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightText(result, SelectedCodeLanguage, "highlight-code-language");
+            }
+
+            return result;
+        }
+        catch
+        {
+            return System.Net.WebUtility.HtmlEncode(text);
+        }
+    }
+
+    /// <summary>
+    /// Combines capture highlighting with filter highlighting for display
+    /// </summary>
+    public string HighlightCapturesAndFilters(string command, TalonVoiceCommand cmd)
+    {
+        if (string.IsNullOrEmpty(command))
+            return command;
+
+        // First apply capture highlighting (this already HTML encodes)
+        var result = HighlightCapturesInCommand(command);
+
+        try
+        {
+            // Then apply filter highlighting to the already-encoded result
+            // Note: Since result is already HTML, we need to search for the original text patterns
+            if (!string.IsNullOrWhiteSpace(SelectedApplication) && 
+                !string.IsNullOrWhiteSpace(cmd.Application) &&
+                command.Contains(SelectedApplication, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedApplication, "highlight-application");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedMode) && 
+                !string.IsNullOrWhiteSpace(cmd.Mode) &&
+                command.Contains(SelectedMode, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedMode, "highlight-mode");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTags) && 
+                !string.IsNullOrWhiteSpace(cmd.Tags) &&
+                command.Contains(SelectedTags, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedTags, "highlight-tags");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedRepository) && 
+                !string.IsNullOrWhiteSpace(cmd.Repository) &&
+                command.Contains(SelectedRepository, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedRepository, "highlight-repository");
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedTitle) && 
+                !string.IsNullOrWhiteSpace(cmd.Title) &&
+                command.Contains(SelectedTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                result = HighlightTextInHtml(result, SelectedTitle, "highlight-title");
+            }
+
+            return result;
+        }
+        catch
+        {
+            return HighlightCapturesInCommand(command);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to highlight text within already-HTML content
+    /// </summary>
+    private string HighlightTextInHtml(string html, string searchText, string cssClass)
+    {
+        if (string.IsNullOrEmpty(searchText))
+            return html;
+
+        try
+        {
+            // HTML encode the search text to match what's in the HTML
+            var encodedSearchText = System.Net.WebUtility.HtmlEncode(searchText);
+            
+            // Case-insensitive replacement in HTML content
+            var regex = new Regex(Regex.Escape(encodedSearchText), RegexOptions.IgnoreCase);
+            return regex.Replace(html, match => 
+                $"<span class=\"{cssClass}\">{match.Value}</span>");
+        }
+        catch
+        {
+            return html;
         }
     }
 

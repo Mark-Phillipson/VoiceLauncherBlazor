@@ -90,3 +90,275 @@
 .tab-pane.fade.show {
     opacity: 1;
 }
+
+/* =============================================================
+   FILTER BUTTON COLOR CODING
+   Apply colors that match the badge colors for consistency
+   ============================================================= */
+
+/* Application filter - Black */
+.filter-btn-application {
+    background-color: #000 !important;
+    color: var(--bs-light) !important;
+    border-color: #000 !important;
+}
+
+.filter-btn-application:hover,
+.filter-btn-application:focus {
+    background-color: #111 !important;
+    color: var(--bs-light) !important;
+}
+
+/* Mode filter - Secondary */
+.filter-btn-mode {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-secondary) !important;
+}
+
+.filter-btn-mode:hover,
+.filter-btn-mode:focus {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Tags filter - Warning (Yellow) */
+.filter-btn-tags {
+    background-color: var(--bs-warning) !important;
+    color: var(--bs-dark) !important;
+    border-color: var(--bs-warning) !important;
+}
+
+.filter-btn-tags:hover,
+.filter-btn-tags:focus {
+    background-color: var(--bs-warning) !important;
+    color: var(--bs-dark) !important;
+}
+
+/* OS filter - Info (Blue) */
+.filter-btn-os {
+    background-color: var(--bs-info) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-info) !important;
+}
+
+.filter-btn-os:hover,
+.filter-btn-os:focus {
+    background-color: var(--bs-info) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Repository filter - Primary (Blue) */
+.filter-btn-repository {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.filter-btn-repository:hover,
+.filter-btn-repository:focus {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Title filter - Success (Green) */
+.filter-btn-title {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-success) !important;
+}
+
+.filter-btn-title:hover,
+.filter-btn-title:focus {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Code Language filter - Danger (Red) */
+.filter-btn-code-language {
+    background-color: var(--bs-danger) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-danger) !important;
+}
+
+.filter-btn-code-language:hover,
+.filter-btn-code-language:focus {
+    background-color: var(--bs-danger) !important;
+    color: var(--bs-light) !important;
+}
+
+/* Language filter - Dark */
+.filter-btn-language {
+    background-color: #343a40 !important;
+    color: var(--bs-light) !important;
+    border-color: #343a40 !important;
+}
+
+.filter-btn-language:hover,
+.filter-btn-language:focus {
+    background-color: #23272b !important;
+    color: var(--bs-light) !important;
+}
+
+/* Hostname filter - Light */
+.filter-btn-hostname {
+    background-color: #f8f9fa !important;
+    color: var(--bs-dark) !important;
+    border-color: #f8f9fa !important;
+}
+
+.filter-btn-hostname:hover,
+.filter-btn-hostname:focus {
+    background-color: #e9ecef !important;
+    color: var(--bs-dark) !important;
+}
+
+/* Disabled state for all filter buttons */
+.filter-btn-application:disabled,
+.filter-btn-mode:disabled,
+.filter-btn-tags:disabled,
+.filter-btn-os:disabled,
+.filter-btn-repository:disabled,
+.filter-btn-title:disabled,
+.filter-btn-code-language:disabled,
+.filter-btn-language:disabled,
+.filter-btn-hostname:disabled {
+    opacity: 0.85;
+}
+
+/* =============================================================
+   CARD CONTENT HIGHLIGHTING STYLES
+   Match the filter button and badge colors for consistency
+   ============================================================= */
+
+/* Application highlighting - Black */
+.highlight-application {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #000 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-application {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+
+/* Mode highlighting - Secondary */
+.highlight-mode {
+    background-color: rgba(108, 117, 125, 0.15) !important;
+    color: var(--bs-secondary) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+/* Tags highlighting - Warning (Yellow) */
+.highlight-tags {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    color: #856404 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-tags {
+    color: #ffda6a !important;
+}
+
+/* OS highlighting - Info (Blue) */
+.highlight-os {
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    color: #055160 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-os {
+    color: #6edff6 !important;
+}
+
+/* Repository highlighting - Primary (Blue) */
+.highlight-repository {
+    background-color: rgba(13, 110, 253, 0.15) !important;
+    color: #0a58ca !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-repository {
+    color: #6ea8fe !important;
+}
+
+/* Title highlighting - Success (Green) */
+.highlight-title {
+    background-color: rgba(25, 135, 84, 0.15) !important;
+    color: #0f5132 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-title {
+    color: #75b798 !important;
+}
+
+/* Code Language highlighting - Danger (Red) */
+.highlight-code-language {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    color: #842029 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-code-language {
+    color: #ea868f !important;
+}
+
+/* Language highlighting - Dark */
+.highlight-language {
+    background-color: rgba(52, 58, 64, 0.15) !important;
+    color: #212529 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .highlight-language {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+
+/* Hostname highlighting - Light (Grey) */
+.highlight-hostname {
+    background-color: rgba(248, 249, 250, 0.8) !important;
+    color: #212529 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+[data-bs-theme="dark"] .highlight-hostname {
+    background-color: rgba(73, 80, 87, 0.3) !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+}
+
+/* Ensure highlighting doesn't break layout */
+.highlight-application,
+.highlight-mode,
+.highlight-tags,
+.highlight-os,
+.highlight-repository,
+.highlight-title,
+.highlight-code-language,
+.highlight-language,
+.highlight-hostname {
+    display: inline !important;
+    word-break: keep-all !important;
+}

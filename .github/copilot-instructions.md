@@ -83,3 +83,7 @@ Blazor Hybrid WinForms: Deployed by running the build command in Release mode.
 ## Talon Lists and Captures
 
  Please note that in talon files a talon capture will be enclosed in {}  and a talon list will be enclosed in <>
+
+## Important Current Process
+
+Currently we are embarking on making changes to the talon voice commands server project only any other changes to any other projects like the razor class library should be avoided at all costs it's fine to read these other projects but do not make any changes because they currently work.

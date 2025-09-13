@@ -454,7 +454,21 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
 
     public async Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
     {
-        // Return ALL commands for building filter dropdowns
+        // If no commands in memory, try to load from localStorage first
+        if (_commands.Count == 0)
+        {
+            Console.WriteLine("GetAllCommandsForFiltersAsync: No commands in memory, attempting to load from localStorage for filter population");
+            try
+            {
+                await EnsureLoadedFromLocalStorageAsync(_jsRuntime);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetAllCommandsForFiltersAsync: Could not load from localStorage - {ex.Message}");
+                // Continue with empty list - predefined filters will be used
+            }
+        }
+        
         await Task.Yield();
         Console.WriteLine($"GetAllCommandsForFiltersAsync: in-memory commands={_commands.Count}, lists={_talonLists.Count}");
         return _commands.ToList();
