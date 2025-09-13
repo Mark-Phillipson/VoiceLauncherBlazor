@@ -250,6 +250,7 @@ private bool _selectionModuleLoaded = false;
     public bool HasSearched { get; set; }
     public bool UseSemanticMatching { get; set; } = false;
     public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
+    public string InfoMessage { get; set; } = string.Empty;
     
     // Filter properties
     public string SelectedApplication { get; set; } = string.Empty;
@@ -278,6 +279,8 @@ public ITalonVoiceCommandDataService? TalonService { get; set; }
     public string CurrentApplication { get; set; } = string.Empty;
     
     private List<TalonVoiceCommand>? _allCommandsCache;
+    // Tracks whether any data exists either in-memory or persisted in IndexedDB
+    public bool HasAnyData { get; set; } = false;
     
     // System statistics
     public int TotalCommands { get; set; } = 0;
@@ -297,12 +300,26 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private string _lastAutoFilteredAppName = string.Empty;
     private string _lastAutoRefreshedAppName = string.Empty;
 
+    private string NormalizeAppName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+        var n = name.Trim().ToLowerInvariant();
+        if (n == "code" || n == "vscode" || n == "visual studio code" || n == "vs code") return "visual studio code";
+        if (n == "devenv" || n == "visual studio" || n == "vs" || n == "msvs") return "visual studio";
+        if (n == "chrome" || n == "google chrome") return "chrome";
+        if (n == "msedge" || n == "edge" || n == "microsoft edge") return "edge";
+        return name;
+    }
+
     private string? MapProcessToApplication(string processName)
     {
         if (string.IsNullOrWhiteSpace(processName) || AvailableApplications == null) return null;
-        var exact = AvailableApplications.FirstOrDefault(a => a.Equals(processName, StringComparison.OrdinalIgnoreCase));
+        var normalized = NormalizeAppName(processName);
+        var exact = AvailableApplications.FirstOrDefault(a => a.Equals(normalized, StringComparison.OrdinalIgnoreCase) || a.Equals(processName, StringComparison.OrdinalIgnoreCase));
         if (exact != null) return exact;
         var partial = AvailableApplications.FirstOrDefault(a =>
+            a.IndexOf(normalized, StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0 ||
             a.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0 ||
             processName.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0);
         return partial;
@@ -447,6 +464,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
         
         Console.WriteLine($"OnInitializedAsync completed - Commands in cache: {_allCommandsCache?.Count ?? 0}");
+        await UpdateHasAnyDataAsync();
     }
 
     private void StartAutoRefresh()
@@ -489,6 +507,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
             // update current application display
             await InvokeAsync(() => { CurrentApplication = appName; StateHasChanged(); });
+            await UpdateHasAnyDataAsync();
         }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
     }
     protected override async Task OnParametersSetAsync()
@@ -756,10 +775,54 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             }
 
             Console.WriteLine($"EnsureDataIsLoadedForSearch completed: _allCommandsCache count: {(_allCommandsCache?.Count ?? 0)}");
+            await UpdateHasAnyDataAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"EnsureDataIsLoadedForSearch error: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateHasAnyDataAsync()
+    {
+        try
+        {
+            if ((_allCommandsCache?.Count ?? 0) > 0)
+            {
+                HasAnyData = true;
+                return;
+            }
+            if (JSRuntime != null)
+            {
+                var info = await JSRuntime.InvokeAsync<object>("TalonStorageDB.getStorageInfo");
+                var json = System.Text.Json.JsonSerializer.Serialize(info);
+                // If metadata says we have commands, trust it
+                if (json.Contains("\"commands\":") && !json.Contains("\"commands\":{\"count\":0"))
+                {
+                    HasAnyData = true;
+                }
+                else
+                {
+                    // Fallback: directly count records in the commands store
+                    try
+                    {
+                        var count = await JSRuntime.InvokeAsync<int>("TalonStorageDB.getCommandsCount");
+                        HasAnyData = count > 0;
+                    }
+                    catch
+                    {
+                        HasAnyData = false;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // ignore, keep previous value
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -837,7 +900,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             // Small delay to ensure spinner is visible
             await Task.Delay(100);
         
-        if (TalonService is not null)
+    if (TalonService is not null)
         {
             // Use direct JavaScript display to avoid SignalR data transfer issues
             try
@@ -865,6 +928,28 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 );
 
                 Console.WriteLine($"OnSearch: Direct display showed {resultCount} results");
+                // If no results and an application filter is set, try again without the app filter
+                if (resultCount == 0 && hasApplicationFilter)
+                {
+                    Console.WriteLine("OnSearch: Zero results with app filter; retrying without application filter as fallback...");
+                    var fallbackCount = await TalonService.SearchAndDisplayDirectlyAsync(
+                        searchTerm: hasSearchTerm ? SearchTerm : null,
+                        application: null,
+                        mode: hasModeFilter ? SelectedMode : null,
+                        operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                        repository: hasRepositoryFilter ? SelectedRepository : null,
+                        tags: hasTagsFilter ? SelectedTags : null,
+                        title: hasTitleFilter ? SelectedTitle : null,
+                        codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                        useSemanticMatching: UseSemanticMatching,
+                        searchScope: (int)SelectedSearchScope,
+                        maxResults: 500
+                    );
+                    if (fallbackCount > 0)
+                    {
+                        InfoMessage = $"Showing {fallbackCount} results across all applications (no matches found for '{SelectedApplication}').";
+                    }
+                }
                 
                 // Clear C# results since we're using JavaScript display
                 Results = new List<TalonVoiceCommand>();
@@ -912,6 +997,28 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 );
 
                 Console.WriteLine($"OnSearch: Simple search returned {searchResults.Count} results");
+                if (searchResults.Count == 0 && hasApplicationFilter)
+                {
+                    Console.WriteLine("OnSearch: Zero results with app filter (simple); retry without application filter...");
+                    var fallback = await TalonService.SearchFilteredCommandsSimpleAsync(
+                        searchTerm: hasSearchTerm ? SearchTerm : null,
+                        application: null,
+                        mode: hasModeFilter ? SelectedMode : null,
+                        operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
+                        repository: hasRepositoryFilter ? SelectedRepository : null,
+                        tags: hasTagsFilter ? SelectedTags : null,
+                        title: hasTitleFilter ? SelectedTitle : null,
+                        codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
+                        useSemanticMatching: UseSemanticMatching,
+                        searchScope: (int)SelectedSearchScope,
+                        maxResults: 500
+                    );
+                    if (fallback.Count > 0)
+                    {
+                        searchResults = fallback;
+                        InfoMessage = $"Showing {fallback.Count} results across all applications (no matches found for '{SelectedApplication}').";
+                    }
+                }
                 Results = searchResults;
                 
                 IsLoading = false;

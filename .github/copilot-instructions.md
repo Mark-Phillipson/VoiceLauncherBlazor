@@ -88,4 +88,6 @@ Blazor Hybrid WinForms: Deployed by running the build command in Release mode.
 
 Currently we are embarking on making changes to the talon voice commands server project only any other changes to any other projects like the razor class library should be avoided at all costs it's fine to read these other projects but do not make any changes because they currently work.
 
-## 
+## Testing the Application
+
+Please feel free to use the playwright tools to run the application and inspect screenshots,  you don't necessarily need to go ahead and create a playwright test but rather use it as a tool to help you test the application and inspect screenshots.

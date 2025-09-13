@@ -1,1 +1,1 @@
- currently when we click the import script tab it shows a link below that we then have to click on can we have it so that as soon as we click on the import scripts tab it loads the importcomponent?
+ I have a query with a search result I know for a fact when I'm in Visual Studio I can say the phrase pilot chat and this moves the keyboard focus to the Github copilot chat however when I search for this command it reports no results found and also an outdated message that needs to be removed no data loaded can we fix this and figure out why it's not finding it

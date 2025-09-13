@@ -553,10 +553,31 @@ const TalonStorageDB = {
         }
     },
 
+    // Normalize common app name variants
+    normalizeAppName(name) {
+        if (!name) return '';
+        const n = String(name).trim().toLowerCase();
+        if (n === 'code' || n === 'vscode' || n === 'visual studio code' || n === 'vs code') return 'visual studio code';
+        if (n === 'devenv' || n === 'visual studio' || n === 'vs' || n === 'msvs') return 'visual studio';
+        if (n === 'msedge' || n === 'edge' || n === 'microsoft edge') return 'edge';
+        if (n === 'google chrome') return 'chrome';
+        return name;
+    },
+
     // Helper function to check if a command matches the search filters
     matchesFilters(command, searchParams) {
         // Apply field filters first
-        if (searchParams.application && command.Application !== searchParams.application) return false;
+        if (searchParams.application) {
+            const a = this.normalizeAppName(command.Application);
+            const s = this.normalizeAppName(searchParams.application);
+            if (!a || !s) {
+                if (command.Application !== searchParams.application) return false;
+            } else if (String(a).toLowerCase() !== String(s).toLowerCase() &&
+                       String(a).toLowerCase().indexOf(String(s).toLowerCase()) === -1 &&
+                       String(s).toLowerCase().indexOf(String(a).toLowerCase()) === -1) {
+                return false;
+            }
+        }
         if (searchParams.mode && command.Mode !== searchParams.mode) return false;
         if (searchParams.operatingSystem && command.OperatingSystem !== searchParams.operatingSystem) return false;
         if (searchParams.repository && command.Repository !== searchParams.repository) return false;
@@ -596,6 +617,22 @@ const TalonStorageDB = {
         }
         
         return true; // No text search, just filter-based
+    },
+
+    // Quick count helper used by the UI to decide if any data exists
+    async getCommandsCount() {
+        try {
+            const db = await this.ensureDB();
+            const transaction = db.transaction(['commands'], 'readonly');
+            const store = transaction.objectStore('commands');
+            return await new Promise((resolve, reject) => {
+                const req = store.count();
+                req.onsuccess = () => resolve(req.result || 0);
+                req.onerror = () => reject(req.error);
+            });
+        } catch {
+            return 0;
+        }
     },
 
     // Search and directly display results in the UI (no C# transfer needed)

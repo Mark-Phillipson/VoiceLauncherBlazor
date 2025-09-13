@@ -343,6 +343,12 @@
                 <span class="text-muted">Searching Talon voice commands...</span>
             </div>
         }
+        @if (!string.IsNullOrWhiteSpace(InfoMessage))
+        {
+            <div class="alert alert-info py-2" role="alert">
+                <i class="bi bi-info-circle me-2"></i>@InfoMessage
+            </div>
+        }
         
         <!-- JavaScript-rendered search results container -->
         <div class="search-results-container" style="display: none;"></div>
@@ -562,15 +568,15 @@
         }
         else if (HasSearched)
         {
-            @if ((_allCommandsCache?.Count ?? 0) == 0)
+            @if (!HasAnyData)
             {
                 <div class="alert alert-warning" role="alert">
                     <i class="bi bi-database-x me-2"></i>
                     <strong>No data loaded.</strong> 
                     <br />
-                    Please go to the <a href="/talon-import" class="alert-link">Import Scripts</a> tab to import Talon commands.
+                    To get results, import your Talon scripts on the <a href="/talon-import" class="alert-link">Import Scripts</a> tab.
                     <br />
-                    <small class="text-muted">Note: Once imported, commands are automatically stored in IndexedDB for persistence across browser sessions.</small>
+                    <small class="text-muted">Note: Once imported, commands are stored in your browser (IndexedDB) and persist across sessions.</small>
                 </div>
             }
             else
