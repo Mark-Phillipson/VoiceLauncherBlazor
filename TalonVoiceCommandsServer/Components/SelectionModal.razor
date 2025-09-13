@@ -26,8 +26,8 @@
                         @foreach (var item in FilteredItems)
                         {
                             <div class="col-12 col-sm-6 col-md-4 mb-3">
-                                @* If caller provided a ColorClass (e.g. 'bg-light'), use it; otherwise default to dark buttons for contrast *@
-                                @{ var buttonClass = string.IsNullOrWhiteSpace(item.ColorClass) ? "btn-dark text-light" : item.ColorClass; }
+                                @* Use theme-aware default styling instead of forcing btn-dark *@
+                                @{ var buttonClass = string.IsNullOrWhiteSpace(item.ColorClass) ? "btn-outline-secondary" : item.ColorClass; }
                                 <button type="button" class="card selection-card @buttonClass" @onclick="() => SelectItem(item)" aria-label="Select @item.Label" title="@item.Label">
                                     <div class="card-body p-2">
                                         <div class="text-truncate">@item.Label</div>
