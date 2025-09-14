@@ -202,12 +202,14 @@
         @if (selectedPrompt != null)
         {
             <label class='m-1 text-light'><i class="fa-solid fa-info-circle"></i> Current Prompt:</label>
-        }        @foreach (var item in chatHistory)
+        }        @if (chatHistory != null)
         {
-            if (item == null) // Add this check to skip null items
+            foreach (var item in chatHistory)
             {
-                continue;
-            }
+                if (item == null) // Add this check to skip null items
+                {
+                    continue;
+                }
 
             @if (item.Role == Microsoft.SemanticKernel.ChatCompletion.AuthorRole.System)
             {
@@ -244,6 +246,7 @@
                             @(item.Content ?? string.Empty) // item is non-null here, item.Content can be null
                         </div>                    </div>
                 </div>
+            }
             }
         }
 
@@ -289,11 +292,11 @@
             {
                 @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content)) { 
                     <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
-                        @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content))">
+                        @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
                         <i class="fa-regular fa-copy"></i> Cop<u>y</u>
                     </button>
                 }
-                <MarkdownConverter MarkdownContent="@responseHistory?.LastOrDefault()?.Content" />
+                <MarkdownConverter MarkdownContent="@(responseHistory?.LastOrDefault()?.Content ?? string.Empty)" />
             }
             else
             {

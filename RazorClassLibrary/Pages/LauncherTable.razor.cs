@@ -115,7 +115,7 @@ namespace RazorClassLibrary.Pages
 			}
 
 			CategoryDTO? category = null; // Used for title if CategoryId is set
-			if ( true )//Currently ignoring load from service setting
+			if (loadFromService)
 			{
 				try
 				{

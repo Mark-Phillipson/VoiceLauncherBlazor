@@ -82,3 +82,7 @@ Currently we are embarking on making changes to the talon voice commands server 
 ## Testing the Application
 
 Please feel free to use the playwright tools to run the application and inspect screenshots,  you don't necessarily need to go ahead and create a playwright test but rather use it as a tool to help you test the application and inspect screenshots.
+
+## Chat Messaging
+
+ please note that I use a microphone to dictate messages so please ignore any spelling or grammatical errors in my messages.  Also you will need to identify words that sound similar with different meanings.

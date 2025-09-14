@@ -112,7 +112,7 @@ namespace VoiceLauncher.Repositories
 			foreach (var category in categoriesWithLanguages)
 			{
 				// Get unique languages for this category
-				var languages = category.CustomIntelliSense
+				var languages = (category.CustomIntelliSense ?? Enumerable.Empty<CustomIntelliSense>())
 					.Where(ci => ci.Language != null)
 					.Select(ci => ci.Language!)
 					.Distinct()
