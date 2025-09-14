@@ -12,19 +12,13 @@
 
 - **Component Organization**: Each Blazor component consists of a `.razor` file (markup/UI) and a `.razor.cs` file (logic/code-behind).
 - **Component Placement**: 
-  - **CRITICAL**: All new Blazor components, models, and services should be created in the `RazorClassLibrary` project, NOT in the main `VoiceLauncher` project.
-  - When creating new features like TalonAnalysis, TalonImport, etc., place all related files in the appropriate folders within `RazorClassLibrary`:
-    - Components: `RazorClassLibrary/Pages/` (with both `.razor` and `.razor.cs` files)
-    - Models: `RazorClassLibrary/Models/`
-    - Services: `RazorClassLibrary/Services/`
   - The main `VoiceLauncher` project should only contain program startup logic and dependency injection configuration.
-  - If components are accidentally created in `VoiceLauncher`, they must be moved to `RazorClassLibrary` and all references updated.
 - **CSS Isolation**: Always use CSS isolation files (`.razor.css`) for component-specific styles instead of inline `<style>` tags. This provides better separation of concerns, scoped styling, and maintainability.
 - **Styling**: Use Bootstrap classes for layout and controls. Ensure all interactive elements are accessible via keyboard and screen readers.
 - **Accessibility**:
   - Use semantic HTML elements.
   - Provide `aria-` attributes where appropriate.
-  - Ensure all controls are reachable and operable via voice commands and keyboard navigation.
+  - Ensure all controls are reachable and operable via voice commands and keyboard navigation. And the use of access keys that are unique to focus buttons is encouraged.
 - **Hands-Free Development**:
   - Codebase is structured for compatibility with Talon Voice and Cursorless.
   - Use clear, descriptive names for files, components, and methods to facilitate voice navigation.
@@ -43,9 +37,6 @@
 - Test new features with Talon Voice and Cursorless workflows.
 - Use Bootstrap for all styling unless a specific exception is required for accessibility.
 
-## General Behavior
- -When running things in the terminal do not keep creating new terminals try to use the existing one!
-
 ## Build Configuration
 - **IMPORTANT**: Always use Debug builds when testing or building the application.
 - **Unit Tests**: Use XUnit for unit testing. Ensure all tests pass before committing changes. Project Name: TestProjectxUnit
@@ -55,7 +46,7 @@
 - Avoid commands like `dotnet build --configuration Release` or any Release configuration builds.
 
 ## Entity Framework Migrations
-- Create the commandline  commands for copying pasting
+- Create the commandline commands for copying pasting
 - Do not run the commands directly
 - Always create a script and do not use "Update Database."
 
