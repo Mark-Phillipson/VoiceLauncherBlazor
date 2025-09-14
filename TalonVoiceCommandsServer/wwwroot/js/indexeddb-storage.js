@@ -698,9 +698,14 @@ const TalonStorageDB = {
                             </div>
                             <div class="script-card-container mb-2" id="script-card-${index}"></div>
                             <div class="mt-auto command-details">
-                                <small class="text-muted d-block">
-                                    ${command.FilePath ? `File: ${this.escapeHtml(command.FilePath)}` : ''}
-                                </small>
+                                ${command.FilePath ? `
+                                    <span class="badge bg-secondary clickable-filename" 
+                                          style="cursor: pointer; font-size: 0.75em;" 
+                                          onclick="window.TalonStorageDB.openFileInVSCode('${command.FilePath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"
+                                          title="Click to open in VS Code: ${this.escapeHtml(command.FilePath)}">
+                                        ${this.escapeHtml(this.extractFilename(command.FilePath))}
+                                    </span>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -732,6 +737,33 @@ const TalonStorageDB = {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    // Extract filename from full path
+    extractFilename(filePath) {
+        if (!filePath) return '';
+        const parts = filePath.split(/[\\\/]/);
+        return parts[parts.length - 1];
+    },
+
+    // Open file in VS Code
+    openFileInVSCode(filePath) {
+        if (!filePath) return;
+        
+        // Use VS Code's URL scheme to open the file
+        const vscodeUrl = `vscode://file/${filePath.replace(/\\/g, '/')}`;
+        
+        // Try to open in VS Code
+        try {
+            window.open(vscodeUrl, '_blank');
+        } catch (error) {
+            // Fallback: copy path to clipboard and show notification
+            navigator.clipboard.writeText(filePath).then(() => {
+                alert(`File path copied to clipboard: ${filePath}\n\nTo open in VS Code manually, use: code "${filePath}"`);
+            }).catch(() => {
+                alert(`Unable to open VS Code automatically. File path: ${filePath}\n\nTo open manually, use: code "${filePath}"`);
+            });
+        }
     },
 
     // Simple limited search that returns just an array of commands (no metadata)
