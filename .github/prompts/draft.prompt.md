@@ -1,1 +1,3 @@
-On the javascript generated cards  can we define the script with a title and eight selectable box similar to the way Github would display code with a copy button that is always visible not relying on any hover action. The title would be the language and the boxes would be line numbers that when clicked would copy that line to the clipboard. The copy button would copy all lines to the clipboard.
+ for the filename that is listed in the cards came we change this to I badge with just the filename shown and when this is clicked can we have it open up the file in Visual Studio code?
+
+ Also when the application starts and displays the import talon scripts code block is being displayed at the bottom of the screen!  can we hide this.

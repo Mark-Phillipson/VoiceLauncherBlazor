@@ -716,12 +716,12 @@ const TalonStorageDB = {
         commands.forEach((command, index) => {
             const container = document.getElementById(`script-card-${index}`);
             if (container && window.ScriptCard && (command.Script || command.Code)) {
+                const script = command.Script || command.Code;
+                const lines = script.split('\n');
                 window.ScriptCard.render({
-                    container: container,
-                    script: command.Script || command.Code,
-                    title: command.Title || command.Name || 'Script',
-                    language: command.CodeLanguage || 'text',
-                });
+                    title: command.CodeLanguage || 'Script',
+                    lines: lines
+                }, container);
             }
         });
     },
