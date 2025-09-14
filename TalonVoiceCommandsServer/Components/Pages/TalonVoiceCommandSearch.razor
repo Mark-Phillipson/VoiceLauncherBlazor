@@ -111,7 +111,7 @@
                 <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
             </div>
             <div class="form-check form-switch ms-3">
-                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
+                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
                 <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
             </div>
         </div>
@@ -257,9 +257,9 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
+                <label class="form-label small label-code-language">Filter by C<u>o</u>de Language:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="c" title="Filter by Code Language">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="o" title="Filter by Code Language">
                         <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
                         @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                         {
@@ -275,7 +275,7 @@
 
             <div class="col-md-3 d-flex align-items-end">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="l">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -287,7 +287,7 @@
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
                             </svg>
-                            <span><u>C</u>lear Filters</span>
+                            <span>C<u>l</u>ear Filters</span>
                         }
                     </button>
                     <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
@@ -418,7 +418,7 @@
                                             {
                                                 @foreach (var codeLanguage in cmd.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(cl => cl.Trim()))
                                                 {
-                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+C)">@codeLanguage</span>
+                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+O)">@codeLanguage</span>
                                                 }
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Language))
@@ -568,6 +568,56 @@
                                                 </button>
                                             }
                                             <small class="text-muted">@cmd.CreatedAt.ToLocalTime().ToString("g")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                @* Compact single-line view when ShowFullCards is false *@
+                                <div class="card-body py-2">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                        <div class="d-flex align-items-center flex-grow-1 me-2" style="min-width: 0;">
+                                            @* Script name (title or filename) *@
+                                            <strong class="me-2 text-truncate" style="max-width: 200px;" title="@(!string.IsNullOrWhiteSpace(cmd.Title) ? cmd.Title : GetFileName(cmd.FilePath))">
+                                                @(!string.IsNullOrWhiteSpace(cmd.Title) ? cmd.Title : GetFileName(cmd.FilePath))
+                                            </strong>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            @* Application *@
+                                            @if (!string.IsNullOrWhiteSpace(cmd.Application))
+                                            {
+                                                <span class="badge bg-primary text-truncate" style="max-width: 120px;" title="Application: @cmd.Application">
+                                                    <i class="oi oi-monitor me-1"></i>@cmd.Application
+                                                </span>
+                                            }
+                                            
+                                            @* Repository *@
+                                            @if (!string.IsNullOrWhiteSpace(cmd.Repository))
+                                            {
+                                                <span class="badge bg-secondary text-truncate" style="max-width: 120px;" title="Repository: @cmd.Repository">
+                                                    <i class="oi oi-code me-1"></i>@cmd.Repository
+                                                </span>
+                                            }
+                                            
+                                            @* Operating System *@
+                                            @if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem))
+                                            {
+                                                <span class="badge bg-info text-truncate" style="max-width: 100px;" title="Operating System: @cmd.OperatingSystem">
+                                                    <i class="oi oi-laptop me-1"></i>@cmd.OperatingSystem
+                                                </span>
+                                            }
+                                            
+                                            @* Quick action button *@
+                                            @if (!string.IsNullOrWhiteSpace(cmd.FilePath))
+                                            {
+                                                <button class="btn btn-outline-primary btn-sm" 
+                                                        @onclick="(e) => OnFilePathClick(e, cmd.FilePath)" 
+                                                        title="Open @cmd.FilePath in VS Code"
+                                                        aria-label="Open @GetFileName(cmd.FilePath) in VS Code">
+                                                    <i class="oi oi-external-link"></i>
+                                                </button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -731,6 +781,24 @@
 <!-- End of Main Container -->
 </div>
 
+<script>
+// Custom access key handler for Show Full Cards checkbox
+// Blazor bind can interfere with HTML accesskey, so we handle Alt+C manually
+document.addEventListener('keydown', function(event) {
+    // Check for Alt+C (keyCode 67 is 'C')
+    if (event.altKey && (event.key === 'c' || event.key === 'C') && !event.shiftKey && !event.ctrlKey) {
+        event.preventDefault();
+        const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
+        if (showFullCardsCheckbox && !showFullCardsCheckbox.disabled) {
+            // Toggle the checkbox
+            showFullCardsCheckbox.checked = !showFullCardsCheckbox.checked;
+            // Trigger the change event to notify Blazor
+            const changeEvent = new Event('change', { bubbles: true });
+            showFullCardsCheckbox.dispatchEvent(changeEvent);
+        }
+    }
+});
+</script>
 
 @code {
     // All logic is in the code-behind file (partial class)

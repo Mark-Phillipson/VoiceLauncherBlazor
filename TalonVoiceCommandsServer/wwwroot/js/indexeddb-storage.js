@@ -656,6 +656,9 @@ const TalonStorageDB = {
     displaySearchResults(commands) {
         console.log(`TalonStorageDB: Displaying ${commands.length} search results`);
         
+        // Store results for potential re-rendering when view mode changes
+        this.lastSearchResults = commands;
+        
         // Find the results container in the UI
         const resultsContainer = document.querySelector('.search-results-container');
         if (!resultsContainer) {
@@ -671,6 +674,10 @@ const TalonStorageDB = {
             return;
         }
 
+        // Check if "Show Full Cards" is enabled
+        const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
+        const showFullCards = showFullCardsCheckbox ? showFullCardsCheckbox.checked : false;
+
         // Create results HTML using a responsive two-column grid (Bootstrap)
         // Header spans full width, each result becomes a column (col-12 on xs, col-md-6 on md+)
         let html = `<div class="search-results">`;
@@ -678,14 +685,21 @@ const TalonStorageDB = {
         html += `<div class="row">`;
 
         commands.forEach((command, index) => {
+            // Generate script name for compact view
+            const scriptName = command.Title || this.extractFilename(command.FilePath || '') || 'Untitled';
+            
             html += `
                 <div class="col-12 col-md-6 mb-3">
-                    <div class="result-item card h-100" data-command-id="${command.Id || index}">
+                    <div class="result-item card h-100" data-command-id="${command.Id || index}">`;
+            
+            if (showFullCards) {
+                // Full card view - command first, then application
+                html += `
                         <div class="card-body d-flex flex-column">
+                            <h6 class="card-title mb-2">"${this.escapeHtml(command.Command || 'No command')}"</h6>
                             <div class="mb-2">
                                 <span class="badge filter-btn-application px-2 py-1 mb-1" style="font-size:1rem; border-radius:0.5rem;">${this.escapeHtml(command.Application || 'N/A')}</span>
                             </div>
-                            <h6 class="card-title">${this.escapeHtml(command.Command || 'No command')}</h6>
                             <div class="mb-2">
                                 <div class="d-flex flex-wrap gap-1 mt-1">
                                     ${command.Title ? `<span class="badge bg-success" title="Title">${this.escapeHtml(command.Title)}</span>` : ''}
@@ -707,7 +721,59 @@ const TalonStorageDB = {
                                     </span>
                                 ` : ''}
                             </div>
-                        </div>
+                        </div>`;
+            } else {
+                // Compact single-line view
+                html += `
+                        <div class="card-body py-2">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                <div class="d-flex align-items-center flex-grow-1 me-2" style="min-width: 0;">
+                                    <strong class="me-2 text-truncate" style="max-width: 200px;" title="${this.escapeHtml(command.Command || 'No command')}">
+                                        ${this.escapeHtml(command.Command || 'No command')}
+                                    </strong>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    ${command.Application && command.Application.trim() && command.Application.length <= 50 ? `
+                                        <span class="badge bg-dark text-truncate" style="max-width: 120px;" title="Application: ${this.escapeHtml(command.Application)}">
+                                            <i class="oi oi-monitor me-1"></i>${this.escapeHtml(command.Application)}
+                                        </span>
+                                    ` : command.Application && command.Application.trim() ? `
+                                        <span class="badge bg-dark" title="Application: ${this.escapeHtml(command.Application)}">
+                                            <i class="oi oi-monitor"></i>
+                                        </span>
+                                    ` : ''}
+                                    ${command.Repository && command.Repository.trim() && command.Repository.length <= 50 ? `
+                                        <span class="badge bg-primary text-truncate" style="max-width: 120px;" title="Repository: ${this.escapeHtml(command.Repository)}">
+                                            <i class="oi oi-code me-1"></i>${this.escapeHtml(command.Repository)}
+                                        </span>
+                                    ` : command.Repository && command.Repository.trim() ? `
+                                        <span class="badge bg-primary" title="Repository: ${this.escapeHtml(command.Repository)}">
+                                            <i class="oi oi-code"></i>
+                                        </span>
+                                    ` : ''}
+                                    ${command.OperatingSystem && command.OperatingSystem.trim() && command.OperatingSystem.length <= 50 ? `
+                                        <span class="badge bg-info text-truncate" style="max-width: 100px;" title="Operating System: ${this.escapeHtml(command.OperatingSystem)}">
+                                            <i class="oi oi-laptop me-1"></i>${this.escapeHtml(command.OperatingSystem)}
+                                        </span>
+                                    ` : command.OperatingSystem && command.OperatingSystem.trim() ? `
+                                        <span class="badge bg-info" title="Operating System: ${this.escapeHtml(command.OperatingSystem)}">
+                                            <i class="oi oi-laptop"></i>
+                                        </span>
+                                    ` : ''}
+                                    ${command.FilePath ? `
+                                        <span class="badge bg-secondary clickable-filename" 
+                                              style="cursor: pointer; font-size: 0.75em;" 
+                                              onclick="window.TalonStorageDB.openFileInVSCode('${command.FilePath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"
+                                              title="Click to open in VS Code: ${this.escapeHtml(command.FilePath)}">
+                                            <i class="oi oi-external-link me-1"></i>${this.escapeHtml(this.extractFilename(command.FilePath))}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+            }
+            
+            html += `
                     </div>
                 </div>
             `;
@@ -717,18 +783,23 @@ const TalonStorageDB = {
         html += `</div>`; // .search-results
         resultsContainer.innerHTML = html;
 
-        // After rendering, invoke ScriptCard for each result
-        commands.forEach((command, index) => {
-            const container = document.getElementById(`script-card-${index}`);
-            if (container && window.ScriptCard && (command.Script || command.Code)) {
-                const script = command.Script || command.Code;
-                const lines = script.split('\n');
-                window.ScriptCard.render({
-                    title: command.CodeLanguage || 'Script',
-                    lines: lines
-                }, container);
-            }
-        });
+        // After rendering, invoke ScriptCard for each result (only for full cards)
+        if (showFullCards) {
+            commands.forEach((command, index) => {
+                const container = document.getElementById(`script-card-${index}`);
+                if (container && window.ScriptCard && (command.Script || command.Code)) {
+                    const script = command.Script || command.Code;
+                    const lines = script.split('\n');
+                    window.ScriptCard.render({
+                        title: command.CodeLanguage || 'Script',
+                        lines: lines
+                    }, container);
+                }
+            });
+        }
+
+        // Initialize event listeners if not already done
+        this.initializeEventListeners();
     },
 
     // Utility function to escape HTML
@@ -810,6 +881,26 @@ const TalonStorageDB = {
         }
     },
 
+    // Store last search results for re-rendering when view mode changes
+    lastSearchResults: [],
+
+    // Re-render the current search results when view mode changes
+    refreshDisplayMode() {
+        if (this.lastSearchResults.length > 0) {
+            this.displaySearchResults(this.lastSearchResults);
+        }
+    },
+
+    // Initialize event listeners for the show full cards checkbox
+    initializeEventListeners() {
+        const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
+        if (showFullCardsCheckbox) {
+            showFullCardsCheckbox.addEventListener('change', () => {
+                this.refreshDisplayMode();
+            });
+        }
+    },
+
     // Limited search that returns at most maxResults commands to prevent SignalR timeouts
     async searchFilteredCommandsLimited(searchParams, maxResults = 500) {
         console.log(`TalonStorageDB: searchFilteredCommandsLimited called with params:`, searchParams, `maxResults: ${maxResults}`);
@@ -857,6 +948,27 @@ const TalonStorageDB = {
         } catch (error) {
             console.error('TalonStorageDB: Error in searchFilteredCommandsLimited:', error);
             throw error;
+        }
+    },
+
+    // Re-render search results when display mode changes
+    refreshDisplayMode() {
+        if (this.lastSearchResults && this.lastSearchResults.length > 0) {
+            console.log('TalonStorageDB: Refreshing display mode for existing results');
+            this.displaySearchResults(this.lastSearchResults);
+        }
+    },
+
+    // Initialize event listeners for checkbox changes
+    initializeEventListeners() {
+        const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
+        if (showFullCardsCheckbox && !showFullCardsCheckbox.hasAttribute('data-listener-attached')) {
+            showFullCardsCheckbox.addEventListener('change', () => {
+                console.log('TalonStorageDB: Show full cards changed to:', showFullCardsCheckbox.checked);
+                this.refreshDisplayMode();
+            });
+            // Mark as having listener attached to avoid duplicates
+            showFullCardsCheckbox.setAttribute('data-listener-attached', 'true');
         }
     }
 };

@@ -1,1 +1,0 @@
-When I click on the  filename badge nothing seems to happen it does not open up in Visual Studio code
