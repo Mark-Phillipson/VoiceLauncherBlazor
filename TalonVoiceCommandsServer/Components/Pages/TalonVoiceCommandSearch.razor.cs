@@ -434,11 +434,7 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     
     private static readonly List<string> _predefinedModes = new()
     {
-        "command", "insert", "dictation", "sleep",
-        "user.terminal", "user.bash", "user.powershell",
-        "user.vim", "user.emacs", "user.vscode",
-        "user.chrome", "user.firefox",
-        "user.coding", "user.debugging", "user.git"
+        "command", "insert", "dictation", "sleep"
     };
     
     private static readonly List<string> _predefinedOperatingSystems = new()
@@ -455,7 +451,11 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     {
         "navigation", "editing", "browser", "terminal", "git", "debugging",
         "file_management", "window_management", "text_manipulation",
-        "code_completion", "refactoring", "search", "replace"
+        "code_completion", "refactoring", "search", "replace",
+        "user.terminal", "user.bash", "user.powershell",
+        "user.vim", "user.emacs", "user.vscode",
+        "user.chrome", "user.firefox",
+        "user.coding", "user.debugging", "user.git"
     };
     
     private static readonly List<string> _predefinedCodeLanguages = new()
@@ -685,7 +685,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
                 var importedModes = _allCommandsCache
                     .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
-                    .Select(c => c.Mode!)
+                    .SelectMany(c => c.Mode!.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(m => m.Trim()))
+                    .Where(m => !m.StartsWith("user.", StringComparison.OrdinalIgnoreCase)) // Exclude user context tags
                     .Distinct()
                     .ToList();
 
@@ -814,6 +816,23 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                         await JSRuntime.InvokeVoidAsync("console.error", "Selection modal JS module failed to load (client):", ex?.Message);
                 }
                 catch { }
+            }
+            
+            // CRITICAL FIX: Now that JavaScript interop is available, attempt to refresh filters
+            // if they couldn't be loaded during OnInitializedAsync due to static rendering
+            try
+            {
+                // Check if we have minimal filter data (indicating OnInitializedAsync filter load failed)
+                if (AvailableTitles.Count == 0 && TalonService != null)
+                {
+                    Console.WriteLine("OnAfterRenderAsync: Attempting to refresh filters now that JS interop is available");
+                    await LoadFilterOptions();
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnAfterRenderAsync: Filter refresh attempt failed: {ex.Message}");
             }
             
             // Note: localStorage loading is now handled by the manual "Load Data" button
