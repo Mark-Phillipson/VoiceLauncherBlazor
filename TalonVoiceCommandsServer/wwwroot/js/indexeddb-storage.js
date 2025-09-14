@@ -682,9 +682,11 @@ const TalonStorageDB = {
                 <div class="col-12 col-md-6 mb-3">
                     <div class="result-item card h-100" data-command-id="${command.Id || index}">
                         <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="badge filter-btn-application px-2 py-1 mb-1" style="font-size:1rem; border-radius:0.5rem;">${this.escapeHtml(command.Application || 'N/A')}</span>
+                            </div>
                             <h6 class="card-title">${this.escapeHtml(command.Command || 'No command')}</h6>
                             <div class="mb-2">
-                                <small class="text-muted">App: ${this.escapeHtml(command.Application || 'N/A')}</small>
                                 <div class="d-flex flex-wrap gap-1 mt-1">
                                     ${command.Title ? `<span class="badge bg-success" title="Title">${this.escapeHtml(command.Title)}</span>` : ''}
                                     ${command.Mode ? `<span class="badge bg-secondary" title="Mode">${this.escapeHtml(command.Mode)}</span>` : ''}

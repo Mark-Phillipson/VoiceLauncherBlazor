@@ -5,8 +5,8 @@
 
 <div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' @onkeydown="OnKeyDown" tabindex="-1">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Talon Voice Command Search</h2>
-        <span class="text-muted">Current App: @CurrentApplication</span>
+    <h2 class="mb-0">Talon Voice Command Search</h2>
+    <span class="badge filter-btn-application px-3 py-2" style="font-size:1rem; border-radius:0.5rem;">@CurrentApplication</span>
     </div>
 
     <!-- Tabbed Navigation -->
@@ -387,9 +387,9 @@
                             else 
                             {
                                 <div class="card-header d-flex">
+                                    <span class="badge filter-btn-application px-2 py-1 me-2" style="font-size:0.95rem; border-radius:0.5rem;">@cmd.Application</span>
                                     <h5 class="card-title mb-1 me-2" style="@(IsBlazorHybrid ? "white-space:normal; word-break:break-word;" : "")">@((MarkupString)HighlightCapturesAndFilters(cmd.Command, cmd))</h5>
                                     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
-                                        <small class="text-muted">@((MarkupString)HighlightAllFilterMatches(cmd.Application, cmd))</small>
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
@@ -444,6 +444,9 @@
                             @if (ShowFullCards || IsInFocusMode())
                             {
                                 <div class="card-body">                                
+                                    <div class="mb-2">
+                                        <span class="badge filter-btn-application px-2 py-1" style="font-size:0.95rem; border-radius:0.5rem;">@cmd.Application</span>
+                                    </div>
                                     <div class="mb-3">
                                         <h6 class="card-subtitle text-muted">Script:</h6>
                                         <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>

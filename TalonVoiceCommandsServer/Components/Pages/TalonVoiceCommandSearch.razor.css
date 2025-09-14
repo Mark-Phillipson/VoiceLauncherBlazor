@@ -1,3 +1,29 @@
+/* Force jet black for application badge everywhere, overriding Bootstrap */
+.badge.filter-btn-application,
+.card .badge.filter-btn-application,
+.search-results .badge.filter-btn-application,
+.result-item .badge.filter-btn-application {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+    box-shadow: none !important;
+    font-weight: 600 !important;
+}
+.search-results .badge.filter-btn-application,
+.search-results .badge.filter-btn-application:active,
+.search-results .badge.filter-btn-application:focus,
+.search-results .badge.filter-btn-application:hover {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+    box-shadow: none !important;
+}
+/* Ensure jet black for badge.filter-btn-application, overriding Bootstrap badge styles */
+.badge.filter-btn-application {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+}
 .filter-btn-icon {
     font-size: 1rem;
     line-height: 1;
