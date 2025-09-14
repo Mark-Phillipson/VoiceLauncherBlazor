@@ -6,10 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using TalonVoiceCommandsServer.Services;
 namespace TalonVoiceCommandsServer.Components.Pages;
 
 public partial class TalonImport : ComponentBase
 {
+    [Inject]
+    public FilterRefreshService FilterRefreshService { get; set; } = default!;
     // JSRuntime is injected in the `.razor` file via @inject and is available on the partial class
 
     private const string SettingsDirectoryKey = "TalonImport.DirectoryPath";
@@ -286,9 +289,8 @@ public partial class TalonImport : ComponentBase
             }
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected repositories.";
-            
-            // Invalidate the search component's filter cache so it picks up the new data
             TalonVoiceCommandSearch.InvalidateFilterCache();
+            await FilterRefreshService.RequestRefreshAsync();
         }
         catch (System.Exception ex)
         {
@@ -411,8 +413,9 @@ public partial class TalonImport : ComponentBase
 
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} .talon files (server).";
             
-            // Invalidate the search component's filter cache so it picks up the new data
+            // Invalidate and immediately refresh the search component's filter cache so it picks up the new data
             TalonVoiceCommandSearch.InvalidateFilterCache();
+            await FilterRefreshService.RequestRefreshAsync();
         }
         catch (Exception ex)
         {
@@ -481,8 +484,9 @@ public partial class TalonImport : ComponentBase
             
             ImportResult = $"Successfully imported {listsImported} list items from {Path.GetFileName(ListsFilePath)}.";
             
-            // Invalidate the search component's filter cache so it picks up the new data
+            // Invalidate and immediately refresh the search component's filter cache so it picks up the new data
             TalonVoiceCommandSearch.InvalidateFilterCache();
+            await FilterRefreshService.RequestRefreshAsync();
             
             // Show toast in UI
             ShowToast = true;

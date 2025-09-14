@@ -38,6 +38,9 @@ builder.Services.AddScoped<TalonVoiceCommandsServer.Services.ITalonVoiceCommandD
 // Register a Windows service implementation used by components to query the active window/process
 builder.Services.AddSingleton<IWindowsService, WindowsService>();
 
+// Register FilterRefreshService for automatic filter refresh after import
+builder.Services.AddSingleton<FilterRefreshService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

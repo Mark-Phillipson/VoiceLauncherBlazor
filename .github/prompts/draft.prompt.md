@@ -1,1 +1,1 @@
-Regarding the screenshot were we have the application listed in the search results can we apply the same formatting via badge so we have a jet black background.
+We appear to have a regression in that the filters are not being loaded up even when reimporting the data for example filter by application

@@ -22,6 +22,8 @@ public enum SearchScope
 
 public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
 {
+    [Inject]
+    public FilterRefreshService FilterRefreshService { get; set; } = default!;
 // Shared modal state (used to populate the reusable modal)
     public List<SelectionItem> SelectionModalItems { get; set; } = new();
     public string SelectionModalTitle { get; set; } = "Select";
@@ -505,6 +507,12 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         // Try to load basic filter options (won't work until localStorage is loaded via button)
         await LoadFilterOptions();
+
+        // Subscribe to filter refresh event
+        if (FilterRefreshService != null)
+        {
+            FilterRefreshService.OnRefreshRequested += RefreshFiltersAsync;
+        }
         
         // DON'T load commands automatically - wait for user to click "Load Data"
         // This prevents blocking the Blazor connection on tab switch
@@ -2221,6 +2229,11 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         _searchCancellationTokenSource?.Cancel();
         _searchCancellationTokenSource?.Dispose();
         _refreshTimer?.Dispose();
+        // Unsubscribe from filter refresh event
+        if (FilterRefreshService != null)
+        {
+            FilterRefreshService.OnRefreshRequested -= RefreshFiltersAsync;
+        }
     }
 
     /// <summary>
