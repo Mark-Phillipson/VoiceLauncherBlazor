@@ -18,11 +18,11 @@ if (typeof window.ScriptCard === 'undefined') {
       if (nonEmptyLines.length === 1) {
         // Single line layout - everything on one row
         card.innerHTML = `
-          <div class="d-flex align-items-center py-2 px-3" style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px;">
-            <span class="fw-bold text-dark me-3" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui; font-size: 12px; color: #656d76;">${this.escapeHtml(title)}</span>
-            <code class="flex-grow-1 me-3" style="background: white; color: #24292f; padding: 4px 8px; border: 1px solid #d0d7de; border-radius: 4px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 12px; white-space: nowrap; overflow-x: auto;">${this.escapeHtml(nonEmptyLines[0])}</code>
-            <button class="btn btn-sm flex-shrink-0" id="copy-single-${Date.now()}" title="Copy script" aria-label="Copy script" style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500;">
-              <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" style="fill: #656d76;">
+          <div class="d-flex align-items-center py-1 px-2" style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;">
+            <span class="fw-bold text-dark me-2" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui; font-size: 11px; color: #656d76;">${this.escapeHtml(title)}</span>
+            <code class="flex-grow-1 me-2" style="background: white; color: #24292f; padding: 2px 6px; border: 1px solid #d0d7de; border-radius: 3px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; white-space: nowrap; overflow-x: auto; line-height: 16px;">${this.escapeHtml(nonEmptyLines[0])}</code>
+            <button class="btn btn-sm flex-shrink-0" id="copy-single-${Date.now()}" title="Copy script" aria-label="Copy script" style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 500;">
+              <svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14" style="fill: #656d76;">
                 <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
                 <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
               </svg>
@@ -31,40 +31,21 @@ if (typeof window.ScriptCard === 'undefined') {
           </div>
         `;
       } else {
-        // Multi-line layout - show only actual lines without padding
+        // Multi-line layout - simple text display without line numbers
         
         card.innerHTML = `
-          <div class="card-header d-flex justify-content-between align-items-center py-2 px-3" style="background-color: #f6f8fa; border-bottom: 1px solid #d0d7de;">
-            <span class="fw-bold text-dark" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui;">${this.escapeHtml(title)}</span>
-            <button class="btn btn-sm" id="copy-all-${Date.now()}" title="Copy all lines" aria-label="Copy all lines" style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500;">
-              <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" style="fill: #656d76;">
+          <div class="card-header d-flex justify-content-between align-items-center py-1 px-2" style="background-color: #f6f8fa; border-bottom: 1px solid #d0d7de;">
+            <span class="fw-bold text-dark" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui; font-size: 12px;">${this.escapeHtml(title)}</span>
+            <button class="btn btn-sm" id="copy-all-${Date.now()}" title="Copy all lines" aria-label="Copy all lines" style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 500;">
+              <svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14" style="fill: #656d76;">
                 <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
                 <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
               </svg>
               Copy
             </button>
           </div>
-          <div class="card-body p-0" style="background-color: #f6f8fa;">
-            <div style="border-radius: 0;">
-              <table class="table table-sm mb-0" style="background: transparent; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;">
-                <tbody>
-                  ${lines.map((line, i) => `
-                    <tr style="border: none;">
-                      <td class="pe-2 text-center" style="width: 50px; border: none; background: #f6f8fa; color: #656d76; font-size: 12px; line-height: 20px; padding: 4px 8px; border-right: 1px solid #d0d7de; user-select: none;">
-                        <button class="btn btn-link p-0 text-decoration-none line-btn" 
-                                style="color: #656d76; font-size: 12px; border: none; background: none; width: 100%; text-align: center; cursor: pointer;" 
-                                title="Copy line ${i+1}" 
-                                aria-label="Copy line ${i+1}" 
-                                data-line="${i}">${i+1}</button>
-                      </td>
-                      <td style="border: none; background: white; padding: 4px 8px; font-size: 12px; line-height: 20px; white-space: pre-wrap; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;">
-                        <code style="background: none; color: #24292f; padding: 0; border: none;">${this.escapeHtml(line)}</code>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
+          <div class="card-body p-2" style="background-color: white;">
+            <pre style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 8px; margin: 0; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; line-height: 1.3; white-space: pre-wrap; overflow-x: auto; color: #24292f;">${this.escapeHtml(lines.filter(line => line.trim() !== '').join('\n'))}</pre>
           </div>
         `;
       }
@@ -83,7 +64,7 @@ if (typeof window.ScriptCard === 'undefined') {
           };
         }
       } else {
-        // Multi-line copy functionality
+        // Multi-line copy functionality - only "copy all" button
         const copyAllBtn = card.querySelector(`[id^="copy-all-"]`);
         if (copyAllBtn) {
           copyAllBtn.onclick = () => {
@@ -91,17 +72,6 @@ if (typeof window.ScriptCard === 'undefined') {
             this.showCopyFeedback(copyAllBtn, 'Copied!');
           };
         }
-        
-        // Copy individual lines functionality
-        card.querySelectorAll('button[data-line]').forEach(btn => {
-          btn.onclick = () => {
-            const idx = parseInt(btn.getAttribute('data-line'));
-            if (lines[idx] && lines[idx].trim() !== '') {
-              navigator.clipboard.writeText(lines[idx]);
-              this.showCopyFeedback(btn, 'Copied!');
-            }
-          };
-        });
       }
     },
 

@@ -1,4 +1,4 @@
-// IndexedDB storage wrapper for Talon Voice Commands
+﻿// IndexedDB storage wrapper for Talon Voice Commands
 // Provides high-capacity storage for large datasets that exceed localStorage limits
 
 const TalonStorageDB = {
@@ -676,7 +676,7 @@ const TalonStorageDB = {
 
         // Check if "Show Full Cards" is enabled
         const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
-        const showFullCards = showFullCardsCheckbox ? showFullCardsCheckbox.checked : false;
+        const showFullCards = commands.length <= 6 ? true : (showFullCardsCheckbox ? showFullCardsCheckbox.checked : false);
 
         // Create results HTML using a responsive two-column grid (Bootstrap)
         // Header spans full width, each result becomes a column (col-12 on xs, col-md-6 on md+)
@@ -696,7 +696,7 @@ const TalonStorageDB = {
                 // Full card view - command first, then application
                 html += `
                         <div class="card-body d-flex flex-column">
-                            <h6 class="card-title mb-2">"${this.escapeHtml(command.Command || 'No command')}"</h6>
+                            <h6 class="card-title mb-2">“${this.escapeHtml(command.Command || 'No command')}”</h6>
                             <div class="mb-2">
                                 <span class="badge filter-btn-application px-2 py-1 mb-1" style="font-size:1rem; border-radius:0.5rem;">${this.escapeHtml(command.Application || 'N/A')}</span>
                             </div>
@@ -728,7 +728,7 @@ const TalonStorageDB = {
                         <div class="card-body py-2">
                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                 <div class="d-flex align-items-center flex-grow-1 me-2" style="min-width: 0;">
-                                    <strong class="me-2 text-truncate" style="max-width: 200px;" title="${this.escapeHtml(command.Command || 'No command')}">
+                                    <strong class="me-2 text-truncate" style="max-width: 200px;" title=“${this.escapeHtml(command.Command || 'No command')}”>
                                         ${this.escapeHtml(command.Command || 'No command')}
                                     </strong>
                                 </div>
