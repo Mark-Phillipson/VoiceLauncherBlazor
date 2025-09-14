@@ -1,1 +1,1 @@
-We appear to have a regression in that the filters are not being loaded up even when reimporting the data for example filter by application
+On the javascript generated cards  can we define the script with a title and eight selectable box similar to the way Github would display code with a copy button that is always visible not relying on any hover action. The title would be the language and the boxes would be line numbers that when clicked would copy that line to the clipboard. The copy button would copy all lines to the clipboard.

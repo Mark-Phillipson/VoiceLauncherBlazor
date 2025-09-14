@@ -3,3 +3,18 @@
 <PageTitle>Home</PageTitle>
 
 <TalonImport />
+
+@code {
+	private string[] testScriptLines = new[] {
+		"let x = 1;",
+		"let y = 2;",
+		"let z = x + y;",
+		"console.log(z);",
+		"function foo() { return z; }",
+		"// End of script",
+		"",
+		""
+	};
+}
+
+<ScriptCard Title="JavaScript" Lines="@testScriptLines" />

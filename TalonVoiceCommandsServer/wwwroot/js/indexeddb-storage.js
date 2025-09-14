@@ -696,7 +696,7 @@ const TalonStorageDB = {
                                     ${command.OperatingSystem ? `<span class="badge bg-info" title="Operating System">${this.escapeHtml(command.OperatingSystem)}</span>` : ''}
                                 </div>
                             </div>
-                            <pre class="script-content mb-2">${this.escapeHtml(command.Script || 'No script')}</pre>
+                            <div class="script-card-container mb-2" id="script-card-${index}"></div>
                             <div class="mt-auto command-details">
                                 <small class="text-muted d-block">
                                     ${command.FilePath ? `File: ${this.escapeHtml(command.FilePath)}` : ''}
@@ -711,6 +711,19 @@ const TalonStorageDB = {
         html += `</div>`; // .row
         html += `</div>`; // .search-results
         resultsContainer.innerHTML = html;
+
+        // After rendering, invoke ScriptCard for each result
+        commands.forEach((command, index) => {
+            const container = document.getElementById(`script-card-${index}`);
+            if (container && window.ScriptCard && (command.Script || command.Code)) {
+                window.ScriptCard.render({
+                    container: container,
+                    script: command.Script || command.Code,
+                    title: command.Title || command.Name || 'Script',
+                    language: command.CodeLanguage || 'text',
+                });
+            }
+        });
     },
 
     // Utility function to escape HTML
