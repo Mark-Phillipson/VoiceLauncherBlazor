@@ -996,6 +996,153 @@ const TalonStorageDB = {
             // Mark as having listener attached to avoid duplicates
             showFullCardsCheckbox.setAttribute('data-listener-attached', 'true');
         }
+    },
+
+    // Get unique filter values directly from IndexedDB without loading all data to Blazor
+    async getFilterValues() {
+        console.log('TalonStorageDB: Getting filter values directly from IndexedDB...');
+        try {
+            await this.init();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['commands'], 'readonly');
+                const store = transaction.objectStore('commands');
+                const request = store.openCursor();
+                
+                // Use Sets to collect unique values
+                const applications = new Set();
+                const modes = new Set();
+                const operatingSystems = new Set();
+                const repositories = new Set();
+                const tags = new Set();
+                const titles = new Set();
+                const codeLanguages = new Set();
+                
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const command = cursor.value;
+                        
+                        // Collect applications
+                        if (command.Application) {
+                            applications.add(command.Application);
+                        }
+                        
+                        // Collect modes (split by comma)
+                        if (command.Mode) {
+                            command.Mode.split(',').forEach(mode => {
+                                const trimmedMode = mode.trim();
+                                if (trimmedMode && !trimmedMode.startsWith('user.')) {
+                                    modes.add(trimmedMode);
+                                }
+                            });
+                        }
+                        
+                        // Collect operating systems
+                        if (command.OperatingSystem) {
+                            operatingSystems.add(command.OperatingSystem);
+                        }
+                        
+                        // Collect repositories
+                        if (command.Repository) {
+                            repositories.add(command.Repository);
+                        }
+                        
+                        // Collect tags (split by comma)
+                        if (command.Tags) {
+                            command.Tags.split(',').forEach(tag => {
+                                const trimmedTag = tag.trim();
+                                if (trimmedTag) {
+                                    tags.add(trimmedTag);
+                                }
+                            });
+                        }
+                        
+                        // Collect titles
+                        if (command.Title) {
+                            titles.add(command.Title);
+                        }
+                        
+                        // Collect code languages (split by comma)
+                        if (command.CodeLanguage) {
+                            command.CodeLanguage.split(',').forEach(language => {
+                                const trimmedLanguage = language.trim();
+                                if (trimmedLanguage) {
+                                    codeLanguages.add(trimmedLanguage);
+                                }
+                            });
+                        }
+                        
+                        cursor.continue();
+                    } else {
+                        // Convert Sets to sorted arrays
+                        const filterValues = {
+                            applications: Array.from(applications).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            modes: Array.from(modes).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            operatingSystems: Array.from(operatingSystems).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            repositories: Array.from(repositories).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            tags: Array.from(tags).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            titles: Array.from(titles).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+                            codeLanguages: Array.from(codeLanguages).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+                        };
+                        
+                        console.log('TalonStorageDB: Filter values extracted:', {
+                            applications: filterValues.applications.length,
+                            modes: filterValues.modes.length,
+                            operatingSystems: filterValues.operatingSystems.length,
+                            repositories: filterValues.repositories.length,
+                            tags: filterValues.tags.length,
+                            titles: filterValues.titles.length,
+                            codeLanguages: filterValues.codeLanguages.length
+                        });
+                        
+                        resolve(filterValues);
+                    }
+                };
+                
+                request.onerror = () => {
+                    console.error('TalonStorageDB: Error getting filter values:', request.error);
+                    reject(request.error);
+                };
+            });
+            
+        } catch (error) {
+            console.error('TalonStorageDB: Error in getFilterValues:', error);
+            throw error;
+        }
+    },
+
+    // Get a count of total commands and other statistics without loading all data
+    async getDataStatistics() {
+        console.log('TalonStorageDB: Getting data statistics...');
+        try {
+            await this.init();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['commands'], 'readonly');
+                const store = transaction.objectStore('commands');
+                const countRequest = store.count();
+                
+                countRequest.onsuccess = () => {
+                    const totalCommands = countRequest.result;
+                    console.log(`TalonStorageDB: Found ${totalCommands} total commands`);
+                    
+                    resolve({
+                        totalCommands: totalCommands,
+                        hasData: totalCommands > 0
+                    });
+                };
+                
+                countRequest.onerror = () => {
+                    console.error('TalonStorageDB: Error getting command count:', countRequest.error);
+                    reject(countRequest.error);
+                };
+            });
+            
+        } catch (error) {
+            console.error('TalonStorageDB: Error in getDataStatistics:', error);
+            throw error;
+        }
     }
 };
 

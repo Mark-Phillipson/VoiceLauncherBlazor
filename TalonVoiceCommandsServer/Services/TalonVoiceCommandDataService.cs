@@ -450,7 +450,30 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         public int TotalFiles { get; set; }
         public int TotalCommandsImported { get; set; }
-    }        
+    }
+
+    /// <summary>
+    /// DTO for filter values extracted from JavaScript/IndexedDB
+    /// </summary>
+    public class FilterValues
+    {
+        public List<string> Applications { get; set; } = new();
+        public List<string> Modes { get; set; } = new();
+        public List<string> OperatingSystems { get; set; } = new();
+        public List<string> Repositories { get; set; } = new();
+        public List<string> Tags { get; set; } = new();
+        public List<string> Titles { get; set; } = new();
+        public List<string> CodeLanguages { get; set; } = new();
+    }
+
+    /// <summary>
+    /// DTO for basic data statistics from JavaScript/IndexedDB
+    /// </summary>
+    public class DataStatistics
+    {
+        public int TotalCommands { get; set; }
+        public bool HasData { get; set; }
+    }
 
     public async Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
     {
@@ -472,6 +495,75 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         await Task.Yield();
         Console.WriteLine($"GetAllCommandsForFiltersAsync: in-memory commands={_commands.Count}, lists={_talonLists.Count}");
         return _commands.ToList();
+    }
+
+    /// <summary>
+    /// Gets filter values directly from IndexedDB without loading all commands into Blazor memory.
+    /// This prevents connection timeouts when refreshing filters.
+    /// </summary>
+    public async Task<FilterValues> GetFilterValuesFromJavaScriptAsync()
+    {
+        Console.WriteLine("GetFilterValuesFromJavaScriptAsync: Starting JavaScript-based filter extraction...");
+        
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            
+            var result = await _jsRuntime.InvokeAsync<dynamic>("TalonStorageDB.getFilterValues", cts.Token);
+            
+            var filterValues = new FilterValues
+            {
+                Applications = ((JsonElement)result.GetProperty("applications")).Deserialize<List<string>>() ?? new List<string>(),
+                Modes = ((JsonElement)result.GetProperty("modes")).Deserialize<List<string>>() ?? new List<string>(),
+                OperatingSystems = ((JsonElement)result.GetProperty("operatingSystems")).Deserialize<List<string>>() ?? new List<string>(),
+                Repositories = ((JsonElement)result.GetProperty("repositories")).Deserialize<List<string>>() ?? new List<string>(),
+                Tags = ((JsonElement)result.GetProperty("tags")).Deserialize<List<string>>() ?? new List<string>(),
+                Titles = ((JsonElement)result.GetProperty("titles")).Deserialize<List<string>>() ?? new List<string>(),
+                CodeLanguages = ((JsonElement)result.GetProperty("codeLanguages")).Deserialize<List<string>>() ?? new List<string>()
+            };
+            
+            Console.WriteLine($"GetFilterValuesFromJavaScriptAsync: Successfully extracted filters - " +
+                            $"{filterValues.Applications.Count} apps, {filterValues.Modes.Count} modes, " +
+                            $"{filterValues.Titles.Count} titles, {filterValues.Tags.Count} tags");
+            
+            return filterValues;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetFilterValuesFromJavaScriptAsync: Error - {ex.Message}");
+            // Return empty filter values on error
+            return new FilterValues();
+        }
+    }
+
+    /// <summary>
+    /// Gets basic data statistics from IndexedDB without loading all data
+    /// </summary>
+    public async Task<DataStatistics> GetDataStatisticsFromJavaScriptAsync()
+    {
+        Console.WriteLine("GetDataStatisticsFromJavaScriptAsync: Getting statistics from IndexedDB...");
+        
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            
+            var result = await _jsRuntime.InvokeAsync<dynamic>("TalonStorageDB.getDataStatistics", cts.Token);
+            
+            var statistics = new DataStatistics
+            {
+                TotalCommands = result.GetProperty("totalCommands").GetInt32(),
+                HasData = result.GetProperty("hasData").GetBoolean()
+            };
+            
+            Console.WriteLine($"GetDataStatisticsFromJavaScriptAsync: Found {statistics.TotalCommands} commands, hasData: {statistics.HasData}");
+            
+            return statistics;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetDataStatisticsFromJavaScriptAsync: Error - {ex.Message}");
+            return new DataStatistics { TotalCommands = 0, HasData = false };
+        }
     }
 
     public async Task<List<TalonVoiceCommand>> GetFilteredCommandsInMemory(

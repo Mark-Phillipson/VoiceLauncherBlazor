@@ -670,93 +670,45 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         try
         {
-            Console.WriteLine("LoadFilterOptions: Starting filter loading process");
+            Console.WriteLine("LoadFilterOptions: Starting JavaScript-based filter loading process");
             
             // STEP 1: Always load predefined values first so users have immediate filter options
             LoadPredefinedFilterValues();
             
-            // STEP 2: Try to get imported data from the service to enhance the predefined values
-            _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
-            Console.WriteLine($"LoadFilterOptions: Retrieved {_allCommandsCache.Count} commands from service");
+            // STEP 2: Try to get imported data using JavaScript to prevent connection timeouts
+            var filterValues = await TalonService.GetFilterValuesFromJavaScriptAsync();
+            Console.WriteLine($"LoadFilterOptions: Retrieved filter values from JavaScript");
             
             // STEP 3: If we have imported data, merge it with predefined values for enhanced filtering
-            if (_allCommandsCache.Count > 0)
+            if (filterValues.Applications.Count > 0 || filterValues.Modes.Count > 0 || 
+                filterValues.Repositories.Count > 0 || filterValues.Tags.Count > 0 ||
+                filterValues.Titles.Count > 0)
             {
                 Console.WriteLine("LoadFilterOptions: Enhancing predefined filters with imported data");
                 
-                var importedApplications = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Application))
-                    .Select(c => c.Application!)
-                    .Distinct()
-                    .ToList();
-
-                var importedModes = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
-                    .SelectMany(c => c.Mode!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(m => m.Trim()))
-                    .Where(m => !m.StartsWith("user.", StringComparison.OrdinalIgnoreCase)) // Exclude user context tags
-                    .Distinct()
-                    .ToList();
-
-                var importedOperatingSystems = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.OperatingSystem))
-                    .Select(c => c.OperatingSystem!)
-                    .Distinct()
-                    .ToList();
-
-                var importedRepositories = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Repository))
-                    .Select(c => c.Repository!)
-                    .Distinct()
-                    .ToList();
-
-                var importedTags = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Tags))
-                    .SelectMany(c => c.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(t => t.Trim()))
-                    .Distinct()
-                    .ToList();
-                    
-                var importedTitles = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
-                    .Select(c => c.Title!)
-                    .Distinct()
-                    .OrderBy(t => t)
-                    .ToList();
-
-                Console.WriteLine($"LoadFilterOptions: Found {importedTitles.Count} unique titles in cache");
-                if (importedTitles.Any())
-                {
-                    Console.WriteLine($"LoadFilterOptions: Sample titles: {string.Join(", ", importedTitles.Take(5))}");
-                }
-
-                var importedCodeLanguages = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.CodeLanguage))
-                    .SelectMany(c => c.CodeLanguage!.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(cl => cl.Trim()))
-                    .Distinct()
-                    .ToList();
+                // Get basic statistics without loading all commands
+                var stats = await TalonService.GetDataStatisticsFromJavaScriptAsync();
                 
                 // Merge imported data with predefined values
                 lock (_filterLock)
                 {
-                    AvailableApplications = _staticAvailableApplications = MergeWithPredefined(importedApplications, _predefinedApplications);
-                    AvailableModes = _staticAvailableModes = MergeWithPredefined(importedModes, _predefinedModes);
-                    AvailableOperatingSystems = _staticAvailableOperatingSystems = MergeWithPredefined(importedOperatingSystems, _predefinedOperatingSystems);
-                    AvailableRepositories = _staticAvailableRepositories = MergeWithPredefined(importedRepositories, _predefinedRepositories);
-                    AvailableTags = _staticAvailableTags = MergeWithPredefined(importedTags, _predefinedTags);
-                    AvailableTitles = _staticAvailableTitles = importedTitles; // Titles come only from imported data
+                    AvailableApplications = _staticAvailableApplications = MergeWithPredefined(filterValues.Applications, _predefinedApplications);
+                    AvailableModes = _staticAvailableModes = MergeWithPredefined(filterValues.Modes, _predefinedModes);
+                    AvailableOperatingSystems = _staticAvailableOperatingSystems = MergeWithPredefined(filterValues.OperatingSystems, _predefinedOperatingSystems);
+                    AvailableRepositories = _staticAvailableRepositories = MergeWithPredefined(filterValues.Repositories, _predefinedRepositories);
+                    AvailableTags = _staticAvailableTags = MergeWithPredefined(filterValues.Tags, _predefinedTags);
+                    AvailableTitles = _staticAvailableTitles = filterValues.Titles; // Titles come only from imported data
                     Console.WriteLine($"LoadFilterOptions: Set AvailableTitles to {AvailableTitles.Count} items");
-                    AvailableCodeLanguages = _staticAvailableCodeLanguages = MergeWithPredefined(importedCodeLanguages, _predefinedCodeLanguages);
+                    AvailableCodeLanguages = _staticAvailableCodeLanguages = MergeWithPredefined(filterValues.CodeLanguages, _predefinedCodeLanguages);
                     _staticFiltersLoaded = true;
                     
-                    // Compute statistics after loading commands
-                    ComputeSystemStatsFromCache();
+                    TotalCommands = stats.TotalCommands;
+                    HasAnyData = stats.HasData;
                 }
                 
                 Console.WriteLine($"LoadFilterOptions: Enhanced filters - {AvailableApplications.Count} applications, {AvailableModes.Count} modes, {AvailableRepositories.Count} repositories");
-                Console.WriteLine($"LoadFilterOptions: Found {importedRepositories.Count} imported repositories: {string.Join(", ", importedRepositories)}");
-                Console.WriteLine($"LoadFilterOptions: Found {importedTags.Count} imported tags: {string.Join(", ", importedTags.Take(10))}");
+                Console.WriteLine($"LoadFilterOptions: Found {filterValues.Repositories.Count} imported repositories: {string.Join(", ", filterValues.Repositories)}");
+                Console.WriteLine($"LoadFilterOptions: Found {filterValues.Tags.Count} imported tags: {string.Join(", ", filterValues.Tags.Take(10))}");
             }
             else
             {

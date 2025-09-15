@@ -8,6 +8,8 @@ namespace TalonVoiceCommandsServer.Services;
     {
     Task<int> ImportFromTalonFilesAsync(string rootFolder);
     Task<List<Models.TalonVoiceCommand>> GetAllCommandsForFiltersAsync();
+    Task<TalonVoiceCommandDataService.FilterValues> GetFilterValuesFromJavaScriptAsync();
+    Task<TalonVoiceCommandDataService.DataStatistics> GetDataStatisticsFromJavaScriptAsync();
     Task<List<Models.TalonVoiceCommand>> GetFilteredCommandsInMemory(
         string? searchTerm = null,
         string? application = null,
