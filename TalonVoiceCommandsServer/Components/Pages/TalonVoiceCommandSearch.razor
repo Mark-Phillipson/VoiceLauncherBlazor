@@ -3,7 +3,20 @@
 @using TalonVoiceCommandsServer.Components
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
-<div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' @onkeydown="OnKeyDown" tabindex="-1">
+@if (_isLoadingFilters)
+{
+    <div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' style="height: 200px;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border text-primary" role="status" aria-label="Loading filter options">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-3">Loading filter options, please wait...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' @onkeydown="OnKeyDown" tabindex="-1">
     <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Talon Voice Command Search</h2>
     <span class="badge filter-btn-application px-3 py-2" style="font-size:1rem; border-radius:0.5rem;">@CurrentApplication</span>
@@ -808,3 +821,4 @@ document.addEventListener('keydown', function(event) {
 
 @* Reusable selection modal instance (populated by code-behind) *@
 <SelectionModal @ref="_selectionModal" Title="@SelectionModalTitle" Items="@SelectionModalItems" OnSelected="OnModalSelected" />
+}

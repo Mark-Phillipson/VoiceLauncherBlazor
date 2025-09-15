@@ -1,88 +1,83 @@
 # Copilot Instructions for VoiceLauncherBlazor
 
+## Talon Voice Commands Server Project Port
+
+For local development and UI testing, the Talon Voice Commands Server project runs on port **5269** (see `launchSettings.json`).
+When using Playwright or other browser automation tools, use `http://localhost:5269` as the base URL for accessing the app.
+
 ## Project Overview
 
-- **Blazor Server Application**: The main project is a default Blazor Server app.
-- **Blazor Hybrid WinForms Project**: Includes a Blazor Hybrid project using WinForms for desktop integration.
-- **Component Structure**: Blazor components are organized with both front (`.razor`) and code-behind (`.razor.cs`) files. There are eight main components, each following this pattern.
-- **Styling**: Bootstrap is used for consistent and responsive UI styling.
-- **Accessibility**: The application is developed for hands-free use and enhanced accessibility, optimized for use with Talon Voice and the Cursorless Visual Studio Code Extension.
+- **Blazor Server Application**: Main project is a default Blazor Server app.
+- **Blazor Hybrid WinForms Project**: Uses WinForms for desktop integration.
+- **Component Structure**: Components use `.razor` (markup/UI) and `.razor.cs` (code-behind) files.
+- **Styling**: Bootstrap for responsive UI.
+- **Accessibility**: Optimized for hands-free use (Talon Voice, Cursorless).
 
 ## Development Practices
 
-- **Component Organization**: Each Blazor component consists of a `.razor` file (markup/UI) and a `.razor.cs` file (logic/code-behind).
-- **Component Placement**: 
-  - The main `VoiceLauncher` project should only contain program startup logic and dependency injection configuration.
-- **CSS Isolation**: Always use CSS isolation files (`.razor.css`) for component-specific styles instead of inline `<style>` tags. This provides better separation of concerns, scoped styling, and maintainability.
-- **Styling**: Use Bootstrap classes for layout and controls. Ensure all interactive elements are accessible via keyboard and screen readers.
-- **Accessibility**:
-  - Use semantic HTML elements.
-  - Provide `aria-` attributes where appropriate.
-  - Ensure all controls are reachable and operable via voice commands and keyboard navigation. And the use of access keys that are unique to focus buttons is encouraged.
-- **Hands-Free Development**:
-  - Codebase is structured for compatibility with Talon Voice and Cursorless.
-  - Use clear, descriptive names for files, components, and methods to facilitate voice navigation.
-- **Hybrid Integration**: The WinForms project hosts Blazor components using the BlazorWebView control.
+- Use `.razor` and `.razor.cs` for each component.
+- Main `VoiceLauncher` project: only startup logic and DI config.
+- Use `.razor.css` for component styles (no inline `<style>`).
+- Use Bootstrap classes for layout and controls.
+- Use semantic HTML and `aria-` attributes; ensure keyboard/voice accessibility.
+- Use clear, descriptive names for files, components, and methods.
+- WinForms project hosts Blazor components via BlazorWebView.
 
 ## Tools
 
-- **Talon Voice**: For hands-free coding and navigation.
-- **Cursorless (VS Code Extension)**: For rapid, voice-driven code editing.
-- **Visual Studio / VS Code**: Main IDEs for development.
+- Talon Voice, Cursorless (VS Code Extension), Visual Studio / VS Code.
 
 ## Contribution Guidelines
 
-- Follow the component structure and naming conventions.
-- Ensure all UI changes maintain or improve accessibility.
-- Test new features with Talon Voice and Cursorless workflows.
-- Use Bootstrap for all styling unless a specific exception is required for accessibility.
+- Follow component structure and naming conventions.
+- Maintain or improve accessibility for all UI changes.
+- Test features with Talon Voice and Cursorless.
+- Use Bootstrap for styling unless accessibility requires otherwise.
 
 ## Build Configuration
-- **IMPORTANT**: Always use Debug builds when testing or building the application.
-- **Unit Tests**: Use XUnit for unit testing. Ensure all tests pass before committing changes. Project Name: TestProjectxUnit
--  do not create console apps to run tests 
-- **DO NOT use Release builds** as they can break existing applications that depend on this codebase.
-- When building the solution, use: `dotnet build --configuration Debug`
-- Avoid commands like `dotnet build --configuration Release` or any Release configuration builds.
+
+- Always use Debug builds for testing/building.
+- Use XUnit for unit tests (project: TestProjectxUnit).
+- Do not create console apps for tests.
+- Do not use Release builds.
+- Build with: `dotnet build --configuration Debug`.
 
 ## Entity Framework Migrations
-- Create the commandline commands for copying pasting
-- Do not run the commands directly
-- Always create a script and do not use "Update Database."
+
+- Create commandline commands for copying/pasting.
+- Do not run commands directly.
+- Always create a script; do not use "Update Database."
 
 ## Database Configuration
-- **Database Type**: SQL Server (not SQLite)
-- **Entity Framework**: Uses Entity Framework Core with SQL Server provider
-- **Connection**: The application connects to a SQL Server database
-- **SQL Syntax**: When writing SQL queries, use SQL Server T-SQL syntax, not SQL Server syntax
-- **Examples**:
-  - Use `SELECT TOP 10` instead of `LIMIT 10`
-  - Use `ISNULL()` instead of `IFNULL()`
-  - Use SQL Server date functions like `GETDATE()` instead of SQLite equivalents
+
+- SQL Server (not SQLite).
+- Entity Framework Core with SQL Server provider.
+- Use SQL Server T-SQL syntax (e.g., `SELECT TOP 10`, `ISNULL()`, `GETDATE()`).
 
 ## Deployment Guidelines
 
-Note: This application is currently built for Mark’s personal use.
-
-Blazor Server: Deployed using the dotnet publish command from the command line.
-
-Blazor Hybrid WinForms: Deployed by running the build command in Release mode.
+- Blazor Server: deploy with `dotnet publish` from command line.
+- Blazor Hybrid WinForms: build in Release mode.
 
 ## Github Repository
-- Repo Link: https://github.com/Mark-Phillipson/VoiceLauncherBlazor
+
+- Repo: https://github.com/Mark-Phillipson/VoiceLauncherBlazor
 
 ## Talon Lists and Captures
 
- Please note that in talon files a talon capture will be enclosed in {}  and a talon list will be enclosed in <>
+- In talon files, captures are `{}` and lists are `<>`.
 
 ## Important Current Process
 
-Currently we are embarking on making changes to the talon voice commands server project only any other changes to any other projects like the razor class library should be avoided at all costs it's fine to read these other projects but do not make any changes because they currently work.
+- Only change the Talon Voice Commands Server project.
+- Do not change other projects (e.g., Razor Class Library).
 
 ## Testing the Application
 
-Please feel free to use the playwright tools to run the application and inspect screenshots,  you don't necessarily need to go ahead and create a playwright test but rather use it as a tool to help you test the application and inspect screenshots.
+- Use Playwright tools to run and inspect the app.
+- You may use Playwright for screenshots and inspection.
 
 ## Chat Messaging
 
- please note that I use a microphone to dictate messages so please ignore any spelling or grammatical errors in my messages.  Also you will need to identify words that sound similar with different meanings.
+- Messages may contain dictation errors.
+- Interpret context and similar-sounding words as needed.

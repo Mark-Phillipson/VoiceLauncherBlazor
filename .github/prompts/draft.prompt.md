@@ -1,1 +1,1 @@
-Can we have the application match on completely equals as opposed to contains because it's bringing back results that are not applicable as parte screenshot?
+When entering the search term game it's coming up with no results even though I know I have plenty of Talon voice commands beginning with the word game is it by chance regressed back to having to match the whole word not just a single word to I contains syntax?

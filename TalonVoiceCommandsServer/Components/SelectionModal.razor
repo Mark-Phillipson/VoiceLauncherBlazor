@@ -6,7 +6,7 @@
 @inject IJSRuntime JSRuntime
 @namespace TalonVoiceCommandsServer.Components
 
-<div class="modal fade" tabindex="-1" role="dialog" id="selectionModal" aria-modal="true" aria-labelledby="selectionModalTitle">
+<div class="modal fade" tabindex="-1" role="dialog" id="selectionModal" aria-modal="true" aria-labelledby="selectionModalTitle" aria-hidden="@(!IsVisible)">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -50,6 +50,8 @@
 </div>
 
 @code {
+    // Track modal visibility for accessibility
+    public bool IsVisible { get; private set; } = false;
     [Parameter] public string Title { get; set; } = "Select";
     [Parameter] public List<SelectionItem> Items { get; set; } = new();
     [Parameter] public EventCallback<SelectionItem> OnSelected { get; set; }
@@ -145,15 +147,16 @@
 
     public async Task ShowAsync()
     {
-    // reset filter each time modal opens
-    // Ensure we clear the filter when the Items source changed (switching filter type)
-    if (!ReferenceEquals(Items, _previousItemsReference))
-    {
-        FilterText = string.Empty;
-        _previousItemsReference = Items?.ToList();
-    }
-    UpdateFilteredItems();
-    StateHasChanged();
+        IsVisible = true;
+        // reset filter each time modal opens
+        // Ensure we clear the filter when the Items source changed (switching filter type)
+        if (!ReferenceEquals(Items, _previousItemsReference))
+        {
+            FilterText = string.Empty;
+            _previousItemsReference = Items?.ToList();
+        }
+        UpdateFilteredItems();
+        StateHasChanged();
         try
         {
             if (_module == null)
@@ -174,6 +177,7 @@
 
     public async Task HideAsync()
     {
+        IsVisible = false;
         try
         {
             if (_module == null)

@@ -610,7 +610,7 @@ const TalonStorageDB = {
             } else {
                 // Apply scope-based search
                 switch (searchParams.searchScope) {
-                    case 0: // Names Only: use exact equality (case-insensitive)
+                    case 0: // Names Only: use contains matching (case-insensitive)
                         if (!command.Command) return false;
                         const cmdName = String(command.Command).trim().replace(/^(["'“”])+|(["'“”])+$/g, '').toLowerCase();
                         // Diagnostic logging to help trace unexpected matches in the UI
@@ -622,13 +622,13 @@ const TalonStorageDB = {
                                     commandId: command.Id || command.id || null,
                                     rawCommand: command.Command,
                                     normalizedCommand: cmdName,
-                                    match: cmdName === searchTerm
+                                    match: cmdName.includes(searchTerm)
                                 });
                             }
                         } catch (e) {
                             // swallow any logging errors
                         }
-                        return cmdName === searchTerm;
+                        return cmdName.includes(searchTerm);
                     case 1: // Scripts Only
                         return command.Script && command.Script.toLowerCase().includes(searchTerm);
                     case 2: // All: keep contains behavior across fields

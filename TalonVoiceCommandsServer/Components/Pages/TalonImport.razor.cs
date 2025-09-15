@@ -291,6 +291,8 @@ public partial class TalonImport : ComponentBase
             ImportResult = $"Successfully imported {totalCommandsImported} command(s) from {ImportTotal} file(s) in selected repositories.";
             TalonVoiceCommandSearch.InvalidateFilterCache();
             await FilterRefreshService.RequestRefreshAsync();
+            // Ensure UI updates after refresh
+            await InvokeAsync(StateHasChanged);
         }
         catch (System.Exception ex)
         {

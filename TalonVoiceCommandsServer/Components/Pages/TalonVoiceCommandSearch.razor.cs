@@ -495,8 +495,15 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             _staticAvailableTags.Clear();
             _staticAvailableTitles.Clear();
         }
-        
         await LoadFilterOptions();
+        await InvokeAsync(StateHasChanged);
+        // If the title modal is open, refresh its contents
+        if (_openFilterTarget == "title" && _selectionModal != null)
+        {
+            SelectionModalItems = ToSelectionItems(AvailableTitles, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
+            await _selectionModal.ShowAsync();
+        }
     }        protected override async Task OnInitializedAsync()
     {
         Results = new List<TalonVoiceCommand>();
@@ -788,7 +795,17 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         
         if (firstRender)
         {
-            await searchInput.FocusAsync();
+            try
+            {
+                if (searchInput.Context != null)
+                {
+                    await searchInput.FocusAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FocusAsync error: {ex.Message}");
+            }
 
             // Load the selection modal JS module from static web assets
             try

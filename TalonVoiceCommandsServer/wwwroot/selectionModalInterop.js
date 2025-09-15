@@ -101,9 +101,16 @@ async function showModal(selector) {
     try {
         const bs = window.bootstrap && window.bootstrap.Modal ? window.bootstrap : await waitForBootstrap();
         const modal = new bs.Modal(el);
+        // Accessibility fix: set aria-hidden to false when modal is shown
+        el.setAttribute('aria-hidden', 'false');
         // Ensure we focus and select the filter input after the modal is fully shown
         el.addEventListener('shown.bs.modal', () => {
             try { focusAndSelectFilter(selector); } catch (err) { console.error('selectionModalInterop: focus on shown failed', err); }
+            el.setAttribute('aria-hidden', 'false');
+        }, { once: true });
+        // Also set aria-hidden to true when modal is hidden
+        el.addEventListener('hidden.bs.modal', () => {
+            el.setAttribute('aria-hidden', 'true');
         }, { once: true });
         modal.show();
         console.log('selectionModalInterop: modal shown', selector);
@@ -143,11 +150,13 @@ async function hideModal(selector) {
         const modal = bs.Modal.getInstance(el);
         if (modal) {
             modal.hide();
+            el.setAttribute('aria-hidden', 'true'); // Accessibility fix
             console.log('selectionModalInterop: modal hidden', selector);
         } else {
             console.log('selectionModalInterop: no existing modal instance, creating then hiding');
             const created = new bs.Modal(el);
             created.hide();
+            el.setAttribute('aria-hidden', 'true'); // Accessibility fix
         }
     } catch (err) {
         console.error('selectionModalInterop: hideModal failed', err);
