@@ -1031,27 +1031,10 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
 
                 Console.WriteLine($"OnSearch: Direct display showed {resultCount} results");
                 JavaScriptResultCount = resultCount; // Store the result count for display
-                // If no results and an application filter is set, try again without the app filter
+                // If no results and an application filter is set, just show 'No results found.'
                 if (resultCount == 0 && hasApplicationFilter)
                 {
-                    Console.WriteLine("OnSearch: Zero results with app filter; retrying without application filter as fallback...");
-                    var fallbackCount = await TalonService.SearchAndDisplayDirectlyAsync(
-                        searchTerm: hasSearchTerm ? SearchTerm : null,
-                        application: null,
-                        mode: hasModeFilter ? SelectedMode : null,
-                        operatingSystem: hasOSFilter ? SelectedOperatingSystem : null,
-                        repository: hasRepositoryFilter ? SelectedRepository : null,
-                        tags: hasTagsFilter ? SelectedTags : null,
-                        title: hasTitleFilter ? SelectedTitle : null,
-                        codeLanguage: hasCodeLanguageFilter ? SelectedCodeLanguage : null,
-                        useSemanticMatching: UseSemanticMatching,
-                        searchScope: (int)SelectedSearchScope,
-                        maxResults: 500
-                    );
-                    if (fallbackCount > 0)
-                    {
-                        InfoMessage = $"Showing {fallbackCount} results across all applications (no matches found for '{SelectedApplication}').";
-                    }
+                    InfoMessage = $"No results found for application '{SelectedApplication}'.";
                 }
                 
                 // Clear C# results since we're using JavaScript display
@@ -1468,8 +1451,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                     {
                         case SearchScope.CommandNamesOnly:
                             Console.WriteLine("[DEBUG] Searching command names only...");
+                            var normalizedTerm = SearchTerm.Trim().Trim('"', '\'', '“', '”');
                             searchResults = filteredCommands
-                                .Where(c => c.Command.ToLower().Contains(lowerTerm))
+                                .Where(c => !string.IsNullOrWhiteSpace(c.Command) && c.Command.Trim().Trim('"', '\'', '“', '”').Equals(normalizedTerm, StringComparison.OrdinalIgnoreCase))
                                 .Take(100)
                                 .ToList();
                             break;

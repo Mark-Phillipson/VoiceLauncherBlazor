@@ -568,15 +568,19 @@ const TalonStorageDB = {
     matchesFilters(command, searchParams) {
         // Apply field filters first
         if (searchParams.application) {
-            const a = this.normalizeAppName(command.Application);
-            const s = this.normalizeAppName(searchParams.application);
-            if (!a || !s) {
-                if (command.Application !== searchParams.application) return false;
-            } else if (String(a).toLowerCase() !== String(s).toLowerCase() &&
-                       String(a).toLowerCase().indexOf(String(s).toLowerCase()) === -1 &&
-                       String(s).toLowerCase().indexOf(String(a).toLowerCase()) === -1) {
-                return false;
+            // Use normalized, case-insensitive equality for application filtering
+            const appCommand = String(this.normalizeAppName(command.Application || '') || '').trim().toLowerCase();
+            const appSearch = String(this.normalizeAppName(searchParams.application || '') || '').trim().toLowerCase();
+            // Diagnostic: log application comparisons when debugging
+            try {
+                if (window && window.console && window.console.debug) {
+                    window.console.debug('AppFilterDebug', { commandApp: command.Application, normalizedCommandApp: appCommand, searchApp: searchParams.application, normalizedSearchApp: appSearch, match: appCommand === appSearch });
+                }
+            } catch (e) {
+                // ignore
             }
+            if (!appCommand || !appSearch) return false;
+            if (appCommand !== appSearch) return false;
         }
         if (searchParams.mode && command.Mode !== searchParams.mode) return false;
         if (searchParams.operatingSystem && command.OperatingSystem !== searchParams.operatingSystem) return false;
@@ -594,8 +598,11 @@ const TalonStorageDB = {
         
         // Apply text search if provided
         if (searchParams.searchTerm) {
-            const searchTerm = searchParams.searchTerm.toLowerCase();
-            
+            // Normalize search term: trim whitespace and remove surrounding straight/smart quotes
+            const rawTerm = String(searchParams.searchTerm || '').trim();
+            const normalized = rawTerm.replace(/^(["'“”])+|(["'“”])+$/g, '').toLowerCase();
+            const searchTerm = normalized;
+
             if (searchParams.useSemanticMatching) {
                 // Simple semantic search - check both command and script
                 return (command.Command && command.Command.toLowerCase().includes(searchTerm)) ||
@@ -603,11 +610,28 @@ const TalonStorageDB = {
             } else {
                 // Apply scope-based search
                 switch (searchParams.searchScope) {
-                    case 0: // CommandNamesOnly
-                        return command.Command && command.Command.toLowerCase().includes(searchTerm);
-                    case 1: // ScriptOnly
+                    case 0: // Names Only: use exact equality (case-insensitive)
+                        if (!command.Command) return false;
+                        const cmdName = String(command.Command).trim().replace(/^(["'“”])+|(["'“”])+$/g, '').toLowerCase();
+                        // Diagnostic logging to help trace unexpected matches in the UI
+                        try {
+                            if (window && window.console && window.console.debug) {
+                                window.console.debug('NamesOnlyMatchDebug', {
+                                    rawSearchTerm: rawTerm,
+                                    normalizedSearchTerm: searchTerm,
+                                    commandId: command.Id || command.id || null,
+                                    rawCommand: command.Command,
+                                    normalizedCommand: cmdName,
+                                    match: cmdName === searchTerm
+                                });
+                            }
+                        } catch (e) {
+                            // swallow any logging errors
+                        }
+                        return cmdName === searchTerm;
+                    case 1: // Scripts Only
                         return command.Script && command.Script.toLowerCase().includes(searchTerm);
-                    case 2: // All
+                    case 2: // All: keep contains behavior across fields
                         return (command.Command && command.Command.toLowerCase().includes(searchTerm)) ||
                                (command.Script && command.Script.toLowerCase().includes(searchTerm));
                     default:
@@ -639,6 +663,8 @@ const TalonStorageDB = {
     async searchAndDisplayResults(searchParams, maxResults = 500) {
         console.log(`TalonStorageDB: searchAndDisplayResults called with maxResults: ${maxResults}`);
         try {
+            // Store last search params for custom message
+            this.lastSearchParams = searchParams;
             // Get the results
             const results = await this.searchFilteredCommandsSimple(searchParams, maxResults);
             
@@ -669,10 +695,10 @@ const TalonStorageDB = {
         // Clear existing results
         resultsContainer.innerHTML = '';
 
-        if (commands.length === 0) {
-            resultsContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
-            return;
-        }
+            if (commands.length === 0) {
+                resultsContainer.innerHTML = `<div class='no-results'>No results found.</div>`;
+                return;
+            }
 
         // Check if "Show Full Cards" is enabled
         const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');

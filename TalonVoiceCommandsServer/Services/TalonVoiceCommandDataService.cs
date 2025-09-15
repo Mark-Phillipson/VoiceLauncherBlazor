@@ -536,27 +536,28 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                 {
                     // TODO: Implement semantic search on filtered results
                     filteredCommands = filteredCommands.Where(c => 
-                        c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                        (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                        (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
                 }
                 else
                 {
                     switch (searchScope)
                     {
-                        case 1: // Names Only
+                        case 1: // Names Only - exact equality (case-insensitive)
+                            var normalizedSearch = searchTerm.Trim().Trim('"', '\'', '“', '”');
                             filteredCommands = filteredCommands.Where(c => 
-                                c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                                c.Command != null && c.Command.Trim().Trim('"', '\'', '“', '”').Equals(normalizedSearch, StringComparison.OrdinalIgnoreCase));
                             break;
                         case 2: // Scripts Only
                             filteredCommands = filteredCommands.Where(c => 
-                                c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                                c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
                             break;
                         default: // All
                             filteredCommands = filteredCommands.Where(c => 
-                                c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                                c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                                (c.Title?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
-                                (c.Tags?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true));
+                                (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                                (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                                (c.Title != null && c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                                (c.Tags != null && c.Tags.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
                             break;
                     }
                 }
@@ -895,20 +896,21 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
             {
                 // TODO: Implement semantic search on filtered results
                 filteredCommands = filteredCommands.Where(c => 
-                    c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                    (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
             }
             else
             {
-                // Apply scope-based text search
+                // Apply scope-based text search. Use exact equality for Names Only.
+                var normalizedSearch = searchTerm.Trim().Trim('"', '\'', '“', '”');
                 filteredCommands = searchScope switch
                 {
-                    0 => filteredCommands.Where(c => c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), // CommandNamesOnly
-                    1 => filteredCommands.Where(c => c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), // ScriptOnly
+                    0 => filteredCommands.Where(c => c.Command != null && c.Command.Trim().Trim('"', '\'', '“', '”').Equals(normalizedSearch, StringComparison.OrdinalIgnoreCase)), // Names Only (exact)
+                    1 => filteredCommands.Where(c => c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), // ScriptOnly
                     2 => filteredCommands.Where(c => // All
-                        c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
-                    _ => filteredCommands.Where(c => c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                        (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                        (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))),
+                    _ => filteredCommands.Where(c => c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 };
             }
         }
@@ -1415,9 +1417,9 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         var lowerTerm = searchTerm.ToLower();
 
         Console.WriteLine($"SearchCommandNamesOnlyAsync: searchTerm='{searchTerm}', in-memory commands={_commands.Count}");
-        // Simple command name search
+        // Simple command name search - exact equality (case-insensitive)
         var results = _commands
-            .Where(c => (c.Command ?? "").ToLower().Contains(lowerTerm))
+            .Where(c => !string.IsNullOrWhiteSpace(c.Command) && c.Command.Equals(searchTerm, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(c => c.CreatedAt)
             .Take(100)
             .ToList();

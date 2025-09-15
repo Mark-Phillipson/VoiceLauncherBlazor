@@ -1,3 +1,1 @@
- for some reason the modes are showing mixed in tags in the list still
-
-  
+Can we have the application match on completely equals as opposed to contains because it's bringing back results that are not applicable as parte screenshot?
