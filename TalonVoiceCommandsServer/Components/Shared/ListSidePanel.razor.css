@@ -4,20 +4,90 @@
   top: 56px; /* below header */
   width: 360px;
   height: calc(100vh - 56px);
-  background: var(--bs-body-bg, #ffffff);
-  border-right: 1px solid rgba(0,0,0,0.08);
+  background: var(--bs-body-bg, #ffffff); color: var(--bs-body-color, #212529);
+  border-right: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,0.08));
   box-shadow: 2px 0 6px rgba(0,0,0,0.08);
   transform: translateX(-100%);
   transition: transform 200ms ease-in-out;
   z-index: 1050;
   display: flex;
   flex-direction: column;
+  /* ensure flex children can shrink so overflow-y works correctly */
+  min-width: 0;
+  /* reserve space on the right for the custom scrollbar overlay */
+  padding-right: 22px;
+  /* ensure positioned container for overlay track */
+  will-change: transform;
 }
 .list-side-panel.open { transform: translateX(0); }
-.list-side-panel .panel-header { background: var(--bs-light, #f8f9fa); }
-.list-side-panel .panel-body { overflow-y: auto; flex: 1 1 auto; }
-.list-side-panel .values-container { padding-bottom: 16px; }
+.list-side-panel .panel-header {
+  background: var(--bs-offcanvas-bg, var(--bs-body-bg, #f8f9fa));
+  color: var(--bs-body-color, #212529);
+  border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,0.08));
+  /* header must not scroll — ensure no overflow and hide any tiny native scrollbar */
+  overflow: hidden;
+  flex: 0 0 auto;
+  height: 48px; /* fixed header height to avoid tiny scroll area */
+  display: flex;
+  align-items: center;
+  padding-left: 12px; padding-right: 12px;
+  /* hide any native scrollbar visuals for header */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* prevent native webkit scrollbar on header (best-effort) */
+#list-side-panel .panel-header::-webkit-scrollbar { width: 0; height: 0; }
+
+.panel-body {
+  /* Let the values-container manage overflow; fill remaining height below header */
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0; /* critical so children can shrink/grow within flex */
+  padding-right: 6px;
+}
+/* Target the combined classes on the same element */
+.values-container.table-scroll {
+  /* Fill available vertical space; only scroll when needed */
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0; /* allow shrinking under flex parent */
+  max-height: none;
+  height: auto;
+  padding: 0.5rem;
+  display: block;
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+}
+
+.table-scroll-table {
+  width: 100%;
+  table-layout: fixed;
+  /* Respect container; let table size to content */
+  height: auto;
+  max-height: none;
+  display: table;
+  overflow: visible;
+}
+
+/* Force the table to fit within the scrollable container */
+.values-container table {
+  width: 100%;
+  margin-bottom: 0;
+  /* Let the container handle the scrolling, not the table */
+  height: auto;
+  max-height: none;
+}
 
 @media (max-width: 768px) {
   .list-side-panel { width: 100%; top: 48px; }
 }
+
+/* ENHANCED WEBKIT SCROLLBAR for values-container.table-scroll */
+/* Subtle native scrollbar look (optional; can be removed if browser default preferred) */
+.values-container.table-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
+.values-container.table-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.08); }
+.values-container.table-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.35); border-radius: 8px; }
+.values-container.table-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.5); }

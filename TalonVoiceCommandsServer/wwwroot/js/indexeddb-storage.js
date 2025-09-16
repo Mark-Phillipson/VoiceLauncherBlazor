@@ -1167,6 +1167,8 @@ const TalonStorageDB = {
             const noItems = panel.querySelector('.no-list-items');
             if (noItems) noItems.style.display = 'none';
 
+            // Note: rely on native scrollbar for performance; no overlay init here.
+
             return true;
         } catch (e) {
             console.error('TalonStorageDB: renderPanelClientSide error', e);

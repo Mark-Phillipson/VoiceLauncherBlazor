@@ -1,44 +1,50 @@
 @using TalonVoiceCommandsServer.Models
 @inject IJSRuntime JSRuntime
 
-<div class="list-side-panel @(IsOpen ? "open" : "closed")" role="dialog" aria-label="List values panel" tabindex="-1">
+<div id="list-side-panel" class="list-side-panel @(IsOpen ? "open" : "closed")" role="dialog"
+    aria-label="List values panel" tabindex="-1">
     <div class="panel-header d-flex justify-content-between align-items-center p-2 border-bottom">
-        <strong>@(SelectedListName ?? "")</strong>
+        <strong class="list-panel-title">@(SelectedListName ?? "")</strong>
         <div>
             <button class="btn btn-sm btn-outline-secondary me-2" @onclick="OnCopy">Copy</button>
             <button class="btn btn-sm btn-outline-danger" @onclick="Close">Close</button>
         </div>
     </div>
-    <div class="panel-body p-2">
+    <div class="panel-body p-2 list-panel-body">
         @if (IsLoading)
         {
             <div class="d-flex justify-content-center align-items-center" style="height:120px">
                 <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
             </div>
         }
-        else if (Values == null || Values.Count == 0)
+
+        @if (!IsLoading && (Values == null || Values.Count == 0))
         {
-            <p class="text-muted">No items found for this list.</p>
+            <p class="text-muted no-list-items">No items found for this list.</p>
         }
-        else
-        {
-            <div class="values-container">
-                <table class="table table-sm table-striped mb-0">
-                    <thead>
-                        <tr><th>Spoken Form</th><th>Value</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var v in Values)
+
+        <div class="values-container table-scroll">
+            <table class="table table-sm table-striped mb-0 table-scroll-table">
+                <thead>
+                    <tr>
+                        <th>Spoken Form</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Values != null && Values.Count > 0)
+                    {
+                        foreach (var v in Values)
                         {
                             <tr>
                                 <td class="font-monospace">@v.SpokenForm</td>
                                 <td class="font-monospace">@v.ListValue</td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
-        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
