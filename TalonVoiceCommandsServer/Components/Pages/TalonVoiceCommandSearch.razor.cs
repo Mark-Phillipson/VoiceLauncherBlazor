@@ -934,6 +934,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     
     protected async Task OnSearch()
     {
+        // Always clear InfoMessage at the start of a search
+        InfoMessage = string.Empty;
         Console.WriteLine("=== OnSearch method ENTRY POINT - this should always appear ===");
         System.Diagnostics.Debug.WriteLine("=== OnSearch method ENTRY POINT - DEBUG ===");
         

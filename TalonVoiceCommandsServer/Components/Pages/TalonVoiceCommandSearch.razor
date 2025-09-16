@@ -306,7 +306,7 @@ else
                             <span>C<u>l</u>ear Filters</span>
                         }
                     </button>
-                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
+                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -318,7 +318,7 @@ else
                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
                             </svg>
-                            <span>Re<u>f</u>resh Filters</span>
+                            <span>Refresh Filters</span>
                         }
                     </button>
                 </div>
@@ -484,27 +484,33 @@ else
                                                 <div class="mb-2">
                                                     @* Display clickable lists *@
                                                     @foreach (var listName in listsUsed)
-                                                                                {
-                                                                                    <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
-                                                                                            @onclick="() => OpenListInSidePanel(listName)"
-                                                                                            title="Click to view list contents">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-list me-1" viewBox="0 0 16 16">
-                                                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                                                            </svg>
-                                                            @listName
-                                                            @if (IsListExpanded(listName))
-                                                            {
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up ms-1" viewBox="0 0 16 16">
-                                                                    <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
-                                                                </svg>
-                                                            }
-                                                            else
-                                                            {
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down ms-1" viewBox="0 0 16 16">
-                                                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
-                                                                </svg>
-                                                            }
-                                                        </button>
+                                                    {
+                                                        var displayName = listName;
+                                                        // If not already wrapped, add angle brackets for lists and curly braces for captures
+                                                        if (!displayName.StartsWith("<") && !displayName.EndsWith(">") && !displayName.StartsWith("{") && !displayName.EndsWith("}"))
+                                                        {
+                                                            displayName = "<" + displayName + ">";
+                                                        }
+                                                        <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
+                                                                @onclick="() => OpenListInSidePanel(listName)"
+                                                                title="Click to view list contents">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-list me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                        @displayName
+                        @if (IsListExpanded(listName))
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up ms-1" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down ms-1" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        }
+                    </button>
                                                     }
 
                                                     @* Display non-clickable captures with different styling *@
