@@ -87,30 +87,32 @@ else
              tabindex="0">
             
             <!-- Search Bar and Semantic Toggle -->
-            <div class="row mb-3">
-                <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
-            <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
-                <div class="d-flex w-100 gap-2 align-items-start search-input-row">
-                    <div class="flex-grow-1 d-flex flex-column">
-                        <input @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+                <form class="d-flex flex-grow-1 gap-3 align-items-end" @onsubmit="OnSearch" @onsubmit:preventDefault="true" style="min-width:0;">
+                    <div class="d-flex flex-column flex-grow-1" style="min-width:180px;">
+                        <label for="searchTerm" class="form-label">Search Term</label>
+                        <input @ref="searchInput" id="searchTerm" class="form-control w-100" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
                         <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
                     </div>
-                    <div class="d-flex flex-column" style="min-width:160px;">
-                        <select class="form-select search-scope-select" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                    <div class="d-flex flex-column flex-grow-1" style="min-width:150px;">
+                        <label for="searchScope" class="form-label">Scope</label>
+                        <select id="searchScope" class="form-select search-scope-select w-100" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
                             <option value="@SearchScope.CommandNamesOnly">Names Only</option>
                             <option value="@SearchScope.Script">Search Script</option>
                             <option value="@SearchScope.All">Search All</option>
                         </select>
                         <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
                     </div>
-                    <div class="d-flex flex-column">
-                        <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                    <div class="d-flex flex-column align-items-center justify-content-end" style="min-width:110px;">
+                        <label class="form-label d-none d-md-block">&nbsp;</label>
+                        <button class="btn btn-primary w-100" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
                             @if (IsLoading)
                             {
                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             }
                             else
                             {
+                                <span> Search</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                                 </svg>
@@ -118,27 +120,18 @@ else
                         </button>
                         <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
                     </div>
+                </form>
+                <div class="d-flex align-items-end gap-3 flex-shrink-0">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                        <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
+                        <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
+                    </div>
                 </div>
-            </form>
-        </div>
-
-        <div class="col-lg-4 col-md-12 d-flex align-items-center">
-            @* Temporarily hidden - semantic search not yet implemented
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
-                <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
             </div>
-            *@
-            <div class="form-check form-switch ms-3">
-                <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
-                <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
-            </div>
-            <div class="form-check form-switch ms-3">
-                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
-                <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
-            </div>
-        </div>
-    </div>
 
     <!-- Focus Mode Alert -->
     @if (IsInFocusMode())
