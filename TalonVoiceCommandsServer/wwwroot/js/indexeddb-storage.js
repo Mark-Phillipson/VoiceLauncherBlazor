@@ -913,6 +913,19 @@ const TalonStorageDB = {
         html += `<div class="results-header mb-3"><strong>Found ${commands.length} results</strong></div>`;
         html += `<div class="row">`;
 
+        // Helper: render command text but replace <listName> tokens with buttons
+        const renderCommandWithListButtons = (text) => {
+            if (!text) return '';
+            // Split by <list> pattern, preserve list tokens
+            // Match <list.name> where list name allows letters, numbers, underscores, dots
+            return text.replace(/<([a-zA-Z_][a-zA-Z0-9_.]*)>/g, (match, p1) => {
+                // Escape single quotes/backslashes for inline JS call
+                const safeName = (p1 || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                // Return a semantic button element that calls the JS bridge
+                return `<button type="button" class="btn btn-link p-0 talon-list-inline" aria-label="Open list ${this.escapeHtml(p1)}" onclick="window.TalonStorageDB.onListButtonClick('${safeName}')">&lt;${this.escapeHtml(p1)}&gt;</button>`;
+            });
+        };
+
         commands.forEach((command, index) => {
             // Generate script name for compact view
             const scriptName = command.Title || this.extractFilename(command.FilePath || '') || 'Untitled';
@@ -923,9 +936,16 @@ const TalonStorageDB = {
             
             if (showFullCards) {
                 // Full card view - command first, then application
-                html += `
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title mb-2">“${this.escapeHtml(command.Command || 'No command')}”</h6>
+                    html += `
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title mb-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary talon-command-btn" 
+                                            aria-label="Open lists referenced by this command" 
+                                            onclick="window.TalonStorageDB.onCommandTitleClick('${(command.Command || 'No command').replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">
+                                        ${renderCommandWithListButtons(command.Command || 'No command')}
+                                        <span class="ms-2 visually-hidden">(click to view lists)</span>
+                                    </button>
+                                </h6>
                             <div class="mb-2">
                                 <span class="badge filter-btn-application px-2 py-1 mb-1" style="font-size:1rem; border-radius:0.5rem;">${this.escapeHtml(command.Application || 'N/A')}</span>
                             </div>
@@ -957,9 +977,12 @@ const TalonStorageDB = {
                         <div class="card-body py-2">
                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                 <div class="d-flex align-items-center flex-grow-1 me-2" style="min-width: 0;">
-                                    <strong class="me-2 text-truncate" style="max-width: 200px;" title=“${this.escapeHtml(command.Command || 'No command')}”>
-                                        ${this.escapeHtml(command.Command || 'No command')}
-                                    </strong>
+                                        <button type="button" class="btn btn-link p-0 talon-command-btn text-truncate me-2" 
+                                                style="max-width:200px; text-align:left;" 
+                                                title="${this.escapeHtml(command.Command || 'No command')}"
+                                                onclick="window.TalonStorageDB.onCommandTitleClick('${(command.Command || 'No command').replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')">
+                                            ${renderCommandWithListButtons(command.Command || 'No command')}
+                                        </button>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                     ${command.Application && command.Application.trim() && command.Application.length <= 50 ? `
@@ -1029,6 +1052,31 @@ const TalonStorageDB = {
 
         // Initialize event listeners if not already done
         this.initializeEventListeners();
+
+        // Attach click handlers to any list buttons rendered into the results.
+        // These buttons are created by the Blazor/JS hybrid and have the
+        // class 'btn-outline-secondary' and contain the list name as text.
+        try {
+            const listButtons = resultsContainer.querySelectorAll('button');
+            listButtons.forEach(btn => {
+                // If the button contains an SVG and text, assume it's a list button
+                const text = btn.innerText && btn.innerText.trim();
+                if (text && !btn.__talon_list_handler_attached) {
+                    // Attach click handler that calls into Blazor if available
+                    btn.addEventListener('click', (e) => {
+                        // Determine the list name from button textContent
+                        const name = (e.currentTarget.innerText || '').trim();
+                        if (name) {
+                            // Avoid blocking UI; call the async handler
+                            this.onListButtonClick(name);
+                        }
+                    });
+                    btn.__talon_list_handler_attached = true;
+                }
+            });
+        } catch (e) {
+            console.debug('TalonStorageDB: Failed to attach list button handlers', e);
+        }
     },
 
     // Utility function to escape HTML
@@ -1037,6 +1085,93 @@ const TalonStorageDB = {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    // Find items matching a list name from the lists store, normalizing property names and prefixes
+    findItemsForList(allItems, listName) {
+        if (!Array.isArray(allItems)) return [];
+        if (!listName) return [];
+
+        // Strip braces/angle-brackets if present (e.g. '<user.foo>' or '{user.foo}')
+        const stripDelimiters = (s) => (s || '').toString().trim().replace(/^\s*[<{\[]+|[>}\]]+\s*$/g, '');
+
+        const normalize = (n) => stripDelimiters(n).toString().trim();
+        const candidates = [];
+
+        // Prepare alternate forms: with and without 'user.' prefix
+        const base = normalize(listName);
+        const alt = base.startsWith('user.') ? base.substring(5) : `user.${base}`;
+        const forms = new Set([base, alt]);
+
+        for (const it of allItems) {
+            const ln = normalize(it.ListName || it.listName || it.List || it.list || it.listname);
+            if (!ln) continue;
+            // Compare case-insensitively against any form
+            for (const f of forms) {
+                if (!f) continue;
+                if (ln.toLowerCase() === f.toLowerCase()) {
+                    candidates.push(it);
+                    break;
+                }
+            }
+        }
+        return candidates;
+    },
+
+    // Render the list side-panel directly on the client when server-side panel is empty
+    renderPanelClientSide(listName, items) {
+        try {
+            // Find the side panel dialog
+            const panel = document.querySelector('[role="dialog"][aria-label="List values panel"]');
+            if (!panel) {
+                console.debug('TalonStorageDB: renderPanelClientSide - side panel not found in DOM');
+                return false;
+            }
+
+            // Set title
+            const titleEl = panel.querySelector('.list-panel-title');
+            if (titleEl) titleEl.textContent = listName;
+
+            // Find or create the table body
+            let tbody = panel.querySelector('table tbody');
+            if (!tbody) {
+                // Create a simple table structure expected by the server-side component
+                const table = document.createElement('table');
+                table.className = 'table table-sm';
+                const thead = document.createElement('thead');
+                thead.innerHTML = '<tr><th>Spoken</th><th>Value</th></tr>';
+                tbody = document.createElement('tbody');
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                // Insert before any loading paragraph or spinner
+                const container = panel.querySelector('.list-panel-body') || panel;
+                container.appendChild(table);
+            } else {
+                // Clear existing rows
+                tbody.innerHTML = '';
+            }
+
+            // Populate rows
+            for (const it of items) {
+                const tr = document.createElement('tr');
+                const spoken = document.createElement('td');
+                spoken.textContent = it.SpokenForm || it.spokenForm || '';
+                const val = document.createElement('td');
+                val.textContent = it.ListValue || it.listValue || '';
+                tr.appendChild(spoken);
+                tr.appendChild(val);
+                tbody.appendChild(tr);
+            }
+
+            // Hide the 'no items' message if present
+            const noItems = panel.querySelector('.no-list-items');
+            if (noItems) noItems.style.display = 'none';
+
+            return true;
+        } catch (e) {
+            console.error('TalonStorageDB: renderPanelClientSide error', e);
+            return false;
+        }
     },
 
     // Extract filename from full path
@@ -1143,6 +1278,234 @@ const TalonStorageDB = {
         }
     },
 
+    // Allow Blazor to register a DotNetObjectReference so JS-rendered buttons
+    // can call instance methods on the Blazor component.
+    registerDotNetRef(dotNetRef) {
+        try {
+            this._dotNetRef = dotNetRef;
+            console.log('TalonStorageDB: DotNet reference registered');
+        }
+        catch (e) {
+            console.error('TalonStorageDB: Error registering DotNet reference', e);
+        }
+    },
+
+    // Called when a JS-rendered list button is clicked. Tries to invoke the
+    // Blazor component instance method OpenListInSidePanel(listName).
+    async onListButtonClick(listName) {
+        try {
+            // Prefer invoking the instance method on the Blazor page if available
+            if (this._dotNetRef && this._dotNetRef.invokeMethodAsync) {
+                try {
+                    await this._dotNetRef.invokeMethodAsync('OpenListInSidePanel', listName);
+                    // Give the UI a moment; if the panel remains empty, fall back to sending client data
+                    await new Promise(f => setTimeout(f, 200));
+                    const panelRows = document.querySelectorAll('[role="dialog"][aria-label="List values panel"] table tbody tr');
+                    if (panelRows.length === 0) {
+                        // Find client-side items for this list and send to server for population
+                        try {
+                            const allItems = await this.loadLists();
+                            const items = this.findItemsForList(allItems, listName);
+                            console.log(`TalonStorageDB: Fallback found ${items.length} client-side items for list '${listName}'`);
+                            if (items && items.length > 0) {
+                                // Immediately render on the client so the user sees values even if server-side fails.
+                                try {
+                                    const rendered = this.renderPanelClientSide(listName, items);
+                                    if (rendered) {
+                                        console.log('TalonStorageDB: Rendered panel client-side as immediate fallback');
+                                    }
+                                } catch (e) {
+                                    console.error('TalonStorageDB: client-side render fallback failed', e);
+                                }
+
+                                // Still attempt to inform the server so it can cache/populate the Blazor panel later.
+                                try {
+                                    if (this._dotNetRef && this._dotNetRef.invokeMethodAsync) {
+                                        console.log('TalonStorageDB: Invoking OpenListInSidePanelWithClientData on DotNet ref (background)');
+                                        // Send as JSON string to avoid marshalling issues
+                                        this._dotNetRef.invokeMethodAsync('OpenListInSidePanelWithClientData', listName, JSON.stringify(items))
+                                            .then(() => console.log('TalonStorageDB: OpenListInSidePanelWithClientData completed'))
+                                            .catch(e => console.error('TalonStorageDB: OpenListInSidePanelWithClientData failed', e));
+                                    }
+                                } catch (e) {
+                                    console.error('TalonStorageDB: instance fallback to OpenListInSidePanelWithClientData failed', e);
+                                }
+                                return;
+                            } else {
+                                console.debug(`TalonStorageDB: No client-side items matched list '${listName}'`);
+                            }
+                        } catch (e) {
+                            console.error('TalonStorageDB: Error while loading client-side lists for fallback', e);
+                        }
+                    }
+                    return;
+                } catch (e) {
+                    console.debug('TalonStorageDB: instance invoke failed, will try static fallback', e);
+                }
+            }
+
+            // Fallback: try static invocation if available (less preferred)
+            if (window.DotNet && window.DotNet.invokeMethodAsync) {
+                try {
+                    await window.DotNet.invokeMethodAsync('TalonVoiceCommandsServer', 'OpenListInSidePanel', listName);
+                    return;
+                } catch (e) {
+                    // ignore and fallback to client-side rendering
+                }
+            }
+            console.warn('TalonStorageDB: No DotNet reference available to open list:', listName);
+            // Last resort: try client-side rendering from IndexedDB
+            try {
+                const allItems = await this.loadLists();
+                const items = this.findItemsForList(allItems, listName);
+                if (items && items.length > 0) {
+                    this.renderPanelClientSide(listName, items);
+                    return;
+                }
+            } catch (e) {
+                console.debug('TalonStorageDB: client-side render fallback failed', e);
+            }
+        }
+        catch (e) {
+            console.error('TalonStorageDB: Error invoking DotNet to open list:', e);
+        }
+    },
+
+    // Called when the command title button is clicked. Extracts any list tokens
+    // from the command text and opens the first referenced list (or all) with
+    // UI feedback (spinner + debug notification).
+    async onCommandTitleClick(commandText) {
+        try {
+            if (!commandText) return;
+            // Provide quick debug notification
+            this._showTemporaryNotification(`Loading lists for command...`);
+
+            // Show spinner in the side panel while loading
+            this._showPanelSpinner(true);
+
+            // Extract list tokens (both <list> and {list})
+            const curly = (commandText.match(/\{([^}]+)\}/g) || []).map(s => s.slice(1, -1));
+            const angle = (commandText.match(/<([^>]+)>/g) || []).map(s => s.slice(1, -1));
+            const listNames = [...curly, ...angle].filter(Boolean);
+
+            if (listNames.length === 0) {
+                this._showTemporaryNotification('No list references found in this command.');
+                this._showPanelSpinner(false);
+                return;
+            }
+
+            // Prefer opening the first list to mimic previous behaviour
+            const primary = listNames[0];
+            console.log('TalonStorageDB: Command title clicked, opening list(s):', listNames);
+
+            // Attempt to open via existing handler
+            await this.onListButtonClick(primary);
+
+            // If the panel didn't populate after a short wait, try to fallback to client render
+            const ok = await this.waitForPanelRows(3000);
+            if (!ok) {
+                // Try client-side lookup directly
+                try {
+                    const all = await this.loadLists();
+                    const items = this.findItemsForList(all, primary);
+                    if (items && items.length > 0) {
+                        this.renderPanelClientSide(primary, items);
+                        this._showTemporaryNotification(`Rendered ${items.length} items client-side for ${primary}`);
+                    } else {
+                        this._showTemporaryNotification('No items found for ' + primary);
+                    }
+                } catch (e) {
+                    console.error('TalonStorageDB: onCommandTitleClick fallback failed', e);
+                    this._showTemporaryNotification('Error loading list');
+                }
+            }
+
+            this._showPanelSpinner(false);
+        } catch (e) {
+            console.error('TalonStorageDB: onCommandTitleClick error', e);
+            this._showTemporaryNotification('Error loading lists');
+            this._showPanelSpinner(false);
+        }
+    },
+
+    // Small helper to show/hide a spinner inside the list side panel
+    _showPanelSpinner(show) {
+        try {
+            const panel = document.querySelector('[role="dialog"][aria-label="List values panel"]');
+            if (!panel) return;
+            let spinner = panel.querySelector('.list-panel-spinner');
+            if (show) {
+                if (!spinner) {
+                    spinner = document.createElement('div');
+                    spinner.className = 'list-panel-spinner my-2';
+                    spinner.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
+                    const body = panel.querySelector('.list-panel-body') || panel;
+                    body.insertBefore(spinner, body.firstChild);
+                }
+                spinner.style.display = '';
+            } else {
+                if (spinner) spinner.style.display = 'none';
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
+    // Ephemeral notification - uses a small toast at the bottom-right of the page
+    _showTemporaryNotification(message, timeout = 3000) {
+        try {
+            if (!message) return;
+            let container = document.getElementById('talon-notification-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'talon-notification-container';
+                container.style.position = 'fixed';
+                container.style.right = '12px';
+                container.style.bottom = '12px';
+                container.style.zIndex = 9999;
+                document.body.appendChild(container);
+            }
+            const el = document.createElement('div');
+            el.className = 'toast align-items-center text-white bg-dark border-0 mb-2 p-2';
+            el.style.minWidth = '200px';
+            el.style.opacity = '0.95';
+            el.textContent = message;
+            container.appendChild(el);
+            setTimeout(() => { try { el.remove(); } catch(e){} }, timeout);
+        } catch (e) {
+            console.debug('TalonStorageDB: notification failed', e);
+        }
+    },
+
+    // Utility for tests: wait until the Blazor side panel table has rows for the opened list
+    // Resolves to true if rows found within timeout, false otherwise
+    async waitForPanelRows(timeoutMs = 5000) {
+        const start = Date.now();
+    // The side panel is rendered as a div with role="dialog"; use role selector to match
+    const selector = '[role="dialog"][aria-label="List values panel"] table tbody tr';
+        while (Date.now() - start < timeoutMs) {
+            try {
+                const el = document.querySelector(selector);
+                if (el) return true;
+            } catch (e) {
+                // ignore
+            }
+            await new Promise(f => setTimeout(f, 100));
+        }
+        return false;
+    },
+
+    // Debug hook - populated by server via JSRuntime to indicate what list and how many items were loaded
+    lastPanelLoad: null,
+    _onPanelDataLoaded(info) {
+        try {
+            this.lastPanelLoad = info;
+            console.log('TalonStorageDB: Panel data loaded from server', info);
+        } catch (e) {
+            console.debug('TalonStorageDB: _onPanelDataLoaded error', e);
+        }
+    },
+
     // Limited search that returns at most maxResults commands to prevent SignalR timeouts
     async searchFilteredCommandsLimited(searchParams, maxResults = 500) {
         console.log(`TalonStorageDB: searchFilteredCommandsLimited called with params:`, searchParams, `maxResults: ${maxResults}`);
@@ -1211,6 +1574,40 @@ const TalonStorageDB = {
             });
             // Mark as having listener attached to avoid duplicates
             showFullCardsCheckbox.setAttribute('data-listener-attached', 'true');
+        }
+        // Ensure we attach list button handlers whenever results are re-rendered
+        try {
+            const resultsContainer = document.querySelector('.search-results-container');
+            if (resultsContainer && !resultsContainer.__talon_observer_attached) {
+                const observer = new MutationObserver((mutations) => {
+                    // When children change, attempt to attach handlers
+                    mutations.forEach(() => {
+                        try {
+                            const listButtons = resultsContainer.querySelectorAll('button');
+                            listButtons.forEach(btn => {
+                                const text = btn.innerText && btn.innerText.trim();
+                                if (text && !btn.__talon_list_handler_attached) {
+                                    btn.addEventListener('click', (e) => {
+                                        const name = (e.currentTarget.innerText || '').trim();
+                                        if (name) {
+                                            this.onListButtonClick(name);
+                                        }
+                                    });
+                                    btn.__talon_list_handler_attached = true;
+                                }
+                            });
+                        } catch (e) {
+                            console.debug('TalonStorageDB: Mutation observer attach failed', e);
+                        }
+                    });
+                });
+                observer.observe(resultsContainer, { childList: true, subtree: true });
+                resultsContainer.__talon_observer_attached = true;
+                this._resultsMutationObserver = observer;
+                console.log('TalonStorageDB: MutationObserver attached to results container');
+            }
+        } catch (e) {
+            console.debug('TalonStorageDB: Failed to attach MutationObserver', e);
         }
     },
 
@@ -1419,3 +1816,26 @@ const TalonStorageDB = {
 
 // Make available globally for Blazor JSInterop
 window.TalonStorageDB = TalonStorageDB;
+
+// Helper: open first list referenced by the last JS search results
+window.TalonStorageDB.openFirstReferencedList = async function () {
+    try {
+        const results = window.TalonStorageDB.lastSearchResults || [];
+        for (const cmd of results) {
+            const matches = (cmd.Command || '').match(/\{([^}]+)\}|<([^>]+)>/g) || [];
+            if (matches.length > 0) {
+                // pick the first match and strip braces
+                const raw = matches[0];
+                const name = raw.replace(/[{}<>]/g, '').trim();
+                if (name) {
+                    await window.TalonStorageDB.onListButtonClick(name);
+                    return { opened: true, listName: name };
+                }
+            }
+        }
+        return { opened: false, reason: 'no referenced lists in lastSearchResults' };
+    } catch (e) {
+        console.error('openFirstReferencedList error', e);
+        return { opened: false, error: e?.toString() };
+    }
+};

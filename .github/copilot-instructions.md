@@ -5,6 +5,11 @@
 For local development and UI testing, the Talon Voice Commands Server project runs on port **5269** (see `launchSettings.json`).
 When using Playwright or other browser automation tools, use `http://localhost:5269` as the base URL for accessing the app.
 
+## Terminal Interactions
+
+-  If you're going to run a dotnet build always check to see if the current application is running and then shut it down first.
+-  if you are asked to use playwright tools to demonstrate the application working always make sure the application is running first.
+
 ## Project Overview
 
 - **Blazor Server Application**: Main project is a default Blazor Server app.
@@ -82,3 +87,7 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 - Messages may contain dictation errors.
 - Interpret context and similar-sounding words as needed.
 - When returning a response always please to keep it down to a minimum brevity and summarization is the key. 
+
+## Agent Mode Tasks
+
+-  Do not stop the process until you have completed everything then report back and when you give your response make sure they are brief!

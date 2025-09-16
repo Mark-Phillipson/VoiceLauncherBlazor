@@ -1,0 +1,67 @@
+@using TalonVoiceCommandsServer.Models
+@inject IJSRuntime JSRuntime
+
+<div class="list-side-panel @(IsOpen ? "open" : "closed")" role="dialog" aria-label="List values panel" tabindex="-1">
+    <div class="panel-header d-flex justify-content-between align-items-center p-2 border-bottom">
+        <strong>@(SelectedListName ?? "")</strong>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary me-2" @onclick="OnCopy">Copy</button>
+            <button class="btn btn-sm btn-outline-danger" @onclick="Close">Close</button>
+        </div>
+    </div>
+    <div class="panel-body p-2">
+        @if (IsLoading)
+        {
+            <div class="d-flex justify-content-center align-items-center" style="height:120px">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+            </div>
+        }
+        else if (Values == null || Values.Count == 0)
+        {
+            <p class="text-muted">No items found for this list.</p>
+        }
+        else
+        {
+            <div class="values-container">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr><th>Spoken Form</th><th>Value</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Values)
+                        {
+                            <tr>
+                                <td class="font-monospace">@v.SpokenForm</td>
+                                <td class="font-monospace">@v.ListValue</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string? SelectedListName { get; set; }
+    [Parameter] public List<TalonList>? Values { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnCopyRequested { get; set; }
+
+    private async Task Close()
+    {
+        if (OnClose.HasDelegate) await OnClose.InvokeAsync();
+    }
+
+    private async Task OnCopy()
+    {
+        if (OnCopyRequested.HasDelegate) await OnCopyRequested.InvokeAsync();
+        else if (Values != null)
+        {
+            var csv = string.Join("\n", Values.Select(v => $"\"{v.SpokenForm}\",\"{v.ListValue}\""));
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", csv);
+        }
+    }
+}

@@ -1,1 +1,1 @@
-Can we change the list breakdown to just aNumber of Lists and Total Number of List Items we don't need any other information
+Can we now make these top part of the: lists slide thingy work correctly with dark mode

@@ -17,6 +17,14 @@
 else
 {
     <div class='@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")' @onkeydown="OnKeyDown" tabindex="-1">
+    
+        <!-- Left-hand list side panel -->
+        <TalonVoiceCommandsServer.Components.Shared.ListSidePanel 
+            IsOpen="@_isListPanelOpen" 
+            SelectedListName="@_selectedPanelListName" 
+            Values="@_selectedPanelValues" 
+            IsLoading="@_isListPanelLoading" 
+            OnClose="@CloseListSidePanel" />
     <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Talon Voice Command Search</h2>
     <span class="badge filter-btn-application px-3 py-2" style="font-size:1rem; border-radius:0.5rem;">@CurrentApplication</span>
@@ -483,10 +491,10 @@ else
                                                 <div class="mb-2">
                                                     @* Display clickable lists *@
                                                     @foreach (var listName in listsUsed)
-                                                    {
-                                                        <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
-                                                                @onclick="() => ToggleListDisplay(listName)"
-                                                                title="Click to view list contents">
+                                                                                {
+                                                                                    <button class="btn btn-outline-secondary btn-sm me-2 mb-1" 
+                                                                                            @onclick="() => OpenListInSidePanel(listName)"
+                                                                                            title="Click to view list contents">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-list me-1" viewBox="0 0 16 16">
                                                                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                                                             </svg>
@@ -520,52 +528,7 @@ else
                                                     }
                                                 </div>
 
-                                                @foreach (var listName in listsUsed)
-                                                {
-                                                    @if (IsListExpanded(listName))
-                                                    {
-                                                        var listContents = GetListContents(listName);
-                                                        <div class="card border-secondary mb-2" style="background-color: var(--bs-dark, #2d3748); color: var(--bs-light, #f8f9fa);">
-                                                            <div class="card-header py-2" style="background-color: var(--bs-secondary, #6c757d); color: var(--bs-light, #f8f9fa);">
-                                                                <strong>@listName</strong> (@listContents.Count items)
-                                                            </div>
-                                                            <div class="card-body py-2">
-                                                                @if (listContents.Any())
-                                                                {
-                                                                    <div class="table-responsive">
-                                                                        <table class="table table-sm table-dark table-striped mb-0">
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>Spoken Form</th>
-                                                                                    <th>Value</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                @foreach (var item in listContents.Take(20))
-                                                                                {
-                                                                                    <tr>
-                                                                                        <td class="font-monospace">@item.SpokenForm</td>
-                                                                                        <td class="font-monospace">@item.ListValue</td>
-                                                                                    </tr>
-                                                                                }
-                                                                                @if (listContents.Count > 20)
-                                                                                {
-                                                                                    <tr>
-                                                                                        <td colspan="2" class="text-muted text-center">... and @(listContents.Count - 20) more items</td>
-                                                                                    </tr>
-                                                                                }
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <p class="text-muted mb-0">No items found for this list.</p>
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                }
+                                                @* Inline expansion removed in favor of side panel display *@
                                             </div>
                                         }
 

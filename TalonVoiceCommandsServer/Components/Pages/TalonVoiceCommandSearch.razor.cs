@@ -397,6 +397,11 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     // For list display functionality
     private Dictionary<string, List<TalonList>> _listContentsCache = new();
     private HashSet<string> _expandedLists = new();
+    // Side-panel state for showing full list contents on the left
+    private bool _isListPanelOpen = false;
+    private string? _selectedPanelListName = null;
+    private List<TalonList> _selectedPanelValues = new();
+    private bool _isListPanelLoading = false;
 
     // For focused card functionality
     private TalonVoiceCommand? _focusedCommand = null;
@@ -813,6 +818,20 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 // System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - Performing automatic search for: '{SearchTerm}'");
                 await OnSearch();
                 StateHasChanged(); // Force UI update after search
+            }
+            // Register DotNet reference so client JS can invoke instance methods
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    var dotNetRef = DotNetObjectReference.Create(this);
+                    await JSRuntime.InvokeVoidAsync("TalonStorageDB.registerDotNetRef", dotNetRef);
+                    Console.WriteLine("OnAfterRenderAsync: Registered DotNetObjectReference with TalonStorageDB JS");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("OnAfterRenderAsync: Failed to register DotNet reference: " + ex.Message);
             }
         }
         // Note: We avoid calling EnsureSearchFocus on every render to prevent 
@@ -1822,6 +1841,90 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         StateHasChanged();
     }
 
+    // Opens the left-hand side panel showing the full list contents (loads from TalonService if needed)
+    [Microsoft.JSInterop.JSInvokable("OpenListInSidePanel")]
+    public async Task OpenListInSidePanel(string listName)
+    {
+        if (string.IsNullOrWhiteSpace(listName)) return;
+        _selectedPanelListName = listName;
+        _isListPanelOpen = true;
+        _isListPanelLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            // Try cache first
+            if (_listContentsCache.TryGetValue(listName, out var cached))
+            {
+                _selectedPanelValues = cached;
+            }
+            else if (TalonService != null)
+            {
+                var contents = await TalonService.GetListContentsAsync(listName);
+                _listContentsCache[listName] = contents;
+                _selectedPanelValues = contents;
+            }
+            else
+            {
+                _selectedPanelValues = new List<TalonList>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"OpenListInSidePanel error loading {listName}: {ex.Message}");
+            _selectedPanelValues = new List<TalonList>();
+        }
+        finally
+        {
+            _isListPanelLoading = false;
+            // Notify client JS for diagnostics (if available)
+            try
+            {
+                var jsInfo = new { ListName = listName, Count = _selectedPanelValues?.Count ?? 0 };
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("TalonStorageDB._onPanelDataLoaded", jsInfo);
+                }
+            }
+            catch { }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // Accept list contents from the client (IndexedDB) to populate the side panel when
+    // the server-side cache hasn't been loaded from localStorage yet.
+    [Microsoft.JSInterop.JSInvokable("OpenListInSidePanelWithClientData")]
+    public async Task OpenListInSidePanelWithClientData(string listName, string itemsJson)
+    {
+        if (string.IsNullOrWhiteSpace(listName)) return;
+        try
+        {
+            Console.WriteLine($"OpenListInSidePanelWithClientData invoked for '{listName}' (itemsJson length: {itemsJson?.Length ?? 0})");
+            var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var items = System.Text.Json.JsonSerializer.Deserialize<List<TalonList>>(itemsJson ?? "[]", options) ?? new List<TalonList>();
+            Console.WriteLine($"OpenListInSidePanelWithClientData: Deserialized {items.Count} items for '{listName}'");
+            _listContentsCache[listName] = items;
+            _selectedPanelListName = listName;
+            _selectedPanelValues = items;
+            _isListPanelOpen = true;
+            _isListPanelLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"OpenListInSidePanelWithClientData error: {ex.Message}");
+        }
+    }
+
+    public async Task CloseListSidePanel()
+    {
+        _isListPanelOpen = false;
+        _selectedPanelListName = null;
+        _selectedPanelValues = new List<TalonList>();
+        await InvokeAsync(StateHasChanged);
+    }
+
     public bool IsListExpanded(string listName)
     {
         return _expandedLists.Contains(listName);
@@ -2206,6 +2309,15 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         {
             FilterRefreshService.OnRefreshRequested -= RefreshFiltersAsync;
         }
+        // Attempt to unregister DotNetRef from JS
+        try
+        {
+            if (JSRuntime != null)
+            {
+                _ = JSRuntime.InvokeVoidAsync("(function(){ if(window.TalonStorageDB && window.TalonStorageDB._dotNetRef){ window.TalonStorageDB._dotNetRef = null; console.log('TalonStorageDB: DotNet reference cleared'); } })");
+            }
+        }
+        catch { }
     }
 
     /// <summary>
