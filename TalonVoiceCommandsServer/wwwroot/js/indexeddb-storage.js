@@ -338,6 +338,53 @@ const TalonStorageDB = {
         }
     },
 
+    // Get lists breakdown: number of lists and total number of list items
+    async getListsBreakdown() {
+        try {
+            // The lists object store stores one record per list entry (each TalonList is a single item)
+            const db = await this.ensureDB();
+            const transaction = db.transaction(['lists'], 'readonly');
+            const store = transaction.objectStore('lists');
+
+            return new Promise((resolve, reject) => {
+                const request = store.openCursor();
+                const perListMap = new Map();
+                let totalItems = 0;
+
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const record = cursor.value;
+                        // Each record represents one list item
+                        totalItems += 1;
+
+                        // Support multiple possible property names for the list name
+                        const listName = record.ListName || record.listName || record.List || record.list || '';
+                        const key = listName || 'Unnamed';
+
+                        perListMap.set(key, (perListMap.get(key) || 0) + 1);
+
+                        cursor.continue();
+                    } else {
+                        const perList = Array.from(perListMap.entries()).map(([listName, itemCount]) => ({ listName, itemCount }));
+                        perList.sort((a, b) => b.itemCount - a.itemCount || a.listName.localeCompare(b.listName));
+                        const listCount = perListMap.size;
+                        console.log('TalonStorageDB: Lists breakdown computed', { listCount, totalItems });
+                        resolve({ listCount, totalItems, perList });
+                    }
+                };
+
+                request.onerror = () => {
+                    console.error('TalonStorageDB: Error computing lists breakdown', request.error);
+                    reject(request.error);
+                };
+            });
+        } catch (error) {
+            console.error('TalonStorageDB: Error in getListsBreakdown:', error);
+            return { listCount: 0, totalItems: 0, perList: [] };
+        }
+    },
+
     // Helper to get metadata
     async getMetadata(store, key) {
         return new Promise((resolve) => {
@@ -1277,6 +1324,61 @@ const TalonStorageDB = {
             
         } catch (error) {
             console.error('TalonStorageDB: Error in getFilterValues:', error);
+            throw error;
+        }
+    },
+
+    // Compute repository and application breakdowns (counts) from the commands store
+    async getRepositoryAndApplicationBreakdown(topN = 0) {
+        console.log('TalonStorageDB: Computing repository and application breakdowns...');
+        try {
+            await this.init();
+
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['commands'], 'readonly');
+                const store = transaction.objectStore('commands');
+                const request = store.openCursor();
+
+                const repoCounts = new Map();
+                const appCounts = new Map();
+
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const command = cursor.value;
+
+                        const repo = command.Repository || command.repository || 'None';
+                        const app = command.Application || command.application || 'Unknown';
+
+                        repoCounts.set(repo, (repoCounts.get(repo) || 0) + 1);
+                        appCounts.set(app, (appCounts.get(app) || 0) + 1);
+
+                        cursor.continue();
+                    } else {
+                        // Convert maps to sorted arrays
+                        const repoArray = Array.from(repoCounts.entries()).map(([k, v]) => ({ repository: k, count: v }));
+                        repoArray.sort((a, b) => b.count - a.count || a.repository.localeCompare(b.repository));
+
+                        const appArray = Array.from(appCounts.entries()).map(([k, v]) => ({ application: k, count: v }));
+                        appArray.sort((a, b) => b.count - a.count || a.application.localeCompare(b.application));
+
+                        const result = {
+                            repositories: repoArray,
+                            applications: topN > 0 ? appArray.slice(0, topN) : appArray
+                        };
+
+                        console.log('TalonStorageDB: Breakdown computed', { repositories: repoArray.length, applications: appArray.length });
+                        resolve(result);
+                    }
+                };
+
+                request.onerror = () => {
+                    console.error('TalonStorageDB: Error computing breakdowns:', request.error);
+                    reject(request.error);
+                };
+            });
+        } catch (error) {
+            console.error('TalonStorageDB: Error in getRepositoryAndApplicationBreakdown:', error);
             throw error;
         }
     },

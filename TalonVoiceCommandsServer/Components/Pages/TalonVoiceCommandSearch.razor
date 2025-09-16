@@ -691,55 +691,14 @@ else
              role="tabpanel" 
              aria-labelledby="analysis-tab" 
              tabindex="0">
-            
-            <!-- System Statistics -->
-            @if (AvailableApplications.Any() || TotalCommands > 0 || TotalLists > 0)
-            {
-                <div class="card mb-3 bg-light">
-                    <div class="card-body py-2">
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="oi oi-terminal me-2 text-primary"></i>
-                                    <span><strong>@TotalCommands.ToString("N0")</strong> Commands</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="oi oi-list me-2 text-success"></i>
-                                    <span><strong>@TotalLists.ToString("N0")</strong> Lists</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center justify-content-center flex-wrap">
-                                    <i class="oi oi-folder me-2 text-info"></i>
-                                    <span class="me-2"><strong>Repositories:</strong></span>
-                                    @if (CommandsBreakdown.Any())
-                                    {
-                                        @foreach (var repo in CommandsBreakdown.Take(5))
-                                        {
-                                            <span class="badge bg-secondary me-1">@repo.RepositoryName (@repo.CommandCount.ToString("N0"))</span>
-                                        }
-                                        @if (CommandsBreakdown.Count > 5)
-                                        {
-                                            <span class="text-muted">+ @(CommandsBreakdown.Count - 5) more</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">None</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
 
-            <!-- Detailed Repository Breakdown -->
+            <!-- New Analysis Component: uses IndexedDB via JSInterop -->
+            <TalonVoiceCommandsServer.Components.Pages.TalonVoiceCommandAnalysis />
+
+            @* Keep the existing repository breakdown below for compatibility if data is available *@
             @if (CommandsBreakdown.Any())
             {
-                <div class="card mb-3">
+                <div class="card mb-3 mt-3">
                     <div class="card-header bg-primary text-white">
                         <h5 class="card-title mb-0">
                             <i class="oi oi-bar-chart me-2"></i>
@@ -782,13 +741,7 @@ else
                     </div>
                 </div>
             }
-            @if (!CommandsBreakdown.Any() && TotalCommands == 0)
-            {
-                <div class="alert alert-warning" role="alert">
-                    <i class="oi oi-warning me-2"></i>
-                    <strong>No Analysis Data Available:</strong> Please import some Talon voice command files first to see analysis data.
-                </div>
-            }
+
         </div>
         <!-- End of Analysis Report Tab -->
     </div>
