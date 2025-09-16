@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +53,14 @@ namespace TalonVoiceCommandsServer.Components.Shared
             {
                 var csv = string.Join("\n", Values.Select(v => $"\"{v.SpokenForm}\",\"{v.ListValue}\""));
                 await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", csv);
+            }
+        }
+
+        protected async Task HandleKeyDown(KeyboardEventArgs e)
+        {
+            if (e.Key == "Escape")
+            {
+                await Close();
             }
         }
     }

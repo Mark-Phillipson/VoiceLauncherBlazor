@@ -1,5 +1,5 @@
 <div id="list-side-panel" class="list-side-panel @(IsOpen ? "open" : "closed")" role="dialog"
-    aria-label="List values panel" tabindex="-1">
+    aria-label="List values panel" tabindex="-1" @onkeydown="HandleKeyDown">
     <div class="panel-header d-flex justify-content-between align-items-center p-2 border-bottom">
         <strong class="list-panel-title">@(SelectedListName ?? "")</strong>
         <div>
