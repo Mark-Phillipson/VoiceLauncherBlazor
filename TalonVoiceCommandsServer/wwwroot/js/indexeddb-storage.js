@@ -1119,62 +1119,10 @@ const TalonStorageDB = {
     },
 
     // Render the list side-panel directly on the client when server-side panel is empty
-    renderPanelClientSide(listName, items) {
-        try {
-            // Find the side panel dialog
-            const panel = document.querySelector('[role="dialog"][aria-label="List values panel"]');
-            if (!panel) {
-                console.debug('TalonStorageDB: renderPanelClientSide - side panel not found in DOM');
-                return false;
-            }
-
-            // Set title
-            const titleEl = panel.querySelector('.list-panel-title');
-            if (titleEl) titleEl.textContent = listName;
-
-            // Find or create the table body
-            let tbody = panel.querySelector('table tbody');
-            if (!tbody) {
-                // Create a simple table structure expected by the server-side component
-                const table = document.createElement('table');
-                table.className = 'table table-sm';
-                const thead = document.createElement('thead');
-                thead.innerHTML = '<tr><th>Spoken</th><th>Value</th></tr>';
-                tbody = document.createElement('tbody');
-                table.appendChild(thead);
-                table.appendChild(tbody);
-                // Insert before any loading paragraph or spinner
-                const container = panel.querySelector('.list-panel-body') || panel;
-                container.appendChild(table);
-            } else {
-                // Clear existing rows
-                tbody.innerHTML = '';
-            }
-
-            // Populate rows
-            for (const it of items) {
-                const tr = document.createElement('tr');
-                const spoken = document.createElement('td');
-                spoken.textContent = it.SpokenForm || it.spokenForm || '';
-                const val = document.createElement('td');
-                val.textContent = it.ListValue || it.listValue || '';
-                tr.appendChild(spoken);
-                tr.appendChild(val);
-                tbody.appendChild(tr);
-            }
-
-            // Hide the 'no items' message if present
-            const noItems = panel.querySelector('.no-list-items');
-            if (noItems) noItems.style.display = 'none';
-
-            // Note: rely on native scrollbar for performance; no overlay init here.
-
-            return true;
-        } catch (e) {
-            console.error('TalonStorageDB: renderPanelClientSide error', e);
-            return false;
-        }
-    },
+    // renderPanelClientSide(listName, items) {
+    //     // Disabled: Blazor now handles all rendering. This JS function is not needed.
+    //     return false;
+    // },
 
     // Extract filename from full path
     extractFilename(filePath) {
@@ -1312,7 +1260,7 @@ const TalonStorageDB = {
                             if (items && items.length > 0) {
                                 // Immediately render on the client so the user sees values even if server-side fails.
                                 try {
-                                    const rendered = this.renderPanelClientSide(listName, items);
+                                    // const rendered = this.renderPanelClientSide(listName, items);
                                     if (rendered) {
                                         console.log('TalonStorageDB: Rendered panel client-side as immediate fallback');
                                     }
@@ -1361,7 +1309,7 @@ const TalonStorageDB = {
                 const allItems = await this.loadLists();
                 const items = this.findItemsForList(allItems, listName);
                 if (items && items.length > 0) {
-                    this.renderPanelClientSide(listName, items);
+                    // this.renderPanelClientSide(listName, items);
                     return;
                 }
             } catch (e) {
@@ -1411,7 +1359,7 @@ const TalonStorageDB = {
                     const all = await this.loadLists();
                     const items = this.findItemsForList(all, primary);
                     if (items && items.length > 0) {
-                        this.renderPanelClientSide(primary, items);
+                        // this.renderPanelClientSide(primary, items);
                         this._showTemporaryNotification(`Rendered ${items.length} items client-side for ${primary}`);
                     } else {
                         this._showTemporaryNotification('No items found for ' + primary);

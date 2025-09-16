@@ -1,6 +1,3 @@
-@using TalonVoiceCommandsServer.Models
-@inject IJSRuntime JSRuntime
-
 <div id="list-side-panel" class="list-side-panel @(IsOpen ? "open" : "closed")" role="dialog"
     aria-label="List values panel" tabindex="-1">
     <div class="panel-header d-flex justify-content-between align-items-center p-2 border-bottom">
@@ -11,63 +8,43 @@
         </div>
     </div>
     <div class="panel-body p-2 list-panel-body">
-        @if (IsLoading)
-        {
-            <div class="d-flex justify-content-center align-items-center" style="height:120px">
-                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+            @if (IsLoading)
+            {
+                <div class="d-flex justify-content-center align-items-center" style="height:120px">
+                    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                </div>
+            }
+
+            @if (!IsLoading && (Values == null || Values.Count == 0))
+            {
+                <p class="text-muted no-list-items">No items found for this list.</p>
+            }
+
+            <div class="mb-2">
+                <input type="text" class="form-control" placeholder="Filter items..." @bind="FilterTerm" aria-label="Filter items" />
             </div>
-        }
 
-        @if (!IsLoading && (Values == null || Values.Count == 0))
-        {
-            <p class="text-muted no-list-items">No items found for this list.</p>
-        }
-
-        <div class="values-container table-scroll">
-            <table class="table table-sm table-striped mb-0 table-scroll-table">
-                <thead>
-                    <tr>
-                        <th>Spoken Form</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Values != null && Values.Count > 0)
-                    {
-                        foreach (var v in Values)
+            <div class="values-container table-scroll">
+                <table class="table table-sm table-striped mb-0 table-scroll-table">
+                    <thead>
+                        <tr>
+                            <th>Spoken Form</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (FilteredValues != null && FilteredValues.Count > 0)
                         {
-                            <tr>
-                                <td class="font-monospace">@v.SpokenForm</td>
-                                <td class="font-monospace">@v.ListValue</td>
-                            </tr>
+                            foreach (var v in FilteredValues)
+                            {
+                                <tr>
+                                    <td class="font-monospace">@v.SpokenForm</td>
+                                    <td class="font-monospace">@v.ListValue</td>
+                                </tr>
+                            }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-
-@code {
-    [Parameter] public bool IsOpen { get; set; }
-    [Parameter] public string? SelectedListName { get; set; }
-    [Parameter] public List<TalonList>? Values { get; set; }
-    [Parameter] public bool IsLoading { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnCopyRequested { get; set; }
-
-    private async Task Close()
-    {
-        if (OnClose.HasDelegate) await OnClose.InvokeAsync();
-    }
-
-    private async Task OnCopy()
-    {
-        if (OnCopyRequested.HasDelegate) await OnCopyRequested.InvokeAsync();
-        else if (Values != null)
-        {
-            var csv = string.Join("\n", Values.Select(v => $"\"{v.SpokenForm}\",\"{v.ListValue}\""));
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", csv);
-        }
-    }
-}
