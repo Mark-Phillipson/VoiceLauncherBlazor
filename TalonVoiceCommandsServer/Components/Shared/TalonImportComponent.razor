@@ -4,18 +4,25 @@
 
 <!-- Import Scripts Content -->
 <div class="mb-3">
-    <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
+    <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon"
+        aria-label="Select Talon files" />
 </div>
-<button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>
+<button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())"
+    aria-label="Import">Import</button>
 
 <div class="mb-3 mt-3">
     <label class="form-label">Talon base directory</label>
-    <input class="form-control" type="text" @bind="DirectoryPath" placeholder="Directory to import all .talon files from..." aria-label="Directory path" disabled="@SettingsLocked" />
+    <input class="form-control" type="text" @bind="DirectoryPath"
+        placeholder="Directory to import all .talon files from..." aria-label="Directory path"
+        disabled="@SettingsLocked" />
 </div>
-<button class="btn btn-secondary me-2" @onclick="ImportAllFromDirectory" aria-label="Import All">Import All from Directory</button>
-<button class="btn btn-outline-secondary me-2" @onclick="SaveSettingsAsync" disabled="@SettingsLocked" aria-label="Save Settings">Save Settings</button>
+<button class="btn btn-secondary me-2" @onclick="ImportAllFromDirectory" aria-label="Import All">Import All from
+    Directory</button>
+<button class="btn btn-outline-secondary me-2" @onclick="SaveSettingsAsync" disabled="@SettingsLocked"
+    aria-label="Save Settings">Save Settings</button>
 <div class="form-check form-check-inline align-middle ms-2">
-    <input class="form-check-input" type="checkbox" id="settingsLocked" @bind="SettingsLocked" @bind:after="SaveLockStateAsync" />
+    <input class="form-check-input" type="checkbox" id="settingsLocked" @bind="SettingsLocked"
+        @bind:after="SaveLockStateAsync" />
     <label class="form-check-label" for="settingsLocked">Lock settings</label>
 </div>
 
@@ -44,7 +51,9 @@
         @if (ImportTotal > 0)
         {
             <div class="progress mt-2" style="height: 24px;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: @(ImportProgress * 100 / ImportTotal)%" aria-valuenow="@ImportProgress" aria-valuemin="0" aria-valuemax="@ImportTotal">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar"
+                    style="width: @(ImportProgress * 100 / ImportTotal)%" aria-valuenow="@ImportProgress" aria-valuemin="0"
+                    aria-valuemax="@ImportTotal">
                     @ImportProgress / @ImportTotal
                 </div>
             </div>
@@ -58,7 +67,8 @@
                         <div class="toast-header">
                             <strong class="me-auto">Import</strong>
                             <small class="text-muted">just now</small>
-                            <button type="button" class="btn-close ms-2 mb-1" aria-label="Close" @onclick="() => ShowToast = false"></button>
+                            <button type="button" class="btn-close ms-2 mb-1" aria-label="Close"
+                                @onclick="() => ShowToast = false"></button>
                         </div>
                         <div class="toast-body">
                             @ImportResult
@@ -88,6 +98,18 @@
 <p>Import your exported TalonLists.txt file to enable list expansion in search results.</p>
 <div class="mb-3">
     <label class="form-label">TalonLists.txt path</label>
-    <input class="form-control" type="text" @bind="ListsFilePath" placeholder="Path to TalonLists.txt file..." aria-label="Lists file path" disabled="@SettingsLocked" />
+    <input class="form-control" type="text" @bind="ListsFilePath" placeholder="Path to TalonLists.txt file..."
+        aria-label="Lists file path" disabled="@SettingsLocked" />
 </div>
-<button class="btn btn-primary me-2" @onclick="ImportListsFromFile" disabled="@IsLoading" aria-label="Import Lists">Import Lists</button>
+<button class="btn btn-primary me-2" @onclick="ImportListsFromFile" disabled="@IsLoading"
+    aria-label="Import Lists">Import Lists</button>
+    <br />
+<p>To prepare your Talon lists, you will need to run the following Talon Voice Command:</p>
+<div class="code-block mb-3 d-flex">
+    <textarea readonly class="form-control font-monospace flex-grow-1" rows="1" value="@TalonCommandCode"></textarea>
+    <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="() => CopyToClipboard(TalonCommandCode)">Copy</button>
+</div>
+<div class="code-block mb-3 d-flex">
+    <textarea readonly class="form-control font-monospace flex-grow-1" rows="25" value="@PythonFunctionCode"></textarea>
+    <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="() => CopyToClipboard(PythonFunctionCode)">Copy</button>
+</div>
