@@ -100,6 +100,11 @@ namespace DataAccessLibrary.Services
             InvalidateCache();
         }
 
+        public void ClearCache()
+        {
+            InvalidateCache();
+        }
+
         private void InvalidateCache()
         {
             // Remove all launcher-related cache entries

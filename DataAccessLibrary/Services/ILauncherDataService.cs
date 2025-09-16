@@ -14,4 +14,5 @@ public interface ILauncherDataService
     Task<LauncherDTO?> GetLauncherById(int Id);
     Task<LauncherDTO?> UpdateLauncher(LauncherDTO launcherDTO, string username);
     Task DeleteLauncher(int Id);
+    void ClearCache();
 }

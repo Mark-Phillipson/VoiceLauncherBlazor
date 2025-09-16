@@ -264,5 +264,34 @@ namespace RazorClassLibrary.Pages
             }
             catch { }
         }
+
+        protected async Task RefreshFromDatabaseAsync()
+        {
+            // Clear the cache
+            LauncherDataService.ClearCache();
+
+            // Clear the search term and message
+            searchTerm = null;
+            Message = string.Empty;
+
+            // Reload data directly from database
+            await LoadData();
+
+            // Reapply default filter
+            ApplyFilter();
+
+            // Show success message
+            ToastService.ShowSuccess("Cache cleared and data refreshed from database");
+
+            // Set focus back to search input
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+                }
+            }
+            catch { }
+        }
 	}
 }
