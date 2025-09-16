@@ -643,6 +643,162 @@ const TalonStorageDB = {
         return true; // No text search, just filter-based
     },
 
+    // Enhanced search function that includes list item matching for "Names Only" and "Search All" scope
+    async searchWithEnhancedListMatching(searchParams, maxResults, db) {
+        console.log('TalonStorageDB: Using enhanced search with list matching for Names Only and Search All scope');
+        
+        const filteredCommands = [];
+        const searchTerm = String(searchParams.searchTerm || '').trim().replace(/^(["'""])+|(["'""])+$/g, '').toLowerCase();
+        const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
+        
+        // Load all lists into memory for faster matching
+        const allLists = {};
+        const listTransaction = db.transaction(['lists'], 'readonly');
+        const listStore = listTransaction.objectStore('lists');
+        
+        await new Promise((resolve, reject) => {
+            const listRequest = listStore.openCursor();
+            listRequest.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const list = cursor.value;
+                    // Handle multiple items with the same list name by creating arrays
+                    const listName = list.ListName || list.listName;
+                    if (!allLists[listName]) {
+                        allLists[listName] = [];
+                    }
+                    allLists[listName].push(list);
+                    cursor.continue();
+                } else {
+                    resolve();
+                }
+            };
+            listRequest.onerror = () => reject(listRequest.error);
+        });
+        
+        console.log(`TalonStorageDB: Loaded ${Object.keys(allLists).length} lists for enhanced search`);
+        
+        // Now search commands with enhanced list matching
+        const commandTransaction = db.transaction(['commands'], 'readonly');
+        const commandStore = commandTransaction.objectStore('commands');
+        
+        return new Promise((resolve, reject) => {
+            const request = commandStore.openCursor();
+            
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const command = cursor.value;
+                    
+                    // Debug: log first command to see property structure
+                    if (filteredCommands.length === 0) {
+                        console.log('TalonStorageDB: Sample command structure:', Object.keys(command));
+                        console.log('TalonStorageDB: Sample command command field:', command.command);
+                        console.log('TalonStorageDB: Sample command Command field:', command.Command);
+                    }
+                    
+                    // Apply non-search filters first
+                    if (this.matchesNonSearchFilters(command, searchParams)) {
+                        
+                        // Check direct text matches first
+                        let matches = (command.Command && command.Command.toLowerCase().includes(searchTerm)) ||
+                                     (command.Script && command.Script.toLowerCase().includes(searchTerm));
+                        
+                        // If no direct match, check list items
+                        if (!matches && command.Command) {
+                            matches = this.commandMatchesListItems(command, searchWords, allLists);
+                        }
+                        
+                        if (matches && filteredCommands.length < maxResults) {
+                            filteredCommands.push(command);
+                        }
+                    }
+                    
+                    cursor.continue();
+                } else {
+                    console.log(`TalonStorageDB: Enhanced search found ${filteredCommands.length} results (limited to ${maxResults})`);
+                    resolve(filteredCommands);
+                }
+            };
+            
+            request.onerror = () => {
+                console.error('TalonStorageDB: Error in enhanced search:', request.error);
+                reject(request.error);
+            };
+        });
+    },
+
+    // Helper to check non-search filters
+    matchesNonSearchFilters(command, searchParams) {
+        if (searchParams.application) {
+            const appCommand = String(this.normalizeAppName(command.Application || '') || '').trim().toLowerCase();
+            const appSearch = String(this.normalizeAppName(searchParams.application || '') || '').trim().toLowerCase();
+            if (!appCommand || !appSearch || appCommand !== appSearch) return false;
+        }
+        if (searchParams.mode && command.Mode !== searchParams.mode) return false;
+        if (searchParams.operatingSystem && command.OperatingSystem !== searchParams.operatingSystem) return false;
+        if (searchParams.repository && command.Repository !== searchParams.repository) return false;
+        if (searchParams.title && command.Title !== searchParams.title) return false;
+        if (searchParams.codeLanguage && command.CodeLanguage !== searchParams.codeLanguage) return false;
+        
+        if (searchParams.tags) {
+            if (!command.Tags) return false;
+            const commandTags = command.Tags.split(',').map(tag => tag.trim().toLowerCase());
+            const searchTag = searchParams.tags.toLowerCase();
+            if (!commandTags.includes(searchTag)) return false;
+        }
+        
+        return true;
+    },
+
+    // Helper to check if command matches list items
+    commandMatchesListItems(command, searchWords, allLists) {
+        // Find list references in the command using both curly braces and angle brackets (Talon syntax)
+        const curlyMatches = command.Command.match(/\{([^}]+)\}/g) || [];
+        const angleMatches = command.Command.match(/<([^>]+)>/g) || [];
+        
+        if (curlyMatches.length === 0 && angleMatches.length === 0) return false;
+        
+        // Extract list names (remove braces/brackets)
+        const listNames = [
+            ...curlyMatches.map(match => match.slice(1, -1)),
+            ...angleMatches.map(match => match.slice(1, -1))
+        ];
+        
+        console.debug(`Checking command "${command.Command}" for list references: ${listNames.join(', ')}`);
+        console.debug(`Available lists count: ${Object.keys(allLists).length}`);
+        console.debug(`First few available lists: ${Object.keys(allLists).slice(0, 5).join(', ')}`);
+        
+        // Check each referenced list
+        for (const listName of listNames) {
+            const listItems = allLists[listName];
+            console.debug(`Looking for list "${listName}": found ${listItems ? (Array.isArray(listItems) ? listItems.length + ' items' : 'not an array') : 'not found'}`);
+            
+            if (listItems && Array.isArray(listItems)) {
+                
+                // Check each list item for the search words
+                for (const listItem of listItems) {
+                    const listValue = (listItem.ListValue || listItem.listValue || '').toLowerCase();
+                    const spokenForm = (listItem.SpokenForm || listItem.spokenForm || '').toLowerCase();
+                    
+                    console.debug(`Checking list item: value="${listValue}", spoken="${spokenForm}"`);
+                    
+                    // Check if any search word matches this list item
+                    for (const word of searchWords) {
+                        if (listValue.includes(word) || spokenForm.includes(word)) {
+                            console.debug(`Found match: word "${word}" in list item value "${listValue}" or spoken "${spokenForm}"`);
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                console.debug(`List ${listName} not found or not an array:`, typeof listItems);
+            }
+        }
+        
+        return false;
+    },
+
     // Quick count helper used by the UI to decide if any data exists
     async getCommandsCount() {
         try {
@@ -868,6 +1024,13 @@ const TalonStorageDB = {
         console.log(`TalonStorageDB: searchFilteredCommandsSimple called with maxResults: ${maxResults}`);
         try {
             const db = await this.ensureDB();
+            
+            // For "Names Only" and "Search All" scope with search term, use enhanced search with list matching
+            if (searchParams.searchTerm && (searchParams.searchScope === 0 || searchParams.searchScope === 2)) {
+                return await this.searchWithEnhancedListMatching(searchParams, maxResults, db);
+            }
+            
+            // Otherwise use regular search
             const transaction = db.transaction(['commands'], 'readonly');
             const store = transaction.objectStore('commands');
             
@@ -880,6 +1043,12 @@ const TalonStorageDB = {
                     const cursor = event.target.result;
                     if (cursor) {
                         const command = cursor.value;
+                        
+                        // Debug: Log first command structure to understand data format
+                        if (filteredCommands.length === 0 && searchParams.searchTerm) {
+                            console.log('TalonStorageDB: First command structure:', command);
+                            console.log('TalonStorageDB: Command keys:', Object.keys(command || {}));
+                        }
                         
                         // Apply filters
                         if (this.matchesFilters(command, searchParams)) {

@@ -645,11 +645,8 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
                                 c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
                             break;
                         default: // All
-                            filteredCommands = filteredCommands.Where(c => 
-                                (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                                (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                                (c.Title != null && c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                                (c.Tags != null && c.Tags.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+                            // Enhanced search that includes list item matching
+                            filteredCommands = ApplyEnhancedSearchWithLists(filteredCommands, searchTerm);
                             break;
                     }
                 }
@@ -663,6 +660,100 @@ public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
         {
             Console.WriteLine($"TalonVoiceCommandDataService: Error in public GetFilteredCommandsInMemory: {ex.Message}");
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Enhanced search method that includes list item matching functionality.
+    /// When searching for a term like "angry", it will also find commands that use lists containing "angry" items.
+    /// </summary>
+    private IEnumerable<TalonVoiceCommand> ApplyEnhancedSearchWithLists(IEnumerable<TalonVoiceCommand> commands, string searchTerm)
+    {
+        try
+        {
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Starting enhanced search for term '{searchTerm}'");
+            
+            // Step 1: Perform basic text search across command properties
+            var directMatches = commands.Where(c =>
+                (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Title != null && c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Tags != null && c.Tags.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))).ToList();
+
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Found {directMatches.Count} direct matches");
+
+            // Step 2: Split search term into individual words for list item matching
+            var searchWords = searchTerm.Split(new char[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(word => word.Trim().ToLower())
+                .Where(word => !string.IsNullOrEmpty(word))
+                .ToList();
+
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Split search term into {searchWords.Count} words: {string.Join(", ", searchWords)}");
+
+            // Step 3: Find lists that contain any of the search words in their spoken forms or list values
+            var matchingListNames = new HashSet<string>();
+            
+            foreach (var word in searchWords)
+            {
+                var listsWithMatchingItems = _talonLists
+                    .Where(l => l.SpokenForm.ToLower().Contains(word) || l.ListValue.ToLower().Contains(word))
+                    .Select(l => l.ListName)
+                    .Distinct();
+                
+                foreach (var listName in listsWithMatchingItems)
+                {
+                    matchingListNames.Add(listName);
+                }
+            }
+
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Found {matchingListNames.Count} matching lists: {string.Join(", ", matchingListNames.Take(5))}");
+
+            // Step 4: Find commands that reference these lists
+            var listReferencingCommands = new List<TalonVoiceCommand>();
+            
+            foreach (var listName in matchingListNames)
+            {
+                var shortListName = listName.Replace("user.", "");
+                
+                var commandsWithListRefs = commands.Where(c =>
+                    // {list} references
+                    (c.Command != null && (c.Command.Contains($"{{{listName}}}") || c.Command.Contains($"{{{shortListName}}}"))) ||
+                    (c.Script != null && (c.Script.Contains($"{{{listName}}}") || c.Script.Contains($"{{{shortListName}}}"))) ||
+                    // <capture> references - e.g. <user.emoji> or <emoji>
+                    (c.Command != null && (c.Command.Contains($"<{listName}>") || c.Command.Contains($"<{shortListName}>"))) ||
+                    (c.Script != null && (c.Script.Contains($"<{listName}>") || c.Script.Contains($"<{shortListName}>")))
+                ).ToList();
+                
+                listReferencingCommands.AddRange(commandsWithListRefs);
+            }
+
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Found {listReferencingCommands.Count} commands referencing matching lists");
+
+            // Step 5: Combine direct matches and list-referencing commands, removing duplicates
+            var allMatches = new List<TalonVoiceCommand>();
+            allMatches.AddRange(directMatches);
+
+            foreach (var listCommand in listReferencingCommands)
+            {
+                if (!allMatches.Any(existing => existing.Id == listCommand.Id))
+                {
+                    allMatches.Add(listCommand);
+                }
+            }
+
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Total unique results: {allMatches.Count} ({directMatches.Count} direct + {allMatches.Count - directMatches.Count} from lists)");
+            
+            return allMatches;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ApplyEnhancedSearchWithLists: Error during enhanced search: {ex.Message}");
+            // Fallback to basic search on error
+            return commands.Where(c =>
+                (c.Command != null && c.Command.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Script != null && c.Script.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Title != null && c.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (c.Tags != null && c.Tags.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
         }
     }
 

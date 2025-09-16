@@ -601,44 +601,46 @@ namespace RazorClassLibrary.Pages
             {
                 await OnSearch();
             }
-        }        protected async Task OnSearchInputBlur()
+        }
+        protected async Task OnSearchInputBlur()
         {
             // Trigger search when the search input loses focus
             await OnSearch();
-        }        public async Task OnSearch()
+        }
+        public async Task OnSearch()
         {
             // System.Diagnostics.Debug.WriteLine($"OnSearch called - SearchTerm: '{SearchTerm}', Length: {SearchTerm?.Length}");
-            
+
             // Cancel any existing search operation
             _searchCancellationTokenSource?.Cancel();
             _searchCancellationTokenSource?.Dispose();
             _searchCancellationTokenSource = new CancellationTokenSource();
-            
+
             // Clear the list contents cache when performing a new search
             _listContentsCache.Clear();
             _expandedLists.Clear();
-            
+
             // Clear focus mode when performing a new search
             _focusedCommand = null;
             _isFocusMode = false;
-              // Don't search if no criteria are specified - check for default filter states
+            // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
-            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode);bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
+            bool hasModeFilter = !string.IsNullOrWhiteSpace(SelectedMode); bool hasOSFilter = !string.IsNullOrWhiteSpace(SelectedOperatingSystem);
             bool hasRepositoryFilter = !string.IsNullOrWhiteSpace(SelectedRepository);
             bool hasTagsFilter = !string.IsNullOrWhiteSpace(SelectedTags);
             bool hasTitleFilter = !string.IsNullOrWhiteSpace(SelectedTitle);
             bool hasCodeLanguageFilter = !string.IsNullOrWhiteSpace(SelectedCodeLanguage);
-              try
+            try
             {
                 // System.Diagnostics.Debug.WriteLine($"OnSearch - hasSearchTerm: {hasSearchTerm}, hasApplicationFilter: {hasApplicationFilter}, hasModeFilter: {hasModeFilter}");
-                
+
                 // Debug logging
                 if (JSRuntime != null)
                 {
                     await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
                 }
-                
+
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter)
                 {
                     // System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
@@ -652,243 +654,249 @@ namespace RazorClassLibrary.Pages
                 IsLoading = true;
                 HasSearched = true;
                 StateHasChanged();
-                
+
                 // Small delay to ensure spinner is visible
                 await Task.Delay(100);
-            
-            if (TalonService is not null)
-            {
-                // Use cached data if available, otherwise load it
-                var allCommands = _allCommandsCache ?? await TalonService.GetAllCommandsForFiltersAsync();
-                
-                // Apply filters first
-                var filteredCommands = allCommands.AsEnumerable();
-                
-                if (hasApplicationFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
-                }
-                
-                if (hasModeFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
-                }
-                
-                if (hasOSFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.OperatingSystem == SelectedOperatingSystem);
-                }
-                
-                if (hasRepositoryFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.Repository == SelectedRepository);
-                }
 
-                if (hasTagsFilter)
+                if (TalonService is not null)
                 {
-                    filteredCommands = filteredCommands.Where(c => 
-                        !string.IsNullOrWhiteSpace(c.Tags) && 
-                        c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
-                }                if (hasTitleFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => c.Title == SelectedTitle);
-                }
+                    // Use cached data if available, otherwise load it
+                    var allCommands = _allCommandsCache ?? await TalonService.GetAllCommandsForFiltersAsync();
 
-                if (hasCodeLanguageFilter)
-                {
-                    filteredCommands = filteredCommands.Where(c => 
-                        !string.IsNullOrWhiteSpace(c.CodeLanguage) && 
-                        c.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Any(lang => lang.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase)));
-                }
-                
-                if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
-                {
-                    // Debug logging
-                    if (JSRuntime != null)
-                    {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                    }
-                    
-                    // Use semantic search methods which search across all fields
-                    List<TalonVoiceCommand> semanticResults;
-                    switch (SelectedSearchScope)
-                    {
-                        case SearchScope.CommandNamesOnly:
-                            // Use semantic search but filter results to only show command name matches
-                            semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
-                            break;
-                        case SearchScope.Script:
-                            // Use semantic search but filter results to show script matches
-                            semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
-                            break;
-                        case SearchScope.All:
-                        default:
-                            // Use the proper semantic search method that includes list expansions
-                            semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
-                            break;
-                    }
-                    
-                    // Debug logging
-                    if (JSRuntime != null)
-                    {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
-                    }
-                    
-                    // Apply filters to semantic results
-                    var finalResults = semanticResults.AsEnumerable();
-                    
+                    // Apply filters first
+                    var filteredCommands = allCommands.AsEnumerable();
+
                     if (hasApplicationFilter)
                     {
-                        finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                        filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
                     }
-                    
+
                     if (hasModeFilter)
                     {
-                        finalResults = finalResults.Where(c => c.Mode == SelectedMode);
+                        filteredCommands = filteredCommands.Where(c => c.Mode == SelectedMode);
                     }
-                    
+
                     if (hasOSFilter)
                     {
-                        finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
+                        filteredCommands = filteredCommands.Where(c => c.OperatingSystem == SelectedOperatingSystem);
                     }
-                    
+
                     if (hasRepositoryFilter)
                     {
-                        finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
+                        filteredCommands = filteredCommands.Where(c => c.Repository == SelectedRepository);
                     }
-                      if (hasTagsFilter)
+
+                    if (hasTagsFilter)
                     {
-                        finalResults = finalResults.Where(c => 
-                            !string.IsNullOrWhiteSpace(c.Tags) && 
+                        filteredCommands = filteredCommands.Where(c =>
+                            !string.IsNullOrWhiteSpace(c.Tags) &&
                             c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));                    }
-                    
+                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                    }
                     if (hasTitleFilter)
                     {
-                        finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                        filteredCommands = filteredCommands.Where(c => c.Title == SelectedTitle);
                     }
-                    
-                    Results = finalResults.Take(maxResults).ToList();
-                    
-                    // Debug logging
-                    if (JSRuntime != null)
+
+                    if (hasCodeLanguageFilter)
                     {
-                        await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                        filteredCommands = filteredCommands.Where(c =>
+                            !string.IsNullOrWhiteSpace(c.CodeLanguage) &&
+                            c.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Any(lang => lang.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase)));
                     }
-                }
-                else
-                {
-                    // Apply text search on filtered results based on scope
-                    if (hasSearchTerm)
+
+                    if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
                     {
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");                        }
-                        
-                        // Use appropriate search method based on scope
-                        List<TalonVoiceCommand> searchResults;
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                        }
+
+                        // Use semantic search methods which search across all fields
+                        List<TalonVoiceCommand> semanticResults;
                         switch (SelectedSearchScope)
                         {
                             case SearchScope.CommandNamesOnly:
-                                searchResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                                // Use semantic search but filter results to only show command name matches
+                                semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
                                 break;
                             case SearchScope.Script:
-                                searchResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                                // Use semantic search but filter results to show script matches
+                                semanticResults = await TalonService.SemanticSearchAsync(SearchTerm!);
                                 break;
                             case SearchScope.All:
                             default:
-                                searchResults = await TalonService.SearchAllAsync(SearchTerm!);
+                                // Use the proper semantic search method that includes list expansions
+                                semanticResults = await TalonService.SemanticSearchWithListsAsync(SearchTerm!);
                                 break;
                         }
-                        
+
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
                         }
-                        
-                        // Apply filters to search results
-                        var finalResults = searchResults.AsEnumerable();
-                        
+
+                        // Apply filters to semantic results
+                        var finalResults = semanticResults.AsEnumerable();
+
                         if (hasApplicationFilter)
                         {
                             finalResults = finalResults.Where(c => c.Application == SelectedApplication);
                         }
-                        
+
                         if (hasModeFilter)
                         {
                             finalResults = finalResults.Where(c => c.Mode == SelectedMode);
                         }
-                        
+
                         if (hasOSFilter)
                         {
                             finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
                         }
-                        
+
                         if (hasRepositoryFilter)
                         {
                             finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
                         }
-                          if (hasTagsFilter)
+                        if (hasTagsFilter)
                         {
-                            finalResults = finalResults.Where(c => 
-                                !string.IsNullOrWhiteSpace(c.Tags) && 
+                            finalResults = finalResults.Where(c =>
+                                !string.IsNullOrWhiteSpace(c.Tags) &&
                                 c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                     .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
                         }
-                        
+
                         if (hasTitleFilter)
                         {
                             finalResults = finalResults.Where(c => c.Title == SelectedTitle);
                         }
-                        
+
                         Results = finalResults.Take(maxResults).ToList();
-                        
+
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");                        }
+                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                        }
                     }
                     else
                     {
-                        Results = filteredCommands
-                            .OrderBy(c => c.Mode ?? "")
-                            .ThenBy(c => c.Application)
-                            .ThenBy(c => c.Command)
-                            .Take(maxResults)
-                            .ToList();
-                    }                }
+                        // Apply text search on filtered results based on scope
+                        if (hasSearchTerm)
+                        {
+                            // Debug logging
+                            if (JSRuntime != null)
+                            {
+                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                            }
+
+                            // Use appropriate search method based on scope
+                            List<TalonVoiceCommand> searchResults;
+                            switch (SelectedSearchScope)
+                            {
+                                case SearchScope.CommandNamesOnly:
+                                    searchResults = await TalonService.SearchCommandNamesOnlyAsync(SearchTerm!);
+                                    break;
+                                case SearchScope.Script:
+                                    searchResults = await TalonService.SearchScriptOnlyAsync(SearchTerm!);
+                                    break;
+                                case SearchScope.All:
+                                default:
+                                    searchResults = await TalonService.SearchAllAsync(SearchTerm!);
+                                    break;
+                            }
+
+                            // Debug logging
+                            if (JSRuntime != null)
+                            {
+                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                            }
+
+                            // Apply filters to search results
+                            var finalResults = searchResults.AsEnumerable();
+
+                            if (hasApplicationFilter)
+                            {
+                                finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                            }
+
+                            if (hasModeFilter)
+                            {
+                                finalResults = finalResults.Where(c => c.Mode == SelectedMode);
+                            }
+
+                            if (hasOSFilter)
+                            {
+                                finalResults = finalResults.Where(c => c.OperatingSystem == SelectedOperatingSystem);
+                            }
+
+                            if (hasRepositoryFilter)
+                            {
+                                finalResults = finalResults.Where(c => c.Repository == SelectedRepository);
+                            }
+                            if (hasTagsFilter)
+                            {
+                                finalResults = finalResults.Where(c =>
+                                    !string.IsNullOrWhiteSpace(c.Tags) &&
+                                    c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                        .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                            }
+
+                            if (hasTitleFilter)
+                            {
+                                finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                            }
+
+                            Results = finalResults.Take(maxResults).ToList();
+
+                            // Debug logging
+                            if (JSRuntime != null)
+                            {
+                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                            }
+                        }
+                        else
+                        {
+                            Results = filteredCommands
+                                .OrderBy(c => c.Mode ?? "")
+                                .ThenBy(c => c.Application)
+                                .ThenBy(c => c.Command)
+                                .Take(maxResults)
+                                .ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    Results = new List<TalonVoiceCommand>();
+                }
+
+                IsLoading = false;
+                StateHasChanged();
+
+                // Only restore focus if the search was triggered intentionally
+                // (not during debounced typing to avoid interfering with user input)
+                if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
+                {
+                    await EnsureSearchFocus();
+                }
             }
-            else
+            catch (Exception ex)
             {
+                // Log the error and show user-friendly message
+                Console.WriteLine($"Search error: {ex.Message}");
                 Results = new List<TalonVoiceCommand>();
+                HasSearched = true;
             }
-            
-            IsLoading = false;
-            StateHasChanged();
-            
-            // Only restore focus if the search was triggered intentionally
-            // (not during debounced typing to avoid interfering with user input)
-            if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
+            finally
             {
-                await EnsureSearchFocus();
+                IsLoading = false;
+                StateHasChanged();
             }
-        }
-        catch (Exception ex)
-        {
-            // Log the error and show user-friendly message
-            Console.WriteLine($"Search error: {ex.Message}");
-            Results = new List<TalonVoiceCommand>();
-            HasSearched = true;
-        }
-        finally
-        {
-            IsLoading = false;
-            StateHasChanged();
-        }
-    }        public async Task ClearFilters()
+        }        public async Task ClearFilters()
     {
             // Clear the list contents cache when clearing filters
             _listContentsCache.Clear();

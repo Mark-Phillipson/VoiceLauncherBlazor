@@ -81,3 +81,4 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 
 - Messages may contain dictation errors.
 - Interpret context and similar-sounding words as needed.
+- When returning a response always please to keep it down to a minimum brevity and summarization is the key. 
