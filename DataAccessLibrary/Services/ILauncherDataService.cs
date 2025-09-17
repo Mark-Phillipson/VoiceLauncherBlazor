@@ -8,7 +8,7 @@ namespace DataAccessLibrary.Services;
 public interface ILauncherDataService
 {
     Task<List<LauncherDTO>> GetAllLaunchersAsync(int CategoryID);
-    Task<List<LauncherDTO>> GetFavoriteLaunchersAsync();
+    Task<List<LauncherDTO>> GetFavoriteLaunchersAsync(bool forceRefresh = false);
     Task<List<LauncherDTO>> SearchLaunchersAsync(string serverSearchTerm);
     Task<LauncherDTO?> AddLauncher(LauncherDTO launcherDTO);
     Task<LauncherDTO?> GetLauncherById(int Id);

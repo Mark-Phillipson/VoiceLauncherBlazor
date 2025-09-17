@@ -1,0 +1,55 @@
+name: Publish Releases
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+            ext: .exe
+          - os: macos-latest
+            runtime: osx-x64
+            ext: ''
+          - os: ubuntu-latest
+            runtime: linux-x64
+            ext: ''
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+    - name: Restore dependencies
+      run: dotnet restore TalonVoiceCommandsServer/
+    - name: Publish
+      run: dotnet publish TalonVoiceCommandsServer/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output publish/
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: VoiceLauncherBlazor-${{ matrix.runtime }}
+        path: TalonVoiceCommandsServer/publish/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts/
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/**/*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

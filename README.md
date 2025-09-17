@@ -1,22 +1,70 @@
-# Voice Admin
+# VoiceLauncherBlazor
 
-* This repo contains a Blazor server side application which includes a To Do section and provides the functionality to maintain some speech recognition related database tables. 
+A Blazor Server application designed for voice-controlled development and accessibility, integrating with Talon Voice and Cursorless for hands-free coding. It includes a To-Do section and maintains speech recognition database tables for enhanced voice coding functionality, such as custom IntelliSense and application launching.
 
-* The tables are used in conjunction with Microsoft Azure and a C# application to provide extra functionality when coding by voice, like Custom IntelliSense that can be called upon by voice from any application.
+## Features
 
-An example screenshot of commands follows:
-![Voice Command Main Form](VoiceLauncher/wwwroot/images/VoiceCommandsScreenshot.png)
-![Action Voice Command Edit Form](VoiceLauncher/wwwroot/images/ActionVoiceCommand.png)
+- **Voice Commands Management**: Maintain database tables for speech recognition, enabling voice-triggered IntelliSense and commands in Visual Studio and VS Code.
+- **Application Launcher**: Launch applications, folders, or websites by category or voice command.
+- **Popular Commands**: Predefined voice commands for common coding tasks.
+- **To-Do Section**: Basic task management.
+- **Accessibility**: Optimized for hands-free use with Talon Voice and Cursorless.
+- **Hybrid Support**: Includes a Blazor Hybrid WinForms project for desktop integration.
 
-* Also provided by the tables is the ability to launch any application, folder or website:
+## Project Structure
 
-![Launch by Category](VoiceLauncher/wwwroot/images/LauncherCategories.png)
-![Social Links](VoiceLauncher/wwwroot/images/LauncherSocialLinks.png)
+- **TalonVoiceCommandsServer**: Main Blazor Server application.
+- **VoiceLauncher**: Startup logic and DI configuration.
+- **WinFormsApp**: Blazor Hybrid WinForms project.
+- **DataAccessLibrary**: EF Core with SQL Server for data access.
+- **TestProjectxUnit**: Unit tests using XUnit.
 
- Application also has a Popular Commands page that lists all the main commands to code with voice in Visual Studio and Visual Studio Code:
+## Technologies
 
- ![Popular Commands](VoiceLauncher/wwwroot/images/PopularCommands.png)
+- **Frontend**: Blazor Server with Bootstrap for responsive UI.
+- **Backend**: ASP.NET Core, Entity Framework Core.
+- **Database**: SQL Server (T-SQL syntax).
+- **Tools**: Talon Voice, Cursorless (VS Code extension), Visual Studio / VS Code.
+- **Testing**: XUnit.
 
- * Custom intellisense is used to insert code at a specific location. It can be called by saying a language and a category or just searching a description:
+## Development Setup
 
- ![List Of Languages](VoiceLauncher/wwwroot/images/ListOfLanguages.png)
+1. Clone the repository: `git clone https://github.com/Mark-Phillipson/VoiceLauncherBlazor`
+2. Navigate to `TalonVoiceCommandsServer/`.
+3. Restore dependencies: `dotnet restore`
+4. Build: `dotnet build --configuration Debug`
+5. Run: `dotnet run` (runs on port 5269 by default).
+
+## Publishing
+
+For deployment instructions, see [publishing.md](TalonVoiceCommandsServer/publishing.md).
+
+## Database
+
+- Uses SQL Server.
+- Migrations: Create scripts via EF Core commands (do not run `Update-Database` directly).
+- Example: `dotnet ef migrations add MigrationName`
+
+## Testing
+
+Run tests: `dotnet test` in the TestProjectxUnit directory.
+
+## Screenshots
+
+- Voice Command Main Form
+- Action Voice Command Edit Form
+- Launch by Category
+- Social Links
+- Popular Commands
+- List of Languages
+
+## Contributing
+
+- Follow component structure: Use `.razor` and `.razor.cs` files.
+- Maintain accessibility with semantic HTML and `aria-` attributes.
+- Test with Talon Voice and Cursorless.
+- Use Bootstrap for styling.
+
+## License
+
+See LICENSE file.

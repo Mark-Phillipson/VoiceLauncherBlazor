@@ -48,14 +48,14 @@ namespace RazorClassLibrary.Pages
 			await LoadData();
 		}
 
-		private async Task LoadData()
+		private async Task LoadData(bool forceRefresh = false)
 		{
 			CategoryDTO? category = null;
 			try
 			{
 				if (LauncherDataService != null)
 				{
-					var result = await LauncherDataService!.GetFavoriteLaunchersAsync();
+					var result = await LauncherDataService!.GetFavoriteLaunchersAsync(forceRefresh);
 					//var result = await LauncherDataService.SearchLaunchersAsync(ServerSearchTerm);
 					if (result != null)
 					{
@@ -275,7 +275,7 @@ namespace RazorClassLibrary.Pages
             Message = string.Empty;
 
             // Reload data directly from database
-            await LoadData();
+            await LoadData(true);
 
             // Reapply default filter
             ApplyFilter();

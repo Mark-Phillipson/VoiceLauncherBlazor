@@ -57,9 +57,9 @@ namespace DataAccessLibrary.Services
             return launcher;
         }
 
-        public async Task<List<LauncherDTO>> GetFavoriteLaunchersAsync()
+        public async Task<List<LauncherDTO>> GetFavoriteLaunchersAsync(bool forceRefresh = false)
         {
-            if (!_cache.TryGetValue(FAVORITE_LAUNCHERS_CACHE_KEY, out List<LauncherDTO>? launchers))
+            if (forceRefresh || !_cache.TryGetValue(FAVORITE_LAUNCHERS_CACHE_KEY, out List<LauncherDTO>? launchers))
             {
                 var result = await _launcherRepository.GetFavoriteLaunchersAsync();
                 launchers = result?.ToList() ?? new List<LauncherDTO>();
@@ -108,7 +108,7 @@ namespace DataAccessLibrary.Services
         private void InvalidateCache()
         {
             // Remove all launcher-related cache entries
-            var field = typeof(MemoryCache).GetField("_entries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var field = typeof(MemoryCache).GetField("launcher", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var entries = field?.GetValue(_cache) as System.Collections.IDictionary;
 
             if (entries != null)
