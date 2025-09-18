@@ -31,3 +31,5 @@ To change the port (default is 5008 as configured):
 4. The published app will use the new port.
 
 For environment-specific overrides, set `ASPNETCORE_URLS` variable before running, e.g., `ASPNETCORE_URLS=http://localhost:9090 ./TalonVoiceCommandsServer`.
+
+git tag v1.0.4 && git push origin v1.0.4

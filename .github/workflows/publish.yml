@@ -30,12 +30,27 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore TalonVoiceCommandsServer/
     - name: Publish
-      run: dotnet publish TalonVoiceCommandsServer/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output publish/
-    - name: Upload artifact
+      run: |
+        dotnet publish TalonVoiceCommandsServer/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output TalonVoiceCommandsServer/publish/${{ matrix.runtime }}
+
+    - name: Package artifact
+      shell: bash
+      run: |
+        set -eux
+        cd TalonVoiceCommandsServer/publish
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          powershell -Command "Compress-Archive -Path .\${{ matrix.runtime }}\* -DestinationPath ../../VoiceLauncherBlazor-${{ matrix.runtime }}.zip"
+        else
+          tar -czf ../../VoiceLauncherBlazor-${{ matrix.runtime }}.tar.gz ./${{ matrix.runtime }}
+        fi
+
+    - name: Upload packaged artifact
       uses: actions/upload-artifact@v4
       with:
         name: VoiceLauncherBlazor-${{ matrix.runtime }}
-        path: TalonVoiceCommandsServer/publish/
+        path: |
+          VoiceLauncherBlazor-${{ matrix.runtime }}.zip
+          VoiceLauncherBlazor-${{ matrix.runtime }}.tar.gz
 
   release:
     needs: build
