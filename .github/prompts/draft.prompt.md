@@ -1,1 +1,1 @@
-When the talon list sidebar is displayed can we move the keyboard focus to the search box automatically?
+In the talon list sidebar filter functionality does not work when I type something into the search box and press enter nothing seems to happen

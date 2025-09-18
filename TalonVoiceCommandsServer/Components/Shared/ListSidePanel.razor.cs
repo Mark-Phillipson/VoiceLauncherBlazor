@@ -9,7 +9,7 @@ using TalonVoiceCommandsServer.Models;
 
 namespace TalonVoiceCommandsServer.Components.Shared
 {
-    public partial class ListSidePanel : ComponentBase
+    public partial class ListSidePanel : ComponentBase, IDisposable
     {
         [Parameter] public bool IsOpen { get; set; }
         [Parameter] public string? SelectedListName { get; set; }
@@ -22,6 +22,7 @@ namespace TalonVoiceCommandsServer.Components.Shared
     private ElementReference filterInputRef;
     private bool _wasOpen = false;
 
+        // Live filter term: log changes and re-render immediately so we can diagnose behavior.
         private string _filterTerm = string.Empty;
         public string FilterTerm
         {
@@ -30,12 +31,15 @@ namespace TalonVoiceCommandsServer.Components.Shared
             {
                 if (_filterTerm != value)
                 {
-                    _filterTerm = value;
-                    InvokeAsync(StateHasChanged);
+                    _filterTerm = value ?? string.Empty;
+                    try { System.Console.WriteLine($"ListSidePanel: FilterTerm set to '{_filterTerm}'"); } catch { }
+                    // Ensure UI updates when the term changes (Blazor Server roundtrip)
+                    _ = InvokeAsync(StateHasChanged);
                 }
             }
         }
 
+        // FilteredValues uses FilterTerm so typing filters live.
         protected List<TalonList> FilteredValues =>
             string.IsNullOrWhiteSpace(FilterTerm) || Values == null
                 ? Values ?? new List<TalonList>()
@@ -47,6 +51,15 @@ namespace TalonVoiceCommandsServer.Components.Shared
         protected async Task Close()
         {
             if (OnClose.HasDelegate) await OnClose.InvokeAsync();
+            // Detach client-side filter when closing
+            try
+            {
+                    if (JSRuntime != null)
+                    {
+                        await JSRuntime.InvokeVoidAsync("listSideFilter.detach", "#list-side-panel", ".list-filter-input");
+                    }
+            }
+            catch { }
         }
 
         protected async Task OnCopy()
@@ -67,6 +80,33 @@ namespace TalonVoiceCommandsServer.Components.Shared
             }
         }
 
+        protected async Task OnFilterKeyDown(KeyboardEventArgs e)
+        {
+            // When Enter is pressed in the filter box, force an immediate UI update so
+            // the filtered list is recalculated and displayed. We handle key suppression
+            // in the Razor markup to prevent parent form submission.
+            if (e.Key == "Enter")
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task OnFilterKeyUp(KeyboardEventArgs e)
+        {
+            if (e.Key == "Enter")
+            {
+                // Apply current FilterTerm immediately and update UI
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        // OnFilterInput removed; debounce now handled in FilterTerm setter and _appliedFilterTerm
+
+        public void Dispose()
+        {
+            // nothing to dispose currently
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             // If the panel just opened, focus the filter input so keyboard users can type immediately
@@ -77,6 +117,35 @@ namespace TalonVoiceCommandsServer.Components.Shared
                     // small delay to allow DOM to render
                     await Task.Delay(30);
                     await filterInputRef.FocusAsync();
+                    // Attach client-side filter for instant response
+                    try
+                    {
+                        if (JSRuntime != null)
+                        {
+                            // Try to import the module (if served as module), otherwise ensure script tag exists
+                            try
+                            {
+                                // If the file exports nothing, import returns a module object; still fine
+                                await JSRuntime.InvokeAsync<object>("import", "/js/list-side-filter.js");
+                            }
+                            catch
+                            {
+                                // Fallback: inject the script tag if not available as module
+                                try
+                                {
+                                    await JSRuntime.InvokeVoidAsync("eval", "(function(){ if(!window.listSideFilter){ var s=document.createElement('script'); s.src='/js/list-side-filter.js'; document.head.appendChild(s); } })()");
+                                }
+                                catch { }
+                            }
+
+                            // Finally call attach (no-op if function not yet loaded)
+                            await JSRuntime.InvokeVoidAsync("listSideFilter.attach", "#list-side-panel", ".list-filter-input", ".table-scroll-table tbody tr");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        try { await JSRuntime.InvokeVoidAsync("console.error", "list-side-filter attach error:", ex.Message); } catch { }
+                    }
                 }
                 catch { }
             }
