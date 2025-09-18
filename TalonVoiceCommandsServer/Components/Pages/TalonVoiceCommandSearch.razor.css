@@ -388,3 +388,35 @@
     display: inline !important;
     word-break: keep-all !important;
 }
+
+/* Animated collapse for search + filters */
+.filters-collapse {
+    overflow: hidden;
+    transition: max-height 300ms ease-in-out, opacity 200ms ease-in-out, padding 200ms ease-in-out;
+    max-height: 2000px; /* large enough to contain expanded content */
+    opacity: 1;
+}
+
+.filters-collapse.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Icon rotation for toggle button */
+.filters-toggle-icon {
+    transition: transform 250ms ease-in-out;
+    transform-origin: 50% 50%;
+}
+
+.filters-toggle-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+/* Small visual tweak so the toggle aligns with header */
+@media (min-width: 768px) {
+    .filters-collapse {
+        padding-right: 0.25rem;
+    }
+}

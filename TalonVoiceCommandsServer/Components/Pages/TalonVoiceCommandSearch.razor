@@ -86,285 +86,304 @@ else
              aria-labelledby="search-tab" 
              tabindex="0">
             
-            <!-- Search Bar and Semantic Toggle -->
-            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
-                <form class="d-flex flex-grow-1 gap-3 align-items-end" @onsubmit="OnSearch" @onsubmit:preventDefault="true" style="min-width:0;">
-                    <div class="d-flex flex-column flex-grow-1" style="min-width:180px;">
-                        <label for="searchTerm" class="form-label">Search Term</label>
-                        <input @ref="searchInput" id="searchTerm" class="form-control w-100" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
-                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
-                    </div>
-                    <div class="d-flex flex-column flex-grow-1" style="min-width:150px;">
-                        <label for="searchScope" class="form-label">Scope</label>
-                        <select id="searchScope" class="form-select search-scope-select w-100" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
-                            <option value="@SearchScope.CommandNamesOnly">Names Only</option>
-                            <option value="@SearchScope.Script">Search Script</option>
-                            <option value="@SearchScope.All">Search All</option>
-                        </select>
-                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
-                    </div>
-                    <div class="d-flex flex-column align-items-center justify-content-end" style="min-width:110px;">
-                        <label class="form-label d-none d-md-block">&nbsp;</label>
-                        <div class="d-flex align-items-center w-100 flex-wrap">
-                            <div class="d-flex flex-column align-items-center">
-                                <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
-                                    @if (IsLoading)
-                                    {
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    }
-                                    else
-                                    {
-                                        <span> Search</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                                        </svg>
-                                    }
-                                </button>
-                                <!-- Alt+H label centered directly under the search button -->
-                                <small class="form-text text-muted mt-1 text-center">Alt+H</small>
-                            </div>
+            <!-- Search Bar / Filters wrapper with persistent toggle -->
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div class="flex-grow-1">
+                    <!-- Animated collapse container: toggles collapsed class based on IsFiltersCollapsed -->
+                    <div id="searchFiltersSection" class="filters-collapse @(IsFiltersCollapsed ? "collapsed" : "expanded")" aria-hidden="@(IsFiltersCollapsed.ToString().ToLower())">
+                        <!-- Search Bar and Semantic Toggle -->
+                        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+                            <form class="d-flex flex-grow-1 gap-3 align-items-end" @onsubmit="OnSearch" @onsubmit:preventDefault="true" style="min-width:0;">
+                                <div class="d-flex flex-column flex-grow-1" style="min-width:180px;">
+                                    <label for="searchTerm" class="form-label">Search Term</label>
+                                    <input @ref="searchInput" id="searchTerm" class="form-control w-100" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                                    <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
+                                </div>
+                                <div class="d-flex flex-column flex-grow-1" style="min-width:150px;">
+                                    <label for="searchScope" class="form-label">Scope</label>
+                                    <select id="searchScope" class="form-select search-scope-select w-100" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                                        <option value="@SearchScope.CommandNamesOnly">Names Only</option>
+                                        <option value="@SearchScope.Script">Search Script</option>
+                                        <option value="@SearchScope.All">Search All</option>
+                                    </select>
+                                    <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-end" style="min-width:110px;">
+                                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                                    <div class="d-flex align-items-center w-100 flex-wrap">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                                                @if (IsLoading)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                }
+                                                else
+                                                {
+                                                    <span> Search</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                                    </svg>
+                                                }
+                                            </button>
+                                            <!-- Alt+H label centered directly under the search button -->
+                                            <small class="form-text text-muted mt-1 text-center">Alt+H</small>
+                                        </div>
 
-                            <!-- Inline switches placed next to the button on larger screens; will wrap on small screens -->
-                            <div class="d-flex align-items-center gap-2 ms-2 flex-wrap">
-                                <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
-                                    <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
+                                        <!-- Inline switches placed next to the button on larger screens; will wrap on small screens -->
+                                        <div class="d-flex align-items-center gap-2 ms-2 flex-wrap">
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                                                <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
+                                                <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    
+
                                 </div>
-                                <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
-                                    <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
-                                </div>
-                            </div>
+                            </form>
+                            
                         </div>
 
-                        
-                    </div>
-                </form>
-                
-            </div>
-
-    <!-- Focus Mode Alert -->
-    @if (IsInFocusMode())
-    {
-        <div class="alert alert-info mb-3" role="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
-                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-            </svg>
-            <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
-        </div>
-    }
-
-    <!-- Filter Form -->
-    <form class="mb-3">
-        <div class="row mb-2">
-            <div class="col-md-3">
-                <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">🖥️</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedApplication))
-                        {
-                            <span>All Applications</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedApplication</span>
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-mode" @onclick="ShowModeModal" disabled="@IsLoading" accesskey="m" title="Filter by Mode">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">⚙️</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedMode))
-                        {
-                            <span>All Modes</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedMode</span>
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-tags" @onclick="ShowTagsModal" disabled="@IsLoading" accesskey="t" title="Filter by Tags">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
-                                <path d="M2 2a1 1 0 0 0-1 1v3.586a1 1 0 0 0 .293.707l6 6a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-6-6A1 1 0 0 0 2 2z"/>
-                                <path d="M7.5 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                            </svg>
-                        </span>
-                        @if (string.IsNullOrWhiteSpace(SelectedTags))
-                        {
-                            <span>All Tags</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedTags</span>
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-os" @onclick="ShowOSModal" disabled="@IsLoading" accesskey="o" title="Filter by Operating System">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">💽</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedOperatingSystem))
-                        {
-                            <span>All Operating Systems</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedOperatingSystem</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-2">
-            <div class="col-md-3">
-                <label class="form-label small label-repository">Filter by <span class="underline-repository">R</span>epository:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-repository" @onclick="ShowRepositoryModal" disabled="@IsLoading" accesskey="r" title="Filter by Repository">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">📁</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedRepository))
-                        {
-                            <span>All Repositories</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedRepository</span>
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small label-title">Filter by T<span class="underline-title">i</span>tle:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-title" @onclick="ShowTitleModal" disabled="@IsLoading" accesskey="i" title="Filter by Title">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">🔖</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedTitle))
-                        {
-                            @if (AvailableTitles?.Any() == true)
-                            {
-                                <span>All Titles</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">All Titles (No data imported)</span>
-                            }
-                        }
-                        else
-                        {
-                            <span>@SelectedTitle</span>
-                        }
-                    </button>
-                    <!-- Backwards-compatible hidden select used by tests and some tools -->
-                    <select class="form-select form-select-sm filter-title visually-hidden" @onchange="OnTitleFilterChange" aria-label="Filter by Title" accesskey="i">
-                        <option value="">All Titles</option>
-                        @foreach (var t in AvailableTitles ?? new List<string>())
-                        {
-                            <option value="@t">@t</option>
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label small label-code-language">Filter by C<u>o</u>de Language:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="o" title="Filter by Code Language">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
-                        {
-                            <span>All Code Languages</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedCodeLanguage</span>
-                        }
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-md-3 d-flex align-items-end">
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="l">
-                        @if (IsLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span>Clearing...</span>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-2" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
-                            </svg>
-                            <span>C<u>l</u>ear Filters</span>
-                        }
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading">
-                        @if (IsLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span>Refreshing...</span>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise me-2" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                            </svg>
-                            <span>Refresh Filters</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-2">
-            <div class="col-12 d-flex justify-content-end">
-                @if (HasAnyResults())
-                {
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-info fs-6">
-                            @if (IsInFocusMode())
-                            {
-                                <text>Focused on 1 result</text>
-                            }
-                            else
-                            {
-                                var count = GetEffectiveResultCount();
-                                <text>@count @(count == 1 ? "result" : "results") found</text>
-                            }
-                        </span>
+                        <!-- Focus Mode Alert -->
                         @if (IsInFocusMode())
                         {
-                            <button class="btn btn-outline-secondary btn-sm" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                            <div class="alert alert-info mb-3" role="alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
                                 </svg>
-                                E<u>x</u>it Focus
-                            </button>
+                                <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
+                            </div>
                         }
+
+                        <!-- Filter Form -->
+                        <form class="mb-3">
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">🖥️</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedApplication))
+                                            {
+                                                <span>All Applications</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedApplication</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-mode" @onclick="ShowModeModal" disabled="@IsLoading" accesskey="m" title="Filter by Mode">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">⚙️</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedMode))
+                                            {
+                                                <span>All Modes</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedMode</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-tags" @onclick="ShowTagsModal" disabled="@IsLoading" accesskey="t" title="Filter by Tags">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+                                                    <path d="M2 2a1 1 0 0 0-1 1v3.586a1 1 0 0 0 .293.707l6 6a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-6-6A1 1 0 0 0 2 2z"/>
+                                                    <path d="M7.5 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                                </svg>
+                                            </span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedTags))
+                                            {
+                                                <span>All Tags</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedTags</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-os" @onclick="ShowOSModal" disabled="@IsLoading" accesskey="o" title="Filter by Operating System">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">💽</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedOperatingSystem))
+                                            {
+                                                <span>All Operating Systems</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedOperatingSystem</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <label class="form-label small label-repository">Filter by <span class="underline-repository">R</span>epository:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-repository" @onclick="ShowRepositoryModal" disabled="@IsLoading" accesskey="r" title="Filter by Repository">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">📁</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedRepository))
+                                            {
+                                                <span>All Repositories</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedRepository</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small label-title">Filter by T<span class="underline-title">i</span>tle:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-title" @onclick="ShowTitleModal" disabled="@IsLoading" accesskey="i" title="Filter by Title">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">🔖</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedTitle))
+                                            {
+                                                @if (AvailableTitles?.Any() == true)
+                                                {
+                                                    <span>All Titles</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">All Titles (No data imported)</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedTitle</span>
+                                            }
+                                        </button>
+                                        <!-- Backwards-compatible hidden select used by tests and some tools -->
+                                        <select class="form-select form-select-sm filter-title visually-hidden" @onchange="OnTitleFilterChange" aria-label="Filter by Title" accesskey="i">
+                                            <option value="">All Titles</option>
+                                            @foreach (var t in AvailableTitles ?? new List<string>())
+                                            {
+                                                <option value="@t">@t</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small label-code-language">Filter by C<u>o</u>de Language:</label>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="o" title="Filter by Code Language">
+                                            <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
+                                            @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
+                                            {
+                                                <span>All Code Languages</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@SelectedCodeLanguage</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="l">
+                                            @if (IsLoading)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                <span>Clearing...</span>
+                                            }
+                                            else
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-2" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                    <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
+                                                </svg>
+                                                <span>C<u>l</u>ear Filters</span>
+                                            }
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading">
+                                            @if (IsLoading)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                <span>Refreshing...</span>
+                                            }
+                                            else
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise me-2" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                                                </svg>
+                                                <span>Refresh Filters</span>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-12 d-flex justify-content-end">
+                                    @if (HasAnyResults())
+                                    {
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-info fs-6">
+                                                @if (IsInFocusMode())
+                                                {
+                                                    <text>Focused on 1 result</text>
+                                                }
+                                                else
+                                                {
+                                                    var count = GetEffectiveResultCount();
+                                                    <text>@count @(count == 1 ? "result" : "results") found</text>
+                                                }
+                                            </span>
+                                            @if (IsInFocusMode())
+                                            {
+                                                <button class="btn btn-outline-secondary btn-sm" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                                    </svg>
+                                                    E<u>x</u>it Focus
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                }
+                </div>
+
+                <!-- Toggle button always visible to collapse/expand the search+filters area -->
+                <div class="ms-2 d-flex align-items-start">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleFiltersCollapse" aria-expanded="@( (!IsFiltersCollapsed).ToString().ToLower() )" aria-controls="searchFiltersSection" title="Toggle Search & Filters">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="filters-toggle-icon @(IsFiltersCollapsed ? "collapsed" : "")" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                            <!-- Chevron-down (rotates left when collapsed via CSS) -->
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
-    </form>
 
             <!-- Search Results Section (only shown in Search tab) -->
             <div>

@@ -33,6 +33,16 @@ protected SelectionModal? _selectionModal;
 private IJSObjectReference? _selectionModule;
 private bool _selectionModuleLoaded = false;
 
+    // Controls whether the search/filters region is collapsed to give more room to results
+    public bool IsFiltersCollapsed { get; set; } = false;
+
+    public void ToggleFiltersCollapse()
+    {
+        IsFiltersCollapsed = !IsFiltersCollapsed;
+        // Ensure UI updates
+        InvokeAsync(StateHasChanged);
+    }
+
 // Helper to convert string lists to SelectionItem
     private List<SelectionItem> ToSelectionItems(List<string>? items, string? defaultColor = "")
     {

@@ -1,5 +1,1 @@
-Can we now move the label ALt+H to be below the search button, centered directly underneath the button?
-
-Can you roll back the last change because that has missed stuff up?
-
-
+ now can we create a collapsible region from the search term label to the refresh filter's button so that when we have a lot of search results we can optionally collapse this part of the UI to give more room to the results?
