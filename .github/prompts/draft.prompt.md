@@ -1,2 +1,1 @@
- we have a bug in that when we do a search it is showing everything with four cards by default but the show four cards checkbox is false I think it's because depending on the number of results it'll show four cards or not so can we make sure the show four cards checkbox is updated as well when calculating whether to show them or not?
- 
+Currently when we type in a value nothing shows in the list

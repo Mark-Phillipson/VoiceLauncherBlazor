@@ -413,6 +413,25 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private List<TalonList> _selectedPanelValues = new();
     private bool _isListPanelLoading = false;
 
+    // Lists tab state
+    private List<string> _allListNames = new();
+    private string _listFilterTerm = string.Empty;
+    public string ListFilterTerm
+    {
+        get => _listFilterTerm;
+        set
+        {
+            if (_listFilterTerm != value)
+            {
+                _listFilterTerm = value;
+                // ensure UI updates immediately while typing
+                InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+    private bool _isListsLoading = false;
+    private string? _highlightedListName = null;
+
     // For focused card functionality
     private TalonVoiceCommand? _focusedCommand = null;
     private bool _isFocusMode = false;
@@ -422,7 +441,8 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     {
         SearchCommands,
         ImportScripts,
-        AnalysisReport
+        AnalysisReport,
+        Lists
     }
     
     public TabType ActiveTab { get; set; } = TabType.SearchCommands;
@@ -1950,6 +1970,128 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         return GetListsUsedInCommand(command).Any();
     }
 
+    /// <summary>
+    /// Loads all distinct list names available in IndexedDB/local cache.
+    /// Uses JSRuntime to call TalonStorageDB.loadLists when available for performance.
+    /// Falls back to deriving list names from cached commands or list cache.
+    /// </summary>
+    public async Task LoadAllListNamesAsync()
+    {
+        if (_allListNames != null && _allListNames.Count > 0) return;
+        _isListsLoading = true;
+        _allListNames = new List<string>();
+        try
+        {
+            // Prefer JS IndexedDB loader for large datasets
+            if (JSRuntime != null)
+            {
+                try
+                {
+                    // Try the aggregated breakdown first (fast)
+                    var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                    var breakdown = await JSRuntime.InvokeAsync<System.Text.Json.JsonElement>("TalonStorageDB.getListsBreakdown", cts.Token);
+                    if (breakdown.ValueKind == System.Text.Json.JsonValueKind.Object && breakdown.TryGetProperty("perList", out var perList) && perList.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var el in perList.EnumerateArray())
+                        {
+                            if (el.ValueKind != System.Text.Json.JsonValueKind.Object) continue;
+                            if (el.TryGetProperty("listName", out var ln) && ln.ValueKind == System.Text.Json.JsonValueKind.String)
+                            {
+                                var name = ln.GetString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
+                            }
+                            else if (el.TryGetProperty("listName", out var ln2) && ln2.ValueKind == System.Text.Json.JsonValueKind.String)
+                            {
+                                var name = ln2.GetString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
+                            }
+                        }
+                        _allListNames = names.OrderBy(n => n).ToList();
+                    }
+                    else
+                    {
+                        // Fallback: load all records if breakdown isn't available
+                        var items = await JSRuntime.InvokeAsync<System.Text.Json.JsonElement>("TalonStorageDB.loadLists", cts.Token);
+                        if (items.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        {
+                            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            foreach (var el in items.EnumerateArray())
+                            {
+                                string name = string.Empty;
+                                if (el.TryGetProperty("ListName", out var p1) && p1.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    name = p1.GetString() ?? string.Empty;
+                                else if (el.TryGetProperty("listName", out var p2) && p2.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    name = p2.GetString() ?? string.Empty;
+                                else if (el.TryGetProperty("List", out var p3) && p3.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    name = p3.GetString() ?? string.Empty;
+
+                                if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
+                            }
+                            _allListNames = names.OrderBy(n => n).ToList();
+                        }
+                    }
+                }
+                catch (Exception jsEx)
+                {
+                    Console.WriteLine($"LoadAllListNamesAsync: JS load failed: {jsEx.Message}");
+                }
+            }
+
+            // Fallback: derive from cached list contents
+            if ((_allListNames == null || _allListNames.Count == 0) && _listContentsCache != null && _listContentsCache.Any())
+            {
+                _allListNames = _listContentsCache.Keys.OrderBy(k => k).ToList();
+            }
+
+            // Final fallback: derive from cached commands by scanning for list usages
+            if ((_allListNames == null || _allListNames.Count == 0) && _allCommandsCache != null)
+            {
+                var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var cmd in _allCommandsCache)
+                {
+                    var used = GetListsUsedInCommand(cmd.Command);
+                    foreach (var n in used) names.Add(n);
+                }
+                _allListNames = names.OrderBy(n => n).ToList();
+            }
+
+            // Ensure non-null
+            if (_allListNames == null) _allListNames = new List<string>();
+            Console.WriteLine($"LoadAllListNamesAsync: Loaded {_allListNames?.Count ?? 0} list names (sample: {string.Join(", ", (_allListNames ?? new List<string>()).Take(10))})");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoadAllListNamesAsync error: {ex.Message}");
+            _allListNames = new List<string>();
+        }
+        finally
+        {
+            _isListsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected IEnumerable<string> FilteredListNames =>
+        string.IsNullOrWhiteSpace(_listFilterTerm)
+            ? (_allListNames ?? new List<string>())
+            : (_allListNames ?? new List<string>()).Where(n => n != null && n.IndexOf(_listFilterTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+
+    public async Task OnListClickedAsync(string listName)
+    {
+        if (string.IsNullOrWhiteSpace(listName)) return;
+        _highlightedListName = listName;
+        await OpenListInSidePanel(listName);
+    }
+
+    // Helper used by the UI to show a small item count badge when available
+    public string GetListItemCount(string listName)
+    {
+        if (string.IsNullOrWhiteSpace(listName)) return "-";
+        if (_listContentsCache.TryGetValue(listName, out var items)) return items?.Count.ToString() ?? "0";
+        return "-";
+    }
+
     public bool CommandContainsCaptures(string command)
     {
         return GetCapturesUsedInCommand(command).Any();
@@ -2283,6 +2425,11 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     public void SwitchTab(TabType tab)
     {
         ActiveTab = tab;
+        // If switching to Lists tab, load list names asynchronously
+        if (tab == TabType.Lists)
+        {
+            _ = LoadAllListNamesAsync();
+        }
         StateHasChanged();
     }
     
@@ -2305,6 +2452,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 case "3":
                     SwitchTab(TabType.AnalysisReport);
                     break;
+                    case "4":
+                        SwitchTab(TabType.Lists);
+                        break;
             }
         }
         

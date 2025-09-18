@@ -72,6 +72,18 @@ else
                             <i class="oi oi-bar-chart me-1"></i> <u>3</u>. Analysis Report
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(ActiveTab == TabType.Lists ? "active" : "")"
+                                id="lists-tab"
+                                type="button"
+                                role="tab"
+                                aria-controls="lists"
+                                aria-selected="@(ActiveTab == TabType.Lists ? "true" : "false")"
+                                @onclick="() => SwitchTab(TabType.Lists)"
+                                accesskey="4">
+                            <i class="oi oi-list-rich me-1"></i> <u>4</u>. Lists
+                        </button>
+                    </li>
                 </ul>
             </div>
         }
@@ -675,6 +687,51 @@ else
             
         </div>
         <!-- End of Import Scripts Tab -->
+
+        <!-- Lists Tab -->
+        <div class="tab-pane fade @(ActiveTab == TabType.Lists ? "show active" : "")"
+             id="lists"
+             role="tabpanel"
+             aria-labelledby="lists-tab"
+             tabindex="0">
+
+            <div class="mb-3">
+                <h3><i class="oi oi-list-rich me-2"></i>All Talon Lists</h3>
+                <p class="text-muted">Browse and open Talon list values in the side panel.</p>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control" placeholder="Search lists..." @bind="ListFilterTerm" @bind:event="oninput" aria-label="Filter lists" />
+            </div>
+
+            @if (_isListsLoading)
+            {
+                <div class="d-flex justify-content-center align-items-center" style="height:120px">
+                    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                </div>
+            }
+            else if ((_allListNames == null || !_allListNames.Any()) && !_isListsLoading)
+            {
+                <div class="alert alert-secondary" role="status">No lists available. Import Talon data or check IndexedDB.</div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var name in FilteredListNames)
+                    {
+                        var activeClass = (_highlightedListName != null && string.Equals(_highlightedListName, name, StringComparison.OrdinalIgnoreCase)) ? "active" : "";
+                        <button class="list-group-item list-group-item-action @activeClass" @onclick="() => OnListClickedAsync(name)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-2 text-truncate">@name</div>
+                                <small class="text-muted">@(_listContentsCache.ContainsKey(name) ? _listContentsCache[name].Count.ToString() : "-")</small>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+
+        </div>
+        <!-- End of Lists Tab -->
 
         <!-- Analysis Report Tab -->
         <div class="tab-pane fade @(ActiveTab == TabType.AnalysisReport ? "show active" : "")" 
