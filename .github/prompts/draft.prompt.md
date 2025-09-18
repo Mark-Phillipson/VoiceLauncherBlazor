@@ -1,1 +1,2 @@
-Currently when we type in a value nothing shows in the list
+ when the talon lists page opens can we make sure the keyboard focus goes into the search box?
+ 

@@ -24,19 +24,40 @@
   background: var(--bs-offcanvas-bg, var(--bs-body-bg, #f8f9fa));
   color: var(--bs-body-color, #212529);
   border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,0.08));
-  /* header must not scroll — ensure no overflow and hide any tiny native scrollbar */
-  overflow: hidden;
+  /* allow header to grow vertically when title wraps; stack title and buttons */
+  overflow: visible;
   flex: 0 0 auto;
-  height: 48px; /* fixed header height to avoid tiny scroll area */
   display: flex;
-  align-items: center;
-  padding-left: 12px; padding-right: 12px;
-  /* hide any native scrollbar visuals for header */
-  -ms-overflow-style: none; /* IE/Edge */
+  flex-direction: column; /* title on first line, buttons below */
+  align-items: stretch;
+  gap: 0.25rem;
+  padding-left: 12px; padding-right: 12px; padding-top: 8px; padding-bottom: 8px;
+  min-height: 48px;
+  /* ensure the header can shrink within a flex parent */
+  min-width: 0;
 }
 
 /* prevent native webkit scrollbar on header (best-effort) */
 #list-side-panel .panel-header::-webkit-scrollbar { width: 0; height: 0; }
+
+/* Keep the title compact and ellipsize very long list names so the panel body keeps usable space */
+.list-side-panel .panel-header .list-panel-title {
+  /* allow the title to wrap onto its own line when long; keep readable spacing */
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  margin: 0;
+  padding-right: 0.25rem;
+  font-weight: 600;
+}
+
+/* Buttons are aligned to the right on their own line */
+.list-side-panel .panel-header > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+}
 
 .panel-body {
   /* Let the values-container manage overflow; fill remaining height below header */

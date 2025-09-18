@@ -5,12 +5,33 @@ const TalonStorageDB = {
     dbName: 'TalonVoiceCommandsV2', // Changed database name to force fresh creation
     version: 1, // Reset to version 1 for new database
     db: null,
+    _initializing: false,
+    _initialized: false,
 
-    // Initialize IndexedDB
+    // Initialize IndexedDB (idempotent)
     async init() {
+        // Prevent double-initialization from multiple parallel calls
+        if (this._initialized) {
+            console.log('TalonStorageDB: Already initialized');
+            return this.db;
+        }
+        if (this._initializing) {
+            // Wait until current initialization finishes
+            return new Promise((resolve, reject) => {
+                const waitForInit = () => {
+                    if (this._initialized) return resolve(this.db);
+                    if (!this._initializing) return reject(new Error('TalonStorageDB: initialization failed'));
+                    setTimeout(waitForInit, 50);
+                };
+                waitForInit();
+            });
+        }
+
+        this._initializing = true;
+
         return new Promise((resolve, reject) => {
             console.log('TalonStorageDB: Initializing IndexedDB...');
-            
+
             const request = indexedDB.open(this.dbName, this.version);
             
             request.onerror = () => {
@@ -382,6 +403,110 @@ const TalonStorageDB = {
         } catch (error) {
             console.error('TalonStorageDB: Error in getListsBreakdown:', error);
             return { listCount: 0, totalItems: 0, perList: [] };
+        }
+    },
+
+    // Get all items for a specific list name using the listName index for speed
+    async getListItems(listName) {
+        try {
+            if (!listName) return [];
+            const db = await this.ensureDB();
+            const tx = db.transaction(['lists'], 'readonly');
+            const store = tx.objectStore('lists');
+
+            // Prefer using the index for fast lookup
+            if (store.indexNames && store.indexNames.contains('listName')) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const idx = store.index('listName');
+                        const req = idx.getAll(listName);
+                        req.onsuccess = () => resolve(req.result || []);
+                        req.onerror = () => reject(req.error);
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            }
+
+            // Fallback: scan cursor and filter
+            return new Promise((resolve, reject) => {
+                const results = [];
+                const req = store.openCursor();
+                req.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const rec = cursor.value;
+                        const rn = rec.ListName || rec.listName || rec.List || rec.list || '';
+                        if (rn === listName) results.push(rec);
+                        cursor.continue();
+                    } else {
+                        resolve(results);
+                    }
+                };
+                req.onerror = () => reject(req.error);
+            });
+        } catch (error) {
+            console.error('TalonStorageDB: getListItems error:', error);
+            return [];
+        }
+    },
+    // Fast helper: return JSON string of list items to avoid double marshalling
+    async getListItemsJson(listName) {
+        try {
+            const items = await this.getListItems(listName);
+            return JSON.stringify(items || []);
+        } catch (err) {
+            console.error('TalonStorageDB: getListItemsJson error:', err);
+            return '[]';
+        }
+    },
+
+    // Fast helper that applies client-side fixes/normalization to list items
+    // before returning JSON. This mirrors the search direct-JS approach where
+    // the client prepares corrected data for immediate rendering on the server.
+    async getListItemsJsonWithFixes(listName) {
+        try {
+            const rawItems = await this.getListItems(listName);
+            if (!rawItems || !Array.isArray(rawItems)) return '[]';
+
+            const fixed = rawItems.map((rec) => {
+                // Normalize property names and types
+                const listNameValue = rec.ListName || rec.listName || rec.List || rec.list || listName || '';
+
+                // Prefer ListValue -> listValue
+                let value = rec.ListValue || rec.listValue || rec.Value || rec.value || '';
+                if (typeof value !== 'string') value = String(value || '');
+                value = value.trim();
+
+                // SpokenForm normalization: fall back to value if missing
+                let spoken = rec.SpokenForm || rec.spokenForm || rec.Spoken || rec.spoken || '';
+                if (typeof spoken !== 'string') spoken = String(spoken || '');
+                spoken = spoken.trim();
+                if (!spoken && value) spoken = value;
+
+                // Keep source metadata when available
+                const meta = {};
+                if (rec.FilePath) meta.file = rec.FilePath;
+                if (rec.LineNumber) meta.line = rec.LineNumber;
+
+                return {
+                    ListName: listNameValue,
+                    ListValue: value,
+                    SpokenForm: spoken,
+                    // Preserve any other fields the UI/code might expect
+                    // but avoid deep-cloning everything to keep payload small
+                    Original: rec,
+                    _meta: meta
+                };
+            })
+            // Filter out empty values which are not useful to display
+            .filter(i => i.ListValue && i.ListValue.length > 0);
+
+            return JSON.stringify(fixed || []);
+        } catch (err) {
+            console.error('TalonStorageDB: getListItemsJsonWithFixes error:', err);
+            // Fallback to the simple JSON helper
+            return await this.getListItemsJson(listName);
         }
     },
 
@@ -1132,10 +1257,69 @@ const TalonStorageDB = {
     },
 
     // Render the list side-panel directly on the client when server-side panel is empty
-    // renderPanelClientSide(listName, items) {
-    //     // Disabled: Blazor now handles all rendering. This JS function is not needed.
-    //     return false;
-    // },
+    renderPanelClientSide(listName, items) {
+        try {
+            if (!listName) return false;
+            const panel = document.querySelector('[role="dialog"][aria-label="List values panel"]');
+            if (!panel) return false;
+
+            // Ensure panel is open (matches Blazor CSS expectations)
+            panel.classList.add('open');
+
+            // Set the title
+            const titleEl = panel.querySelector('.list-panel-title');
+            if (titleEl) titleEl.textContent = listName;
+
+            // Find tbody and populate rows. If table structure differs, create the table.
+            let tbody = panel.querySelector('table tbody');
+            const panelBody = panel.querySelector('.list-panel-body') || panel;
+            if (!tbody) {
+                try {
+                    // Create table with header and tbody
+                    const table = document.createElement('table');
+                    table.className = 'table table-sm table-borderless mb-0';
+                    table.setAttribute('role', 'presentation');
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = '<tr><th>Spoken Form</th><th>Value</th></tr>';
+                    tbody = document.createElement('tbody');
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    // Insert at top of panel body so filter input remains visible below header
+                    panelBody.appendChild(table);
+                } catch (e) {
+                    console.error('TalonStorageDB: Failed to create table for panel rendering', e);
+                    return false;
+                }
+            }
+
+            // Build inner HTML rows
+            const esc = (t) => this.escapeHtml(t);
+            let html = '';
+            for (const it of items) {
+                const spoken = esc(it.SpokenForm || it.spokenForm || '');
+                const value = esc(it.ListValue || it.listValue || it.value || '');
+                html += `<tr><td class="font-monospace">${spoken}</td><td class="font-monospace">${value}</td></tr>`;
+            }
+            tbody.innerHTML = html;
+
+            // Ensure the filter input is shown and cleared
+            const filter = panel.querySelector('input[placeholder="Filter items..."]');
+            if (filter) filter.value = '';
+
+            // Ensure the panel body scroll is reset to top and hide spinner
+            if (panelBody) panelBody.scrollTop = 0;
+            try {
+                const spinner = panel.querySelector('.list-panel-spinner');
+                if (spinner) spinner.style.display = 'none';
+            } catch (e) { /* ignore */ }
+
+            console.log(`TalonStorageDB: renderPanelClientSide populated ${items.length} rows for '${listName}'`);
+            return true;
+        } catch (e) {
+            console.error('TalonStorageDB: renderPanelClientSide error', e);
+            return false;
+        }
+    },
 
     // Extract filename from full path
     extractFilename(filePath) {
@@ -1253,6 +1437,42 @@ const TalonStorageDB = {
     // Blazor component instance method OpenListInSidePanel(listName).
     async onListButtonClick(listName) {
         try {
+            // Quick client-side immediate render: try to find items locally and render
+            // them instantly so the user doesn't see a spinner while server operations
+            // or IndexedDB lookups complete. We still call the server afterward.
+            try {
+                const allItemsImmediate = await this.loadLists();
+                const immediateItems = this.findItemsForList(allItemsImmediate, listName);
+                if (immediateItems && immediateItems.length > 0) {
+                    try {
+                        const rendered = this.renderPanelClientSide(listName, immediateItems);
+                        if (rendered) {
+                            console.log(`TalonStorageDB: Immediately rendered ${immediateItems.length} items client-side for '${listName}'`);
+                        }
+                        // Inform the server about the client-provided items so Blazor can update
+                        // its loading state and cache. Do this in background so UI is instant.
+                        try {
+                            // Ensure server knows a request was made so it sets _lastRequestedPanelListName
+                            if (this._dotNetRef && this._dotNetRef.invokeMethodAsync) {
+                                this._dotNetRef.invokeMethodAsync('OpenListInSidePanel', listName)
+                                    .then(() => this._dotNetRef.invokeMethodAsync('OpenListInSidePanelWithClientData', listName, JSON.stringify(immediateItems)))
+                                    .then(() => console.log('TalonStorageDB: OpenListInSidePanel + WithClientData invoked (background)'))
+                                    .catch(e => console.debug('TalonStorageDB: OpenListInSidePanel sequence failed', e));
+                            } else if (window.DotNet && window.DotNet.invokeMethodAsync) {
+                                window.DotNet.invokeMethodAsync('TalonVoiceCommandsServer', 'OpenListInSidePanel', listName)
+                                    .then(() => window.DotNet.invokeMethodAsync('TalonVoiceCommandsServer', 'OpenListInSidePanelWithClientData', listName, JSON.stringify(immediateItems)))
+                                    .then(() => console.log('TalonStorageDB: static OpenListInSidePanel sequence invoked'))
+                                    .catch(e => console.debug('TalonStorageDB: static OpenListInSidePanel sequence failed', e));
+                            }
+                        } catch (e) {
+                            console.debug('TalonStorageDB: background server notify failed', e);
+                        }
+                    } catch (e) { console.debug('TalonStorageDB: immediate client render failed', e); }
+                }
+            } catch (e) {
+                console.debug('TalonStorageDB: immediate client-side lookup failed', e);
+            }
+
             // Prefer invoking the instance method on the Blazor page if available
             if (this._dotNetRef && this._dotNetRef.invokeMethodAsync) {
                 try {
@@ -1269,9 +1489,14 @@ const TalonStorageDB = {
                             if (items && items.length > 0) {
                                 // Immediately render on the client so the user sees values even if server-side fails.
                                 try {
-                                    // const rendered = this.renderPanelClientSide(listName, items);
-                                    if (rendered) {
-                                        console.log('TalonStorageDB: Rendered panel client-side as immediate fallback');
+                                    // Try to render immediately on the client so the user sees values even if server-side fails.
+                                    try {
+                                        const rendered = this.renderPanelClientSide(listName, items);
+                                        if (rendered) {
+                                            console.log('TalonStorageDB: Rendered panel client-side as immediate fallback');
+                                        }
+                                    } catch (e) {
+                                        console.error('TalonStorageDB: renderPanelClientSide threw', e);
                                     }
                                 } catch (e) {
                                     console.error('TalonStorageDB: client-side render fallback failed', e);
@@ -1318,7 +1543,7 @@ const TalonStorageDB = {
                 const allItems = await this.loadLists();
                 const items = this.findItemsForList(allItems, listName);
                 if (items && items.length > 0) {
-                    // this.renderPanelClientSide(listName, items);
+                    try { this.renderPanelClientSide(listName, items); } catch(e) { console.error('renderPanelClientSide error', e); }
                     return;
                 }
             } catch (e) {

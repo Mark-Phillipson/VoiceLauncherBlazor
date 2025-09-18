@@ -1,0 +1,8 @@
+{
+  "name": "Voice Launcher",
+  "short_name": "VoiceLauncher",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Talon voice command browser and editor"
+}

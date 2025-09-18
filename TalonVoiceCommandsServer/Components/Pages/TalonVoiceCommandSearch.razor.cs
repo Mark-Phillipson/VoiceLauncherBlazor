@@ -412,6 +412,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     private string? _selectedPanelListName = null;
     private List<TalonList> _selectedPanelValues = new();
     private bool _isListPanelLoading = false;
+    // Tracks the most recently requested list for the side-panel so older/background
+    // loads don't overwrite a newer user's click (prevents stale content showing).
+    private string? _lastRequestedPanelListName = null;
 
     // Lists tab state
     private List<string> _allListNames = new();
@@ -849,6 +852,16 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
                 await OnSearch();
                 StateHasChanged(); // Force UI update after search
             }
+
+            // If the Lists tab is active on first render, focus its search box for keyboard users
+            try
+            {
+                if (ActiveTab == TabType.Lists && JSRuntime != null)
+                {
+                    await JSRuntime.InvokeVoidAsync("eval", "(function(){const el=document.querySelector('input[placeholder=\\\"Search lists...\\\"]'); if(el){el.focus(); el.select();}})()");
+                }
+            }
+            catch { }
             // Register DotNet reference so client JS can invoke instance methods
             try
             {
@@ -1878,6 +1891,9 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     public async Task OpenListInSidePanel(string listName)
     {
         if (string.IsNullOrWhiteSpace(listName)) return;
+        // If another request was made after this one, bail out early to avoid
+        // overwriting the newer request. We still set the initial state below
+        // so callers (including JS) can open the panel immediately.
         _selectedPanelListName = listName;
         _isListPanelOpen = true;
         _isListPanelLoading = true;
@@ -1900,6 +1916,84 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             {
                 _selectedPanelValues = new List<TalonList>();
             }
+
+            // If server-side lookup returned no items, attempt to fetch from client IndexedDB via JSRuntime as a fallback
+            if ((_selectedPanelValues == null || _selectedPanelValues.Count == 0) && JSRuntime != null)
+            {
+                try
+                {
+                    var cts2 = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(15));
+                    var itemsElement = await JSRuntime.InvokeAsync<System.Text.Json.JsonElement>("TalonStorageDB.loadLists", cts2.Token);
+                    if (itemsElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var arr = itemsElement;
+
+                        // Helper to normalize names like the client
+                        string Normalize(string s) => (s ?? string.Empty).ToString().Trim().TrimStart('<', '{', '[').TrimEnd('>', '}', ']');
+                        var baseName = Normalize(listName);
+                        var alt = baseName.StartsWith("user.") ? baseName.Substring(5) : $"user.{baseName}";
+                        var forms = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { baseName, alt };
+
+                        var matches = new List<TalonList>();
+                        foreach (var el in arr.EnumerateArray())
+                        {
+                            if (el.ValueKind != System.Text.Json.JsonValueKind.Object) continue;
+                            string ln = string.Empty;
+                            if (el.TryGetProperty("ListName", out var p1) && p1.ValueKind == System.Text.Json.JsonValueKind.String)
+                                ln = p1.GetString() ?? string.Empty;
+                            else if (el.TryGetProperty("listName", out var p2) && p2.ValueKind == System.Text.Json.JsonValueKind.String)
+                                ln = p2.GetString() ?? string.Empty;
+                            else if (el.TryGetProperty("List", out var p3) && p3.ValueKind == System.Text.Json.JsonValueKind.String)
+                                ln = p3.GetString() ?? string.Empty;
+
+                            ln = Normalize(ln);
+                            if (forms.Contains(ln))
+                            {
+                                // Map available properties into TalonList; be defensive about missing properties
+                                string spoken = string.Empty;
+                                if (el.TryGetProperty("SpokenForm", out var sp) && sp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    spoken = sp.GetString() ?? string.Empty;
+                                else if (el.TryGetProperty("spokenForm", out var sp2) && sp2.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    spoken = sp2.GetString() ?? string.Empty;
+
+                                string listValue = string.Empty;
+                                if (el.TryGetProperty("ListValue", out var lv) && lv.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    listValue = lv.GetString() ?? string.Empty;
+                                else if (el.TryGetProperty("listValue", out var lv2) && lv2.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    listValue = lv2.GetString() ?? string.Empty;
+
+                                var tal = new TalonList
+                                {
+                                    ListName = ln ?? string.Empty,
+                                    SpokenForm = spoken,
+                                    ListValue = listValue
+                                };
+                                matches.Add(tal);
+                            }
+                        }
+
+                        if (matches.Any())
+                        {
+                            // If another request was made after this one, don't apply these
+                            // results since they would be stale.
+                            if (_lastRequestedPanelListName == listName)
+                            {
+                                _listContentsCache[listName] = matches;
+                                _selectedPanelValues = matches;
+                                Console.WriteLine($"[DEBUG] Populated panel from client IndexedDB fallback with {matches.Count} items for '{listName}'");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[DEBUG] Ignoring client IndexedDB fallback for '{listName}' because a newer request exists ({_lastRequestedPanelListName}).");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"OpenListInSidePanel: client-side fallback failed: {ex.Message}");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -1908,7 +2002,16 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
         finally
         {
-            _isListPanelLoading = false;
+            // Only clear the loading state if this is still the most recent request.
+            if (_lastRequestedPanelListName == listName)
+            {
+                _isListPanelLoading = false;
+            }
+            else
+            {
+                // There's a newer request in progress; leave loading true for that request.
+                Console.WriteLine($"OpenListInSidePanel: Not clearing loading state for '{listName}' because newer request '{_lastRequestedPanelListName}' exists.");
+            }
             // Notify client JS for diagnostics (if available)
             try
             {
@@ -1936,12 +2039,22 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var items = System.Text.Json.JsonSerializer.Deserialize<List<TalonList>>(itemsJson ?? "[]", options) ?? new List<TalonList>();
             Console.WriteLine($"OpenListInSidePanelWithClientData: Deserialized {items.Count} items for '{listName}'");
-            _listContentsCache[listName] = items;
-            _selectedPanelListName = listName;
-            _selectedPanelValues = items;
-            _isListPanelOpen = true;
-            _isListPanelLoading = false;
-            await InvokeAsync(StateHasChanged);
+            // Only apply these client-provided values if this request is still the most
+            // recent one. This avoids race conditions where a user clicked another
+            // list while the client was sending data for a prior click.
+            if (_lastRequestedPanelListName == listName)
+            {
+                _listContentsCache[listName] = items;
+                _selectedPanelListName = listName;
+                _selectedPanelValues = items;
+                _isListPanelOpen = true;
+                _isListPanelLoading = false;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                Console.WriteLine($"OpenListInSidePanelWithClientData: Ignoring client data for '{listName}' because newer request '{_lastRequestedPanelListName}' exists.");
+            }
         }
         catch (Exception ex)
         {
@@ -2081,10 +2194,76 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     {
         if (string.IsNullOrWhiteSpace(listName)) return;
         _highlightedListName = listName;
+
+        // Mark this as the most recent request so any prior background loads will
+        // be ignored if they complete later.
+        _lastRequestedPanelListName = listName;
+
+        // Immediately clear the previous panel contents and show a loading state
+        // so users don't see the old list while the new one is being fetched.
+        _isListPanelOpen = true;
+        _isListPanelLoading = true;
+        _selectedPanelListName = listName;
+        _selectedPanelValues = new List<TalonList>();
+        await InvokeAsync(StateHasChanged);
+
+        // Fast-path: ask client for list items directly and render immediately
+        if (JSRuntime != null)
+        {
+            try
+            {
+                // Try to get items for this list quickly from IndexedDB
+                // Prefer the fixes-enabled helper so client-side normalization is applied
+                string? itemsJson = null;
+                try
+                {
+                    itemsJson = await JSRuntime.InvokeAsync<string>("TalonStorageDB.getListItemsJsonWithFixes", listName);
+                }
+                catch
+                {
+                    // Older clients may not have the new helper; fall back to the original
+                    itemsJson = await JSRuntime.InvokeAsync<string>("TalonStorageDB.getListItemsJson", listName);
+                }
+                if (!string.IsNullOrWhiteSpace(itemsJson))
+                {
+                    try
+                    {
+                        // Call the server-invokable method to populate UI/server cache
+                        await OpenListInSidePanelWithClientData(listName, itemsJson);
+
+                        // Background-refresh the server's authoritative cache without
+                        // blocking the UI. This ensures future operations have server cache.
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await OpenListInSidePanel(listName);
+                            }
+                            catch (Exception bgEx)
+                            {
+                                Console.WriteLine($"Background OpenListInSidePanel failed for '{listName}': {bgEx.Message}");
+                            }
+                        });
+
+                        return; // fast path complete
+                    }
+                    catch (Exception inner)
+                    {
+                        Console.WriteLine($"OnListClickedAsync: fast-path JSON handling failed: {inner.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // If getListItems isn't available or fails, fall back to the older route
+                Console.WriteLine($"OnListClickedAsync: fast-path JS call failed: {ex.Message}");
+            }
+        }
+
+        // Slow path: client didn't populate panel immediately; load synchronously so
+        // the user sees results as soon as available.
         await OpenListInSidePanel(listName);
     }
-
-    // Helper used by the UI to show a small item count badge when available
     public string GetListItemCount(string listName)
     {
         if (string.IsNullOrWhiteSpace(listName)) return "-";
@@ -2429,6 +2608,24 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         if (tab == TabType.Lists)
         {
             _ = LoadAllListNamesAsync();
+            // Schedule focus into the lists search box so keyboard is ready
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    _ = InvokeAsync(async () =>
+                    {
+                        try
+                        {
+                            // small delay to allow DOM update
+                            await Task.Delay(50);
+                            await JSRuntime.InvokeVoidAsync("eval", "(function(){const el=document.querySelector('input[placeholder=\"Search lists...\"]'); if(el){el.focus(); el.select();}})()");
+                        }
+                        catch { }
+                    });
+                }
+            }
+            catch { }
         }
         StateHasChanged();
     }

@@ -8,20 +8,23 @@
         </div>
     </div>
     <div class="panel-body p-2 list-panel-body">
-            @if (IsLoading)
+            @if (IsLoading && (Values == null || Values.Count == 0))
             {
-                <div class="d-flex justify-content-center align-items-center" style="height:120px">
+                @* <div class="d-flex justify-content-center align-items-center" style="height:120px">
                     <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
-                </div>
+                </div> *@
             }
 
             @if (!IsLoading && (Values == null || Values.Count == 0))
             {
-                <p class="text-muted no-list-items">No items found for this list.</p>
+                <p class="text-muted no-list-items">
+                    No items found for this list. It may be a Talon "capture" (a dynamic capture) rather than a stored list — check the Talon command source or capture definitions.
+                </p>
             }
 
             <div class="mb-2">
-                <input type="text" class="form-control" placeholder="Filter items..." @bind="FilterTerm" aria-label="Filter items" />
+                <!-- Prevent Enter from submitting parent forms: handle onkeydown in-page -->
+                <input type="text" class="form-control" placeholder="Filter items..." @bind="FilterTerm" @bind:event="oninput" aria-label="Filter items" onkeydown="if(event.key==='Enter'){event.preventDefault(); event.stopPropagation(); return false;}" />
             </div>
 
             <div class="values-container table-scroll">

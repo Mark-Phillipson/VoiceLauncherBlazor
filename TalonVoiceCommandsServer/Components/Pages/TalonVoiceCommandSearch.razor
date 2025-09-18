@@ -720,10 +720,17 @@ else
                     @foreach (var name in FilteredListNames)
                     {
                         var activeClass = (_highlightedListName != null && string.Equals(_highlightedListName, name, StringComparison.OrdinalIgnoreCase)) ? "active" : "";
-                        <button class="list-group-item list-group-item-action @activeClass" @onclick="() => OnListClickedAsync(name)">
+                        // Use client-side handler to render immediately from IndexedDB and then inform the server.
+                        <button class="list-group-item list-group-item-action @activeClass" onclick="window.TalonStorageDB && window.TalonStorageDB.onListButtonClick && window.TalonStorageDB.onListButtonClick('@(name?.Replace("\\","\\\\").Replace("'","\\'"))')">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="me-2 text-truncate">@name</div>
-                                <small class="text-muted">@(_listContentsCache.ContainsKey(name) ? _listContentsCache[name].Count.ToString() : "-")</small>
+                                <small class="text-muted">@{
+                                        if (_listContentsCache != null && name != null && _listContentsCache.TryGetValue(name, out var listVals)) {
+                                            @listVals.Count.ToString();
+                                        } else {
+                                            @("-");
+                                        }
+                                    }</small>
                             </div>
                         </button>
                     }
