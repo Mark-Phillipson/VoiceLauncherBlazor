@@ -5,11 +5,10 @@ window.tvcTheme = (function () {
 
     function applyTheme(theme) {
         try {
-            if (theme === 'dark') {
-                document.documentElement.setAttribute('data-bs-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', 'light');
-            }
+            // Keep backward compatibility: set both Bootstrap's data-bs-theme and our data-theme
+            const t = theme === 'dark' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', t);
+            document.documentElement.setAttribute('data-theme', t);
         } catch (e) {
             // ignore for non-browser contexts
         }
@@ -17,7 +16,8 @@ window.tvcTheme = (function () {
 
     function getTheme() {
         try {
-            const stored = localStorage.getItem(key);
+            // prefer the tvc key but fall back to the older app-theme key for compatibility
+            const stored = localStorage.getItem(key) || localStorage.getItem('app-theme');
             if (stored) return stored;
             // fallback to prefers-color-scheme
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,7 +29,9 @@ window.tvcTheme = (function () {
 
     function setTheme(theme) {
         try {
+            // write both keys for compatibility with other scripts
             localStorage.setItem(key, theme);
+            try { localStorage.setItem('app-theme', theme); } catch (e) { /* ignore */ }
             applyTheme(theme);
         } catch (e) {
             // ignore

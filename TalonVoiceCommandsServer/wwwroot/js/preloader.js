@@ -12,16 +12,21 @@
   // Theme helpers
   function applyTheme(theme){
     if(!theme){
+      // remove both attributes to allow CSS fallback to prefers-color-scheme
       document.documentElement.removeAttribute('data-theme');
+      document.documentElement.removeAttribute('data-bs-theme');
       return;
     }
+    // keep both attributes in sync so Bootstrap and legacy CSS see the same theme
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
   }
 
   function detectAndApplyTheme(){
     // Check saved preference
     try{
-      var saved = localStorage.getItem('app-theme');
+      // prefer tvc-theme (newer) but fall back to app-theme for backwards compatibility
+      var saved = localStorage.getItem('tvc-theme') || localStorage.getItem('app-theme');
       if(saved === 'light' || saved === 'dark'){
         applyTheme(saved);
         return;
@@ -36,11 +41,13 @@
   // Expose controls to allow Blazor to toggle theme
   window.setAppTheme = function(theme){
     try{ localStorage.setItem('app-theme', theme); }catch(e){}
+    try{ localStorage.setItem('tvc-theme', theme); }catch(e){}
     applyTheme(theme);
   };
 
   window.clearAppTheme = function(){
     try{ localStorage.removeItem('app-theme'); }catch(e){}
+    try{ localStorage.removeItem('tvc-theme'); }catch(e){}
     applyTheme(null);
   };
 

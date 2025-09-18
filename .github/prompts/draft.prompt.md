@@ -1,1 +1,1 @@
-In the talon list sidebar filter functionality does not work when I type something into the search box and press enter nothing seems to happen
+ please come we restore the application so that dark and light mode work currently it's setting a dark background regardless?
