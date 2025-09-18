@@ -19,6 +19,9 @@ namespace TalonVoiceCommandsServer.Components.Shared
         [Parameter] public EventCallback OnCopyRequested { get; set; }
         [Inject] public IJSRuntime JSRuntime { get; set; } = default!;
 
+    private ElementReference filterInputRef;
+    private bool _wasOpen = false;
+
         private string _filterTerm = string.Empty;
         public string FilterTerm
         {
@@ -62,6 +65,23 @@ namespace TalonVoiceCommandsServer.Components.Shared
             {
                 await Close();
             }
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            // If the panel just opened, focus the filter input so keyboard users can type immediately
+            if (IsOpen && !_wasOpen)
+            {
+                try
+                {
+                    // small delay to allow DOM to render
+                    await Task.Delay(30);
+                    await filterInputRef.FocusAsync();
+                }
+                catch { }
+            }
+            _wasOpen = IsOpen;
+            await base.OnParametersSetAsync();
         }
     }
 }

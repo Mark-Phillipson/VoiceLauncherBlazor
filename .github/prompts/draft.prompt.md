@@ -1,2 +1,1 @@
- when the talon lists page opens can we make sure the keyboard focus goes into the search box?
- 
+When the talon list sidebar is displayed can we move the keyboard focus to the search box automatically?

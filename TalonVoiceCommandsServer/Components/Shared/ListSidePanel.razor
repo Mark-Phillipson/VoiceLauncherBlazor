@@ -24,7 +24,7 @@
 
             <div class="mb-2">
                 <!-- Prevent Enter from submitting parent forms: handle onkeydown in-page -->
-                <input type="text" class="form-control" placeholder="Filter items..." @bind="FilterTerm" @bind:event="oninput" aria-label="Filter items" onkeydown="if(event.key==='Enter'){event.preventDefault(); event.stopPropagation(); return false;}" />
+                <input @ref="filterInputRef" type="text" class="form-control" placeholder="Filter items..." @bind="FilterTerm" @bind:event="oninput" aria-label="Filter items" onkeydown="if(event.key==='Enter'){event.preventDefault(); event.stopPropagation(); return false;}" />
             </div>
 
             <div class="values-container table-scroll">
