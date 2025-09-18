@@ -1,1 +1,0 @@
-I would like to change the import scripts tab can we remove the ability to import a single talon file as the usefulness of this is very limited
