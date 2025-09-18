@@ -23,11 +23,11 @@
             </div>
         </div>    </div>
     
-    <div class="mb-3">
+    @* <div class="mb-3">
         <InputFile class="form-control" OnChange="OnFileSelected" multiple accept=".talon" aria-label="Select Talon files" />
     </div>
     <button class="btn btn-primary" @onclick="ImportFiles" disabled="@(SelectedFiles == null || !SelectedFiles.Any())" aria-label="Import">Import</button>
-    
+     *@
     <div class="mb-3 mt-3">
         <label class="form-label">Talon base directory</label>
         <input class="form-control" type="text" @bind="DirectoryPath" placeholder="Directory to import all .talon files from..." aria-label="Directory path" disabled="@SettingsLocked" />

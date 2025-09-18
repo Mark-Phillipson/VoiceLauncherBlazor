@@ -1,1 +1,1 @@
- please come we restore the application so that dark and light mode work currently it's setting a dark background regardless?
+I would like to change the import scripts tab can we remove the ability to import a single talon file as the usefulness of this is very limited
