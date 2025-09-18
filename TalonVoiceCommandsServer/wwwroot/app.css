@@ -1,4 +1,49 @@
 /* Force jet black for application badge everywhere, overriding Bootstrap */
+:root {
+    --bg: #ffffff;
+    --text-color: #111111;
+    --card-bg: #ffffff;
+    --primary: #1b6ec2;
+}
+
+/* Respect user's system preference by default */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0b0b0b;
+        --text-color: #e6e6e6;
+        --card-bg: #121212;
+        --primary: #4ea3ff;
+    }
+}
+
+/* Allow JS to override with data-theme on <html> */
+[data-theme="dark"] {
+    --bg: #0b0b0b;
+    --text-color: #e6e6e6;
+    --card-bg: #121212;
+    --primary: #4ea3ff;
+}
+
+[data-theme="light"] {
+    --bg: #ffffff;
+    --text-color: #111111;
+    --card-bg: #ffffff;
+    --primary: #1b6ec2;
+}
+
+/* Apply theme tokens */
+html, body {
+    background: var(--bg);
+    color: var(--text-color);
+}
+.card, .badge, .content {
+    background: var(--card-bg);
+}
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
 .badge.filter-btn-application,
 .card .badge.filter-btn-application,
 .search-results .badge.filter-btn-application,
@@ -19,8 +64,8 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
