@@ -1,1 +1,2 @@
- now can we create a collapsible region from the search term label to the refresh filter's button so that when we have a lot of search results we can optionally collapse this part of the UI to give more room to the results?
+ we have a bug in that when we do a search it is showing everything with four cards by default but the show four cards checkbox is false I think it's because depending on the number of results it'll show four cards or not so can we make sure the show four cards checkbox is updated as well when calculating whether to show them or not?
+ 

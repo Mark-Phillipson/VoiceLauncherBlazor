@@ -905,7 +905,20 @@ const TalonStorageDB = {
 
         // Check if "Show Full Cards" is enabled
         const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
+        // If the result count is small, force full cards. When JS forces the view, keep the
+        // checkbox in sync with this decision so the Blazor-bound property also updates.
         const showFullCards = commands.length <= 6 ? true : (showFullCardsCheckbox ? showFullCardsCheckbox.checked : false);
+        if (commands.length <= 6 && showFullCardsCheckbox && !showFullCardsCheckbox.checked) {
+            // Update the checkbox and dispatch a change event so Blazor @bind picks up the new value.
+            try {
+                showFullCardsCheckbox.checked = true;
+                const changeEvent = new Event('change', { bubbles: true });
+                showFullCardsCheckbox.dispatchEvent(changeEvent);
+                console.log('TalonStorageDB: Auto-enabled Show Full Cards due to small result set and synced checkbox');
+            } catch (e) {
+                console.debug('TalonStorageDB: Failed to sync Show Full Cards checkbox', e);
+            }
+        }
 
         // Create results HTML using a responsive two-column grid (Bootstrap)
         // Header spans full width, each result becomes a column (col-12 on xs, col-md-6 on md+)
@@ -1218,14 +1231,10 @@ const TalonStorageDB = {
         }
     },
 
-    // Initialize event listeners for the show full cards checkbox
+    // Placeholder for initializeEventListeners - implementation consolidated later in this file.
     initializeEventListeners() {
-        const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
-        if (showFullCardsCheckbox) {
-            showFullCardsCheckbox.addEventListener('change', () => {
-                this.refreshDisplayMode();
-            });
-        }
+        // No-op here. The full implementation that attaches handlers and mutation observers
+        // lives later in the file to ensure DOM is available when attaching.
     },
 
     // Allow Blazor to register a DotNetObjectReference so JS-rendered buttons
@@ -1518,10 +1527,16 @@ const TalonStorageDB = {
     initializeEventListeners() {
         const showFullCardsCheckbox = document.getElementById('showFullCardsToggle');
         if (showFullCardsCheckbox && !showFullCardsCheckbox.hasAttribute('data-listener-attached')) {
-            showFullCardsCheckbox.addEventListener('change', () => {
-                console.log('TalonStorageDB: Show full cards changed to:', showFullCardsCheckbox.checked);
-                this.refreshDisplayMode();
-            });
+            // Use a named handler so we can avoid re-entrancy if JS updates the checked state programmatically.
+            const handler = (e) => {
+                try {
+                    console.log('TalonStorageDB: Show full cards changed to:', showFullCardsCheckbox.checked);
+                    this.refreshDisplayMode();
+                } catch (ex) {
+                    console.debug('TalonStorageDB: showFullCards change handler error', ex);
+                }
+            };
+            showFullCardsCheckbox.addEventListener('change', handler);
             // Mark as having listener attached to avoid duplicates
             showFullCardsCheckbox.setAttribute('data-listener-attached', 'true');
         }
