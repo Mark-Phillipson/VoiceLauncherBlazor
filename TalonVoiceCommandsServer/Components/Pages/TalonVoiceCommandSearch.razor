@@ -105,32 +105,42 @@ else
                     </div>
                     <div class="d-flex flex-column align-items-center justify-content-end" style="min-width:110px;">
                         <label class="form-label d-none d-md-block">&nbsp;</label>
-                        <button class="btn btn-primary w-100" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
-                            @if (IsLoading)
-                            {
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            }
-                            else
-                            {
-                                <span> Search</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                                </svg>
-                            }
-                        </button>
-                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
+                        <div class="d-flex align-items-center w-100 flex-wrap">
+                            <div class="d-flex flex-column align-items-center">
+                                <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                                    @if (IsLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    }
+                                    else
+                                    {
+                                        <span> Search</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                        </svg>
+                                    }
+                                </button>
+                                <!-- Alt+H label centered directly under the search button -->
+                                <small class="form-text text-muted mt-1 text-center">Alt+H</small>
+                            </div>
+
+                            <!-- Inline switches placed next to the button on larger screens; will wrap on small screens -->
+                            <div class="d-flex align-items-center gap-2 ms-2 flex-wrap">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                                    <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
+                                    <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        
                     </div>
                 </form>
-                <div class="d-flex align-items-end gap-3 flex-shrink-0">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
-                        <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="c" />
-                        <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
-                    </div>
-                </div>
+                
             </div>
 
     <!-- Focus Mode Alert -->
