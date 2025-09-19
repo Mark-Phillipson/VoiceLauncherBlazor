@@ -420,3 +420,200 @@
         padding-right: 0.25rem;
     }
 }
+
+/* =============================================================
+   RANDOM COMMAND DISPLAY STYLES
+   Styles for the idle random command discovery feature
+   ============================================================= */
+
+.random-command-display {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    margin: 2rem 0;
+    z-index: 10;
+    position: relative;
+}
+
+.random-command-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.random-command-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.random-command-header h5 {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.random-command-header .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.random-command-header .btn-close:hover {
+    opacity: 1;
+}
+
+.random-command-content {
+    padding: 1.5rem;
+}
+
+.random-command-content .command-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 1rem;
+    font-family: 'Cascadia Code', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: rgba(13, 110, 253, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #0d6efd;
+}
+
+.random-command-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.random-command-details .application-badge {
+    align-self: flex-start;
+}
+
+.random-command-details .script-preview {
+    font-family: 'Cascadia Code', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.random-command-footer {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-indicator {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.progress-indicator .current-index {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.controls .btn {
+    min-width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dark theme support */
+[data-bs-theme="dark"] .random-command-card {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    border-color: #495057;
+}
+
+[data-bs-theme="dark"] .random-command-content .command-text {
+    color: #f8f9fa;
+    background: rgba(13, 110, 253, 0.2);
+}
+
+[data-bs-theme="dark"] .random-command-details .script-preview {
+    background: #495057;
+    border-color: #6c757d;
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .random-command-footer {
+    background: #495057;
+    border-color: #6c757d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .random-command-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .random-command-content {
+        padding: 1rem;
+    }
+    
+    .random-command-content .command-text {
+        font-size: 1.125rem;
+    }
+    
+    .random-command-footer {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .controls {
+        justify-content: center;
+    }
+}
+
+/* Hover effects */
+.random-command-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.controls .btn:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.random-command-header .btn-close:focus {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}

@@ -2001,6 +2001,80 @@ const TalonStorageDB = {
             console.error('TalonStorageDB: Error in getDataStatistics:', error);
             throw error;
         }
+    },
+
+    // Get random commands for idle display
+    async getRandomCommands(count = 6) {
+        console.log(`TalonStorageDB: Getting ${count} random commands...`);
+        try {
+            await this.init();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['commands'], 'readonly');
+                const store = transaction.objectStore('commands');
+                
+                // First, get the total count
+                const countRequest = store.count();
+                
+                countRequest.onsuccess = () => {
+                    const totalCommands = countRequest.result;
+                    
+                    if (totalCommands === 0) {
+                        console.log('TalonStorageDB: No commands available for random selection');
+                        resolve([]);
+                        return;
+                    }
+                    
+                    // Generate random indices to select
+                    const randomIndices = new Set();
+                    const maxToSelect = Math.min(count, totalCommands);
+                    
+                    while (randomIndices.size < maxToSelect) {
+                        randomIndices.add(Math.floor(Math.random() * totalCommands));
+                    }
+                    
+                    const selectedCommands = [];
+                    const sortedIndices = Array.from(randomIndices).sort((a, b) => a - b);
+                    let currentIndex = 0;
+                    let targetIndex = 0;
+                    
+                    const cursorRequest = store.openCursor();
+                    cursorRequest.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        
+                        if (!cursor || targetIndex >= sortedIndices.length) {
+                            // Finished or no more commands
+                            console.log(`TalonStorageDB: Selected ${selectedCommands.length} random commands`);
+                            resolve(selectedCommands);
+                            return;
+                        }
+                        
+                        if (currentIndex === sortedIndices[targetIndex]) {
+                            // This is one of our random selections
+                            selectedCommands.push(cursor.value);
+                            targetIndex++;
+                        }
+                        
+                        currentIndex++;
+                        cursor.continue();
+                    };
+                    
+                    cursorRequest.onerror = () => {
+                        console.error('TalonStorageDB: Error getting random commands:', cursorRequest.error);
+                        reject(cursorRequest.error);
+                    };
+                };
+                
+                countRequest.onerror = () => {
+                    console.error('TalonStorageDB: Error getting command count for random selection:', countRequest.error);
+                    reject(countRequest.error);
+                };
+            });
+            
+        } catch (error) {
+            console.error('TalonStorageDB: Error in getRandomCommands:', error);
+            throw error;
+        }
     }
 };
 
