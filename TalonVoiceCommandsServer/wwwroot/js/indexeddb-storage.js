@@ -2436,11 +2436,124 @@ window.TalonStorageDB.AutoRotation = {
     }
 };
 
+// Function to populate sample data for demonstration
+window.TalonStorageDB.populateSampleData = async function() {
+    console.log('TalonStorageDB: Populating sample data for auto-rotation demonstration...');
+    
+    const sampleCommands = [
+        {
+            Command: 'copy that',
+            Script: 'edit.copy()',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Basic Editing',
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,clipboard',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'paste that',
+            Script: 'edit.paste()',
+            Application: 'global',
+            Mode: 'command', 
+            Title: 'Basic Editing',
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,clipboard',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'select all',
+            Script: 'edit.select_all()',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Text Selection', 
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,selection',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'go word <number>',
+            Script: 'actions.user.jump_to_word(number)',
+            Application: 'vscode',
+            Mode: 'command',
+            Title: 'Code Navigation',
+            FilePath: '/user/talon_community/apps/vscode/vscode.talon',
+            Repository: 'talon_community', 
+            Tags: 'navigation,vscode',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'find {user.text}',
+            Script: 'actions.user.find_text(user.text)',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Search Operations',
+            FilePath: '/user/talon_community/core/find/find.talon',
+            Repository: 'talon_community',
+            Tags: 'search,find',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'tab {user.number_key}',
+            Script: 'actions.user.tab_jump(number_key)',
+            Application: 'chrome',
+            Mode: 'command',
+            Title: 'Browser Navigation',
+            FilePath: '/user/talon_community/apps/chrome/chrome.talon',
+            Repository: 'talon_community',
+            Tags: 'browser,tabs,navigation',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        }
+    ];
+    
+    try {
+        await this.saveCommands(sampleCommands);
+        console.log(`TalonStorageDB: Successfully populated ${sampleCommands.length} sample commands`);
+        return true;
+    } catch (error) {
+        console.error('TalonStorageDB: Error populating sample data:', error);
+        return false;
+    }
+};
+
 // Initialize auto-rotation when the script loads
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Check if we have any commands, if not, populate sample data
+        try {
+            const stats = await window.TalonStorageDB.getDataStatistics();
+            if (!stats.hasData) {
+                console.log('TalonStorageDB: No data found, populating sample data for demonstration...');
+                await window.TalonStorageDB.populateSampleData();
+            }
+        } catch (error) {
+            console.log('TalonStorageDB: Error checking data, proceeding with auto-rotation init');
+        }
+        
         window.TalonStorageDB.AutoRotation.init();
     });
 } else {
-    window.TalonStorageDB.AutoRotation.init();
+    // For immediate execution
+    (async () => {
+        try {
+            const stats = await window.TalonStorageDB.getDataStatistics();
+            if (!stats.hasData) {
+                console.log('TalonStorageDB: No data found, populating sample data for demonstration...');
+                await window.TalonStorageDB.populateSampleData();
+            }
+        } catch (error) {
+            console.log('TalonStorageDB: Error checking data, proceeding with auto-rotation init');
+        }
+        
+        window.TalonStorageDB.AutoRotation.init();
+    })();
 }
