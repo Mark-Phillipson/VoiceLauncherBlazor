@@ -401,7 +401,9 @@ else
             <div>
         @if (IsLoading)
         {
-            <div class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
+            <div class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="
+
+            polite">
                 <div class="spinner-border text-primary me-3" role="status" aria-hidden="true">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -416,7 +418,7 @@ else
         }
         
         <!-- Auto-rotation display (managed by Blazor) -->
-        @if (IsAutoRotationActive && CurrentAutoRotateCommand != null)
+        @if ( CurrentAutoRotateCommand != null)
         {
             <div class="search-results-container auto-rotate-container" role="status" aria-live="polite" aria-label="Auto-rotating voice commands">
                 <div class="row" aria-label="Auto-rotating Voice Command">
