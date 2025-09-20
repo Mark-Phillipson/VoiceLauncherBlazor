@@ -823,6 +823,34 @@ document.addEventListener('keydown', function(event) {
 });
 </script>
 
+<!-- Auto-rotation CSS -->
+<link href="/css/auto-rotate.css" rel="stylesheet" />
+
+<!-- Auto-rotation initialization -->
+<script>
+// Initialize auto-rotation when page loads
+(function() {
+    'use strict';
+    
+    // Wait for both DOM and TalonStorageDB to be available
+    function initAutoRotation() {
+        if (window.TalonStorageDB && window.TalonStorageDB.AutoRotation) {
+            console.log('Initializing TalonStorageDB auto-rotation...');
+            window.TalonStorageDB.AutoRotation.init();
+        } else {
+            // Retry in 100ms if TalonStorageDB isn't ready yet
+            setTimeout(initAutoRotation, 100);
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAutoRotation);
+    } else {
+        initAutoRotation();
+    }
+})();
+</script>
+
 @code {
     // All logic is in the code-behind file (partial class)
 }
