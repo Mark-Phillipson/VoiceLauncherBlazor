@@ -2029,3 +2029,556 @@ window.TalonStorageDB.openFirstReferencedList = async function () {
         return { opened: false, error: e?.toString() };
     }
 };
+
+// Auto-rotation functionality for displaying random voice commands
+window.TalonStorageDB.AutoRotation = {
+    isRunning: false,
+    rotationTimer: null,
+    fadeTimer: null,
+    commands: [],
+    currentIndex: 0,
+    shuffledIndices: [],
+    container: null,
+    stoppedForSession: false,
+    intervalMs: 7000, // 7 seconds
+
+    // Initialize auto-rotation after page load
+    async init() {
+        console.log('TalonStorageDB.AutoRotation: Initializing...');
+        
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.checkAndStart());
+        } else {
+            this.checkAndStart();
+        }
+    },
+
+    // Check prerequisites and start rotation if conditions are met
+    async checkAndStart() {
+        console.log('TalonStorageDB.AutoRotation: Checking start conditions...');
+        
+        if (this.stoppedForSession) {
+            console.log('TalonStorageDB.AutoRotation: Stopped for session, not starting');
+            return;
+        }
+
+        if (this.isRunning) {
+            console.log('TalonStorageDB.AutoRotation: Already running');
+            return;
+        }
+
+        // Check prerequisites
+        const searchTerm = document.getElementById('searchTerm');
+        const autoFilterToggle = document.getElementById('autoFilterToggle');
+        
+        if (!searchTerm) {
+            console.log('TalonStorageDB.AutoRotation: Search input not found');
+            return;
+        }
+
+        // Check if search box is empty
+        if (searchTerm.value.trim() !== '') {
+            console.log('TalonStorageDB.AutoRotation: Search term not empty:', searchTerm.value);
+            return;
+        }
+
+        // Check if auto-filter is disabled
+        if (autoFilterToggle && autoFilterToggle.checked) {
+            console.log('TalonStorageDB.AutoRotation: Auto filter is enabled, not starting');
+            return;
+        }
+
+        // Check if any filters are applied
+        if (this.hasActiveFilters()) {
+            console.log('TalonStorageDB.AutoRotation: Active filters detected, not starting');
+            return;
+        }
+
+        // All conditions met, start rotation
+        await this.start();
+    },
+
+    // Check if any filters are currently active
+    hasActiveFilters() {
+        // Check filter buttons for non-default values
+        const filterButtons = document.querySelectorAll('.btn[title*="Filter by"]');
+        for (const button of filterButtons) {
+            const text = button.textContent.trim();
+            
+            // Check if it's a default state (contains "All " after any emoji/icon characters)
+            const isDefaultState = text.includes('All Applications') || 
+                                  text.includes('All Modes') || 
+                                  text.includes('All Tags') || 
+                                  text.includes('All Operating Systems') || 
+                                  text.includes('All Repositories') || 
+                                  text.includes('All Titles') || 
+                                  text.includes('All Code Languages') ||
+                                  text.includes('(No data imported)');
+            
+            if (!isDefaultState) {
+                console.log(`TalonStorageDB.AutoRotation: Active filter detected: "${text}"`);
+                return true;
+            }
+        }
+        console.log('TalonStorageDB.AutoRotation: No active filters detected');
+        return false;
+    },
+
+    // Start the auto-rotation
+    async start() {
+        console.log('TalonStorageDB.AutoRotation: Starting rotation...');
+        
+        try {
+            // Load commands from IndexedDB
+            await this.loadCommands();
+            
+            if (this.commands.length === 0) {
+                this.showMessage('No voice commands available. Import some Talon scripts to see commands here.');
+                return;
+            }
+
+            // Notify Blazor that auto-rotation is starting
+            if (window.TalonStorageDB._dotNetRef) {
+                try {
+                    await window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationStarted');
+                } catch (error) {
+                    console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of start, continuing anyway');
+                }
+            }
+            
+            // Setup event listeners for stopping rotation
+            this.setupStopListeners();
+            
+            // Start rotation
+            this.isRunning = true;
+            this.shuffleCommands();
+            this.showNextCommand();
+            
+            // Set up rotation timer
+            this.rotationTimer = setInterval(() => {
+                if (this.isRunning) {
+                    this.showNextCommand();
+                }
+            }, this.intervalMs);
+            
+            console.log(`TalonStorageDB.AutoRotation: Started with ${this.commands.length} commands`);
+            
+        } catch (error) {
+            console.error('TalonStorageDB.AutoRotation: Error starting rotation:', error);
+            this.showMessage('Error loading voice commands. Please try refreshing the page.');
+        }
+    },
+
+    // Load all commands from IndexedDB
+    async loadCommands() {
+        console.log('TalonStorageDB.AutoRotation: Loading commands...');
+        
+        try {
+            await window.TalonStorageDB.ensureDB();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = window.TalonStorageDB.db.transaction(['commands'], 'readonly');
+                const store = transaction.objectStore('commands');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    this.commands = request.result || [];
+                    console.log(`TalonStorageDB.AutoRotation: Loaded ${this.commands.length} commands`);
+                    resolve();
+                };
+                
+                request.onerror = () => {
+                    console.error('TalonStorageDB.AutoRotation: Error loading commands:', request.error);
+                    reject(request.error);
+                };
+            });
+        } catch (error) {
+            console.error('TalonStorageDB.AutoRotation: Error in loadCommands:', error);
+            throw error;
+        }
+    },
+
+    // Initialize the display container
+    initializeContainer() {
+        this.container = document.querySelector('.search-results-container');
+        if (!this.container) {
+            console.error('TalonStorageDB.AutoRotation: Container not found');
+            return;
+        }
+
+        // Make container visible and set up for rotation
+        this.container.style.display = 'block';
+        this.container.className = 'search-results-container auto-rotate-container';
+        this.container.setAttribute('aria-live', 'polite');
+        this.container.setAttribute('role', 'status');
+        this.container.setAttribute('aria-label', 'Auto-rotating voice commands');
+    },
+
+    // Shuffle the command indices for random non-repeating sequence
+    shuffleCommands() {
+        this.shuffledIndices = Array.from({ length: this.commands.length }, (_, i) => i);
+        // Fisher-Yates shuffle
+        for (let i = this.shuffledIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.shuffledIndices[i], this.shuffledIndices[j]] = [this.shuffledIndices[j], this.shuffledIndices[i]];
+        }
+        this.currentIndex = 0;
+        console.log('TalonStorageDB.AutoRotation: Commands shuffled');
+    },
+
+    // Show the next command in the rotation
+    showNextCommand() {
+        if (!this.isRunning || this.commands.length === 0) return;
+
+        // Check if we need to reshuffle
+        if (this.currentIndex >= this.shuffledIndices.length) {
+            this.shuffleCommands();
+        }
+
+        const commandIndex = this.shuffledIndices[this.currentIndex];
+        const command = this.commands[commandIndex];
+        this.currentIndex++;
+
+        // Notify Blazor about the new command
+        if (window.TalonStorageDB._dotNetRef) {
+            try {
+                window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationCommandChanged', command);
+            } catch (error) {
+                console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of command change');
+            }
+        }
+        
+        // Announce to screen readers
+        this.announceCommand(command);
+    },
+
+    // Display a single command with fade transition
+    displayCommand(command) {
+        if (!this.container) return;
+
+        // Fade out current content
+        this.container.classList.add('fading-out');
+        
+        // After fade out, update content and fade in
+        setTimeout(() => {
+            if (!this.isRunning) return; // Check if stopped during transition
+            
+            this.container.innerHTML = this.generateCommandHTML(command);
+            this.container.classList.remove('fading-out');
+            
+            // Announce to screen readers
+            this.announceCommand(command);
+        }, 250); // Half of the CSS transition time
+    },
+
+    // Generate HTML for displaying a command (reusing existing styles)
+    generateCommandHTML(command) {
+        const title = command.Title || this.extractFilename(command.FilePath) || 'Untitled';
+        const script = this.getTrimmedScript(command.Script);
+        const listsUsed = this.getListsUsedInScript(command.Command);
+        
+        return `
+            <div class="row" aria-label="Auto-rotating Voice Command">
+                <div class="col-12">
+                    <div class="card auto-rotate-card h-100">
+                        <div class="card-header auto-rotate-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5 class="auto-rotate-title mb-0">
+                                    <i class="oi oi-microphone me-2"></i>
+                                    ${this.escapeHtml(command.Command || 'No command text')}
+                                </h5>
+                                <span class="rotation-indicator">
+                                    <i class="oi oi-loop-circular"></i>
+                                </span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                ${command.Application ? `<span class="badge bg-primary">${this.escapeHtml(command.Application)}</span>` : ''}
+                                ${command.Mode ? `<span class="badge bg-secondary">${this.escapeHtml(command.Mode)}</span>` : ''}
+                                ${command.Title ? `<span class="badge bg-success">${this.escapeHtml(command.Title)}</span>` : ''}
+                                ${command.Tags ? command.Tags.split(',').map(tag => 
+                                    `<span class="badge bg-warning text-dark">${this.escapeHtml(tag.trim())}</span>`
+                                ).join(' ') : ''}
+                                ${command.OperatingSystem ? `<span class="badge bg-info">${this.escapeHtml(command.OperatingSystem)}</span>` : ''}
+                                ${command.Repository ? `<span class="badge bg-primary">${this.escapeHtml(command.Repository)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="card-subtitle text-muted">Script:</h6>
+                                <pre class="script-content p-2 rounded border">${this.escapeHtml(script)}</pre>
+                            </div>
+                            ${listsUsed.length > 0 ? `
+                                <div class="mb-3">
+                                    <h6 class="card-subtitle text-muted">
+                                        <i class="oi oi-list-rich me-1"></i>
+                                        Lists & Captures Used:
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        ${listsUsed.map(listName => 
+                                            `<button type="button" class="btn btn-link p-0 talon-list-inline" 
+                                                     onclick="window.TalonStorageDB.onListButtonClick('${this.escapeHtml(listName).replace(/'/g, "\\'")}')">
+                                                &lt;${this.escapeHtml(listName)}&gt;
+                                             </button>`
+                                        ).join(' ')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${command.FilePath ? `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            onclick="window.TalonStorageDB.openFileInVSCode('${this.escapeHtml(command.FilePath)}')">
+                                        <i class="oi oi-file me-1"></i> ${this.escapeHtml(this.extractFilename(command.FilePath))}
+                                    </button>
+                                    <small class="text-muted">Auto-rotating every ${this.intervalMs / 1000}s</small>
+                                </div>
+                            ` : `
+                                <div class="text-end">
+                                    <small class="text-muted">Auto-rotating every ${this.intervalMs / 1000}s</small>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    // Announce command change to screen readers
+    announceCommand(command) {
+        const announcement = `Voice command: ${command.Command || 'No command text'}`;
+        // The aria-live container will automatically announce this change
+        console.log('TalonStorageDB.AutoRotation: Announced:', announcement);
+    },
+
+    // Setup event listeners to stop rotation on user interaction
+    setupStopListeners() {
+        if (this._stopListenersAttached) return;
+        
+        // Stop on search input
+        const searchInput = document.getElementById('searchTerm');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => this.stopForSession('search input'));
+        }
+
+        // Stop on auto-filter toggle
+        const autoFilterToggle = document.getElementById('autoFilterToggle');
+        if (autoFilterToggle) {
+            autoFilterToggle.addEventListener('change', () => this.stopForSession('auto-filter toggle'));
+        }
+
+        // Stop on any filter changes
+        const filterContainer = document.getElementById('searchFiltersSection');
+        if (filterContainer) {
+            filterContainer.addEventListener('change', (e) => {
+                if (e.target.matches('input, select, button')) {
+                    this.stopForSession('filter change');
+                }
+            });
+        }
+
+        // Stop on any user interaction (first interaction only)
+        document.addEventListener('pointerdown', () => this.stopForSession('user interaction'), { once: true });
+        document.addEventListener('keydown', () => this.stopForSession('user interaction'), { once: true });
+
+        this._stopListenersAttached = true;
+        console.log('TalonStorageDB.AutoRotation: Stop listeners attached');
+    },
+
+    // Stop rotation permanently for this session
+    stopForSession(reason) {
+        console.log(`TalonStorageDB.AutoRotation: Stopping for session due to: ${reason}`);
+        this.stop();
+        this.stoppedForSession = true;
+        
+        // Hide the container
+        if (this.container) {
+            this.container.style.display = 'none';
+        }
+    },
+
+    // Stop rotation (can be restarted)
+    stop() {
+        console.log('TalonStorageDB.AutoRotation: Stopping rotation...');
+        this.isRunning = false;
+        
+        if (this.rotationTimer) {
+            clearInterval(this.rotationTimer);
+            this.rotationTimer = null;
+        }
+        
+        if (this.fadeTimer) {
+            clearTimeout(this.fadeTimer);
+            this.fadeTimer = null;
+        }
+        
+        // Notify Blazor that auto-rotation has stopped
+        if (window.TalonStorageDB._dotNetRef) {
+            try {
+                window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationStopped');
+            } catch (error) {
+                console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of stop');
+            }
+        }
+    },
+
+    // Show a message in the rotation container
+    showMessage(message) {
+        if (!this.container) {
+            this.initializeContainer();
+        }
+        
+        if (this.container) {
+            this.container.innerHTML = `
+                <div class="auto-rotate-message">
+                    <i class="oi oi-info me-2"></i>
+                    ${this.escapeHtml(message)}
+                </div>
+            `;
+        }
+    },
+
+    // Utility functions (reusing from main TalonStorageDB)
+    escapeHtml(text) {
+        return window.TalonStorageDB.escapeHtml(text);
+    },
+
+    extractFilename(filePath) {
+        return window.TalonStorageDB.extractFilename(filePath);
+    },
+
+    getTrimmedScript(script) {
+        if (!script) return '';
+        const lines = script.split('\n');
+        if (lines.length <= 10) return script;
+        return lines.slice(0, 10).join('\n') + '\n... (truncated)';
+    },
+
+    getListsUsedInScript(command) {
+        if (!command) return [];
+        const matches = command.match(/\{([^}]+)\}|<([^>]+)>/g) || [];
+        return matches.map(match => match.replace(/[{}<>]/g, '').trim()).filter(Boolean);
+    }
+};
+
+// Function to populate sample data for demonstration
+window.TalonStorageDB.populateSampleData = async function() {
+    console.log('TalonStorageDB: Populating sample data for auto-rotation demonstration...');
+    
+    const sampleCommands = [
+        {
+            Command: 'copy that',
+            Script: 'edit.copy()',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Basic Editing',
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,clipboard',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'paste that',
+            Script: 'edit.paste()',
+            Application: 'global',
+            Mode: 'command', 
+            Title: 'Basic Editing',
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,clipboard',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'select all',
+            Script: 'edit.select_all()',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Text Selection', 
+            FilePath: '/user/talon_community/core/edit/edit.talon',
+            Repository: 'talon_community',
+            Tags: 'editing,selection',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'go word <number>',
+            Script: 'actions.user.jump_to_word(number)',
+            Application: 'vscode',
+            Mode: 'command',
+            Title: 'Code Navigation',
+            FilePath: '/user/talon_community/apps/vscode/vscode.talon',
+            Repository: 'talon_community', 
+            Tags: 'navigation,vscode',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'find {user.text}',
+            Script: 'actions.user.find_text(user.text)',
+            Application: 'global',
+            Mode: 'command',
+            Title: 'Search Operations',
+            FilePath: '/user/talon_community/core/find/find.talon',
+            Repository: 'talon_community',
+            Tags: 'search,find',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        },
+        {
+            Command: 'tab {user.number_key}',
+            Script: 'actions.user.tab_jump(number_key)',
+            Application: 'chrome',
+            Mode: 'command',
+            Title: 'Browser Navigation',
+            FilePath: '/user/talon_community/apps/chrome/chrome.talon',
+            Repository: 'talon_community',
+            Tags: 'browser,tabs,navigation',
+            OperatingSystem: 'windows,mac,linux',
+            CodeLanguage: 'python'
+        }
+    ];
+    
+    try {
+        await this.saveCommands(sampleCommands);
+        console.log(`TalonStorageDB: Successfully populated ${sampleCommands.length} sample commands`);
+        return true;
+    } catch (error) {
+        console.error('TalonStorageDB: Error populating sample data:', error);
+        return false;
+    }
+};
+
+// Initialize auto-rotation when the script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Check if we have any commands, if not, populate sample data
+        try {
+            const stats = await window.TalonStorageDB.getDataStatistics();
+            if (!stats.hasData) {
+                console.log('TalonStorageDB: No data found, populating sample data for demonstration...');
+                await window.TalonStorageDB.populateSampleData();
+            }
+        } catch (error) {
+            console.log('TalonStorageDB: Error checking data, proceeding with auto-rotation init');
+        }
+        
+        window.TalonStorageDB.AutoRotation.init();
+    });
+} else {
+    // For immediate execution
+    (async () => {
+        try {
+            const stats = await window.TalonStorageDB.getDataStatistics();
+            if (!stats.hasData) {
+                console.log('TalonStorageDB: No data found, populating sample data for demonstration...');
+                await window.TalonStorageDB.populateSampleData();
+            }
+        } catch (error) {
+            console.log('TalonStorageDB: Error checking data, proceeding with auto-rotation init');
+        }
+        
+        window.TalonStorageDB.AutoRotation.init();
+    })();
+}

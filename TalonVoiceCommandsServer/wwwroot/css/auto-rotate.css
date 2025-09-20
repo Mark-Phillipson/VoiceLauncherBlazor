@@ -1,0 +1,81 @@
+/* Auto-rotate voice commands styling */
+.auto-rotate-container {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.auto-rotate-container.fading-out {
+    opacity: 0;
+}
+
+.auto-rotate-card {
+    border: 2px solid #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    transform: scale(1);
+    transition: all 0.3s ease-in-out;
+}
+
+.auto-rotate-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+.auto-rotate-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-bottom: none;
+}
+
+.auto-rotate-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.auto-rotate-loading {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    border-radius: 0.375rem;
+}
+
+.auto-rotate-message {
+    text-align: center;
+    padding: 2rem;
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 0.375rem;
+    color: #1976d2;
+}
+
+/* Animation for card rotation indicator */
+@keyframes rotate-indicator {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rotation-indicator {
+    animation: rotate-indicator 7s linear infinite;
+}
+
+/* Accessibility improvements */
+.auto-rotate-container[aria-live="polite"] {
+    /* Ensure screen readers can announce changes */
+}
+
+/* Badge styling consistency with main search results */
+.auto-rotate-card .badge {
+    font-size: 0.875rem;
+}
+
+.auto-rotate-card .script-content {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.875rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
