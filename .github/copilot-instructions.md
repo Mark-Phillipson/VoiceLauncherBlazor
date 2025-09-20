@@ -2,8 +2,8 @@
 
 ## Talon Voice Commands Server Project Port
 
-For local development and UI testing, the Talon Voice Commands Server project runs on port **5269** (see `launchSettings.json`).
-When using Playwright or other browser automation tools, use `http://localhost:5269` as the base URL for accessing the app.
+For local development and UI testing, the Talon Voice Commands Server project runs on port **5008** (see `launchSettings.json`).
+When using Playwright or other browser automation tools, use `http://localhost:5008` as the base URL for accessing the app.
 
 ## Terminal Interactions
 
