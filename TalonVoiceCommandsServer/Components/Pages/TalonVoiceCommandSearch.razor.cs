@@ -1699,6 +1699,30 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
         }
     }
 
+    /// <summary>
+    /// Temporary test helper invoked by the UI to start the random command display JavaScript
+    /// </summary>
+    public async Task StartRandomDemo()
+    {
+        try
+        {
+            if (JSRuntime != null)
+            {
+                // Call the global startDisplay function safely
+                await JSRuntime.InvokeVoidAsync("eval", "(function(){ if(window.RandomCommandDisplay && window.RandomCommandDisplay.startDisplay) { window.RandomCommandDisplay.startDisplay(); } })()");
+                Console.WriteLine("StartRandomDemo: JS invocation attempted");
+            }
+            else
+            {
+                Console.WriteLine("StartRandomDemo: JSRuntime not available");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"StartRandomDemo: Error invoking JS - {ex.Message}");
+        }
+    }
+
     public async Task OpenFileInVSCode(string filePath)
     {
         if (JSRuntime != null && !string.IsNullOrWhiteSpace(filePath))
