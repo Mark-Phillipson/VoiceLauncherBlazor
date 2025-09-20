@@ -8,7 +8,7 @@ namespace PlaywrightTests;
 public class AutoRotateVoiceCommandsTests : PageTest
 {
     private Process? _serverProcess;
-    private const string BaseUrl = "http://localhost:5269";
+    private const string BaseUrl = "http://localhost:5008";
     private const string TestUrl = $"{BaseUrl}/talon-voice-command-search";
 
     [SetUp]
@@ -242,9 +242,30 @@ public class AutoRotateVoiceCommandsTests : PageTest
 
     private async Task StartServer()
     {
-        var workingDirectory = Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory));
-        var serverProjectPath = Path.Combine(workingDirectory!, "TalonVoiceCommandsServer");
-        
+        // Resolve repository root by walking up directories until the solution file is found.
+        var dir = TestContext.CurrentContext.TestDirectory;
+        string? repoRoot = null;
+        var maxDepth = 8;
+        var current = dir;
+        for (int i = 0; i < maxDepth; i++)
+        {
+            if (current == null) break;
+            var slnPath = Path.Combine(current, "VoiceLauncherBlazor.sln");
+            if (File.Exists(slnPath))
+            {
+                repoRoot = current;
+                break;
+            }
+            current = Path.GetDirectoryName(current);
+        }
+
+        if (repoRoot == null)
+        {
+            // Fallback: assume two levels up from test directory (best-effort)
+            repoRoot = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, "..", ".."));
+        }
+
+        var serverProjectPath = Path.Combine(repoRoot, "TalonVoiceCommandsServer");
         Console.WriteLine($"Starting server from: {serverProjectPath}");
         
         var startInfo = new ProcessStartInfo
