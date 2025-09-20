@@ -2138,8 +2138,14 @@ window.TalonStorageDB.AutoRotation = {
                 return;
             }
 
-            // Initialize container
-            this.initializeContainer();
+            // Notify Blazor that auto-rotation is starting
+            if (window.TalonStorageDB._dotNetRef) {
+                try {
+                    await window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationStarted');
+                } catch (error) {
+                    console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of start, continuing anyway');
+                }
+            }
             
             // Setup event listeners for stopping rotation
             this.setupStopListeners();
@@ -2234,7 +2240,17 @@ window.TalonStorageDB.AutoRotation = {
         const command = this.commands[commandIndex];
         this.currentIndex++;
 
-        this.displayCommand(command);
+        // Notify Blazor about the new command
+        if (window.TalonStorageDB._dotNetRef) {
+            try {
+                window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationCommandChanged', command);
+            } catch (error) {
+                console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of command change');
+            }
+        }
+        
+        // Announce to screen readers
+        this.announceCommand(command);
     },
 
     // Display a single command with fade transition
@@ -2394,6 +2410,15 @@ window.TalonStorageDB.AutoRotation = {
         if (this.fadeTimer) {
             clearTimeout(this.fadeTimer);
             this.fadeTimer = null;
+        }
+        
+        // Notify Blazor that auto-rotation has stopped
+        if (window.TalonStorageDB._dotNetRef) {
+            try {
+                window.TalonStorageDB._dotNetRef.invokeMethodAsync('OnAutoRotationStopped');
+            } catch (error) {
+                console.log('TalonStorageDB.AutoRotation: Could not notify Blazor of stop');
+            }
         }
     },
 

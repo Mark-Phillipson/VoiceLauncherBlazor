@@ -415,7 +415,98 @@ else
             </div>
         }
         
-        <!-- JavaScript-rendered search results container -->
+        <!-- Auto-rotation display (managed by Blazor) -->
+        @if (IsAutoRotationActive && CurrentAutoRotateCommand != null)
+        {
+            <div class="search-results-container auto-rotate-container" role="status" aria-live="polite" aria-label="Auto-rotating voice commands">
+                <div class="row" aria-label="Auto-rotating Voice Command">
+                    <div class="col-12">
+                        <div class="card auto-rotate-card h-100">
+                            <div class="card-header auto-rotate-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5 class="auto-rotate-title mb-0">
+                                        <i class="oi oi-microphone me-2"></i>
+                                        @(CurrentAutoRotateCommand.Command ?? "No command text")
+                                    </h5>
+                                    <span class="rotation-indicator">
+                                        <i class="oi oi-loop-circular"></i>
+                                    </span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Application))
+                                    {
+                                        <span class="badge bg-primary">@CurrentAutoRotateCommand.Application</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Mode))
+                                    {
+                                        <span class="badge bg-secondary">@CurrentAutoRotateCommand.Mode</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Title))
+                                    {
+                                        <span class="badge bg-success">@CurrentAutoRotateCommand.Title</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Tags))
+                                    {
+                                        @foreach (var tag in CurrentAutoRotateCommand.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()))
+                                        {
+                                            <span class="badge bg-warning text-dark">@tag</span>
+                                        }
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.OperatingSystem))
+                                    {
+                                        <span class="badge bg-info">@CurrentAutoRotateCommand.OperatingSystem</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Repository))
+                                    {
+                                        <span class="badge bg-primary">@CurrentAutoRotateCommand.Repository</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h6 class="card-subtitle text-muted">Script:</h6>
+                                    <pre class="script-content p-2 rounded border">@GetTrimmedScript(CurrentAutoRotateCommand.Script)</pre>
+                                </div>
+                                @{
+                                    var listsUsed = GetListsUsedInScript(CurrentAutoRotateCommand.Command ?? string.Empty);
+                                }
+                                @if (listsUsed.Any())
+                                {
+                                    <div class="mb-3">
+                                        <h6 class="card-subtitle text-muted">
+                                            <i class="oi oi-list-rich me-1"></i>
+                                            Lists & Captures Used:
+                                        </h6>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach (var listName in listsUsed)
+                                            {
+                                                <button type="button" class="btn btn-link p-0 talon-list-inline" 
+                                                        aria-label="Open list @listName"
+                                                        @onclick="() => OnListClickedAsync(listName)">
+                                                    &lt;@listName&gt;
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                <div class="card-footer p-2 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                @onclick="() => OnFilePathClick(null, CurrentAutoRotateCommand.FilePath ?? string.Empty)"
+                                                title="Open in VS Code">
+                                            @GetFileName(CurrentAutoRotateCommand.FilePath ?? string.Empty)
+                                        </button>
+                                        <small class="text-muted">Auto-rotating every 7s</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- JavaScript-rendered search results container (kept for search results, but auto-rotation will use Blazor) -->
         <div class="search-results-container" style="display: none;"></div>
         
         @if (Results?.Any() == true)

@@ -295,6 +295,10 @@ private bool _selectionModuleLoaded = false;
     public bool IsUsingJavaScriptDisplay { get; set; } = false; // Track when JavaScript is displaying results
     public int JavaScriptResultCount { get; set; } = 0; // Track JavaScript result count
     public bool UseSemanticMatching { get; set; } = false;
+    
+    // Auto-rotation state managed by Blazor
+    public bool IsAutoRotationActive { get; set; } = false;
+    public TalonVoiceCommand? CurrentAutoRotateCommand { get; set; } = null;
     public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
     public string InfoMessage { get; set; } = string.Empty;
     
@@ -2762,5 +2766,36 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
             var uri = $"vscode://file/{filePath}";
             await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
         }
+    }
+    
+    /// <summary>
+    /// JavaScript interop method called when auto-rotation starts
+    /// </summary>
+    [JSInvokable]
+    public async Task OnAutoRotationStarted()
+    {
+        IsAutoRotationActive = true;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    /// <summary>
+    /// JavaScript interop method called when auto-rotation stops
+    /// </summary>
+    [JSInvokable]
+    public async Task OnAutoRotationStopped()
+    {
+        IsAutoRotationActive = false;
+        CurrentAutoRotateCommand = null;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    /// <summary>
+    /// JavaScript interop method called when a new command is displayed in auto-rotation
+    /// </summary>
+    [JSInvokable]
+    public async Task OnAutoRotationCommandChanged(TalonVoiceCommand command)
+    {
+        CurrentAutoRotateCommand = command;
+        await InvokeAsync(StateHasChanged);
     }
 }
