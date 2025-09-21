@@ -145,56 +145,7 @@ private bool _selectionModuleLoaded = false;
         }
     }
 
-    public async Task ShowTitleModal()
-    {
-        Console.WriteLine($"ShowTitleModal: AvailableTitles count: {AvailableTitles?.Count ?? 0}");
-        if (AvailableTitles?.Any() == true)
-        {
-            Console.WriteLine($"ShowTitleModal: Sample titles: {string.Join(", ", AvailableTitles.Take(5))}");
-        }
-        else
-        {
-            Console.WriteLine($"ShowTitleModal: _allCommandsCache count: {_allCommandsCache?.Count ?? 0}");
-            if (_allCommandsCache?.Any() == true)
-            {
-                var titlesFromCache = _allCommandsCache
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Title))
-                    .Select(c => c.Title!)
-                    .Distinct()
-                    .Take(5)
-                    .ToList();
-                Console.WriteLine($"ShowTitleModal: Sample titles from cache: {string.Join(", ", titlesFromCache)}");
-            }
-        }
-        
-        SelectionModalItems = ToSelectionItems(AvailableTitles, "bg-light");
-        SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Titles" });
-        
-        // Add helpful message if no titles are available
-        if (AvailableTitles?.Any() != true)
-        {
-            SelectionModalItems.Add(new SelectionItem 
-            { 
-                Id = "no-data", 
-                Label = "No titles available - Import Talon scripts first", 
-                ColorClass = "bg-warning text-dark"
-            });
-        }
-        
-        SelectionModalTitle = "Select Title";
-        _openFilterTarget = "title";
-        await InvokeAsync(StateHasChanged);
-        var modal = _selectionModal;
-        if (modal != null)
-        {
-            await modal.ShowAsync();
-            return;
-        }
-        if (_selectionModule != null)
-        {
-            await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
-        }
-    }
+    // ShowTitleModal removed: Title filter now uses a TextBox, not a modal.
 
     public async Task ShowCodeLanguageModal()
     {
