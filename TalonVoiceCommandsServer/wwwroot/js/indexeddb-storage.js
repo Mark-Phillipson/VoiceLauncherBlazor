@@ -2040,7 +2040,7 @@ window.TalonStorageDB.AutoRotation = {
     shuffledIndices: [],
     container: null,
     stoppedForSession: false,
-    intervalMs: 7000, // 7 seconds
+    intervalMs: 20000, // 20 seconds
 
     // Initialize auto-rotation after page load
     async init() {
