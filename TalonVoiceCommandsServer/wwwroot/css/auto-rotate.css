@@ -61,10 +61,8 @@
     animation: rotate-indicator 7s linear infinite;
 }
 
-/* Accessibility improvements */
-.auto-rotate-container[aria-live="polite"] {
-    /* Ensure screen readers can announce changes */
-}
+/* Accessibility improvements: aria-live is present on the container to ensure
+   screen readers announce changes; no explicit CSS required. */
 
 /* Badge styling consistency with main search results */
 .auto-rotate-card .badge {
@@ -78,4 +76,34 @@
     font-size: 0.875rem;
     max-height: 200px;
     overflow-y: auto;
+}
+
+/* Dark theme overrides when the document uses Bootstrap data-bs-theme="dark" */
+[data-bs-theme="dark"] .auto-rotate-card {
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 20px rgba(2,6,23,0.6);
+    background-color: #111827; /* dark surface */
+    color: #e6eef8;
+}
+
+[data-bs-theme="dark"] .auto-rotate-header {
+    background: linear-gradient(135deg, rgba(10,70,120,0.25), rgba(5,40,80,0.2));
+    color: #f1f8ff;
+}
+
+[data-bs-theme="dark"] .auto-rotate-card .script-content {
+    background-color: #0b1220;
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #dbeafe;
+}
+
+[data-bs-theme="dark"] .auto-rotate-card .badge {
+    opacity: 0.95;
+}
+
+/* Make the footer area less bright in dark mode if JS markup uses bg-light */
+[data-bs-theme="dark"] .auto-rotate-card .card-footer {
+    background-color: rgba(31,41,51,0.6);
+    border-top: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.7);
 }

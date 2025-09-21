@@ -445,10 +445,10 @@
 }
 
 .auto-rotate-header .badge.bg-primary {
-    /* make repository badge a touch darker when shown in the header */
-    background-color: #0a58ca !important;
-    color: #fff !important;
-    border-color: #084298 !important;
+    /* Match the filter 'Repository' button color for visual consistency */
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-primary) !important;
 }
 
 .auto-rotate-title {
@@ -507,9 +507,24 @@
 }
 
 [data-bs-theme="dark"] .auto-rotate-card .card-footer.bg-light {
-    background-color: rgba(31,41,51,0.6); /* soften the footer instead of bright light */
-    color: rgba(248,249,250,0.9);
-    border-top: 1px solid rgba(255,255,255,0.04);
+    background-color: rgba(31,41,51,0.6) !important; /* soften the footer instead of bright light */
+    color: rgba(248,249,250,0.9) !important;
+    border-top: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+/* Filename button in the auto-rotate footer - make it dark and high-contrast in dark mode */
+.auto-rotate-file-btn {
+    transition: background-color 120ms ease-in-out, color 120ms ease-in-out, border-color 120ms ease-in-out;
+}
+
+[data-bs-theme="dark"] .auto-rotate-file-btn {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+}
+
+[data-bs-theme="dark"] .auto-rotate-card .card-footer small.text-muted {
+    color: rgba(255,255,255,0.6) !important;
 }
 
 [data-bs-theme="dark"] .talon-list-inline {
@@ -517,9 +532,10 @@
 }
 
 [data-bs-theme="dark"] .auto-rotate-header .badge.bg-primary {
-    background-color: rgba(99,179,237,0.18) !important;
-    color: #e6f6ff !important;
-    border-color: rgba(99,179,237,0.2) !important;
+    /* Use the same primary color token in dark mode to match the repository filter button */
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-light) !important;
+    border-color: var(--bs-primary) !important;
 }
 
 /* Make the 'Script:' label lighter in dark mode so it's readable */
