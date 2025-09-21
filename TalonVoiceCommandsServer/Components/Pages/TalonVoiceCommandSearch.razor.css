@@ -420,3 +420,126 @@
         padding-right: 0.25rem;
     }
 }
+
+/* Auto-rotate card: make it theme-aware for light and dark modes */
+.auto-rotate-container {
+    margin-bottom: 1rem;
+}
+
+.auto-rotate-card {
+    /* Let Bootstrap provide most card styles; add subtle elevation */
+    transition: box-shadow 160ms ease-in-out, transform 160ms ease-in-out;
+}
+
+.auto-rotate-card:hover {
+    box-shadow: 0 6px 20px rgba(16,24,40,0.08);
+}
+
+.auto-rotate-header {
+    padding: 0.75rem 1rem;
+}
+
+/* Slightly darker blue header so repository area is visually identifiable */
+.auto-rotate-header {
+    background-color: rgba(13,110,253,0.06); /* subtle blue tint over white */
+}
+
+.auto-rotate-header .badge.bg-primary {
+    /* make repository badge a touch darker when shown in the header */
+    background-color: #0a58ca !important;
+    color: #fff !important;
+    border-color: #084298 !important;
+}
+
+.auto-rotate-title {
+    font-weight: 600;
+}
+
+.rotation-indicator i {
+    font-size: 1.2rem;
+    color: var(--bs-body-color, #6c757d);
+}
+
+.script-content {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.talon-list-inline {
+    color: inherit;
+}
+
+/* Footer uses bg-light in markup; make it adapt to theme so it isn't glaring in dark mode */
+.auto-rotate-card .card-footer.bg-light {
+    background-color: var(--bs-light);
+}
+
+/* Dark theme adjustments */
+[data-bs-theme="dark"] .auto-rotate-card {
+    background-color: #1f2933; /* dark card background to match other dark cards */
+    color: #f8fafc;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+[data-bs-theme="dark"] .auto-rotate-card:hover {
+    box-shadow: 0 8px 28px rgba(2,6,23,0.6);
+}
+
+[data-bs-theme="dark"] .auto-rotate-header {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    /* give a blue-tinted header in dark mode so it stands out from the card background */
+    background-color: rgba(10,70,120,0.18);
+    color: #f1f5f9;
+}
+
+[data-bs-theme="dark"] .rotation-indicator i {
+    color: rgba(255,255,255,0.6);
+}
+
+[data-bs-theme="dark"] .script-content {
+    background-color: #0b1220;
+    color: #dbeafe;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+[data-bs-theme="dark"] .auto-rotate-card .card-footer.bg-light {
+    background-color: rgba(31,41,51,0.6); /* soften the footer instead of bright light */
+    color: rgba(248,249,250,0.9);
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+[data-bs-theme="dark"] .talon-list-inline {
+    color: #9ad1ff;
+}
+
+[data-bs-theme="dark"] .auto-rotate-header .badge.bg-primary {
+    background-color: rgba(99,179,237,0.18) !important;
+    color: #e6f6ff !important;
+    border-color: rgba(99,179,237,0.2) !important;
+}
+
+/* Make the 'Script:' label lighter in dark mode so it's readable */
+.card-subtitle.text-muted {
+    color: var(--bs-secondary) !important; /* keep default for light */
+}
+
+[data-bs-theme="dark"] .card-subtitle.text-muted {
+    color: rgba(255,255,255,0.65) !important;
+}
+
+/* Ensure the application badge is pure black like other filter buttons even in dark theme */
+.filter-btn-application {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+}
+
+[data-bs-theme="dark"] .filter-btn-application {
+    background-color: #000 !important;
+    color: #fff !important;
+}
+

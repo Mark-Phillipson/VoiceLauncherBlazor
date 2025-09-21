@@ -437,7 +437,8 @@ else
                                 <div class="d-flex flex-wrap gap-1 mt-2">
                                     @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Application))
                                     {
-                                        <span class="badge bg-primary">@CurrentAutoRotateCommand.Application</span>
+                                        <!-- Use the same black application badge used by filter buttons for consistency -->
+                                        <span class="badge filter-btn-application">@CurrentAutoRotateCommand.Application</span>
                                     }
                                     @if (!string.IsNullOrWhiteSpace(CurrentAutoRotateCommand.Mode))
                                     {
