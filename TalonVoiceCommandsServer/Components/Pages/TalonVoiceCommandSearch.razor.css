@@ -93,6 +93,16 @@
     color: #0d6efd;
 }
 
+/* Give the Search Commands tab a small left margin so the focused search input doesn't get clipped */
+#search-tab {
+    margin-left: 3px;
+}
+
+/* Ensure the actual search textbox has a little left margin so the focus ring isn't clipped */
+#searchTerm {
+    margin-left: 4px;
+}
+
 /* Tab content styling */
 .tab-content {
     min-height: 200px;
