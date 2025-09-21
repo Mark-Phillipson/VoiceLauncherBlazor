@@ -1,1 +1,1 @@
- also could we make these application have a black background the same as the all applications filter.
+i

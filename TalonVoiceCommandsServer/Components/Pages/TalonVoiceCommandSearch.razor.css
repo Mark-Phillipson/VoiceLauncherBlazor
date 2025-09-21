@@ -451,7 +451,12 @@
 
 /* Slightly darker blue header so repository area is visually identifiable */
 .auto-rotate-header {
-    background-color: rgba(13,110,253,0.06); /* subtle blue tint over white */
+    /* Make the header clearly identifiable in light mode by using a stronger
+       blue. Use a subtle left-to-right gradient for a modern look and white
+       text for readability. Keep border to help the card separate from page. */
+    background: linear-gradient(90deg, #063372 0%, #0d6efd 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(11,94,215,0.16);
 }
 
 .auto-rotate-header .badge.bg-primary {
