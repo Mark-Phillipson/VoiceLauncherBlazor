@@ -1,5 +1,3 @@
-Instead of using a specific list of titles for the TitleFilter can we make the titles based on what the user enters in a TextBox instead?
+Utilizing the existing infrastructure can we add the ability to have a launcher item point to a markdown file and display it as HTML in a Blazor component?
 
- 
-
-
+Essentially utilizing the LauncherTable.razor component to display a list of markdown files and when one is clicked it opens a new component that renders the markdown as HTML. This would be useful for cheat sheets located in repositories on my hard drive.

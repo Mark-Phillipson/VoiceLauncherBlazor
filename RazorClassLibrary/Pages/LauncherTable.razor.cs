@@ -336,9 +336,39 @@ namespace RazorClassLibrary.Pages
 		{
 			var launcher = LauncherDTO?.FirstOrDefault(l => l.Id == id);
 			if (launcher == null) { return; }
-			if (launcher.CommandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
+			var rawCmd = launcher.CommandLine ?? string.Empty;
+			// Trim and strip surrounding quotes if present
+			var cmd = rawCmd.Trim();
+			if ((cmd.StartsWith("\"") && cmd.EndsWith("\"")) || (cmd.StartsWith("'") && cmd.EndsWith("'")))
 			{
-				NavigationManager.NavigateTo(launcher.CommandLine, true, false);
+				cmd = cmd.Substring(1, cmd.Length - 2).Trim();
+			}
+			// Remove file:// or file:/// prefix if present
+			if (cmd.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+			{
+				// For file:///C:/path style, remove the scheme
+				var idx = cmd.IndexOf(':', 5);
+				if (idx >= 0)
+				{
+					cmd = cmd.Substring(5);
+				}
+				else
+				{
+					cmd = cmd.Substring(5);
+				}
+			}
+			var lower = cmd.ToLowerInvariant();
+			// If it's an HTTP link, navigate to it
+			if (lower.StartsWith("http") && NavigationManager != null)
+			{
+				NavigationManager.NavigateTo(launcher.CommandLine ?? string.Empty, true, false);
+			}
+			// If it's a markdown file, navigate to the MarkdownViewer page with the file path as a query parameter
+			else if ((lower.EndsWith(".md") || lower.EndsWith(".markdown")) && NavigationManager != null)
+			{
+				// URL encode the file path and navigate to the viewer
+				var encoded = Uri.EscapeDataString(cmd);
+				NavigationManager.NavigateTo($"/markdownviewer?file={encoded}");
 			}
 			else
 			{

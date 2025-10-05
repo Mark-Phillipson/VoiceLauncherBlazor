@@ -8,6 +8,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.markdown-container .markdown-inner {
+    max-width: 1000px; /* control line length for readability */
+    margin: 0 auto;
+    padding: 0.25rem 0.5rem;
+}
+
 /* Make sure text content is readable */
 .markdown-container h1,
 .markdown-container h2,
@@ -19,10 +25,19 @@
     margin-bottom: 0.5rem;
 }
 
+.markdown-container h1 { font-size: 2.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
+.markdown-container h2 { font-size: 1.75rem; margin-top: 1.25rem; }
+.markdown-container h3 { font-size: 1.35rem; margin-top: 1rem; }
+
 .markdown-container p {
     color: #d0d0d0;
     line-height: 1.6;
     margin-bottom: 1rem;
+}
+
+.markdown-container ul, .markdown-container ol {
+    margin-bottom: 1rem;
+    padding-left: 1.25rem;
 }
 
 .markdown-container ul,
@@ -96,4 +111,32 @@
 
 .markdown-container tr:nth-child(even) {
     background-color: #404040;
+}
+
+/* Make tables responsive: allow horizontal scroll on small viewports */
+.markdown-container .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+/* Ensure long cell content wraps instead of expanding layout */
+.markdown-container td, .markdown-container th {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 60ch; /* limit width for readability */
+}
+
+/* Enhance header style */
+.markdown-container thead th {
+    background: linear-gradient(180deg, #5a5a5a, #4a4a4a);
+    border-bottom: 2px solid #3a3a3a;
+    font-weight: 600;
+}
+
+/* Slightly different zebra striping for better contrast */
+.markdown-container tbody tr:nth-child(odd) {
+    background-color: #383838;
+}
+.markdown-container tbody tr:nth-child(even) {
+    background-color: #2f2f2f;
 }

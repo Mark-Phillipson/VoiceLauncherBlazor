@@ -1,0 +1,61 @@
+@page "/markdownviewer"
+@using Microsoft.AspNetCore.WebUtilities
+@using System.IO
+@using RazorClassLibrary.Components
+@inject NavigationManager NavigationManager
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <button class="btn btn-outline-secondary" @onclick="GoBack">Back</button>
+            <h4 class="mb-0">Markdown Viewer - @FileName</h4>
+        </div>
+
+        @if (string.IsNullOrWhiteSpace(FilePath))
+        {
+            <div class="alert alert-warning">No markdown file specified.</div>
+        }
+        else
+        {
+            <div class="mb-2"><small class="text-muted">@FilePath</small></div>
+            <MarkdownConverter FilePath="@FilePath" />
+            @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                <div class="alert alert-danger mt-2">@ErrorMessage</div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private string? FilePath;
+    private string FileName = "";
+    private string? ErrorMessage;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            var query = QueryHelpers.ParseQuery(uri.Query);
+            if (query.TryGetValue("file", out var fileVals))
+            {
+                // file may be URL encoded
+                var raw = fileVals.FirstOrDefault();
+                if (!string.IsNullOrEmpty(raw))
+                {
+                    FilePath = Uri.UnescapeDataString(raw);
+                    FileName = Path.GetFileName(FilePath ?? string.Empty);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/", false);
+    }
+}
