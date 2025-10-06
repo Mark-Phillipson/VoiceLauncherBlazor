@@ -405,24 +405,96 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     
     public TabType ActiveTab { get; set; } = TabType.SearchCommands;
     private static bool _staticFiltersLoaded = false;        private static List<string> _staticAvailableApplications = new();
-    private static List<string> _staticAvailableModes = new();
+    private static List<string> _staticAvailableModes = new()
+    {
+        "command, dictation",
+        "sleep",
+        "command, dictation, sleep",
+        "command, user.dictation_command",
+        "command",
+        "dictation, mixed, command",
+        "command, user.cursorless_spoken_form_test",
+        "dictation", "game"
+    };
     private static List<string> _staticAvailableOperatingSystems = new();
     private static List<string> _staticAvailableRepositories = new();
     private static List<string> _staticAvailableTags = new();
     private static List<string> _staticAvailableTitles = new();
     private static List<string> _staticAvailableCodeLanguages = new();private static readonly object _filterLock = new object();
+    
 
     // Predefined common filter values that users can use immediately without imports
     private static readonly List<string> _predefinedApplications = new()
     {
-        "vscode", "code", "visual studio code", "vs code",
-        "chrome", "google chrome", "firefox", "edge", "safari",
-        "terminal", "cmd", "powershell", "bash", "zsh",
-        "word", "excel", "powerpoint", "outlook", "teams",
-        "slack", "discord", "zoom", "skype",
-        "notepad", "sublime", "atom", "vim", "emacs",
-        "windows", "explorer", "finder",
-        "global", "default"
+        "global",
+        "vscode",
+        "emacs",
+        "cnc3game.dat",
+        "cnc3ep1.dat",
+        "jetbrains",
+        "Company of Heroes 2",
+        "ra3ep1_1.1.game",
+        "devenv.exe",
+        "suddenstrike4.exe",
+        "Gates of Hell (x64)",
+        "RStudio",
+        "steeldivision2.exe",
+        "microsoft_edge",
+        "com.microsoft.teams",
+        @"c:\windows\system32\cmd.exe",
+        "microsoft_teams",
+        "visual_studio",
+        "slack",
+        "msedge.exe",
+        "MyWhoosh.exe",
+        "eclipse",
+        "signal",
+        "The Troop.exe",
+        "explorer.exe",
+        "Train",
+        "Application Frame Host",
+        "WindowsTerminal.exe",
+        "thunderbird_inbox",
+        "colobot.exe",
+        "discord",
+        "finder",
+        "keepass",
+        "msaccess.exe",
+        "StarCraft II",
+        "talon_repl",
+        "Azure Data Studio",
+        "SanctusReach.EXE",
+        "mstsc.exe",
+        "thunderbird_composer",
+        "thunderbird_calendar",
+        "talon_debug_window",
+        "windows_terminal",
+        "heartbound_demo.exe",
+        "thunderbird_contacts",
+        "DictationBoxMSP",
+        "ThereCameanEcho.exe",
+        "thunderbird",
+        "termite",
+        "stata",
+        "notepad",
+        "vivaldi",
+        "thunderbird_tasks",
+        "one_password",
+        "foxit_reader",
+        "firefox",
+        "ms-teams.exe",
+        "Microsoft Edge",
+        "chrome",
+        "apple_terminal",
+        "Snagit",
+        "meld",
+        "Microsoft Excel",
+        "SnippingTool.exe",
+        "tmux",
+        "chrome.exe",
+        "windows_file_browser",
+        "orion",
+        "phoneexperiencehost.exe"
     };
     
     private static readonly List<string> _predefinedModes = new()
@@ -432,12 +504,21 @@ public bool AutoFilterByCurrentApp { get; set; } = false;
     
     private static readonly List<string> _predefinedOperatingSystems = new()
     {
-        "windows", "linux", "mac", "macos", "ubuntu", "debian"
+        "windows", "linux", "mac"
     };
     
     private static readonly List<string> _predefinedRepositories = new()
     {
-        "community", "knausj_talon", "talon_community", "user_settings", "personal"
+        "talon-filetree-commands",
+        "talon-gaze-ocr",
+        "sight-free-talon",
+        "cursorless-talon",
+        "talon_hud",
+        "community",
+        "talon_ui_helper",
+        "rango-talon",
+        "talon-ai-tools",
+        "mystuff"
     };
     
     private static readonly List<string> _predefinedTags = new()

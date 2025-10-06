@@ -1,3 +1,1 @@
-Utilizing the existing infrastructure can we add the ability to have a launcher item point to a markdown file and display it as HTML in a Blazor component?
-
-Essentially utilizing the LauncherTable.razor component to display a list of markdown files and when one is clicked it opens a new component that renders the markdown as HTML. This would be useful for cheat sheets located in repositories on my hard drive.
+ the current talon voice command server project has problems pulling out a list of repositories from the indexed db for performance reasons. can we improve the fallback list to make it the actual list that does not change very often this can be taken from the talon voice commands table directly then there's no need to refresh this list when loading the data.

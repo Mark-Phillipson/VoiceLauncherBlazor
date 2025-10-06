@@ -130,7 +130,55 @@ namespace RazorClassLibrary.Components
 
             // Then replace explicit escaped pipes (\|) with HTML entity as a final pass
             var sanitized = mdContent.Replace("\\|", "&#124;");
-            HtmlContent = (MarkupString)Markdown.ToHtml(sanitized, pipeline);
+
+            // Protect against extremely deep/complex markdown (very large tables, pathological nesting)
+            // by catching the Markdig ArgumentException about depth limits and falling back to a
+            // simpler pipeline. Also defensively truncate excessively large inputs to avoid resource
+            // exhaustion while still showing an informative message to the user.
+            try
+            {
+                // If the input is extremely large, truncate and show a note instead of crashing the renderer.
+                const int MaxRenderLength = 200_000; // characters
+                var renderInput = sanitized;
+                var wasTruncated = false;
+                if (renderInput.Length > MaxRenderLength)
+                {
+                    renderInput = renderInput.Substring(0, MaxRenderLength);
+                    wasTruncated = true;
+                }
+
+                HtmlContent = (MarkupString)Markdown.ToHtml(renderInput, pipeline);
+
+                if (wasTruncated)
+                {
+                    errorMessage = "Markdown content was truncated for rendering because it was unusually large.";
+                }
+            }
+            catch (System.ArgumentException ex) when (ex.Message?.Contains("depth", System.StringComparison.OrdinalIgnoreCase) == true)
+            {
+                // Likely "Markdown elements in the input are too deeply nested - depth limit exceeded" from Markdig.
+                // Fall back to a more conservative pipeline (no advanced table parsing) which should avoid deep nesting.
+                try
+                {
+                    var fallbackPipeline = new MarkdownPipelineBuilder().Build();
+                    HtmlContent = (MarkupString)Markdown.ToHtml(sanitized, fallbackPipeline);
+                    errorMessage = "Markdown was too deeply nested for the advanced renderer; rendered with a simpler fallback pipeline.";
+                }
+                catch
+                {
+                    // If even the fallback fails, safely show escaped raw markdown to the user instead of throwing.
+                    var escaped = System.Net.WebUtility.HtmlEncode(sanitized);
+                    HtmlContent = (MarkupString)$"<pre style=\"white-space:pre-wrap;\">{escaped}</pre>";
+                    errorMessage = "Unable to render markdown due to extreme nesting; showing raw content.";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // Generic fallback: show raw, escaped content and record an error message.
+                var escaped = System.Net.WebUtility.HtmlEncode(sanitized);
+                HtmlContent = (MarkupString)$"<pre style=\"white-space:pre-wrap;\">{escaped}</pre>";
+                errorMessage = "Error rendering markdown: " + ex.Message;
+            }
             await base.OnParametersSetAsync();
         }
     }

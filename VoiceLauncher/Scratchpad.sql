@@ -1,4 +1,5 @@
- SELECT * FROM Launcher WHERE CategoryID = 4127 ORDER BY ID DESC
-  SELECT * FROM Categories WHERE ID=4127
-   SELECT * FROM TalonLists 
-   SELECT * FROM TalonLists WHERE ListName='snippet_language'
+ SELECT Repository FROM TalonVoiceCommands GROUP BY Repository;
+  SELECT OperatingSystem FROM TalonVoiceCommands GROUP BY OperatingSystem;
+   SELECT Application, COUNT(*) as ApplicationCount FROM TalonVoiceCommands GROUP BY Application ORDER BY 
+   ApplicationCount DESC;
+    SELECT Mode FROM TalonVoiceCommands GROUP BY Mode;
