@@ -1,1 +1,0 @@
- the current talon voice command server project has problems pulling out a list of repositories from the indexed db for performance reasons. can we improve the fallback list to make it the actual list that does not change very often this can be taken from the talon voice commands table directly then there's no need to refresh this list when loading the data.
