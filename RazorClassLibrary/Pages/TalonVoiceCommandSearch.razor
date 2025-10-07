@@ -1,27 +1,9 @@
 @page "/talon-voice-command-search"
+
 @using RazorClassLibrary.Components
 @* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
-<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">
-    <!-- Button group for tab navigation -->
-    <div class="row mb-3">
-        <div class="col-lg-6 col-md-8 mb-2 mb-lg-0">
-            <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
-                <button class='btn @(ActiveTab == "command" ? "btn-primary" : "btn-outline-primary")' @onclick='() => SetActiveTab("command")'>
-                    <i class="oi oi-magnifying-glass me-1"></i> Search Commands
-                </button>
-                <button class='btn @(ActiveTab == "list" ? "btn-primary" : "btn-outline-primary")' @onclick='() => SetActiveTab("list")'>
-                    <i class="oi oi-list me-1"></i> List Search
-                </button>
-                <a href="/talon-analysis" class="btn btn-outline-info">
-                    <i class="oi oi-graph me-1"></i> Analysis Report
-                </a>
-                <a href="/talon-import" class="btn btn-outline-secondary">
-                    <i class="oi oi-cloud-upload me-1"></i> Import Scripts
-                </a>
-            </div>
-        </div>
-    </div>
+<div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Talon Voice Command Search</h2>
         <div class="d-flex flex-column align-items-end">
@@ -34,78 +16,74 @@
         </div>
     </div>
 
-    @if (ActiveTab == "command")
-    {
-        <!-- Command Search UI -->
-        <div class="row mb-3">
-            <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
-                <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
-                    <div class="d-flex w-100 gap-2 align-items-start search-input-row">
-                        <div class="flex-grow-1 d-flex flex-column">
-                            <input @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
-                        </div>
-                        <div class="d-flex flex-column" style="min-width:160px;">
-                            <select class="form-select search-scope-select" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
-                                <option value="@SearchScope.CommandNamesOnly">Names Only</option>
-                                <option value="@SearchScope.Script">Search Script</option>
-                                <option value="@SearchScope.All">Search All</option>
-                            </select>
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
-                                @if (IsLoading)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                }
-                                else
-                                {
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                                    </svg>
-                                }
-                            </button>
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-lg-4 col-md-12 d-flex align-items-center">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
-                    <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
-                </div>
-                <div class="form-check form-switch ms-3">
-                    <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
-                    <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
-                </div>
-                <div class="form-check form-switch ms-3">
-                    <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
-                    <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
-                </div>
-            </div>
-        </div>
-        <!-- Focus Mode Alert -->
-        @if (IsInFocusMode())
+    <!-- Navigation Links, Search Bar, and Semantic Toggle -->
+    <div class="row mb-3">
+        @if (!IsBlazorHybrid)
         {
-            <div class="alert alert-info mb-3" role="alert">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye me-2" viewBox="0 0 16 16">
-                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                </svg>
-                <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
+            <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+                <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+                    <span class="btn btn-primary disabled">
+                        <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+                    </span>
+                    <a href="/talon-analysis" class="btn btn-outline-info">
+                        <i class="oi oi-graph me-1"></i> Analysis Report
+                    </a>
+                    <a href="/talon-import" class="btn btn-outline-secondary">
+                        <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+                    </a>
+                </div>
             </div>
         }
-        <!-- Filter Form -->
-        <form class="mb-3">
-            ...existing code...
-        </form>
-    }
-    else if (ActiveTab == "list")
-    {
-        <TalonListSearch />
-    }
+
+        <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+            <form @onsubmit="OnSearch" @onsubmit:preventDefault="true">
+                <div class="d-flex w-100 gap-2 align-items-start search-input-row">
+                    <div class="flex-grow-1 d-flex flex-column">
+                        <input @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
+                    </div>
+                    <div class="d-flex flex-column" style="min-width:160px;">
+                        <select class="form-select search-scope-select" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                            <option value="@SearchScope.CommandNamesOnly">Names Only</option>
+                            <option value="@SearchScope.Script">Search Script</option>
+                            <option value="@SearchScope.All">Search All</option>
+                        </select>
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                            @if (IsLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                </svg>
+                            }
+                        </button>
+                        <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4 col-md-12 d-flex align-items-center">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
+                <label class="form-check-label" for="semanticToggle">@((MarkupString)"Sema<u>n</u>tic Search")</label>
+            </div>
+            <div class="form-check form-switch ms-3">
+                <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                <label class="form-check-label" for="autoFilterToggle">A<u>u</u>to-Filter by App</label>
+            </div>
+            <div class="form-check form-switch ms-3">
+                <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
+                <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
+            </div>
+        </div>
+    </div>
 
     <!-- Focus Mode Alert -->
     @if (IsInFocusMode())
@@ -570,12 +548,6 @@
 
 @code {
     // All logic is in the code-behind file (partial class)
-    private string ActiveTab { get; set; } = "command";
-    private void SetActiveTab(string tab)
-    {
-        ActiveTab = tab;
-        StateHasChanged();
-    }
 }
 
 @* Reusable selection modal instance (populated by code-behind) *@
