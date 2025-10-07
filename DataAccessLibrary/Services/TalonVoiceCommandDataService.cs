@@ -1068,7 +1068,7 @@ namespace DataAccessLibrary.Services
             report.AppendLine($"Entries with violations: {violationsCount}");
             report.AppendLine();
 
-            report.AppendLine("Current vs Actual Maximum Lengths:");
+            report.AppendLine("Current vs Actual Maximums:");
             report.AppendLine($"ListName: Current limit = 100, Actual max = {maxListName} {(maxListName > 100 ? "⚠️ EXCEEDS" : "✅")}");
             report.AppendLine($"SpokenForm: Current limit = 100, Actual max = {maxSpokenForm} {(maxSpokenForm > 100 ? "⚠️ EXCEEDS" : "✅")}");
             report.AppendLine($"ListValue: Current limit = 500, Actual max = {maxListValue} {(maxListValue > 500 ? "⚠️ EXCEEDS" : "✅")}");
@@ -1492,6 +1492,11 @@ namespace DataAccessLibrary.Services
                 .ToList();
                 
             return breakdown;
+        }
+
+        public async Task<List<TalonList>> GetAllTalonListsAsync()
+        {
+            return await _context.TalonLists.ToListAsync();
         }
     }
 }
