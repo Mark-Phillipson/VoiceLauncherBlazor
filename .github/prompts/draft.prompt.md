@@ -1,0 +1,1 @@
+When displaying the search results if the application name includes the location as well as the filename please just show the filename to prevent it being too large to be shown in the results.

@@ -1035,8 +1035,13 @@ namespace RazorClassLibrary.Pages
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 return string.Empty;
-            
-            return System.IO.Path.GetFileName(filePath);
+            var fileName = System.IO.Path.GetFileName(filePath);
+            // Remove trailing double quote if present
+            if (!string.IsNullOrEmpty(fileName) && fileName.EndsWith("\""))
+            {
+                fileName = fileName.TrimEnd('"');
+            }
+            return fileName;
         }
 
         public string GetTrimmedScript(string script)
