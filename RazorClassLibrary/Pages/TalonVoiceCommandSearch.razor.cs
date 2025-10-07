@@ -37,6 +37,11 @@ namespace RazorClassLibrary.Pages
         private List<SelectionItem> ToSelectionItems(List<string>? items, string? defaultColor = "")
         {
             if (items == null) return new List<SelectionItem>();
+            // If this is for applications, show only the filename in the label
+            if (object.ReferenceEquals(items, AvailableApplications))
+            {
+                return items.Select(i => new SelectionItem { Id = i, Label = GetFileName(i), ColorClass = defaultColor }).ToList();
+            }
             return items.Select(i => new SelectionItem { Id = i, Label = i, ColorClass = defaultColor }).ToList();
         }
 

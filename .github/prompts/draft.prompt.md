@@ -1,1 +1,1 @@
-When displaying the search results if the application name includes the location as well as the filename please just show the filename to prevent it being too large to be shown in the results.
+We have a similar problem when selecting applications and the application filter can we just display the file names here instead of the full path?
