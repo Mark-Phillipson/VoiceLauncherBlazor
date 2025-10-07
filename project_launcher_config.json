@@ -1,0 +1,23 @@
+{
+  "categories": [
+    {
+      "name": "Blazor Apps",
+      "projects": [
+        { "name": "VoiceLauncherBlazor", "path": "c:/Users/MPhil/source/repos/VoiceLauncherBlazor" },
+        { "name": "BlazorAppTestingOnly", "path": "c:/Users/MPhil/source/repos/VoiceLauncherBlazor/BlazorAppTestingOnly" }
+      ]
+    },
+    {
+      "name": "WinForms Apps",
+      "projects": [
+        { "name": "WinFormsApp", "path": "c:/Users/MPhil/source/repos/VoiceLauncherBlazor/WinFormsApp" }
+      ]
+    },
+    {
+      "name": "File Explorer Shortcuts",
+      "projects": [
+        { "name": "Documents", "path": "c:/Users/MPhil/Documents" }
+      ]
+    }
+  ]
+}

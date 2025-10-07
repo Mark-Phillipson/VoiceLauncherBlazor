@@ -134,8 +134,11 @@ else
             }
             else
             {
-
-                <div class="card m-1">
+                // VS Code launcher: command starts with 'code '
+                var isVSCode = launcher.CommandLine.Trim().ToLower().StartsWith("code ");
+                // File Explorer launcher: command starts with 'explorer '
+                var isExplorer = launcher.CommandLine.Trim().ToLower().StartsWith("explorer ");
+                <div class="card m-1" style="@(isVSCode ? "border: 2px solid #0078d7;" : isExplorer ? "border: 2px solid #28a745;" : "")">
                     <button title='Launch Application or Website' accesskey="@currentLetter" class="btn btn-outline-success"
                         type="button" @onclick="@(() => ProcessLaunching(launcher.Id))">
                         @if (launcher.Icon != null && launcher.Icon.Length > 0)
@@ -145,11 +148,28 @@ else
                             : $"/images/{launcher.Icon}";
                             <img alt='Icon' src='@iconSrc' class="mb-2" />
                         }
+                        else if (isVSCode)
+                        {
+                            <i class="fa-brands fa-vscode fa-2x mb-2" style="color:#0078d7;"></i>
+                        }
+                        else if (isExplorer)
+                        {
+                            <i class="fa-regular fa-folder-open fa-2x mb-2" style="color:#28a745;"></i>
+                        }
                         else
                         {
                             <i class="fa-solid fa-rocket mb-2"></i>
                         }
-                        <span><u>@currentLetter</u> @launcher.Name</span>
+                        <span><u>@currentLetter</u> @launcher.Name
+                            @if (isVSCode)
+                            {
+                                <span class="badge bg-primary ms-2">VS Code</span>
+                            }
+                            else if (isExplorer)
+                            {
+                                <span class="badge bg-success ms-2">Explorer</span>
+                            }
+                        </span>
                     </button>
                     @if (!RunningInBlazorHybrid)
                     {
