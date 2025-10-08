@@ -1,9 +1,15 @@
-I have a lot of projects that I need to keep track of and open up with Visual Studio code by voice.
+Can we create a new Blazor component in the Razor class library to display the talon lists and their values?
 
- currently I'm having to open up terminal and navigate to the relevant directory code .
+ we would like to be able to filter by the talon list name and the values.
 
-  I have some that I have included a  workspace file and are already included and the launcher functionality
+  there is no need to add any CRUD  just need to be able to filter them.
 
-   other than creating a workspace file for lots and lots of projects can you suggest another mechanism whereby I can have eight category of Visual Studio code project and a way to directly launch Visual Studio code based on the folder structure?
+  The new component should be called TalonListViewer.razor and should be added to the RazorClassLibrary project.
 
-    note I also have a category for folders were it will launch the file explorer at the specific file location so don't want to mix up with thiscode .
+   initially can we create the component so it is as a page that can be navigated to from the main menu or a button on a different component.
+
+    the page can be the following url /talon-lists
+
+     the data resides in a table called TalonLists
+
+       we will need a data service and a repository to access the data which will need to be included in the dependency injection pipeline for the razor class library.
