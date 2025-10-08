@@ -1,0 +1,72 @@
+@page "/talon-lists"
+@using DataAccessLibrary.Models
+@inject RazorClassLibrary.Services.ITalonListDataService TalonListDataService
+<div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+    <div class="btn-group" role="group" aria-label="Talon Tools Navigation">
+        <a href="/talon-voice-command-search" class="btn btn-outline-primary">
+            <i class="oi oi-magnifying-glass me-1"></i> Search Commands
+        </a>
+        <a href="/talon-analysis" class="btn btn-outline-info">
+            <i class="oi oi-graph me-1"></i> Analysis Report
+        </a>
+        <a href="/talon-import" class="btn btn-outline-secondary">
+            <i class="oi oi-cloud-upload me-1"></i> Import Scripts
+        </a>
+    </div>
+</div>
+<h3>Talon Lists</h3>
+
+<div class="mb-3">
+    <input class="form-control" placeholder="Filter by list name" @bind="filterName" />
+</div>
+<div class="mb-3">
+    <input class="form-control" placeholder="Filter by list value" @bind="filterValue" />
+</div>
+
+<div class="mb-2">
+    <span>@FilteredTalonLists.Count() results found</span>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>List Name</th>
+            <th>Spoken Form</th>
+            <th>List Value</th>
+            <th>Source File</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in FilteredTalonLists)
+        {
+            <tr>
+                <td>@item.ListName</td>
+                <td>@item.SpokenForm</td>
+                <td>@item.ListValue</td>
+                <td>@item.SourceFile</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<TalonList> talonLists = new();
+    private string filterName = string.Empty;
+    private string filterValue = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        talonLists = (await TalonListDataService.GetAllTalonListsAsync())
+        .OrderBy(x => x.ListName)
+        .ThenBy(x => x.ListValue)
+        .ToList();
+    }
+
+    private IEnumerable<TalonList> FilteredTalonLists =>
+    talonLists
+    .Where(x => (string.IsNullOrWhiteSpace(filterName) || x.ListName.Contains(filterName,
+    StringComparison.OrdinalIgnoreCase))
+    && (string.IsNullOrWhiteSpace(filterValue) || x.ListValue.Contains(filterValue, StringComparison.OrdinalIgnoreCase)))
+    .OrderBy(x => x.ListName)
+    .ThenBy(x => x.ListValue);
+}

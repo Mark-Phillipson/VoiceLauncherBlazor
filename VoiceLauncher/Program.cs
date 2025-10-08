@@ -115,6 +115,10 @@ builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
 // Register configuration
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 
+// Register TalonList repository and data service
+builder.Services.AddScoped<DataAccessLibrary.Repositories.ITalonListRepository, DataAccessLibrary.Repositories.TalonListRepository>();
+builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, RazorClassLibrary.Services.TalonListDataService>();
+
 builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceLauncher.CursorlessCheatsheetItemJsonRepository>();
 var app = builder.Build();
 
