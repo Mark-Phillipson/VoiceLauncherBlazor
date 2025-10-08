@@ -336,6 +336,11 @@ namespace RazorClassLibrary.Pages
 		{
 			var launcher = LauncherDTO?.FirstOrDefault(l => l.Id == id);
 			if (launcher == null) { return; }
+			
+			// Check if this is a VS Code project launcher
+			var category = _categories.FirstOrDefault(c => c.Id == launcher.CategoryId);
+			var isVSCodeProject = category?.CategoryType?.Equals("VS Code Projects", StringComparison.OrdinalIgnoreCase) == true;
+			
 			var rawCmd = launcher.CommandLine ?? string.Empty;
 			// Trim and strip surrounding quotes if present
 			var cmd = rawCmd.Trim();
@@ -358,8 +363,28 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 			var lower = cmd.ToLowerInvariant();
+			
+			// If it's a VS Code project, launch VS Code with the folder path
+			if (isVSCodeProject)
+			{
+				var psi = new ProcessStartInfo();
+				psi.FileName = "code";
+				psi.Arguments = $"\"{cmd}\"";
+				psi.UseShellExecute = true;
+				psi.WindowStyle = ProcessWindowStyle.Normal;
+				try
+				{
+					Process.Start(psi);
+				}
+				catch (Exception exception)
+				{
+					Message = exception.Message;
+					return;
+				}
+				await CloseApplication.InvokeAsync();
+			}
 			// If it's an HTTP link, navigate to it
-			if (lower.StartsWith("http") && NavigationManager != null)
+			else if (lower.StartsWith("http") && NavigationManager != null)
 			{
 				NavigationManager.NavigateTo(launcher.CommandLine ?? string.Empty, true, false);
 			}

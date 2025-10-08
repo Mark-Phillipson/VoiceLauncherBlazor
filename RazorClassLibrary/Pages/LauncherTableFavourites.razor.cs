@@ -31,6 +31,7 @@ namespace RazorClassLibrary.Pages
 		public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
 		protected LauncherAddEdit? LauncherAddEdit { get; set; }
 		public string Message { get; set; } = "";
+		private List<CategoryDTO> _categories = new List<CategoryDTO>();
 		ElementReference SearchInput;
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
@@ -66,6 +67,8 @@ namespace RazorClassLibrary.Pages
 				if (CategoryDataService != null)
 				{
 					category = await CategoryDataService.GetCategoryById(CategoryId);
+					// Load all categories for launcher type checking
+					_categories = await CategoryDataService.GetAllCategoriesAsync("Launch Applications", 0);
 				}
 			}
 			catch (Exception e)
@@ -208,7 +211,28 @@ namespace RazorClassLibrary.Pages
 			{
 				return;
 			}
-			if (launcher.CommandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
+			
+			// Check if this is a VS Code project launcher
+			var category = _categories.FirstOrDefault(c => c.Id == launcher.CategoryId);
+			var isVSCodeProject = category?.CategoryType?.Equals("VS Code Projects", StringComparison.OrdinalIgnoreCase) == true;
+			
+			// If it's a VS Code project, launch VS Code with the folder path
+			if (isVSCodeProject)
+			{
+				var psi = new ProcessStartInfo();
+				psi.FileName = "code";
+				psi.Arguments = $"\"{launcher.CommandLine}\"";
+				psi.UseShellExecute = true;
+				try
+				{
+					Process.Start(psi);
+				}
+				catch (Exception exception)
+				{
+					Message = exception.Message;
+				}
+			}
+			else if (launcher.CommandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
 			{
 				NavigationManager.NavigateTo(launcher.CommandLine, true, false);
 			}
