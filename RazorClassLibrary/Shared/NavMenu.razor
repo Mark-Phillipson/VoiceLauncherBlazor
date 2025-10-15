@@ -213,24 +213,35 @@
 				 </span> <span>&nbsp; Cursorless 🎩</span>
 			</NavLink>
 		</li>
-		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="talon-voice-command-search" @onclick="MenuItemSelected">
-				<span aria-hidden="true">
-					@if (accessKeysEnabled)
-					{
-						<kbd class='mr-1'>/</kbd>
-					}
-					else
-					{
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-							class="bi bi-search" viewBox="0 0 16 16">
-							<path
-								d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-						</svg>
-					}
-				 </span> <span>&nbsp; Talon Search 🎤</span>
-			</NavLink>
-		</li>
+		   @if (IsTalonSearchEnabled())
+		   {
+			   <li class="nav-item px-3">
+				   <NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="talon-voice-command-search" @onclick="MenuItemSelected">
+					   <span aria-hidden="true">
+						   @if (accessKeysEnabled)
+						   {
+							   <kbd class='mr-1'>/</kbd>
+						   }
+						   else
+						   {
+							   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								   class="bi bi-search" viewBox="0 0 16 16">
+								   <path
+									   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+							   </svg>
+						   }
+						</span> <span>&nbsp; Talon Search 🎤</span>
+				   </NavLink>
+			   </li>
+		   }
+@code {
+	private bool IsTalonSearchEnabled()
+	{
+		// Show Talon Search both locally and in the cloud
+		// You can refine this logic as needed for your environment
+		return true;
+	}
+}
 		@if (Environment.MachineName == "J40L4V3")
 		{
 			<li class="nav-item px-3">
@@ -305,9 +316,9 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="smart-components">
-				 <span class="oi oi-code" aria-hidden="true"></span> AI Smart Components 🧩
-			</NavLink>
+			  <NavLink class="nav-link" href="smart-components">
+				  <span class="oi oi-code" aria-hidden="true"></span> AI Components 🧩
+			  </NavLink>
 		</li>
 		@* <div class="nav-item px-3">
 			<NavLink class="nav-link" href="accessible-launchers">
