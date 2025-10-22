@@ -8,6 +8,10 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    	<RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    	<PublishTrimmed>false</PublishTrimmed>
+    	<PublishReadyToRun>true</PublishReadyToRun>
+    	<SelfContained>true</SelfContained>
 	</PropertyGroup>
 
 	<ItemGroup>
