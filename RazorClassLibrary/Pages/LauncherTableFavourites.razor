@@ -13,10 +13,12 @@
 				id="SearchInput" name="SearchTerm"
 				placeholder="Filter by Name/Command Line (Alt+I)" />
 			<button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-				<i class="fas fa-redo"></i>
+				<!-- Bootstrap Icon Delete/Clear -->
+				<i class="bi bi-x-circle text-danger"></i>
 			</button>
 			<button class="btn btn-outline-primary" type="button" accesskey="c" title="Clear Cache & Refresh from DB (Alt+C)" @onclick="RefreshFromDatabaseAsync">
-				<i class="fas fa-sync-alt"></i>
+				<!-- Bootstrap Icon Sync -->
+				<i class="bi bi-arrow-clockwise"></i>
 			</button>
 		</div>
 	</div>
