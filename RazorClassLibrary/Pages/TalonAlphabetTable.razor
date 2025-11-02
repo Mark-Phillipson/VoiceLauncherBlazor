@@ -31,7 +31,7 @@ else if (FilteredTalonAlphabetDTO == null)
 else if (FilteredTalonAlphabetDTO.Count == 0)
 {
 	<p>No Talon Alphabet match the criteria</p>
-	<button @onclick="AddNewTalonAlphabet" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+	<button @onclick="AddNewTalonAlphabet" class="btn btn-outline-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -82,7 +82,7 @@ else
 					<th>Default Picture Url</th>
 					<th>
 						<button accesskey="+" @onclick="AddNewTalonAlphabet" class="btn btn-outline-success btn-sm">
-							<i class="fas fa-plus"></i>
+							<i class="bi bi-plus"></i>
 						</button>
 					</th>
 				</tr>
@@ -107,10 +107,10 @@ else
 						</td>
 						<td class="btn-group">
 							<button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTalonAlphabet(talonAlphabet.Id))">
-								<i class="fas fa-edit"></i>
+								<i class="bi bi-pencil"></i>
 							</button>
 							<button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteTalonAlphabet(talonAlphabet.Id))">
-								<i class="fas fa-trash"></i>
+								<i class="bi bi-trash"></i>
 							</button>
 						</td>
 					</tr>

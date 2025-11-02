@@ -52,7 +52,7 @@ else
                 <th>Auto Created</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewWindowsSpeechVoiceCommandAsync" class="btn btn-success btn-lg">
-                        Add <i class="fas fa-plus"></i>
+                        Add <i class="bi bi-plus"></i>
                     </button>
                     <button class="btn btn-danger btn-lg" type="button"
                         @onclick="@( () => ResetServerFilterAsync() )">Refresh <i
@@ -92,11 +92,11 @@ else
                         </button>
                         <button class="btn btn-warning"
                             @onclick="@(() => EditWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-danger"
                             @onclick="@(() => DeleteWindowsSpeechVoiceCommandAsync(windowsSpeechVoiceCommand.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

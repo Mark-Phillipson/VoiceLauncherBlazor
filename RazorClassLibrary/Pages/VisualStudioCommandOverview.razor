@@ -22,7 +22,7 @@ else if (FilteredVisualStudioCommands.Count == 0)
 {
 	<p>No visualstudio commands.</p>
 	@*<button @onclick="AddNewVisualStudioCommandAsync" accesskey="4" class="btn btn-success">Create (4) 
-	<i class="fas fa-plus"></i>
+	<i class="bi bi-plus"></i>
 	</button>*@
 }
 else
@@ -37,7 +37,7 @@ else
 				<th></th>
 				<th>Command</th>
 				@*<th>
-					<button accesskey="4" @onclick="AddNewVisualStudioCommandAsync" class="btn btn-success">Create (4) <i class="fas fa-plus"></i>
+					<button accesskey="4" @onclick="AddNewVisualStudioCommandAsync" class="btn btn-success">Create (4) <i class="bi bi-plus"></i>
 					</button>
 				</th>*@
 			</tr>
@@ -57,10 +57,10 @@ else
 				<td>@visualstudiocommand.Command</td>
 				@*<td class="btn-group">
 					<button class="btn btn-sm btn-warning" @onclick="@(() => EditVisualStudioCommandAsync(visualstudiocommand.Id))">
-						Edit <i class="fas fa-edit"></i>
+						Edit <i class="bi bi-pencil"></i>
 					</button>
 					<button class="btn btn-sm btn-danger" @onclick="@(() => DeleteVisualStudioCommandAsync(visualstudiocommand.Id))">
-						Delete <i class="fas fa-trash"></i>
+						Delete <i class="bi bi-trash"></i>
 					</button>
 				</td>*@
 			</tr>

@@ -26,7 +26,7 @@ else if (FilteredPromptDTO == null)
 else if (FilteredPromptDTO.Count == 0)
 {
     <p>No Prompt match the criteria</p>
-    <button @onclick="AddNewPrompt" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewPrompt" class="btn btn-outline-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -55,7 +55,7 @@ else
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewPrompt" class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -74,10 +74,10 @@ else
                     <td>@prompt.IsDefault</td>
                     <td class="btn-group-vertical">
                         <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditPrompt(prompt.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeletePrompt(prompt.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

@@ -29,7 +29,7 @@ else if (FilteredLanguageDTO.Count == 0)
     <p>No Languages match the criteria @GlobalSearchTerm</p>
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        <button @onclick="AddNewLanguage" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+        <button @onclick="AddNewLanguage" class="btn btn-outline-success">Add Record <i class="bi bi-plus"></i></button>
     }
 }
 else
@@ -55,7 +55,7 @@ else
                     {
                         <button title='Add New Language' accesskey="+" @onclick="AddNewLanguage"
                             class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-plus"></i>
+                            <i class="bi bi-plus"></i>
                         </button>
                     }
                 </th>
@@ -77,11 +77,11 @@ else
                     <td class="btn-group-vertical">
                         <button aria-label='Edit Language' class="btn btn-sm btn-outline-warning"
                             @onclick="@(() => EditLanguage(language.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button aria-label='Delete Language' class="btn btn-sm btn-outline-danger"
                             @onclick="@(() => DeleteLanguage(language.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

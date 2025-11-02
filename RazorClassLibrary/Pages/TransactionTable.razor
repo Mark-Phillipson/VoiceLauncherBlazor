@@ -82,19 +82,19 @@
         <div class="col-md-2">
             <button title="Go to 1st page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
                 @onclick="@(()  => PageDown(true))">
-                <i class="fa-solid fa-backward-fast"></i>
+                <i class="bi bi-arrow-left-square-fill"></i>
             </button>
             <button title="Go to previous page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
                 @onclick="(()  => PageDown(false))">
-                <i class="fa-solid fa-left-long"></i>
+                <i class="bi bi-arrow-left-square"></i>
             </button>
             <button title="Go to next page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
                 @onclick="(() => PageUp(false)) ">
-                <i class="fa-solid fa-right-long"></i>
+                <i class="bi bi-arrow-right-square"></i>
             </button>
             <button title="Go to last page" type="button" class="btn btn-sm btn-outline-secondary mx-1"
                 @onclick="(()  => PageUp(true))">
-                <i class="fa-solid fa-forward-fast"></i>
+                <i class="bi bi-arrow-right-square-fill"></i>
             </button>
         </div>
         <div class="col-md-2">
@@ -144,7 +144,7 @@ else if (FilteredTransactionDTO.Count ==
         criteria</p>
     <button @onclick="AddNewTransaction" class="btn btn-outline-primary  btn-lg">Add
         Record
-        <i class="fa-solid fa-plus"></i>
+        <i class="bi bi-file-plus"></i>
     </button>
 }
 else
@@ -158,64 +158,64 @@ else
                 <th style="width: 10%;">
                     Date
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th style='width:25%'>
                     Description
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Description"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("Description Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th style="width: 10%;">
                     Type
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Type Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th style="width: 12%;">
                     Money In
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyIn Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th style="width: 12%;">
                     Money Out
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("MoneyOut Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th style="width: 12%;">
                     My Type
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("MyTransactionType"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("MyTransactionType Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                 </th>
                 <th class="btn-group border border-1">
                     <button accesskey="+" @onclick="AddNewTransaction" class="btn btn-outline-success btn-sm">
                         Create
-                        <i class="fa-solid fa-plus"></i>
+                        <i class="bi bi-file-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -293,11 +293,11 @@ else
                         {
                             <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditTransaction(transaction.Id))">
                                 Edit
-                                <i class="fa-solid fa-pen-to-square"></i>
+                                <i class="bi bi-pencil-fill"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteTransaction(transaction.Id))">
                                 Delete
-                                <i class="fa-solid fa-trash"></i>
+                                <i class="bi bi-trash3"></i>
                             </button>
                         }
                         else
@@ -307,12 +307,12 @@ else
                                 <button disabled class="btn btn-sm btn-outline-warning"
                                     @onclick="@(() => EditTransaction(transaction.Id))">
                                     Edit
-                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <i class="bi bi-pencil-fill"></i>
                                 </button>
                                 <button disabled class="btn btn-sm btn-outline-danger"
                                     @onclick="@(() => DeleteTransaction(transaction.Id))">
                                     Delete
-                                    <i class="fa-solid fa-trash"></i>
+                                    <i class="bi bi-trash3"></i>
                                 </button>
                             }
                         }
@@ -325,10 +325,10 @@ else
                 <td></td>
                 <td colspan="3">
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortTransaction("Date Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                     Date
                 </td>
@@ -344,18 +344,18 @@ else
                 <td colspan="1">
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("MyTransactionType"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary"
                         @onclick="@(() => SortTransaction("MyTransactionType Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                     My Transaction Type
                 </td>
                 <td class="btn-group border border-1" style='width:100%'>
                     <button accesskey="+" @onclick="AddNewTransaction" class="btn btn-outline-success btn-sm">
                         Create
-                        <i class="fa-solid fa-plus"></i>
+                        <i class="bi bi-file-plus"></i>
                     </button>
                 </td>
             </tr>

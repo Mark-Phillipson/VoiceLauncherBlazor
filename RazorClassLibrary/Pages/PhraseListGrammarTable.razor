@@ -23,7 +23,7 @@ else if (FilteredPhraseListGrammarDTO == null)
 else if (FilteredPhraseListGrammarDTO.Count == 0)
 {
     <p>No Phrase List Grammar match the criteria</p>
-    <button @onclick="AddNewPhraseListGrammarAsync" class="btn btn-lg btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewPhraseListGrammarAsync" class="btn btn-lg btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -42,7 +42,7 @@ else
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewPhraseListGrammarAsync" class="btn btn-outline-success btn-lg">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -59,10 +59,10 @@ else
                     <td>@phraseListGrammar.PhraseListGrammarValue</td>
                     <td class="btn-group">
                         <button class="btn btn-lg btn-outline-warning" @onclick="@(() => EditPhraseListGrammarAsync(phraseListGrammar.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-lg btn-outline-danger" @onclick="@(() => DeletePhraseListGrammarAsync(phraseListGrammar.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

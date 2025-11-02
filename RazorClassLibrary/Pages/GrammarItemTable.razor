@@ -22,7 +22,7 @@ else if (FilteredGrammarItemDTO == null)
 else if (FilteredGrammarItemDTO.Count == 0)
 {
     <p>No Grammar Item match the criteria</p>
-    <button @onclick="AddNewGrammarItemAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewGrammarItemAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -41,7 +41,7 @@ else
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewGrammarItemAsync" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                     <button accesskey="s" @onclick="SaveAllAsync" class="btn btn-success btn-sm">
                         <i class="fas fa-save"></i>
@@ -63,7 +63,7 @@ else
                     </td>
                     <td class="btn-group-vertical">
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteGrammarItemAsync(grammarItem.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

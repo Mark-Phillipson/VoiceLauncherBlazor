@@ -57,7 +57,7 @@ else
 				<th>Description</th>
 				<th>
 					<button accesskey="+" @onclick="AddNewValueToInsert" class="btn btn-outline-success btn-lg">
-						Add <i class="fas fa-plus"></i>
+						Add <i class="bi bi-plus"></i>
 					</button>
 				</th>
 			</tr>
@@ -82,10 +82,10 @@ else
 					<td>@valueToInsert.Description</td>
 					<td class="btn-group">
 						<button class="btn btn-outline-warning" @onclick="@(() => EditValueToInsert(valueToInsert.Id))">
-							Edit <i class="fas fa-edit"></i>
+							Edit <i class="bi bi-pencil"></i>
 						</button>
 						<button class="btn btn-outline-danger" @onclick="@(() => DeleteValueToInsertAsync(valueToInsert.Id))">
-							Delete <i class="fas fa-trash"></i>
+							Delete <i class="bi bi-trash"></i>
 						</button>
 						<button accesskey="@counter" class="btn btn-outline-primary"
 							@onclick="@(() => CopyValueAsync(valueToInsert.ValueToInsertValue))">

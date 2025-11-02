@@ -18,7 +18,7 @@
             {
                 <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-3'
                     href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
-                    <i class="fa-solid fa-pen-to-square"></i> Manage
+                    <i class="bi bi-pencil-fill"></i> Manage
                 </a>
             }
             <InputSelect accesskey="p" id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
@@ -121,7 +121,7 @@
                 {
                     <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-1'
                         href="/quickpromptstable">
-                        <i class="fa-solid fa-pen-to-square"></i> Manage
+                        <i class="bi bi-pencil-fill"></i> Manage
                     </a>
                 }
             </label>

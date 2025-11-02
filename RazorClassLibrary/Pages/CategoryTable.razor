@@ -78,7 +78,7 @@ g.Categories.Count) == 0) ||
 (!_groupByLanguage && FilteredCategoryDTO != null && FilteredCategoryDTO.Count == 0))
 {
 	<p>No Category match the criteria @GlobalSearchTerm</p>
-	<button @onclick="AddNewCategoryAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+	<button @onclick="AddNewCategoryAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -160,10 +160,10 @@ else
 									<td>@category.Sensitive</td>
 									<td class="btn-group-vertical">
 										<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
-											<i class="fas fa-edit"></i>
+											<i class="bi bi-pencil"></i>
 										</button>
 										<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
-											<i class="fas fa-trash"></i>
+											<i class="bi bi-trash"></i>
 										</button>
 									</td>
 								</tr>
@@ -257,7 +257,7 @@ else
 						</th>
 						<th>
 							<button accesskey="+" @onclick="AddNewCategoryAsync" class="btn btn-success">
-								<i class="fas fa-plus"></i>
+								<i class="bi bi-plus"></i>
 							</button>
 						</th>
 					</tr>
@@ -271,10 +271,10 @@ else
 							<td>@category.Sensitive</td>
 							<td class="btn-group-vertical">
 								<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
-									<i class="fas fa-edit"></i>
+									<i class="bi bi-pencil"></i>
 								</button>
 								<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
-									<i class="fas fa-trash"></i>
+									<i class="bi bi-trash"></i>
 								</button>
 							</td>
 						</tr>

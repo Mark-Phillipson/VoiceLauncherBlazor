@@ -28,7 +28,7 @@ else if (FilteredSpokenFormDTO == null)
 else if (FilteredSpokenFormDTO.Count == 0)
 {
     <p>No Spoken Form match the criteria</p>
-    <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -45,7 +45,7 @@ else
                     Spoken Form Text
                 </th>
                 <th>
-          <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="fas fa-plus"></i></button>
+          <button @onclick="AddNewSpokenForm" class="btn btn-outline-success">Add Record <i class="bi bi-plus"></i></button>
                 </th>
             </tr>
         </thead>
@@ -56,10 +56,10 @@ else
                     <td>@spokenForm.SpokenFormText</td>
                     <td class="btn-group-vertical">
                         <button class="btn btn-sm btn-outline-warning" @onclick="@(() => EditSpokenForm(spokenForm.Id))">
-                           Edit <i class="fas fa-edit"></i>
+                           Edit <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSpokenForm(spokenForm.Id))">
-                           Delete <i class="fas fa-trash"></i>
+                           Delete <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

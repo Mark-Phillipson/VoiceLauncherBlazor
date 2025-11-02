@@ -27,7 +27,7 @@ else if (FilteredSavedMousePositionDTO == null)
 else if (FilteredSavedMousePositionDTO.Count == 0)
 {
     <p>No Saved Mouse Position match the criteria</p>
-    <button @onclick="AddNewSavedMousePositionAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewSavedMousePositionAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -48,7 +48,7 @@ else
               <th>Created</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewSavedMousePositionAsync" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -63,10 +63,10 @@ else
                     <td>@savedMousePosition.Created</td>
                     <td class="btn-group-vertical">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditSavedMousePositionAsync(savedMousePosition.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteSavedMousePositionAsync(savedMousePosition.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

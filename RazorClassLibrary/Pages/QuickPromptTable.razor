@@ -62,19 +62,19 @@ else
             <tr>
                 <th>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("Type"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("Type Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                     Type
                 </th>
                 <th>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("Command"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("Command Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                     Command
                 </th>
@@ -86,16 +86,16 @@ else
                 </th>
                 <th>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("CreatedDate"))">
-                        <i class="fa-solid fa-arrow-up-a-z"></i>
+                        <i class="bi bi-sort-alpha-down"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" @onclick="@(() => SortQuickPrompt("CreatedDate Desc"))">
-                        <i class="fa-solid fa-arrow-up-z-a"></i>
+                        <i class="bi bi-sort-alpha-down-alt"></i>
                     </button>
                     Created
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewQuickPrompt" class="btn btn-sm btn-success">
-                        <i class="fa-solid fa-plus"></i>
+                        <i class="bi bi-file-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -119,7 +119,7 @@ else
                         </button>
                         <button class="btn btn-sm btn-outline-danger" 
                                 @onclick="@(() => DeleteQuickPromptAsync(quickPrompt.Id))">
-                            <i class="fa-solid fa-trash"></i>
+                            <i class="bi bi-trash3"></i>
                         </button>
                     </td>
                 </tr>

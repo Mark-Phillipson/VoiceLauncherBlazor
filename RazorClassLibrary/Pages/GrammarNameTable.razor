@@ -26,7 +26,7 @@ else if (FilteredGrammarNameDTO == null)
 else if (FilteredGrammarNameDTO.Count == 0)
 {
     <p>No Grammar Name match the criteria</p>
-    <button @onclick="AddNewGrammarNameAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewGrammarNameAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -44,7 +44,7 @@ else
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewGrammarNameAsync" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -56,10 +56,10 @@ else
                     <td>@grammarName.NameOfGrammar</td>
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditGrammarNameAsync(grammarName.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteGrammarNameAsync(grammarName.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
 

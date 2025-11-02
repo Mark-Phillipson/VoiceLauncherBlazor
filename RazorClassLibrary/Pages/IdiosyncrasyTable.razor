@@ -52,7 +52,7 @@ else
                 <th>String Formatting Method</th>
                 <th>
                     <button accesskey="+" @onclick="AddNewIdiosyncrasyAsync" class="btn btn-outline-success btn-lg">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -67,11 +67,11 @@ else
                     <td class="btn-group">
                         <button class="btn btn-lg btn-outline-warning"
                             @onclick="@(() => EditIdiosyncrasyAsync(idiosyncrasy!.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-lg btn-outline-danger"
                             @onclick="@(() => DeleteIdiosyncrasyAsync(idiosyncrasy!.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

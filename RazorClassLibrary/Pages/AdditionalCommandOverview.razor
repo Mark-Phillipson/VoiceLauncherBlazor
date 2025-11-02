@@ -24,7 +24,7 @@ else if (FilteredAdditionalCommands.Count == 0)
 {
 	<p>No additional commands.</p>
 	<button @onclick="AddNewAdditionalCommandAsync" accesskey="5" class="btn btn-success">Create (Alt+5) 
-	<i class="fas fa-plus"></i>
+	<i class="bi bi-plus"></i>
 	</button>
 }
 else
@@ -39,7 +39,7 @@ else
 				<th>Delivery Type</th>
 				<th>Remarks</th>
 				<th>
-					<button accesskey="5" @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create (Alt+5) <i class="fas fa-plus"></i>
+					<button accesskey="5" @onclick="AddNewAdditionalCommandAsync" class="btn btn-success">Create (Alt+5) <i class="bi bi-plus"></i>
 					</button>
 				</th>
 			</tr>
@@ -54,10 +54,10 @@ else
 				<td>@additionalcommand.Remarks</td>
 				<td class="btn-group">
 					<button class="btn btn-sm btn-warning" @onclick="@(() => EditAdditionalCommandAsync(additionalcommand.Id))">
-						Edit <i class="fas fa-edit"></i>
+						Edit <i class="bi bi-pencil"></i>
 					</button>
 					<button class="btn btn-sm btn-danger" @onclick="@(() => DeleteAdditionalCommandAsync(additionalcommand.Id))">
-						Delete <i class="fas fa-trash"></i>
+						Delete <i class="bi bi-trash"></i>
 					</button>
 				</td>
 			</tr>

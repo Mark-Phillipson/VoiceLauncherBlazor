@@ -23,7 +23,7 @@ else if (FilteredHtmlTagDTO == null)
 else if (FilteredHtmlTagDTO.Count == 0)
 {
     <p>No Html Tag match the criteria</p>
-    <button @onclick="AddNewHtmlTagAsync" class="btn btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewHtmlTagAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -69,7 +69,7 @@ else
                 </th>
                 <th>
                     <button accesskey="+" @onclick="AddNewHtmlTagAsync" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i>
+                        <i class="bi bi-plus"></i>
                     </button>
                 </th>
             </tr>
@@ -85,10 +85,10 @@ else
                     <td>@htmlTag.SpokenForm</td>
                     <td class="btn-group-vertical">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditHtmlTagAsync(htmlTag.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteHtmlTagAsync(htmlTag.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

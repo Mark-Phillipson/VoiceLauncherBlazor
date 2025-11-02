@@ -7,14 +7,14 @@
             <h2 class="mb-0">@Title</h2>
             <div class="d-flex gap-1">
                 <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
-                    <i class="fas fa-sort-alpha-up"></i>
+                    <i class="bi bi-sort-alpha-up"></i>
                 </button>
                 <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
-                    <i class="fas fa-sort-alpha-up-alt"></i>
+                    <i class="bi bi-sort-alpha-down"></i>
                 </button>
             </div>
             <button class="btn btn-md btn-outline-danger" type="button" @onclick="@(() => LoadData(true))">
-                <i class="fa-solid fa-arrows-rotate"></i>
+                <i class="bi bi-arrow-clockwise"></i>
             </button>
         </div>
     }
@@ -46,7 +46,7 @@
     {
         <div class="col-auto me-4">
             <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-md btn-outline-success">
-                Add (<i class="fas fa-plus"></i>)
+                Add (<i class="bi bi-plus"></i>)
             </button>
         </div>
     }
@@ -59,7 +59,7 @@
                        @bind="SearchTerm" @bind:event="oninput"
                        id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
                 <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-                    <i class="fas fa-redo"></i>
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
         </div>
@@ -87,7 +87,7 @@ else if (FilteredLauncherDTO == null)
 else if (FilteredLauncherDTO.Count == 0)
 {
     <p>No Launcher match the criteria @GlobalSearchTerm</p>
-    <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -122,11 +122,11 @@ else
                         <div class="btn-group">
                             <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="fas fa-edit"></i>
+                                <i class="bi bi-pencil"></i>
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
-                                <i class="fas fa-trash"></i>
+                                <i class="bi bi-trash"></i>
                             </button>
                         </div>
                     }
@@ -176,11 +176,11 @@ else
                         <div class="btn-group">
                             <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="fas fa-edit"></i>
+                                <i class="bi bi-pencil"></i>
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
-                                <i class="fas fa-trash"></i>
+                                <i class="bi bi-trash"></i>
                             </button>
                         </div>
                     }

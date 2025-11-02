@@ -12,7 +12,7 @@ else if (FilteredCustomWindowsSpeechCommandDTO == null)
 }
 else if (FilteredCustomWindowsSpeechCommandDTO.Count == 0)
 {
-    <button @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+    <button @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm"><i class="bi bi-plus"></i></button>
 }
 else
 {
@@ -21,7 +21,7 @@ else
         <tr>
             <th>
                 <button accesskey="x" @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm">
-                    <i class="fas fa-plus"></i> Add Action
+                    <i class="bi bi-plus"></i> Add Action
                 </button>
             </th>
         </tr>
@@ -117,10 +117,10 @@ else
                     }
                     <td class="btn-group">
                         <button class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

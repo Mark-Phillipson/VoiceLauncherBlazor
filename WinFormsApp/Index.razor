@@ -1,7 +1,8 @@
 ﻿@page "/"
 @using System.Diagnostics;
 @using RazorClassLibrary.Pages
-<CascadingBlazoredModal>	@if (!showAIChat && !showTalonSearch)
+<CascadingBlazoredModal>	
+@if (!showAIChat && !showTalonSearch)
 	{
 		<div class='m-2' style="text-align: center;">
 			<button accesskey="/" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MaximizeWindow())"><u>/</u>
@@ -9,8 +10,9 @@
 			<button accesskey="_" class="btn btn-sm btn-outline-secondary" @onclick="@(() => MinimizeWindow())"><u>_</u>
 				Minimize</button>
 			<button accesskey="*" class="btn btn-sm btn-outline-secondary" @onclick="@(() => RestoreWindow())"><u>*</u>
-				Restore</button> <button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
-				<i class="fas fa-sync"></i> Refresh Data
+				Restore</button> 
+			<button class="btn btn-sm btn-outline-info" @onclick="@(() => RefreshCache())">
+				<i class="bi bi-arrow-repeat"></i> Refresh Data
 			</button>
 			<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
 				@AIChatButtonCaption</button>
