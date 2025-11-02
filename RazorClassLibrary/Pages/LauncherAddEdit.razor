@@ -73,7 +73,7 @@
                 
                 <div class="form-group mt-3">
                     <label>Additional Categories:</label>
-                    <div class="border p-2" style="max-height: 460px; overflow-y: auto;">
+                    <div class="border p-2" style="max-height: 660px; overflow-y: auto;">
                         @foreach (var category in _categories.Where(c => c.Id != LauncherDTO.CategoryId))
                         {
                             <div class="form-check">
@@ -93,7 +93,7 @@
             <div class="col-3">
                 <div class="form-group">
                     <label for="CommandLine">Command Line: </label>
-                    <InputTextArea rows="2" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
+                    <InputTextArea rows="4" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
                         placeholder="Enter Command Line"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.CommandLine)" />
                 </div>
@@ -105,15 +105,9 @@
                 </div>
                 <div class="form-group">
                     <label for="Arguments">Arguments:</label>
-                    <InputText id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
-                        placeholder="Enter Arguments"></InputText>
+                    <InputTextArea rows="3" id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
+                        placeholder="Enter Arguments"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.Arguments)" />
-                </div>
-                <div class="form-group">
-                    <label for="ComputerId">Computer ID: </label>
-                    <InputNumber id="ComputerId" class="form-control" @bind-Value="@LauncherDTO.ComputerId"
-                        placeholder="Enter Computer ID"></InputNumber>
-                    <ValidationMessage For="@(() => LauncherDTO.ComputerId)" />
                 </div>
                 <div class="form-group">
                     <label for="SortOrder">Sort Order: </label>
@@ -122,8 +116,7 @@
                     <ValidationMessage For="@(() => LauncherDTO.SortOrder)" />
                 </div>
                 <div class="form-group">
-                    <label for="Favourite" class="d-block mb-2">Favourite: </label>
-                    <div class="form-check">
+                    <div class="form-check mt-2">
                         <InputCheckbox id="Favorite" class="form-check-input" 
                             style="width: 30px; height: 30px; cursor: pointer;"
                             @bind-Value="@LauncherDTO.Favourite" />
@@ -132,28 +125,26 @@
                         </label>
                     </div>
                     <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
+                    <div class="d-flex flex-column mt-3">
+                        @if (ModalInstance != null)
+                        {
+                            <button type='button' accesskey="2" class="btn btn-lg btn-outline-primary mb-2" @onclick="@Close">Cancel (2)</button>
+                        }
+                        else
+                        {
+                            <button type='button' class="btn btn-lg btn-outline-secondary mb-2" @onclick="GoBack">
+                                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                                <span class="ms-2">Back</span>
+                            </button>
+                        }
+                        <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary mb-2">Save Record (4)</button>
+                        <SmartPasteButton class='btn btn-lg btn-outline-danger mb-2' DefaultIcon />
+                    </div>
                 </div>
+                <!-- Computer ID field hidden as only one computer is used -->
             </div>
         </div>
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="" style="float:right">
-                    @if (ModalInstance != null)
-                    {
-                        <button type='button' accesskey="2" class="btn btn-lg btn-outline-primary m-1" @onclick="@Close">Cancel (2)</button>
-                    }
-                    else
-                    {
-                        <button type='button' class="btn btn-lg btn-outline-secondary m-1" @onclick="GoBack">
-                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
-                            <span class="ms-2">Back</span>
-                        </button>
-                    }
-                    <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary m-1">Save Record (4)</button>
-                    <SmartPasteButton class='btn btn-lg btn-outline-danger' DefaultIcon />
-                </div>
-            </div>
-        </div>
+        <!-- Action buttons moved to third column under Favourite checkbox -->
     </EditForm>
 </div>
 
