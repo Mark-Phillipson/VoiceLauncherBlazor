@@ -30,6 +30,13 @@ public partial class LauncherAddEdit : ComponentBase
 #pragma warning restore 414, 649
     string[] filenameList = new string[0];
     List<string> imageUlrs = new List<string>();
+    // Property for filter textbox
+    public string ImageFilterText { get; set; } = string.Empty;
+    // Computed property for filtered image list
+    public IEnumerable<string> FilteredImageUrls =>
+        string.IsNullOrWhiteSpace(ImageFilterText)
+            ? imageUlrs
+            : imageUlrs.Where(img => img.Contains(ImageFilterText, StringComparison.OrdinalIgnoreCase));
     // New property to track icon input mode
     public bool UseCustomIconUrl { get; set; } = false;
     private void SetIconInputMode(bool useCustom)
@@ -117,29 +124,28 @@ public partial class LauncherAddEdit : ComponentBase
             ModalInstance.CancelAsync();
     }
 
-    protected void CategoryCheckboxChanged(int categoryId, object? checkedValue)
+    protected void CategoryCheckboxChanged(int categoryId, ChangeEventArgs e)
     {
-        if (checkedValue is bool isChecked)
+        bool isChecked = false;
+        if (e?.Value is bool b)
+            isChecked = b;
+        else if (e?.Value?.ToString() == "true")
+            isChecked = true;
+
+        if (isChecked)
         {
-            if (isChecked)
+            SelectedCategoryIds.Add(categoryId);
+            if (LauncherDTO.CategoryId <= 0)
             {
-                SelectedCategoryIds.Add(categoryId);
-
-                // If no primary category is set, use this as primary
-                if (LauncherDTO.CategoryId <= 0)
-                {
-                    LauncherDTO.CategoryId = categoryId;
-                }
+                LauncherDTO.CategoryId = categoryId;
             }
-            else
+        }
+        else
+        {
+            SelectedCategoryIds.Remove(categoryId);
+            if (LauncherDTO.CategoryId == categoryId && SelectedCategoryIds.Any())
             {
-                SelectedCategoryIds.Remove(categoryId);
-
-                // If removing the primary category, select another one as primary if available
-                if (LauncherDTO.CategoryId == categoryId && SelectedCategoryIds.Any())
-                {
-                    LauncherDTO.CategoryId = SelectedCategoryIds.First();
-                }
+                LauncherDTO.CategoryId = SelectedCategoryIds.First();
             }
         }
     }

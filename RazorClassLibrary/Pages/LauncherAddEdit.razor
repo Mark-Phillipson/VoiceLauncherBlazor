@@ -17,16 +17,17 @@
             <div class="col-6">
                 <div class="form-group">
                     <label for="Icon">Icon:</label>
-                    <div>
+                    <div class="d-flex align-items-center mb-2 gap-3">
                         <input type="radio" id="iconList" name="iconMode" checked="@(!UseCustomIconUrl)" @onchange="_ => SetIconInputMode(false)" />
-                        <label for="iconList">Select from list</label>
+                        <label for="iconList" class="me-2">Select from list</label>
                         <input type="radio" id="iconUrl" name="iconMode" checked="@(UseCustomIconUrl)" @onchange="_ => SetIconInputMode(true)" class="ms-3" />
-                        <label for="iconUrl">Enter web address</label>
+                        <label for="iconUrl" class="me-2">Enter web address</label>
+                        <InputText class="form-control flex-grow-1" style="max-width: 250px;" placeholder="Type to filter images..." @bind-Value="ImageFilterText" />
                     </div>
                     @if (!UseCustomIconUrl)
                     {
                         <div class="d-flex flex-wrap gap-2 border p-2" style="height: 800px; overflow-y: auto;">
-                            @foreach (var item in imageUlrs)
+                            @foreach (var item in FilteredImageUrls)
                             {
                                 <div class="d-flex flex-column align-items-center" style="width: 100px;">
                                     <img src="/images/@item" 
@@ -77,11 +78,11 @@
                         @foreach (var category in _categories.Where(c => c.Id != LauncherDTO.CategoryId))
                         {
                             <div class="form-check">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="category-@category.Id" 
-                                       checked="@(SelectedCategoryIds.Contains(category.Id))" 
-                                       @onchange="@(e => CategoryCheckboxChanged(category.Id, e?.Value))" />
+                    <input class="form-check-input" 
+                        type="checkbox" 
+                        id="category-@category.Id" 
+                        checked="@(SelectedCategoryIds.Contains(category.Id))" 
+                        @onchange="@(e => CategoryCheckboxChanged(category.Id, e))" />
                                 <label class="form-check-label" for="category-@category.Id">
                                     @category.CategoryName
                                 </label>
