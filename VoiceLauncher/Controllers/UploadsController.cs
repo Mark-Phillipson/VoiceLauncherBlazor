@@ -36,11 +36,13 @@ namespace VoiceLauncherBlazor.Controllers
                 return BadRequest("No file uploaded.");
             var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             Directory.CreateDirectory(uploadsPath);
+            var guid = Guid.NewGuid().ToString();
             var fileName = Path.GetFileName(file.FileName);
-            var filePath = Path.Combine(uploadsPath, fileName);
+            var uniqueFileName = $"{guid}_{fileName}";
+            var filePath = Path.Combine(uploadsPath, uniqueFileName);
             using var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
-            return Ok(new { url = $"/uploads/{fileName}" });
+            return Ok(new { url = $"/uploads/{uniqueFileName}" });
         }
     }
 }
