@@ -50,7 +50,7 @@ public partial class LauncherAddEdit : ComponentBase
     private void LoadImages()
     {
         string imagesPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
-        string uploadsPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\uploads";
+        string uploadsPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\uploads";
         var allFiles = new List<string>();
         if (Directory.Exists(imagesPath))
         {
