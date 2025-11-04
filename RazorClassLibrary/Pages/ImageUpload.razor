@@ -17,9 +17,10 @@
         <img src="@UploadedImageUrl" class="img-thumbnail" style="max-width:200px;max-height:200px;" />
     </div>
 }
-<button class="btn btn-primary" @onclick="UploadImage" disabled="@(SelectedFile == null)">Upload</button>
+<button type="button" class="btn btn-primary" @onclick="UploadImage" disabled="@(SelectedFile == null)">Upload</button>
 
 @code {
+    [Parameter] public EventCallback<string> OnImageUploaded { get; set; }
     private IBrowserFile? SelectedFile;
     private string? UploadedImageUrl;
 
@@ -42,6 +43,10 @@
             var json = await response.Content.ReadAsStringAsync();
             var url = System.Text.Json.JsonDocument.Parse(json).RootElement.GetProperty("url").GetString();
             UploadedImageUrl = url;
+            if (OnImageUploaded.HasDelegate)
+            {
+                await OnImageUploaded.InvokeAsync(url);
+            }
         }
         else
         {

@@ -18,26 +18,23 @@
             </button>
         </div>
     }
-    else
+    else if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
-        {
-            <div class="col-md-12">
-                <div class="text-center text-info">
-                    <text>Launch Search Results: @GlobalSearchTerm </text>
-                </div>
+        <div class="col-md-12">
+            <div class="text-center text-info">
+                Launch Search Results: @GlobalSearchTerm
             </div>
-        }
+        </div>
     }
     <div class="col-auto me-4">
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <InputSelect accesskey='1' ValueExpression="@(() => CategoryId)" id='CategoryId' Value="@CategoryId"
+            <InputSelect accesskey="1" ValueExpression="@(() => CategoryId)" id="CategoryId" Value="@CategoryId"
                 ValueChanged="@((int value) => OnCategorySelectedAsync(value))" class="form-select">
                 <option value="">Select Category (Alt+1)</option>
                 @foreach (var item in _categories)
                 {
-                    <option style="font-size:xx-large" value="@item.Id">@item.CategoryName </option>
+                    <option style="font-size:xx-large" value="@item.Id">@item.CategoryName</option>
                 }
             </InputSelect>
         }
@@ -50,7 +47,6 @@
             </button>
         </div>
     }
-
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-auto me-4">
@@ -66,50 +62,38 @@
     }
 </div>
 <hr class="my-2" />
-@if (Message.Length > 0)
+@if (!string.IsNullOrEmpty(Message))
 {
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <strong>Please Note!</strong> @Message
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
-@if (FilteredLauncherDTO == null && _loadFailed == true)
+@if (FilteredLauncherDTO == null && _loadFailed)
 {
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
     <button class="btn btn-md btn-danger" type="button" @onclick="@(() => LoadData())">Reload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
-else if (FilteredLauncherDTO == null)
+@if (FilteredLauncherDTO != null)
 {
-    <div style="display:normal;margin:auto" class="loader"></div>
-}
-else if (FilteredLauncherDTO.Count == 0)
-{
-    <p>No Launcher match the criteria @GlobalSearchTerm</p>
-    <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
-}
-else
-{
-    <div class="layout-as-cards">
-        @{
-            alphabetCounter = 0;
-        }
-        @foreach (var launcher in FilteredLauncherDTO)
+    <div class="d-flex flex-wrap">
+        @for (int i = 0; i < FilteredLauncherDTO.Count; i++)
         {
-            alphabetCounter++;
-            currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
-            @if (launcher.CommandLine.ToLower().StartsWith("http"))
+            var launcher = FilteredLauncherDTO[i];
+            var iconSrc = GetIconSrc(launcher);
+            var isVSCode = IsVSCode(launcher);
+            var isExplorer = IsExplorer(launcher);
+            var currentLetter = GetCurrentLetter(i);
+            
+            if (launcher.CommandLine != null && launcher.CommandLine.ToLower().StartsWith("http"))
             {
                 <div class="card m-1">
                     <a title="Launch Application or Website" accesskey="@currentLetter" class="btn btn-outline-success"
-                        target="_blank" href="@launcher.CommandLine">
-                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                       target="_blank" href="@launcher.CommandLine">
+                        @if (!string.IsNullOrEmpty(iconSrc))
                         {
-                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                            ? launcher.Icon
-                            : $"/images/{launcher.Icon}";
-                            <img alt='Icon' src='@iconSrc' class="mb-2" />
+                            <img alt="Icon" src="@iconSrc" class="mb-2" />
                         }
                         else
                         {
@@ -120,12 +104,12 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
-                                @onclick="@(() => EditLauncherAsync(launcher.Id))">
+                            <button title="Edit Launcher" class="btn-narrow btn btn-md btn-outline-warning"
+                                    @onclick="@(() => EditLauncherAsync(launcher.Id))">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
-                                @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
+                            <button title="Delete Launcher" class="btn-narrow btn btn-md btn-outline-danger"
+                                    @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -134,19 +118,12 @@ else
             }
             else
             {
-                // VS Code launcher: command starts with 'code '
-                var isVSCode = launcher.CommandLine.Trim().ToLower().StartsWith("code ");
-                // File Explorer launcher: command starts with 'explorer '
-                var isExplorer = launcher.CommandLine.Trim().ToLower().StartsWith("explorer ");
                 <div class="card m-1" style="@(isVSCode ? "border: 2px solid #0078d7;" : isExplorer ? "border: 2px solid #28a745;" : "")">
-                    <button title='Launch Application or Website' accesskey="@currentLetter" class="btn btn-outline-success"
-                        type="button" @onclick="@(() => ProcessLaunching(launcher.Id))">
-                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                    <button title="Launch Application or Website" accesskey="@currentLetter" class="btn btn-outline-success"
+                            type="button" @onclick="@(() => ProcessLaunching(launcher.Id))">
+                        @if (!string.IsNullOrEmpty(iconSrc))
                         {
-                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                            ? launcher.Icon
-                            : $"/images/{launcher.Icon}";
-                            <img alt='Icon' src='@iconSrc' class="mb-2" />
+                            <img alt="Icon" src="@iconSrc" class="mb-2" />
                         }
                         else if (isVSCode)
                         {
@@ -174,12 +151,12 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
-                                @onclick="@(() => EditLauncherAsync(launcher.Id))">
+                            <button title="Edit Launcher" class="btn-narrow btn btn-md btn-outline-warning"
+                                    @onclick="@(() => EditLauncherAsync(launcher.Id))">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
-                                @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
+                            <button title="Delete Launcher" class="btn-narrow btn btn-md btn-outline-danger"
+                                    @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>

@@ -40,7 +40,7 @@ namespace VoiceLauncherBlazor.Controllers
             var filePath = Path.Combine(uploadsPath, fileName);
             using var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
-            return Ok(new { url = $"/api/uploads/{fileName}" });
+            return Ok(new { url = $"/uploads/{fileName}" });
         }
     }
 }

@@ -6,6 +6,28 @@
 
 <PageTitle>Accessible Launcher</PageTitle>
 
+@code {
+    private string GetIconUrl(string icon)
+    {
+        if (string.IsNullOrWhiteSpace(icon)) return "";
+        if (icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return icon;
+        if (icon.Contains("/uploads/") || icon.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+            return icon.Replace("\\", "/").TrimStart('/');
+        if (icon.Contains("/images/") || icon.StartsWith("images/", StringComparison.OrdinalIgnoreCase))
+            return icon.Replace("\\", "/").TrimStart('/');
+        // If just a filename, default to /uploads/ first, fallback to /images/
+        // (Ideally check existence, but for now try /uploads/)
+        return $"/uploads/{icon.Replace("\\", "/").TrimStart('/', ' ')}";
+    }
+
+    private bool IsValidIcon(string icon)
+    {
+        if (string.IsNullOrWhiteSpace(icon)) return false;
+        if (icon.Equals("Broken.png", StringComparison.OrdinalIgnoreCase)) return false;
+        // Add more checks for known invalid icons if needed
+        return true;
+    }
+}
 <div class="row" style="height: 85vh;">
     <div class="col-md-8" style="height: 100%; overflow-y: auto;" @ref="listContainer" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="true" tabindex="0" role="listbox" aria-label="Launchers List">
         @if (Launchers == null && _loadFailed)
@@ -45,11 +67,9 @@
                         role="option" 
                         aria-selected="@(i == SelectedIndex)"
                         tabindex="-1">
-                        @if (launcher.Icon != null && launcher.Icon.Length > 0)
+                        @if (IsValidIcon(launcher.Icon))
                         {
-                            var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                                ? launcher.Icon
-                                : $"/images/{launcher.Icon}";
+                            var iconSrc = GetIconUrl(launcher.Icon);
                             <img src="@iconSrc" alt="@launcher.Name icon" style="height: 30px; width: auto; margin-right: 10px;" />
                         }
                         else
@@ -58,6 +78,7 @@
                         }
                         @launcher.Name
                     </li>
+// ...existing code...
                 }
             </ul>
         }

@@ -49,11 +49,29 @@ public partial class LauncherAddEdit : ComponentBase
     }
     private void LoadImages()
     {
-        string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
-        filenameList = Directory.GetFiles(directoryPath);
-        foreach (string item in filenameList)
+        string imagesPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
+        string uploadsPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\uploads";
+        var allFiles = new List<string>();
+        if (Directory.Exists(imagesPath))
         {
-            string imageUrl = item.Replace(@"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images\", "");
+            allFiles.AddRange(Directory.GetFiles(imagesPath));
+        }
+        if (Directory.Exists(uploadsPath))
+        {
+            allFiles.AddRange(Directory.GetFiles(uploadsPath));
+        }
+        filenameList = allFiles.ToArray();
+        foreach (string item in allFiles)
+        {
+            string imageUrl = "";
+            if (item.StartsWith(imagesPath))
+            {
+                imageUrl = "/images/" + item.Substring(imagesPath.Length + 1).Replace("\\", "/");
+            }
+            else if (item.StartsWith(uploadsPath))
+            {
+                imageUrl = "/uploads/" + item.Substring(uploadsPath.Length + 1).Replace("\\", "/");
+            }
             imageUlrs.Add(imageUrl);
         }
     }

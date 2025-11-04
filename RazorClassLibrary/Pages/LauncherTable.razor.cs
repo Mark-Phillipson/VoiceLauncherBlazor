@@ -36,8 +36,29 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public bool RunningInBlazorHybrid { get; set; }
 		[Parameter] public string GlobalSearchTerm { get; set; } = "";
 		public required AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
-		private int alphabetCounter = 0;
-		private string? currentLetter = "";
+		public Dictionary<int, string> IconUrlMap { get; set; } = new();
+
+		public string GetIconSrc(LauncherDTO launcher)
+		{
+			if (launcher.Icon != null && launcher.Icon.Length > 0 && IconUrlMap.ContainsKey(launcher.Id))
+				return IconUrlMap[launcher.Id];
+			return string.Empty;
+		}
+
+		public bool IsVSCode(LauncherDTO launcher)
+		{
+			return launcher.CommandLine?.Trim().ToLower().StartsWith("code ") ?? false;
+		}
+
+		public bool IsExplorer(LauncherDTO launcher)
+		{
+			return launcher.CommandLine?.Trim().ToLower().StartsWith("explorer ") ?? false;
+		}
+
+		public string GetCurrentLetter(int index)
+		{
+			return Alphabet.AlphabetList?.FirstOrDefault(x => x.Id == index + 1)?.Letter ?? string.Empty;
+		}
 
 		public List<LauncherDTO>? LauncherDTO { get; set; }
 		public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
@@ -74,6 +95,16 @@ namespace RazorClassLibrary.Pages
 			else
 			{
 				await LoadData(RefreshData);
+			}
+			
+			// Populate IconUrlMap after loading data
+			if (FilteredLauncherDTO != null)
+			{
+				IconUrlMap.Clear();
+				foreach (var launcher in FilteredLauncherDTO)
+				{
+					IconUrlMap[launcher.Id] = await GetIconUrlAsync(launcher.Icon);
+				}
 			}
 		}
 		private async Task LoadData(bool forceRefresh = false)
@@ -442,6 +473,41 @@ namespace RazorClassLibrary.Pages
                 }
             }
             catch { }
+        }
+        
+        private async Task<string> GetIconUrlAsync(string icon)
+        {
+            if (string.IsNullOrWhiteSpace(icon)) return "";
+            if (icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return icon;
+            if (icon.Contains("/uploads/") || icon.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+                return icon.Replace("\\", "/").TrimStart('/');
+            if (icon.Contains("/images/") || icon.StartsWith("images/", StringComparison.OrdinalIgnoreCase))
+                return icon.Replace("\\", "/").TrimStart('/');
+            
+            // If just a filename, check /uploads/ first
+            if (NavigationManager != null)
+            {
+                try
+                {
+                    var baseUri = NavigationManager.BaseUri;
+                    var apiUrl = $"{baseUri}api/FileExists/exists?folder=uploads&filename={Uri.EscapeDataString(icon)}";
+                    using var httpClient = new HttpClient();
+                    var response = await httpClient.GetAsync(apiUrl);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        if (json.Contains("true"))
+                            return $"/uploads/{icon.Replace("\\", "/").TrimStart('/', ' ')}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger?.LogWarning(ex, "Failed to check if icon exists in uploads folder: {Icon}", icon);
+                }
+            }
+            
+            // Fallback to /images/
+            return $"/images/{icon.Replace("\\", "/").TrimStart('/', ' ')}";
         }
 	}
 }

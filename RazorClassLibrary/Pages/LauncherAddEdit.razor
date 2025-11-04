@@ -45,15 +45,32 @@
                         <InputText id="IconUrl" class="form-control" @bind-Value="@LauncherDTO.Icon" placeholder="Enter icon web address or image path" />
                         @if (!string.IsNullOrEmpty(LauncherDTO.Icon))
                         {
-                            <img src="@(LauncherDTO.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? LauncherDTO.Icon : $"/images/{LauncherDTO.Icon}")" 
-                                 class="mt-2 img-thumbnail" 
-                                 style="width: 100px; height: 48px; object-fit: contain;"
-                                 alt="Selected icon preview" />
+                           <img src="@GetIconUrl(LauncherDTO.Icon)"
+                               class="mt-2 img-thumbnail"
+                               style="width: 100px; height: 48px; object-fit: contain;"
+                               alt="Selected icon preview" />
                         }
                     }
                     <ValidationMessage For="@(() => LauncherDTO.Icon)" />
+@code {
+    // ...existing code...
+    private string GetIconUrl(string? icon)
+    {
+        if (string.IsNullOrEmpty(icon))
+            return "/images/default.png";
+        if (icon.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+            return icon;
+        if (icon.StartsWith("/images/", StringComparison.OrdinalIgnoreCase))
+            return icon;
+        if (icon.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return icon;
+        // If it's just a filename, default to /images/
+        return $"/images/{icon}";
+    }
+    // ...existing code...
+}
                     <div class="mt-3">
-                        <ImageUpload />
+                        <ImageUpload OnImageUploaded="@(iconUrl => LauncherDTO.Icon = iconUrl)" />
                     </div>
                 </div>
             </div>
