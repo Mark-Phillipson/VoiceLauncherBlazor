@@ -30,7 +30,7 @@
                             @foreach (var item in FilteredImageUrls)
                             {
                                 <div class="d-flex flex-column align-items-center" style="width: 100px;">
-                                    <img src="/images/@item" 
+                                    <img src="@item" 
                                          class="img-thumbnail mb-1" 
                                          style="width: 100px; height: 48px; cursor: pointer; border: @(LauncherDTO.Icon == item ? "2px solid #007bff" : "1px solid #dee2e6"); object-fit: contain;"
                                          @onclick="@(() => LauncherDTO.Icon = item)"
@@ -69,9 +69,7 @@
     }
     // ...existing code...
 }
-                    <div class="mt-3">
-                        <ImageUpload OnImageUploaded="@(iconUrl => LauncherDTO.Icon = iconUrl)" />
-                    </div>
+                    <!-- ImageUpload moved below SmartPasteButton -->
                 </div>
             </div>
             <div class="col-3">
@@ -160,6 +158,9 @@
                         }
                         <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary mb-2">Save Record (4)</button>
                         <SmartPasteButton class='btn btn-lg btn-outline-danger mb-2' DefaultIcon />
+                        <div class="mt-3">
+                            <ImageUpload OnImageUploaded="@(iconUrl => LauncherDTO.Icon = iconUrl)" />
+                        </div>
                     </div>
                 </div>
                 <!-- Computer ID field hidden as only one computer is used -->
