@@ -1,3 +1,1 @@
-Currently we are using font awesome for the icons in the application however we are on the free tier and at the end of the month all the icons keep disappearing.
-
-Could we instead use bootstrap icons going forward, we need to make a plan and how we can implement this, what would be the steps needed to migrate from font awesome to bootstrap icons in our application?
+Is it possible in a Blazor webapp to have a process where we can ask the user to select a image file and then upload it to the images folder in the WWWRoot directory? If so, can you provide a simple example of how to implement this functionality?

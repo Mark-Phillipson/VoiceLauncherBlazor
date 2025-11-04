@@ -1,0 +1,51 @@
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+
+<div class="mb-3">
+    <label class="form-label" for="fileInput">Select Image</label>
+    <InputFile id="fileInput" OnChange="OnInputFileChange" accept="image/*" />
+    @if (SelectedFile != null)
+    {
+        <span class="ms-2 fw-bold text-light bg-dark px-2 py-1 rounded" aria-live="polite" style="font-size:1.1rem;">Selected: @SelectedFile.Name</span>
+    }
+</div>
+@if (!string.IsNullOrEmpty(UploadedImageUrl))
+{
+    <div class="mb-3">
+        <img src="@UploadedImageUrl" class="img-thumbnail" style="max-width:200px;max-height:200px;" />
+    </div>
+}
+<button class="btn btn-primary" @onclick="UploadImage" disabled="@(SelectedFile == null)">Upload</button>
+
+@code {
+    private IBrowserFile? SelectedFile;
+    private string? UploadedImageUrl;
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        SelectedFile = e.File;
+    }
+
+    private async Task UploadImage()
+    {
+        if (SelectedFile == null) return;
+        var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(SelectedFile.OpenReadStream(5 * 1024 * 1024));
+        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(SelectedFile.ContentType);
+        content.Add(streamContent, "file", SelectedFile.Name);
+        var apiUrl = Nav.BaseUri.TrimEnd('/') + "/api/uploads";
+        var response = await Http.PostAsync(apiUrl, content);
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var url = System.Text.Json.JsonDocument.Parse(json).RootElement.GetProperty("url").GetString();
+            UploadedImageUrl = url;
+        }
+        else
+        {
+            UploadedImageUrl = null;
+        }
+    }
+}
