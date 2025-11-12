@@ -156,13 +156,13 @@
 								@onclick="@( ( ) => CreateSnippet(  ) )">Create Visual Studio Snippet</button>
 							<button class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create
 								VS Code Snippet </button>
-							<button id="CopyButton" type="button" class="btn btn-outline-primary"
+							<button id="CopyButton" type="button" class="btn btn-outline-primary" title="Copy"
 								@onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
-								<i class="fa-regular fa-copy"></i>
+								<i class="bi bi-clipboard"></i>
 							</button>
 							<button type="button" title="Copy and switch and paste" class="btn btn-danger"
 								@onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
-								<i class="fa-solid fa-paste"></i>
+								<i class="bi bi-clipboard-check"></i>
 							</button>
 							}
 						</div>
