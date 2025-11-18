@@ -382,20 +382,32 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         string contentToCopy = "";
 
-        // Prioritize AI response content (TextBlock) first
-        if (!string.IsNullOrWhiteSpace(TextBlock))
+        // Always use the currently displayed message (revertTo index)
+        if (responseHistory?.Count > 0 && revertTo >= 0 && revertTo < responseHistory.Count)
         {
-            contentToCopy = TextBlock;
-        }
-        // Second priority: AI Comments
-        else if (!string.IsNullOrWhiteSpace(AIComments))
-        {
-            contentToCopy = AIComments;
-        }
-        // Third priority: Latest markdown response from history
-        else if (responseHistory?.Count > 0 && !string.IsNullOrWhiteSpace(responseHistory.LastOrDefault()?.Content))
-        {
-            contentToCopy = responseHistory.LastOrDefault()?.Content ?? "";
+            var displayedMessage = responseHistory[revertTo]?.Content ?? "";
+            // Try to extract TextBlock/AIComments if JSON
+            try
+            {
+                var chatResponse = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(displayedMessage);
+                if (!string.IsNullOrWhiteSpace(chatResponse?.TextBlock))
+                {
+                    contentToCopy = chatResponse.TextBlock;
+                }
+                else if (!string.IsNullOrWhiteSpace(chatResponse?.Comments))
+                {
+                    contentToCopy = chatResponse.Comments;
+                }
+                else
+                {
+                    contentToCopy = displayedMessage;
+                }
+            }
+            catch
+            {
+                // Not JSON, just use the raw message
+                contentToCopy = displayedMessage;
+            }
         }
         // Last fallback: User's input (if nothing else is available)
         else if (!string.IsNullOrWhiteSpace(PromptInput))
@@ -410,7 +422,6 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             // If running in Blazor Hybrid, also trigger paste functionality
             if (RunningInBlazorHybrid)
             {
-
                 await TriggerPasteAsync();
             }
         }
