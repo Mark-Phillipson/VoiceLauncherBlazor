@@ -22,6 +22,7 @@ namespace RazorClassLibrary.Pages
         All
     }
 
+
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
     // Shared modal state (used to populate the reusable modal)
@@ -257,6 +258,7 @@ namespace RazorClassLibrary.Pages
         public bool HasSearched { get; set; }
         public bool UseSemanticMatching { get; set; } = false;
         public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
+        
         
         // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
@@ -983,6 +985,8 @@ namespace RazorClassLibrary.Pages
                 StateHasChanged();
             }
         }
+
+        
 
         private string GetSearchPlaceholder()
         {

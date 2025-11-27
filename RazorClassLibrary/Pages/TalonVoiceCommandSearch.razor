@@ -82,8 +82,10 @@
                 <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
                 <label class="form-check-label" for="showFullCardsToggle">Show Full <u>C</u>ards</label>
             </div>
+            
         </div>
     </div>
+
 
     <!-- Focus Mode Alert -->
     @if (IsInFocusMode())
@@ -98,7 +100,8 @@
     }
 
     <!-- Filter Form -->
-    <form class="mb-3">
+    <div class="tvcs-panel mb-3">
+        <form class="mb-0">
         <div class="row mb-2">
             <div class="col-md-3">
                 <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
@@ -298,12 +301,13 @@
                 }
             </div>
         </div>
-    </form>
+        </form>
+    </div>
 
     <div>
         @if (RepositoryCounts != null && RepositoryCounts.Any())
         {
-            <div class="mb-3">
+            <div class="tvcs-panel mb-3">
                 <h6 class="mb-1">Repository breakdown</h6>
                 <div class="d-flex flex-wrap gap-2">
                     @foreach (var kv in RepositoryCounts.Take(20))
@@ -317,6 +321,7 @@
                 </div>
             </div>
         }
+        
         @if (IsLoading)
         {
             <div class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">

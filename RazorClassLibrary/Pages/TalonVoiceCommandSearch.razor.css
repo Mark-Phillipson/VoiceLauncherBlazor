@@ -990,3 +990,28 @@ u {
     background-color: #343a40;
     color: #6c757d;
 }
+
+/* --- Section separation utilities for professional layout --- */
+.tvcs-divider {
+    border: 0;
+    border-top: 1px solid var(--bs-border-color);
+    opacity: 1;
+    margin: 1rem 0 1.25rem 0;
+}
+
+.tvcs-panel {
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+    border-radius: .5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+}
+
+[data-bs-theme="dark"] .tvcs-panel {
+    background-color: var(--bs-dark-bg-subtle);
+    box-shadow: 0 2px 6px rgba(255,255,255,.04);
+}
+
+.tvcs-panel h6 {
+    margin-top: 0.25rem;
+}
