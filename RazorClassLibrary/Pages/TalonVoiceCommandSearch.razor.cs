@@ -247,6 +247,13 @@ namespace RazorClassLibrary.Pages
             _openFilterTarget = string.Empty;
             await InvokeAsync(StateHasChanged);
         }
+
+        // Called when a repository breakdown badge is clicked
+        public async Task OnRepositoryBreakdownClick(string repository)
+        {
+            SelectedRepository = repository;
+            await InvokeAsync(StateHasChanged);
+        }
         private ElementReference searchInput;
         
         [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;

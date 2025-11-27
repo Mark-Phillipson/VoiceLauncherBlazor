@@ -1,3 +1,5 @@
-Currently we are using font awesome for the icons in the application however we are on the free tier and at the end of the month all the icons keep disappearing.
 
-Could we instead use bootstrap icons going forward, we need to make a plan and how we can implement this, what would be the steps needed to migrate from font awesome to bootstrap icons in our application?
+  could we add a new feature so that when we click on one of the repository breakdown items it automatically sets that filter in the filter by repository above?
+
+    also can the repository breakdown section be moved to above the filter buttons?
+    

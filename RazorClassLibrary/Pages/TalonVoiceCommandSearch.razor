@@ -99,6 +99,29 @@
         </div>
     }
 
+    <!-- Repository Breakdown -->
+    @if (RepositoryCounts != null && RepositoryCounts.Any())
+    {
+        <div class="tvcs-panel mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <h6 class="mb-0 me-2">Repository breakdown (click to filter):</h6>
+                @foreach (var kv in RepositoryCounts.Take(20))
+                {
+                    <span class="badge bg-secondary" 
+                          style="cursor: pointer;" 
+                          title="Click to filter by @kv.Key" 
+                          @onclick="() => OnRepositoryBreakdownClick(kv.Key)">
+                        @kv.Key: @kv.Value
+                    </span>
+                }
+                @if (RepositoryCounts.Count > 20)
+                {
+                    <span class="text-muted ms-2">... and @(RepositoryCounts.Count - 20) more</span>
+                }
+            </div>
+        </div>
+    }
+
     <!-- Filter Form -->
     <div class="tvcs-panel mb-3">
         <form class="mb-0">
@@ -305,23 +328,6 @@
     </div>
 
     <div>
-        @if (RepositoryCounts != null && RepositoryCounts.Any())
-        {
-            <div class="tvcs-panel mb-3">
-                <h6 class="mb-1">Repository breakdown</h6>
-                <div class="d-flex flex-wrap gap-2">
-                    @foreach (var kv in RepositoryCounts.Take(20))
-                    {
-                        <span class="badge bg-secondary" title="@kv.Key">@kv.Key: @kv.Value</span>
-                    }
-                    @if (RepositoryCounts.Count > 20)
-                    {
-                        <span class="text-muted ms-2">... and @(RepositoryCounts.Count - 20) more</span>
-                    }
-                </div>
-            </div>
-        }
-        
         @if (IsLoading)
         {
             <div class="d-flex justify-content-center align-items-center py-5" role="status" aria-live="polite">
