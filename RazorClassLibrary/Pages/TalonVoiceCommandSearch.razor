@@ -108,9 +108,12 @@
 
     <!-- Repository Breakdown (Collapsible) -->
     <div class="tvcs-panel mb-3">
-        <button class="btn btn-link p-0" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent">
-            <h6 class="mb-0 me-2">Repository breakdown (click to filter): <span class="ms-2">@((RepositoryPanelExpanded ? "▲" : "▼"))</span></h6>
-        </button>
+        <div class="d-flex align-items-center">
+            <h6 class="mb-0 me-2">Repository breakdown (click to filter):</h6>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent" title="@(RepositoryPanelExpanded ? "Collapse" : "Expand")">
+                @((RepositoryPanelExpanded ? "◀" : "▶"))
+            </button>
+        </div>
         @if (RepositoryPanelExpanded && RepositoryCounts != null && RepositoryCounts.Any())
         {
             <div id="repositoryPanelContent" class="d-flex flex-wrap align-items-center gap-2 mt-2">
@@ -133,9 +136,12 @@
 
     <!-- Filter Form (Collapsible) -->
     <div class="tvcs-panel mb-3">
-        <button class="btn btn-link p-0" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent">
-            <strong>Filters</strong> <span class="ms-2">@((FilterPanelExpanded ? "▲" : "▼"))</span>
-        </button>
+        <div class="d-flex align-items-center">
+            <strong class="me-2">Filters</strong>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent" title="@(FilterPanelExpanded ? "Collapse" : "Expand")">
+                @((FilterPanelExpanded ? "◀" : "▶"))
+            </button>
+        </div>
         @if (FilterPanelExpanded)
         {
             <form class="mb-0" id="filterPanelContent">
