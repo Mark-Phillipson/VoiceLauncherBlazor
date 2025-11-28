@@ -106,12 +106,14 @@
         </div>
     }
 
-    <!-- Repository Breakdown -->
-    @if (RepositoryCounts != null && RepositoryCounts.Any())
-    {
-        <div class="tvcs-panel mb-3">
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <h6 class="mb-0 me-2">Repository breakdown (click to filter):</h6>
+    <!-- Repository Breakdown (Collapsible) -->
+    <div class="tvcs-panel mb-3">
+        <button class="btn btn-link p-0" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent">
+            <h6 class="mb-0 me-2">Repository breakdown (click to filter): <span class="ms-2">@((RepositoryPanelExpanded ? "▲" : "▼"))</span></h6>
+        </button>
+        @if (RepositoryPanelExpanded && RepositoryCounts != null && RepositoryCounts.Any())
+        {
+            <div id="repositoryPanelContent" class="d-flex flex-wrap align-items-center gap-2 mt-2">
                 @foreach (var kv in RepositoryCounts.Take(20))
                 {
                     <span class="badge bg-secondary" 
@@ -126,29 +128,34 @@
                     <span class="text-muted ms-2">... and @(RepositoryCounts.Count - 20) more</span>
                 }
             </div>
-        </div>
-    }
+        }
+    </div>
 
-    <!-- Filter Form -->
+    <!-- Filter Form (Collapsible) -->
     <div class="tvcs-panel mb-3">
-        <form class="mb-0">
-        <div class="row mb-2">
-            <div class="col-md-3">
-                <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
-                <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
-                        <span class="filter-btn-icon me-2" aria-hidden="true">🖥️</span>
-                        @if (string.IsNullOrWhiteSpace(SelectedApplication))
-                        {
-                            <span>All Applications</span>
-                        }
-                        else
-                        {
-                            <span>@SelectedApplication</span>
-                        }
-                    </button>
+        <button class="btn btn-link p-0" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent">
+            <strong>Filters</strong> <span class="ms-2">@((FilterPanelExpanded ? "▲" : "▼"))</span>
+        </button>
+        @if (FilterPanelExpanded)
+        {
+            <form class="mb-0" id="filterPanelContent">
+            <div class="row mb-2">
+                <div class="col-md-3">
+                    <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
+                    <div class="d-flex">
+                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
+                            <span class="filter-btn-icon me-2" aria-hidden="true">🖥️</span>
+                            @if (string.IsNullOrWhiteSpace(SelectedApplication))
+                            {
+                                <span>All Applications</span>
+                            }
+                            else
+                            {
+                                <span>@SelectedApplication</span>
+                            }
+                        </button>
+                    </div>
                 </div>
-            </div>
 
             <div class="col-md-3">
                 <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label>
@@ -331,7 +338,8 @@
                 }
             </div>
         </div>
-        </form>
+            </form>
+        }
     </div>
 
     <div>
@@ -566,6 +574,11 @@
 
 @code {
     // All logic is in the code-behind file (partial class)
+    // Collapsible panel state
+    protected bool RepositoryPanelExpanded { get; set; } = true;
+    protected bool FilterPanelExpanded { get; set; } = true;
+    protected void ToggleRepositoryPanel() => RepositoryPanelExpanded = !RepositoryPanelExpanded;
+    protected void ToggleFilterPanel() => FilterPanelExpanded = !FilterPanelExpanded;
 }
 
 @* Reusable selection modal instance (populated by code-behind) *@
