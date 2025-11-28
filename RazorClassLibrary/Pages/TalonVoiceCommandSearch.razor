@@ -36,7 +36,7 @@
         }
 
         <div class="col-lg-8 col-md-6 mb-2 mb-lg-0">
-            <div class="d-flex gap-2 align-items-start flex-wrap">
+            <div class="d-flex gap-2 align-items-start">
                 <form @onsubmit="OnSearch" @onsubmit:preventDefault="true" class="flex-grow-1" style="min-width: 400px;">
                     <div class="d-flex w-100 gap-2 align-items-start search-input-row">
                         <div class="flex-grow-1 d-flex flex-column">
@@ -44,7 +44,7 @@
                             <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
                         </div>
                         <div class="d-flex flex-column" style="min-width:160px;">
-                            <select class="form-select search-scope-select" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                                                    <select class="form-select search-scope-select" style="border:1px solid #ced4da;" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
                                 <option value="@SearchScope.CommandNamesOnly">Names Only</option>
                                 <option value="@SearchScope.Script">Search Script</option>
                                 <option value="@SearchScope.All">Search All</option>
@@ -69,26 +69,23 @@
                     </div>
                 </form>
                 
-                <div class="d-flex flex-wrap gap-3 align-items-start">
+                <div class="d-flex gap-3 align-items-start flex-shrink-0">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
                         <label class="form-check-label" for="semanticToggle">
-                            <span class="d-none d-lg-inline">@((MarkupString)"Sema<u>n</u>tic Search")</span>
-                            <span class="d-lg-none">@((MarkupString)"Sema<u>n</u>tic")</span>
+                            <span>@((MarkupString)"Sema<u>n</u>tic")</span>
                         </label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
                         <label class="form-check-label" for="autoFilterToggle">
-                            <span class="d-none d-lg-inline">A<u>u</u>to-Filter by App</span>
-                            <span class="d-lg-none">A<u>u</u>to</span>
+                            <span >A<u>u</u>to</span>
                         </label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="v" />
                         <label class="form-check-label" for="showFullCardsToggle">
-                            <span class="d-none d-lg-inline">Show Full <u>C</u>ards</span>
-                            <span class="d-lg-none"><u>C</u>ards</span>
+                            <span><u>C</u>ards</span>
                         </label>
                     </div>
                 </div>
