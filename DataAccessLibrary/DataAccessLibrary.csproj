@@ -6,13 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Platforms>AnyCPU;x64</Platforms>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Compile Remove="XML_Import\Mapping.cs" />
-		<Watch Include="**\*.cs" Exclude="XML_Import\Mapping.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="appsettings.json" />
@@ -34,34 +28,30 @@
 	<ItemGroup>
 		<PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
-		<PackageReference Include="Azure.Identity" Version="1.13.1" />
+		<PackageReference Include="Azure.Identity" Version="1.14.2" />
 		<PackageReference Include="Blazored.Modal" Version="7.3.1" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
+		<!-- Removed unnecessary Microsoft.AspNetCore.Components*, Microsoft.Extensions.Caching.Memory -->
 		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.0" />
 		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="10.0.0" />
 		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview2.24304.8" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
+		<!-- Removed unnecessary Microsoft.Extensions.Configuration.Abstractions and Hosting -->
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.73.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
 		<PackageReference Include="System.Numerics.Tensors" Version="10.0.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
 		<PackageReference Include="System.Runtime.Caching" Version="10.0.0" />
-		<PackageReference Include="System.Text.Json" Version="10.0.0" />
+		<!-- Removed unnecessary System.Text.Json direct reference -->
 	</ItemGroup>
 
 	<ItemGroup>
