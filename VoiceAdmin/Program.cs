@@ -117,7 +117,7 @@ builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 builder.Services.AddScoped<DataAccessLibrary.Repositories.ITalonListRepository, DataAccessLibrary.Repositories.TalonListRepository>();
 builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, RazorClassLibrary.Services.TalonListDataService>();
-builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, CursorlessCheatsheetItemJsonRepository>();
+builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceAdmin.CursorlessCheatsheetItemJsonRepository>();
 
 var app = builder.Build();
 
