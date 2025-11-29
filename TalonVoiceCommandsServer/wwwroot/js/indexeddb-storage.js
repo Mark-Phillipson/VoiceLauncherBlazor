@@ -7,9 +7,52 @@ const TalonStorageDB = {
     db: null,
     _initializing: false,
     _initialized: false,
+    _storageAvailable: null,
+
+    // Check if storage APIs are available and not blocked by tracking prevention
+    async checkStorageAvailability() {
+        if (this._storageAvailable !== null) {
+            return this._storageAvailable;
+        }
+
+        try {
+            // Test IndexedDB
+            if (!window.indexedDB) {
+                console.warn('TalonStorageDB: IndexedDB not available');
+                this._storageAvailable = false;
+                return false;
+            }
+
+            // Test localStorage (can be blocked by tracking prevention)
+            try {
+                const testKey = '__storage_test__';
+                localStorage.setItem(testKey, 'test');
+                localStorage.removeItem(testKey);
+            } catch (e) {
+                console.warn('TalonStorageDB: localStorage blocked (tracking prevention):', e.message);
+                // Continue - IndexedDB might still work
+            }
+
+            this._storageAvailable = true;
+            return true;
+        } catch (e) {
+            console.error('TalonStorageDB: Storage availability check failed:', e);
+            this._storageAvailable = false;
+            return false;
+        }
+    },
 
     // Initialize IndexedDB (idempotent)
     async init() {
+        // Check storage availability first
+        const available = await this.checkStorageAvailability();
+        if (!available) {
+            console.warn('TalonStorageDB: Storage not available, operating in memory-only mode');
+            this._initialized = true;
+            this._initializing = false;
+            return null;
+        }
+
         // Prevent double-initialization from multiple parallel calls
         if (this._initialized) {
             console.log('TalonStorageDB: Already initialized');
@@ -542,8 +585,16 @@ const TalonStorageDB = {
     // Migration helper - check if localStorage data exists
     async checkLocalStorageData() {
         try {
-            const commandsData = localStorage.getItem('talon-voice-commands');
-            const listsData = localStorage.getItem('talon-lists');
+            let commandsData = null;
+            let listsData = null;
+            
+            try {
+                commandsData = localStorage.getItem('talon-voice-commands');
+                listsData = localStorage.getItem('talon-lists');
+            } catch (storageError) {
+                console.warn('TalonStorageDB: localStorage blocked by tracking prevention during migration check');
+                return { hasCommands: false, hasLists: false, commandsSize: 0, listsSize: 0 };
+            }
             
             return {
                 hasCommands: !!commandsData,
@@ -572,25 +623,37 @@ const TalonStorageDB = {
             
             // Migrate commands
             if (localData.hasCommands) {
-                const commandsJson = localStorage.getItem('talon-voice-commands');
-                const commands = JSON.parse(commandsJson);
-                await this.saveCommands(commands);
-                migratedCommands = commands.length;
-                console.log(`TalonStorageDB: Migrated ${migratedCommands} commands`);
+                try {
+                    const commandsJson = localStorage.getItem('talon-voice-commands');
+                    const commands = JSON.parse(commandsJson);
+                    await this.saveCommands(commands);
+                    migratedCommands = commands.length;
+                    console.log(`TalonStorageDB: Migrated ${migratedCommands} commands`);
+                } catch (storageError) {
+                    console.warn('TalonStorageDB: Could not access localStorage for commands migration:', storageError.message);
+                }
             }
             
             // Migrate lists
             if (localData.hasLists) {
-                const listsJson = localStorage.getItem('talon-lists');
-                const lists = JSON.parse(listsJson);
-                await this.saveLists(lists);
-                migratedLists = lists.length;
-                console.log(`TalonStorageDB: Migrated ${migratedLists} lists`);
+                try {
+                    const listsJson = localStorage.getItem('talon-lists');
+                    const lists = JSON.parse(listsJson);
+                    await this.saveLists(lists);
+                    migratedLists = lists.length;
+                    console.log(`TalonStorageDB: Migrated ${migratedLists} lists`);
+                } catch (storageError) {
+                    console.warn('TalonStorageDB: Could not access localStorage for lists migration:', storageError.message);
+                }
             }
             
             // Clear localStorage after successful migration
-            localStorage.removeItem('talon-voice-commands');
-            localStorage.removeItem('talon-lists');
+            try {
+                localStorage.removeItem('talon-voice-commands');
+                localStorage.removeItem('talon-lists');
+            } catch (storageError) {
+                console.warn('TalonStorageDB: Could not clear localStorage after migration:', storageError.message);
+            }
             
             console.log('TalonStorageDB: Migration completed successfully');
             return { 

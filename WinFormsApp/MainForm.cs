@@ -108,6 +108,10 @@ namespace WinFormsApp
 #if DEBUG
 			services.AddBlazorWebViewDeveloperTools();
 #endif
+
+			// Configure WebView2 environment with user data folder
+			_ = ConfigureWebView2EnvironmentAsync();
+
 			blazorWebView1.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
 
@@ -125,6 +129,42 @@ namespace WinFormsApp
 	#if DEBUG
 				_ = SetupWebViewLoggingAsync();
 	#endif
+		}
+
+		private async Task ConfigureWebView2EnvironmentAsync()
+		{
+			try
+			{
+				// Set up a dedicated user data folder for WebView2
+				var userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VoiceAdminWebView2");
+				Directory.CreateDirectory(userDataFolder);
+
+				var env = await CoreWebView2Environment.CreateAsync(
+					userDataFolder: userDataFolder);
+
+				var webview = blazorWebView1?.WebView;
+				if (webview != null)
+				{
+					await webview.EnsureCoreWebView2Async(env);
+
+					// Configure settings to disable tracking prevention and allow storage
+					if (webview.CoreWebView2 != null)
+					{
+						var settings = webview.CoreWebView2.Settings;
+						settings.IsGeneralAutofillEnabled = true;
+						settings.AreDefaultContextMenusEnabled = true;
+						settings.IsStatusBarEnabled = false;
+
+						// Configure profile to allow storage and cookies
+						var profile = webview.CoreWebView2.Profile;
+						profile.PreferredTrackingPreventionLevel = CoreWebView2TrackingPreventionLevel.None;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"ConfigureWebView2EnvironmentAsync error: {ex.Message}");
+			}
 		}
 
 		private Task SetupWebViewLoggingAsync()
