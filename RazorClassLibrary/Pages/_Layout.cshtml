@@ -11,14 +11,24 @@
 		<script>
 			(function(){
 				try {
-					var t = localStorage.getItem('tvc-theme') || localStorage.getItem('app-theme');
+					var t = null;
+					try {
+						t = localStorage.getItem('tvc-theme') || localStorage.getItem('app-theme');
+					} catch (storageError) {
+						// localStorage blocked by tracking prevention - use system preference
+						console.warn('localStorage blocked, using system preference:', storageError.message);
+					}
 					if (t === 'dark' || t === 'light') {
 						document.documentElement.setAttribute('data-bs-theme', t);
 					} else {
 						var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 						document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
 					}
-				} catch (e) { /* ignore */ }
+				} catch (e) { 
+					// Fallback to light theme if everything fails
+					console.error('Theme initialization failed:', e);
+					document.documentElement.setAttribute('data-bs-theme', 'light');
+				}
 			})();
 		</script>
 	<meta charset="utf-8" />
@@ -27,8 +37,8 @@
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 	<link href="css/site.css" rel="stylesheet" />
 	<link href="VoiceLauncher.styles.css" rel="stylesheet" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="css/animate.min.css" />
+	<link rel="stylesheet" href="css/bootstrap-icons.min.css">
 
 	<link rel="stylesheet" href="/css/prism.css" />
 	<component type="typeof(RadzenTheme)" render-mode="ServerPrerendered" param-Theme="@("material")" />
