@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 		<Nullable>enable</Nullable>
 		<Platforms>AnyCPU;x64</Platforms>
@@ -38,25 +38,25 @@
 		<PackageReference Include="Blazored.Modal" Version="7.3.1" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="9.0.0" />
-		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.0" />
+		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="10.0.0" />
 		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview2.24304.8" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
 		<PackageReference Include="System.Numerics.Tensors" Version="9.0.0" />
 		<PackageReference Include="System.Runtime" Version="4.3.1" />

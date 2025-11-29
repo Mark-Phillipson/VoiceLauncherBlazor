@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<UserSecretsId>a71df59a-e582-4e4f-9a75-14512ec2b2e6</UserSecretsId>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -27,13 +27,13 @@
 		<PackageReference Include="Humanizer.Core" Version="3.0.0-beta.54" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
 		<PackageReference Include="Markdig" Version="0.38.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
 		
 		<PackageReference Include="Radzen.Blazor" Version="5.6.1" />		
