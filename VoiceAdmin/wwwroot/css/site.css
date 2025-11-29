@@ -326,16 +326,12 @@ header>h3 {
 	height: 30px;
 }
 
-.layout-as-cards {
-	margin: 2px;
-	display: flex;
-	flex-direction: column;
-	flex-flow: wrap;
-	text-decoration: none;
-	justify-content: center;
-	color: white;
-	gap: 3px
-}
+/* NOTE: Component-scoped styles (e.g., *.razor.css) define .layout-as-cards
+   with the desired layout per page. The global rule below previously forced
+   a mobile-like single-column flex layout on desktop. Removed to avoid
+   overriding component layouts such as the Favorites grid. */
+/* .layout-as-cards { }
+*/
 
 /* Ensure long script content wraps inside result cards and doesn't overflow */
 .script-content {
