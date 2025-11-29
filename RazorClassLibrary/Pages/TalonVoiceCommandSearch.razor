@@ -581,8 +581,8 @@
 @code {
     // All logic is in the code-behind file (partial class)
     // Collapsible panel state
-    protected bool RepositoryPanelExpanded { get; set; } = true;
-    protected bool FilterPanelExpanded { get; set; } = true;
+    protected bool RepositoryPanelExpanded { get; set; } = false;
+    protected bool FilterPanelExpanded { get; set; } = false;
     protected void ToggleRepositoryPanel() => RepositoryPanelExpanded = !RepositoryPanelExpanded;
     protected void ToggleFilterPanel() => FilterPanelExpanded = !FilterPanelExpanded;
 }
