@@ -13,12 +13,7 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="Components\Layout\MainLayout.razor" />
-    <Content Remove="Components\Layout\NavMenu.razor" />
-    <Content Remove="Components\Layout\MainLayout.razor.css" />
-    <Content Remove="Components\Layout\NavMenu.razor.css" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
