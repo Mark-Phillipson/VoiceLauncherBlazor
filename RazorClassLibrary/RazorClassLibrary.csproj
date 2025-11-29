@@ -35,7 +35,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.0" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0" />
 		<Folder Include="Areas\MyFeature\Pages\" />
 	</ItemGroup>
 	<ItemGroup>
