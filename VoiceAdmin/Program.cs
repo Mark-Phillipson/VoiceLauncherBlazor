@@ -17,10 +17,23 @@ using RazorClassLibrary.Services;
 using VoiceAdmin;
 
 var builder = WebApplication.CreateBuilder(args);
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 builder.AddServiceDefaults();
 
 // Blazor Server services
+try
+{
+    builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error registering SmartComponents or OpenAI backend: {ex}");
+    throw;
+}
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredModal();
@@ -58,7 +71,7 @@ catch (ReflectionTypeLoadException ex)
 {
     foreach (var loaderException in ex.LoaderExceptions)
     {
-        Console.WriteLine(loaderException?.Message);
+        Console.WriteLine($"AutoMapper loader exception: {loaderException}");
     }
     throw;
 }
@@ -120,6 +133,27 @@ builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, Raz
 builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceAdmin.CursorlessCheatsheetItemJsonRepository>();
 
 var app = builder.Build();
+// Log all incoming requests and their paths
+app.Use(async (context, next) =>
+{
+    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("RequestLogger");
+    logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path}");
+    await next();
+});
+// Global error logging for unhandled exceptions
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("GlobalException");
+        logger.LogError(ex, "Unhandled exception");
+        throw;
+    }
+});
 
 app.MapDefaultEndpoints();
 
