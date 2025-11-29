@@ -12,79 +12,63 @@
 		</h4>
 	</header>
 }
-<div class="row">
-	<div class='col-6 col-lg-1'>
-		<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success m-1" accesskey="0"
-			@onclick="CreateNew"><i class="bi bi-plus"></i> Add</button>
-	</div>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+	<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success" accesskey="0"
+		@onclick="CreateNew"><i class="bi bi-plus"></i> Add</button>
 	@if (!RunningInBlazorHybrid)
 	{
-		<div class='col-6 col-lg-2'>
-			<input title='Filter by Language (Alt+1)' accesskey="1" style="display:inline" id="languageFilter"
-				@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
-				placeholder="Language Filter (1)" class="mx-1 form-control" />
-		</div>
-		<div class='col-6 col-lg-2'>
-			<input title='Filter by Category (Alt+2)' accesskey="2" style="display:inline" id="categoryFilter"
-				@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))"
-				placeholder="Category Filter (2)" class="mx-1 form-control" />
-		</div>
-		<div class='col-6 col-lg-2'>
-			<div class="input-group mx-1">
-				<input title='Filter by Display and Send Keys' @bind="SearchTerm"
-					@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
-					accesskey="3" placeholder="Blur to Filter (3)" />
-				<button class="btn btn-outline-secondary" type="button" accesskey="4" title="Reset Filters (Alt+4)" @onclick="RemoveFilter">
-					<i class="bi bi-funnel text-danger"></i>
-				</button>
-			</div>
+		<input title='Filter by Language (Alt+1)' accesskey="1" style="width: 200px;" id="languageFilter"
+			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
+			placeholder="Language Filter (1)" class="form-control" />
+		<input title='Filter by Category (Alt+2)' accesskey="2" style="width: 200px;" id="categoryFilter"
+			@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))"
+			placeholder="Category Filter (2)" class="form-control" />
+		<div class="input-group" style="width: 250px;">
+			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
+				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
+				accesskey="3" placeholder="Blur to Filter (3)" />
+			<button class="btn btn-outline-secondary" type="button" accesskey="4" title="Reset Filters (Alt+4)" @onclick="RemoveFilter">
+				<i class="bi bi-funnel text-danger"></i>
+			</button>
 		</div>
 		@if (!RunningInBlazorHybrid)
 		{
-			<div class='col-6 col-lg-1'>
-				<label for='useSemanticMatching'>Semantic?</label>
+			<div class="d-flex align-items-center">
+				<label for='useSemanticMatching' class="me-2">Semantic?</label>
 				<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
 					class='form-checkbox' />
 			</div>
 		}
-		<div class='col-6 col-lg-1'>
-			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
-					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
-			{
-				<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
-					@onclick="@( ( ) => RemoveFilter(  ) )">
-					<i class="bi bi-funnel text-danger"></i>
-					</button>
-			}
-			<button class="btn btn-outline-secondary btn-sm mx-1" type="button" @onclick="@( ( ) => LoadData(  ) )">
-				<i class="bi bi-arrow-clockwise"></i>
-			</button>
-		</div>
+		@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
+				!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
+		{
+			<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary" type="button"
+				@onclick="@( ( ) => RemoveFilter(  ) )">
+				<i class="bi bi-funnel text-danger"></i>
+				</button>
+		}
+		<button class="btn btn-outline-secondary btn-sm" type="button" @onclick="@( ( ) => LoadData(  ) )">
+			<i class="bi bi-arrow-clockwise"></i>
+		</button>
 	}
 	else
 	{
-		<div class='col-6 col-lg-3'>
-			<input accesskey="1" style="display:inline" id="languageFilter"
-				@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
-				placeholder="Language Filter (1)" class="mx-1 form-control" />
-		</div>
-		<div class='col-6 col-lg-3'>
-			<input accesskey="2" style="display:inline" id="categoryFilter" @bind="_categoryFilter"
-				@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
-				class="mx-1 form-control" />
-		</div>
-		<div class='col-6 col-lg-3'>
-			<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-				id="SearchInput" class="form-control mx-1" accesskey="3" placeholder="Blur to Filter (3)" />
-		</div>
-		<div class='col-6 col-lg-3'>
-			<label for='useSemanticMatching'>Semantic?</label>
+		<input accesskey="1" style="width: 250px;" id="languageFilter"
+			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
+			placeholder="Language Filter (1)" class="form-control" />
+		<input accesskey="2" style="width: 250px;" id="categoryFilter" @bind="_categoryFilter"
+			@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
+			class="form-control" />
+		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+			id="SearchInput" class="form-control" style="width: 250px;" accesskey="3" placeholder="Blur to Filter (3)" />
+		<div class="d-flex align-items-center">
+			<label for='useSemanticMatching' class="me-2">Semantic?</label>
 			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
 				class='form-checkbox' />
 			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 			{
-				<button accesskey="4" class="btn btn-sm btn-outline-primary m-1" type="button"
+				<button accesskey="4" class="btn btn-sm btn-outline-primary ms-2" type="button"
 					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
 			}
 		</div>
@@ -93,21 +77,20 @@
 	{
 		@if (showExtras)
 		{
-			<div class='col-6 col-lg-4'>
-				<label class="control-label mt-1 mx-1" for="_showTiles">Show <u>T</u>iles</label>
-				<input accesskey="t" id="_showTiles" style='width:30px' @bind="_showTiles" type="checkbox"
+			<div class="d-flex align-items-center">
+				<label class="control-label me-2" for="_showTiles">Show <u>T</u>iles</label>
+				<input accesskey="t" id="_showTiles" @bind="_showTiles" type="checkbox"
 					class="form-checkbox" />
 			</div>
-			<div class='col-12 col-lg-4'>
-				<label for="_showOnlyLanguageAndCategory" class="control-label mt-1"><u>H</u>ide</label>
-				<input accesskey="h" id="_showOnlyLanguageAndCategory" style='width:30px' @bind="_showOnlyLanguageAndCategory"
+			<div class="d-flex align-items-center">
+				<label for="_showOnlyLanguageAndCategory" class="control-label me-2"><u>H</u>ide</label>
+				<input accesskey="h" id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory"
 					type="checkbox" class="form-checkbox" title='Hide Snippets' />
 			</div>
 		}
-		<div class='col-6 col-lg-2'>
-			<label class="control-label mt-1 mx-1" for="showExtras">Show E<u>x</u>tras</label>
-			<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox"
-				style='width:30px' />
+		<div class="d-flex align-items-center">
+			<label class="control-label me-2" for="showExtras">Show E<u>x</u>tras</label>
+			<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox" />
 		</div>
 	}
 </div>
@@ -174,19 +157,20 @@ else
 					alphabetCounter++;
 					currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
 					<div class="card p-2" title="@intellisense.SendKeysValue">
-						<div class="row">
-							<div class="col-12">
-								<div class="button-group"></div>
-								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))"
-									@onfocus="@(()=> ShowValue(intellisense.Id))">
-									@intellisense.DisplayValue
-									<i class="fa-regular fa-edit"></i>
-								</button>
-								<button accesskey="@currentLetter" class="btn btn-sm btn-outline-danger"
+						<div class="d-flex flex-row align-items-center justify-content-center gap-2">
+							<button class="btn btn-outline-warning px-3 py-1" style="width:auto;min-width:unset;" @onclick="@(() => EditAsync(intellisense.Id))"
+								@onfocus="@(()=> ShowValue(intellisense.Id))">
+								@intellisense.DisplayValue
+								<i class="fa-regular fa-edit ms-1"></i>
+							</button>
+							@if (!string.IsNullOrWhiteSpace(currentLetter))
+							{
+								<button accesskey="@currentLetter" class="btn btn-outline-danger px-2 py-1"
+									style="width:auto;min-width:unset;"
 									@onclick="@(() => CopyAndPasteAsync(intellisense!.SendKeysValue ?? "",intellisense.Id))">
-									<u>@currentLetter</u> <i class="fa-solid fa-paste"></i>
+									<u>@currentLetter</u> <i class="fa-solid fa-paste ms-1"></i>
 								</button>
-							</div>
+							}
 						</div>
 					</div>
 				}
