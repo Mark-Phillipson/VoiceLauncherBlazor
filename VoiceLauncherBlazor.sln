@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalonVoiceCommandsServer", "TalonVoiceCommandsServer\TalonVoiceCommandsServer.csproj", "{749E7676-D2F7-4490-8416-25460C49527C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin", "VoiceAdmin\VoiceAdmin.csproj", "{2F069ABA-9CC3-4D96-B925-E6D277CC112B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +148,18 @@ Global
 		{749E7676-D2F7-4490-8416-25460C49527C}.Release|x64.Build.0 = Release|Any CPU
 		{749E7676-D2F7-4490-8416-25460C49527C}.Release|x86.ActiveCfg = Release|Any CPU
 		{749E7676-D2F7-4490-8416-25460C49527C}.Release|x86.Build.0 = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Debug|x86.Build.0 = Debug|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x64.Build.0 = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x86.ActiveCfg = Release|Any CPU
+		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
