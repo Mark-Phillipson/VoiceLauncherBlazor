@@ -7,7 +7,8 @@ namespace RazorClassLibrary.Shared
 		[Inject] NavigationManager? NavigationManager { get; set; }
 		private bool collapseNavMenu = true;
 		private bool accessKeysEnabled = true;
-		private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+		// Always show menu; avoid Bootstrap collapse hiding on widescreen
+		private string? NavMenuCssClass => null;
 		protected override void OnInitialized()
 		{
 			if (Environment.MachineName == "J40L4V3")
@@ -18,6 +19,9 @@ namespace RazorClassLibrary.Shared
 			{
 				accessKeysEnabled = false;
 			}
+
+			// Default to expanded on initialization so the menu is visible on widescreen
+			collapseNavMenu = false;
 		}
 		private void MenuItemSelected()
 		{
