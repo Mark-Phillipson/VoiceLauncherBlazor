@@ -1,26 +1,61 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject TalonVoiceCommandsServer.Services.ThemeService ThemeService
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation" aria-label="Main navigation">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">TalonVoiceCommandsServer</a>
+        <a class="navbar-brand" href="/">Talon Voice Commands</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/talon-import">Import</NavLink>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <a class="nav-link" href="https://github.com/Mark-Phillipson/VoiceLauncherBlazor" target="_blank" rel="noopener" aria-label="Repository link">Repo</a>
+                <button class="btn btn-outline-secondary btn-sm d-flex align-items-center" @onclick="ToggleTheme" aria-label="Toggle theme" title="Toggle theme">
+                    @if (CurrentTheme == "dark")
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M6 0a.5.5 0 0 1 .5.5V2a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 6 0zm4 0a.5.5 0 0 1 .5.5V2a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 10 0zM8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2.343 2.343a.5.5 0 0 1 .707 0L4.5 3.793a.5.5 0 1 1-.707.707L2.343 3.05a.5.5 0 0 1 0-.707zM13.657 2.343a.5.5 0 0 1 0 .707l-1.45 1.45a.5.5 0 1 1-.707-.707l1.45-1.45a.5.5 0 0 1 .707 0zM.5 8a.5.5 0 0 1 .5-.5H2a.5.5 0 0 1 0 1H1A.5.5 0 0 1 .5 8zm12 0a.5.5 0 0 1 .5-.5H14a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zM2.343 13.657a.5.5 0 1 1 .707-.707L4.5 12.207a.5.5 0 1 1-.707.707l-1.45 1.45a.5.5 0 0 1-.707 0zM13.657 13.657a.5.5 0 0 1 0-.707l1.45-1.45a.5.5 0 1 1 .707.707l-1.45 1.45a.5.5 0 0 1-.707 0z" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M6 0a6 6 0 1 0 6 6c0-3.314-2.686-6-6-6z" />
+                        </svg>
+                    }
+                </button>
+            </div>
+        </div>
     </div>
-</div>
+</nav>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
+    private string? CurrentTheme;
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CurrentTheme = await ThemeService.GetThemeAsync() ?? "light";
+            StateHasChanged();
+        }
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/talon-import">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Import
-            </NavLink>
-        </div>
-
-        
-    </nav>
-</div>
+    private async Task ToggleTheme()
+    {
+        var next = await ThemeService.ToggleThemeAndGetAsync();
+        if (!string.IsNullOrEmpty(next))
+        {
+            CurrentTheme = next;
+            StateHasChanged();
+        }
+    }
+}
 

@@ -72,10 +72,9 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 
 - In talon files, captures are `{}` and lists are `<>`.
 
-## Important Current Process
+## Scope Clarification
 
-- Only change the Talon Voice Commands Server project.
-- Do not change other projects (e.g., Razor Class Library).
+All relevant projects in the solution (including `VoiceAdmin`, `RazorClassLibrary`, `TalonVoiceCommandsServer`, and shared libraries) may now be modified as needed for migration, refactoring, accessibility, or .NET 10 upgrade tasks. Remove prior restriction limiting changes to the Talon Voice Commands Server project.
 
 ## Testing the Application
 

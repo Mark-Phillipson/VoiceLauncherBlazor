@@ -1,12 +1,9 @@
-<div class="top-row  navbar navbar-dark bg-dark">
-	<div class="top-row navbar navbar-dark">
-		<button aria-label="Toggle Navigation Menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-	</div>
-</div>
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-	<ul class="nav flex-column">		<li class="nav-item px-3 d-flex align-items-center">
+<div class="@NavMenuCssClass">
+	<ul class="nav flex-column">
+		<li class="nav-item px-3 d-flex align-items-center">
+			<button aria-label="Toggle Navigation Menu" class="navbar-toggler me-2" @onclick="ToggleNavMenu">
+				<span class="navbar-toggler-icon"></span>
+			</button>
 			<button title='Toggle Access Keys' class='btn btn-sm btn-secondary me-2' @onclick="ToggleAccessKeys">
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
 					viewBox="0 0 16 16">

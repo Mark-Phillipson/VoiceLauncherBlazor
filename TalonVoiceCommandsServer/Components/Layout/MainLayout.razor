@@ -5,62 +5,16 @@
     <meta name="theme-color" content="#512BD4" />
 </HeadContent>
 
-<div class="page">
-    @* <div class="sidebar">
-        <NavMenu />
-    </div> *@
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://github.com/Mark-Phillipson/VoiceLauncherBlazor" target="_blank">Repo</a>
-            <button class="btn btn-outline-secondary btn-sm ms-3 d-flex align-items-center"
-                    @onclick="ToggleTheme"
-                    aria-label="Toggle theme"
-                    title="Toggle theme">
-                @if (CurrentTheme == "dark")
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-                        <path d="M6 0a.5.5 0 0 1 .5.5V2a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 6 0zm4 0a.5.5 0 0 1 .5.5V2a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 10 0zM8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2.343 2.343a.5.5 0 0 1 .707 0L4.5 3.793a.5.5 0 1 1-.707.707L2.343 3.05a.5.5 0 0 1 0-.707zM13.657 2.343a.5.5 0 0 1 0 .707l-1.45 1.45a.5.5 0 1 1-.707-.707l1.45-1.45a.5.5 0 0 1 .707 0zM.5 8a.5.5 0 0 1 .5-.5H2a.5.5 0 0 1 0 1H1A.5.5 0 0 1 .5 8zm12 0a.5.5 0 0 1 .5-.5H14a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zM2.343 13.657a.5.5 0 1 1 .707-.707L4.5 12.207a.5.5 0 1 1-.707.707l-1.45 1.45a.5.5 0 0 1-.707 0zM13.657 13.657a.5.5 0 0 1 0-.707l1.45-1.45a.5.5 0 1 1 .707.707l-1.45 1.45a.5.5 0 0 1-.707 0z"/>
-                    </svg>
-                }
-                else
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-                        <path d="M6 0a6 6 0 1 0 6 6c0-3.314-2.686-6-6-6z"/>
-                    </svg>
-                }
-            </button>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+<div class="layout-root">
+    <NavMenu />
+    <main class="content" role="main">
+        @Body
     </main>
 </div>
 
 <script src="/js/themeInterop.js"></script>
 
-@code {
-    private async Task ToggleTheme()
-    {
-        var next = await ThemeService.ToggleThemeAndGetAsync();
-        if (!string.IsNullOrEmpty(next))
-        {
-            CurrentTheme = next;
-            StateHasChanged();
-        }
-    }
-    private string? CurrentTheme;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            CurrentTheme = await ThemeService.GetThemeAsync() ?? "light";
-            StateHasChanged();
-        }
-    }
-}
+@code { }
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
