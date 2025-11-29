@@ -22,7 +22,6 @@ namespace RazorClassLibrary.Components
         [Parameter] public string? FilePath { get; set; }
 
         private MarkupString HtmlContent { get; set; }
-        private bool isLoading = false;
         private string? errorMessage;
 
         protected override void OnInitialized()
@@ -37,7 +36,6 @@ namespace RazorClassLibrary.Components
             if (!string.IsNullOrWhiteSpace(FilePath))
             {
                 // FilePath provided - attempt to read markdown from disk
-                isLoading = true;
                 try
                 {
                     if (Path.IsPathRooted(FilePath) && File.Exists(FilePath))
@@ -69,10 +67,7 @@ namespace RazorClassLibrary.Components
                 {
                     errorMessage = $"Error reading markdown file: {ex.Message}";
                 }
-                finally
-                {
-                    isLoading = false;
-                }
+                finally { }
             }
 
             // Convert whatever MarkdownContent is currently available to HTML
