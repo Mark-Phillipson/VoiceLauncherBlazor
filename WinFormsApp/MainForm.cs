@@ -49,7 +49,22 @@ namespace WinFormsApp
 			this.FormClosing += MainForm_FormClosing!;
 			this.Resize += MainForm_Resize!;
 			InitializeServices();
-		}		private void InitializeServices()
+		}
+
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
+			var screen = Screen.PrimaryScreen;
+			if (screen != null)
+			{
+				var workingArea = screen.WorkingArea;
+				this.Width = workingArea.Width / 2;
+				this.Height = workingArea.Height;
+				this.Location = new Point(workingArea.Right - this.Width, workingArea.Top);
+			}
+		}
+
+		private void InitializeServices()
 		{
 			var services = new ServiceCollection();
 
