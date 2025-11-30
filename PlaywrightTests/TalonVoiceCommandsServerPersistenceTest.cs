@@ -12,8 +12,7 @@ namespace PlaywrightTests;
 [TestFixture]
 public class TalonVoiceCommandsServerPersistenceTest : PageTest
 {
-    // This test targets the STANDALONE TalonVoiceCommandsServer application (port 5269)
-    // NOT the main VoiceLauncher application
+    // This test targets the standalone TalonVoiceCommandsServer application (port 5269)
     private const string BaseUrl = "http://localhost:5269";
     
     private string tempDir = "";
