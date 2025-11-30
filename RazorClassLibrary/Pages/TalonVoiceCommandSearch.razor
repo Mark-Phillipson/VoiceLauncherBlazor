@@ -588,14 +588,7 @@
     </div>
 </div>
 
-@code {
-    // All logic is in the code-behind file (partial class)
-    // Collapsible panel state
-    protected bool RepositoryPanelExpanded { get; set; } = false;
-    protected bool FilterPanelExpanded { get; set; } = false;
-    protected void ToggleRepositoryPanel() => RepositoryPanelExpanded = !RepositoryPanelExpanded;
-    protected void ToggleFilterPanel() => FilterPanelExpanded = !FilterPanelExpanded;
-}
+
 
 @* Reusable selection modal instance (populated by code-behind) *@
 <SelectionModal @ref="_selectionModal" Title="@SelectionModalTitle" Items="@SelectionModalItems" OnSelected="OnModalSelected" />

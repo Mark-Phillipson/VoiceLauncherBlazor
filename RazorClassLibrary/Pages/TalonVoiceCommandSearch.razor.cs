@@ -30,6 +30,12 @@ namespace RazorClassLibrary.Pages
         public string SelectionModalTitle { get; set; } = "Select";
         private string _openFilterTarget = string.Empty;
 
+        // Collapsible panel state
+        public bool RepositoryPanelExpanded { get; set; } = false;
+        public bool FilterPanelExpanded { get; set; } = false;
+        public void ToggleRepositoryPanel() => RepositoryPanelExpanded = !RepositoryPanelExpanded;
+        public void ToggleFilterPanel() => FilterPanelExpanded = !FilterPanelExpanded;
+
     protected SelectionModal? _selectionModal;
     private IJSObjectReference? _selectionModule;
     private bool _selectionModuleLoaded = false;
@@ -1357,6 +1363,8 @@ namespace RazorClassLibrary.Pages
             AutoFilterByCurrentApp= false; // Disable auto-filtering when focusing on a command
             _focusedCommand = command;
             _isFocusMode = true;
+            ShowFullCards = true; // Show details
+            FilterPanelExpanded = true; // Ensure filters are not collapsed
             StateHasChanged();
            // scroll focused card into view
            if (JSRuntime != null)
