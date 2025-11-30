@@ -496,7 +496,7 @@ namespace RazorClassLibrary.Pages
 
                 var rawApplications = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Application))
-                    .Select(c => c.Application!)
+                    .SelectMany(c => c.Application!.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()))
                     .Distinct();
 
                 var applications = ApplicationMappingService != null 
@@ -737,7 +737,15 @@ namespace RazorClassLibrary.Pages
 
                     if (hasApplicationFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c => c.Application == SelectedApplication);
+                        filteredCommands = filteredCommands.Where(c => 
+                            c.Application != null && 
+                            c.Application.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(a => a.Trim())
+                            .Any(app => 
+                                string.Equals(app, SelectedApplication, StringComparison.OrdinalIgnoreCase) ||
+                                (ApplicationMappingService != null && string.Equals(ApplicationMappingService.GetDisplayName(app), SelectedApplication, StringComparison.OrdinalIgnoreCase))
+                            )
+                        );
                     }
 
                     if (hasModeFilter)

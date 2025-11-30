@@ -1,0 +1,19 @@
+
+/* _content/RazorClassLibrary/Component1.razor.rz.scp.css */
+.my-component[b-dtheyu47zo] {
+    border: 2px dashed red;
+    padding: 1em;
+    margin: 1em 0;
+    background-image: url('background.png');
+}
+/* _content/RazorClassLibrary/Components/MarkdownConverter.razor.rz.scp.css */
+/* MarkdownConverter Dark Mode Styling */
+.markdown-container[b-c17dj3ovhu] {
+    background-color: #3a3a3a;
+    border: 1px solid #5a5a3a;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+/* ...truncated for brevity... */

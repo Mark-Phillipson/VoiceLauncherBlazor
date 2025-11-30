@@ -70,7 +70,8 @@ namespace DataAccessLibrary.Services
             await _context.SaveChangesAsync();
             var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
             var commands = new List<TalonVoiceCommand>(); foreach (var file in talonFiles)
-            {                var lines = await File.ReadAllLinesAsync(file);                string application = "global";
+            {                var lines = await File.ReadAllLinesAsync(file);
+                List<string> applications = new();
                 List<string> modes = new();
                 List<string> tags = new();
                 List<string> codeLanguages = new();
@@ -116,7 +117,7 @@ namespace DataAccessLibrary.Services
                         var parsedApp = ParseApplicationFromHeaderLine(line);
                         if (parsedApp != null)
                         {
-                            application = parsedApp;
+                            applications.Add(parsedApp);
                         }
                         else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                         {
@@ -187,11 +188,13 @@ namespace DataAccessLibrary.Services
                             script += "\n" + lines[j].Trim();
                             j++;
                         }
-                        i = j - 1;                        commands.Add(new TalonVoiceCommand
+                        i = j - 1;
+                        var appStr = applications.Count > 0 ? string.Join(", ", applications) : "global";
+                        commands.Add(new TalonVoiceCommand
                         {
                             Command = command.Length > 200 ? command.Substring(0, 200) : command,
                             Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
-                            Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                            Application = appStr.Length > 200 ? appStr.Substring(0, 200) : appStr,
                             Title = title != null && title.Length > 200 ? title.Substring(0, 200) : title,
                             Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
                             OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,
@@ -290,7 +293,8 @@ namespace DataAccessLibrary.Services
         public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
         {
             // Do NOT clear the table here; only add new commands
-            var commands = new List<TalonVoiceCommand>();            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); string application = "global";
+            var commands = new List<TalonVoiceCommand>();            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); 
+            List<string> applications = new();
             List<string> modes = new();
             List<string> tags = new();
             List<string> codeLanguages = new();
@@ -332,7 +336,7 @@ namespace DataAccessLibrary.Services
                     var parsedApp = ParseApplicationFromHeaderLine(line);
                     if (parsedApp != null)
                     {
-                        application = parsedApp;
+                        applications.Add(parsedApp);
                     }
                     else if (line.StartsWith("mode:", StringComparison.OrdinalIgnoreCase))
                     {
@@ -397,11 +401,13 @@ namespace DataAccessLibrary.Services
                         script += "\n" + lines[j].Trim();
                         j++;
                     }
-                    i = j - 1;                    commands.Add(new TalonVoiceCommand
+                    i = j - 1;
+                    var appStr = applications.Count > 0 ? string.Join(", ", applications) : "global";
+                    commands.Add(new TalonVoiceCommand
                     {
                         Command = command.Length > 200 ? command.Substring(0, 200) : command,
                         Script = script.Length > 2000 ? script.Substring(0, 2000) : script,
-                        Application = application.Length > 200 ? application.Substring(0, 200) : application,
+                        Application = appStr.Length > 200 ? appStr.Substring(0, 200) : appStr,
                         Title = title != null && title.Length > 200 ? title.Substring(0, 200) : title,
                         Mode = modes.Count > 0 ? string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Substring(0, Math.Min(300, string.Join(", ", modes.Select(m => m.Length > 100 ? m.Substring(0, 100) : m)).Length)) : null,
                         OperatingSystem = operatingSystem != null && operatingSystem.Length > 100 ? operatingSystem.Substring(0, 100) : operatingSystem,

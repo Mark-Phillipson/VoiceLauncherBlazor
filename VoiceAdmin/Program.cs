@@ -78,6 +78,7 @@ catch (ReflectionTypeLoadException ex)
 
 // Repository & Data services
 builder.Services.AddScoped<ISavedMousePositionRepository, SavedMousePositionRepository>();
+builder.Services.AddScoped<ApplicationMappingService>();
 builder.Services.AddScoped<ISavedMousePositionDataService, SavedMousePositionDataService>();
 builder.Services.AddScoped<ICustomWindowsSpeechCommandDataService, CustomWindowsSpeechCommandDataService>();
 builder.Services.AddScoped<ICustomWindowsSpeechCommandRepository, CustomWindowsSpeechCommandRepository>();
