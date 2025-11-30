@@ -510,10 +510,10 @@ else
                             }
                             else 
                             {
-                                <div class="card-header d-flex">
-                                    <span class="badge filter-btn-application px-2 py-1 me-2" style="font-size:0.95rem; border-radius:0.5rem;">@cmd.Application</span>
-                                    <h5 class="card-title mb-1 me-2" style="@(IsBlazorHybrid ? "white-space:normal; word-break:break-word;" : "")">@((MarkupString)HighlightCapturesAndFilters(cmd.Command, cmd))</h5>
-                                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-2" style="@(IsBlazorHybrid ? "white-space:normal; word-break:break-word;" : "")">@((MarkupString)HighlightCapturesAndFilters(cmd.Command, cmd))</h5>
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                        <span class="badge filter-btn-application px-2 py-1 me-2" style="font-size:0.95rem; border-radius:0.5rem;">@cmd.Application</span>
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
