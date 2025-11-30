@@ -110,9 +110,28 @@ namespace WinFormsApp
 #endif
 
 			// Configure WebView2 environment with user data folder
-			_ = ConfigureWebView2EnvironmentAsync();
+			// Removed manual WebView2 initialization to avoid double initialization and environment conflict
+			// Subscribe to CoreWebView2InitializationCompleted to set tracking prevention and storage settings
+			var webview = blazorWebView1?.WebView;
+			if (webview != null)
+			{
+				var currentWebView = webview;
+				currentWebView.CoreWebView2InitializationCompleted += (s, e) =>
+				{
+					if (e.IsSuccess && currentWebView.CoreWebView2 != null)
+					{
+						var settings = currentWebView.CoreWebView2.Settings;
+						settings.IsGeneralAutofillEnabled = true;
+						settings.AreDefaultContextMenusEnabled = true;
+						settings.IsStatusBarEnabled = false;
 
-			blazorWebView1.HostPage = "wwwroot\\index.html";
+						var profile = webview.CoreWebView2.Profile;
+						profile.PreferredTrackingPreventionLevel = CoreWebView2TrackingPreventionLevel.None;
+					}
+				};
+			}
+
+			blazorWebView1!.HostPage = "wwwroot\\index.html";
 			blazorWebView1.Services = services.BuildServiceProvider();
 
 			blazorWebView1.RootComponents.Add<Index>("#app",

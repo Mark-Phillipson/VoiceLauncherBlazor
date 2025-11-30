@@ -574,7 +574,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null && !_selectionModuleLoaded)
                     {
-                        _selectionModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/_content/RazorClassLibrary/selectionModalInterop.js");
+                        _selectionModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
                         _selectionModuleLoaded = true;
                         Console.WriteLine("Selection modal JS module loaded.");
                         try
