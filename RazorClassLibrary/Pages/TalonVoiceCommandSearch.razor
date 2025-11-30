@@ -360,6 +360,13 @@
         }
         else if (Results?.Any() == true)
         {
+            @if (IsRandomResult)
+            {
+                <div class="alert alert-info mb-3" role="alert">
+                    <i class="oi oi-info me-2"></i>
+                    These are random results for learning purposes.
+                </div>
+            }
             <div class="row" aria-label="Search Results">
                 @foreach (var cmd in GetDisplayedCommands())
                 {

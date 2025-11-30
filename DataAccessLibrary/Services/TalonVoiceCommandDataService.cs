@@ -1493,5 +1493,19 @@ namespace DataAccessLibrary.Services
                 
             return breakdown;
         }
+
+        public async Task<List<TalonVoiceCommand>> GetRandomCommandsAsync(int count, string os)
+        {
+            var query = _context.TalonVoiceCommands.AsQueryable();
+
+            if (!string.IsNullOrEmpty(os))
+            {
+                // Filter by OS: include commands where OS is null (all OS) or matches the requested OS
+                query = query.Where(c => c.OperatingSystem == null || c.OperatingSystem == "" || c.OperatingSystem.Contains(os));
+            }
+
+            // Randomize using Guid.NewGuid()
+            return await query.OrderBy(c => Guid.NewGuid()).Take(count).ToListAsync();
+        }
     }
 }

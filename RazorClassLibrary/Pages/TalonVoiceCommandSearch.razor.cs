@@ -263,6 +263,7 @@ namespace RazorClassLibrary.Pages
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
+        public bool IsRandomResult { get; set; } = false;
         public bool UseSemanticMatching { get; set; } = false;
         public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
         
@@ -637,6 +638,7 @@ namespace RazorClassLibrary.Pages
             // Clear focus mode when performing a new search
             _focusedCommand = null;
             _isFocusMode = false;
+            IsRandomResult = false;
             // Don't search if no criteria are specified - check for default filter states
             bool hasSearchTerm = !string.IsNullOrWhiteSpace(SearchTerm);
             bool hasApplicationFilter = !string.IsNullOrWhiteSpace(SelectedApplication);
@@ -658,8 +660,36 @@ namespace RazorClassLibrary.Pages
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter)
                 {
                     // System.Diagnostics.Debug.WriteLine("OnSearch - No search criteria, returning early");
-                    Results = new List<TalonVoiceCommand>();
+                    IsLoading = true;
+                    StateHasChanged();
+
+                    string os = "";
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        os = "windows";
+                    }
+                    else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+                    {
+                        os = "linux";
+                    }
+                    else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+                    {
+                        os = "mac";
+                    }
+
+                    if (TalonService != null)
+                    {
+                        Results = await TalonService.GetRandomCommandsAsync(20, os);
+                        IsRandomResult = true;
+                    }
+                    else
+                    {
+                        Results = new List<TalonVoiceCommand>();
+                    }
+
                     HasSearched = false;
+                    IsLoading = false;
+                    StateHasChanged();
                     await EnsureSearchFocus();
                     return;
                 }
