@@ -26,6 +26,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
+builder.Services.AddScoped<RazorClassLibrary.Services.ApplicationMappingService>();
 var config = builder.Configuration;
 string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));

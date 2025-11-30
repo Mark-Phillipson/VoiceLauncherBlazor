@@ -75,6 +75,7 @@ namespace WinFormsApp
 			}
 			services.AddMemoryCache();
 			services.AddSingleton<ComponentCacheService>();
+			services.AddSingleton<ApplicationMappingService>();
 			// Windows integration service for hybrid Blazor
 			services.AddSingleton<RazorClassLibrary.Services.IWindowsService, RazorClassLibrary.Services.WindowsService>();
 

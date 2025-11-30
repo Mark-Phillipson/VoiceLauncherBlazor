@@ -294,6 +294,8 @@ namespace RazorClassLibrary.Pages
     [Inject]
     public DataAccessLibrary.Services.ITalonVoiceCommandDataService? TalonService { get; set; }
     [Inject]
+    public ApplicationMappingService? ApplicationMappingService { get; set; }
+    [Inject]
         public IJSRuntime? JSRuntime { get; set; }
         [Inject]
         public IWindowsService? WindowsService { get; set; }
@@ -320,6 +322,16 @@ namespace RazorClassLibrary.Pages
         private string? MapProcessToApplication(string processName)
         {
             if (string.IsNullOrWhiteSpace(processName) || AvailableApplications == null) return null;
+            
+            // Try to use the mapping service first
+            if (ApplicationMappingService != null)
+            {
+                var displayName = ApplicationMappingService.GetDisplayName(processName);
+                // Check if the mapped display name is actually in our available list
+                var mapped = AvailableApplications.FirstOrDefault(a => a.Equals(displayName, StringComparison.OrdinalIgnoreCase));
+                if (mapped != null) return mapped;
+            }
+
             var exact = AvailableApplications.FirstOrDefault(a => a.Equals(processName, StringComparison.OrdinalIgnoreCase));
             if (exact != null) return exact;
             var partial = AvailableApplications.FirstOrDefault(a =>
@@ -475,14 +487,21 @@ namespace RazorClassLibrary.Pages
                     _allCommandsCache = await TalonService.GetAllCommandsForFiltersAsync();
                 }
 
+                if (ApplicationMappingService == null)
+                {
+                    Console.WriteLine("LoadFilterOptions: ApplicationMappingService is null - mappings will not be applied");
+                }
+
                 var all = _allCommandsCache ?? new List<TalonVoiceCommand>();
 
-                var applications = all
+                var rawApplications = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Application))
                     .Select(c => c.Application!)
-                    .Distinct()
-                    .OrderBy(a => a)
-                    .ToList();
+                    .Distinct();
+
+                var applications = ApplicationMappingService != null 
+                    ? ApplicationMappingService.GetNormalizedList(rawApplications)
+                    : rawApplications.OrderBy(a => a).ToList();
 
                 var modes = all
                     .Where(c => !string.IsNullOrWhiteSpace(c.Mode))
@@ -794,7 +813,15 @@ namespace RazorClassLibrary.Pages
 
                         if (hasApplicationFilter)
                         {
-                            finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                            if (ApplicationMappingService != null)
+                            {
+                                var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
+                                finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
+                            }
+                            else
+                            {
+                                finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                            }
                         }
 
                         if (hasModeFilter)
@@ -870,7 +897,15 @@ namespace RazorClassLibrary.Pages
 
                             if (hasApplicationFilter)
                             {
-                                finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                                if (ApplicationMappingService != null)
+                                {
+                                    var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
+                                    finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
+                                }
+                                else
+                                {
+                                    finalResults = finalResults.Where(c => c.Application == SelectedApplication);
+                                }
                             }
 
                             if (hasModeFilter)

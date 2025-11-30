@@ -41,6 +41,9 @@ builder.Services.AddSingleton<IWindowsService, WindowsService>();
 // Register FilterRefreshService for automatic filter refresh after import
 builder.Services.AddSingleton<FilterRefreshService>();
 
+// Register ApplicationMappingService for normalizing application names
+builder.Services.AddScoped<RazorClassLibrary.Services.ApplicationMappingService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
