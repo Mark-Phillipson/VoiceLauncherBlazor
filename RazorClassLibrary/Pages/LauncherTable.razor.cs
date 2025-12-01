@@ -49,7 +49,13 @@ namespace RazorClassLibrary.Pages
 		private string? _randomColor1;
 		string Message = "";
 #pragma warning restore 414, 649
-		public string? SearchTerm { get => searchTerm; set { searchTerm = value; ApplyFilter(); } }
+		public string? SearchTerm {
+			get => searchTerm;
+			set {
+				searchTerm = value;
+				_ = LoadData(); // Always reload from backend when search changes
+			}
+		}
 		[Parameter] public string? ServerSearchTerm { get; set; }
 		public string ExceptionMessage { get; set; } = string.Empty;
 		public List<string>? PropertyInfo { get; set; }
@@ -78,7 +84,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task LoadData(bool forceRefresh = false)
 		{
-			// Attempt to load categories regardless of cache status for launchers
+			// Always load categories fresh
 			if (CategoryDataService != null)
 			{
 				try
@@ -88,86 +94,55 @@ namespace RazorClassLibrary.Pages
 				catch (Exception ex)
 				{
 					Logger?.LogError(ex, "Failed to load categories.");
-					// Optionally, handle the error e.g., by setting a message for the user
 				}
 			}
 
-			bool loadFromService = true; // Default to loading from service
+			// If no filters, show no results
+			bool hasFilter = CategoryId != 0 || !string.IsNullOrWhiteSpace(GlobalSearchTerm) || !string.IsNullOrWhiteSpace(SearchTerm);
 
-			// Try to load from cache only if not forcing refresh AND no GlobalSearchTerm is active
-			// Use cached data only when not forcing a refresh and no global search term is active.
-			// This ensures that cached data is used for general browsing, but fresh data is fetched
-			// when a specific search term is provided or a refresh is explicitly requested.
-			if (!forceRefresh && string.IsNullOrWhiteSpace(GlobalSearchTerm))
+			if (!hasFilter)
 			{
-				var cachedData = await LoadDataFromJsonFile();
-				if (cachedData != null)
-				{
-					LauncherDTO = cachedData;
-					loadFromService = false; // Data loaded from cache, service call for full list might be skipped
-				}
-			}
-			
-			// If GlobalSearchTerm is present, or forceRefresh is true, or cache was missed, we must load from service.
-			if (forceRefresh || !string.IsNullOrWhiteSpace(GlobalSearchTerm))
-			{
-				loadFromService = true;
+				LauncherDTO = new List<LauncherDTO>();
+				FilteredLauncherDTO = new List<LauncherDTO>();
+				Title = "No launchers to display (no filter applied)";
+				StateHasChanged();
+				return;
 			}
 
-			CategoryDTO? category = null; // Used for title if CategoryId is set
-			if (loadFromService)
+			CategoryDTO? category = null;
+			try
 			{
-				try
+				List<LauncherDTO> result = new List<LauncherDTO>();
+				if (LauncherDataService != null)
 				{
-					List<LauncherDTO> result;
-					if (LauncherDataService != null)
+					if (!string.IsNullOrWhiteSpace(SearchTerm))
 					{
-						if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
-						{
-							result = await LauncherDataService!.GetAllLaunchersAsync(CategoryId);
-						}
-						else
-						{
-							result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
-						}
-						if (result != null)
-						{
-							LauncherDTO = result.ToList();
-							// Save fresh data to cache only if it was a full list (not a global search) and refresh was intended
-							if (forceRefresh && string.IsNullOrWhiteSpace(GlobalSearchTerm))
-							{
-								await SaveDataToJsonFile(LauncherDTO);
-							}
-						}
+						result = await LauncherDataService.SearchLaunchersAsync(SearchTerm);
 					}
-				}
-				catch (Exception e)
-				{
-					Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
-					_loadFailed = true;
-					ExceptionMessage = e.Message;
-					LauncherDTO = new List<LauncherDTO>(); // Ensure LauncherDTO is not null on error
+					else if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+					{
+						result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
+					}
+					else
+					{
+						result = await LauncherDataService.GetAllLaunchersAsync(CategoryId);
+					}
+					LauncherDTO = result.ToList();
 				}
 			}
-			
-			LauncherDTO ??= new List<LauncherDTO>(); // Ensure LauncherDTO is initialized
-			_cachedLauncherDTO = new List<LauncherDTO>(LauncherDTO); // Base for local filtering
+			catch (Exception e)
+			{
+				Logger?.LogError(e, "Exception occurred in LoadData Method, Getting Records from the Service");
+				_loadFailed = true;
+				ExceptionMessage = e.Message;
+				LauncherDTO = new List<LauncherDTO>();
+			}
 
-			// Initialize FilteredLauncherDTO with the (potentially globally searched) LauncherDTO
+			LauncherDTO ??= new List<LauncherDTO>();
 			FilteredLauncherDTO = new List<LauncherDTO>(LauncherDTO);
+			// No need to apply local filter, backend already filtered
+			FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
 
-			// Apply local search term if present
-			if (!string.IsNullOrWhiteSpace(SearchTerm))
-			{
-				ApplyFilter(); // This updates FilteredLauncherDTO and may set a temporary title
-			}
-			else
-			{
-				// If no local search, ensure FilteredLauncherDTO is sorted
-				FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
-			}
-			
-			// Determine and set the final title
 			if (CategoryDataService != null && CategoryId != 0)
 			{
 				category = await CategoryDataService.GetCategoryById(CategoryId);
@@ -188,8 +163,7 @@ namespace RazorClassLibrary.Pages
 			}
 			else
 			{
-				Title = $"All Launchers ({FilteredLauncherDTO.Count})";
-				if (!string.IsNullOrWhiteSpace(SearchTerm)) Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})"; // ApplyFilter might set a similar title
+				Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
 			}
 			StateHasChanged();
 		}
@@ -409,16 +383,11 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task SaveDataToJsonFile(List<LauncherDTO> data)
 		{
-			var json = JsonSerializer.Serialize(data);
-			await File.WriteAllTextAsync("launcherCache.json", json);
+			// Cache logic removed
 		}
 		private async Task<List<LauncherDTO>?> LoadDataFromJsonFile()
 		{
-			if (File.Exists("launcherCache.json"))
-			{
-				var json = await File.ReadAllTextAsync("launcherCache.json");
-				return JsonSerializer.Deserialize<List<LauncherDTO>>(json);
-			}
+			// Cache logic removed
 			return null;
 		}
         protected async Task ResetFilter()

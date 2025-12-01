@@ -13,9 +13,6 @@
                     <i class="bi bi-sort-alpha-down"></i>
                 </button>
             </div>
-            <button class="btn btn-md btn-outline-danger" type="button" @onclick="@(() => LoadData(true))">
-                <i class="bi bi-arrow-clockwise"></i>
-            </button>
         </div>
     }
     else
@@ -86,8 +83,20 @@ else if (FilteredLauncherDTO == null)
 }
 else if (FilteredLauncherDTO.Count == 0)
 {
-    <p>No Launcher match the criteria @GlobalSearchTerm</p>
-    <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
+    @if (CategoryId == 0 && string.IsNullOrWhiteSpace(GlobalSearchTerm) && string.IsNullOrWhiteSpace(SearchTerm))
+    {
+        <p>No launchers to display. Please select a category or enter a search term.</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(GlobalSearchTerm))
+    {
+        <p>No launchers found matching <strong>@(string.IsNullOrWhiteSpace(SearchTerm) ? GlobalSearchTerm : SearchTerm)</strong>.</p>
+        <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
+    }
+    else
+    {
+        <p>No Launcher match the criteria @GlobalSearchTerm</p>
+        <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
+    }
 }
 else
 {
