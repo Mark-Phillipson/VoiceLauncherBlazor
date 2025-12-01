@@ -29,8 +29,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>  <ItemGroup>
-    <ProjectReference Include="..\VoiceLauncher\VoiceLauncher.csproj" />
+    <!-- Removed missing VoiceLauncher project reference -->
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
+    <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
   </ItemGroup>
 
 </Project>

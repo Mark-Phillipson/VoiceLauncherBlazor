@@ -49,12 +49,23 @@ public partial class LauncherAddEdit : ComponentBase
     }
     private void LoadImages()
     {
-        string directoryPath = @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images";
-        filenameList = Directory.GetFiles(directoryPath);
-        foreach (string item in filenameList)
+        string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+        Console.WriteLine($"[LauncherAddEdit] Images directory path: {directoryPath}");
+        Console.WriteLine($"[LauncherAddEdit] Images directory path: {directoryPath}");
+        if (Directory.Exists(directoryPath))
         {
-            string imageUrl = item.Replace(@"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceLauncher\wwwroot\images\", "");
-            imageUlrs.Add(imageUrl);
+            filenameList = Directory.GetFiles(directoryPath);
+            Console.WriteLine($"[LauncherAddEdit] Found {filenameList.Length} files in images directory.");
+            foreach (string item in filenameList)
+            {
+                string imageUrl = Path.GetFileName(item);
+                imageUlrs.Add(imageUrl);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[LauncherAddEdit] Images directory does not exist.");
+            imageUlrs.Clear();
         }
     }
 
