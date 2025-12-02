@@ -50,6 +50,7 @@ else
                 </th>
                 <th>Active</th>
                 <th>Colour</th>
+                <th>Image</th>
                 <th>
                     @if (string.IsNullOrEmpty(GlobalSearchTerm))
                     {
@@ -74,6 +75,12 @@ else
                     <td>@language.LanguageName</td>
                     <td>@language.Active</td>
                     <td>@language.Colour</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(language.ImageLink))
+                        {
+                            <img src="@language.ImageLink" alt="@language.LanguageName image" style="max-width:40px;max-height:40px;" />
+                        }
+                    </td>
                     <td class="btn-group-vertical">
                         <button aria-label='Edit Language' class="btn btn-sm btn-outline-warning"
                             @onclick="@(() => EditLanguage(language.Id))">

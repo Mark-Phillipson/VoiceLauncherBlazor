@@ -47,6 +47,10 @@ else
 				<div class="card m-1" style="width: 15rem;background-color:@language.Colour">
 					<a href="categorieintellisensestable/@language.Id">
 						<div class="card-body">
+							@if (!string.IsNullOrWhiteSpace(language.ImageLink))
+							{
+								<img src="/images/@language.ImageLink" alt="@language.LanguageName image" style="max-width:60px;max-height:60px;display:block;margin:auto;" />
+							}
 							<h3 class="card-title">@language.LanguageName</h3>
 							<div class="card-text">
 								Active

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLibrary.Models
 {
+  [Table("Languages")]
     public partial class Language
     {
         public Language()
@@ -22,6 +23,8 @@ namespace DataAccessLibrary.Models
         public bool Active { get; set; }
         [StringLength(40)]
         public string? Colour { get; set; }
+        [StringLength(200)]
+        public string? ImageLink { get; set; }
         [InverseProperty("Language")]
         public virtual ICollection<CustomIntelliSense> CustomIntelliSense { get; set; }
     }

@@ -13,5 +13,7 @@ namespace DataAccessLibrary.DTO
       public bool Active { get; set; } = true;
       [StringLength(40)]
       public required string Colour { get; set; } = "#000000";
+      [StringLength(200)]
+      public string? ImageLink { get; set; }
    }
 }

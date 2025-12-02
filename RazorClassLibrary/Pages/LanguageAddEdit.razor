@@ -29,6 +29,12 @@
                         placeholder="Enter Colour"></InputText>
                     <ValidationMessage For="@(() => LanguageDTO.Colour)" />
                 </div>
+                <div class="form-group">
+                    <label for="ImageLink">Image File Name:</label>
+                    <InputText id="ImageLink" class="form-control" @bind-Value="@LanguageDTO.ImageLink"
+                        placeholder="Enter image file name (e.g. language.png)"></InputText>
+                    <ValidationMessage For="@(() => LanguageDTO.ImageLink)" />
+                </div>
             </div>
             <div class="col-12">
                 @* Move here for the next display column if required *@
@@ -36,6 +42,7 @@
         </div>
         <hr>
         <div class="" style="float:right">
+            <a class="btn btn-outline-secondary" href="/languages">Back to Languages Table</a>
             <a accesskey="c" class="btn btn-lg btn-outline-primary" @onclick="@CloseAsync"><u>C</u>ancel</a>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
             <SmartPasteButton accesskey='p' class='btn btn-lg btn-outline-danger' DefaultIcon>Smart <u>P</u>asty

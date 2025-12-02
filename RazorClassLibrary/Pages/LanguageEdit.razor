@@ -36,10 +36,16 @@ else
                     </InputCheckbox>
                     <ValidationMessage For="@(() => LanguageModel.Active)" />
                 </div>
+                <div class="form-field row">
+                    <label for="@LanguageModel.ImageLink" class="col-md-4"> Image Link </label>
+                    <InputText class="col-md-8 form-control-lg" placeholder="Enter image link (e.g. /images/language.png)" id="ImageLink" @bind-Value="LanguageModel.ImageLink"></InputText>
+                    <ValidationMessage For="@(() => LanguageModel.ImageLink)" />
+                </div>
                 <button accesskey="2" class="btn btn-lg btn-success" type="submit">Submit (2) <i class="oi oi-hard-drive"></i></button>
             </EditForm>
         </div>
     </div>
     <hr>
+    <a class="btn btn-outline-secondary" href="/languages">Back to Languages Table</a>
 }
 

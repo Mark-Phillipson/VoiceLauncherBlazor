@@ -31,8 +31,10 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<CustomIntelliSenseDTO, CustomIntelliSense>();
   			CreateMap<TalonAlphabet, TalonAlphabetDTO>();
 			CreateMap<TalonAlphabetDTO, TalonAlphabet>();
-			CreateMap<Language, LanguageDTO>();
-			CreateMap<LanguageDTO, Language>();
+			CreateMap<Language, LanguageDTO>()
+				.ForMember(dest => dest.ImageLink, opt => opt.MapFrom(src => src.ImageLink));
+			CreateMap<LanguageDTO, Language>()
+				.ForMember(dest => dest.ImageLink, opt => opt.MapFrom(src => src.ImageLink));
 			CreateMap<CursorlessCheatsheetItem, CursorlessCheatsheetItemDTO>();
 			CreateMap<CursorlessCheatsheetItemDTO, CursorlessCheatsheetItem>();
 			CreateMap<CssProperty, CssPropertyDTO>();
