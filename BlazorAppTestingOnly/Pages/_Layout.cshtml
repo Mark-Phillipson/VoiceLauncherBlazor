@@ -22,16 +22,68 @@
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
+            <div style="background: #212529; color: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 0 10px #000; text-align: center;">
+                <strong>An error has occurred.</strong><br>
+                This application may no longer respond until reloaded.
+            </div>
         </environment>
         <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
+            <div style="background: #212529; color: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 0 10px #000; text-align: center;">
+                <strong>An unhandled exception has occurred.</strong><br>
+                See browser dev tools for details.
+            </div>
         </environment>
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+        <a href="" class="reload" style="color: #fff; background: #343a40; border: 1px solid #495057; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Reload</a>
+        <a class="dismiss" style="color: #fff; background: #343a40; border: 1px solid #495057; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">🗙</a>
     </div>
+    <style>
+        #blazor-error-ui {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(33,37,41,0.95);
+            color: #fff;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #blazor-error-ui.show {
+            display: flex !important;
+        }
+    </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const errorUi = document.getElementById('blazor-error-ui');
+            const reloadBtn = errorUi.querySelector('.reload');
+            const dismissBtn = errorUi.querySelector('.dismiss');
+            reloadBtn.onclick = function (e) {
+                e.preventDefault();
+                location.reload();
+            };
+            dismissBtn.onclick = function () {
+                errorUi.classList.remove('show');
+            };
+            window.addEventListener('blazor:circuit-error', function () {
+                errorUi.classList.add('show');
+            });
+        });
+        // Listen for Blazor circuit errors
+        window.Blazor && window.Blazor.reconnect && window.Blazor.reconnect.failed && window.addEventListener('blazor:circuit-error', function () {
+            document.getElementById('blazor-error-ui').classList.add('show');
+        });
+    </script>
 
-    <script src="_framework/blazor.server.js"></script>
+        <script src="_framework/blazor.server.js" autostart="false"></script>
+        <script>
+            Blazor.start({
+                configureSignalR: function (builder) {
+                    builder.withServerTimeout(1800000).withKeepAliveInterval(15000); // 30 min, 15 sec
+                }
+            });
+        </script>
 </body>
     <script src="/js/darkmode.js"></script>
 </body>
