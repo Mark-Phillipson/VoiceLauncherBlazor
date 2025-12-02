@@ -19,6 +19,7 @@ namespace RazorClassLibrary.Pages
         [Parameter] public int LanguageId { get; set; } = 8;
         [Inject] public required ILanguageDataService LanguageDataService { get; set; }
         [Inject] public ICategoryDataService? CategoryDataService { get; set; }
+        [Inject] public VoiceLauncher.Services.ICustomIntelliSenseDataService? CustomIntelliSenseDataService { get; set; }
         [Inject] public NavigationManager? NavigationManager { get; set; }
         [Inject] public ILogger<CategoryTable>? Logger { get; set; }
         [Inject] public IToastService? ToastService { get; set; }
@@ -55,13 +56,20 @@ namespace RazorClassLibrary.Pages
                 {
                     var result = await CategoryDataService!.GetAllCategoriesAsync(CategoryType, LanguageId);
                     language = await LanguageDataService.GetLanguageById(LanguageId);
-                    //var result = await CategoryDataService.SearchCategoriesAsync(ServerSearchTerm);
                     if (result != null)
                     {
+                        // For each category, update CountOfCustomIntellisense to only count items for this LanguageId
+                        foreach (var category in result)
+                        {
+                            if (CustomIntelliSenseDataService != null)
+                            {
+                                var intellisenses = await CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, category.Id, 1, 1_000_000);
+                                category.CountOfCustomIntellisense = intellisenses?.Count ?? 0;
+                            }
+                        }
                         CategoryDTO = result.ToList();
                     }
                 }
-
             }
             catch (Exception e)
             {
