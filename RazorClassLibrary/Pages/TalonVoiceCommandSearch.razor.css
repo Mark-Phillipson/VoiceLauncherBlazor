@@ -1,3 +1,25 @@
+/* Ensure collapse/expand buttons keep text visible and have clear focus outline */
+.tvcs-panel .btn-outline-secondary:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary) !important;
+}
+
+.tvcs-panel .btn-outline-secondary:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary) !important;
+}
+
+/* Ensure button text is always visible on focus */
+.tvcs-panel .btn-outline-secondary:focus svg,
+.tvcs-panel .btn-outline-secondary:focus span,
+.tvcs-panel .btn-outline-secondary:focus {
+    color: var(--bs-secondary) !important;
+    opacity: 1 !important;
+}
 /* Ensure badge containers wrap and badges have spacing */
 .card-header .d-flex.flex-wrap {
     row-gap: 0.25rem;

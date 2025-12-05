@@ -110,8 +110,8 @@
     <div class="tvcs-panel mb-3">
         <div class="d-flex align-items-center">
             <h6 class="mb-0 me-2">Repository breakdown (click to filter):</h6>
-            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent" title="@(RepositoryPanelExpanded ? "Collapse" : "Expand")">
-                @((RepositoryPanelExpanded ? "◀" : "▶"))
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent" title="@(RepositoryPanelExpanded ? "Collapse (Alt+1)" : "Expand (Alt+1)")" accesskey="1">
+                @((RepositoryPanelExpanded ? "◀ (Alt+1)" : "▶ (Alt+1)"))
             </button>
         </div>
         @if (RepositoryPanelExpanded && RepositoryCounts != null && RepositoryCounts.Any())
@@ -138,8 +138,8 @@
     <div class="tvcs-panel mb-3">
         <div class="d-flex align-items-center">
             <strong class="me-2">Filters</strong>
-            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent" title="@(FilterPanelExpanded ? "Collapse" : "Expand")">
-                @((FilterPanelExpanded ? "◀" : "▶"))
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent" title="@(FilterPanelExpanded ? "Collapse (Alt+2)" : "Expand (Alt+2)")" accesskey="2">
+                @((FilterPanelExpanded ? "◀ (Alt+2)" : "▶ (Alt+2)"))
             </button>
         </div>
         @if (FilterPanelExpanded)
