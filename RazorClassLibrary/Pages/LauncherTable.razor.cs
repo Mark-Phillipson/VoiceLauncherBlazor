@@ -115,12 +115,24 @@ namespace RazorClassLibrary.Pages
 				List<LauncherDTO> result = new List<LauncherDTO>();
 				if (LauncherDataService != null)
 				{
+					// If a local SearchTerm is present and a category is selected, load that
+					// category's launchers and apply the filter locally so searches stay
+					// scoped to the current category. If no category is selected, fall
+					// back to the server-side search which searches across all categories.
 					if (!string.IsNullOrWhiteSpace(SearchTerm))
 					{
-						result = await LauncherDataService.SearchLaunchersAsync(SearchTerm);
+						if (CategoryId != 0)
+						{
+							result = await LauncherDataService.GetAllLaunchersAsync(CategoryId);
+						}
+						else
+						{
+							result = await LauncherDataService.SearchLaunchersAsync(SearchTerm);
+						}
 					}
 					else if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
 					{
+						// GlobalSearchTerm is intended to search across everything
 						result = await LauncherDataService.SearchLaunchersAsync(GlobalSearchTerm);
 					}
 					else
@@ -138,10 +150,20 @@ namespace RazorClassLibrary.Pages
 				LauncherDTO = new List<LauncherDTO>();
 			}
 
-			LauncherDTO ??= new List<LauncherDTO>();
-			FilteredLauncherDTO = new List<LauncherDTO>(LauncherDTO);
-			// No need to apply local filter, backend already filtered
-			FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+				LauncherDTO ??= new List<LauncherDTO>();
+				FilteredLauncherDTO = new List<LauncherDTO>(LauncherDTO);
+				// If we loaded category results for a local SearchTerm, apply the
+				// local filter here so the search is scoped to the selected category.
+				if (!string.IsNullOrWhiteSpace(SearchTerm) && CategoryId != 0)
+				{
+					ApplyFilter();
+					FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+				}
+				else
+				{
+					// Backend already returned the correctly filtered list (global search or full category list)
+					FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+				}
 
 			if (CategoryDataService != null && CategoryId != 0)
 			{
