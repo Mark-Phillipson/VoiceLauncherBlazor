@@ -36,6 +36,16 @@ catch (Exception ex)
 }
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+// Increase resilience for transient disconnects: extend SignalR and circuit retention timeouts
+builder.Services.AddSignalR(options =>
+{
+    // Allow a longer client timeout so brief network glitches don't cause immediate disconnects
+    options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+    // KeepAliveInterval controls how often the server pings the client (default 15s)
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    // Handshake timeout for initial negotiation
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
@@ -45,6 +55,13 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.Us
 builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
 builder.Services.AddRadzenComponents();
+
+// Keep disconnected circuits around longer so users can resume after short server/network blips.
+builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
+{
+    // Default retention period is short; increase to 10 minutes to tolerate transient restarts.
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(40);
+});
 
 // Business services
 builder.Services.AddScoped<CategoryService>();
