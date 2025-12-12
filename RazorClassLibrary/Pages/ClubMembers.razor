@@ -2,6 +2,9 @@
 @using DataAccessLibrary.Models
 @inject DataAccessLibrary.Services.IClubMemberDataService ClubMemberDataService
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject Blazored.Toast.Services.IToastService ToastService
+@implements IDisposable
 
 <PageTitle>Club Members</PageTitle>
 <div class="d-flex justify-content-between align-items-center my-2">
@@ -15,16 +18,28 @@
     <div class="col-md-4">
         <h5>Add / Edit Member</h5>
         <div class="mb-2">
-            <input class="form-control form-control-sm" placeholder="First name" @bind="MemberFirst" />
+            <input class="form-control form-control-sm" placeholder="First name" @bind="MemberFirst" @ref="_firstNameInput" />
         </div>
         <div class="mb-2">
             <input class="form-control form-control-sm" placeholder="Last name" @bind="MemberLast" />
         </div>
-        <div class="mb-2">
+        <div class="mb-2 d-flex align-items-center">
             <InputFile OnChange="OnFileSelected" class="form-control form-control-sm" />
         </div>
         <div class="mb-2">
-            <button class="btn btn-sm btn-primary" @onclick="SaveMember">Save Member</button>
+             <label class="form-label small text-muted">Or paste image here:</label>
+             <div class="d-flex">
+                <div id="paste-target" tabindex="0" role="textbox" aria-label="Paste image area" contenteditable="true" class="form-control form-control-sm d-flex align-items-center justify-content-center text-muted" style="height: 300px; overflow: hidden; background-color: #f8f9fa; cursor: text;">
+                    <small>Click & Press Ctrl+V</small>
+                </div>
+                <div class="ms-2 d-flex flex-column">
+                    <button class="btn btn-sm btn-outline-secondary mb-1" @onclick="PasteFromClipboard">Paste Image</button>
+                    <small class="text-muted">Or drop image here</small>
+                </div>
+             </div>
+        </div>
+            <div class="mb-2">
+            <button class="btn btn-sm btn-primary" @onclick="SaveMember" disabled="@IsSaving">@(IsSaving ? "Saving..." : "Save Member")</button>
         </div>
     </div>
     <div class="col-md-8">
@@ -76,6 +91,9 @@
     private bool LearningMode = false;
     private byte[]? UploadedImageData;
     private string? UploadedContentType;
+    private bool IsSaving = false;
+    private ElementReference _firstNameInput;
+    private DotNetObjectReference<ClubMembers>? _objRef;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,6 +117,35 @@
 
     private async Task SaveMember()
     {
+        // Try to extract a data URL from the paste container before saving. This is a fallback in case
+        // the JS->.NET OnImagePasted invocation was lost (network disconnects / SignalR hiccups).
+        if (UploadedImageData == null)
+        {
+            try
+            {
+                // Try a few times allowing a short delay for the browser/JS to finish inserting the <img>.
+                string? dataUrl = null;
+                for (int i = 0; i < 3 && string.IsNullOrEmpty(dataUrl); i++)
+                {
+                    try
+                    {
+                        dataUrl = await JSRuntime.InvokeAsync<string>("blazorClipboard.getDataUrlFromElement", "paste-target");
+                    }
+                    catch
+                    {
+                        dataUrl = null;
+                    }
+                    if (string.IsNullOrEmpty(dataUrl)) await Task.Delay(150);
+                }
+
+                if (!string.IsNullOrEmpty(dataUrl))
+                {
+                    OnImagePasted(dataUrl);
+                }
+            }
+            catch { }
+        }
+
         var member = new ClubMember
         {
             Id = EditingMemberId,
@@ -107,9 +154,27 @@
             ImageData = UploadedImageData,
             ContentType = UploadedContentType,
         };
-        await ClubMemberDataService.SaveClubMemberAsync(member);
+        try
+        {
+            IsSaving = true;
+            if (UploadedImageData == null)
+            {
+                try { ToastService.ShowWarning("No image bytes present when saving"); } catch { }
+            }
+            else
+            {
+                try { ToastService.ShowInfo($"Saving image ({UploadedImageData.Length} bytes)"); } catch { }
+            }
+            var result = await ClubMemberDataService.SaveClubMemberAsync(member);
+            try { ToastService.ShowSuccess(result); } catch { }
+        }
+        finally
+        {
+            IsSaving = false;
+        }
         ClearForm();
         await LoadMembers();
+        await FocusFirstNameAsync();
     }
 
     private void ClearForm()
@@ -131,8 +196,66 @@
             MemberLast = member.LastName ?? string.Empty;
             UploadedImageData = member.ImageData;
             UploadedContentType = member.ContentType;
+            await FocusFirstNameAsync();
         }
     }
+
+    [JSInvokable]
+    public void OnImagePasted(string dataUrl)
+    {
+        if (!string.IsNullOrEmpty(dataUrl) && dataUrl.StartsWith("data:"))
+        {
+            var comma = dataUrl.IndexOf(',');
+            if (comma > 0)
+            {
+                var meta = dataUrl.Substring(5, comma - 5); // e.g. image/png;base64
+                var contentType = meta.Split(';')[0];
+                var base64 = dataUrl.Substring(comma + 1);
+                UploadedImageData = Convert.FromBase64String(base64);
+                UploadedContentType = contentType;
+                StateHasChanged();
+                try { ToastService.ShowSuccess("Image pasted!"); } catch { }
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnImageTokenReceived(string token)
+    {
+        // Retrieve the bytes from the server-side temporary store
+        try
+        {
+            var bytes = await JSRuntime.InvokeAsync<string>("fetch", $"/api/clipboard/get/{token}");
+            // Not used; prefer server side fetch below
+        }
+        catch { }
+
+        try
+        {
+            // Call API to get the bytes as base64
+            var base64 = await JSRuntime.InvokeAsync<string>("fetch", $"/api/clipboard/getbase64/{token}");
+            if (!string.IsNullOrEmpty(base64))
+            {
+                OnImagePasted(base64);
+            }
+        }
+        catch (Exception ex)
+        {
+            try { ToastService.ShowWarning("Failed to retrieve uploaded image: " + ex.Message); } catch { }
+        }
+    }
+
+    private async Task FocusFirstNameAsync()
+    {
+        try
+        {
+            await Task.Delay(50);
+            await _firstNameInput.FocusAsync();
+        }
+        catch { }
+    }
+
+
 
     private async Task ConfirmDelete(int id)
     {
@@ -155,5 +278,48 @@
     {
         if (member.ImageData == null || member.ContentType == null) return null;
         return $"data:{member.ContentType};base64,{Convert.ToBase64String(member.ImageData)}";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            // Attempt to register paste handler. The clipboard helper is now included in the host head,
+            // so a single registration attempt is sufficient; swallow errors if it isn't available.
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("blazorClipboard.registerPasteHandler", "paste-target", _objRef);
+            }
+            catch { }
+            // register drag-drop fallback if available
+            try { await JSRuntime.InvokeVoidAsync("blazorClipboard.registerDropHandler", "paste-target", _objRef); } catch { }
+            await FocusFirstNameAsync();
+        }
+    }
+
+    private async Task PasteFromClipboard()
+    {
+        try
+        {
+            var dataUrl = await JSRuntime.InvokeAsync<string>("blazorClipboard.getImageFromClipboard");
+            if (!string.IsNullOrEmpty(dataUrl))
+            {
+                OnImagePasted(dataUrl);
+            }
+            else
+            {
+                try { ToastService.ShowWarning("No image found on clipboard"); } catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            try { ToastService.ShowWarning("Clipboard read failed: " + ex.Message); } catch { }
+        }
+    }
+
+    public void Dispose()
+    {
+        _objRef?.Dispose();
     }
 }
