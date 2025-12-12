@@ -16,7 +16,7 @@
 			"command": "dotnet watch",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "dotnet: watch VoiceLauncher"
+			"label": "dotnet: watch VoiceAdmin"
 		},
 		{
 			"label": "Run dotnet publish",

@@ -1,0 +1,159 @@
+@page "/club-members"
+@using DataAccessLibrary.Models
+@inject DataAccessLibrary.Services.IClubMemberDataService ClubMemberDataService
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+
+<PageTitle>Club Members</PageTitle>
+<div class="d-flex justify-content-between align-items-center my-2">
+    <h3>Club Members</h3>
+    <div>
+        <button class="btn btn-outline-secondary btn-sm me-2" @onclick="ToggleLearningMode">@(LearningMode ? "Exit Learning Mode" : "Learning Mode")</button>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <h5>Add / Edit Member</h5>
+        <div class="mb-2">
+            <input class="form-control form-control-sm" placeholder="First name" @bind="MemberFirst" />
+        </div>
+        <div class="mb-2">
+            <input class="form-control form-control-sm" placeholder="Last name" @bind="MemberLast" />
+        </div>
+        <div class="mb-2">
+            <InputFile OnChange="OnFileSelected" class="form-control form-control-sm" />
+        </div>
+        <div class="mb-2">
+            <button class="btn btn-sm btn-primary" @onclick="SaveMember">Save Member</button>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h5>Members</h5>
+        <div class="row">
+            @if (Members == null)
+            {
+                <div>Loading...</div>
+            }
+            else
+            {
+                @foreach (var member in Members)
+                {
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            @if (member.ImageData != null)
+                            {
+                                <img class="card-img-top" src="@GetDataUri(member)" alt="@member.FirstName" />
+                            }
+                            <div class="card-body text-center">
+                                @if (LearningMode)
+                                {
+                                    <button class="btn btn-link" @onclick="() => RevealName(member.Id)">Reveal</button>
+                                    <div>@(RevealedMemberId == member.Id ? member.FirstName : "——")</div>
+                                }
+                                else
+                                {
+                                    <div>@member.FirstName @member.LastName</div>
+                                }
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-warning me-1" @onclick="() => EditMember(member.Id)">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(member.Id)">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ClubMember>? Members;
+    private string MemberFirst = string.Empty;
+    private string MemberLast = string.Empty;
+    private int EditingMemberId = 0;
+    private int RevealedMemberId = 0;
+    private bool LearningMode = false;
+    private byte[]? UploadedImageData;
+    private string? UploadedContentType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        Members = await ClubMemberDataService.GetAllClubMembersAsync(500);
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var max = 1024 * 1024 * 5;
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(max).CopyToAsync(ms);
+        UploadedImageData = ms.ToArray();
+        UploadedContentType = file.ContentType;
+    }
+
+    private async Task SaveMember()
+    {
+        var member = new ClubMember
+        {
+            Id = EditingMemberId,
+            FirstName = MemberFirst,
+            LastName = MemberLast,
+            ImageData = UploadedImageData,
+            ContentType = UploadedContentType,
+        };
+        await ClubMemberDataService.SaveClubMemberAsync(member);
+        ClearForm();
+        await LoadMembers();
+    }
+
+    private void ClearForm()
+    {
+        MemberFirst = string.Empty;
+        MemberLast = string.Empty;
+        UploadedImageData = null;
+        UploadedContentType = null;
+        EditingMemberId = 0;
+    }
+
+    private async Task EditMember(int id)
+    {
+        var member = await ClubMemberDataService.GetClubMemberAsync(id);
+        if (member != null)
+        {
+            EditingMemberId = member.Id;
+            MemberFirst = member.FirstName;
+            MemberLast = member.LastName ?? string.Empty;
+            UploadedImageData = member.ImageData;
+            UploadedContentType = member.ContentType;
+        }
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        await ClubMemberDataService.DeleteClubMemberAsync(id);
+        await LoadMembers();
+    }
+
+    private void ToggleLearningMode()
+    {
+        LearningMode = !LearningMode;
+        RevealedMemberId = 0;
+    }
+
+    private void RevealName(int id)
+    {
+        RevealedMemberId = id;
+    }
+
+    private string? GetDataUri(ClubMember member)
+    {
+        if (member.ImageData == null || member.ContentType == null) return null;
+        return $"data:{member.ContentType};base64,{Convert.ToBase64String(member.ImageData)}";
+    }
+}

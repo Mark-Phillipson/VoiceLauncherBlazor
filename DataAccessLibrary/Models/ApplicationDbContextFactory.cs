@@ -18,7 +18,7 @@ namespace DataAccessLibrary.Models
                 Directory.GetCurrentDirectory(),
                 Path.Combine(Directory.GetCurrentDirectory(), ".."),
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "VoiceLauncherBlazor"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "VoiceLauncher")
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "VoiceAdmin")
             };
 
             foreach (var basePath in basePaths)

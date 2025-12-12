@@ -13,8 +13,8 @@ A Blazor Server application designed for voice-controlled development and access
 
 ## Project Structure
 
-- **TalonVoiceCommandsServer**: Main Blazor Server application.
-- **VoiceLauncher**: Startup logic and DI configuration.
+- **VoiceAdmin**: Main Blazor Server application (replaces TalonVoiceCommandsServer).
+- **VoiceAdmin**: Startup logic and DI configuration.
 - **WinFormsApp**: Blazor Hybrid WinForms project.
 - **DataAccessLibrary**: EF Core with SQL Server for data access.
 - **TestProjectxUnit**: Unit tests using XUnit.
@@ -30,14 +30,14 @@ A Blazor Server application designed for voice-controlled development and access
 ## Development Setup
 
 1. Clone the repository: `git clone https://github.com/Mark-Phillipson/VoiceLauncherBlazor`
-2. Navigate to `TalonVoiceCommandsServer/`.
+2. Navigate to `VoiceAdmin/`.
 3. Restore dependencies: `dotnet restore`
 4. Build: `dotnet build --configuration Debug`
-5. Run: `dotnet run` (runs on port 5269 by default).
+5. Run: `dotnet run` (runs on port 5008 by default).
 
 ## Publishing
 
-For deployment instructions, see [publishing.md](TalonVoiceCommandsServer/publishing.md).
+For deployment instructions, see the `VoiceAdmin` project or its publishing guide.
 
 ## Database
 

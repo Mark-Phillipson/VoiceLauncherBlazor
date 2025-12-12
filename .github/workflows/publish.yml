@@ -28,16 +28,16 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     - name: Restore dependencies
-      run: dotnet restore TalonVoiceCommandsServer/
+      run: dotnet restore VoiceAdmin/
     - name: Publish
       run: |
-        dotnet publish TalonVoiceCommandsServer/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output TalonVoiceCommandsServer/publish/${{ matrix.runtime }}
+        dotnet publish VoiceAdmin/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output VoiceAdmin/publish/${{ matrix.runtime }}
 
     - name: Package artifact
       shell: bash
       run: |
         set -eux
-        cd TalonVoiceCommandsServer/publish
+        cd VoiceAdmin/publish
         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
           powershell -Command "Compress-Archive -Path .\${{ matrix.runtime }}\* -DestinationPath ../../VoiceLauncherBlazor-${{ matrix.runtime }}.zip"
         else

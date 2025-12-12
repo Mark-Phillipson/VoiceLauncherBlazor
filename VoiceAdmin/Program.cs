@@ -145,6 +145,7 @@ builder.Services.AddScoped<IQuickPromptRepository, QuickPromptRepository>();
 builder.Services.AddScoped<IQuickPromptDataService, QuickPromptDataService>();
 builder.Services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, TalonVoiceCommandDataService>();
 builder.Services.AddScoped<ITalonAnalysisService, TalonAnalysisService>();
+builder.Services.AddScoped<DataAccessLibrary.Services.IClubMemberDataService, DataAccessLibrary.Services.ClubMemberDataService>();
 builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonRepository"));
 builder.Services.AddScoped<DataAccessLibrary.Repositories.ITalonListRepository, DataAccessLibrary.Repositories.TalonListRepository>();
 builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, RazorClassLibrary.Services.TalonListDataService>();

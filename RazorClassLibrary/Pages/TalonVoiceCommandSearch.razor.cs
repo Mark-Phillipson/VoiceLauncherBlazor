@@ -593,7 +593,7 @@ namespace RazorClassLibrary.Pages
             
             if (firstRender)
             {
-                await searchInput.FocusAsync();
+                await EnsureSearchFocus();
 
                 // Load the selection modal JS module from static web assets
                 try
@@ -621,13 +621,12 @@ namespace RazorClassLibrary.Pages
                     }
                     catch { }
                 }
-                
+
                 // If we have a search term from command line, perform the search after the first render
                 if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
                 {
-                    // System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - Performing automatic search for: '{SearchTerm}'");
                     await OnSearch();
-                    StateHasChanged(); // Force UI update after search
+                    // Do NOT call StateHasChanged here, as it may steal focus again
                 }
             }
             // Note: We avoid calling EnsureSearchFocus on every render to prevent 
@@ -970,12 +969,8 @@ namespace RazorClassLibrary.Pages
                 IsLoading = false;
                 StateHasChanged();
 
-                // Only restore focus if the search was triggered intentionally
-                // (not during debounced typing to avoid interfering with user input)
-                if (!string.IsNullOrWhiteSpace(SearchTerm) || hasApplicationFilter || hasModeFilter || hasOSFilter)
-                {
-                    await EnsureSearchFocus();
-                }
+                // Always restore focus after search
+                await EnsureSearchFocus();
             }
             catch (Exception ex)
             {
@@ -1091,9 +1086,9 @@ namespace RazorClassLibrary.Pages
             {
                 try
                 {
-                    await JSRuntime.InvokeVoidAsync("setTimeout", 
-                        "() => { const searchInput = document.querySelector('input[type=\"text\"]'); if (searchInput) searchInput.focus(); }", 
-                        10);
+                    // Use requestAnimationFrame for reliable focus after render
+                    var js = "requestAnimationFrame(function(){var searchInput=document.querySelector('input[type=\"text\"]');if(searchInput)searchInput.focus();});";
+                    await JSRuntime.InvokeVoidAsync("eval", js);
                 }
                 catch
                 {

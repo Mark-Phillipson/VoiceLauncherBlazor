@@ -1489,6 +1489,31 @@ BEGIN
     VALUES (N'20250616160838_AddLanguagesAndHostName', N'9.0.0');
 END;
 
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20251212000000_AddClubMembers'
+)
+BEGIN
+    CREATE TABLE [ClubMembers] (
+        [Id] int NOT NULL IDENTITY,
+        [FirstName] nvarchar(100) NOT NULL,
+        [LastName] nvarchar(100) NULL,
+        [ImageData] varbinary(max) NULL,
+        [ContentType] nvarchar(50) NULL,
+        [CreatedAt] datetime2 NOT NULL DEFAULT(GETDATE()),
+        CONSTRAINT [PK_ClubMembers] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20251212000000_AddClubMembers'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20251212000000_AddClubMembers', N'10.0.0');
+END;
+
 COMMIT;
 GO
 

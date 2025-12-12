@@ -1,12 +1,8 @@
-# TalonVoiceCommandsServer localStorage Persistence Fix
+# LocalStorage Persistence Fix — Deprecated Standalone Server
 
-## Issue Description
+This document covers a historical fix for the standalone TalonVoiceCommandsServer project. The standalone project is no longer maintained; the tests and scripts that validated this fix were removed.
 
-The standalone TalonVoiceCommandsServer application was experiencing localStorage persistence issues where:
-- Users could import Talon commands successfully via `/talon-import` page
-- Commands would appear in search results on `/talon-voice-command-search` page
-- After refreshing the page, search results would disappear
-- No localStorage data was persisting between browser sessions
+If you need to reapply or migrate persistence fixes, target the active project (for example, `VoiceAdmin`) and adapt the implementation to the current application architecture.
 
 ## Root Cause Analysis
 
@@ -73,18 +69,8 @@ else
 
 Similar fix applied to list imports to ensure list data also persists to localStorage.
 
-## Test Results
-
-### Before Fix:
-- ❌ Import works but data doesn't persist to localStorage
-- ❌ Search results disappear after page refresh
-- ❌ No data available in localStorage (`null` values)
-
-### After Fix:
-- ✅ Import saves data to localStorage after completion
-- ✅ Search results persist after page refresh
-- ✅ localStorage contains `talonVoiceCommands` and `talonLists` data
-- ✅ Cross-platform compatibility maintained
+## Archived Results
+The tests and verification steps previously executed against the standalone server are archived. If you wish, I can migrate the tests to `VoiceAdmin` or a maintained project and re-enable similar test scenarios.
 
 ## Files Modified
 
@@ -98,19 +84,9 @@ Similar fix applied to list imports to ensure list data also persists to localSt
    - Modified `ImportAllFromDirectory()` to call `SaveToLocalStorageAsync` after import
    - Modified `ImportListsFromFile()` to call `SaveToLocalStorageAsync` after import
 
-## Verification
-
-### Manual Test Steps:
-1. Navigate to `http://localhost:5269/talon-import`
-2. Import Talon files from a directory
-3. Navigate to `http://localhost:5269/talon-voice-command-search`  
-4. Perform a search - results should appear
-5. Refresh the browser page (F5)
-6. Perform the same search - results should still appear ✅
-
-### Technical Verification:
-- Browser Developer Tools → Application → Local Storage
-- Should show `talonVoiceCommands` and `talonLists` keys with JSON data
+## Next Steps
+- Optionally migrate or rework persistence tests to target `VoiceAdmin`.
+- Update any CI tasks that reference the standalone `TalonVoiceCommandsServer` project.
 
 ## Impact
 

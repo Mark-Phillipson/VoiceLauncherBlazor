@@ -265,8 +265,8 @@ public class AutoRotateVoiceCommandsTests : PageTest
             repoRoot = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, "..", ".."));
         }
 
-        var serverProjectPath = Path.Combine(repoRoot, "TalonVoiceCommandsServer");
-        Console.WriteLine($"Starting server from: {serverProjectPath}");
+        var serverProjectPath = Path.Combine(repoRoot, "VoiceAdmin");
+        Console.WriteLine($"Starting server (VoiceAdmin) from: {serverProjectPath}");
         
         var startInfo = new ProcessStartInfo
         {

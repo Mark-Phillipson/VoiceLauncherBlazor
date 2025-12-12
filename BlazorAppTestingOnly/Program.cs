@@ -16,6 +16,7 @@ builder.Services.AddIdleCircuitHandler(options =>
 	options.IdleTimeout = TimeSpan.FromMinutes(30)); // 30 min
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<TalonVoiceCommandDataService>();
+builder.Services.AddScoped<DataAccessLibrary.Services.IClubMemberDataService, DataAccessLibrary.Services.ClubMemberDataService>();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.VoiceLauncher>("voicelauncher");
+// Removed reference to Projects.VoiceLauncher (project removed)
+// builder.AddProject<Projects.VoiceAdmin>("voiceadmin");
 
 //builder.AddProject<Projects.DataAccessLibrary>("dataaccesslibrary");
 

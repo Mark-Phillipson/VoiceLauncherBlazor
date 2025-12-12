@@ -7,9 +7,9 @@
             "request": "launch",
             "preLaunchTask": "checkAppRunningOnPort7264", // Runs the port check task first
             // IMPORTANT: Adjust the following paths to your project
-            "program": "${workspaceFolder}/VoiceLauncher/bin/Debug/net9.0/VoiceLauncher.dll", 
+            "program": "${workspaceFolder}/VoiceAdmin/bin/Debug/net10.0/VoiceAdmin.dll", 
             "args": [],
-            "cwd": "${workspaceFolder}/VoiceLauncher",
+            "cwd": "${workspaceFolder}/VoiceAdmin",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",

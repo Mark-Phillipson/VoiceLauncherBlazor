@@ -5,10 +5,10 @@
 cd "c:\Users\MPhil\source\repos\VoiceLauncherBlazor\DataAccessLibrary"
 
 # Add migration for larger column sizes
-dotnet ef migrations add IncreaseColumnSizes --startup-project ..\VoiceLauncher
+dotnet ef migrations add IncreaseColumnSizes --startup-project ..\VoiceAdmin
 
 # Generate SQL script for the migration (optional - for review)
-dotnet ef migrations script --startup-project ..\VoiceLauncher --output Migration-Script-IncreaseColumnSizes.sql
+dotnet ef migrations script --startup-project ..\VoiceAdmin --output Migration-Script-IncreaseColumnSizes.sql
 
 # Apply the migration to update the database
-dotnet ef database update --startup-project ..\VoiceLauncher
+dotnet ef database update --startup-project ..\VoiceAdmin

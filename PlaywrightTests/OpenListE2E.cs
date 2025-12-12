@@ -16,7 +16,7 @@ namespace PlaywrightTests
             var page = await context.NewPageAsync();
 
             // Navigate to the running app (default port used by this server)
-            await page.GotoAsync("http://localhost:5269/talon-voice-command-search");
+            await page.GotoAsync("http://localhost:5008/talon-voice-command-search");
 
             // Wait for the JS search UI to be available
             await page.WaitForSelectorAsync(".search-results-container");

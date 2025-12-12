@@ -175,6 +175,15 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
+			<NavLink class="nav-link" href="club-members" @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+						<path d="M13 7c0 1.105-.672 2-1.5 2S10 8.105 10 7s.672-2 1.5-2S13 5.895 13 7zM6.5 5c-.828 0-1.5.895-1.5 2S5.672 9 6.5 9 8 8.105 8 7 7.328 5 6.5 5zM6.5 10c-2.485 0-4.5 1.567-4.5 3.5V15h9v-1.5C11 11.567 8.985 10 6.5 10zM13 11c-.29 0-.56.03-.816.088A3.482 3.482 0 0 1 13 13.5V15h3v-1.5c0-1.933-2.015-3.5-3.5-3.5z"/>
+					</svg>
+				</span> <span>&nbsp; Club Members 🧑‍🤝‍🧑</span>
+			</NavLink>
+		</li>
+		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("!")" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
 				<span aria-hidden="true">
 					@if (accessKeysEnabled)

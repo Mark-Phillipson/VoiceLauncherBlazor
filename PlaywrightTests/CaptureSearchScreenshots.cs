@@ -21,7 +21,7 @@ public class CaptureSearchScreenshots
         });
         var page = await context.NewPageAsync();
 
-        var url = "http://localhost:5269/talon-voice-command-search";
+        var url = "http://localhost:5008/talon-voice-command-search";
     System.Console.WriteLine($"Navigating to {url}");
 
         // Navigate and wait for network idle

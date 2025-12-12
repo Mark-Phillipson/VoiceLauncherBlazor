@@ -16,7 +16,7 @@ class Program
         });
         var page = await context.NewPageAsync();
 
-        var url = "http://localhost:5269/talon-voice-command-search";
+        var url = "http://localhost:5008/talon-voice-command-search";
         Console.WriteLine($"Waiting for {url} to be available...");
 
         // Wait up to 30s for the server to be ready
@@ -26,7 +26,7 @@ class Program
         {
             try
             {
-                var resp = await http.GetAsync("http://localhost:5269/");
+                var resp = await http.GetAsync("http://localhost:5008/");
                 if (resp.IsSuccessStatusCode)
                 {
                     ready = true;

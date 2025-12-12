@@ -32,4 +32,4 @@ if (Test-Path $globalTalonPath) {
 }
 
 Write-Host "Ready to test import. Run the following command to import and check:"
-Write-Host "cd VoiceLauncher; dotnet run" -ForegroundColor Yellow
+Write-Host "cd VoiceAdmin; dotnet run" -ForegroundColor Yellow

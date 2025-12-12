@@ -15,7 +15,6 @@
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj">
       <IsAspireProjectResource>false</IsAspireProjectResource>
     </ProjectReference>
-    <ProjectReference Include="..\VoiceLauncher\VoiceLauncher.csproj" />
   </ItemGroup>
 
 </Project>

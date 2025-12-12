@@ -2,7 +2,7 @@
 cd c:\Users\MPhil\source\repos\VoiceLauncherBlazor\DataAccessLibrary
 
 # Create a new migration
-dotnet ef migrations add AddLauncherCategoryBridge --project DataAccessLibrary --startup-project ..\VoiceLauncherBlazor
+dotnet ef migrations add AddLauncherCategoryBridge --project DataAccessLibrary --startup-project ..\VoiceAdmin
 
 # Apply the migration to the database
-dotnet ef database update --project DataAccessLibrary --startup-project ..\VoiceLauncherBlazor
+dotnet ef database update --project DataAccessLibrary --startup-project ..\VoiceAdmin

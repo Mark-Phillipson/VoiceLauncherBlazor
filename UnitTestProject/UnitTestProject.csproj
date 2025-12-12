@@ -40,7 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VoiceLauncher\VoiceLauncher.csproj" />
+    <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
   </ItemGroup>
+
+
 
 </Project>
