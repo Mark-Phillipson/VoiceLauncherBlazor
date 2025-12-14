@@ -53,8 +53,8 @@
         {
         <h2 class="text-danger">The data failed to load
             please try again in a little while..</h2>
-                    <button class="btn btn-danger" type="button"
-            @onclick="@( () => LoadData() )">Reload</button>
+                        <button accesskey="r" class="btn btn-danger" type="button"
+                    @onclick="@( () => LoadData() )"><u>R</u>eload</button>
                 <h6 class="text-danger">@ExceptionMessage</h6>
     }
     else if (FilteredExampleDTO == null)
@@ -67,9 +67,8 @@
         {
         <p>No Example match the
                 criteria</p>
-                <button @onclick="AddNewExample"
-            class="btn btn-outline-primary  btn-lg">Add
-            Record <i
+                <button accesskey="a" @onclick="AddNewExample"
+            class="btn btn-outline-primary  btn-lg"><u>A</u>dd Record <i
                 class="bi bi-plus-square"></i></button>
                 }
     else
@@ -137,16 +136,16 @@
         @example.DateValue
     </td>
             <td class="btn-group-vertical border border-1" style='width:100%'>
-                        <button class="btn btn-sm btn-outline-warning"
-                @onclick="@(() => EditExample(example.Id))">
-                Edit
-                <i class="bi bi-pencil-square"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger"
-                @onclick="@(() => DeleteExample(example.Id))">
-                Delete
-                <i class="bi bi-trash"></i>
-            </button>
+                        <button accesskey="e" class="btn btn-sm btn-outline-warning"
+                            @onclick="@(() => EditExample(example.Id))">
+                            <u>E</u>dit
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button accesskey="d" class="btn btn-sm btn-outline-danger"
+                            @onclick="@(() => DeleteExample(example.Id))">
+                            <u>D</u>elete
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </td>
             </tr>
             }

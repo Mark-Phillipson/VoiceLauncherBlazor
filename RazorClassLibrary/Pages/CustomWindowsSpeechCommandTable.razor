@@ -3,7 +3,7 @@
 @if (FilteredCustomWindowsSpeechCommandDTO == null && _loadFailed == true)
 {
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <button accesskey="r" class="btn btn-danger" type="button" @onclick="@( () => LoadData() )"><u>R</u>eload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
 else if (FilteredCustomWindowsSpeechCommandDTO == null)
@@ -12,7 +12,7 @@ else if (FilteredCustomWindowsSpeechCommandDTO == null)
 }
 else if (FilteredCustomWindowsSpeechCommandDTO.Count == 0)
 {
-    <button @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm"><i class="bi bi-plus"></i></button>
+    <button accesskey="a" @onclick="AddNewCustomWindowsSpeechCommandAsync" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> <u>A</u>dd</button>
 }
 else
 {
@@ -115,14 +115,14 @@ else
                         <th>Send Keys Value</th>
                         <td style="font-size:large">@customWindowsSpeechCommand.SendKeysValue</td>
                     }
-                    <td class="btn-group">
-                        <button class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
+                        <td class="btn-group">
+                            <button accesskey="e" class="btn btn-sm btn-warning" @onclick="@(() => EditCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
+                                <i class="bi bi-pencil"></i> <u>E</u>
+                            </button>
+                            <button accesskey="d" class="btn btn-sm btn-danger" @onclick="@(() => DeleteCustomWindowsSpeechCommandAsync(customWindowsSpeechCommand.Id))">
+                                <i class="bi bi-trash"></i> <u>D</u>
+                            </button>
+                        </td>
                 </tr>
             }
         </tbody>
