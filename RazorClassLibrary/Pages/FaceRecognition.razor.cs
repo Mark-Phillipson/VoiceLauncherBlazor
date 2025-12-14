@@ -52,8 +52,7 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading images: {ex}");
-                _errorMessage = "Error loading images. Please try again.";
+                SetError(ex, "Error loading images");
             }
             finally
             {
@@ -70,7 +69,7 @@ namespace RazorClassLibrary.Pages
         {
             if (_selectedFile == null || string.IsNullOrWhiteSpace(_imageName))
             {
-                _errorMessage = "Please provide an image name and select a file.";
+                SetError("Please provide an image name and select a file.");
                 return;
             }
 
@@ -104,13 +103,12 @@ namespace RazorClassLibrary.Pages
                 }
                 else
                 {
-                    _errorMessage = "Failed to upload image.";
+                    SetError("Failed to upload image.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error uploading image: {ex}");
-                _errorMessage = "Error uploading image. Please check the file size and format.";
+                SetError(ex, "Error uploading image");
             }
         }
 
@@ -127,8 +125,7 @@ namespace RazorClassLibrary.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading image: {ex}");
-                _errorMessage = "Error loading image. Please try again.";
+                SetError(ex, "Error loading image");
             }
         }
 
@@ -151,13 +148,12 @@ namespace RazorClassLibrary.Pages
                 }
                 else
                 {
-                    _errorMessage = "Failed to delete image.";
+                    SetError("Failed to delete image.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting image: {ex}");
-                _errorMessage = "Error deleting image. Please try again.";
+                SetError(ex, "Error deleting image");
             }
         }
 
@@ -180,15 +176,22 @@ namespace RazorClassLibrary.Pages
 
             try
             {
-                // Get image dimensions and click position using safe JS helper
-                var rect = await JSRuntime!.InvokeAsync<BoundingRect>(
-                    "faceRecognitionHelpers.getImageBoundingRect", 
-                    _currentImage.ImageName);
+                // Try to get image dimensions and click position using the faceRecognition helper.
+                BoundingRect rect = null;
+                try
+                {
+                    rect = await JSRuntime!.InvokeAsync<BoundingRect>("faceRecognitionHelpers.getImageBoundingRect", _currentImage.ImageName);
+                }
+                catch (JSException)
+                {
+                    // Helper not available; fall back to using element reference with a minimal helper
+                    rect = await JSRuntime!.InvokeAsync<BoundingRect>("blazorHelpers.getBoundingClientRect", _imageElement);
+                }
 
                 if (rect == null)
                 {
                     Console.WriteLine("Could not get image bounding rect");
-                    _errorMessage = "Error: Could not locate image element.";
+                    SetError("Could not locate image element.");
                     return;
                 }
 
@@ -213,14 +216,20 @@ namespace RazorClassLibrary.Pages
 
                 StateHasChanged();
 
-                // Focus the name input using safe JS helper
+                // Focus the name input using safe JS helper (fall back to focusing the input element by ref)
                 await Task.Delay(100);
-                await JSRuntime.InvokeVoidAsync("faceRecognitionHelpers.focusNameInput");
+                try
+                {
+                    await JSRuntime!.InvokeVoidAsync("faceRecognitionHelpers.focusNameInput");
+                }
+                catch (JSException)
+                {
+                    await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _nameInputElement);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating tag: {ex}");
-                _errorMessage = "Error creating tag. Please try again.";
+                SetError(ex, "Error creating tag");
             }
         }
 
@@ -245,13 +254,12 @@ namespace RazorClassLibrary.Pages
                 }
                 else
                 {
-                    _errorMessage = "Failed to save tag.";
+                    SetError("Failed to save tag.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving tag: {ex}");
-                _errorMessage = "Error saving tag. Please try again.";
+                SetError(ex, "Error saving tag");
             }
         }
 
@@ -272,14 +280,28 @@ namespace RazorClassLibrary.Pages
                 }
                 else
                 {
-                    _errorMessage = "Failed to delete tag.";
+                    SetError("Failed to delete tag.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting tag: {ex}");
-                _errorMessage = "Error deleting tag. Please try again.";
+                SetError(ex, "Error deleting tag");
             }
+        }
+
+        private void SetError(Exception ex, string context)
+        {
+            Console.WriteLine($"{context}: {ex}");
+            // Include the exception message and full ToString for details
+            _errorMessage = $"{context}: {ex.Message}\n{ex}";
+            StateHasChanged();
+        }
+
+        private void SetError(string message)
+        {
+            Console.WriteLine($"Error: {message}");
+            _errorMessage = message;
+            StateHasChanged();
         }
 
         private void ShowTagName(FaceTagDTO tag)

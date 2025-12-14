@@ -125,6 +125,21 @@
 		}
 	</script>
 	<script src="js/site.js"></script>
+	<!-- Face recognition helpers: ensure available to pages that use this layout -->
+	<script src="/js/faceRecognition.js"></script>
+	<script>
+		// Minimal fallback helpers for Blazor components in case faceRecognition.js isn't available
+		window.blazorHelpers = window.blazorHelpers || {};
+		window.blazorHelpers.getBoundingClientRect = function (element) {
+			if (!element) return null;
+			const rect = element.getBoundingClientRect();
+			return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+		};
+		window.blazorHelpers.focusElement = function (element) {
+			if (!element) return false;
+			try { element.focus(); return true; } catch (e) { return false; }
+		};
+	</script>
 
 </body>
 
