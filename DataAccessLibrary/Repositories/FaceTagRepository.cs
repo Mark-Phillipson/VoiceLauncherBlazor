@@ -104,7 +104,8 @@ namespace DataAccessLibrary.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var faceTags = await context.FaceTags
-                .Where(x => x.FaceImageId == faceImageId && x.FirstName.ToLower().Contains(firstName.ToLower()))
+                .Where(x => x.FaceImageId == faceImageId && 
+                           EF.Functions.Like(x.FirstName, $"%{firstName}%"))
                 .ToListAsync();
             return _mapper.Map<List<FaceTag>, IEnumerable<FaceTagDTO>>(faceTags);
         }

@@ -109,7 +109,7 @@ namespace DataAccessLibrary.Repositories
             using var context = _contextFactory.CreateDbContext();
             var faceImages = await context.FaceImages
                 .Include(fi => fi.FaceTags)
-                .Where(x => x.ImageName.ToLower().Contains(searchTerm.ToLower()))
+                .Where(x => EF.Functions.Like(x.ImageName, $"%{searchTerm}%"))
                 .OrderBy(x => x.ImageName)
                 .ToListAsync();
             return _mapper.Map<List<FaceImage>, IEnumerable<FaceImageDTO>>(faceImages);

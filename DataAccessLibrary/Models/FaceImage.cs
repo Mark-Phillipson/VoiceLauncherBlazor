@@ -6,7 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace DataAccessLibrary.Models
 {
     /// <summary>
-    /// Stores an image that contains faces for tagging
+    /// Stores an image that contains faces for tagging.
+    /// Note: ImageData stores base64-encoded images in the database for simplicity.
+    /// For production with many large images, consider implementing a storage abstraction
+    /// that can use file system, Azure Blob Storage, or AWS S3.
     /// </summary>
     public partial class FaceImage
     {

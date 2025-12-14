@@ -13,6 +13,8 @@ namespace VoiceAdmin.Components.Pages
 {
     public partial class FaceRecognition : ComponentBase
     {
+        // Maximum file size for uploads (5MB)
+        private const long MaxFileSizeInBytes = 5 * 1024 * 1024;
         [Inject] private IFaceImageRepository? FaceImageRepository { get; set; }
         [Inject] private IFaceTagRepository? FaceTagRepository { get; set; }
         [Inject] private IJSRuntime? JSRuntime { get; set; }
@@ -73,9 +75,7 @@ namespace VoiceAdmin.Components.Pages
 
             try
             {
-                // Limit file size to 5MB (configurable constant)
-                const long MaxFileSize = 5 * 1024 * 1024;
-                using var stream = _selectedFile.OpenReadStream(MaxFileSize);
+                using var stream = _selectedFile.OpenReadStream(MaxFileSizeInBytes);
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms);
                 var imageBytes = ms.ToArray();
