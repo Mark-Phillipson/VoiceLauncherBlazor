@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace VoiceAdmin.Components.Pages
+namespace RazorClassLibrary.Pages
 {
     public partial class FaceRecognition : ComponentBase
     {
