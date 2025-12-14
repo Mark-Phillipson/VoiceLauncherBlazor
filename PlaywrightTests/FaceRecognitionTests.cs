@@ -48,7 +48,7 @@ public class FaceRecognitionTests
 
         // Check that upload form is visible
         var imageNameInput = await page.QuerySelectorAsync("#imageName");
-        Assert.IsNotNull(imageNameInput, "Image name input should be visible");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(imageNameInput, "Image name input should be visible");
         Console.WriteLine("Upload form is visible");
 
         // Create a test image file (simple 1x1 pixel base64 PNG)
@@ -72,13 +72,13 @@ public class FaceRecognitionTests
 
         // Upload the image file
         var fileInput = await page.QuerySelectorAsync("#imageFile");
-        Assert.IsNotNull(fileInput, "File input should be visible");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(fileInput, "File input should be visible");
         await fileInput.SetInputFilesAsync(tempImagePath);
         Console.WriteLine("Selected file for upload");
 
         // Click upload button
         var uploadButton = await page.QuerySelectorAsync("button:has-text('Upload Image')");
-        Assert.IsNotNull(uploadButton, "Upload button should be visible");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(uploadButton, "Upload button should be visible");
         await uploadButton.ClickAsync();
         Console.WriteLine("Clicked upload button");
 
@@ -202,18 +202,18 @@ public class FaceRecognitionTests
 
         // Check that the main heading is present
         var heading = await page.QuerySelectorAsync("h2:has-text('Face Recognition & Tagging')");
-        Assert.IsNotNull(heading, "Page heading should be present");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(heading, "Page heading should be present");
 
         // Check that upload form elements are present
         var imageName = await page.QuerySelectorAsync("#imageName");
-        Assert.IsNotNull(imageName, "Image name input should be present");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(imageName, "Image name input should be present");
 
         var imageFile = await page.QuerySelectorAsync("#imageFile");
-        Assert.IsNotNull(imageFile, "File input should be present");
+        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(imageFile, "File input should be present");
 
         Console.WriteLine("Face Recognition page loaded successfully with all required elements");
         await browser.CloseAsync();
     }
 
-    public TestContext? TestContext { get; set; }
+    public Microsoft.VisualStudio.TestTools.UnitTesting.TestContext? TestContext { get; set; }
 }
