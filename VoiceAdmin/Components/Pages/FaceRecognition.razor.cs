@@ -49,7 +49,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error loading images: {ex.Message}";
+                Console.WriteLine($"Error loading images: {ex}");
+                _errorMessage = "Error loading images. Please try again.";
             }
             finally
             {
@@ -72,9 +73,9 @@ namespace VoiceAdmin.Components.Pages
 
             try
             {
-                // Limit file size to 5MB
-                const long maxFileSize = 5 * 1024 * 1024;
-                using var stream = _selectedFile.OpenReadStream(maxFileSize);
+                // Limit file size to 5MB (configurable constant)
+                const long MaxFileSize = 5 * 1024 * 1024;
+                using var stream = _selectedFile.OpenReadStream(MaxFileSize);
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms);
                 var imageBytes = ms.ToArray();
@@ -107,7 +108,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error uploading image: {ex.Message}";
+                Console.WriteLine($"Error uploading image: {ex}");
+                _errorMessage = "Error uploading image. Please check the file size and format.";
             }
         }
 
@@ -124,7 +126,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error loading image: {ex.Message}";
+                Console.WriteLine($"Error loading image: {ex}");
+                _errorMessage = "Error loading image. Please try again.";
             }
         }
 
@@ -152,7 +155,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error deleting image: {ex.Message}";
+                Console.WriteLine($"Error deleting image: {ex}");
+                _errorMessage = "Error deleting image. Please try again.";
             }
         }
 
@@ -175,9 +179,17 @@ namespace VoiceAdmin.Components.Pages
 
             try
             {
-                // Get image dimensions and click position
-                var rect = await JSRuntime!.InvokeAsync<BoundingRect>("eval", 
-                    $"document.querySelector('img[alt=\"{_currentImage.ImageName}\"]').getBoundingClientRect()");
+                // Get image dimensions and click position using safe JS helper
+                var rect = await JSRuntime!.InvokeAsync<BoundingRect>(
+                    "faceRecognitionHelpers.getImageBoundingRect", 
+                    _currentImage.ImageName);
+
+                if (rect == null)
+                {
+                    Console.WriteLine("Could not get image bounding rect");
+                    _errorMessage = "Error: Could not locate image element.";
+                    return;
+                }
 
                 // Calculate click position as percentage
                 var xPercent = ((e.ClientX - rect.Left) / rect.Width) * 100;
@@ -200,13 +212,14 @@ namespace VoiceAdmin.Components.Pages
 
                 StateHasChanged();
 
-                // Focus the name input
+                // Focus the name input using safe JS helper
                 await Task.Delay(100);
-                await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('nameSearch').nextElementSibling?.querySelector('input')?.focus()");
+                await JSRuntime.InvokeVoidAsync("faceRecognitionHelpers.focusNameInput");
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error creating tag: {ex.Message}";
+                Console.WriteLine($"Error creating tag: {ex}");
+                _errorMessage = "Error creating tag. Please try again.";
             }
         }
 
@@ -236,7 +249,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error saving tag: {ex.Message}";
+                Console.WriteLine($"Error saving tag: {ex}");
+                _errorMessage = "Error saving tag. Please try again.";
             }
         }
 
@@ -262,7 +276,8 @@ namespace VoiceAdmin.Components.Pages
             }
             catch (Exception ex)
             {
-                _errorMessage = $"Error deleting tag: {ex.Message}";
+                Console.WriteLine($"Error deleting tag: {ex}");
+                _errorMessage = "Error deleting tag. Please try again.";
             }
         }
 

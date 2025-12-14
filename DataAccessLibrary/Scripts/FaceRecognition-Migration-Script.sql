@@ -8,6 +8,8 @@ BEGIN
         [ID] INT IDENTITY(1,1) NOT NULL,
         [ImageName] NVARCHAR(200) NOT NULL,
         [Description] NVARCHAR(500) NULL,
+        -- ImageData stores Base64-encoded image strings for easy web display
+        -- Note: For production with many large images, consider external storage (Azure Blob, S3)
         [ImageData] NVARCHAR(MAX) NOT NULL,
         [ContentType] NVARCHAR(50) NULL,
         [UploadDate] DATETIME NOT NULL DEFAULT GETDATE(),
