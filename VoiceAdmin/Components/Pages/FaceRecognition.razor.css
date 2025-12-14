@@ -1,0 +1,81 @@
+.face-tag {
+    position: absolute;
+    border: 2px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.face-tag:hover {
+    border-color: #0056b3;
+    background-color: rgba(0, 123, 255, 0.2);
+    z-index: 10;
+}
+
+.face-tag.highlighted {
+    border-color: #ffc107;
+    border-width: 3px;
+    background-color: rgba(255, 193, 7, 0.3);
+    animation: pulse 1s infinite;
+    z-index: 15;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+    }
+}
+
+.face-tag.temp-tag {
+    border-color: #28a745;
+    border-style: dashed;
+    background-color: rgba(40, 167, 69, 0.2);
+}
+
+.tag-name {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.delete-tag-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 25;
+}
+
+.face-tag:hover .delete-tag-btn {
+    opacity: 1;
+}
+
+.list-group-item.active {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}

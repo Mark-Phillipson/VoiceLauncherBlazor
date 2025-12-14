@@ -149,6 +149,8 @@ builder.Services.Configure<JsonRepositoryOptions>(config.GetSection("JsonReposit
 builder.Services.AddScoped<DataAccessLibrary.Repositories.ITalonListRepository, DataAccessLibrary.Repositories.TalonListRepository>();
 builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, RazorClassLibrary.Services.TalonListDataService>();
 builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceAdmin.CursorlessCheatsheetItemJsonRepository>();
+builder.Services.AddScoped<IFaceImageRepository, FaceImageRepository>();
+builder.Services.AddScoped<IFaceTagRepository, FaceTagRepository>();
 
 var app = builder.Build();
 // Log all incoming requests and their paths

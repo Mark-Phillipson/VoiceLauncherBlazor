@@ -1,0 +1,182 @@
+@page "/face-recognition"
+@using DataAccessLibrary.DTOs
+
+<PageTitle>Face Recognition & Tagging</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Face Recognition & Tagging</h2>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @_errorMessage
+            <button type="button" class="btn-close" @onclick="() => _errorMessage = string.Empty" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @_successMessage
+            <button type="button" class="btn-close" @onclick="() => _successMessage = string.Empty" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Upload Image</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="imageName" class="form-label">Image Name</label>
+                        <input type="text" class="form-control" id="imageName" @bind="_imageName" placeholder="Enter image name" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="imageDescription" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="imageDescription" @bind="_imageDescription" rows="2" placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="imageFile" class="form-label">Select Image</label>
+                        <InputFile OnChange="HandleFileSelected" class="form-control" id="imageFile" accept="image/*" />
+                    </div>
+                    <button class="btn btn-primary w-100" @onclick="UploadImage" disabled="@(_selectedFile == null || string.IsNullOrWhiteSpace(_imageName))">
+                        <i class="oi oi-cloud-upload me-1"></i> Upload Image
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Saved Images</h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    @if (_isLoadingImages)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (_faceImages.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var img in _faceImages)
+                            {
+                                <a href="#" class="list-group-item list-group-item-action @(img.Id == _selectedImageId ? "active" : "")" 
+                                   @onclick="() => LoadImage(img.Id)" @onclick:preventDefault>
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@img.ImageName</h6>
+                                        <small>@img.FaceTags.Count tag(s)</small>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(img.Description))
+                                    {
+                                        <small>@img.Description</small>
+                                    }
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No images uploaded yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            @if (_currentImage != null)
+            {
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@_currentImage.ImageName</h5>
+                        <button class="btn btn-sm btn-danger" @onclick="DeleteCurrentImage">
+                            <i class="oi oi-trash me-1"></i> Delete
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="nameSearch" class="form-label">Search by Name</label>
+                            <input type="text" class="form-control" id="nameSearch" @bind="_searchName" @bind:event="oninput" 
+                                   placeholder="Type a name to highlight..." />
+                        </div>
+
+                        <div class="position-relative d-inline-block" style="max-width: 100%;">
+                            <img src="@GetImageSource()" 
+                                 alt="@_currentImage.ImageName" 
+                                 class="img-fluid" 
+                                 style="cursor: crosshair; display: block; max-width: 100%;" 
+                                 @onclick="OnImageClick"
+                                 @ref="_imageElement" />
+                            
+                            @foreach (var tag in _currentImage.FaceTags)
+                            {
+                                var isHighlighted = !string.IsNullOrWhiteSpace(_searchName) && 
+                                                   tag.FirstName.Contains(_searchName, StringComparison.OrdinalIgnoreCase);
+                                <div class="face-tag @(isHighlighted ? "highlighted" : "")"
+                                     style="left: @(tag.X)%; top: @(tag.Y)%; width: @(tag.Width)%; height: @(tag.Height)%;"
+                                     @onmouseenter="() => ShowTagName(tag)"
+                                     @onmouseleave="HideTagName"
+                                     title="@tag.FirstName">
+                                    @if (_hoveredTag?.Id == tag.Id)
+                                    {
+                                        <span class="tag-name">@tag.FirstName</span>
+                                    }
+                                    <button class="btn btn-sm btn-danger delete-tag-btn" @onclick="() => DeleteTag(tag.Id)" @onclick:stopPropagation="true">
+                                        <i class="oi oi-x"></i>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (_isTagging && _tempTag != null)
+                            {
+                                <div class="face-tag temp-tag"
+                                     style="left: @(_tempTag.X)%; top: @(_tempTag.Y)%; width: @(_tempTag.Width)%; height: @(_tempTag.Height)%;"></div>
+                            }
+                        </div>
+
+                        @if (_isTagging)
+                        {
+                            <div class="mt-3">
+                                <div class="alert alert-info">
+                                    Click on the image to mark a face location, then enter the person's name.
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" @bind="_newTagName" placeholder="Enter first name" @ref="_nameInputElement" />
+                                    <button class="btn btn-success" @onclick="SaveTag" disabled="@string.IsNullOrWhiteSpace(_newTagName)">
+                                        <i class="oi oi-check me-1"></i> Save
+                                    </button>
+                                    <button class="btn btn-secondary" @onclick="CancelTagging">
+                                        <i class="oi oi-x me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-3">
+                                <button class="btn btn-primary" @onclick="StartTagging">
+                                    <i class="oi oi-plus me-1"></i> Add Face Tag
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body text-center text-muted py-5">
+                        <i class="oi oi-image" style="font-size: 4rem;"></i>
+                        <p class="mt-3">Select or upload an image to start tagging faces.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

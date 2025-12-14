@@ -49,6 +49,10 @@ namespace DataAccessLibrary.Profiles
 			CreateMap<PromptDTO, Prompt>();
 			CreateMap<QuickPrompt, QuickPromptDTO>();
 			CreateMap<QuickPromptDTO, QuickPrompt>();
+			CreateMap<FaceImage, FaceImageDTO>();
+			CreateMap<FaceImageDTO, FaceImage>();
+			CreateMap<FaceTag, FaceTagDTO>();
+			CreateMap<FaceTagDTO, FaceTag>();
 		}
 	}
 }
