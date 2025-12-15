@@ -6,6 +6,18 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Face Recognition & Tagging</h2>
+        <div>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleSidebar" aria-pressed="@_isSidebarCollapsed" aria-controls="leftSidebar" accesskey="l" aria-keyshortcuts="Alt+L" title="Toggle side panel (Alt+L)">
+                @if (_isSidebarCollapsed)
+                {
+                    <span><i class="oi oi-chevron-left me-1"></i> Show Panel</span>
+                }
+                else
+                {
+                    <span><i class="oi oi-chevron-right me-1"></i> Hide Panel</span>
+                }
+            </button>
+        </div>
     </div>
 
     @if (!string.IsNullOrEmpty(_errorMessage))
@@ -25,23 +37,23 @@
     }
 
     <div class="row">
-        <div class="col-md-4">
+    <div class="@(_isSidebarCollapsed ? "d-none" : "col-md-4")" id="leftSidebar">
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0 text-dark">Upload Image</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="imageName" class="form-label">Image Name</label>
-                        <input type="text" class="form-control" id="imageName" @bind="_imageName" placeholder="Enter image name" />
+                        <label for="imageName" class="form-label" accesskey="n">Image <u>N</u>ame</label>
+                        <input type="text" class="form-control" id="imageName" accesskey="n" @bind="_imageName" placeholder="Enter image name" @ref="_uploadImageNameElement" />
                     </div>
                     <div class="mb-3">
-                        <label for="imageDescription" class="form-label">Description (Optional)</label>
-                        <textarea class="form-control" id="imageDescription" @bind="_imageDescription" rows="2" placeholder="Enter description"></textarea>
+                        <label for="imageDescription" class="form-label" accesskey="r" aria-keyshortcuts="Alt+R" title="Access key: Alt+R">Desc<u>r</u>iption (Optional)</label>
+                        <textarea class="form-control" id="imageDescription" accesskey="r" aria-keyshortcuts="Alt+R" @bind="_imageDescription" rows="2" placeholder="Enter description"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="imageFile" class="form-label">Select Image</label>
-                        <InputFile OnChange="HandleFileSelected" class="form-control" id="imageFile" accept="image/*" />
+                        <label for="imageFile" class="form-label" accesskey="b" aria-keyshortcuts="Alt+B" title="Access key: Alt+B">Select <u>B</u>rowse</label>
+                        <InputFile OnChange="HandleFileSelected" class="form-control" id="imageFile" accept="image/*" accesskey="b" aria-keyshortcuts="Alt+B" />
                     </div>
                     <button accesskey="u" class="btn btn-primary w-100" @onclick="UploadImage" disabled="@(_selectedFile == null || string.IsNullOrWhiteSpace(_imageName))">
                         <i class="oi oi-cloud-upload me-1"></i> <u>U</u>pload Image
@@ -89,7 +101,7 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="@(_isSidebarCollapsed ? "col-md-12" : "col-md-8")">
             @if (_currentImage != null)
             {
                 <div class="card">

@@ -36,10 +36,36 @@ namespace RazorClassLibrary.Pages
         private FaceTagDTO? _hoveredTag;
         private ElementReference _imageElement;
         private ElementReference _nameInputElement;
+        private ElementReference _uploadImageNameElement;
+        private bool _hasFocusedUploadName = false;
+        private bool _isSidebarCollapsed = false;
+
+        private void ToggleSidebar()
+        {
+            _isSidebarCollapsed = !_isSidebarCollapsed;
+        }
 
         protected override async Task OnInitializedAsync()
         {
             await LoadAllImages();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender && !_hasFocusedUploadName)
+            {
+                _hasFocusedUploadName = true;
+                try
+                {
+                    await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _uploadImageNameElement);
+                }
+                catch (JSException)
+                {
+                    // ignore if helper not available
+                }
+            }
+
+            await base.OnAfterRenderAsync(firstRender);
         }
 
         private async Task LoadAllImages()
@@ -100,6 +126,15 @@ namespace RazorClassLibrary.Pages
                     _selectedFile = null;
                     await LoadAllImages();
                     await LoadImage(result.Id);
+                    // Return focus to the image name input to allow another upload quickly
+                    try
+                    {
+                        await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _uploadImageNameElement);
+                    }
+                    catch (JSException)
+                    {
+                        // ignore
+                    }
                 }
                 else
                 {
