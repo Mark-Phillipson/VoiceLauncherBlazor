@@ -593,9 +593,7 @@ namespace RazorClassLibrary.Pages
             
             if (firstRender)
             {
-                await searchInput.FocusAsync();
-
-                // Load the selection modal JS module from static web assets
+                // Load the selection modal JS module from static web assets first so focus helper is available
                 try
                 {
                     if (JSRuntime != null && !_selectionModuleLoaded)
@@ -621,7 +619,10 @@ namespace RazorClassLibrary.Pages
                     }
                     catch { }
                 }
-                
+
+                // Ensure the search input receives focus (module-aware)
+                await EnsureSearchFocus();
+
                 // If we have a search term from command line, perform the search after the first render
                 if (!string.IsNullOrWhiteSpace(SearchTerm) && !HasSearched)
                 {
@@ -644,8 +645,10 @@ namespace RazorClassLibrary.Pages
         }
         protected async Task OnSearchInputBlur()
         {
-            // Trigger search when the search input loses focus
-            await OnSearch();
+            // Avoid triggering search on blur - this can cause focus to be re-applied
+            // which traps keyboard navigation (tab). Searches are triggered by
+            // Enter or explicit submit instead.
+            await Task.CompletedTask;
         }
         public async Task OnSearch()
         {
@@ -1087,25 +1090,28 @@ namespace RazorClassLibrary.Pages
 
         private async Task EnsureSearchFocus()
         {
-            if (JSRuntime != null)
+            // Try JS module helper first (robust retries and selection), then fallback
+            try
             {
-                try
+                if (_selectionModuleLoaded && _selectionModule != null)
                 {
-                    await JSRuntime.InvokeVoidAsync("setTimeout", 
-                        "() => { const searchInput = document.querySelector('input[type=\"text\"]'); if (searchInput) searchInput.focus(); }", 
-                        10);
+                    await _selectionModule.InvokeVoidAsync("focusElement", "#tvcs-search-input", 10, true);
+                    return;
                 }
-                catch
+
+                // Fallback to ElementReference focus
+                await searchInput.FocusAsync();
+            }
+            catch
+            {
+                // Final best-effort fallback using global setTimeout
+                if (JSRuntime != null)
                 {
-                    // Fallback to direct focus if JS fails
                     try
                     {
-                        await searchInput.FocusAsync();
+                        await JSRuntime.InvokeVoidAsync("setTimeout", "function() { var el = document.querySelector('#tvcs-search-input'); if (el) el.focus(); }", 10);
                     }
-                    catch
-                    {
-                        // Silent fail - focus is best effort
-                    }
+                    catch { }
                 }
             }
         }

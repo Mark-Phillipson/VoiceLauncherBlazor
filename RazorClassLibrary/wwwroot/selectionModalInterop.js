@@ -88,4 +88,36 @@ window.bootstrapInterop = {
     focusAndSelectFilter: focusAndSelectFilter
 };
 
+// Focus an arbitrary element with retry/backoff and optional selection
+async function focusElement(selector, delayMs = 0, select = false) {
+    try {
+        const attemptFocus = () => {
+            const el = document.querySelector(selector);
+            if (!el) return false;
+            if (el.disabled) return false;
+            if (typeof el.focus === 'function') el.focus();
+            if (select && typeof el.select === 'function') el.select();
+            return true;
+        };
+
+        if (delayMs && delayMs > 0) await new Promise(r => setTimeout(r, delayMs));
+
+        if (attemptFocus()) return;
+
+        // try a few times in case the element isn't yet interactive
+        for (let i = 0; i < 20; i++) {
+            await new Promise(r => setTimeout(r, 50));
+            if (attemptFocus()) return;
+        }
+    } catch (err) {
+        console.error('selectionModalInterop.focusElement failed', err);
+    }
+}
+
+// Expose globally for other consumers
+window.blazorFocus = {
+    focusElement: focusElement
+};
+
 export { showModal, hideModal, focusAndSelectFilter };
+export { focusElement };

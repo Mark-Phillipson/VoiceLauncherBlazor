@@ -40,7 +40,7 @@
                 <form @onsubmit="OnSearch" @onsubmit:preventDefault="true" class="flex-grow-1" style="min-width: 400px;">
                     <div class="d-flex w-100 gap-2 align-items-start search-input-row">
                         <div class="flex-grow-1 d-flex flex-column">
-                            <input @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" />
+                            <input id="tvcs-search-input" @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" autofocus />
                             <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
                         </div>
                         <div class="d-flex flex-column" style="min-width:160px;">
