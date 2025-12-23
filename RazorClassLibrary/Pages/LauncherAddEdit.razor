@@ -22,11 +22,11 @@
                         <label for="iconList" class="me-2">Select from list</label>
                         <input type="radio" id="iconUrl" name="iconMode" checked="@(UseCustomIconUrl)" @onchange="_ => SetIconInputMode(true)" class="ms-3" />
                         <label for="iconUrl" class="me-2">Enter web address</label>
-                        <InputText class="form-control flex-grow-1" style="max-width: 250px;" placeholder="Type to filter images..." @bind-Value="ImageFilterText" />
+                        <InputText accesskey="5" class="form-control flex-grow-1" style="max-width: 250px;" placeholder="Type to filter images... (5)" @bind-Value="ImageFilterText" />
                     </div>
                     @if (!UseCustomIconUrl)
                     {
-                        <div class="d-flex flex-wrap gap-2 border p-2" style="height: 800px; overflow-y: auto;">
+                        <div class="d-flex flex-wrap gap-2 border p-2" style="flex-grow: 1; overflow-y: auto; min-height: 400px;">
                             @foreach (var item in FilteredImageUrls)
                             {
                                 <div class="d-flex flex-column align-items-center" style="width: 100px;">
@@ -56,14 +56,14 @@
             </div>
             <div class="col-3">
                 <div class="form-group">
-                    <label for="Name">Name:</label> <i class="text-danger fa">*</i>
-                    <InputText id="Name" class="form-control" @bind-Value="@LauncherDTO.Name" placeholder="Enter Name">
+                    <label for="Name">Name: <span class="text-muted">(n)</span></label> <i class="text-danger fa">*</i>
+                    <InputText accesskey="n" id="Name" class="form-control" @bind-Value="@LauncherDTO.Name" placeholder="Enter Name">
                     </InputText>
                     <ValidationMessage For="@(() => LauncherDTO.Name)" />
                 </div>
                 <div class="form-group">
-                    <label for="CategoryId">Primary Category: </label> <i class="text-danger fa">*</i>
-                    <InputSelect id="category" class="form-select" @bind-Value="@LauncherDTO.CategoryId">
+                    <label for="CategoryId">Primary Category: <span class="text-muted">(p)</span></label> <i class="text-danger fa">*</i>
+                    <InputSelect accesskey="p" id="category" class="form-select" @bind-Value="@LauncherDTO.CategoryId">
                         @foreach (var category in _categories)
                         {
                             <option value="@category.Id">@category.CategoryName</option>
@@ -72,9 +72,9 @@
                     <ValidationMessage For="@(() => LauncherDTO.CategoryId)" />
                 </div>
                 
-                <div class="form-group mt-3">
+                <div class="form-group mt-3" style="display: flex; flex-direction: column; flex-grow: 1;">
                     <label>Additional Categories:</label>
-                    <div class="border p-2" style="max-height: 660px; overflow-y: auto;">
+                    <div class="border p-2" style="flex-grow: 1; overflow-y: auto; min-height: 400px;">
                         @foreach (var category in _categories.Where(c => c.Id != LauncherDTO.CategoryId))
                         {
                             <div class="form-check">
@@ -93,36 +93,36 @@
             </div>
             <div class="col-3">
                 <div class="form-group">
-                    <label for="CommandLine">Command Line: </label>
-                    <InputTextArea rows="4" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
+                    <label for="CommandLine">Command Line: <span class="text-muted">(1)</span></label>
+                    <InputTextArea accesskey="1" rows="4" id="CommandLine" class="form-control" @bind-Value="@LauncherDTO.CommandLine"
                         placeholder="Enter Command Line"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.CommandLine)" />
                 </div>
                 <div class="form-group">
-                    <label for="WorkingDirectory">Working Directory:</label>
-                    <InputTextArea rows="3" id="WorkingDirectory" class="form-control" @bind-Value="@LauncherDTO.WorkingDirectory"
+                    <label for="WorkingDirectory">Working Directory: <span class="text-muted">(w)</span></label>
+                    <InputTextArea accesskey="w" rows="3" id="WorkingDirectory" class="form-control" @bind-Value="@LauncherDTO.WorkingDirectory"
                         placeholder="Enter Working Directory"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.WorkingDirectory)" />
                 </div>
                 <div class="form-group">
-                    <label for="Arguments">Arguments:</label>
-                    <InputTextArea rows="3" id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
+                    <label for="Arguments">Arguments: <span class="text-muted">(g)</span></label>
+                    <InputTextArea accesskey="g" rows="3" id="Arguments" class="form-control" @bind-Value="@LauncherDTO.Arguments"
                         placeholder="Enter Arguments"></InputTextArea>
                     <ValidationMessage For="@(() => LauncherDTO.Arguments)" />
                 </div>
                 <div class="form-group">
-                    <label for="SortOrder">Sort Order: </label>
-                    <InputNumber id="SortOrder" class="form-control" @bind-Value="@LauncherDTO.SortOrder"
+                    <label for="SortOrder">Sort Order: <span class="text-muted">(s)</span></label>
+                    <InputNumber accesskey="s" id="SortOrder" class="form-control" @bind-Value="@LauncherDTO.SortOrder"
                         placeholder="Enter Sort Order"></InputNumber>
                     <ValidationMessage For="@(() => LauncherDTO.SortOrder)" />
                 </div>
                 <div class="form-group">
-                    <div class="form-check mt-2">
-                        <InputCheckbox id="Favorite" class="form-check-input" 
+                    <div class="form-check mt-2 d-flex align-items-center">
+                        <InputCheckbox accesskey="6" id="Favorite" class="form-check-input" 
                             style="width: 30px; height: 30px; cursor: pointer;"
                             @bind-Value="@LauncherDTO.Favourite" />
-                        <label class="form-check-label ms-2" for="Favorite" style="font-size: 1.2rem;">
-                            Mark as Favourite
+                        <label class="form-check-label ms-2" for="Favorite" style="font-size: 1.2rem; margin-bottom: 0;">
+                            Mark as Favourite <span class="text-muted">(6)</span>
                         </label>
                     </div>
                     <ValidationMessage For="@(() => LauncherDTO.Favourite)" />
@@ -133,9 +133,9 @@
                         }
                         else
                         {
-                            <button type='button' class="btn btn-lg btn-outline-secondary mb-2" @onclick="GoBack">
+                            <button type='button' accesskey="3" class="btn btn-lg btn-outline-secondary mb-2" @onclick="GoBack">
                                 <i class="bi bi-arrow-left" aria-hidden="true"></i>
-                                <span class="ms-2">Back</span>
+                                <span class="ms-2">Back (3)</span>
                             </button>
                         }
                         <button @TaskRunning accesskey="4" type="submit" class="btn btn-lg btn-primary mb-2">Save Record (4)</button>
