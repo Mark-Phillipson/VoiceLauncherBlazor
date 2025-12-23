@@ -108,6 +108,7 @@ else
         {
             alphabetCounter++;
             currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
+            var editAccessKeyNum = 3 + (alphabetCounter <= 6 ? alphabetCounter : 6);
             @if (launcher.CommandLine.ToLower().StartsWith("http"))
             {
                 <div class="card m-1">
@@ -129,9 +130,9 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
+                            <button title='Edit Launcher (Alt+@editAccessKeyNum)' accesskey="@editAccessKeyNum" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i>
+                                <i class="bi bi-pencil"></i> <span>@editAccessKeyNum</span>
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
@@ -183,9 +184,9 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher' class="btn-narrow btn btn-md btn-outline-warning"
+                            <button title='Edit Launcher (Alt+@editAccessKeyNum)' accesskey="@editAccessKeyNum" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i>
+                                <i class="bi bi-pencil"></i> <span>@editAccessKeyNum</span>
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
