@@ -30,7 +30,7 @@ namespace DataAccessLibrary.Models
         public int? ComputerId { get; set; }
         [StringLength(30)]
         public string Colour { get; set; } = "#000080";
-        [StringLength(100)]
+        [StringLength(500)]
         public string? Icon { get; set; }
         public bool Favourite { get; set; }
         public int SortOrder { get; set; }

@@ -42,7 +42,7 @@
                     }
                     else
                     {
-                        <InputText id="IconUrl" class="form-control" @bind-Value="@LauncherDTO.Icon" placeholder="Enter icon web address or image path" />
+                        <InputText id="IconUrl" class="form-control" @bind-Value="@LauncherDTO.Icon" placeholder="Enter icon web address or image path" maxlength="500" />
                         @if (!string.IsNullOrEmpty(LauncherDTO.Icon))
                         {
                             <img src="@(LauncherDTO.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? LauncherDTO.Icon : $"/images/{LauncherDTO.Icon}")" 

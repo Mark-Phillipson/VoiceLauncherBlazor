@@ -19,6 +19,7 @@ namespace DataAccessLibrary.DTO
         [Required]
         public int CategoryId { get; set; }
         public int? ComputerId { get; set; }
+        [StringLength(500)]
         public string Icon { get; set; } = "";
         public bool Favourite { get; set; }
         public int SortOrder { get; set; }
