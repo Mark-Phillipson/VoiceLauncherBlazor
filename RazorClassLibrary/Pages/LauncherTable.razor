@@ -108,7 +108,8 @@ else
         {
             alphabetCounter++;
             currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
-            var editAccessKeyNum = 3 + (alphabetCounter <= 6 ? alphabetCounter : 6);
+            var hasEditAccessKey = alphabetCounter <= 6;
+            var editAccessKeyNum = 3 + alphabetCounter;
             @if (launcher.CommandLine.ToLower().StartsWith("http"))
             {
                 <div class="card m-1">
@@ -130,9 +131,9 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher (Alt+@editAccessKeyNum)' accesskey="@editAccessKeyNum" class="btn-narrow btn btn-md btn-outline-warning"
+                            <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i> <span>@editAccessKeyNum</span>
+                                <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <span>@editAccessKeyNum</span> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
@@ -184,9 +185,9 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="btn-group">
-                            <button title='Edit Launcher (Alt+@editAccessKeyNum)' accesskey="@editAccessKeyNum" class="btn-narrow btn btn-md btn-outline-warning"
+                            <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i> <span>@editAccessKeyNum</span>
+                                <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <span>@editAccessKeyNum</span> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
