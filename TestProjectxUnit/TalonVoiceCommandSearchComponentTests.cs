@@ -103,14 +103,8 @@ namespace TestProjectxUnit
             Console.WriteLine("--- markup after render ---");
             Console.WriteLine(component.Markup);
             
-            // Wait for component to load filter options
-            await Task.Delay(100);
-            Console.WriteLine("--- markup after delay ---");
-            Console.WriteLine(component.Markup);
-            
-            var selectElements = component.FindAll("select.filter-title");
-            Console.WriteLine($"select.count={selectElements.Count}");
-            // Assert
+            // Wait for component to load filter options (give it more time)
+            component.WaitForAssertion(() => Assert.NotNull(component.Find("select.filter-title")), TimeSpan.FromSeconds(2));
             var titleSelect = component.Find("select.filter-title");
             var options = titleSelect.QuerySelectorAll("option").ToList();
             
