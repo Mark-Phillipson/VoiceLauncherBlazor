@@ -12,7 +12,7 @@ BEGIN
         -- Note: For production with many large images, consider external storage (Azure Blob, S3)
         [ImageData] NVARCHAR(MAX) NOT NULL,
         [ContentType] NVARCHAR(50) NULL,
-        [UploadDate] DATETIME NOT NULL DEFAULT GETDATE(),
+        [UploadDate] DATETIME NOT NULL DEFAULT (datetime('now')),
         CONSTRAINT [PK_FaceImages] PRIMARY KEY CLUSTERED ([ID] ASC)
     );
     PRINT 'Created FaceImages table';

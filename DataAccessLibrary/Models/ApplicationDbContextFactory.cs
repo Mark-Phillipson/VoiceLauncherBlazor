@@ -37,10 +37,9 @@ namespace DataAccessLibrary.Models
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
             
             // Try to get connection string from configuration, fallback to hardcoded
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? "Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            
-            optionsBuilder.UseSqlServer(connectionString);
+            // Use a cross-platform SQLite file by default for design-time operations
+            var connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString();
+            optionsBuilder.UseSqlite(connectionString);
 
             return new ApplicationDbContext(optionsBuilder.Options, configuration);
         }

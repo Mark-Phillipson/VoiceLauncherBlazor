@@ -2,5 +2,6 @@
    SELECT * FROM categories WHERE Colour = '#0405ff';
 
    UPDATE categories
-SET Colour = '#' + SUBSTRING(REPLACE(NEWID(), '-', ''), 1, 6)
+-- Note: SQL Server NEWID() used to generate hex color; consider using application-side Guid.NewGuid() instead.
+SET Colour = '#' || SUBSTR(REPLACE(LOWER(HEX(randomblob(16))), '-', ''), 1, 6)
 WHERE Colour = '#0405ff';

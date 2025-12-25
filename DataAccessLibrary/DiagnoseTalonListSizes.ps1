@@ -40,14 +40,14 @@ SELECT
     CASE WHEN LEN(ListValue) > 500 THEN 'EXCEEDS LIMIT' ELSE 'OK' END as ListValueStatus,
     
     SourceFile,
-    LEN(ISNULL(SourceFile, '')) as SourceFileLength,
-    CASE WHEN LEN(ISNULL(SourceFile, '')) > 250 THEN 'EXCEEDS LIMIT' ELSE 'OK' END as SourceFileStatus
+    LEN(COALESCE(SourceFile, '')) as SourceFileLength,
+    CASE WHEN LEN(COALESCE(SourceFile, '')) > 250 THEN 'EXCEEDS LIMIT' ELSE 'OK' END as SourceFileStatus
     
 FROM TalonLists
 WHERE LEN(ListName) > 100 
    OR LEN(SpokenForm) > 100
    OR LEN(ListValue) > 500
-   OR LEN(ISNULL(SourceFile, '')) > 250
+   OR LEN(COALESCE(SourceFile, '')) > 250
 ORDER BY LEN(ListValue) DESC, LEN(ListName) DESC, LEN(SpokenForm) DESC;
 
 -- Summary of all column lengths
@@ -75,8 +75,8 @@ UNION ALL
 SELECT 
     'SourceFile' as ColumnName,
     250 as CurrentLimit,
-    MAX(LEN(ISNULL(SourceFile, ''))) as ActualMaxLength,
-    COUNT(CASE WHEN LEN(ISNULL(SourceFile, '')) > 250 THEN 1 END) as ViolationCount
+    MAX(LEN(COALESCE(SourceFile, ''))) as ActualMaxLength,
+    COUNT(CASE WHEN LEN(COALESCE(SourceFile, '')) > 250 THEN 1 END) as ViolationCount
 FROM TalonLists;
 "@
 

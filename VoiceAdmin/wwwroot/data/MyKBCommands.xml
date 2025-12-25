@@ -16445,10 +16445,10 @@ Function GetLauncher_Value(strName As String, Connection As ADODB.Connection) As
     Dim stringConnectionString As String
     Dim StringSQLText As String
     Dim k As Integer
-    StringSQLText = "SELECT Top 1 Launcher.CommandLine" & vbCrLf
+    StringSQLText = "SELECT Launcher.CommandLine" & vbCrLf
     StringSQLText = StringSQLText & "        FROM Launcher " & vbCrLf
     StringSQLText = StringSQLText & "       WHERE (((Launcher.Name)='" & strName & "')) " & vbCrLf
-    StringSQLText = StringSQLText & "    ORDER BY Launcher.Name;"
+    StringSQLText = StringSQLText & "    ORDER BY Launcher.Name LIMIT 1;"
     Recordset.Open StringSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -17003,7 +17003,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     Dim stringConnectionString As String
     Dim StringSQLText As String
     Dim k As Integer
-    StringSQLText = "SELECT Top 1 CustomIntelliSense.SendKeys_Value" & vbCrLf
+    StringSQLText = "SELECT CustomIntelliSense.SendKeys_Value" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Remarks" & vbCrLf
     StringSQLText = StringSQLText & "           , Languages.Language" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Display_Value" & vbCrLf
@@ -17017,7 +17017,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     StringSQLText = StringSQLText & "       WHERE (((Languages.Language)='" & strLanguage & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((UPPER(CustomIntelliSense.Display_Value)) ='" & UCase (strName) & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((Categories.Category)='" & stringCategory & "'))" & vbCrLf
-    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value;"
+    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value LIMIT 1;"
     Recordset.Open StringSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -17994,7 +17994,7 @@ Function GetSendKeys_Value(strName As String, stringDeliveryType As String, Conn
     Dim stringConnectionString As String
     Dim StringSQLText As String
     Dim k As long
-    StringSQLText = "SELECT Top 1 CustomIntelliSense.SendKeys_Value" & vbCrLf
+    StringSQLText = "SELECT CustomIntelliSense.SendKeys_Value" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Remarks" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.ID" & vbCrLf
     StringSQLText = StringSQLText & "           , Languages.Language" & vbCrLf
@@ -18007,7 +18007,7 @@ Function GetSendKeys_Value(strName As String, stringDeliveryType As String, Conn
     StringSQLText = StringSQLText & "          ON Categories.ID = CustomIntelliSense.CategoryID) " & vbCrLf
     StringSQLText = StringSQLText & "          ON Languages.ID = CustomIntelliSense.LanguageID" & vbCrLf
     StringSQLText = StringSQLText & "       WHERE (((CustomIntelliSense.Display_Value)='" & strName & "')) " & vbCrLf
-    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value;"
+    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value LIMIT 1;"
     Recordset.Open StringSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -18544,7 +18544,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     Dim stringConnectionString As String
     Dim StringSQLText As String
     Dim k As long
-    StringSQLText = "SELECT Top 1 CustomIntelliSense.SendKeys_Value" & vbCrLf
+    StringSQLText = "SELECT CustomIntelliSense.SendKeys_Value" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Remarks" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.ID" & vbCrLf
     StringSQLText = StringSQLText & "           , Languages.Language" & vbCrLf
@@ -18559,7 +18559,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     StringSQLText = StringSQLText & "       WHERE (((Languages.Language)='" & strLanguage & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((CustomIntelliSense.Display_Value)='" & strName & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((Categories.Category)='" & stringCategory & "'))" & vbCrLf
-    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value;"
+    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value LIMIT 1;"}
     Recordset.Open StringSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -18948,7 +18948,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     Dim stringConnectionString As String
     Dim StringSQLText As String
     Dim k As long
-    StringSQLText = "SELECT Top 1 CustomIntelliSense.SendKeys_Value" & vbCrLf
+    StringSQLText = "SELECT CustomIntelliSense.SendKeys_Value" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Remarks" & vbCrLf
     StringSQLText = StringSQLText & "           , CustomIntelliSense.Id" & vbCrLf
     StringSQLText = StringSQLText & "           , Languages.Language" & vbCrLf
@@ -18963,7 +18963,7 @@ Function GetSendKeys_Value(strName As String, strLanguage As String, stringCateg
     StringSQLText = StringSQLText & "       WHERE (((Languages.Language)='" & strLanguage & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((CustomIntelliSense.Display_Value)='" & strName & "') " & vbCrLf
     StringSQLText = StringSQLText & "         AND ((Categories.Category)='" & stringCategory & "'))" & vbCrLf
-    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value;"
+    StringSQLText = StringSQLText & "    ORDER BY CustomIntelliSense.Display_Value LIMIT 1;"
     Recordset.Open StringSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -19321,9 +19321,9 @@ Function GetCategoryfromNumber(intMenuNumber As Integer)As String
     Dim strSQLText As String
  Dim k As Integer
 
-   strSQLText = "SELECT TOP 1 Categories.Category" & vbCrLf
+   strSQLText = "SELECT Categories.Category" & vbCrLf
    strSQLText = strSQLText & "        FROM Categories" & vbCrLf
-   strSQLText = strSQLText & "       WHERE (((Categories.ID) = " & intMenuNumber & "));"
+   strSQLText = strSQLText & "       WHERE (((Categories.ID) = " & intMenuNumber & ")) LIMIT 1;"
     Recordset.Open strSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
@@ -19349,7 +19349,7 @@ Function GetCommandLine(strName As String) As String
    strSQLText = "SELECT TOP 1 Launcher.CommandLine" & vbCrLf
    strSQLText = strSQLText & "        FROM Launcher" & vbCrLf
    ' strSQLText = strSQLText & "       WHERE (((Launcher.Name) Like '*" & strName & "'));"
-  strSQLText = strSQLText & "       WHERE (((Launcher.Name) = '" & strName & "'));"
+  strSQLText = strSQLText & "       WHERE (((Launcher.Name) = '" & strName & "')) LIMIT 1;"
      Recordset.Open strSQLText, Connection
     If Not Recordset.BOF And Not Recordset.EOF Then 'there is one or more rows returned
         Recordset.MoveFirst
