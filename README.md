@@ -38,7 +38,7 @@ A Blazor Server application designed for voice-controlled development and access
 
 ## Publishing
 
-For deployment instructions, see [publishing.md](TalonVoiceCommandsServer/publishing.md).
+For release/publishing instructions, see `PUBLISHING.md` in the repository root.
 
 ## Database
 
