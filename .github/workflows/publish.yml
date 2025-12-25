@@ -31,6 +31,7 @@ jobs:
       run: dotnet restore
 
     - name: Publish projects
+      shell: bash
       run: |
         set -eux
         mkdir -p publish/${{ matrix.runtime }}
