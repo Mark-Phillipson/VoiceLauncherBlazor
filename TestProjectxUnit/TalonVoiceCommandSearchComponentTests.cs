@@ -108,6 +108,8 @@ namespace TestProjectxUnit
             Console.WriteLine("--- markup after delay ---");
             Console.WriteLine(component.Markup);
             
+            var selectElements = component.FindAll("select.filter-title");
+            Console.WriteLine($"select.count={selectElements.Count}");
             // Assert
             var titleSelect = component.Find("select.filter-title");
             var options = titleSelect.QuerySelectorAll("option").ToList();
