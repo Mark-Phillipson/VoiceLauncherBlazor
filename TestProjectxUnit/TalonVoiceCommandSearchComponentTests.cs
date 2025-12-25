@@ -44,6 +44,7 @@ namespace TestProjectxUnit
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
+            Console.WriteLine(component.Markup);
 
             // Assert
             var titleLabel = component.Find("label.label-title");
