@@ -38,7 +38,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -59,6 +59,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
             
             // Add test commands with titles
             var commands = new[]
@@ -95,7 +96,7 @@ namespace TestProjectxUnit
             await dbContext.TalonVoiceCommands.AddRangeAsync(commands);
             await dbContext.SaveChangesAsync();
             
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -120,7 +121,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();            // Assert
@@ -141,7 +142,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -162,6 +163,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
             
             // Add a test command
             var command = new TalonVoiceCommand 
@@ -177,7 +179,7 @@ namespace TestProjectxUnit
             await dbContext.TalonVoiceCommands.AddAsync(command);
             await dbContext.SaveChangesAsync();
             
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -199,7 +201,7 @@ namespace TestProjectxUnit
             // Arrange
             var dbContext = GetInMemoryDbContext();
             var service = new TalonVoiceCommandDataService(dbContext);
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             var component = RenderComponent<TalonVoiceCommandSearch>();
             
@@ -245,7 +247,7 @@ namespace TestProjectxUnit
             await dbContext.TalonVoiceCommands.AddRangeAsync(commands);
             await dbContext.SaveChangesAsync();
             
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -301,7 +303,7 @@ namespace TestProjectxUnit
             await dbContext.TalonVoiceCommands.AddRangeAsync(commands);
             await dbContext.SaveChangesAsync();
             
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
@@ -363,7 +365,7 @@ namespace TestProjectxUnit
             await dbContext.TalonVoiceCommands.AddRangeAsync(commands);
             await dbContext.SaveChangesAsync();
             
-            Services.AddSingleton(service);
+            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
