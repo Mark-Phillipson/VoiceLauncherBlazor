@@ -12,9 +12,10 @@ GROUP BY ListName
 ORDER BY ListName;
 
 -- 3. View all lists with their spoken forms and values (first 50 items)
-SELECT TOP 50 ListName, SpokenForm, ListValue
+SELECT ListName, SpokenForm, ListValue
 FROM TalonLists 
-ORDER BY ListName, SpokenForm;
+ORDER BY ListName, SpokenForm
+LIMIT 50;
 
 -- 4. Search for specific list (example: git-related lists)
 SELECT DISTINCT ListName 

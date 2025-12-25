@@ -85,13 +85,14 @@ namespace DataAccessLibrary.Models
 		{
 			if (!optionsBuilder.IsConfigured)
 			{
-				if (_configuration != null)
+				// Prefer a cross-platform SQLite connection; fall back to config when present
+				if (_configuration != null && !string.IsNullOrWhiteSpace(_configuration.GetConnectionString("DefaultConnection")))
 				{
-					optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
+					optionsBuilder.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
 				}
 				else
 				{
-					optionsBuilder.UseSqlServer("Data Source=Localhost;Initial Catalog=VoiceLauncher;Integrated Security=True;Connect Timeout=120;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+					optionsBuilder.UseSqlite(DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString());
 				}
 #if DEBUG
 				optionsBuilder.LogTo(message => Debug.WriteLine(message));
