@@ -47,9 +47,10 @@ namespace TestProjectxUnit
             Console.WriteLine(component.Markup);
 
             // Assert (label may be visually hidden in some renderings; ensure select exists)
-            var titleSelect = component.Find("select.filter-title");
-            Assert.NotNull(titleSelect);
-            Assert.Equal("i", titleSelect.GetAttribute("accesskey"));
+            var titleButton = component.Find("button.filter-btn-title");
+            Assert.NotNull(titleButton);
+            Assert.Equal("i", titleButton.GetAttribute("accesskey"));
+            Assert.Contains("All Titles", titleButton.TextContent);
         }
 
         [Fact]
