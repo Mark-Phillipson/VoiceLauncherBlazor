@@ -1,7 +1,7 @@
 @page "/customintellisense/{Id:int?}"
 @using SmartComponents
 @using RazorClassLibrary.Pages;
-<div style="min-width:99vw" class='m-2 p-2'>
+<div style="max-width: calc(100vw - 300px); min-width: 70vw;" class='m-2 p-2'>
 	<h4>@Title</h4>
 
 	<EditForm Model="@CustomIntelliSenseDTO" OnValidSubmit="HandleValidSubmit">
@@ -160,7 +160,7 @@
 								@onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="bi bi-clipboard"></i> Co<u>p</u>y
 							</button>
-							<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger"
+							<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger mt-1"
 								@onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 								<i class="bi bi-clipboard-check"></i> P<u>a</u>ste
 							</button>
@@ -186,6 +186,7 @@
 						<button accesskey="e" class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">D<u>e</u>lete
 							Record</button>
 					}
+					<button accesskey="k" type="button" class="btn btn-outline-secondary" @onclick="GoToCustomIntellisenseTable">Bac<u>k</u></button>
 					<button accesskey="b" @TaskRunning type="submit" class="btn btn-primary">Save (su<u>b</u>mit)</button>
 					@* @if (!RunningInBlazorHybrid)
 					{

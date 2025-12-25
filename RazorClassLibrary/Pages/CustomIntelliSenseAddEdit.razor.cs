@@ -207,5 +207,9 @@ namespace RazorClassLibrary.Pages
 		{
 			_saveOnly = !_saveOnly;
 		}
+		private void GoToCustomIntellisenseTable()
+		{
+			NavigationManager.NavigateTo("/intellisenses", true);
+		}
 	}
 }

@@ -41,6 +41,16 @@ namespace RazorClassLibrary.Shared
 		{
 			accessKeysEnabled = !accessKeysEnabled;
 		}
+		private void StartNewLauncher()
+		{
+			NavigationManager!.NavigateTo("/launcheradd", true);
+			MenuItemSelected();
+		}
+		private void StartNewCustomIntelliSense()
+		{
+			NavigationManager!.NavigateTo("/customintellisense", true);
+			MenuItemSelected();
+		}
 		private string? GetAccessKey(string key)
 		{
 			var result = accessKeysEnabled ? key : null;
