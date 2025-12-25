@@ -83,12 +83,10 @@ namespace WinFormsApp
 			services.AddSingleton<MainForm>(this);
 
 			// Add database context
-			if (Program.Configuration != null)
-			{
-				var connectionString = Program.Configuration.GetConnectionString("DefaultConnection");
-				services.AddDbContextFactory<ApplicationDbContext>(options =>
-					options.UseSqlServer(connectionString));
-			}
+			// Always prefer a local SQLite data file for the desktop app
+			var sqliteConnection = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString();
+			services.AddDbContextFactory<ApplicationDbContext>(options =>
+				options.UseSqlite(sqliteConnection));
 
 			// Add AutoMapper
 			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());			// Add repositories

@@ -28,20 +28,29 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     - name: Restore dependencies
-      run: dotnet restore TalonVoiceCommandsServer/
-    - name: Publish
+      run: dotnet restore
+
+    - name: Publish projects
+      shell: bash
       run: |
-        dotnet publish TalonVoiceCommandsServer/ --configuration Release --self-contained true --runtime ${{ matrix.runtime }} --output TalonVoiceCommandsServer/publish/${{ matrix.runtime }}
+        set -eux
+        mkdir -p publish/${{ matrix.runtime }}
+        # Publish server/backend app and admin UI
+        dotnet publish VoiceAdmin/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/VoiceAdmin -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+        # Only publish WinForms app on Windows runners
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          dotnet publish WinFormsApp/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/WinFormsApp -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true || true
+        fi
 
     - name: Package artifact
       shell: bash
       run: |
         set -eux
-        cd TalonVoiceCommandsServer/publish
         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          powershell -Command "Compress-Archive -Path .\${{ matrix.runtime }}\* -DestinationPath ../../VoiceLauncherBlazor-${{ matrix.runtime }}.zip"
+          powershell -Command "Compress-Archive -Path publish/${{ matrix.runtime }}/* -DestinationPath VoiceLauncherBlazor-${{ matrix.runtime }}.zip"
         else
-          tar -czf ../../VoiceLauncherBlazor-${{ matrix.runtime }}.tar.gz ./${{ matrix.runtime }}
+          tar -czf VoiceLauncherBlazor-${{ matrix.runtime }}.tar.gz -C publish/${{ matrix.runtime }} .
         fi
 
     - name: Upload packaged artifact

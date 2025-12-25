@@ -1,8 +1,10 @@
-# TalonVoiceCommandsServer localStorage Persistence Test
+# TalonVoiceCommandsServer localStorage Persistence Test (ARCHIVED)
+
+> **Note:** The `TalonVoiceCommandsServer` project has been deprecated and is no longer built or published. This documentation is retained for historical reference.
 
 ## Overview
 
-This test validates the localStorage persistence fix in the **standalone TalonVoiceCommandsServer application** (NOT the main VoiceLauncher application). The standalone server runs on port 5269 and has its own localStorage-based data service.
+This test validates the localStorage persistence fix in the **standalone TalonVoiceCommandsServer application** (NOT the main VoiceLauncher application). The standalone server used to run on port 5269 and had its own localStorage-based data service.
 
 ## Issue Background
 

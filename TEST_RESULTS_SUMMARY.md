@@ -1,4 +1,6 @@
-# TalonVoiceCommandsServer Test Results
+# TalonVoiceCommandsServer Test Results (ARCHIVED)
+
+> **Note:** The `TalonVoiceCommandsServer` project has been deprecated and is no longer built or published. Test results are retained for historical reference.
 
 ## Fix Applied ✅
 Successfully fixed the Windows API cross-platform compatibility issue in the standalone TalonVoiceCommandsServer application.

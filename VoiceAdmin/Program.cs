@@ -50,8 +50,9 @@ builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
-string? connectionString = builder.Configuration.GetConnectionString("VoiceLauncher");
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+// Use a file-based SQLite DB stored in the user's AppData folder
+string connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString();
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
 builder.Services.AddRadzenComponents();

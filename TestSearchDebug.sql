@@ -20,12 +20,13 @@ WHERE ListValue LIKE '%four o%'
 ORDER BY ListName, MatchType;
 
 -- Check for commands that reference the model list
-SELECT TOP 10
+SELECT
     Command,
-    LEFT(Script, 100) as ScriptPreview,
+    SUBSTR(Script, 1, 100) as ScriptPreview,
     Application,
     Mode
-FROM TalonVoiceCommands 
+FROM TalonVoiceCommands
 WHERE Script LIKE '%{model}%' 
    OR Script LIKE '%{user.model}%'
-ORDER BY Command;
+ORDER BY Command
+LIMIT 10;

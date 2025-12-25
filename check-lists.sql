@@ -12,7 +12,8 @@ GROUP BY ListName
 ORDER BY ListName;
 
 -- Show a sample of items from user.model if it exists
-SELECT TOP 10 ListName, SpokenForm, ListValue 
+SELECT ListName, SpokenForm, ListValue 
 FROM TalonLists 
 WHERE ListName = 'user.model' 
-ORDER BY SpokenForm;
+ORDER BY SpokenForm
+LIMIT 10;
