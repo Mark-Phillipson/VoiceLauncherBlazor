@@ -55,9 +55,10 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 
 ## Database Configuration
 
-- SQL Server (not SQLite).
-- Entity Framework Core with SQL Server provider.
-- Use SQL Server T-SQL syntax (e.g., `SELECT TOP 10`, `ISNULL()`, `GETDATE()`).
+- SQLite database (migrated from SQL Server for cross-platform support).
+- Entity Framework Core with SQLite provider.
+- Use SQLite-compatible SQL syntax (standard SQL, avoid SQL Server-specific syntax).
+- Database file auto-created on first run; single-file for easy deployment.
 
 ## Deployment Guidelines
 
