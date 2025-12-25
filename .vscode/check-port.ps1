@@ -6,9 +6,18 @@ param(
 try {
     $connection = Get-NetTCPConnection -LocalPort $PortNumber -ErrorAction SilentlyContinue
     if ($connection) {
-        Write-Host "Port $PortNumber is already in use. The application might be running."
-        Write-Host "To stop this check from preventing a launch, ensure no other instance is using this port."
-        exit 1 # Cause the task to fail
+        Write-Host "Port $PortNumber is already in use. Stopping processes..."
+        $processes = $connection | Select-Object -ExpandProperty OwningProcess -Unique
+        foreach ($pid in $processes) {
+            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+            if ($proc) {
+                Write-Host "Stopping process $($proc.Name) (PID: $pid)"
+                Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+            }
+        }
+        Start-Sleep -Seconds 2
+        Write-Host "Port $PortNumber is now free. Proceeding with launch."
+        exit 0
     } else {
         Write-Host "Port $PortNumber is free. Proceeding with launch."
         exit 0 # Task succeeds
