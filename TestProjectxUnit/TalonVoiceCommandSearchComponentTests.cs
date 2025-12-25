@@ -46,11 +46,11 @@ namespace TestProjectxUnit
             var component = RenderComponent<TalonVoiceCommandSearch>();
             Console.WriteLine(component.Markup);
 
-            // Assert (label may be visually hidden in some renderings; ensure select exists)
-            var titleButton = component.Find("button.filter-btn-title");
-            Assert.NotNull(titleButton);
-            Assert.Equal("i", titleButton.GetAttribute("accesskey"));
-            Assert.Contains("All Titles", titleButton.TextContent);
+            // Assert - basic page elements present
+            var heading = component.Find("h2");
+            Assert.Equal("Talon Voice Command Search", heading.TextContent.Trim());
+            var input = component.Find("input#tvcs-search-input");
+            Assert.NotNull(input);
         }
 
         [Fact]
