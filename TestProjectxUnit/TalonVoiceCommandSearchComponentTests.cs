@@ -100,9 +100,12 @@ namespace TestProjectxUnit
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
+            Console.WriteLine("--- markup after render ---");
+            Console.WriteLine(component.Markup);
             
             // Wait for component to load filter options
             await Task.Delay(100);
+            Console.WriteLine("--- markup after delay ---");
             Console.WriteLine(component.Markup);
             
             // Assert
