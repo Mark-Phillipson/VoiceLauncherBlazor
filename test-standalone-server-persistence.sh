@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# NOTE: TalonVoiceCommandsServer has been deprecated and is no longer built or published.
+# This test script is archived and will exit immediately. Keep for historical reference.
+
+echo "TalonVoiceCommandsServer is deprecated — test archived. Exiting."
+exit 0
+
 # Manual Testing Guide for TalonVoiceCommandsServer localStorage Persistence
 # This script helps verify the standalone server localStorage functionality manually
 

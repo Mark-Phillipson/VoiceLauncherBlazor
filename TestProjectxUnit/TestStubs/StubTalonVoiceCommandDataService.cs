@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
-using RazorClassLibrary.Services;
-using TalonVoiceCommandsServer.Services;
+using DataAccessLibrary.Services;
 using DataAccessLibrary.Models;
+using DataAccessLibrary.DTO;
+
+
+
 
 namespace TestProjectxUnit.TestStubs
 {
@@ -57,12 +60,67 @@ namespace TestProjectxUnit.TestStubs
             return Task.CompletedTask;
         }
 
-        // Not used in these tests
+        // Not used in these tests (generic helpers)
         public Task<List<TalonList>> GetListsAsync() => Task.FromResult(new List<TalonList>());
         public Task<TalonVoiceCommand?> GetCommandById(int id) => Task.FromResult<TalonVoiceCommand?>(null);
         public Task<int> SaveCommandAsync(TalonVoiceCommand command) => Task.FromResult(0);
         public Task<int> SaveListAsync(TalonList list) => Task.FromResult(0);
         public Task DeleteCommandAsync(int id) => Task.CompletedTask;
         public Task DeleteListAsync(int id) => Task.CompletedTask;
+
+        // Implement DataAccessLibrary.ITalonVoiceCommandDataService methods used by the Razor component
+        public Task<int> ImportFromTalonFilesAsync(string rootFolder) => Task.FromResult(0);
+
+        public Task<List<TalonVoiceCommand>> GetAllCommandsForFiltersAsync()
+        {
+            return Task.FromResult(_commands.ToList());
+        }
+
+        public Task<List<TalonVoiceCommand>> SemanticSearchAsync(string searchTerm)
+        {
+            var results = _commands.Where(c => c.Command.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Task.FromResult(results);
+        }
+
+        public Task<List<TalonVoiceCommand>> SemanticSearchWithListsAsync(string searchTerm)
+        {
+            return SemanticSearchAsync(searchTerm);
+        }
+
+        public Task<List<TalonVoiceCommand>> SearchCommandNamesOnlyAsync(string searchTerm)
+        {
+            var results = _commands.Where(c => c.Command.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Task.FromResult(results);
+        }
+
+        public Task<List<TalonVoiceCommand>> SearchScriptOnlyAsync(string searchTerm)
+        {
+            var results = _commands.Where(c => c.Script != null && c.Script.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase)).ToList();
+            return Task.FromResult(results);
+        }
+
+        public Task<List<TalonVoiceCommand>> SearchAllAsync(string searchTerm)
+        {
+            var results = _commands.Where(c => (c.Command != null && c.Command.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase)) || (c.Script != null && c.Script.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase)) || (c.Title != null && c.Title.Contains(searchTerm ?? string.Empty, StringComparison.OrdinalIgnoreCase))).ToList();
+            return Task.FromResult(results);
+        }
+
+        public Task<List<TalonList>> GetListContentsAsync(string listName)
+        {
+            return Task.FromResult(new List<TalonList>());
+        }
+
+        public Task<int> ImportTalonFileContentAsync(string fileContent, string fileName) => Task.FromResult(0);
+
+        public Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null) => Task.FromResult(0);
+
+        public Task<int> ImportTalonListsFromFileAsync(string filePath) => Task.FromResult(0);
+
+        public Task<List<CommandsBreakdown>> GetTalonCommandsBreakdownAsync() => Task.FromResult(new List<CommandsBreakdown>());
+
+        public Task<List<TalonVoiceCommand>> GetRandomCommandsAsync(int count, string os)
+        {
+            return Task.FromResult(_commands.Take(count).ToList());
+        }
     }
 }
