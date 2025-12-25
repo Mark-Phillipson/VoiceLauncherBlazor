@@ -170,10 +170,9 @@ namespace TestProjectxUnit
         {
             // Arrange
             var dbContext = GetInMemoryDbContext();
-            var service = new TalonVoiceCommandDataService(dbContext);
-            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
-            
-            // Add a test command
+            var stubService = new TestProjectxUnit.TestStubs.StubTalonVoiceCommandDataService();
+
+n            // Add a test command and register it in the stub service
             var command = new TalonVoiceCommand 
             { 
                 Command = "test command", 
@@ -183,11 +182,12 @@ namespace TestProjectxUnit
                 Title = "Test Title",
                 FilePath = "/test/test.talon"
             };
-            
-            await dbContext.TalonVoiceCommands.AddAsync(command);
+
+n            await dbContext.TalonVoiceCommands.AddAsync(command);
             await dbContext.SaveChangesAsync();
-            
-            Services.AddSingleton<ITalonVoiceCommandDataService>(service);
+
+            stubService.SetCommands(new[] { command });
+            Services.AddSingleton<ITalonVoiceCommandDataService>(stubService);
 
             // Act
             var component = RenderComponent<TalonVoiceCommandSearch>();
