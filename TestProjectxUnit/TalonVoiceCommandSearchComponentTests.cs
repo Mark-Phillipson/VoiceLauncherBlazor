@@ -103,6 +103,7 @@ namespace TestProjectxUnit
             
             // Wait for component to load filter options
             await Task.Delay(100);
+            Console.WriteLine(component.Markup);
             
             // Assert
             var titleSelect = component.Find("select.filter-title");
