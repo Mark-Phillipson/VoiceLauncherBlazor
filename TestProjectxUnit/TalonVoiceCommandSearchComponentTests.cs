@@ -20,6 +20,8 @@ namespace TestProjectxUnit
         {
             // Ensure the Windows service dependency is available for component tests
             Services.AddSingleton<RazorClassLibrary.Services.IWindowsService>(new TestProjectxUnit.TestStubs.WindowsServiceStub());
+            // Provide ApplicationMappingService used by the component
+            Services.AddSingleton<RazorClassLibrary.Services.ApplicationMappingService>();
                 // Configure JSInterop stubs for modal interactions
                 TestProjectxUnit.TestStubs.JsInteropStubs.ConfigureSelectionModalInterop(this);
         }
