@@ -36,7 +36,7 @@ namespace DataAccessLibrary.Services
 			}
 			intellisenses = intellisenses.Where(v => v.Language != null && v.Language.Active);
 			// Respect app setting to show/hide sensitive categories (default: hide)
-			bool showSensitive = false;
+			bool showSensitive = true;
 			if (_configuration != null)
 			{
 				var raw = _configuration["Features:ShowSensitiveCategories"];
