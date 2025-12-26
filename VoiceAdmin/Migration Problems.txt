@@ -1,7 +1,0 @@
-
-
-C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db
-
- How can I check the data directly in the SQLite database in Visual Studio code what's a good extension to use?
-
-  

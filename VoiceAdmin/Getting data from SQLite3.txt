@@ -1,0 +1,55 @@
+$path = 'C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db'
+
+# Basic quick selects
+sqlite3 $path "SELECT * FROM Launcher LIMIT 20;"
+sqlite3 $path "SELECT * FROM Categories;"
+
+# List tables and inspect schema
+sqlite3 $path "SELECT name FROM sqlite_master WHERE type='table';"
+sqlite3 $path ".tables"
+sqlite3 $path ".schema Launcher"
+sqlite3 $path "PRAGMA table_info('Launcher');"
+
+# Counts and simple checks
+sqlite3 $path "SELECT COUNT(*) AS rows FROM Launcher;"
+sqlite3 $path "PRAGMA integrity_check;"
+
+# Formatted output (columns + headers) - good for terminal viewing
+sqlite3 -header -column $path "SELECT Id, Name, CategoryId FROM Launcher LIMIT 10;"
+
+# CSV export (redirect to a file)
+sqlite3 -header -csv $path "SELECT * FROM Categories;" > categories.csv
+
+# Use dot-commands before running a query (headers on, column mode)
+sqlite3 -cmd ".headers on" -cmd ".mode column" $path "SELECT * FROM Launcher LIMIT 5;"
+
+# Run a SQL script file (from PowerShell)
+sqlite3 $path < .\script.sql
+# or from inside sqlite CLI: sqlite3 $path ".read script.sql"
+
+# Show indexes and triggers
+sqlite3 $path "SELECT name, tbl_name FROM sqlite_master WHERE type IN ('index','trigger');"
+
+# Dump whole DB or a single table to SQL
+sqlite3 $path ".dump" > full_dump.sql
+sqlite3 $path ".dump Launcher" > launcher_dump.sql
+
+# Compact the database
+sqlite3 $path "VACUUM;"
+
+# Useful PRAGMA queries
+sqlite3 $path "PRAGMA foreign_keys;"
+sqlite3 $path "PRAGMA user_version;"
+
+# Example JOIN query (replace column names as appropriate)
+sqlite3 -header -column $path "SELECT L.Name AS Launcher, C.Name AS Category FROM Launcher L JOIN Categories C ON L.CategoryId = C.Id WHERE C.Name LIKE '%util%';"
+
+# Timing queries (enable timer)
+sqlite3 -cmd ".timer on" $path "SELECT COUNT(*) FROM Launcher;"
+
+# Notes:
+# - Use -header -csv or -column to control output format for scripts and terminal use.
+# - Use > to redirect output to files (CSV or SQL dumps).
+# - When using PowerShell, quote $path if it contains spaces: sqlite3 "$path" "SELECT ...".
+# - For interactive exploration, run: sqlite3 $path and then use dot-commands (.tables, .schema, .help)
+
