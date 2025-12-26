@@ -74,7 +74,7 @@ builder.Services.AddScoped<ComputerService>();
 builder.Services.AddScoped<CustomIntellisenseService>();
 builder.Services.AddScoped<GeneralLookupService>();
 builder.Services.AddScoped<ISqlDataAccess, SqlDataAccess>();
-builder.Services.AddScoped<ITodoData, TodoData>();
+		builder.Services.AddScoped<ITodoData, TodoDataEf>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<VisualStudioCommandService>();
 builder.Services.AddScoped<CommandSetService>();
