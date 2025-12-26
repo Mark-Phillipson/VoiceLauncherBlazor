@@ -212,7 +212,7 @@ namespace RazorClassLibrary.Pages
             try
             {
                 // Try to get image dimensions and click position using the faceRecognition helper.
-                BoundingRect rect = null;
+                BoundingRect? rect = null;
                 try
                 {
                     rect = await JSRuntime!.InvokeAsync<BoundingRect>("faceRecognitionHelpers.getImageBoundingRect", _currentImage.ImageName);

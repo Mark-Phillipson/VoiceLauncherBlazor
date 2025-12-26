@@ -61,7 +61,6 @@ namespace RazorClassLibrary.Pages
 		public List<string>? PropertyInfo { get; set; }
 		[CascadingParameter] public ClaimsPrincipal? User { get; set; }
 		[Inject] public IJSRuntime? JSRuntime { get; set; }
-		private List<LauncherDTO>? _cachedLauncherDTO;
 
 		protected override async Task OnInitializedAsync()
 		{

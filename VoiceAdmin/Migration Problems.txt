@@ -1,0 +1,5 @@
+Next can we migrate the Todos component as its pulling data from the old SQL server database using  direct connections I believe using Dapper.
+
+C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db
+
+ How can I check the data directly in the SQLite database in Visual Studio code what's a good extension to use?
