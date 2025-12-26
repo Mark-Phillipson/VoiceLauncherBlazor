@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
@@ -16,11 +17,13 @@ namespace VoiceLauncher.Repositories
    {
       private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
       private readonly IMapper _mapper;
+      private readonly IConfiguration? _configuration;
 
-      public CustomIntelliSenseRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper)
+      public CustomIntelliSenseRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IMapper mapper, IConfiguration? configuration = null)
       {
          _contextFactory = contextFactory;
          this._mapper = mapper;
+         _configuration = configuration;
       }
       public async Task<IEnumerable<CustomIntelliSenseDTO>> GetAllCustomIntelliSensesAsync(int LanguageId, int CategoryId, int pageNumber, int pageSize)
       {
@@ -86,8 +89,14 @@ namespace VoiceLauncher.Repositories
              query = query.Where(x => x.CategoryId == categoryId.Value);
              Console.WriteLine($"Applied category filter: {categoryId}");
              
-             // Filter out sensitive categories only when filtering by category
-             if (Environment.MachineName != "J40L4V3")
+             // Filter out sensitive categories only when filtering by category (respect configuration flag)
+             bool showSensitive = false;
+             if (_configuration != null)
+             {
+                 var raw = _configuration["Features:ShowSensitiveCategories"];
+                 if (!string.IsNullOrWhiteSpace(raw) && bool.TryParse(raw, out var parsed)) showSensitive = parsed;
+             }
+             if (!showSensitive)
              {
                  query = query.Where(x => x.Category != null && x.Category.Sensitive == false);
                  Console.WriteLine("Applied sensitive category filter");

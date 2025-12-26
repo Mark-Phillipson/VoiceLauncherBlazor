@@ -17,6 +17,7 @@ using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.Web.WebView2.Core;
 
 
@@ -146,7 +147,44 @@ namespace WinFormsApp
 			}
 
 			blazorWebView1!.HostPage = "wwwroot\\index.html";
-			blazorWebView1.Services = services.BuildServiceProvider();
+			// Build the service provider into a variable so we can run diagnostics and migrations at startup
+			var serviceProvider = services.BuildServiceProvider();
+
+			try
+			{
+				using (var scope = serviceProvider.CreateScope())
+				{
+					var factory = scope.ServiceProvider.GetRequiredService<Microsoft.EntityFrameworkCore.IDbContextFactory<DataAccessLibrary.Models.ApplicationDbContext>>();
+					using (var ctx = factory.CreateDbContext())
+					{
+						// Log the effective connection string and check file existence
+						var connStr = ctx.Database.GetDbConnection().ConnectionString;
+						Debug.WriteLine($"SQLite connection string: {connStr}");
+						var dbPath = DataAccessLibrary.Configuration.DatabaseConfiguration.GetDatabasePath();
+						Debug.WriteLine($"SQLite DB path: {dbPath}, exists: {File.Exists(dbPath)}");
+
+						// Ensure migrations are applied so schema exists
+						ctx.Database.Migrate();
+
+						// Quick sanity counts
+						try
+						{
+							var launcherCount = ctx.Launcher.Count();
+							Debug.WriteLine($"Launcher rows: {launcherCount}");
+						}
+						catch (Exception exCount)
+						{
+							Debug.WriteLine($"Error counting rows: {exCount.Message}");
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"Database diagnostic/migration error: {ex.Message}");
+			}
+
+			blazorWebView1.Services = serviceProvider;
 
 			blazorWebView1.RootComponents.Add<Index>("#app",
 			 new Dictionary<string, object?>

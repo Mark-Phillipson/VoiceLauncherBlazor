@@ -1,5 +1,6 @@
 using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,11 @@ namespace DataAccessLibrary.Services
 	public class CategoryService
 	{
 		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-		public CategoryService(IDbContextFactory<ApplicationDbContext> context)
+		private readonly IConfiguration? _configuration;
+		public CategoryService(IDbContextFactory<ApplicationDbContext> context, IConfiguration? configuration = null)
 		{
 			this._contextFactory = context;
+			this._configuration = configuration;
 		}
 		public async Task<List<Category>> GetCategoriesByTypeAsync(string categoryType)
 		{
@@ -35,7 +38,14 @@ namespace DataAccessLibrary.Services
 					Console.WriteLine(exception.Message);
 					return new List<Category>();
 				}
-				if (Environment.MachineName != "J40L4V3")
+				// Respect app setting to show/hide sensitive categories (default: hide)
+				bool showSensitive = false;
+				if (_configuration != null)
+				{
+					var raw = _configuration["Features:ShowSensitiveCategories"];
+					if (!string.IsNullOrWhiteSpace(raw) && bool.TryParse(raw, out var parsed)) showSensitive = parsed;
+				}
+				if (!showSensitive)
 				{
 					categories = categories.Where(v => v.Sensitive == false);
 				}

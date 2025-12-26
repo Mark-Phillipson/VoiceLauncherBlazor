@@ -748,7 +748,16 @@ if ((tablesSet == null || tablesSet.Contains("categories")) && categoriesCount >
 if ((tablesSet == null || tablesSet.Contains("applications")) && applicationsCount > 0) await StreamAndInsertAsync(sourceDb.ApplicationDetails.AsNoTracking(), targetDb.ApplicationDetails, "ApplicationDetails", includeSensitive, sensitiveCategoryIds);
 
 if ((tablesSet == null || tablesSet.Contains("intellisense")) && intellisenseCount > 0) await StreamAndInsertAsync(sourceDb.CustomIntelliSenses.AsNoTracking().Where(i => allowedCategoryIds.Contains(i.CategoryId)), targetDb.CustomIntelliSenses, "CustomIntelliSenses", includeSensitive, sensitiveCategoryIds);
-if ((tablesSet == null || tablesSet.Contains("additionalcommands")) && additionalCommandsCount > 0) await StreamAndInsertAsync(sourceDb.AdditionalCommands.AsNoTracking().Where(ac => allowedCustomIntelliSenseIds.Contains(ac.CustomIntelliSenseId)), targetDb.AdditionalCommands, "AdditionalCommands", includeSensitive, sensitiveCategoryIds);
+if ((tablesSet == null || tablesSet.Contains("additionalcommands")) && additionalCommandsCount > 0)
+{
+    // Try raw SQL streaming first to avoid EF Core SQL nullability/IN-processing edge cases that can throw
+    var rawOk = await RawSqlStreamInsert(typeof(DataAccessLibrary.Models.AdditionalCommand), "AdditionalCommands", batchSize, sensitiveCategoryIds, includeSensitive);
+    if (!rawOk)
+    {
+        logger.LogInformation("Raw SQL streaming not usable for AdditionalCommands; falling back to EF streaming.");
+        await StreamAndInsertAsync(sourceDb.AdditionalCommands.AsNoTracking().Where(ac => allowedCustomIntelliSenseIds.Contains(ac.CustomIntelliSenseId)), targetDb.AdditionalCommands, "AdditionalCommands", includeSensitive, sensitiveCategoryIds);
+    }
+}
 
 if ((tablesSet == null || tablesSet.Contains("launchers")) && launchersCount > 0) await StreamAndInsertAsync(sourceDb.Launcher.AsNoTracking().Where(l => allowedCategoryIds.Contains(l.CategoryId)), targetDb.Launcher, "Launchers", includeSensitive, sensitiveCategoryIds);
 if ((tablesSet == null || tablesSet.Contains("lists")) && listsCount > 0) await StreamAndInsertAsync(sourceDb.TalonLists.AsNoTracking(), targetDb.TalonLists, "TalonLists", includeSensitive, sensitiveCategoryIds);

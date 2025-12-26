@@ -1,5 +1,6 @@
 using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,11 @@ namespace DataAccessLibrary.Services
 	public class CustomIntellisenseService
 	{
 		private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-		public CustomIntellisenseService(IDbContextFactory<ApplicationDbContext> context)
+		private readonly IConfiguration? _configuration;
+		public CustomIntellisenseService(IDbContextFactory<ApplicationDbContext> context, IConfiguration? configuration = null)
 		{
 			_contextFactory = context;
+			_configuration = configuration;
 		}
 		public async Task<List<CustomIntelliSense>> GetCustomIntelliSensesAsync(string? searchTerm = null, string? sortColumn = null, string? sortType = null, int? categoryIdFilter = null, int? languageIdFilter = null, int maximumRows = 2000, string? languageFilter = null, string? categoryFilter = null, bool useSemanticMatching = false)
 		{
@@ -32,7 +35,14 @@ namespace DataAccessLibrary.Services
 				return new List<CustomIntelliSense>();
 			}
 			intellisenses = intellisenses.Where(v => v.Language != null && v.Language.Active);
-			if (Environment.MachineName != "J40L4V3")
+			// Respect app setting to show/hide sensitive categories (default: hide)
+			bool showSensitive = false;
+			if (_configuration != null)
+			{
+				var raw = _configuration["Features:ShowSensitiveCategories"];
+				if (!string.IsNullOrWhiteSpace(raw) && bool.TryParse(raw, out var parsed)) showSensitive = parsed;
+			}
+			if (!showSensitive)
 			{
 				intellisenses = intellisenses.Where(v => v.Category != null && v.Category.Sensitive == false);
 			}
