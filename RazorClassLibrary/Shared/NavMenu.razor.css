@@ -151,8 +151,9 @@
 	   pointer misses still produce the expected visual feedback. */
 	.nav-item:hover ::deep a,
 	.nav-item:hover ::deep .nav-link {
-		background-color: rgba(255,255,255,0.08) !important;
-		color: white !important;
+		/* Use a solid black hover stripe for clear contrast */
+		background-color: #000 !important;
+		color: #fff !important;
 		border-radius: 4px;
 	}
 		.nav-item ::deep a.active {
@@ -160,8 +161,9 @@
 			color: white;
 		}
 		.nav-item ::deep a:hover {
-			background-color: rgba(255,255,255,0.1);
-			color: white;
+			/* Keep anchor hover consistent with list-item hover */
+			background-color: #000 !important;
+			color: #fff;
 			border-radius: 4px;
 		}
 
