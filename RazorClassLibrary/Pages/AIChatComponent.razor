@@ -2,7 +2,7 @@
 <PageTitle>AI Chat Component</PageTitle>
 @using RazorClassLibrary.Components
 
-<h4 class="text-light mb-1"><i class="bi bi-chat-dots-fill"></i> AI Chat (Using o3-mini)</h4>
+<h4 class="text-light mb-1"><i class="bi bi-chat-dots-fill"></i> AI Chat (Using @SelectedModel)</h4>
 @if (!string.IsNullOrWhiteSpace(Message))
 {
     <div class="alert alert-info" role="alert">@Message</div>
@@ -37,6 +37,32 @@
                 }
             </InputSelect>
         }
+        @* Model selection (dynamic + custom) *@
+        <div class="mb-2">
+            <label class="form-label text-light me-2 d-block" for="modelSelect"><i class="bi bi-gear-fill"></i> <u>M</u>odel <small class="text-muted">(Alt+M)</small></label>
+            <div class="input-group" style="max-width: 520px;">
+                <InputSelect id="modelSelect" accesskey="m" aria-keyshortcuts="Alt+M" title="Alt+M: Focus Model" class="form-select bg-dark text-light border-success" style="min-width: 260px;"
+                             @bind-Value="SelectedModel" @onchange="ModelChanged">
+                    @foreach (var m in DisplayedModels)
+                    {
+                        <option value="@m">@m</option>
+                    }
+                </InputSelect>
+                <button class="btn btn-outline-secondary" type="button" @onclick="RefreshModels" disabled="@(isFetchingModels ? "disabled" : null)" title="Refresh models from OpenAI">
+                    <i class="bi @(isFetchingModels ? "bi-arrow-repeat" : "bi-arrow-clockwise")"></i>
+                </button>
+                <button class="btn btn-outline-info" type="button" @onclick="ToggleShowAllModels" title="Toggle showing all raw models">
+                    <i class="bi @(showAllModels ? "bi-eye-slash" : "bi-eye")"></i>
+                </button>
+            </div>
+            <div class="mt-1">
+                <small class="text-muted">Selected: <strong>@SelectedModel</strong> &nbsp; • &nbsp; @ModelFetchMessage</small>
+            </div>
+        </div>
+        <div class="mb-2 d-flex gap-2 align-items-center">
+            <input id="customModel" class="form-control bg-dark text-light border-success" placeholder="Add custom model id (e.g., gpt-4o-mini)" @bind="customModelInput" />
+            <button class="btn btn-outline-success" @onclick="AddCustomModel" disabled="@(string.IsNullOrWhiteSpace(customModelInput) ? "disabled" : null)">Add</button>
+        </div>
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
             class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"

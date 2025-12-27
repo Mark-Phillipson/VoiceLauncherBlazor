@@ -124,6 +124,11 @@ namespace WinFormsApp
 			services.AddBlazorWebViewDeveloperTools();
 #endif
 
+			// Register HttpClient and IHttpClientFactory so Blazor components can inject HttpClient
+			// Use IHttpClientFactory to create typed/named clients as needed; provide a default HttpClient instance
+			services.AddHttpClient();
+			services.AddScoped(sp => sp.GetRequiredService<System.Net.Http.IHttpClientFactory>().CreateClient());
+
 			// Configure WebView2 environment with user data folder
 			// Removed manual WebView2 initialization to avoid double initialization and environment conflict
 			// Subscribe to CoreWebView2InitializationCompleted to set tracking prevention and storage settings

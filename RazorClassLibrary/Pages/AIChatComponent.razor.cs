@@ -64,10 +64,28 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     [Inject] public required IQuickPromptDataService QuickPromptDataService { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
+    [Inject] public required HttpClient Http { get; set; }
+
     ChatHistory chatHistory = new();
     private bool isPluginImported = false;
     private HashSet<object> expandedMessages = new HashSet<object>();
     private string OpenAIAPIKEY = "";
+
+    // Model discovery & caching
+    private DateTime modelsFetchedAt = DateTime.MinValue;
+    private int ModelCacheMinutes = 60; // cache duration
+    private string ModelFetchMessage = "";
+    private bool isFetchingModels = false;
+    private string customModelInput = "";
+    // Filtering: only show chat/text models by default; user may toggle to show all
+    private bool showAllModels = false;
+    private List<string> RawFetchedModels = new List<string>();
+    // Models that we will show to user (filtered based on heuristics)
+    private List<string> DisplayedModels => (showAllModels ? RawFetchedModels : AvailableModels);
+    // Models available for selection (can be configured via configuration key "OpenAI:Models" as comma-separated list)
+    private List<string> AvailableModels = new List<string>();
+    // Currently selected model
+    private string SelectedModel = "o3-mini";
     private string TextBlock { get; set; } = "";
     private string AIComments { get; set; } = "";
     private int revertTo = 0;    ChatHistory responseHistory = new();
@@ -172,6 +190,50 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             Message = ""; // Clear any previous message if key is found
         }
+
+        // Initialize defaults (will be overridden by API fetch when possible)
+        var modelsConfig = Configuration["OpenAI:Models"] ?? Configuration["SmartComponents:Models"];
+        if (!string.IsNullOrWhiteSpace(modelsConfig))
+        {
+            AvailableModels = modelsConfig.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+        }
+        else
+        {
+            AvailableModels = new List<string> { "o3-mini", "o2-mini", "o1-mini" };
+        }
+
+        // If we have an API key, try to fetch the latest list (cached)
+        if (!string.IsNullOrWhiteSpace(OpenAIAPIKEY))
+        {
+            await FetchAvailableModelsAsync();
+        }
+
+        // Pick a configured model if provided, or default to preferred text-capable model
+        var configuredModel = Configuration["OpenAI:Model"] ?? Configuration["SmartComponents:Model"] ?? Environment.GetEnvironmentVariable("OPENAI_MODEL");
+        if (!string.IsNullOrWhiteSpace(configuredModel))
+        {
+            // If configured model is present and not already in list, add it so user can select it
+            if (!AvailableModels.Contains(configuredModel) && !RawFetchedModels.Contains(configuredModel))
+            {
+                // keep custom-configured model available
+                AvailableModels.Insert(0, configuredModel);
+            }
+            SelectedModel = configuredModel;
+        }
+        else
+        {
+            // prefer 'gpt-4o-mini' if available
+            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("o3", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(preferred))
+            {
+                SelectedModel = preferred;
+            }
+        }
+
         await LoadData();
         if (inputElement.Id != null)
         {
@@ -199,14 +261,17 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         // Initialize chatService if the key was found
         if (!string.IsNullOrWhiteSpace(OpenAIAPIKEY))
         {
-            chatService = new OpenAIChatCompletionService("o3-mini", OpenAIAPIKEY);
+            // Use the currently selected model when creating the chat service
+            chatService = new OpenAIChatCompletionService(SelectedModel, OpenAIAPIKEY);
         }
         else
         {
             // Handle the case where the key is missing, maybe disable chat functionality
             Message = "OpenAI API key is missing. Chat functionality disabled.";
             return; // Prevent loading prompts if service can't be initialized
-        }        prompts = await PromptDataService.GetAllPromptsAsync();
+        }
+
+        prompts = await PromptDataService.GetAllPromptsAsync();
         quickPrompts = await QuickPromptDataService.GetAllQuickPromptsAsync(1, 1000, "");
         var prompt = prompts.Where(x => x.IsDefault).FirstOrDefault();
         if (prompt != null)
@@ -362,6 +427,146 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         selectedPrompt = await PromptDataService.GetPromptById(id);
         StateHasChanged();
         await inputElement.FocusAsync();
+    }
+
+    // Called when the user changes the model selection from the UI
+    private async Task ModelChanged(ChangeEventArgs e)
+    {
+        // SelectedModel is updated via binding; reinitialize service and clear conversation history
+        // If the selected model appears to be a non-text model and we're not in showAllModels, warn and set message
+        if (!showAllModels && !IsLikelyTextChatModel(SelectedModel))
+        {
+            Message = $"Warning: {SelectedModel} may not be text/chat-only. Toggle 'Show all' to include non-text models.";
+        }
+        else
+        {
+            Message = $"Model switched to {SelectedModel}";
+        }
+
+        // Reinitialize and clear
+        await Forget();
+        StateHasChanged();
+        try { await inputElement.FocusAsync(); } catch { }
+    }
+
+    private async Task FetchAvailableModelsAsync(bool forceRefresh = false)
+    {
+        if (isFetchingModels) return;
+        if (!string.IsNullOrWhiteSpace(OpenAIAPIKEY))
+        {
+            if (!forceRefresh && modelsFetchedAt != DateTime.MinValue && (DateTime.Now - modelsFetchedAt).TotalMinutes < ModelCacheMinutes && RawFetchedModels?.Count > 0)
+            {
+                ModelFetchMessage = $"Models last fetched {modelsFetchedAt:T}";
+                return;
+            }
+
+            isFetchingModels = true;
+            ModelFetchMessage = "Fetching models...";
+            StateHasChanged();
+
+            try
+            {
+                var req = new HttpRequestMessage(HttpMethod.Get, "https://api.openai.com/v1/models");
+                req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", OpenAIAPIKEY);
+                var resp = await Http.SendAsync(req);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var json = await resp.Content.ReadAsStringAsync();
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    if (doc.RootElement.TryGetProperty("data", out var data))
+                    {
+                        var list = data.EnumerateArray()
+                            .Select(x => x.GetProperty("id").GetString())
+                            .Where(s => !string.IsNullOrWhiteSpace(s))
+                            .Select(s => s!)
+                            .Distinct()
+                            .OrderBy(s => s)
+                            .ToList();
+
+                        // keep a raw copy for 'show all' mode
+                        RawFetchedModels = list.ToList();
+
+                        // Filter to chat/text-only models by default
+                        var filtered = list.Where(IsLikelyTextChatModel).ToList();
+
+                        if (filtered.Count == 0)
+                        {
+                            // If filtering produced nothing, fall back to raw list but mark message
+                            AvailableModels = list;
+                            ModelFetchMessage = $"Fetched {list.Count} models (no text-only models detected)";
+                        }
+                        else
+                        {
+                            AvailableModels = filtered;
+                            ModelFetchMessage = $"Fetched {filtered.Count} text-capable models (raw: {list.Count})";
+                        }
+
+                        // If preferred model (gpt-4o-mini) exists and nothing selected, prefer it
+                        if ((string.IsNullOrWhiteSpace(SelectedModel) || !DisplayedModels.Contains(SelectedModel)) && AvailableModels.Count > 0)
+                        {
+                            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
+                                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
+                                            ?? AvailableModels.FirstOrDefault();
+                            if (!string.IsNullOrWhiteSpace(preferred)) SelectedModel = preferred;
+                        }
+
+                        modelsFetchedAt = DateTime.Now;
+                    }
+                }
+                else
+                {
+                    var err = await resp.Content.ReadAsStringAsync();
+                    ModelFetchMessage = $"Model fetch failed: {(int)resp.StatusCode} {resp.ReasonPhrase}";
+                    System.Console.WriteLine(err);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelFetchMessage = $"Error fetching models: {ex.Message}";
+            }
+            finally
+            {
+                isFetchingModels = false;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            ModelFetchMessage = "No OpenAI API key; cannot fetch models.";
+        }
+    }
+
+    private async Task RefreshModels()
+    {
+        await FetchAvailableModelsAsync(forceRefresh: true);
+
+        // If the preferred model (gpt-4o-mini) is available after refresh, prefer it when nothing selected
+        if (string.IsNullOrWhiteSpace(SelectedModel) || !DisplayedModels.Contains(SelectedModel))
+        {
+            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(preferred)) SelectedModel = preferred;
+        }
+    }
+
+    private async Task AddCustomModel()
+    {
+        if (string.IsNullOrWhiteSpace(customModelInput)) return;
+        if (!AvailableModels.Contains(customModelInput))
+        {
+            AvailableModels.Insert(0, customModelInput);
+        }
+        if (!RawFetchedModels.Contains(customModelInput)) RawFetchedModels.Insert(0, customModelInput);
+        SelectedModel = customModelInput;
+        customModelInput = "";
+        await ModelChanged(new ChangeEventArgs { Value = SelectedModel });
+    }
+
+    private void ToggleShowAllModels()
+    {
+        showAllModels = !showAllModels;
+        ModelFetchMessage = showAllModels ? "Showing all raw models" : "Showing filtered text-capable models";
     }
     bool showHistory = false;
     bool processing = false;
@@ -621,5 +826,29 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             await inputElement.FocusAsync();
         }
         catch { }
+    }
+
+    // Heuristic: determine whether a model id is likely to be text/chat only (exclude image/audio/video models)
+    private static readonly string[] ExcludeKeywords = new[] { "image", "vision", "whisper", "audio", "transcribe", "video", "dalle", "clip", "vision-", "speech" };
+
+    private static bool IsLikelyTextChatModel(string? modelId)
+    {
+        if (string.IsNullOrWhiteSpace(modelId)) return false;
+        var s = modelId.ToLowerInvariant();
+
+        // If name contains any excluded keyword, treat as non-text model
+        foreach (var k in ExcludeKeywords)
+        {
+            if (s.Contains(k)) return false;
+        }
+
+        // Common text/chat model prefixes
+        if (s.StartsWith("gpt-") || s.StartsWith("gpt4") || s.StartsWith("gpt4o") || s.StartsWith("o3") || s.StartsWith("o2") || s.StartsWith("o1") || s.StartsWith("gpt5") || s.Contains("mini") || s.Contains("chat"))
+        {
+            return true;
+        }
+
+        // Fallback conservative: false
+        return false;
     }
 }
