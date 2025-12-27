@@ -12,13 +12,15 @@
 				@bind="SearchTerm" @bind:event="oninput"
 				id="SearchInput" name="SearchTerm"
 				placeholder="Filter by Name/Command Line (Alt+I)" />
-			<button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-				<!-- Bootstrap Icon Delete/Clear -->
-				<i class="bi bi-x-circle text-danger"></i>
+<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
+					<!-- Bootstrap Icon Delete/Clear -->
+					<i class="bi bi-x-circle text-danger"></i>
+					<span class="shortcut">(Alt+R)</span>
 			</button>
-			<button class="btn btn-outline-primary" type="button" accesskey="c" title="Clear Cache & Refresh from DB (Alt+C)" @onclick="RefreshFromDatabaseAsync">
-				<!-- Bootstrap Icon Sync -->
-				<i class="bi bi-arrow-clockwise"></i>
+<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Clear Cache & Refresh from DB (Alt+S)" @onclick="RefreshFromDatabaseAsync">
+					<!-- Bootstrap Icon Sync -->
+					<i class="bi bi-arrow-clockwise"></i>
+					<span class="shortcut">(Alt+S)</span>
 			</button>
 		</div>
 	</div>
@@ -33,7 +35,7 @@
 @if (FilteredLauncherDTO == null && _loadFailed == true)
 {
 	<h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-	<button class="btn btn-danger" type="button" @onclick="@(() => LoadData())">Reload</button>
+	<button id="btnReload" class="btn btn-danger" type="button" accesskey="l" title="Reload (Alt+L)" @onclick="@(() => LoadData())">Reload <span class="shortcut">(Alt+L)</span></button>
 	<h6 class="text-danger">@ExceptionMessage</h6>
 }
 else if (FilteredLauncherDTO == null)
@@ -43,7 +45,7 @@ else if (FilteredLauncherDTO == null)
 else if (FilteredLauncherDTO.Count == 0)
 {
 	<p>No Launcher match the criteria</p>
-	<button @onclick="AddNewLauncherAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i></button>
+		<button id="btnAddRecord" accesskey="n" title="Add New Record (Alt+N)" @onclick="AddNewLauncherAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i> <span class="shortcut">(Alt+N)</span></button>
 }
 else
 {
@@ -109,3 +111,37 @@ else
 		}
 	</div>
 }
+
+<style>
+	/* Small visible shortcut hints */
+	.shortcut {
+		font-size: 0.85rem;
+		margin-left: 0.35rem;
+		color: var(--bs-muted, #6c757d);
+	}
+</style>
+
+<script>
+	(function () {
+		function handleShortcut(e) {
+			// Only handle simple Alt+<key> combos (no Ctrl/Shift/Meta)
+			if (!e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) return;
+			const key = e.key.toLowerCase();
+			if (key === 'r') {
+				const el = document.getElementById('btnResetFilter');
+				if (el) { el.click(); e.preventDefault(); }
+			} else if (key === 's') {
+				const el = document.getElementById('btnRefresh');
+				if (el) { el.click(); e.preventDefault(); }
+			} else if (key === 'n') {
+				const el = document.getElementById('btnAddRecord');
+				if (el) { el.click(); e.preventDefault(); }
+			} else if (key === 'l') {
+				const el = document.getElementById('btnReload');
+				if (el) { el.click(); e.preventDefault(); }
+			}
+		}
+		document.addEventListener('keydown', handleShortcut);
+		window.addEventListener('unload', function () { document.removeEventListener('keydown', handleShortcut); });
+	})();
+</script>

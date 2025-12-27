@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
 <PageTitle>Voice Admin🎙️ Homepage</PageTitle>
 <div class='m-1'>	<header>
 		<h1 class="d-none d-lg-block p-2 d-flex justify-content-between align-items-center" style="font-size: 10.5rem;">
@@ -184,3 +186,24 @@
 
 	</article>
 </section>
+
+@code {
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender) return;
+		// If we haven't redirected in this session yet, redirect to favorites once
+		try
+		{
+			var already = await JS.InvokeAsync<string>("sessionStorage.getItem", "homeRedirected");
+			if (string.IsNullOrEmpty(already))
+			{
+				await JS.InvokeVoidAsync("sessionStorage.setItem", "homeRedirected", "1");
+				NavManager.NavigateTo("/launchersfavourites", replace: true);
+			}
+		}
+		catch
+		{
+			// If sessionStorage isn't available (e.g. prerender), just skip redirect
+		}
+	}
+}
