@@ -186,6 +186,14 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await FocusInputElementAsync();
+        }
+    }
+
     private async Task LoadData()
     {
         // Initialize chatService if the key was found

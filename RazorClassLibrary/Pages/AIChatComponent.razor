@@ -77,9 +77,9 @@
             }
         </div>
         <div class="d-flex flex-wrap gap-2 mt-2">
-            <button accesskey='c' class="btn btn-outline-success btn-sm" type="button"
+            <button accesskey='z' aria-keyshortcuts="Alt+Z" title="Chat (Alt+Z)" class="btn btn-outline-success btn-sm" type="button"
                 disabled="@(processing ? "disabled" : null)" @onclick="@(() => ProcessChat())"><i
-                    class="bi bi-send"></i> <u>C</u>hat</button>
+                    class="bi bi-send"></i> Chat (<u>Z</u>)</button>
             <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
                 disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
                     class="bi bi-eraser-fill"></i> C<u>l</u>ear</button>
