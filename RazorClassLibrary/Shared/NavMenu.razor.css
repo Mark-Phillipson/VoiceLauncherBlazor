@@ -16,13 +16,100 @@
 }
 
 .nav-item {
+	/* Make the list item a horizontal flex container so its children
+	   (the link and any buttons) share the available width. This lets
+	   the anchor expand to fill the stripe while keeping action buttons
+	   reachable and visually aligned. */
+	display: flex;
+	align-items: stretch; /* allow children to stretch vertically */
+	position: relative; /* for absolute positioned anchor/button */
 	font-size: 1.0rem;
-	/* Give the item equal top and bottom spacing so the hover/background
-	   block sits visually centered within the item. Previously only
-	   bottom padding was set which made the highlight touch the top.
-	*/
-	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
+	/* Prevent vertical collapse when the anchor is positioned absolutely. */
+	min-height: 48px;
+	/* Move vertical padding to the anchor so the anchor can fill the full
+	   stripe height and be entirely clickable. */
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* Remove the horizontal padding applied by the utility class (px-3)
+   so the anchor can occupy the full horizontal space; anchor will
+   receive its own horizontal padding instead. Use higher specificity
+   and !important to override bootstrap utility rules. */
+.nav.flex-column > .nav-item.px-3 {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* Also explicitly reset horizontal padding for any nav-item with px-3
+   (fallback where above selector doesn't apply) */
+.nav-item.px-3 {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* Ensure any inner .d-flex wrapper (used where there's a button next to a link)
+   stretches to fill the list-item so its children can size correctly. */
+.nav-item > .d-flex {
+		/* Use CSS Grid to let the anchor fill remaining space while the
+		   adjacent action button sizes to its content. Remove column gap so
+		   there is no empty space between the anchor and the button — this
+		   ensures the clickable stripe reaches right up to the button. */
+	display: grid !important; /* override .d-flex utility */
+	grid-template-columns: 1fr auto;
+	gap: 0; /* remove gap so anchor touches button */
+	width: 100%;
+	align-items: center; /* vertically center content */
+	height: auto; /* let content dictate height */
+}
+
+.nav-item > .d-flex ::deep a,
+.nav-item > .d-flex ::deep .nav-link {
+	position: relative;
+	display: flex !important;
+	align-items: center;
+	padding: 0.75rem 1rem; /* keep vertical padding so li height is set by content */
+	box-sizing: border-box;
+	grid-column: 1 / 2;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
+/* Keep the action button in normal flow in the second grid column so it stays
+   aligned and clickable without overlapping adjacent items. */
+.nav-item > .d-flex button {
+	position: relative;
+	z-index: 2;
+	margin: 0;
+	align-self: center;
+}
+
+/* Explicit grid wrapper for items with inline action buttons to avoid bootstrapped .d-flex utilities */
+.nav-item > .menu-item-inner {
+	display: grid !important;
+	grid-template-columns: 1fr auto;
+	gap: 0.5rem;
+	width: 100%;
+	align-items: center;
+	height: auto;
+}
+
+.nav-item > .menu-item-inner ::deep a,
+.nav-item > .menu-item-inner ::deep .nav-link {
+	grid-column: 1 / 2;
+	display: flex !important;
+	align-items: center;
+	padding: 0.75rem 1rem;
+	box-sizing: border-box;
+	height: 100%;
+}
+
+.nav-item > .menu-item-inner button {
+	position: relative;
+	align-self: center;
+	z-index: 2;
+	margin: 0;
 }
 
 	.nav-item:first-of-type {
@@ -33,18 +120,40 @@
 		padding-bottom: 1rem;
 	}
 
-	.nav-item ::deep a {
+	.nav-item ::deep a,
+	.nav-item ::deep .nav-link {
+		/* increase specificity and include the .nav-link class directly */
 		color: #d7d7d7;
 		border-radius: 4px;
-		/* Remove fixed height so the anchor can grow and be padded symmetrically.
-		   Use vertical padding to create matching top/bottom space for the
-		   hover/background block so it appears centered within the list item. */
-		display: flex;
+		/* Let the anchor fill the available space so the whole stripe is clickable. */
+		display: flex !important;
 		align-items: center;
-		padding: 0.5rem 0.5rem;
+		padding: 0.75rem 1rem; /* vertical padding moved to anchor so it fills stripe */
 		box-sizing: border-box;
-		width: 100%;
-		max-width: 230px;
+		flex: 1 1 auto;
+		min-width: 0; /* Avoid overflow when parent is constrained */
+		height: 100%;
+		align-self: stretch;
+	}
+
+	/* Ensure wrapper grows to the actual anchor height when there are adjacent buttons */
+	.nav-item > .d-flex { height: auto; }
+
+	/* Keep action button in normal flow so it contributes to height and doesn't overlap adjacent items */
+	.nav-item > .d-flex button {
+		position: relative;
+		z-index: 2;
+		margin: 0;
+		align-self: center;
+	}
+
+	/* Hovering the list item should visibly highlight the anchor so small
+	   pointer misses still produce the expected visual feedback. */
+	.nav-item:hover ::deep a,
+	.nav-item:hover ::deep .nav-link {
+		background-color: rgba(255,255,255,0.08) !important;
+		color: white !important;
+		border-radius: 4px;
 	}
 		.nav-item ::deep a.active {
 			background-color: rgba(255,255,255,0.25);
@@ -92,13 +201,8 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
-.nav-item {
-	min-width: 230px;
-}
-
-.nav-link {
-	min-width: 230px;
-}
+/* Removed hard-coded min-widths to allow anchor to flex and fill its parent.
+   Individual items with special styling should use explicit rules where needed. */
 
 /* Make Favourites and Snippets menu items as bold as possible */
 .nav-link[href*="launchersfavourites"],
