@@ -133,6 +133,19 @@ namespace RazorClassLibrary.Pages
 					 .ToList();
 				Title = $"Filtered Favourites ({FilteredLauncherDTO.Count})";
 			}
+
+			// Auto-launch when the filter narrows results to exactly one item and a search term is present
+			if (!string.IsNullOrEmpty(SearchTerm) && FilteredLauncherDTO != null && FilteredLauncherDTO.Count == 1)
+			{
+				try
+				{
+					LaunchItem(FilteredLauncherDTO.First());
+				}
+				catch (Exception ex)
+				{
+					Logger?.LogError(ex, "Failed to auto-launch filtered favorite item");
+				}
+			}
 		}
 		protected void SortLauncher(string sortColumn)
 		{
@@ -204,30 +217,39 @@ namespace RazorClassLibrary.Pages
 		}
 		private void LaunchItem(LauncherDTO launcher)
 		{
-			if (JSRuntime == null)
+			// If it's an HTTP(S) URL, try to open it in a new browser tab/window using JS interop.
+			// Fallback to NavigationManager if JSRuntime is not available or fails.
+			if (!string.IsNullOrWhiteSpace(launcher.CommandLine) && launcher.CommandLine.Trim().ToLower().StartsWith("http"))
 			{
-				return;
-			}
-			if (launcher.CommandLine.Trim().ToLower().StartsWith("http") && NavigationManager != null)
-			{
-				NavigationManager.NavigateTo(launcher.CommandLine, true, false);
-			}
-			else
-			{
-				var psi = new ProcessStartInfo();
-				psi.UseShellExecute = true;
-				psi.FileName = launcher.CommandLine;
-				psi.WorkingDirectory = launcher.WorkingDirectory;
-				psi.Arguments = launcher.Arguments;
-				psi.UseShellExecute = true;
 				try
 				{
-					Process.Start(psi);
+					JSRuntime?.InvokeVoidAsync("open", launcher.CommandLine, "_blank");
+					return;
 				}
-				catch (Exception exception)
+				catch (Exception ex)
 				{
-					Message = exception.Message;
+					Logger?.LogWarning(ex, "JS open failed, falling back to NavigateTo");
+					if (NavigationManager != null)
+					{
+						NavigationManager.NavigateTo(launcher.CommandLine, true, false);
+						return;
+					}
 				}
+			}
+			// Non-HTTP commands: start a process locally
+			var psi = new ProcessStartInfo();
+			psi.UseShellExecute = true;
+			psi.FileName = launcher.CommandLine;
+			psi.WorkingDirectory = launcher.WorkingDirectory;
+			psi.Arguments = launcher.Arguments;
+			psi.UseShellExecute = true;
+			try
+			{
+				Process.Start(psi);
+			}
+			catch (Exception exception)
+			{
+				Message = exception.Message;
 			}
 		}
 		public string RandomColour { get { _randomColor1 = GetColour(); return _randomColor1; } set => _randomColor1 = value; }
