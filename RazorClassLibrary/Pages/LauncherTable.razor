@@ -1,5 +1,6 @@
 ﻿@page "/launcherstable/{CategoryID:int}"
 <PageTitle>Launchers</PageTitle>
+
 <div class="row align-items-center">
     @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
@@ -26,6 +27,19 @@
             </div>
         }
     }
+
+        <script>
+            window.setFocus = (id) => {
+                try {
+                    const el = document.getElementById(id);
+                    if (el && typeof el.focus === 'function') {
+                        el.focus();
+                    }
+                } catch (e) {
+                    console && console.warn && console.warn('setFocus failed', e);
+                }
+            };
+        </script>
     <div class="col-auto me-4">
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
