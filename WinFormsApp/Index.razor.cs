@@ -80,12 +80,14 @@ namespace WinFormsApp
 			}
 
 			if (arguments.Count() < 2)
-			{               //  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
-							// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Folders" };
+			{               
+				// Change values here to debug a particular launch scenario  when no arguments are supplied
+				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
+							   arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Files" };
 							// arguments = new string[] { arguments[0], "Launcher", "AIChat" };
-							// arguments = new string[] { arguments[0], "search" };
+							//  arguments = new string[] { arguments[0], "search" };
 							//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
-							arguments = new string[] { arguments[0], "Talon", "" };
+							// arguments = new string[] { arguments[0], "Talon", "" };
 				
 			}
 			string categoryName = "";
