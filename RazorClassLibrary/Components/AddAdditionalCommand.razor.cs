@@ -1,4 +1,4 @@
-﻿using Blazored.Modal;
+using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 
@@ -59,7 +59,7 @@ namespace RazorClassLibrary.Components
 		{
 			if (firstRender && JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("window.setFocus", "SendKeys_Value");
+				await JSRuntime.InvokeVoidAsync("setFocus", "SendKeys_Value");
 			}
 		}
 

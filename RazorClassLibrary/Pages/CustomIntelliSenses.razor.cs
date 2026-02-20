@@ -1,4 +1,4 @@
-﻿using Blazored.Modal;
+using Blazored.Modal;
 using Blazored.Modal.Services;
 using Blazored.Toast.Services;
 using DataAccessLibrary.DTO;
@@ -110,7 +110,7 @@ namespace RazorClassLibrary.Pages
 			{
 				try
 				{
-					await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+					await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
 				}
 				catch (Exception exception)
 				{
@@ -135,7 +135,7 @@ namespace RazorClassLibrary.Pages
 			// Refocus the search input
 			try
 			{
-				await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+				await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
 			}
 			catch { }
 		}

@@ -78,7 +78,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "SearchInput");
+                        await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
                     }
                 }
                 catch (Exception exception)
@@ -98,7 +98,7 @@ namespace RazorClassLibrary.Pages
             FilteredGrammarItemDTO.Add(grammarItem);
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("window.setFocus", FilteredGrammarItemDTO.Count.ToString());
+                await JSRuntime.InvokeVoidAsync("setFocus", FilteredGrammarItemDTO.Count.ToString());
             }
 
             return;

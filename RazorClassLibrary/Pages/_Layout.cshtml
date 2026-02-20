@@ -91,6 +91,7 @@
 		window.setFocus = (elementId) => {
 			setTimeout(internalFocus, 10, elementId);
 		};
+		window["window.setFocus"] = window.setFocus;
 		function internalFocus(elementId) {
 			var element = document.getElementById(elementId);
 			if (element == null) {

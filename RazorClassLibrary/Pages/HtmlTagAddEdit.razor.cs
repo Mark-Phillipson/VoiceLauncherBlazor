@@ -49,7 +49,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "Tag");
+                        await JSRuntime.InvokeVoidAsync("setFocus", "Tag");
                     }
                 }
                 catch (Exception exception)

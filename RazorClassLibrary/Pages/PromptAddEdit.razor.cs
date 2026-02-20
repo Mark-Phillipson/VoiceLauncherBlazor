@@ -64,7 +64,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("window.setFocus", "PromptText");
+                        await JSRuntime.InvokeVoidAsync("setFocus", "PromptText");
                     }
                 }
                 catch (Exception exception)

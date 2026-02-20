@@ -50,7 +50,7 @@ public partial class IdiosyncrasyAddEdit : ComponentBase
             {
                 if (JSRuntime != null)
                 {
-                    await JSRuntime.InvokeVoidAsync("window.setFocus", "FindString");
+                    await JSRuntime.InvokeVoidAsync("setFocus", "FindString");
                 }
             }
             catch (Exception exception)

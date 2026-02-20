@@ -120,7 +120,7 @@ public partial class LauncherAddEdit : ComponentBase
             {
                 if (JSRuntime != null)
                 {
-                    await JSRuntime.InvokeVoidAsync("window.setFocus", "Name");
+                    await JSRuntime.InvokeVoidAsync("setFocus", "Name");
                 }
             }
             catch (Exception exception)
