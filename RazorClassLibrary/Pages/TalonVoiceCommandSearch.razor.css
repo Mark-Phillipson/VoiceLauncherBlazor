@@ -164,6 +164,13 @@
     }
 }
 
+@media (min-width: 1400px) {
+    .hybrid-results-col {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+}
+
 /* Filter styling */
 .form-label.small {
     font-size: 0.875rem;

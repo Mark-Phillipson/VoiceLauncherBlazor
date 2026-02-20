@@ -25,6 +25,14 @@ namespace RazorClassLibrary.Pages
 
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
+        private static IOrderedEnumerable<TalonVoiceCommand> OrderCommandsAlphabetically(IEnumerable<TalonVoiceCommand> commands)
+        {
+            return commands
+                .OrderBy(c => c.Command ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(c => c.Application ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(c => c.Mode ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+        }
+
     // Shared modal state (used to populate the reusable modal)
         public List<SelectionItem> SelectionModalItems { get; set; } = new();
         public string SelectionModalTitle { get; set; } = "Select";
@@ -862,7 +870,9 @@ namespace RazorClassLibrary.Pages
                             finalResults = finalResults.Where(c => c.Title == SelectedTitle);
                         }
 
-                        Results = finalResults.Take(maxResults).ToList();
+                        Results = OrderCommandsAlphabetically(finalResults)
+                            .Take(maxResults)
+                            .ToList();
 
                         // Debug logging
                         if (JSRuntime != null)
@@ -946,7 +956,9 @@ namespace RazorClassLibrary.Pages
                                 finalResults = finalResults.Where(c => c.Title == SelectedTitle);
                             }
 
-                            Results = finalResults.Take(maxResults).ToList();
+                            Results = OrderCommandsAlphabetically(finalResults)
+                                .Take(maxResults)
+                                .ToList();
 
                             // Debug logging
                             if (JSRuntime != null)
@@ -956,10 +968,7 @@ namespace RazorClassLibrary.Pages
                         }
                         else
                         {
-                            Results = filteredCommands
-                                .OrderBy(c => c.Mode ?? "")
-                                .ThenBy(c => c.Application)
-                                .ThenBy(c => c.Command)
+                            Results = OrderCommandsAlphabetically(filteredCommands)
                                 .Take(maxResults)
                                 .ToList();
                         }

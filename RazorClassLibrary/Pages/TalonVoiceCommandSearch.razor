@@ -370,7 +370,7 @@
             <div class="row" aria-label="Search Results">
                 @foreach (var cmd in GetDisplayedCommands())
                 {
-                    <div class="@(IsBlazorHybrid ? "col-12 col-sm-6 col-md-4 col-lg-3 mb-3" : "col-12 col-lg-6 col-xl-4 mb-3")">                        
+                    <div class="@(IsBlazorHybrid ? "col-12 col-sm-6 col-md-4 col-lg-3 hybrid-results-col mb-3" : "col-12 col-lg-6 col-xl-4 mb-3")">                        
                         <div class="card @(IsBlazorHybrid ? "h-auto" : "h-110") @(IsInFocusMode() ? "focused" : "")" tabindex="0" @onclick="() => FocusOnCommand(cmd)" style="cursor: pointer;" title="Click to focus on this command">                            
                             @if (AutoFilterByCurrentApp) 
                             { 
