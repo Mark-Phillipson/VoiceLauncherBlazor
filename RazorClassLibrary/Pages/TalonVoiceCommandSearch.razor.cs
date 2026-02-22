@@ -44,6 +44,51 @@ namespace RazorClassLibrary.Pages
         public void ToggleRepositoryPanel() => RepositoryPanelExpanded = !RepositoryPanelExpanded;
         public void ToggleFilterPanel() => FilterPanelExpanded = !FilterPanelExpanded;
 
+        public string AppliedFiltersSummary
+        {
+            get
+            {
+                var appliedFilters = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(SelectedApplication))
+                {
+                    appliedFilters.Add($"Applications: {SelectedApplication}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedMode))
+                {
+                    appliedFilters.Add($"Modes: {SelectedMode}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedTags))
+                {
+                    appliedFilters.Add($"Tags: {SelectedTags}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
+                {
+                    appliedFilters.Add($"OS: {SelectedOperatingSystem}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedRepository))
+                {
+                    appliedFilters.Add($"Repositories: {SelectedRepository}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedTitle))
+                {
+                    appliedFilters.Add($"Titles: {SelectedTitle}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage))
+                {
+                    appliedFilters.Add($"Code Languages: {SelectedCodeLanguage}");
+                }
+
+                return string.Join(" | ", appliedFilters);
+            }
+        }
+
     protected SelectionModal? _selectionModal;
     private IJSObjectReference? _selectionModule;
     private bool _selectionModuleLoaded = false;
