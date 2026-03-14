@@ -64,49 +64,51 @@ else
 				counter = null;
 			}
 			<div class="card">
-				@if (launcher.CommandLine.ToLower().StartsWith("http"))
-				{
-					<a accesskey="@counter" class="btn btn-lg btn-outline-success w-100" target="_blank" href="@launcher.CommandLine">
-						@if (launcher.Icon != null && launcher.Icon.Length > 0)
-						{
-							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-								? launcher.Icon
-								: $"/images/{launcher.Icon}";
-							<img class="w-100 h-auto" style="max-height: 150px; object-fit: contain;" src="@iconSrc" />
-						}
-						else
-						{
-							<i style='font-size:45px'>🚀</i>
-						}
-						<span class='p-3 d-flex align-items-center justify-content-between w-100'>
-							<span><u>@counter</u> @launcher.Name</span>
-							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
-								@onblur="@(() => UpdateFavorite(launcher))" />
-						</span>
-					</a>
-				}
-				else
-				{
-					<a accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success w-100"
-						@onclick="@(() => LaunchItem(launcher))">
-						@if (launcher.Icon != null && launcher.Icon.Length > 0)
-						{
-							var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-								? launcher.Icon
-								: $"/images/{launcher.Icon}";
-							<img class="w-100 h-auto" style="max-height: 150px; object-fit: contain;" src="@iconSrc" />
-						}
-						else
-						{
-							<i style='font-size:45px'>🚀</i>
-						}
-						<span class='p-3 d-flex align-items-center justify-content-between w-100'>
-							<span><u>@counter</u> @launcher.Name</span>
-							<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
-								@onblur="@(() => UpdateFavorite(launcher))" />
-						</span>
-					</a>
-				}
+				<div class="card-inner-fixed">
+					@if (launcher.CommandLine.ToLower().StartsWith("http"))
+					{
+						<a accesskey="@counter" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center" target="_blank" href="@launcher.CommandLine">
+							@if (launcher.Icon != null && launcher.Icon.Length > 0)
+							{
+								var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+									? launcher.Icon
+									: $"/images/{launcher.Icon}";
+								<img class="w-100 h-auto" src="@iconSrc" />
+							}
+							else
+							{
+								<i style='font-size:45px'>🚀</i>
+							}
+							<span class='p-3 d-flex align-items-center justify-content-between w-100'>
+								<span><u>@counter</u> @launcher.Name</span>
+								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
+									@onblur="@(() => UpdateFavorite(launcher))" />
+							</span>
+						</a>
+					}
+					else
+					{
+						<a accesskey="@counter" title="@launcher.CommandLine" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+							@onclick="@(() => LaunchItem(launcher))">
+							@if (launcher.Icon != null && launcher.Icon.Length > 0)
+							{
+								var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+									? launcher.Icon
+									: $"/images/{launcher.Icon}";
+								<img class="w-100 h-auto" src="@iconSrc" />
+							}
+							else
+							{
+								<i style='font-size:45px'>🚀</i>
+							}
+							<span class='p-3 d-flex align-items-center justify-content-between w-100'>
+								<span><u>@counter</u> @launcher.Name</span>
+								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
+									@onblur="@(() => UpdateFavorite(launcher))" />
+							</span>
+						</a>
+					}
+				</div>
 			</div>
 		}
 	</div>
