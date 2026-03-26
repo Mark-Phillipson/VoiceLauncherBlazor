@@ -90,7 +90,7 @@ namespace WinFormsApp
 				options.UseSqlite(sqliteConnection));
 
 			// Add AutoMapper
-			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());			// Add repositories
+			services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());			// Add repositories
 			services.AddScoped<ILauncherRepository, LauncherRepository>();
 			services.AddScoped<ICategoryRepository, CategoryRepository>();
 			services.AddScoped<ILanguageRepository, LanguageRepository>();
