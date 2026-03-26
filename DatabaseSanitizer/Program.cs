@@ -69,9 +69,17 @@ void CopyEntities<TEntity>(DbSet<TEntity> sourceSet, DbSet<TEntity> destSet, str
 {
     var rows = sourceSet.AsNoTracking().ToList();
     if (!rows.Any()) return;
-    destSet.AddRange(rows);
-    destinationDb.SaveChanges();
-    report.AppendLine($"Copied {rows.Count} rows into {entityName}");
+    try
+    {
+        destSet.AddRange(rows);
+        destinationDb.SaveChanges();
+        report.AppendLine($"Copied {rows.Count} rows into {entityName}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error copying {entityName}: {ex.GetType().Name} - {ex.Message}");
+        throw;
+    }
 }
 
 // Non-category-related reference data.
@@ -84,38 +92,84 @@ CopyEntities(sourceDb.VisualStudioCommands, destinationDb.VisualStudioCommands, 
 CopyEntities(sourceDb.GrammarNames, destinationDb.GrammarNames, nameof(sourceDb.GrammarNames));
 CopyEntities(sourceDb.GrammarItems, destinationDb.GrammarItems, nameof(sourceDb.GrammarItems));
 CopyEntities(sourceDb.PhraseListGrammars, destinationDb.PhraseListGrammars, nameof(sourceDb.PhraseListGrammars));
-CopyEntities(sourceDb.PhraseListGrammarStorages, destinationDb.PhraseListGrammarStorages, nameof(sourceDb.PhraseListGrammarStorages));
+// PhraseListGrammarStorages maps to the same underlying table as PhraseListGrammars, avoid duplicate key insert.
+// CopyEntities(sourceDb.PhraseListGrammarStorages, destinationDb.PhraseListGrammarStorages, nameof(sourceDb.PhraseListGrammarStorages));
 CopyEntities(sourceDb.CssProperties, destinationDb.CssProperties, nameof(sourceDb.CssProperties));
 CopyEntities(sourceDb.CursorlessCheatsheetItems, destinationDb.CursorlessCheatsheetItems, nameof(sourceDb.CursorlessCheatsheetItems));
 CopyEntities(sourceDb.Microphones, destinationDb.Microphones, nameof(sourceDb.Microphones));
 
-// 3. Copy category-related tables filtering by safeCategoryIds
-var safeLaunchers = sourceDb.Launcher.Where(l => l.CategoryId == null || safeCategoryIds.Contains(l.CategoryId)).AsNoTracking().ToList();
+// 3. Copy category-related tables filtering by safeCategoryIds and existing computers/languages
+var safeComputerIds = sourceDb.Computers.AsNoTracking().Select(c => c.Id).ToHashSet();
+var safeLanguageIds = sourceDb.Languages.AsNoTracking().Select(l => l.Id).ToHashSet();
+var safeLaunchers = sourceDb.Launcher
+    .Where(l => safeCategoryIds.Contains(l.CategoryId)
+                && (l.ComputerId == null || safeComputerIds.Contains(l.ComputerId.Value)))
+    .AsNoTracking()
+    .ToList();
 destinationDb.Launcher.AddRange(safeLaunchers);
 await destinationDb.SaveChangesAsync();
 report.AppendLine($"Copied non-sensitive launchers: {safeLaunchers.Count}");
 
-var safeIntellisense = sourceDb.CustomIntelliSenses.Where(i => i.CategoryId == null || safeCategoryIds.Contains(i.CategoryId)).AsNoTracking().ToList();
+var safeIntellisense = sourceDb.CustomIntelliSenses
+    .Where(i => safeCategoryIds.Contains(i.CategoryId)
+                && safeLanguageIds.Contains(i.LanguageId)
+                && (i.ComputerId == null || safeComputerIds.Contains(i.ComputerId.Value)))
+    .AsNoTracking()
+    .ToList();
 destinationDb.CustomIntelliSenses.AddRange(safeIntellisense);
 await destinationDb.SaveChangesAsync();
 report.AppendLine($"Copied non-sensitive custom intellisense: {safeIntellisense.Count}");
 
-// LauncherCategoryBridges refer categories, keep only safe refs
-var safeBridges = sourceDb.LauncherCategoryBridges.Where(b => safeCategoryIds.Contains(b.CategoryId)).AsNoTracking().ToList();
+// LauncherCategoryBridges refer categories/launchers, keep only safe refs
+var safeLauncherIds = safeLaunchers.Select(x => x.Id).ToHashSet();
+var safeBridges = sourceDb.LauncherCategoryBridges
+    .Where(b => safeCategoryIds.Contains(b.CategoryId) && safeLauncherIds.Contains(b.LauncherId))
+    .AsNoTracking()
+    .ToList();
 destinationDb.LauncherCategoryBridges.AddRange(safeBridges);
 await destinationDb.SaveChangesAsync();
 report.AppendLine($"Copied non-sensitive launcher-category bridges: {safeBridges.Count}");
 
 // 4. Copy additional entities (non-sensitive by default)
+var safeIntelliSenseIds = safeIntellisense.Select(i => i.Id).ToHashSet();
 CopyEntities(sourceDb.TalonVoiceCommands, destinationDb.TalonVoiceCommands, nameof(sourceDb.TalonVoiceCommands));
 CopyEntities(sourceDb.TalonLists, destinationDb.TalonLists, nameof(sourceDb.TalonLists));
-CopyEntities(sourceDb.AdditionalCommands, destinationDb.AdditionalCommands, nameof(sourceDb.AdditionalCommands));
+var safeAdditionalCommands = sourceDb.AdditionalCommands
+    .Where(a => safeIntelliSenseIds.Contains(a.CustomIntelliSenseId))
+    .AsNoTracking()
+    .ToList();
+if (safeAdditionalCommands.Any())
+{
+    destinationDb.AdditionalCommands.AddRange(safeAdditionalCommands);
+    destinationDb.SaveChanges();
+    report.AppendLine($"Copied {safeAdditionalCommands.Count} rows into AdditionalCommands");
+}
 CopyEntities(sourceDb.MigrationHistory, destinationDb.MigrationHistory, nameof(sourceDb.MigrationHistory));
 CopyEntities(sourceDb.MousePositions, destinationDb.MousePositions, nameof(sourceDb.MousePositions));
 CopyEntities(sourceDb.MultipleLauncher, destinationDb.MultipleLauncher, nameof(sourceDb.MultipleLauncher));
-CopyEntities(sourceDb.LauncherMultipleLauncherBridge, destinationDb.LauncherMultipleLauncherBridge, nameof(sourceDb.LauncherMultipleLauncherBridge));
-CopyEntities(sourceDb.CustomWindowsSpeechCommands, destinationDb.CustomWindowsSpeechCommands, nameof(sourceDb.CustomWindowsSpeechCommands));
+var safeMultipleLauncherIds = sourceDb.MultipleLauncher.AsNoTracking().Select(m => m.Id).ToHashSet();
+var safeLauncherMultipleLauncherBridges = sourceDb.LauncherMultipleLauncherBridge
+    .Where(b => safeLauncherIds.Contains(b.LauncherId) && safeMultipleLauncherIds.Contains(b.MultipleLauncherId))
+    .AsNoTracking()
+    .ToList();
+if (safeLauncherMultipleLauncherBridges.Any())
+{
+    destinationDb.LauncherMultipleLauncherBridge.AddRange(safeLauncherMultipleLauncherBridges);
+    destinationDb.SaveChanges();
+    report.AppendLine($"Copied {safeLauncherMultipleLauncherBridges.Count} rows into LauncherMultipleLauncherBridge");
+}
+var safeWindowsSpeechVoiceCommandIds = sourceDb.WindowsSpeechVoiceCommands.AsNoTracking().Select(x => x.Id).ToHashSet();
+var safeCustomWindowsSpeechCommands = sourceDb.CustomWindowsSpeechCommands
+    .Where(x => x.WindowsSpeechVoiceCommandId == null || safeWindowsSpeechVoiceCommandIds.Contains(x.WindowsSpeechVoiceCommandId.Value))
+    .AsNoTracking()
+    .ToList();
 CopyEntities(sourceDb.WindowsSpeechVoiceCommands, destinationDb.WindowsSpeechVoiceCommands, nameof(sourceDb.WindowsSpeechVoiceCommands));
+if (safeCustomWindowsSpeechCommands.Any())
+{
+    destinationDb.CustomWindowsSpeechCommands.AddRange(safeCustomWindowsSpeechCommands);
+    destinationDb.SaveChanges();
+    report.AppendLine($"Copied {safeCustomWindowsSpeechCommands.Count} rows into CustomWindowsSpeechCommands");
+}
 CopyEntities(sourceDb.SpokenForms, destinationDb.SpokenForms, nameof(sourceDb.SpokenForms));
 
 // 5. Generate dummy Transactions and ValuesToInsert instead of copying source to avoid leaking sensitive financial data

@@ -1,0 +1,31 @@
+Total Categories in source: 98
+Sensitive Categories: 17
+Non-sensitive Categories: 81
+Copied non-sensitive categories: 81
+Copied 6 rows into Computers
+Copied 19 rows into Languages
+Copied 7 rows into ApplicationDetails
+Copied 13 rows into Prompts
+Copied 36 rows into QuickPrompts
+Copied 2992 rows into VisualStudioCommands
+Copied 5 rows into GrammarNames
+Copied 259 rows into GrammarItems
+Copied 17 rows into PhraseListGrammars
+Copied 166 rows into CssProperties
+Copied 175 rows into CursorlessCheatsheetItems
+Copied 2 rows into Microphones
+Copied non-sensitive launchers: 249
+Copied non-sensitive custom intellisense: 1936
+Copied non-sensitive launcher-category bridges: 254
+Copied 6324 rows into TalonVoiceCommands
+Copied 1206 rows into TalonLists
+Copied 146 rows into AdditionalCommands
+Copied 342 rows into MousePositions
+Copied 6 rows into MultipleLauncher
+Copied 7 rows into LauncherMultipleLauncherBridge
+Copied 839 rows into WindowsSpeechVoiceCommands
+Copied 1156 rows into CustomWindowsSpeechCommands
+Copied 881 rows into SpokenForms
+Added 141 dummy transactions
+Added 112 dummy ValuesToInsert rows
+Inserted 1 demo Login row (no real credentials)

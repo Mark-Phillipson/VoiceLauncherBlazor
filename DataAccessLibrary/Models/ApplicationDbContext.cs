@@ -121,13 +121,10 @@ namespace DataAccessLibrary.Models
 			modelBuilder.Entity<CustomIntelliSense>(entity =>
 			{
 				entity.HasIndex(e => e.CategoryId)
-						 .HasDatabaseName("IX_CategoryID");
+					 .HasDatabaseName("IX_CustomIntelliSense_CategoryID");
 
 				entity.HasIndex(e => e.ComputerId)
-						 .HasDatabaseName("IX_ComputerID");
-
-				entity.HasIndex(e => e.LanguageId)
-						 .HasDatabaseName("IX_LanguageID");
+					 .HasDatabaseName("IX_CustomIntelliSense_ComputerID");
 
 				entity.HasOne(d => d.Category)
 						 .WithMany(p => p.CustomIntelliSense)
@@ -148,20 +145,20 @@ namespace DataAccessLibrary.Models
 			modelBuilder.Entity<Launcher>(entity =>
 			{
 				entity.HasIndex(e => e.CategoryId)
-						 .HasDatabaseName("IX_CategoryID");
+					 .HasDatabaseName("IX_Launcher_CategoryID");
 
 				entity.HasIndex(e => e.ComputerId)
-						 .HasDatabaseName("IX_ComputerID");
+					 .HasDatabaseName("IX_Launcher_ComputerID");
 
 				entity.HasOne(d => d.Category)
-						 .WithMany(p => p.Launchers)
-						 .HasForeignKey(d => d.CategoryId)
-						 .HasConstraintName("FK_dbo.Launcher_dbo.Categories_CategoryID");
+					 .WithMany(p => p.Launchers)
+					 .HasForeignKey(d => d.CategoryId)
+					 .HasConstraintName("FK_dbo.Launcher_dbo.Categories_CategoryID");
 
 				entity.HasOne(d => d.Computer)
-						 .WithMany(p => p.Launcher)
-						 .HasForeignKey(d => d.ComputerId)
-						 .HasConstraintName("FK_dbo.Launcher_dbo.Computers_ComputerID");
+					 .WithMany(p => p.Launcher)
+					 .HasForeignKey(d => d.ComputerId)
+					 .HasConstraintName("FK_dbo.Launcher_dbo.Computers_ComputerID");
 			});
 
 			modelBuilder.Entity<MigrationHistory>(entity =>

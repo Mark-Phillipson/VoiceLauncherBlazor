@@ -69,3 +69,12 @@ Run tests: `dotnet test` in the TestProjectxUnit directory.
 ## License
 
 See LICENSE file.
+
+Data Sanitizer:
+
+```
+$src = 'C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db'
+$out = 'C:\Users\MPhil\source\repos\VoiceLauncherBlazor\voicelauncher-azure.db'
+cd 'C:\Users\MPhil\source\repos\VoiceLauncherBlazor'
+dotnet run --project DatabaseSanitizer\DatabaseSanitizer.csproj -- --source $src --output $out
+```
