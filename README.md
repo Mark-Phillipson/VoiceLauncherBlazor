@@ -42,9 +42,35 @@ For release/publishing instructions, see `PUBLISHING.md` in the repository root.
 
 ## Database
 
-- Uses SQL Server.
-- Migrations: Create scripts via EF Core commands (do not run `Update-Database` directly).
+- Uses SQL Server in production, and optionally with SQLite for local/preview demo build.
+- Migrations: create scripts via EF Core commands (do not run `Update-Database` directly in production environments).
 - Example: `dotnet ef migrations add MigrationName`
+
+## Data Sanitizer (SQLite for Azure demo)
+
+This repository includes a helper tool to generate a sanitized copy of `voicelauncher.db` called `voicelauncher-azure.db`.
+
+Steps:
+1. Ensure source DB exists and is current:
+   - `C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db`
+2. Run the sanitizer from repo root:
+   - `dotnet run --project DatabaseSanitizer\DatabaseSanitizer.csproj -- --source "C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db" --output "C:\Users\MPhil\source\repos\VoiceLauncherBlazor\voicelauncher-azure.db"`
+3. Verify report `DatabaseSanitizerReport.txt` includes:
+   - `Total Categories in source: ...`
+   - `Sensitive Categories: ...`
+   - `Non-sensitive Categories: ...`
+   - `Copied all categories (including sensitive): ...`
+   - `Sensitive categories excluded from child entity copying: ...`
+4. Sanity checks (SQL query):
+   - `SELECT COUNT(*) FROM Categories;`
+   - `SELECT COUNT(*) FROM Categories WHERE Sensitive=1;`
+   - `SELECT COUNT(*) FROM Categories WHERE Sensitive=0;`
+
+Rules enforced by sanitizer:
+- keeps all categories but removes sensitive child records
+- preserves FK relationships by filtering dependent rows before copy
+- produces dummy transactions and values (fake data) for demo mode
+- writes output DB and report for human review
 
 ## Testing
 
@@ -69,12 +95,3 @@ Run tests: `dotnet test` in the TestProjectxUnit directory.
 ## License
 
 See LICENSE file.
-
-Data Sanitizer:
-
-```
-$src = 'C:\Users\MPhil\AppData\Roaming\VoiceLauncher\voicelauncher.db'
-$out = 'C:\Users\MPhil\source\repos\VoiceLauncherBlazor\voicelauncher-azure.db'
-cd 'C:\Users\MPhil\source\repos\VoiceLauncherBlazor'
-dotnet run --project DatabaseSanitizer\DatabaseSanitizer.csproj -- --source $src --output $out
-```

@@ -56,12 +56,13 @@ var safeCategoryIds = allCategories.Where(c => !c.Sensitive).Select(c => c.Id).T
 report.AppendLine($"Total Categories in source: {allCategories.Count}");
 report.AppendLine($"Sensitive Categories: {sensitiveCategoryIds.Count}");
 report.AppendLine($"Non-sensitive Categories: {safeCategoryIds.Count}");
+report.AppendLine($"Child data will be filtered to non-sensitive categories only.");
 
-// 1. Copy categories (non-sensitive only)
-var safeCategories = allCategories.Where(c => !c.Sensitive).ToList();
-destinationDb.Categories.AddRange(safeCategories);
+// 1. Copy categories (all categories, including sensitive)
+destinationDb.Categories.AddRange(allCategories);
 await destinationDb.SaveChangesAsync();
-report.AppendLine($"Copied non-sensitive categories: {safeCategories.Count}");
+report.AppendLine($"Copied all categories (including sensitive): {allCategories.Count}");
+report.AppendLine($"Sensitive categories excluded from child entity copying: {sensitiveCategoryIds.Count}");
 
 // 2. Copy base tables that are not sensitive-coded
 void CopyEntities<TEntity>(DbSet<TEntity> sourceSet, DbSet<TEntity> destSet, string entityName)
