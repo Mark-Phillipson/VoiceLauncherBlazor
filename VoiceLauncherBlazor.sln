@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "WinFormsApp\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin", "VoiceAdmin\VoiceAdmin.csproj", "{2F069ABA-9CC3-4D96-B925-E6D277CC112B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSanitizer", "DatabaseSanitizer\DatabaseSanitizer.csproj", "{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,18 @@ Global
 		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x64.Build.0 = Release|Any CPU
 		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x86.ActiveCfg = Release|Any CPU
 		{2F069ABA-9CC3-4D96-B925-E6D277CC112B}.Release|x86.Build.0 = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|x64.Build.0 = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Debug|x86.Build.0 = Debug|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x64.ActiveCfg = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x64.Build.0 = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x86.ActiveCfg = Release|Any CPU
+		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

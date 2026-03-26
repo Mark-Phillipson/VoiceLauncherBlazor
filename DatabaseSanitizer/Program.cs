@@ -1,0 +1,189 @@
+﻿using Bogus;
+using DataAccessLibrary.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Text;
+
+string? GetArg(string name)
+{
+    for (int i = 0; i < args.Length; i++)
+    {
+        if (args[i] == name && i + 1 < args.Length) return args[i + 1];
+        if (args[i].StartsWith(name + "=", StringComparison.OrdinalIgnoreCase)) return args[i].Substring(name.Length + 1);
+    }
+    return null;
+}
+
+var sourcePath = GetArg("--source");
+var destinationPath = GetArg("--output");
+if (string.IsNullOrWhiteSpace(sourcePath) || string.IsNullOrWhiteSpace(destinationPath))
+{
+    Console.WriteLine("Usage: DatabaseSanitizer --source <source.db> --output <destination.db>");
+    return;
+}
+
+if (!File.Exists(sourcePath))
+{
+    Console.WriteLine($"Source file not found: {sourcePath}");
+    return;
+}
+
+var targetFile = destinationPath;
+if (File.Exists(targetFile))
+{
+    Console.WriteLine($"Deleting existing output database {targetFile}");
+    File.Delete(targetFile);
+}
+
+var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+var sourceOptions = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite($"Data Source={sourcePath}").Options;
+var destinationOptions = new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite($"Data Source={targetFile}").Options;
+var emptyConfig = new ConfigurationBuilder().AddInMemoryCollection().Build();
+
+using var sourceDb = new ApplicationDbContext(sourceOptions, emptyConfig);
+using var destinationDb = new ApplicationDbContext(destinationOptions, emptyConfig);
+
+Console.WriteLine("Creating destination database schema...");
+destinationDb.Database.EnsureCreated();
+
+var report = new StringBuilder();
+
+// Determine safe category set
+var allCategories = await sourceDb.Categories.AsNoTracking().ToListAsync();
+var sensitiveCategoryIds = allCategories.Where(c => c.Sensitive).Select(c => c.Id).ToHashSet();
+var safeCategoryIds = allCategories.Where(c => !c.Sensitive).Select(c => c.Id).ToHashSet();
+
+report.AppendLine($"Total Categories in source: {allCategories.Count}");
+report.AppendLine($"Sensitive Categories: {sensitiveCategoryIds.Count}");
+report.AppendLine($"Non-sensitive Categories: {safeCategoryIds.Count}");
+
+// 1. Copy categories (non-sensitive only)
+var safeCategories = allCategories.Where(c => !c.Sensitive).ToList();
+destinationDb.Categories.AddRange(safeCategories);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Copied non-sensitive categories: {safeCategories.Count}");
+
+// 2. Copy base tables that are not sensitive-coded
+void CopyEntities<TEntity>(DbSet<TEntity> sourceSet, DbSet<TEntity> destSet, string entityName)
+    where TEntity : class
+{
+    var rows = sourceSet.AsNoTracking().ToList();
+    if (!rows.Any()) return;
+    destSet.AddRange(rows);
+    destinationDb.SaveChanges();
+    report.AppendLine($"Copied {rows.Count} rows into {entityName}");
+}
+
+// Non-category-related reference data.
+CopyEntities(sourceDb.Computers, destinationDb.Computers, nameof(sourceDb.Computers));
+CopyEntities(sourceDb.Languages, destinationDb.Languages, nameof(sourceDb.Languages));
+CopyEntities(sourceDb.ApplicationDetails, destinationDb.ApplicationDetails, nameof(sourceDb.ApplicationDetails));
+CopyEntities(sourceDb.Prompts, destinationDb.Prompts, nameof(sourceDb.Prompts));
+CopyEntities(sourceDb.QuickPrompts, destinationDb.QuickPrompts, nameof(sourceDb.QuickPrompts));
+CopyEntities(sourceDb.VisualStudioCommands, destinationDb.VisualStudioCommands, nameof(sourceDb.VisualStudioCommands));
+CopyEntities(sourceDb.GrammarNames, destinationDb.GrammarNames, nameof(sourceDb.GrammarNames));
+CopyEntities(sourceDb.GrammarItems, destinationDb.GrammarItems, nameof(sourceDb.GrammarItems));
+CopyEntities(sourceDb.PhraseListGrammars, destinationDb.PhraseListGrammars, nameof(sourceDb.PhraseListGrammars));
+CopyEntities(sourceDb.PhraseListGrammarStorages, destinationDb.PhraseListGrammarStorages, nameof(sourceDb.PhraseListGrammarStorages));
+CopyEntities(sourceDb.CssProperties, destinationDb.CssProperties, nameof(sourceDb.CssProperties));
+CopyEntities(sourceDb.CursorlessCheatsheetItems, destinationDb.CursorlessCheatsheetItems, nameof(sourceDb.CursorlessCheatsheetItems));
+CopyEntities(sourceDb.Microphones, destinationDb.Microphones, nameof(sourceDb.Microphones));
+
+// 3. Copy category-related tables filtering by safeCategoryIds
+var safeLaunchers = sourceDb.Launcher.Where(l => l.CategoryId == null || safeCategoryIds.Contains(l.CategoryId)).AsNoTracking().ToList();
+destinationDb.Launcher.AddRange(safeLaunchers);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Copied non-sensitive launchers: {safeLaunchers.Count}");
+
+var safeIntellisense = sourceDb.CustomIntelliSenses.Where(i => i.CategoryId == null || safeCategoryIds.Contains(i.CategoryId)).AsNoTracking().ToList();
+destinationDb.CustomIntelliSenses.AddRange(safeIntellisense);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Copied non-sensitive custom intellisense: {safeIntellisense.Count}");
+
+// LauncherCategoryBridges refer categories, keep only safe refs
+var safeBridges = sourceDb.LauncherCategoryBridges.Where(b => safeCategoryIds.Contains(b.CategoryId)).AsNoTracking().ToList();
+destinationDb.LauncherCategoryBridges.AddRange(safeBridges);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Copied non-sensitive launcher-category bridges: {safeBridges.Count}");
+
+// 4. Copy additional entities (non-sensitive by default)
+CopyEntities(sourceDb.TalonVoiceCommands, destinationDb.TalonVoiceCommands, nameof(sourceDb.TalonVoiceCommands));
+CopyEntities(sourceDb.TalonLists, destinationDb.TalonLists, nameof(sourceDb.TalonLists));
+CopyEntities(sourceDb.AdditionalCommands, destinationDb.AdditionalCommands, nameof(sourceDb.AdditionalCommands));
+CopyEntities(sourceDb.MigrationHistory, destinationDb.MigrationHistory, nameof(sourceDb.MigrationHistory));
+CopyEntities(sourceDb.MousePositions, destinationDb.MousePositions, nameof(sourceDb.MousePositions));
+CopyEntities(sourceDb.MultipleLauncher, destinationDb.MultipleLauncher, nameof(sourceDb.MultipleLauncher));
+CopyEntities(sourceDb.LauncherMultipleLauncherBridge, destinationDb.LauncherMultipleLauncherBridge, nameof(sourceDb.LauncherMultipleLauncherBridge));
+CopyEntities(sourceDb.CustomWindowsSpeechCommands, destinationDb.CustomWindowsSpeechCommands, nameof(sourceDb.CustomWindowsSpeechCommands));
+CopyEntities(sourceDb.WindowsSpeechVoiceCommands, destinationDb.WindowsSpeechVoiceCommands, nameof(sourceDb.WindowsSpeechVoiceCommands));
+CopyEntities(sourceDb.SpokenForms, destinationDb.SpokenForms, nameof(sourceDb.SpokenForms));
+
+// 5. Generate dummy Transactions and ValuesToInsert instead of copying source to avoid leaking sensitive financial data
+var faker = new Faker();
+int txCount = faker.Random.Int(120, 250);
+var transactions = new List<Transaction>(txCount);
+var balance = faker.Random.Decimal(1000m, 10000m);
+var types = new[] { "Credit", "Debit", "Transfer", "Fee" };
+for (int i = 0; i < txCount; i++)
+{
+    bool isCredit = faker.Random.Bool();
+    var moneyIn = isCredit ? faker.Random.Decimal(1m, 500m) : 0m;
+    var moneyOut = isCredit ? 0m : faker.Random.Decimal(1m, 400m);
+    balance += moneyIn;
+    balance -= moneyOut;
+
+    transactions.Add(new Transaction
+    {
+        Date = DateTime.UtcNow.Date.AddDays(-faker.Random.Int(0, 365)),
+        Description = faker.Lorem.Sentence(5, 8),
+        Type = isCredit ? "Credit" : "Debit",
+        MoneyIn = Math.Round(moneyIn, 2),
+        MoneyOut = Math.Round(moneyOut, 2),
+        Balance = Math.Round(balance, 2),
+        MyTransactionType = faker.PickRandom(types),
+        ImportFilename = "sanitized-demo.csv",
+        ImportDate = DateTime.UtcNow
+    });
+}
+destinationDb.Transactions.AddRange(transactions);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Added {transactions.Count} dummy transactions");
+
+int valueCount = faker.Random.Int(50, 120);
+var values = new List<ValuesToInsert>(valueCount);
+for (int i = 0; i < valueCount; i++)
+{
+    values.Add(new ValuesToInsert
+    {
+        ValueToInsertValue = faker.Commerce.ProductName() + " " + faker.Random.AlphaNumeric(4),
+        Lookup = faker.Hacker.Noun(),
+        Description = faker.Lorem.Sentence(6)
+    });
+}
+destinationDb.ValuesToInserts.AddRange(values);
+await destinationDb.SaveChangesAsync();
+report.AppendLine($"Added {values.Count} dummy ValuesToInsert rows");
+
+// 6. Sanitized login setup
+if (destinationDb.Logins.Any())
+{
+    destinationDb.Logins.RemoveRange(destinationDb.Logins);
+    await destinationDb.SaveChangesAsync();
+}
+
+destinationDb.Logins.Add(new Logins
+{
+    Name = "demo",
+    Username = "demo.user",
+    Password = "password123",
+    Description = "Demo login account; no sensitive data"
+});
+await destinationDb.SaveChangesAsync();
+report.AppendLine("Inserted 1 demo Login row (no real credentials)");
+
+var reportPath = Path.Combine(Path.GetDirectoryName(targetFile) ?? ".", "DatabaseSanitizerReport.txt");
+File.WriteAllText(reportPath, report.ToString());
+Console.WriteLine("Sanitization complete.");
+Console.WriteLine($"Output DB: {targetFile}");
+Console.WriteLine($"Report: {reportPath}");
+
