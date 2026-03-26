@@ -33,25 +33,46 @@ Revive the Azure App Service (`voicelauncherblazor.azurewebsites.net`) - current
 ---
 
 ### Phase 2: Configure VoiceAdmin for Azure Deployment
-1. **Update [VoiceAdmin/Program.cs](VoiceAdmin/Program.cs)**
+- [x] 1. **Update [VoiceAdmin/Program.cs](VoiceAdmin/Program.cs)**
 	- Add environment detection (Development vs. Production/Azure)
 	- If Azure environment -> use bundled `voicelauncher-azure.db` from app folder
 	- If Development -> use local user profile database path
 	- Connection string selection logic must be explicit
 
-2. **Add Azure-specific appsettings**
+- [x] 2. **Add Azure-specific appsettings**
 	- Create [VoiceAdmin/appsettings.Production.json](VoiceAdmin/appsettings.Production.json)
 	- Set `ASPNETCORE_ENVIRONMENT=Production` in Azure App Service config
 	- Connection string: `Data Source=voicelauncher-azure.db; Mode=ReadWrite`
 
-3. **Update [DatabaseConfiguration.cs](DataAccessLibrary/Configuration/DatabaseConfiguration.cs)**
+- [x] 3. **Update [DatabaseConfiguration.cs](DataAccessLibrary/Configuration/DatabaseConfiguration.cs)**
 	- Add `GetConnectionString(string environment)` overload
 	- Production path: Bundle the `.db` file in app root or wwwroot
 
-4. **Publish Profile**
+- [x] 4. **Publish Profile**
 	- Create `.pubxml` file in `VoiceAdmin/Properties/PublishProfiles/` for Azure App Service
 	- Self-contained deployment (include runtime)
 	- Include `voicelauncher-azure.db` in published output
+
+---
+
+### Phase 3: Build & Test Sanitized Database
+- [ ] 1. Run `DatabaseSanitizer` tool locally to generate `voicelauncher-azure.db`
+	- Verify no sensitive credentials are accessible
+	- Verify dummy data in Transactions/Values tables
+	- Run queries to confirm sensitive categories excluded
+
+- [ ] 2. Test locally:
+	- Copy `voicelauncher-azure.db` to VoiceAdmin project root
+	- Run VoiceAdmin in Production environment locally
+	- Verify app starts, migrations run (if needed)
+	- Verify data loads correctly (no sensitive data visible)
+	- Test UI functionality with dummy data
+
+- [ ] 3. Success criteria:
+	- No passwords exposed
+	- No sensitive custom commands visible
+	- Dummy transaction data appears realistic
+	- App is fully functional
 
 ---
 
