@@ -1,0 +1,55 @@
+# 1) Login + set subscription
+az login --tenant 8cdf6afa-0a88-41ae-bf36-b23e42f1f035
+az account set --subscription f921b96c-ab1c-4de7-93c7-011dc6104df2
+az account show --query "{name:name,id:id,tenantId:tenantId,state:state}" --output table
+
+# 2) Build (optional but recommended to ensure files are up to date)
+dotnet publish .\VoiceAdmin\VoiceAdmin.csproj -c Release -r win-x64 --self-contained true -o .\publish\VoiceAdmin
+Test-Path .\publish\VoiceAdmin\voicelauncher-azure.db
+
+# 3) ZIP the DB for deploy
+Compress-Archive -Path .\voicelauncher-azure.db -DestinationPath .\db-only.zip -Force
+
+# 4) Deploy via config-zip (functions-msp RG as requested)
+az webapp deployment source config-zip `
+  --resource-group functions-msp `
+  --name voicelauncherblazor `
+  --src-path .\db-only.zip --debug
+
+# 5) Verify app status
+az webapp show --resource-group functions-msp --name voicelauncherblazor --query "{state:state,defaultHostName:defaultHostName}" --output table
+Invoke-WebRequest https://voicelauncherblazor.azurewebsites.net -UseBasicParsing | Select-Object StatusCode
+
+# Config
+$resourceGroup = "functions-msp"
+$appName = "voicelauncherblazor"
+$dbPath = "C:\Users\MPhil\source\repos\VoiceLauncherBlazor\voicelauncher-azure.db"
+$targetPath = "site/wwwroot/voicelauncher-azure.db"
+
+# Get publishing profile (deployment credentials)
+$profile = az webapp deployment list-publishing-profiles `
+    --name $appName `
+    --resource-group $resourceGroup `
+    | ConvertFrom-Json
+
+$publishProfile = $profile[0]
+
+$username = $publishProfile.userName
+$password = $publishProfile.userPWD
+
+# Build auth header
+$pair = "$username`:$password"
+$bytes = [System.Text.Encoding]::ASCII.GetBytes($pair)
+$encoded = [Convert]::ToBase64String($bytes)
+
+$headers = @{
+    Authorization = "Basic $encoded"
+}
+
+# Upload file
+Invoke-RestMethod `
+    -Uri "https://$appName.scm.azurewebsites.net/api/vfs/$targetPath" `
+    -Headers $headers `
+    -Method PUT `
+    -InFile $dbPath `
+    -ContentType "application/octet-stream"

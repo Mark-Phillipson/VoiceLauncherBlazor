@@ -13,6 +13,10 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="wwwroot\voicelauncher-azure.db" />
+  </ItemGroup>
+
 
 
   <ItemGroup>
@@ -38,5 +42,11 @@
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
     <ProjectReference Include="..\VoiceAdmin.ServiceDefaults\VoiceAdmin.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\voicelauncher-azure.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 </Project>
