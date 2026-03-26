@@ -29,8 +29,13 @@ namespace DataAccessLibrary.Configuration
             return Path.Combine(appFolder, "voicelauncher.db");
         }
 
-        public static string GetConnectionString()
+        public static string GetConnectionString(string? configuredConnectionString = null)
         {
+            if (!string.IsNullOrWhiteSpace(configuredConnectionString))
+            {
+                return configuredConnectionString;
+            }
+
             return $"Data Source={GetDatabasePath()}";
         }
     }

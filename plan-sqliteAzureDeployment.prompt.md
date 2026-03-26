@@ -8,17 +8,15 @@ Revive the Azure App Service (`voicelauncherblazor.azurewebsites.net`) - current
 ## Steps
 
 ### Phase 1: Create Database Sanitization Tool
-1. Create new console app: `DatabaseSanitizer` in workspace root
+- [x] 1. Create new console app: `DatabaseSanitizer` in workspace root
 	- **Purpose**: Generates a clean SQLite database with sensitive data excluded
 	- **Input**: Connection to source SQLite database (local development)
 	- **Output**: `voicelauncher-azure.db` (clean) + sanitization report
-
-2. Install Bogus NuGet package in `DatabaseSanitizer`
+- [x] 2. Install Bogus NuGet package in `DatabaseSanitizer`
 	```
 	dotnet add package Bogus
 	```
-
-3. Implement sanitization logic:
+- [x] 3. Implement sanitization logic:
 	- Copy all schema from source SQLite
 	- Filter: Exclude all rows where `Category.Sensitive == true`
 	- For related data (CustomIntelliSense, Logins, etc.) tied to sensitive categories -> exclude
@@ -28,8 +26,7 @@ Revive the Azure App Service (`voicelauncherblazor.azurewebsites.net`) - current
 	  - `Logins` table: Leave empty or 1 demo user (no real credentials)
 	- Copy non-sensitive data for all other tables
 	- Generate CSV sanitization report (rows excluded, dummy rows added)
-
-4. Execution:
+- [x] 4. Execution:
 	- Usage: `dotnet run -- --source "path/to/voicelauncher.db" --output "voicelauncher-azure.db"`
 	- Success criteria: Azure database runs locally without errors
 

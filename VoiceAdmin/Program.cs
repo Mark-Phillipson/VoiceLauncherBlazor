@@ -50,8 +50,32 @@ builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
-// Use a file-based SQLite DB stored in the user's AppData folder
-string connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString();
+
+// Phase 2: environment-sensitive SQLite configuration (local vs. Azure App Service)
+var configuredConnectionString = config.GetConnectionString("DefaultConnection");
+
+string connectionString;
+if (builder.Environment.IsProduction())
+{
+    // Production (Azure) should use deployed DB file, if provided in appsettings or fallback to app root sqlite.
+    if (!string.IsNullOrWhiteSpace(configuredConnectionString))
+    {
+        connectionString = configuredConnectionString;
+    }
+    else
+    {
+        var azureDbPath = Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db");
+        connectionString = $"Data Source={azureDbPath}";
+    }
+}
+else
+{
+    // Non-production uses local AppData path unless explicitly configured.
+    connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(configuredConnectionString);
+}
+
+Console.WriteLine($"Using database connection: {connectionString}");
+
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
