@@ -50,6 +50,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+          path: .
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -58,11 +59,20 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_00E12376091B4FEABE686B2B6A18A59E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_99B3D8903FC946A287C78855EAE306D4 }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'VoiceLauncherBlazor'
-          slot-name: 'Production'
-          package: release.zip
+      - name: Deploy ZIP via Kudu
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "release.zip")) {
+            Write-Host "release.zip not found in working directory. Listing files for diagnostics..."
+            Get-ChildItem -Recurse | Select-Object -First 200
+            throw "release.zip not found"
+          }
+
+          $resourceGroup = az webapp list --query "[?name=='VoiceLauncherBlazor'].resourceGroup | [0]" -o tsv
+          if (-not $resourceGroup) {
+            throw "Could not resolve resource group for app VoiceLauncherBlazor"
+          }
+
+          Write-Host "Deploying release.zip to app VoiceLauncherBlazor in resource group $resourceGroup"
+          az webapp deployment source config-zip --resource-group $resourceGroup --name VoiceLauncherBlazor --src release.zip
           
