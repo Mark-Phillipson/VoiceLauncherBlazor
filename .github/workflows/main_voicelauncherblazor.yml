@@ -29,11 +29,14 @@ jobs:
       - name: dotnet publish
         run: dotnet publish VoiceAdmin/VoiceAdmin.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
+      - name: Zip artifact for deployment
+        run: Compress-Archive -Path "${{env.DOTNET_ROOT}}/myapp/*" -DestinationPath release.zip
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: release.zip
 
   deploy:
     runs-on: windows-latest
@@ -61,6 +64,5 @@ jobs:
         with:
           app-name: 'VoiceLauncherBlazor'
           slot-name: 'Production'
-          package: .
-          type: zip
+          package: release.zip
           
