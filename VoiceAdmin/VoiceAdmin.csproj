@@ -7,14 +7,17 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     <UserSecretsId>a71df59a-e582-4e4f-9a75-14512ec2b2e6</UserSecretsId>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-    <Platforms>AnyCPU;x64</Platforms>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Platforms>AnyCPU;x86</Platforms>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <SelfContained>true</SelfContained>
+    <AspNetCoreEnv>Production</AspNetCoreEnv>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\voicelauncher-azure.db" />
+    <Content Include="wwwroot\voicelauncher-azure.db">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 
@@ -26,7 +29,7 @@
     <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.54" />
     <PackageReference Include="InputSimulatorCore" Version="1.0.5" />
     <PackageReference Include="Markdig" Version="0.38.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -45,14 +48,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="wwwroot\voicelauncher-azure.db">
+    <Content Remove="wwwroot\voicelauncher-azure.db" />
+    <None Include="wwwroot\voicelauncher-azure.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="data\voicelauncher-azure.db">
+    <None Include="data\voicelauncher-azure.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
 </Project>

@@ -17,13 +17,24 @@ using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
 using VoiceAdmin;
 
-var builder = WebApplication.CreateBuilder(args);
+// Write startup marker directly to stderr (always available)
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] VoiceAdmin startup initiated");
+Console.Error.Flush();
+
+try
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Creating WebApplicationBuilder...");
+    
+    var builder = WebApplication.CreateBuilder(args);
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Logging configured");
+
 builder.AddServiceDefaults();
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Service defaults added");
 
 // Blazor Server services
 var smartComponentsApiKey =
@@ -31,12 +42,12 @@ var smartComponentsApiKey =
     builder.Configuration["OpenAI:ApiKey"] ??
     Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
-builder.Services.AddSmartComponents();
+var smartComponentsBuilder = builder.Services.AddSmartComponents();
 if (!string.IsNullOrWhiteSpace(smartComponentsApiKey))
 {
     try
     {
-        builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
+        smartComponentsBuilder.WithInferenceBackend<OpenAIInferenceBackend>();
     }
     catch (Exception ex)
     {
@@ -64,8 +75,9 @@ builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
 
-// Phase 2: environment-sensitive SQLite configuration (local vs. Azure App Service)
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Configuring SQLite database...");
 var configuredConnectionString = config.GetConnectionString("DefaultConnection");
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] IsProduction: {builder.Environment.IsProduction()}");
 
 string connectionString;
 if (builder.Environment.IsProduction())
@@ -80,22 +92,47 @@ if (builder.Environment.IsProduction())
         ? null
         : Environment.ExpandEnvironmentVariables(configuredConnectionString);
 
+    // Check if connection string looks like SQL Server (not SQLite)
+    if (!string.IsNullOrWhiteSpace(rawConnectionString) && 
+        (rawConnectionString.Contains("Server=", StringComparison.OrdinalIgnoreCase) ||
+         rawConnectionString.Contains("Initial Catalog=", StringComparison.OrdinalIgnoreCase) ||
+         rawConnectionString.Contains("Integrated Security=", StringComparison.OrdinalIgnoreCase) ||
+         rawConnectionString.Contains("MultipleActiveResultSets=", StringComparison.OrdinalIgnoreCase)))
+    {
+        Console.Error.WriteLine($"[{DateTime.UtcNow:O}] WARNING: Connection string appears to be SQL Server format. Using fallback SQLite path.");
+        rawConnectionString = null; // Reject it, use fallback
+    }
+
     if (!string.IsNullOrWhiteSpace(rawConnectionString))
     {
-        var sqliteBuilder = new SqliteConnectionStringBuilder(rawConnectionString);
-        if (string.IsNullOrWhiteSpace(sqliteBuilder.DataSource) ||
-            sqliteBuilder.DataSource.Contains('%') ||
-            sqliteBuilder.DataSource.Contains("$HOME", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            sqliteBuilder.DataSource = fallbackAzureDbPath;
-        }
+            var sqliteBuilder = new SqliteConnectionStringBuilder(rawConnectionString);
+            if (string.IsNullOrWhiteSpace(sqliteBuilder.DataSource) ||
+                sqliteBuilder.DataSource.Contains('%') ||
+                sqliteBuilder.DataSource.Contains("$HOME", StringComparison.OrdinalIgnoreCase))
+            {
+                sqliteBuilder.DataSource = fallbackAzureDbPath;
+            }
 
-        if (!Path.IsPathRooted(sqliteBuilder.DataSource))
+            if (!Path.IsPathRooted(sqliteBuilder.DataSource))
+            {
+                sqliteBuilder.DataSource = Path.Combine(builder.Environment.ContentRootPath, sqliteBuilder.DataSource);
+            }
+
+            connectionString = sqliteBuilder.ToString();
+        }
+        catch (Exception ex)
         {
-            sqliteBuilder.DataSource = Path.Combine(builder.Environment.ContentRootPath, sqliteBuilder.DataSource);
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ERROR parsing connection string: {ex.Message}");
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Raw connection string was: {rawConnectionString}");
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Using fallback SQLite path instead");
+            connectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = fallbackAzureDbPath,
+                Mode = SqliteOpenMode.ReadWriteCreate
+            }.ToString();
         }
-
-        connectionString = sqliteBuilder.ToString();
     }
     else
     {
@@ -114,22 +151,59 @@ if (builder.Environment.IsProduction())
         if (!string.IsNullOrWhiteSpace(databaseDirectory))
         {
             Directory.CreateDirectory(databaseDirectory);
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Ensured database directory exists: {databaseDirectory}");
         }
 
         if (!File.Exists(productionDatabasePath))
         {
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Production database not found at: {productionDatabasePath}");
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ContentRootPath: {builder.Environment.ContentRootPath}");
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] WebRootPath: {builder.Environment.WebRootPath}");
+            
+            // List all files in ContentRootPath to help diagnose
+            try
+            {
+                var contentRootFiles = Directory.GetFiles(builder.Environment.ContentRootPath, "*.db", SearchOption.AllDirectories);
+                Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Found {contentRootFiles.Length} .db files in ContentRootPath:");
+                foreach (var dbFile in contentRootFiles)
+                {
+                    var fileInfo = new System.IO.FileInfo(dbFile);
+                    Console.Error.WriteLine($"[{DateTime.UtcNow:O}]   {dbFile} (size: {fileInfo.Length} bytes)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ERROR listing files: {ex.Message}");
+            }
+            
             var candidateSeedPaths = new[]
             {
                 Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db"),
+                Path.Combine(builder.Environment.ContentRootPath, "data", "voicelauncher-azure.db"),
                 Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "voicelauncher-azure.db"),
-                Path.Combine(builder.Environment.WebRootPath ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot"), "voicelauncher-azure.db")
+                Path.Combine(builder.Environment.WebRootPath ?? "", "voicelauncher-azure.db")
             };
 
-            var seedDatabasePath = candidateSeedPaths.FirstOrDefault(File.Exists);
+            var seedDatabasePath = candidateSeedPaths.FirstOrDefault(p => File.Exists(p));
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Seed database found at: {seedDatabasePath}");
+            
             if (!string.IsNullOrWhiteSpace(seedDatabasePath))
             {
-                File.Copy(seedDatabasePath, productionDatabasePath, overwrite: false);
+                try
+                {
+                    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Copying database from {seedDatabasePath} to {productionDatabasePath}");
+                    File.Copy(seedDatabasePath, productionDatabasePath, overwrite: false);
+                    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Database copied successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ERROR copying database: {ex}");
+                }
             }
+        }
+        else
+        {
+            Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Production database already exists at: {productionDatabasePath}");
         }
     }
 }
@@ -140,10 +214,13 @@ else
 }
 
 Console.WriteLine($"Using database connection: {connectionString}");
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Adding DbContextFactory...");
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlite(connectionString));
-builder.Services.AddSingleton<LocalEmbedder>();
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] DbContextFactory added");
+
 builder.Services.AddRadzenComponents();
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Radzen components added");
 
 // Keep disconnected circuits around longer so users can resume after short server/network blips.
 builder.Services.Configure<Microsoft.AspNetCore.Components.Server.CircuitOptions>(options =>
@@ -240,8 +317,17 @@ builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, Raz
 builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceAdmin.CursorlessCheatsheetItemJsonRepository>();
 builder.Services.AddScoped<IFaceImageRepository, FaceImageRepository>();
 builder.Services.AddScoped<IFaceTagRepository, FaceTagRepository>();
+// ANCM out-of-process sets ASPNETCORE_URLS automatically; do not override with UseUrls
+// (overriding with PORT ?? "80" would try to bind port 80 already owned by IIS → SocketException → 502.5)
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "(not set)"}");
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ASPNETCORE_PORT={Environment.GetEnvironmentVariable("ASPNETCORE_PORT") ?? "(not set)"}");
+Console.Error.Flush();
 
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Calling builder.Build()...");
 var app = builder.Build();
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] builder.Build() succeeded");
+Console.Error.Flush();
+
 // Log all incoming requests and their paths
 app.Use(async (context, next) =>
 {
@@ -278,13 +364,30 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host"); // Ensure _Host exists from Server template
 
-// Precompute embeddings
-var embedder = app.Services.GetRequiredService<LocalEmbedder>();
-var embeddings = embedder.EmbedRange(new[] { "indent", "inspect", "move", "paste ", "phones", "post", "pour", "pre", "puff", "quick fix", "reference", "rename", "reverse", "scout", "scout all", "shuffle", "snippet", "snippet make", "sort", "swap", "take", "type deaf", "unfold", "after", "before", "to", "form", "chuck", "crown", "centre", "bottom", "drink", "repack", "wrap", "break", "breakpoint", "bring", "carve", "change", "clone", "clone up", "comment", "concrete", "copy", "decrement", "increment", "dedent", "define", "drop", "extract", "float", "fold" });
-app.MapSmartComboBox("api/cursorless-spokenforms", request => embedder.FindClosest(request.Query, embeddings));
-var expenseCategories = embedder.EmbedRange(["Groceries", "Utilities", "Rent", "Mortgage", "Car Payment", "Car Insurance", "Health Insurance", "Life Insurance", "Home Insurance", "Gas", "Public Transportation", "Dining Out", "Entertainment", "Travel", "Clothing", "Electronics", "Home Improvement", "Gifts", "Charity", "Education", "Childcare", "Pet Care", "Other"]);
-var issueLabels = embedder.EmbedRange(["Bug", "Docs", "Enhancement", "Question", "UI (Android)", "UI (iOS)", "UI (Windows)", "UI (Mac)", "Performance", "Security", "Authentication", "Accessibility"]);
-app.MapSmartComboBox("/api/suggestions/expense-category", request => embedder.FindClosest(request.Query, expenseCategories));
-app.MapSmartComboBox("/api/suggestions/issue-label", request => embedder.FindClosest(request.Query, issueLabels));
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Mapping complete. Starting app.Run()...");
+Console.Error.Flush();
 
-app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] FATAL: app.Run() threw exception: {ex}");
+    Console.Error.Flush();
+    throw;
+}
+finally
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] app.Run() exited");
+    Console.Error.Flush();
+}
+}
+catch (Exception outerEx)
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] FATAL OUTER EXCEPTION during startup: {outerEx}");
+    Console.Error.WriteLine($"Message: {outerEx.Message}");
+    Console.Error.WriteLine($"StackTrace: {outerEx.StackTrace}");
+    Console.Error.Flush();
+    throw;
+}

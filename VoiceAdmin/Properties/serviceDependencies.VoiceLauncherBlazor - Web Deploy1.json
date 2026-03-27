@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "sqlite1": {
+      "ignored": "true",
+      "type": "sqlite",
+      "connectionId": "ConnectionStrings:DatabaseConnection"
+    }
+  }
+}
