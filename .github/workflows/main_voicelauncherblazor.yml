@@ -65,4 +65,5 @@ jobs:
           app-name: 'VoiceLauncherBlazor'
           slot-name: 'Production'
           package: release.zip
+          type: zip
           
