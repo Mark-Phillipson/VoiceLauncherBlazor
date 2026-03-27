@@ -6,6 +6,7 @@ using DataAccessLibrary.Models;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Radzen;
 using SampleApplication.Repositories;
 using SampleApplication.Services;
@@ -25,14 +26,26 @@ builder.Logging.AddDebug();
 builder.AddServiceDefaults();
 
 // Blazor Server services
-try
+var smartComponentsApiKey =
+    builder.Configuration["SmartComponents:ApiKey"] ??
+    builder.Configuration["OpenAI:ApiKey"] ??
+    Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+builder.Services.AddSmartComponents();
+if (!string.IsNullOrWhiteSpace(smartComponentsApiKey))
 {
-    builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
+    try
+    {
+        builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"OpenAI backend registration failed; continuing without OpenAI inference backend. {ex}");
+    }
 }
-catch (Exception ex)
+else
 {
-    Console.WriteLine($"Error registering SmartComponents or OpenAI backend: {ex}");
-    throw;
+    Console.WriteLine("OpenAI API key not configured. Continuing without OpenAI inference backend.");
 }
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -57,15 +70,67 @@ var configuredConnectionString = config.GetConnectionString("DefaultConnection")
 string connectionString;
 if (builder.Environment.IsProduction())
 {
-    // Production (Azure) should use deployed DB file, if provided in appsettings or fallback to app root sqlite.
-    if (!string.IsNullOrWhiteSpace(configuredConnectionString))
+    // Azure App Service exposes HOME as the stable, writable root. Sqlite needs an actual path, not a literal %HOME% token.
+    var homePath = Environment.GetEnvironmentVariable("HOME");
+    var fallbackAzureDbPath = !string.IsNullOrWhiteSpace(homePath)
+        ? Path.Combine(homePath, "site", "data", "voicelauncher-azure.db")
+        : Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db");
+
+    var rawConnectionString = string.IsNullOrWhiteSpace(configuredConnectionString)
+        ? null
+        : Environment.ExpandEnvironmentVariables(configuredConnectionString);
+
+    if (!string.IsNullOrWhiteSpace(rawConnectionString))
     {
-        connectionString = configuredConnectionString;
+        var sqliteBuilder = new SqliteConnectionStringBuilder(rawConnectionString);
+        if (string.IsNullOrWhiteSpace(sqliteBuilder.DataSource) ||
+            sqliteBuilder.DataSource.Contains('%') ||
+            sqliteBuilder.DataSource.Contains("$HOME", StringComparison.OrdinalIgnoreCase))
+        {
+            sqliteBuilder.DataSource = fallbackAzureDbPath;
+        }
+
+        if (!Path.IsPathRooted(sqliteBuilder.DataSource))
+        {
+            sqliteBuilder.DataSource = Path.Combine(builder.Environment.ContentRootPath, sqliteBuilder.DataSource);
+        }
+
+        connectionString = sqliteBuilder.ToString();
     }
     else
     {
-        var azureDbPath = Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db");
-        connectionString = $"Data Source={azureDbPath}";
+        connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = fallbackAzureDbPath,
+            Mode = SqliteOpenMode.ReadWriteCreate
+        }.ToString();
+    }
+
+    var productionSqliteBuilder = new SqliteConnectionStringBuilder(connectionString);
+    if (Path.IsPathRooted(productionSqliteBuilder.DataSource))
+    {
+        var productionDatabasePath = productionSqliteBuilder.DataSource;
+        var databaseDirectory = Path.GetDirectoryName(productionSqliteBuilder.DataSource);
+        if (!string.IsNullOrWhiteSpace(databaseDirectory))
+        {
+            Directory.CreateDirectory(databaseDirectory);
+        }
+
+        if (!File.Exists(productionDatabasePath))
+        {
+            var candidateSeedPaths = new[]
+            {
+                Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db"),
+                Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "voicelauncher-azure.db"),
+                Path.Combine(builder.Environment.WebRootPath ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot"), "voicelauncher-azure.db")
+            };
+
+            var seedDatabasePath = candidateSeedPaths.FirstOrDefault(File.Exists);
+            if (!string.IsNullOrWhiteSpace(seedDatabasePath))
+            {
+                File.Copy(seedDatabasePath, productionDatabasePath, overwrite: false);
+            }
+        }
     }
 }
 else
@@ -77,7 +142,6 @@ else
 Console.WriteLine($"Using database connection: {connectionString}");
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlite(connectionString));
-builder.Services.AddSmartComponents().WithInferenceBackend<OpenAIInferenceBackend>();
 builder.Services.AddSingleton<LocalEmbedder>();
 builder.Services.AddRadzenComponents();
 
