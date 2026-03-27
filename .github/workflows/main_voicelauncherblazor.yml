@@ -62,5 +62,5 @@ jobs:
           app-name: 'VoiceLauncherBlazor'
           slot-name: 'Production'
           package: .
-          deployment-method: zipDeploy
+          type: zip
           
