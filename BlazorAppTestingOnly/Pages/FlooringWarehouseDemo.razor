@@ -1,0 +1,167 @@
+@page "/flooring-warehouse-demo"
+
+<PageTitle>Flooring Warehouse Demo</PageTitle>
+
+<section class="flooring-demo" aria-label="Flooring warehouse management preview">
+    <header class="hero mb-4">
+        <div>
+            <p class="kicker mb-2">Client Preview</p>
+            <h1 class="mb-2">Flooring Warehouse Manager</h1>
+            <p class="lead mb-0">
+                Log full rolls, record cut lengths, and monitor low stock across multiple stores from one dashboard.
+            </p>
+        </div>
+        <div class="hero-chip" aria-label="Environment status">Live Warehouse Feed</div>
+    </header>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <article class="stat-card">
+                <p class="stat-label">Total Rolls</p>
+                <p class="stat-value">264</p>
+                <p class="stat-delta up">+14 this week</p>
+            </article>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <article class="stat-card">
+                <p class="stat-label">Cut Jobs Today</p>
+                <p class="stat-value">37</p>
+                <p class="stat-delta">Avg 2.8m per cut</p>
+            </article>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <article class="stat-card warning">
+                <p class="stat-label">Low Stock Alerts</p>
+                <p class="stat-value">6</p>
+                <p class="stat-delta down">Under 10m remaining</p>
+            </article>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <article class="stat-card">
+                <p class="stat-label">Active Bay Zones</p>
+                <p class="stat-value">18</p>
+                <p class="stat-delta">Across 4 sites</p>
+            </article>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-xl-7">
+            <article class="panel h-100">
+                <div class="panel-header">
+                    <h2 class="h5 mb-0">Current Warehouse Rolls</h2>
+                    <span class="pill">Sort: Lowest balance first</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Roll ID</th>
+                                <th>Type</th>
+                                <th>Width</th>
+                                <th>Bay</th>
+                                <th>Remaining</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>R-8742</td>
+                                <td>Oak Plank Vinyl</td>
+                                <td>4m</td>
+                                <td>B-12</td>
+                                <td>8.4m</td>
+                                <td><span class="tag danger">Reorder</span></td>
+                            </tr>
+                            <tr>
+                                <td>R-8681</td>
+                                <td>Stone Effect LVT</td>
+                                <td>3m</td>
+                                <td>C-04</td>
+                                <td>9.1m</td>
+                                <td><span class="tag danger">Reorder</span></td>
+                            </tr>
+                            <tr>
+                                <td>R-8819</td>
+                                <td>Wool Loop Carpet</td>
+                                <td>5m</td>
+                                <td>A-07</td>
+                                <td>22.6m</td>
+                                <td><span class="tag ok">Healthy</span></td>
+                            </tr>
+                            <tr>
+                                <td>R-8903</td>
+                                <td>Herringbone Laminate</td>
+                                <td>2m</td>
+                                <td>D-02</td>
+                                <td>41.8m</td>
+                                <td><span class="tag ok">Healthy</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <article class="panel h-100">
+                <div class="panel-header">
+                    <h2 class="h5 mb-0">Record Cut Length</h2>
+                    <span class="pill">Prototype Form</span>
+                </div>
+                <form>
+                    <div class="mb-3">
+                        <label for="rollSelect" class="form-label">Select roll</label>
+                        <select id="rollSelect" class="form-select" aria-label="Select roll">
+                            <option>R-8742 | Oak Plank Vinyl | Bay B-12</option>
+                            <option>R-8819 | Wool Loop Carpet | Bay A-07</option>
+                            <option>R-8903 | Herringbone Laminate | Bay D-02</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="cutLength" class="form-label">Cut length (m)</label>
+                            <input id="cutLength" class="form-control" type="text" value="2.5" aria-label="Cut length in meters" />
+                        </div>
+                        <div class="col-6">
+                            <label for="newBay" class="form-label">New bay</label>
+                            <input id="newBay" class="form-control" type="text" value="CUT-03" aria-label="New bay location" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea id="notes" class="form-control" rows="3" aria-label="Cut notes">Customer hold for Store 2 refurbishment.</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-primary">Save Cut</button>
+                        <button type="button" class="btn btn-outline-secondary">Preview Movement</button>
+                    </div>
+                </form>
+            </article>
+        </div>
+    </div>
+
+    <article class="panel">
+        <div class="panel-header">
+            <h2 class="h5 mb-0">Recent Stock Movements</h2>
+            <span class="pill">Last 30 minutes</span>
+        </div>
+        <div class="timeline" aria-label="Recent stock movement feed">
+            <div class="event">
+                <p class="event-time">09:42</p>
+                <p class="event-text"><strong>R-8742</strong> cut by 2.5m. New offcut added to <strong>CUT-03</strong>. Remaining length is now <strong>8.4m</strong>.</p>
+            </div>
+            <div class="event">
+                <p class="event-time">09:27</p>
+                <p class="event-text"><strong>R-8681</strong> flagged low stock (<strong>9.1m</strong>). Purchase recommendation generated.</p>
+            </div>
+            <div class="event">
+                <p class="event-time">09:11</p>
+                <p class="event-text"><strong>R-8903</strong> relocated from <strong>D-01</strong> to <strong>D-02</strong> after cycle count reconciliation.</p>
+            </div>
+        </div>
+    </article>
+</section>

@@ -1,0 +1,215 @@
+.flooring-demo {
+    --ink: #0f1f2f;
+    --ink-soft: #5d6b78;
+    --brand: #0f6e8e;
+    --brand-deep: #084c63;
+    --accent: #f59f0a;
+    --card: #ffffff;
+    --line: #dce4ea;
+    --success: #136f43;
+    --danger: #9f2b1a;
+    --bg-1: #f5f7fa;
+    --bg-2: #e6eef5;
+    color: var(--ink);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at 5% 0%, rgba(245, 159, 10, 0.2), transparent 35%),
+        radial-gradient(circle at 92% 8%, rgba(15, 110, 142, 0.2), transparent 32%),
+        linear-gradient(140deg, var(--bg-1), var(--bg-2));
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: end;
+    padding: 1.4rem;
+    border: 1px solid rgba(8, 76, 99, 0.2);
+    border-radius: 1rem;
+    background: linear-gradient(130deg, #ffffff 10%, #f6fbff 70%, #eef7ff 100%);
+    box-shadow: 0 10px 28px rgba(8, 35, 55, 0.08);
+    animation: rise 420ms ease-out;
+}
+
+.kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brand-deep);
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+h1 {
+    font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+    font-weight: 800;
+}
+
+.lead {
+    color: var(--ink-soft);
+    max-width: 68ch;
+}
+
+.hero-chip {
+    align-self: center;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.55rem 0.95rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--brand);
+    border-radius: 0.9rem;
+    padding: 1rem;
+    height: 100%;
+    box-shadow: 0 8px 18px rgba(16, 30, 42, 0.05);
+    animation: rise 520ms ease-out;
+}
+
+.stat-card.warning {
+    border-left-color: var(--accent);
+}
+
+.stat-label {
+    margin-bottom: 0.25rem;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+}
+
+.stat-value {
+    margin-bottom: 0.1rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.stat-delta {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+.stat-delta.up {
+    color: var(--success);
+}
+
+.stat-delta.down {
+    color: var(--danger);
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    padding: 1rem;
+    box-shadow: 0 8px 18px rgba(16, 30, 42, 0.05);
+    animation: rise 600ms ease-out;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.pill {
+    border: 1px solid rgba(8, 76, 99, 0.25);
+    color: var(--brand-deep);
+    border-radius: 999px;
+    padding: 0.22rem 0.7rem;
+    font-size: 0.74rem;
+    white-space: nowrap;
+}
+
+table thead th {
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 0.82rem;
+    border-bottom-width: 1px;
+}
+
+table tbody td {
+    font-size: 0.9rem;
+}
+
+.tag {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+
+.tag.ok {
+    background: rgba(19, 111, 67, 0.12);
+    color: var(--success);
+}
+
+.tag.danger {
+    background: rgba(159, 43, 26, 0.12);
+    color: var(--danger);
+}
+
+.timeline {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.event {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: #fbfdff;
+    padding: 0.7rem;
+}
+
+.event-time {
+    margin: 0;
+    font-weight: 700;
+    color: var(--brand-deep);
+}
+
+.event-text {
+    margin: 0;
+    color: var(--ink);
+    font-size: 0.92rem;
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .flooring-demo {
+        padding: 0.9rem;
+    }
+
+    .hero {
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .hero-chip {
+        align-self: start;
+    }
+
+    .event {
+        grid-template-columns: 1fr;
+    }
+}
