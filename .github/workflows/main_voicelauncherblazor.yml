@@ -4,10 +4,10 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - VoiceLauncherBlazor
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   build:
