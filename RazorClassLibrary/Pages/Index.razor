@@ -1,8 +1,15 @@
 ﻿@page "/"
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 <PageTitle>Voice Admin🎙️ Homepage</PageTitle>
-<div class='m-1'>	<header>
+<div class='m-1'>
+	<section class="mb-3">
+		<div class="alert alert-info p-2" role="alert" style="margin-bottom: 1rem;">
+			<strong>Current Environment:</strong> @HostEnvironment.EnvironmentName
+		</div>
+	</section>
+	<header>
 		<h1 class="d-none d-lg-block p-2 d-flex justify-content-between align-items-center" style="font-size: 10.5rem;">
 			<span>Voice Admin</span>
 			<span>🎙️</span>

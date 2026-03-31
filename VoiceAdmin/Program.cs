@@ -75,12 +75,21 @@ builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
 
+var environmentName = builder.Environment.EnvironmentName;
+var isDevLike = builder.Environment.IsDevelopment() ||
+    environmentName.Equals("Local", StringComparison.OrdinalIgnoreCase) ||
+    environmentName.Equals("LocalProduction", StringComparison.OrdinalIgnoreCase);
+var isProdLike = builder.Environment.IsProduction() && !isDevLike;
+
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Configuring SQLite database...");
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] EnvironmentName: {environmentName}, IsDevelopment: {builder.Environment.IsDevelopment()}, IsProduction: {builder.Environment.IsProduction()}, IsDevLike: {isDevLike}, IsProdLike: {isProdLike}");
+
 var configuredConnectionString = config.GetConnectionString("DefaultConnection");
-Console.Error.WriteLine($"[{DateTime.UtcNow:O}] IsProduction: {builder.Environment.IsProduction()}");
+var localFallbackConnectionString = config.GetConnectionString("LocalConnection");
 
 string connectionString;
-if (builder.Environment.IsProduction())
+
+if (isProdLike)
 {
     // Azure App Service exposes HOME as the stable, writable root. Sqlite needs an actual path, not a literal %HOME% token.
     var homePath = Environment.GetEnvironmentVariable("HOME");
@@ -93,7 +102,7 @@ if (builder.Environment.IsProduction())
         : Environment.ExpandEnvironmentVariables(configuredConnectionString);
 
     // Check if connection string looks like SQL Server (not SQLite)
-    if (!string.IsNullOrWhiteSpace(rawConnectionString) && 
+    if (!string.IsNullOrWhiteSpace(rawConnectionString) &&
         (rawConnectionString.Contains("Server=", StringComparison.OrdinalIgnoreCase) ||
          rawConnectionString.Contains("Initial Catalog=", StringComparison.OrdinalIgnoreCase) ||
          rawConnectionString.Contains("Integrated Security=", StringComparison.OrdinalIgnoreCase) ||
@@ -159,7 +168,7 @@ if (builder.Environment.IsProduction())
             Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Production database not found at: {productionDatabasePath}");
             Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ContentRootPath: {builder.Environment.ContentRootPath}");
             Console.Error.WriteLine($"[{DateTime.UtcNow:O}] WebRootPath: {builder.Environment.WebRootPath}");
-            
+
             // List all files in ContentRootPath to help diagnose
             try
             {
@@ -175,7 +184,7 @@ if (builder.Environment.IsProduction())
             {
                 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ERROR listing files: {ex.Message}");
             }
-            
+
             var candidateSeedPaths = new[]
             {
                 Path.Combine(builder.Environment.ContentRootPath, "voicelauncher-azure.db"),
@@ -186,7 +195,7 @@ if (builder.Environment.IsProduction())
 
             var seedDatabasePath = candidateSeedPaths.FirstOrDefault(p => File.Exists(p));
             Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Seed database found at: {seedDatabasePath}");
-            
+
             if (!string.IsNullOrWhiteSpace(seedDatabasePath))
             {
                 try
@@ -209,8 +218,15 @@ if (builder.Environment.IsProduction())
 }
 else
 {
-    // Non-production uses local AppData path unless explicitly configured.
-    connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(configuredConnectionString);
+    // Non-production uses local path by default. Support explicit local connection string via LocalConnection.
+    if (!string.IsNullOrWhiteSpace(localFallbackConnectionString))
+    {
+        connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(localFallbackConnectionString);
+    }
+    else
+    {
+        connectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(configuredConnectionString);
+    }
 }
 
 Console.WriteLine($"Using database connection: {connectionString}");

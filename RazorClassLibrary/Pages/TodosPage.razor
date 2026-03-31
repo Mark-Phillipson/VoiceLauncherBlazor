@@ -50,9 +50,11 @@
 			@* <Alert Title="Last Action:" Display="@StatusMessage" Show="true" Duration="6000" />*@
 		}
 	</header>
-	<a class="btn btn-sm btn-outline-primary my-1" href="/tasksbreakdown">Tasks Breakdown</a>
-	<button class="btn btn-outline-success btn-sm my-1" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive
-		Completed</button>
+	<div class="header-actions">
+		<a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
+		<button class="btn btn-outline-success btn-sm" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive
+			Completed</button>
+	</div>
 	<EditTodos Todo="todo" Save="InsertTodo" Cancel="CancelEdit" />
 
 	<h4>Current Todos</h4>

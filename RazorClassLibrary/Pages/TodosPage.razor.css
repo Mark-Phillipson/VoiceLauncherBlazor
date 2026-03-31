@@ -4,14 +4,32 @@
     flex-direction: column;
     flex-flow: wrap;
     text-decoration: none;
+    gap: 0.35rem;
 }
 
+.layout-as-cards a {
+    text-decoration: none;
+    color: white;
+}
 
+.layout-as-cards .btn {
+    margin: 0.2rem 0.2rem;
+    padding: 0.35rem 0.7rem;
+    min-width: 95px;
+}
 
-    .layout-as-cards a {
-        text-decoration: none;
-        color: white;
-    }
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.6rem;
+}
+
+.header-actions .btn {
+    margin: 0;
+    padding: 0.42rem 0.78rem;
+}
 
 .card-title {
     color: #dcdde8;
