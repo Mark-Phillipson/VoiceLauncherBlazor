@@ -43,7 +43,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             Console.WriteLine(component.Markup);
 
             // Assert - basic page elements present
@@ -99,7 +99,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             Console.WriteLine("--- markup after render ---");
             Console.WriteLine(component.Markup);
             
@@ -121,7 +121,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
 
             // Wait for filter options to populate, then assert on markup/state (more robust than Find)
             component.WaitForAssertion(() => Assert.True(component.Instance.AvailableTitles.Count >= 0), TimeSpan.FromSeconds(2));
@@ -140,7 +140,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
 
             // Wait for titles to initialize and assert on the component state (more robust than relying on rendered DOM)
             component.WaitForAssertion(() => Assert.NotNull(component.Instance.AvailableTitles), TimeSpan.FromSeconds(2));
@@ -190,7 +190,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(stubService);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             // Wait for the available titles to load
             component.WaitForAssertion(() => Assert.NotNull(component.Instance.AvailableTitles), TimeSpan.FromSeconds(2));
 
@@ -222,7 +222,7 @@ namespace TestProjectxUnit
             var service = new TalonVoiceCommandDataService(dbContext);
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             
             // Set a title filter
             component.Instance.SelectedTitle = "Some Title";
@@ -283,7 +283,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             component.Instance.SelectedTitle = selectedTitle;
             component.Instance.SearchTerm = ""; // No search term, only filter
             await component.InvokeAsync(() => component.Instance.OnSearch());
@@ -345,7 +345,7 @@ namespace TestProjectxUnit
             Services.AddSingleton<ITalonVoiceCommandDataService>(service);
 
             // Act
-            var component = RenderComponent<TalonVoiceCommandSearch>();
+            var component = Render<TalonVoiceCommandSearch>();
             component.Instance.SelectedTitle = "File Operations";
             component.Instance.SelectedApplication = "vscode";
             await component.InvokeAsync(() => component.Instance.OnSearch());

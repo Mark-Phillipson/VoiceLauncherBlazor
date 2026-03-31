@@ -85,7 +85,7 @@ duplicate line:
     }
 
     [Test]
-    [Description("Tests the standalone TalonVoiceCommandsServer application localStorage persistence - import commands, search, refresh page, search again")]
+    [NUnit.Framework.DescriptionAttribute("Tests the standalone TalonVoiceCommandsServer application localStorage persistence - import commands, search, refresh page, search again")]
     public async Task StandaloneTalonServer_ImportAndSearchAfterRefresh_ShouldPersistResults()
     {
         // This test validates the complete workflow on the STANDALONE server:
@@ -257,7 +257,7 @@ The standalone TalonVoiceCommandsServer localStorage persistence is working corr
     }
 
     [Test]
-    [Description("Tests the standalone TalonVoiceCommandsServer tab navigation and accessibility features")]
+    [NUnit.Framework.DescriptionAttribute("Tests the standalone TalonVoiceCommandsServer tab navigation and accessibility features")]
     public async Task StandaloneTalonServer_TabNavigation_ShouldWork()
     {
         Console.WriteLine("[STANDALONE SERVER TEST] Starting tab navigation test for standalone server");
@@ -303,7 +303,7 @@ The standalone TalonVoiceCommandsServer localStorage persistence is working corr
     }
 
     [Test]
-    [Description("Validates localStorage keys and data structure in standalone TalonVoiceCommandsServer")]
+    [NUnit.Framework.DescriptionAttribute("Validates localStorage keys and data structure in standalone TalonVoiceCommandsServer")]
     public async Task StandaloneTalonServer_LocalStorageValidation_ShouldPersistData()
     {
         Console.WriteLine("[STANDALONE SERVER TEST] Starting localStorage validation test");
