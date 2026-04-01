@@ -4,12 +4,14 @@ Cross-platform single-file self-contained releases via GitHub Actions, using the
 
 **Decisions locked:** win-x64 only · osx-arm64 (M1/M2) · linux-x64 · DB as-is · WinForms Windows-only (excluded from cross-platform)
 
+- [x] Branch created: `feature/voiceadmin-github-install`
+
 ---
 
 ## Phase 1 — Fix Build Blockers *(sequential)*
 
-1. **`VoiceAdmin/VoiceAdmin.csproj`** — Remove hardcoded `<RuntimeIdentifier>win-x86</RuntimeIdentifier>`, `<SelfContained>true</SelfContained>`, `<PublishReadyToRun>true</PublishReadyToRun>` from the main `PropertyGroup` (they override the `-r` flag in CI)
-2. **`.github/workflows/publish.yml`** — Bump `dotnet-version: 9.0.x` → `10.0.x`
+1. [x] **`VoiceAdmin/VoiceAdmin.csproj`** — Remove hardcoded `<RuntimeIdentifier>win-x86</RuntimeIdentifier>`, `<SelfContained>true</SelfContained>`, `<PublishReadyToRun>true</PublishReadyToRun>` from the main `PropertyGroup` (they override the `-r` flag in CI)
+2. [ ] **`.github/workflows/publish.yml`** — Bump `dotnet-version: 9.0.x` → `10.0.x`
 
 ---
 
