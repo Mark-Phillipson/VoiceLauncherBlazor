@@ -19,10 +19,10 @@ foreach ($rid in $runtimes) {
     $outDir = Join-Path -Path "artifacts" -ChildPath $rid
     if (-Not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
 
-    $isWindows = $rid -like "win*"
+    $ridIsWindows = $rid -like "win*"
 
     $toPublish = $projects.Clone()
-    if ($isWindows) { $toPublish += $winForms }
+    if ($ridIsWindows) { $toPublish += $winForms }
 
     foreach ($p in $toPublish) {
         $projPath = Join-Path $repoRoot $p.Path
