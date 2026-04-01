@@ -17,8 +17,8 @@ Cross-platform single-file self-contained releases via GitHub Actions, using the
 
 ## Phase 2 — Database & Config *(parallel with Phase 1)*
 
-3. **`VoiceAdmin/appsettings.json`** — Change SQLite connection string from absolute `C:\Users\MPhil\...` path → `Data Source=voicelauncher-azure.db` (relative, finds DB next to exe at runtime)
-4. **Confirm DB tracking** — verify `voicelauncher-azure.db` is committed (not gitignored) and `VoiceAdmin.csproj` has `<CopyToOutputDirectory>Always</CopyToOutputDirectory>` so it bundles into every publish artifact
+3. [x] **`VoiceAdmin/appsettings.json`** — Change SQLite connection string from absolute `C:\Users\MPhil\...` path → `Data Source=voicelauncher-azure.db` (relative, finds DB next to exe at runtime)
+4. [x] **Confirm DB tracking** — `VoiceAdmin/wwwroot/voicelauncher-azure.db` is tracked; `VoiceAdmin.csproj` has `<CopyToOutputDirectory>Always</CopyToOutputDirectory>` so it bundles into every publish artifact
 
 ---
 
