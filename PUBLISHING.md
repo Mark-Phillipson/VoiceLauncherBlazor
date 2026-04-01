@@ -7,9 +7,11 @@ This document explains how to create cross-platform, self-contained ZIP/TAR arti
 ## 1) Quick overview ✅
 - Local: use `./scripts/publish.ps1` (Windows PowerShell) or `./scripts/publish.sh` (bash) to create self-contained publishes for `win-x64`, `linux-x64`, `osx-x64`.
 - CI: pushing a semantic tag `v*` (for example `v1.2.3`) will trigger the GitHub Action workflow which builds for the target runtimes, packages artifacts (zip/tar) and creates a GitHub Release that contains the artifacts.
-git tag v0.0.6-test
-git push origin v0.0.6-test
 
+```
+git tag v0.0.7
+git push origin v0.0.7
+```
 
 ---
 

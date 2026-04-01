@@ -1,8 +1,10 @@
 # VoiceLauncherBlazor
 
+##Click to Install:
+
 [![GitHub Release](https://img.shields.io/github/v/release/Mark-Phillipson/VoiceLauncherBlazor)](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest)
 
-A Blazor Server application designed for voice-controlled development and accessibility, integrating with Talon Voice and Cursorless for hands-free coding. It includes a To-Do section and maintains speech recognition database tables for enhanced voice coding functionality, such as custom IntelliSense and application launching.
+A Blazor Server application designed for voice-controlled development and accessibility, integrating with Talon Voice and Cursorless for hands-free coding. It includes a To-Do section and maintains speech recognition database tables for enhanced voice coding functionality, such as custom IntelliSense and application launching. It also supports Talon command search/application launcher workflows so users can trigger app actions via voice.
 
 ## Downloads
 
@@ -74,13 +76,14 @@ class Actions:
 - Replace `C:\Users\<you>\path\to\...` with your actual install path.
 - For different commands, define additional actions using your preferred argument form.
 - Start Talon and invoke action by voice with: `run application voice admin windows forms "<term>"` (or your Talon phrase mapping).
+- This can also be used as a quick way to search Talon commands and execute the corresponding VoiceAdmin launcher path in one step.
 
 - For a shared path override (no code edit each release), use a user config variable or wrap command in a batch/PowerShell script that sets the path before launching.
 - **Application Launcher**: Launch applications, folders, or websites by category or voice command.
 - **Popular Commands**: Predefined voice commands for common coding tasks.
 - **To-Do Section**: Basic task management.
 - **Accessibility**: Optimized for hands-free use with Talon Voice and Cursorless.
-- **Hybrid Support**: Includes a Blazor Hybrid WinForms project for desktop integration.
+- **Hybrid Support**: Includes a Blazor Hybrid WinForms project for desktop integration (Windows Only).
 
 ## Project Structure
 
@@ -93,7 +96,7 @@ class Actions:
 
 ## Technologies
 
-- **Frontend**: Blazor Server with Bootstrap for responsive UI.
+- **Frontend**: Blazor Server with Bootstrap 5 for responsive UI.
 - **Backend**: ASP.NET Core, Entity Framework Core.
 - **Database**:  SQLite.
 - **Tools**: Talon Voice, Cursorless (VS Code extension), Visual Studio / VS Code.
@@ -113,8 +116,7 @@ For release/publishing instructions, see `PUBLISHING.md` in the repository root.
 
 ## Database
 
-- Uses SQLite by default for local deploys and GitHub artifact builds (`voicelauncher-azure.db`, bundled in `VoiceAdmin/wwwroot`).
-- SQL Server is supported for existing production deployments, but the cross-platform release path uses SQLite.
+- Uses SQLite by design for all release builds and local deploys (`voicelauncher-azure.db`, bundled in `VoiceAdmin/wwwroot`).
 - Migrations: create scripts via EF Core commands (do not run `Update-Database` directly in production environments).
 - Example: `dotnet ef migrations add MigrationName`
 
@@ -139,7 +141,7 @@ For release/publishing instructions, see `PUBLISHING.md` in the repository root.
 
 - Or edit `VoiceAdmin/appsettings.json` to override the default connection.
 
-## Data Sanitizer (SQLite for Azure demo)
+## Data Sanitizer (SQLite demo)
 
 This repository includes a helper tool to generate a sanitized copy of `voicelauncher.db` called `voicelauncher-azure.db`.
 
@@ -168,15 +170,6 @@ Rules enforced by sanitizer:
 ## Testing
 
 Run tests: `dotnet test` in the TestProjectxUnit directory.
-
-## Screenshots
-
-- Voice Command Main Form
-- Action Voice Command Edit Form
-- Launch by Category
-- Social Links
-- Popular Commands
-- List of Languages
 
 ## Contributing
 
