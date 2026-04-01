@@ -24,8 +24,32 @@ namespace RazorClassLibrary.Pages
 		public string SearchTerm { get; set; } = "";
 		private bool LoadFailed { get; set; }
 		public List<string> Projects { get; set; } = new List<string>();
+		public Dictionary<string, int> ProjectTodoCounts { get; set; } = new Dictionary<string, int>();
+		public int TotalActiveTodos { get; set; }
 		public string? ProjectFilter { get; set; }
 		public string? StatusMessage { get; set; }
+		private static readonly string[] ProjectBadgeClasses = new[]
+		{
+			"bg-primary",
+			"bg-secondary",
+			"bg-success",
+			"bg-danger",
+			"bg-warning",
+			"bg-info",
+			"bg-dark",
+			"bg-light text-dark"
+		};
+		private string GetProjectBadgeClass(string project)
+		{
+			if (string.IsNullOrWhiteSpace(project))
+			{
+				return "bg-secondary";
+			}
+			var hash = project.GetHashCode();
+			if (hash == int.MinValue) hash = 0;
+			var index = Math.Abs(hash) % ProjectBadgeClasses.Length;
+			return ProjectBadgeClasses[index];
+		}
 		public bool ShowProjects { get; set; } = true;
 		private int PageYOffset { get; set; } = 0;
 		private int PercentDone
@@ -121,6 +145,13 @@ namespace RazorClassLibrary.Pages
 				{
 					ProjectFilter = Project;
 				}
+				var activeTodos = (await TodoData.GetTodos())
+					.Where(t => !t.Completed && !string.IsNullOrEmpty(t.Project))
+					.ToList();
+				ProjectTodoCounts = activeTodos
+					.GroupBy(t => t.Project!)
+					.ToDictionary(g => g.Key, g => g.Count());
+				TotalActiveTodos = activeTodos.Count;
 				todos = await TodoData.GetTodos(SearchTerm, ProjectFilter);
 				Projects = await TodoData.GetProjects();
 				StatusMessage = $"Data Loaded Successfully {DateTime.UtcNow:h:mm:ss tt zz}";

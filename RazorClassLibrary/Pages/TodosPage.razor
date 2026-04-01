@@ -26,6 +26,7 @@
 							{
 								<button class="btn btn-sm btn-outline-light" @onclick="@(() => FilterByProjectAsync( item ))">
 									@item
+									<span class="badge @GetProjectBadgeClass(item) ms-1">@ProjectTodoCounts.GetValueOrDefault(item, 0)</span>
 								</button>
 							}
 						}
@@ -38,7 +39,7 @@
 						@if (ProjectFilter != null)
 						{
 							<button class="btn btn-outline-success my-1 btn-sm" type="button"
-								@onclick="@( ( ) => ShowAll(  ) )">Show All</button>
+								@onclick="@( ( ) => ShowAll(  ) )">Show All <span class="badge bg-secondary ms-1">@TotalActiveTodos</span></button>
 						}
 					</div>
 				}
