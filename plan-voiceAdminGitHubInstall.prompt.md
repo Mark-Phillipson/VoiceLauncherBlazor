@@ -11,7 +11,7 @@ Cross-platform single-file self-contained releases via GitHub Actions, using the
 ## Phase 1 — Fix Build Blockers *(sequential)*
 
 1. [x] **`VoiceAdmin/VoiceAdmin.csproj`** — Remove hardcoded `<RuntimeIdentifier>win-x86</RuntimeIdentifier>`, `<SelfContained>true</SelfContained>`, `<PublishReadyToRun>true</PublishReadyToRun>` from the main `PropertyGroup` (they override the `-r` flag in CI)
-2. [ ] **`.github/workflows/publish.yml`** — Bump `dotnet-version: 9.0.x` → `10.0.x`
+2. [x] **`.github/workflows/publish.yml`** — Bump `dotnet-version: 9.0.x` → `10.0.x` (done) and update matrix to `osx-arm64`
 
 ---
 

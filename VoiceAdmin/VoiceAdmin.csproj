@@ -8,9 +8,7 @@
     <UserSecretsId>a71df59a-e582-4e4f-9a75-14512ec2b2e6</UserSecretsId>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <Platforms>AnyCPU;x86</Platforms>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <SelfContained>true</SelfContained>
+    <!-- RuntimeIdentifier, PublishReadyToRun and SelfContained are controlled by CI/publish parameters -->
     <AspNetCoreEnv>Production</AspNetCoreEnv>
   </PropertyGroup>
 

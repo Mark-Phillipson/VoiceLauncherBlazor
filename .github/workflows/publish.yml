@@ -15,7 +15,7 @@ jobs:
             runtime: win-x64
             ext: .exe
           - os: macos-latest
-            runtime: osx-x64
+            runtime: osx-arm64
             ext: ''
           - os: ubuntu-latest
             runtime: linux-x64
@@ -26,7 +26,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
     - name: Restore dependencies
       run: dotnet restore
 
