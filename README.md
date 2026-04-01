@@ -1,6 +1,13 @@
 # VoiceLauncherBlazor
 
+[![GitHub Release](https://img.shields.io/github/v/release/Mark-Phillipson/VoiceLauncherBlazor)](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest)
+
 A Blazor Server application designed for voice-controlled development and accessibility, integrating with Talon Voice and Cursorless for hands-free coding. It includes a To-Do section and maintains speech recognition database tables for enhanced voice coding functionality, such as custom IntelliSense and application launching.
+
+## Downloads
+
+- Latest release: [View on GitHub Releases](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest)
+- Latest Windows build: [VoiceLauncherBlazor-win-x64.zip](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest/download/VoiceLauncherBlazor-win-x64.zip)
 
 ## Features
 
@@ -24,7 +31,7 @@ A Blazor Server application designed for voice-controlled development and access
 
 - **Frontend**: Blazor Server with Bootstrap for responsive UI.
 - **Backend**: ASP.NET Core, Entity Framework Core.
-- **Database**: SQL Server (T-SQL syntax).
+- **Database**:  SQLite.
 - **Tools**: Talon Voice, Cursorless (VS Code extension), Visual Studio / VS Code.
 - **Testing**: XUnit.
 
