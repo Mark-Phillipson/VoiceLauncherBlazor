@@ -9,9 +9,73 @@ A Blazor Server application designed for voice-controlled development and access
 - Latest release: [View on GitHub Releases](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest)
 - Latest Windows build: [VoiceLauncherBlazor-win-x64.zip](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest/download/VoiceLauncherBlazor-win-x64.zip)
 
+## Install guide
+
+- Full installation and startup instructions are in [INSTALL.md](INSTALL.md) (recommended for end users).
+
+## Windows release run & database setup (no config editing)
+
+1. Extract `VoiceLauncherBlazor-win-x64.zip`.
+2. Make sure `voicelauncher-azure.db` is in the same folder as `VoiceAdmin.exe` (it is included in the published artifact).
+3. Option A (recommended): run from the app folder with explicit absolute path:
+
+```powershell
+cd C:\Users\<you>\Downloads\VoiceLauncherBlazor-win-x64\VoiceAdmin
+setx ASPNETCORE_ENVIRONMENT Production
+setx ConnectionStrings__DefaultConnection "Data Source=C:\Users\<you>\Downloads\VoiceLauncherBlazor-win-x64\VoiceAdmin\voicelauncher-azure.db"
+\VoiceAdmin.exe
+```
+
+4. Option B (alternate): set the path from command line without editing the JSON:
+
+```powershell
+cd C:\Users\<you>\Downloads\VoiceLauncherBlazor-win-x64\VoiceAdmin
+$env:ASPNETCORE_ENVIRONMENT='Production'
+$env:ConnectionStrings__DefaultConnection='Data Source=C:\Users\<you>\Downloads\VoiceLauncherBlazor-win-x64\VoiceAdmin\voicelauncher-azure.db'
+.\VoiceAdmin.exe
+```
+
+5. If the database is in the same folder and the app is launched there, you can use the default `appsettings.json` entry:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Data Source=voicelauncher-azure.db"
+}
+```
+
+No further editing of `appsettings` is required for standard ZIP-based release consumption.
+
 ## Features
 
 - **Voice Commands Management**: Maintain database tables for speech recognition, enabling voice-triggered IntelliSense and commands in Visual Studio and VS Code.
+
+## Talon Voice command launch (Windows)
+
+If you use Talon Voice with custom handoff commands, you can configure an action to launch the WinForms app using an absolute path. Add this to your Talon action file (`open_application.py` or similar):
+
+- Example Talon action file: [docs/open_application_example.py](docs/open_application_example.py)
+- Example Talon command spec file: [docs/voice_admin_commands_example.talon](docs/voice_admin_commands_example.talon)
+
+Add the action code:
+
+```python
+from talon import Module, ui
+mod = Module()
+
+@mod.action_class
+class Actions:
+    def run_application_voice_admin_windows_forms(self, searchTerm: str):
+        """Runs VoiceAdmin WinForms app with the given search term"""
+        commandline = r"C:\Users\<you>\path\to\VoiceLauncherBlazor\WinFormsApp\bin\Release\net10.0-windows\WinFormsApp.exe"
+        args = [' /SearchIntelliSense', f'/{searchTerm}']
+        ui.launch(path=commandline, args=args)
+```
+
+- Replace `C:\Users\<you>\path\to\...` with your actual install path.
+- For different commands, define additional actions using your preferred argument form.
+- Start Talon and invoke action by voice with: `run application voice admin windows forms "<term>"` (or your Talon phrase mapping).
+
+- For a shared path override (no code edit each release), use a user config variable or wrap command in a batch/PowerShell script that sets the path before launching.
 - **Application Launcher**: Launch applications, folders, or websites by category or voice command.
 - **Popular Commands**: Predefined voice commands for common coding tasks.
 - **To-Do Section**: Basic task management.

@@ -7,8 +7,8 @@ This document explains how to create cross-platform, self-contained ZIP/TAR arti
 ## 1) Quick overview ✅
 - Local: use `./scripts/publish.ps1` (Windows PowerShell) or `./scripts/publish.sh` (bash) to create self-contained publishes for `win-x64`, `linux-x64`, `osx-x64`.
 - CI: pushing a semantic tag `v*` (for example `v1.2.3`) will trigger the GitHub Action workflow which builds for the target runtimes, packages artifacts (zip/tar) and creates a GitHub Release that contains the artifacts.
-git tag v0.0.4-test
-git push origin v0.0.4-test
+git tag v0.0.6-test
+git push origin v0.0.6-test
 
 
 ---
@@ -24,6 +24,22 @@ powershell.exe -ExecutionPolicy Bypass -File "scripts/publish.ps1"
 # artifacts are created under ./artifacts/<rid>/
 ls artifacts\win-x64
 ```
+
+### Run a downloaded Windows release safely
+
+After downloading/extracting `VoiceLauncherBlazor-win-x64.zip`, run:
+
+```powershell
+cd <path>\VoiceLauncherBlazor-win-x64\VoiceAdmin
+# env-based DB path with no manual JSON edit
+setx ASPNETCORE_ENVIRONMENT Production
+setx ConnectionStrings__DefaultConnection "Data Source=<path>\VoiceLauncherBlazor-win-x64\VoiceAdmin\voicelauncher-azure.db"
+.\VoiceAdmin.exe
+```
+
+- Ensure `voicelauncher-azure.db` lives next to `VoiceAdmin.exe`.
+- If you use relative path, keep working folder as `VoiceAdmin`.
+- You should never need to edit `appsettings.json` manually for published artifact runtime setup.
 
 Linux / macOS (bash):
 
