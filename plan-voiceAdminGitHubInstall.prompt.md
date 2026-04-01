@@ -31,8 +31,8 @@ Cross-platform single-file self-contained releases via GitHub Actions, using the
 
 ## Phase 4 — Docs *(parallel)*
 
-7. **`README.md`** — Replace SQL Server references with SQLite, add per-platform quick-start (download → extract → run)
-8. **`INSTALL.md`** *(new)* — Detailed per-platform steps, WinForms Windows-only note, env var (`ConnectionStrings__DefaultConnection`) to override DB path
+7. [x] **`README.md`** — Replace SQL Server references with SQLite, add per-platform quick-start (download → extract → run)
+8. [x] **`INSTALL.md`** *(new)* — Detailed per-platform steps, WinForms Windows-only note, env var (`ConnectionStrings__DefaultConnection`) to override DB path
 
 ---
 

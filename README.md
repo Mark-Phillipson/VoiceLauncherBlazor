@@ -42,9 +42,31 @@ For release/publishing instructions, see `PUBLISHING.md` in the repository root.
 
 ## Database
 
-- Uses SQL Server in production, and optionally with SQLite for local/preview demo build.
+- Uses SQLite by default for local deploys and GitHub artifact builds (`voicelauncher-azure.db`, bundled in `VoiceAdmin/wwwroot`).
+- SQL Server is supported for existing production deployments, but the cross-platform release path uses SQLite.
 - Migrations: create scripts via EF Core commands (do not run `Update-Database` directly in production environments).
 - Example: `dotnet ef migrations add MigrationName`
+
+## Quick start (VoiceAdmin cross-platform release)
+
+1. Download the artifact for your platform:
+   - Windows: `VoiceLauncherBlazor-win-x64.zip`
+   - Linux: `VoiceLauncherBlazor-linux-x64.tar.gz`
+   - macOS (ARM64): `VoiceLauncherBlazor-osx-arm64.tar.gz`
+2. Extract archive.
+3. Ensure `voicelauncher-azure.db` is in the same folder as `VoiceAdmin` executable.
+4. Run:
+   - Windows: `VoiceAdmin.exe`
+   - Linux/macOS: `chmod +x VoiceAdmin && ./VoiceAdmin`
+5. Open browser to the configured app URL (as shown in logs from app startup).
+
+## DB override
+
+- Set environment variable `ConnectionStrings__DefaultConnection` to a filesystem path, e.g.:
+
+  `ConnectionStrings__DefaultConnection="Data Source=/path/to/voicelauncher-azure.db"`
+
+- Or edit `VoiceAdmin/appsettings.json` to override the default connection.
 
 ## Data Sanitizer (SQLite for Azure demo)
 
