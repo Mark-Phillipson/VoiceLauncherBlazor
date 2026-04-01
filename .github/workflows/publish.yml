@@ -28,12 +28,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
     - name: Restore dependencies
-      run: |
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          dotnet restore
-        else
-          dotnet restore VoiceAdmin/VoiceAdmin.csproj
-        fi
+      run: dotnet restore VoiceAdmin/VoiceAdmin.csproj
 
     - name: Publish projects
       shell: bash
