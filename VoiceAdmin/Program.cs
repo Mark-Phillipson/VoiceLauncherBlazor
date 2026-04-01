@@ -20,7 +20,6 @@ using VoiceAdmin;
 // Write startup marker directly to stderr (always available)
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] VoiceAdmin startup initiated");
 Console.Error.Flush();
-
 try
 {
     Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Creating WebApplicationBuilder...");
@@ -30,6 +29,8 @@ try
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+var environmentName = builder.Environment.EnvironmentName;
+Console.Error.WriteLine($"[{DateTime.UtcNow:O}] EnvironmentName: {environmentName}");
 
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Logging configured");
 
@@ -75,7 +76,7 @@ builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
 
-var environmentName = builder.Environment.EnvironmentName;
+
 var isDevLike = builder.Environment.IsDevelopment() ||
     environmentName.Equals("Local", StringComparison.OrdinalIgnoreCase) ||
     environmentName.Equals("LocalProduction", StringComparison.OrdinalIgnoreCase);

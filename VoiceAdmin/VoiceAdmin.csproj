@@ -40,6 +40,11 @@
     <PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
   </ItemGroup>
+<ItemGroup>
+  <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
+  <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" />
+  <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.5" />
+</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
