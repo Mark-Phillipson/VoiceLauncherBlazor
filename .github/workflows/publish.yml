@@ -36,11 +36,11 @@ jobs:
         set -eux
         mkdir -p publish/${{ matrix.runtime }}
         # Publish server/backend app and admin UI
-        dotnet publish VoiceAdmin/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/VoiceAdmin -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish VoiceAdmin/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/VoiceAdmin -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
         # Only publish WinForms app on Windows runners
         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          dotnet publish WinFormsApp/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/WinFormsApp -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true || true
+          dotnet publish WinFormsApp/ -c Release -r ${{ matrix.runtime }} --self-contained true -o publish/${{ matrix.runtime }}/WinFormsApp -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true || true
         fi
 
     - name: Package artifact

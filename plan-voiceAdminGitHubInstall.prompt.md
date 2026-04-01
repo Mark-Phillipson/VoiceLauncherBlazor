@@ -24,8 +24,8 @@ Cross-platform single-file self-contained releases via GitHub Actions, using the
 
 ## Phase 3 — Workflow Polish *(depends on Phase 1)*
 
-5. **`.github/workflows/publish.yml`** — Update matrix to `[win-x64, linux-x64, osx-arm64]`
-6. **Publish command per job** — `dotnet publish -r {rid} --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true`; package win-x64 as `.zip`, linux/mac as `.tar.gz`; upload each as a GitHub Release asset
+5. [x] **`.github/workflows/publish.yml`** — Update matrix to `[win-x64, linux-x64, osx-arm64]`
+6. [x] **Publish command per job** — `dotnet publish -r {rid} --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true`; package win-x64 as `.zip`, linux/mac as `.tar.gz`; upload each as a GitHub Release asset
 
 ---
 
