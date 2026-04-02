@@ -53,6 +53,9 @@
 	</header>
 	<div class="header-actions">
 		<a class="btn btn-sm btn-outline-primary" href="/tasksbreakdown">Tasks Breakdown</a>
+		<button class="btn btn-outline-secondary btn-sm" type="button" @onclick="@( ( ) => ToggleSortByRecent(  ) )">
+			Sort by Most Recent: @(SortByRecent ? "On" : "Off")
+		</button>
 		<button class="btn btn-outline-success btn-sm" type="button" @onclick="@( ( ) => ArchiveCompleted(  ) )">Archive
 			Completed</button>
 	</div>

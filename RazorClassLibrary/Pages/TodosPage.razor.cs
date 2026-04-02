@@ -27,6 +27,7 @@ namespace RazorClassLibrary.Pages
 		public Dictionary<string, int> ProjectTodoCounts { get; set; } = new Dictionary<string, int>();
 		public int TotalActiveTodos { get; set; }
 		public string? ProjectFilter { get; set; }
+		public bool SortByRecent { get; set; }
 		public string? StatusMessage { get; set; }
 		private static readonly string[] ProjectBadgeClasses = new[]
 		{
@@ -153,6 +154,10 @@ namespace RazorClassLibrary.Pages
 					.ToDictionary(g => g.Key, g => g.Count());
 				TotalActiveTodos = activeTodos.Count;
 				todos = await TodoData.GetTodos(SearchTerm, ProjectFilter);
+				if (SortByRecent)
+				{
+					todos = todos.OrderByDescending(t => t.Created).ToList();
+				}
 				Projects = await TodoData.GetProjects();
 				StatusMessage = $"Data Loaded Successfully {DateTime.UtcNow:h:mm:ss tt zz}";
 			}
@@ -241,6 +246,14 @@ namespace RazorClassLibrary.Pages
 		void ToggleShowProjects()
 		{
 			ShowProjects = !ShowProjects;
+		}
+		void ToggleSortByRecent()
+		{
+			SortByRecent = !SortByRecent;
+			if (todos != null && SortByRecent)
+			{
+				todos = todos.OrderByDescending(t => t.Created).ToList();
+			}
 		}
 		async Task FilterByProjectAsync(string project)
 		{

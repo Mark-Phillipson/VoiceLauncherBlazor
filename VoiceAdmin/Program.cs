@@ -25,6 +25,7 @@ try
     Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Creating WebApplicationBuilder...");
     
     var builder = WebApplication.CreateBuilder(args);
+    builder.WebHost.UseStaticWebAssets();
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -367,15 +368,18 @@ app.Use(async (context, next) =>
     }
 });
 
-app.MapDefaultEndpoints();
-
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase))
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.MapStaticAssets();
 app.UseRouting();
 app.MapBlazorHub();
