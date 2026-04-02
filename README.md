@@ -13,7 +13,7 @@ A Blazor Server application designed for voice-controlled development and access
 
 ## Install guide
 
-- Full installation and startup instructions are in [INSTALL.md](INSTALL.md) (recommended for end users).
+- Full installation and startup instructions are in [docs/root-markdown/INSTALL.md](docs/root-markdown/INSTALL.md) (recommended for end users).
 
 ## Windows release run & database setup (no config editing)
 
@@ -112,7 +112,7 @@ class Actions:
 
 ## Publishing
 
-For release/publishing instructions, see `PUBLISHING.md` in the repository root.
+For release/publishing instructions, see [docs/root-markdown/PUBLISHING.md](docs/root-markdown/PUBLISHING.md).
 
 ## Database
 

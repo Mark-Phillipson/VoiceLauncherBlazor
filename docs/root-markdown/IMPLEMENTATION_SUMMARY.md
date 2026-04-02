@@ -69,7 +69,7 @@ Successfully implemented a complete face recognition and tagging feature for the
   - Includes both full workflow test and simple page load test
 
 ### 8. Documentation ✅
-- **FACE_RECOGNITION_FEATURE.md:**
+- **docs/root-markdown/FACE_RECOGNITION_FEATURE.md:**
   - Complete usage instructions
   - Architecture documentation
   - Troubleshooting guide
@@ -221,9 +221,9 @@ Note: Ensure the application is running before executing tests.
 12. `VoiceAdmin/Components/Pages/FaceRecognition.razor.css`
 13. `VoiceAdmin/wwwroot/js/faceRecognition.js`
 14. `PlaywrightTests/FaceRecognitionTests.cs`
-15. `FACE_RECOGNITION_FEATURE.md`
+15. `docs/root-markdown/FACE_RECOGNITION_FEATURE.md`
 16. `run-face-recognition-migration.ps1`
-17. `IMPLEMENTATION_SUMMARY.md`
+17. `docs/root-markdown/IMPLEMENTATION_SUMMARY.md`
 
 ### Modified Files (4):
 1. `DataAccessLibrary/Models/ApplicationDbContext.cs` - Added DbSets

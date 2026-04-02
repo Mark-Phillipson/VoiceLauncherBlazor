@@ -76,8 +76,8 @@ VoiceAdmin/
 ```
 ├── PlaywrightTests/
 │   └── FaceRecognitionTests.cs
-├── FACE_RECOGNITION_FEATURE.md
-├── IMPLEMENTATION_SUMMARY.md
+├── docs/root-markdown/FACE_RECOGNITION_FEATURE.md
+├── docs/root-markdown/IMPLEMENTATION_SUMMARY.md
 └── run-face-recognition-migration.ps1
 ```
 
@@ -149,7 +149,7 @@ dotnet test --filter FaceRecognition
 
 ## 📚 Documentation
 
-### FACE_RECOGNITION_FEATURE.md (210 lines)
+### docs/root-markdown/FACE_RECOGNITION_FEATURE.md (210 lines)
 Comprehensive user documentation including:
 - Setup instructions
 - Usage guide
@@ -157,7 +157,7 @@ Comprehensive user documentation including:
 - Troubleshooting
 - Future enhancements
 
-### IMPLEMENTATION_SUMMARY.md (265 lines)
+### docs/root-markdown/IMPLEMENTATION_SUMMARY.md (265 lines)
 Technical implementation details:
 - Completed tasks checklist
 - Architecture diagram
@@ -372,8 +372,8 @@ SQL Server Database
 - **Tags Not Appearing:** Verify database has FaceTags table
 
 ### Resources:
-- See `FACE_RECOGNITION_FEATURE.md` for detailed troubleshooting
-- See `IMPLEMENTATION_SUMMARY.md` for technical details
+- See `docs/root-markdown/FACE_RECOGNITION_FEATURE.md` for detailed troubleshooting
+- See `docs/root-markdown/IMPLEMENTATION_SUMMARY.md` for technical details        
 - Check browser console for JavaScript errors
 - Check application logs for server errors
 

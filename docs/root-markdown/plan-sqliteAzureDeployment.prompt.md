@@ -33,18 +33,18 @@ Revive the Azure App Service (`voicelauncherblazor.azurewebsites.net`) - current
 ---
 
 ### Phase 2: Configure VoiceAdmin for Azure Deployment
-- [x] 1. **Update [VoiceAdmin/Program.cs](VoiceAdmin/Program.cs)**
+- [x] 1. **Update [VoiceAdmin/Program.cs](../../VoiceAdmin/Program.cs)**
 	- Add environment detection (Development vs. Production/Azure)
 	- If Azure environment -> use bundled `voicelauncher-azure.db` from app folder
 	- If Development -> use local user profile database path
 	- Connection string selection logic must be explicit
 
 - [x] 2. **Add Azure-specific appsettings**
-	- Create [VoiceAdmin/appsettings.Production.json](VoiceAdmin/appsettings.Production.json)
+	- Create [VoiceAdmin/appsettings.Production.json](../../VoiceAdmin/appsettings.Production.json)
 	- Set `ASPNETCORE_ENVIRONMENT=Production` in Azure App Service config
 	- Connection string: `Data Source=voicelauncher-azure.db; Mode=ReadWrite`
 
-- [x] 3. **Update [DatabaseConfiguration.cs](DataAccessLibrary/Configuration/DatabaseConfiguration.cs)**
+- [x] 3. **Update [DatabaseConfiguration.cs](../../DataAccessLibrary/Configuration/DatabaseConfiguration.cs)**
 	- Add `GetConnectionString(string environment)` overload
 	- Production path: Bundle the `.db` file in app root or wwwroot
 
@@ -152,11 +152,11 @@ When you need to push fresh development data to the cloud:
 ---
 
 ## Relevant Files
-- [VoiceAdmin/Program.cs](VoiceAdmin/Program.cs#L55) - Current SQLite configuration
-- [DataAccessLibrary/Configuration/DatabaseConfiguration.cs](DataAccessLibrary/Configuration/DatabaseConfiguration.cs) - Connection string logic
-- [ApplicationDbContext.cs](DataAccessLibrary/Models/ApplicationDbContext.cs#L88) - EF DbContext with fallback chain
-- [Category.cs](DataAccessLibrary/Models/Category.cs#L31) - Sensitive property
-- [appsettings.json](VoiceAdmin/appsettings.json) - Current config (update for Production)
+- [VoiceAdmin/Program.cs](../../VoiceAdmin/Program.cs#L55) - Current SQLite configuration
+- [DataAccessLibrary/Configuration/DatabaseConfiguration.cs](../../DataAccessLibrary/Configuration/DatabaseConfiguration.cs) - Connection string logic
+- [ApplicationDbContext.cs](../../DataAccessLibrary/Models/ApplicationDbContext.cs#L88) - EF DbContext with fallback chain
+- [Category.cs](../../DataAccessLibrary/Models/Category.cs#L31) - Sensitive property
+- [appsettings.json](../../VoiceAdmin/appsettings.json) - Current config (update for Production)
 
 **Files to Create:**
 - `DatabaseSanitizer/Program.cs` - Sanitization tool entry point
