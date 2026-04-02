@@ -48,6 +48,28 @@ destinationDb.Database.EnsureCreated();
 
 var report = new StringBuilder();
 
+static bool IsHardDriveLauncher(string commandLine)
+{
+    if (string.IsNullOrWhiteSpace(commandLine)) return false;
+    var trimmed = commandLine.Trim();
+
+    // Remove leading/trailing quotes, so "C:\path\file" still gets recognized as local
+    if ((trimmed.StartsWith("\"") && trimmed.EndsWith("\"")) ||
+        (trimmed.StartsWith("'") && trimmed.EndsWith("'")))
+    {
+        trimmed = trimmed[1..^1].Trim();
+    }
+
+    // Local file paths to exclude
+    if (trimmed.StartsWith("file://", StringComparison.OrdinalIgnoreCase)) return true;
+    if (trimmed.StartsWith("\\\\")) return true; // UNC paths
+    if (trimmed.StartsWith("/")) return true; // absolute Unix-like path
+    if (trimmed.StartsWith(".\\") || trimmed.StartsWith("../") || trimmed.StartsWith("./")) return true;
+    if (trimmed.Length >= 3 && char.IsLetter(trimmed[0]) && trimmed[1] == ':' && (trimmed[2] == '\\' || trimmed[2] == '/')) return true;
+
+    return false;
+}
+
 // Determine safe category set
 var allCategories = await sourceDb.Categories.AsNoTracking().ToListAsync();
 var sensitiveCategoryIds = allCategories.Where(c => c.Sensitive).Select(c => c.Id).ToHashSet();
@@ -102,14 +124,19 @@ CopyEntities(sourceDb.Microphones, destinationDb.Microphones, nameof(sourceDb.Mi
 // 3. Copy category-related tables filtering by safeCategoryIds and existing computers/languages
 var safeComputerIds = sourceDb.Computers.AsNoTracking().Select(c => c.Id).ToHashSet();
 var safeLanguageIds = sourceDb.Languages.AsNoTracking().Select(l => l.Id).ToHashSet();
-var safeLaunchers = sourceDb.Launcher
+var allCandidateLaunchers = sourceDb.Launcher
     .Where(l => safeCategoryIds.Contains(l.CategoryId)
                 && (l.ComputerId == null || safeComputerIds.Contains(l.ComputerId.Value)))
     .AsNoTracking()
     .ToList();
+
+var hardDriveLaunchers = allCandidateLaunchers.Where(l => IsHardDriveLauncher(l.CommandLine)).ToList();
+var safeLaunchers = allCandidateLaunchers.Where(l => !IsHardDriveLauncher(l.CommandLine)).ToList();
+
 destinationDb.Launcher.AddRange(safeLaunchers);
 await destinationDb.SaveChangesAsync();
-report.AppendLine($"Copied non-sensitive launchers: {safeLaunchers.Count}");
+report.AppendLine($"Copied non-sensitive launchers (excluding hard-drive paths): {safeLaunchers.Count}");
+report.AppendLine($"Excluded launchers pointing to local file paths: {hardDriveLaunchers.Count}");
 
 var safeIntellisense = sourceDb.CustomIntelliSenses
     .Where(i => safeCategoryIds.Contains(i.CategoryId)
