@@ -1,0 +1,199 @@
+.voice-access-sheet {
+    --sheet-bg: #0e131b;
+    --panel-bg: #141c27;
+    --panel-border: #253446;
+    --title-color: #f2f6fb;
+    --muted-accent: #9ab1c7;
+    --body-text: #d6e2ee;
+    --header-bg: linear-gradient(120deg, #143a63 0%, #0f6a74 100%);
+    --header-text: #f8fcff;
+    --focus-ring: #59a6ff;
+    --command-accent: #9ee6ff;
+    --table-head-bg: #1a2736;
+    --table-row-bg: #141c27;
+    --table-row-alt: #172130;
+    --table-border: #2b3a4a;
+
+    background:
+        radial-gradient(circle at 10% -10%, rgba(22, 118, 129, 0.24), transparent 40%),
+        radial-gradient(circle at 100% 0%, rgba(15, 76, 117, 0.28), transparent 48%),
+        var(--sheet-bg);
+    border-radius: 0.75rem;
+}
+
+.voice-access-sheet,
+.voice-access-sheet p,
+.voice-access-sheet td,
+.voice-access-sheet th,
+.voice-access-sheet .form-label,
+.voice-access-sheet .form-text {
+    color: var(--body-text);
+}
+
+.voice-access-sheet .text-muted {
+    color: #94acc3 !important;
+}
+
+.voice-access-hero {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 0.85rem;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+.voice-access-hero h2 {
+    color: var(--title-color);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.voice-access-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.voice-access-search {
+    background: var(--panel-bg);
+    border-radius: 0.85rem;
+    border: 1px solid var(--panel-border);
+}
+
+.voice-access-search .form-control {
+    border: 1px solid #38516a;
+    background: #0f1620;
+    color: #e7f0fa;
+}
+
+.voice-access-search .form-control::placeholder {
+    color: #95abc0;
+}
+
+.voice-access-search .form-control:focus,
+.voice-access-search .btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(89, 166, 255, 0.22);
+    border-color: var(--focus-ring);
+}
+
+.search-clear-button {
+    min-height: calc(1.5em + 1rem + 2px);
+}
+
+.search-status {
+    color: var(--muted-accent);
+    font-weight: 600;
+}
+
+.meta-chip {
+    background: #1d2c3d;
+    color: #dce9f7;
+    border: 1px solid #35506b;
+}
+
+.source-link {
+    text-decoration: none;
+}
+
+.source-link:hover,
+.source-link:focus {
+    color: #ffffff;
+    background: #27415b;
+    border-color: #59a6ff;
+    text-decoration: none;
+}
+
+.command-category {
+    border: 1px solid var(--panel-border);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: var(--panel-bg);
+}
+
+.command-category .card-header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    border-bottom: 0;
+}
+
+.command-category .table {
+    margin-bottom: 0;
+    color: var(--body-text);
+}
+
+.command-category .table > :not(caption) > * > * {
+    border-color: var(--table-border);
+}
+
+.command-category th {
+    font-weight: 700;
+    color: #dfeaf6;
+    background: var(--table-head-bg);
+    border-bottom-width: 1px;
+}
+
+.command-category tbody tr {
+    background: var(--table-row-bg);
+}
+
+.command-category tbody tr:nth-of-type(even) {
+    background: var(--table-row-alt);
+}
+
+.command-category.table-hover tbody tr:hover,
+.command-category .table-hover tbody tr:hover {
+    background: #223347;
+    color: #f4f9ff;
+}
+
+.command-col {
+    width: 42%;
+}
+
+.command-cell {
+    font-weight: 700;
+    color: var(--command-accent);
+}
+
+.category-chip {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.empty-state {
+    background: #2d2a12;
+    border: 1px solid #7a6f2f;
+    color: #f6e8a4;
+}
+
+@media (max-width: 992px) {
+    .voice-access-meta {
+        justify-content: flex-start;
+    }
+
+    .command-col {
+        width: 46%;
+    }
+}
+
+@media (max-width: 576px) {
+    .voice-access-hero,
+    .voice-access-search,
+    .command-category {
+        border-radius: 0.65rem;
+    }
+
+    .voice-access-sheet {
+        padding: 0.5rem;
+    }
+
+    .command-col {
+        width: 52%;
+    }
+}
