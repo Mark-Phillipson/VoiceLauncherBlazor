@@ -1,11 +1,11 @@
 /* MarkdownConverter Dark Mode Styling */
 .markdown-container {
-    background-color: #3a3a3a; /* Slightly lighter than the main dark background */
-    border: 1px solid #5a5a5a; /* Dark border for definition */
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
     margin: 0.5rem 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .markdown-container .markdown-inner {
@@ -21,7 +21,7 @@
 .markdown-container h4,
 .markdown-container h5,
 .markdown-container h6 {
-    color: #e0e0e0;
+    color: var(--text);
     margin-bottom: 0.5rem;
 }
 
@@ -30,7 +30,7 @@
 .markdown-container h3 { font-size: 1.35rem; margin-top: 1rem; }
 
 .markdown-container p {
-    color: #d0d0d0;
+    color: var(--text);
     line-height: 1.6;
     margin-bottom: 1rem;
 }
@@ -51,20 +51,20 @@
 }
 
 .markdown-container code {
-    background-color: #2a2a2a;
-    color: #f8f8f2;
+    background-color: color-mix(in srgb, var(--panel-contrast) 18%, var(--panel-bg));
+    color: var(--text);
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
     font-family: 'Cascadia Code', 'Consolas', monospace;
 }
 
 .markdown-container pre {
-    background-color: #2a2a2a;
-    color: #f8f8f2;
+    background-color: color-mix(in srgb, var(--panel-contrast) 18%, var(--panel-bg));
+    color: var(--text);
     padding: 1rem;
     border-radius: 6px;
     overflow-x: auto;
-    border: 1px solid #4a4a4a;
+    border: 1px solid var(--border-color);
 }
 
 .markdown-container pre code {
@@ -73,20 +73,20 @@
 }
 
 .markdown-container blockquote {
-    border-left: 4px solid #6c757d;
+    border-left: 4px solid var(--muted);
     padding-left: 1rem;
     margin-left: 0;
-    color: #b0b0b0;
+    color: color-mix(in srgb, var(--muted) 80%, var(--text));
     font-style: italic;
 }
 
 .markdown-container a {
-    color: #5bc0de;
+    color: var(--primary);
     text-decoration: none;
 }
 
 .markdown-container a:hover {
-    color: #31b0d5;
+    color: color-mix(in srgb, var(--primary) 80%, var(--text));
     text-decoration: underline;
 }
 
@@ -98,19 +98,19 @@
 
 .markdown-container th,
 .markdown-container td {
-    border: 1px solid #5a5a5a;
+    border: 1px solid var(--border-color);
     padding: 0.5rem;
     text-align: left;
-    color: #d0d0d0;
+    color: var(--text);
 }
 
 .markdown-container th {
-    background-color: #4a4a4a;
+    background-color: var(--panel-contrast);
     font-weight: bold;
 }
 
 .markdown-container tr:nth-child(even) {
-    background-color: #404040;
+    background-color: color-mix(in srgb, var(--panel-contrast) 6%, var(--panel-bg) 94%);
 }
 
 /* Make tables responsive: allow horizontal scroll on small viewports */
@@ -128,15 +128,15 @@
 
 /* Enhance header style */
 .markdown-container thead th {
-    background: linear-gradient(180deg, #5a5a5a, #4a4a4a);
-    border-bottom: 2px solid #3a3a3a;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel-contrast) 40%, var(--panel-bg) 60%), var(--panel-bg));
+    border-bottom: 2px solid var(--border-color);
     font-weight: 600;
 }
 
 /* Slightly different zebra striping for better contrast */
 .markdown-container tbody tr:nth-child(odd) {
-    background-color: #383838;
+    background-color: color-mix(in srgb, var(--panel-contrast) 8%, var(--panel-bg) 92%);
 }
 .markdown-container tbody tr:nth-child(even) {
-    background-color: #2f2f2f;
+    background-color: color-mix(in srgb, var(--panel-contrast) 4%, var(--panel-bg) 96%);
 }

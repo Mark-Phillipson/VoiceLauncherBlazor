@@ -53,21 +53,21 @@ body {
 [data-bs-theme="dark"] {
 	/* Core dark theme variables */
 	--bg: #0f1113;
-	--text: #e9ecef;
-	--muted: #adb5bd;
+	--text: #e9eef6;
+	--muted: #b8c2cc;
 	--primary: #58a6ff;
-	--input-bg: #252525;
-	--input-border: #495057;
-	--panel-bg: #212529;
-	--panel-contrast: #343a40;
+	--input-bg: #26292b;
+	--input-border: #4f575f;
+	--panel-bg: #2b2f33; /* slightly lighter for better contrast */
+	--panel-contrast: #373c41; /* subtle contrast for headers */
 
 	/* Compatibility variables expected by RazorClassLibrary component CSS (dark) */
-	--shell-bg: #111827;
-	--surface-bg: #1f2937;
-	--surface-alt-bg: #273244;
+	--shell-bg: #0f1720;
+	--surface-bg: #20252a;
+	--surface-alt-bg: #27303a;
 	--text-color: #f8fafc;
 	--muted-text: #cbd5e1;
-	--border-color: #475569;
+	--border-color: #5a6168; /* stronger border for contrast */
 	--sidebar-start: #111827;
 	--sidebar-end: #1f2937;
 	--nav-hover-bg: rgba(255, 255, 255, 0.08);
@@ -91,6 +91,154 @@ body {
 	--bs-secondary-bg: var(--surface-alt-bg);
 	--bs-border-color: var(--border-color);
 	--bs-dark-bg-subtle: color-mix(in srgb, var(--panel-bg) 72%, transparent);
+}
+
+/* Also apply same variables via prefers-color-scheme so our values override bootstrap's media rules */
+@media (prefers-color-scheme: light) {
+	:root {
+		--bg: #ffffff;
+		--text: #212529;
+		--muted: #6c757d;
+		--primary: #0366d6;
+		--input-bg: #ffffff;
+		--input-border: #ced4da;
+		--panel-bg: #f7f7f7;
+		--panel-contrast: #e9ecef;
+
+		--shell-bg: #f8f9fa;
+		--surface-bg: #ffffff;
+		--surface-alt-bg: #eef2f6;
+		--text-color: #212529;
+		--muted-text: #6c757d;
+		--border-color: #d0d7de;
+		--sidebar-start: #ffffff;
+		--sidebar-end: #eef2f6;
+		--nav-hover-bg: #e9ecef;
+		--nav-active-bg: rgba(13, 110, 253, 0.12);
+		--nav-active-text: #0d6efd;
+		--nav-stripe-odd: #ffffff;
+		--nav-stripe-even: #f5f7fb;
+		--control-bg: #ffffff;
+		--control-text: #212529;
+		--control-placeholder: #6c757d;
+		--control-border: #ced4da;
+		--toggle-bg: rgba(33, 37, 41, 0.08);
+		--toggle-border: rgba(33, 37, 41, 0.16);
+		--toggle-text: #212529;
+		--footer-bg: #ffffff;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0f1113;
+		--text: #e9ecef;
+		--muted: #adb5bd;
+		--primary: #58a6ff;
+		--input-bg: #252525;
+		--input-border: #495057;
+		--panel-bg: #212529;
+		--panel-contrast: #343a40;
+
+		--shell-bg: #111827;
+		--surface-bg: #1f2937;
+		--surface-alt-bg: #273244;
+		--text-color: #f8fafc;
+		--muted-text: #cbd5e1;
+		--border-color: #475569;
+		--sidebar-start: #111827;
+		--sidebar-end: #1f2937;
+		--nav-hover-bg: rgba(255, 255, 255, 0.08);
+		--nav-active-bg: rgba(96, 165, 250, 0.24);
+		--nav-active-text: #dbeafe;
+		--nav-stripe-odd: #111827;
+		--nav-stripe-even: #172133;
+		--control-bg: #0f172a;
+		--control-text: #f6fbff;
+		--control-placeholder: #94a3b8;
+		--control-border: #475569;
+		--toggle-bg: rgba(255, 255, 255, 0.1);
+		--toggle-border: rgba(255, 255, 255, 0.18);
+		--toggle-text: #f8fafc;
+		--footer-bg: #0f172a;
+	}
+}
+
+/* Force light-theme appearance for panels and neutralize dark utility classes */
+[data-bs-theme="light"] .tvcs-panel,
+.tvcs-panel {
+	background-color: var(--panel-bg) !important;
+	color: var(--text) !important;
+	border-color: var(--border-color) !important;
+}
+
+/* Neutralize legacy dark utilities that force black backgrounds */
+.btn-dark,
+.bg-dark {
+	background-color: var(--control-bg) !important;
+	color: var(--control-text) !important;
+	border-color: var(--control-border) !important;
+}
+
+/* Ensure outline/secondary buttons inside panels remain readable */
+.tvcs-panel .btn-outline-secondary,
+.tvcs-panel .btn {
+	color: var(--text) !important;
+}
+
+/* Strong overrides for compiled/scoped component styles that still use hard-coded dark colors */
+/* Target by common component selectors to ensure correct theming regardless of bundle attribute selectors */
+.selection-card,
+.selection-card .card-body,
+.selection-card.card,
+button.selection-card,
+.markdown-container,
+.markdown-container *,
+.layout-as-cards a,
+.card,
+.card .card-body,
+.tvcs-divider,
+.tvcs-panel,
+.tvcs-panel * {
+	background-color: var(--panel-bg) !important;
+	color: var(--text) !important;
+	border-color: var(--border-color) !important;
+}
+
+/* Tables and headers used in compiled components */
+.markdown-container th,
+.markdown-container td,
+.markdown-container thead th,
+.markdown-container tbody tr {
+	background-color: transparent !important;
+	color: var(--text) !important;
+	border-color: var(--border-color) !important;
+}
+
+/* Light-theme specific overrides to neutralize remaining hard-coded dark fragments */
+[data-bs-theme="light"] .selection-card,
+[data-bs-theme="light"] .selection-card .card-body,
+[data-bs-theme="light"] .selection-card.card,
+[data-bs-theme="light"] button.selection-card,
+[data-bs-theme="light"] .markdown-container,
+[data-bs-theme="light"] .layout-as-cards a,
+[data-bs-theme="light"] .card,
+[data-bs-theme="light"] .card .card-body,
+[data-bs-theme="light"] .tvcs-divider,
+[data-bs-theme="light"] .tvcs-panel,
+[data-bs-theme="light"] .tvcs-panel *,
+[data-bs-theme="light"] .table-dark,
+[data-bs-theme="light"] .bg-dark {
+	background-color: var(--panel-bg) !important;
+	color: var(--text) !important;
+	border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="light"] .btn-dark,
+[data-bs-theme="light"] .bg-dark {
+	background-color: var(--control-bg) !important;
+	color: var(--control-text) !important;
+	border-color: var(--control-border) !important;
 }
 
 a,

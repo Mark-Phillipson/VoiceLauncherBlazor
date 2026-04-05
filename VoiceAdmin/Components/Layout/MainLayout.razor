@@ -20,3 +20,42 @@
 
 @* Inject auto-refresh script for offline recovery *@
 <script src="/js/auto-refresh-on-focus.js"></script>
+
+@* Theme override script: set CSS variables inline so they win over compiled stylesheets *@
+<script>
+(() => {
+    try {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const themeAttr = document.body && document.body.getAttribute('data-bs-theme');
+        const theme = themeAttr || (prefersDark ? 'dark' : 'light');
+
+        const lightVars = {
+            '--panel-bg': '#f7f7f7',
+            '--panel-contrast': '#e9ecef',
+            '--bg': '#ffffff',
+            '--text': '#212529',
+            '--surface-bg': '#ffffff',
+            '--border-color': '#d0d7de',
+            '--control-bg': '#ffffff',
+            '--control-text': '#212529'
+        };
+
+        const darkVars = {
+            '--panel-bg': '#212529',
+            '--panel-contrast': '#343a40',
+            '--bg': '#0f1113',
+            '--text': '#e9ecef',
+            '--surface-bg': '#1f2937',
+            '--border-color': '#475569',
+            '--control-bg': '#0f172a',
+            '--control-text': '#f8fafc'
+        };
+
+        const vars = theme === 'dark' ? darkVars : lightVars;
+        const root = document.documentElement;
+        Object.keys(vars).forEach(k => root.style.setProperty(k, vars[k]));
+    } catch (e) {
+        console.error('theme-override failed', e);
+    }
+})();
+</script>

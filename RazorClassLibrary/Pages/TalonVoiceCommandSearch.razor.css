@@ -1,4 +1,43 @@
 /* Ensure collapse/expand buttons keep text visible and have clear focus outline */
+.tvcs-theme-vars:root, :root {
+    /* Component-level fallbacks mapped to Bootstrap-like vars */
+    --tvcs-pre-bg: var(--bs-body-bg);
+    --tvcs-pre-color: var(--bs-body-color);
+    --tvcs-pre-border: var(--bs-border-color);
+
+    --tvcs-pre-dark-bg: #2d3748;
+    --tvcs-pre-dark-border: #4a5568;
+    --tvcs-pre-dark-color: #e2e8f0;
+
+    --tvcs-script-bg-light: #f1f3f4;
+    --tvcs-script-border-left: #6f42c1;
+    --tvcs-script-border-left-dark: #8b5cf6;
+
+    --tvcs-warning-bg: var(--bs-warning);
+    --tvcs-warning-text-dark: #000;
+
+    --tvcs-search-bg: var(--bs-body-bg);
+    --tvcs-disabled-bg: #e9ecef;
+    --tvcs-disabled-bg-dark: #343a40;
+    --tvcs-focus-border-color: var(--bs-primary);
+    --tvcs-focus-shadow: rgba(13,110,253,0.25);
+}
+
+[data-bs-theme="dark"]:root {
+    --tvcs-pre-bg: var(--bs-dark-bg-subtle);
+    --tvcs-pre-color: var(--bs-body-color);
+    --tvcs-pre-border: var(--bs-border-color-translucent);
+
+    --tvcs-pre-dark-bg: #2d3748;
+    --tvcs-pre-dark-border: #4a5568;
+    --tvcs-pre-dark-color: #e2e8f0;
+
+    --tvcs-script-border-left-dark: #8b5cf6;
+    --tvcs-warning-bg: #ffc107;
+    --tvcs-warning-text-dark: #000;
+    --tvcs-disabled-bg-dark: #343a40;
+    --tvcs-search-bg: #212529;
+}
 .tvcs-panel .btn-outline-secondary:focus {
     outline: 2px solid var(--bs-primary);
     outline-offset: 2px;
@@ -81,9 +120,9 @@
     word-wrap: break-word;
     max-height: 150px;
     overflow-y: auto;
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-    border: 1px solid var(--bs-border-color);
+    background-color: var(--tvcs-pre-bg) !important;
+    color: var(--tvcs-pre-color) !important;
+    border: 1px solid var(--tvcs-pre-border);
 }
 
 .card-header {
@@ -136,9 +175,9 @@
 
 [data-bs-theme="dark"] .card-text pre,
 [data-bs-theme="dark"] .script-content {
-    background-color: #2d3748 !important;
-    border-color: #4a5568 !important;
-    color: #e2e8f0 !important;
+    background-color: var(--tvcs-pre-dark-bg) !important;
+    border-color: var(--tvcs-pre-dark-border) !important;
+    color: var(--tvcs-pre-dark-color) !important;
 }
 
 /* Light mode specific overrides */
@@ -146,9 +185,9 @@
 [data-bs-theme="light"] .script-content,
 .card-text pre,
 .script-content {
-    background-color: #f8f9fa !important;
-    color: #212529 !important;
-    border-color: #dee2e6 !important;
+    background-color: var(--tvcs-pre-bg) !important;
+    color: var(--tvcs-pre-color) !important;
+    border-color: var(--tvcs-pre-border) !important;
 }
 
 /* Responsive adjustments */
@@ -208,15 +247,14 @@
    Scoped to this component via Razor CSS isolation. Use !important to override
    the btn-outline-secondary base when needed. */
 .filter-btn-application {
-    /* Use true black for Application filter button as requested */
-    background-color: #000 !important;
+    /* Use theme primary color for Application filter button so it follows light/dark themes */
+    background-color: var(--bs-primary) !important;
     color: var(--bs-light) !important;
-    border-color: #000 !important;
+    border-color: var(--bs-primary) !important;
 }
 .filter-btn-application:hover,
 .filter-btn-application:focus {
-    /* Slightly lighter black on hover for a subtle affordance */
-    background-color: #111 !important;
+    background-color: color-mix(in srgb, var(--bs-primary) 85%, black 15%) !important;
     color: var(--bs-light) !important;
 }
 
@@ -615,7 +653,7 @@ u {
 
 /* Enhanced button access key styling */
 .btn-primary u {
-    text-decoration-color: #ffffff !important;
+    text-decoration-color: var(--bs-light) !important;
     font-weight: 600;
 }
 
@@ -731,7 +769,7 @@ u {
 /* Colored underlines for filter label access keys */
 .underline-application {
     text-decoration: underline;
-    text-decoration-color: #ffffff;
+    text-decoration-color: var(--bs-light);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
@@ -742,71 +780,71 @@ u {
 
 .underline-mode {
     text-decoration: underline;
-    text-decoration-color: #6c757d;
+    text-decoration-color: var(--bs-secondary);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-tags {
     text-decoration: underline;
-    text-decoration-color: #ffc107;
+    text-decoration-color: var(--bs-warning);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-os {
     text-decoration: underline;
-    text-decoration-color: #0dcaf0;
+    text-decoration-color: var(--bs-info);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-repository {
     text-decoration: underline;
-    text-decoration-color: #0d6efd;
+    text-decoration-color: var(--bs-primary);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-title {
     text-decoration: underline;
-    text-decoration-color: #198754;
+    text-decoration-color: var(--bs-success);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-code-language {
     text-decoration: underline;
-    text-decoration-color: #dc3545;
+    text-decoration-color: var(--bs-danger);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-language {
     text-decoration: underline;
-    text-decoration-color: #212529;
+    text-decoration-color: var(--bs-body-color);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 .underline-hostname {
     text-decoration: underline;
-    text-decoration-color: #6c757d;
+    text-decoration-color: var(--bs-secondary);
     text-decoration-thickness: 3px;
     text-underline-offset: 2px;
 }
 
 /* Expanded script with lists styling */
 .script-content.bg-light {
-    background-color: #f1f3f4 !important;
-    border-left: 4px solid #6f42c1;
+    background-color: var(--tvcs-script-bg-light) !important;
+    border-left: 4px solid var(--tvcs-script-border-left);
     position: relative;
 }
 
 [data-bs-theme="dark"] .script-content.bg-light {
-    background-color: #2a2d31 !important;
-    border-left: 4px solid #8b5cf6;
-    color: #e2e8f0 !important;
+    background-color: var(--tvcs-pre-dark-bg) !important;
+    border-left: 4px solid var(--tvcs-script-border-left-dark);
+    color: var(--tvcs-pre-dark-color) !important;
 }
 
 .card-subtitle svg {
@@ -825,8 +863,8 @@ u {
 
 /* Capture highlighting in command text */
 .capture-highlight {
-    background-color: #ffc107 !important; /* Yellow background - same as warning badge */
-    color: #212529 !important; /* Dark text for readability */
+    background-color: var(--bs-warning) !important; /* Yellow background - same as warning badge */
+    color: var(--bs-body-color) !important; /* Use theme body color for readability */
     padding: 1px 3px !important;
     border-radius: 3px !important;
     font-weight: 600 !important;
@@ -836,8 +874,8 @@ u {
 
 /* Dark mode adjustments for capture highlighting */
 [data-bs-theme="dark"] .capture-highlight {
-    background-color: #ffc107 !important; /* Keep yellow in dark mode */
-    color: #000 !important; /* Black text for better contrast in dark mode */
+    background-color: var(--tvcs-warning-bg) !important; /* Keep yellow in dark mode */
+    color: var(--tvcs-warning-text-dark) !important; /* Black text for better contrast in dark mode */
 }
 
 /* Dark mode title underline styling */
@@ -875,7 +913,7 @@ u {
     border-bottom-left-radius: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    background-color: #f8f9fa;
+    background-color: var(--tvcs-search-bg);
     font-size: 0.875rem;
     padding: 0.375rem 1.5rem 0.375rem 0.5rem; /* Add right padding for dropdown arrow */
     max-width: 180px;
@@ -888,8 +926,8 @@ u {
 }
 
 .search-scope-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: var(--tvcs-focus-border-color);
+    box-shadow: 0 0 0 0.25rem var(--tvcs-focus-shadow);
 }
 
 /* Responsive adjustments for search elements */
@@ -918,7 +956,7 @@ u {
     .input-group .search-scope-select,
     .input-group .btn {
         border-radius: 0.375rem !important;
-        border: 1px solid #ced4da !important;
+        border: 1px solid var(--bs-border-color) !important;
         width: 100%;
     }
     
@@ -1011,13 +1049,13 @@ u {
 
 /* Ensure dropdown is properly styled in input groups */
 .input-group .search-scope-select:disabled {
-    background-color: #e9ecef;
+    background-color: var(--tvcs-disabled-bg);
     opacity: 1;
 }
 
 [data-bs-theme="dark"] .input-group .search-scope-select:disabled {
-    background-color: #343a40;
-    color: #6c757d;
+    background-color: var(--tvcs-disabled-bg-dark);
+    color: var(--bs-secondary);
 }
 
 /* --- Section separation utilities for professional layout --- */

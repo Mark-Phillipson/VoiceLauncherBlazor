@@ -1510,8 +1510,9 @@ namespace DataAccessLibrary.Services
                 query = query.Where(c => c.OperatingSystem == null || c.OperatingSystem == "" || c.OperatingSystem.Contains(os));
             }
 
-            // Randomize using Guid.NewGuid()
-            return await query.OrderBy(c => Guid.NewGuid()).Take(count).ToListAsync();
+            // Randomize on the client side because Guid.NewGuid() cannot be translated by EF Core
+            var list = await query.ToListAsync();
+            return list.OrderBy(c => Guid.NewGuid()).Take(count).ToList();
         }
     }
 }

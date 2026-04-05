@@ -1,0 +1,144 @@
+/* Overrides to ensure light theme components don't stay dark
+   Loaded after component CSS to override compiled styles when needed. */
+
+:root {
+    --bs-body-bg: #ffffff;
+    --bs-body-color: #212529;
+    --bs-tertiary-bg: #f8f9fa;
+    --bs-border-color: #dee2e6;
+    --bs-border-color-translucent: rgba(0,0,0,0.08);
+    --bs-dark: #212529;
+    --bs-dark-bg-subtle: #f4f6f7;
+    --bs-white: #ffffff;
+    --bs-light: #f8f9fa;
+    --bs-primary: #0d6efd;
+    --bs-secondary: #6c757d;
+    --bs-warning: #ffc107;
+    --bs-info: #0dcaf0;
+}
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: #0f1720;
+    --bs-body-color: #e6eef6;
+    --bs-tertiary-bg: #12181c;
+    --bs-border-color: #495057;
+    --bs-border-color-translucent: rgba(255,255,255,0.06);
+    --bs-dark: #1e2326;
+    --bs-dark-bg-subtle: #0f1619;
+    --bs-white: #ffffff;
+    --bs-light: #f8f9fa;
+    --bs-primary: #3291ff;
+    --bs-secondary: #9aa4ad;
+    --bs-warning: #ffc857;
+    --bs-info: #66d9ef;
+}
+
+/* Support apps that toggle theme via top-level classes (theme-dark/theme-light) */
+.theme-dark {
+    --bs-body-bg: #0f1720;
+    --bs-body-color: #e6eef6;
+    --bs-tertiary-bg: #12181c;
+    --bs-border-color: #495057;
+    --bs-border-color-translucent: rgba(255,255,255,0.06);
+    --bs-dark: #1e2326;
+    --bs-dark-bg-subtle: #0f1619;
+    --bs-white: #ffffff;
+    --bs-light: #f8f9fa;
+    --bs-primary: #3291ff;
+    --bs-secondary: #9aa4ad;
+    --bs-warning: #ffc857;
+    --bs-info: #66d9ef;
+}
+
+.theme-light {
+    --bs-body-bg: #ffffff;
+    --bs-body-color: #212529;
+    --bs-tertiary-bg: #f8f9fa;
+    --bs-border-color: #dee2e6;
+    --bs-border-color-translucent: rgba(0,0,0,0.08);
+    --bs-dark: #212529;
+    --bs-dark-bg-subtle: #f4f6f7;
+    --bs-white: #ffffff;
+    --bs-light: #f8f9fa;
+    --bs-primary: #0d6efd;
+    --bs-secondary: #6c757d;
+    --bs-warning: #ffc107;
+    --bs-info: #0dcaf0;
+}
+
+/* Normalize panels and cards in light theme */
+[data-bs-theme="light"] .tvcs-panel,
+[data-bs-theme="light"] .card,
+[data-bs-theme="light"] .card-header,
+[data-bs-theme="light"] .selection-card .card-body,
+[data-bs-theme="light"] .selection-card.card,
+[data-bs-theme="light"] .script-content,
+[data-bs-theme="light"] .search-scope-select,
+[data-bs-theme="light"] .tvcs-divider,
+[data-bs-theme="light"] .table-dark,
+[data-bs-theme="light"] .bg-dark {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+/* Ensure badges and buttons remain readable */
+[data-bs-theme="light"] .badge,
+[data-bs-theme="light"] .btn,
+[data-bs-theme="light"] .btn-outline-secondary {
+    color: var(--bs-body-color) !important;
+}
+
+/* Fix dropdowns and inputs */
+[data-bs-theme="light"] .filter-mode,
+[data-bs-theme="light"] .filter-tags,
+[data-bs-theme="light"] .filter-os,
+[data-bs-theme="light"] .filter-repository,
+[data-bs-theme="light"] .filter-title {
+    background-color: transparent !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+/* Repair elements with explicit dark backgrounds from compiled CSS */
+[data-bs-theme="light"] [style*="background-color:#1f2933"],
+[data-bs-theme="light"] [style*="background-color:#2a2a2a"],
+[data-bs-theme="light"] [style*="background-color:#2d3748"],
+[data-bs-theme="light"] [style*="background-color:#383838"],
+[data-bs-theme="light"] [style*="background-color:#3a3a3a"] {
+    background-color: transparent !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Override inline styles that reference the dark variable or dark fallbacks */
+[data-bs-theme="light"] [style*="var(--bs-dark"],
+[data-bs-theme="light"] [style*="background-color: var(--bs-dark"],
+[data-bs-theme="light"] [style*="background-color:var(--bs-dark"],
+[data-bs-theme="light"] [style*="background-color: var(--bs-dark,"] {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+/* Make .bg-dark and badge.bg-dark readable in light theme */
+[data-bs-theme="light"] .bg-dark,
+[data-bs-theme="light"] .badge.bg-dark,
+[data-bs-theme="light"] .badge.bg-dark.badge-with-underline {
+    background-color: var(--bs-secondary) !important;
+    color: var(--bs-white) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+/* Ensure cards that were given inline dark backgrounds become light */
+[data-bs-theme="light"] .card[style*="background-color"],
+[data-bs-theme="light"] .card[style*="background-color"] .card-body {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+
+/* Last resort: make sure page-level background is correct */
+[data-bs-theme="light"] body,
+[data-bs-theme="light"] .app-shell {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+}

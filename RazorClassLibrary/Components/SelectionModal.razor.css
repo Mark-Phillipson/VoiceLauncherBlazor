@@ -2,9 +2,9 @@
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
-    background-color: #1f2933; /* dark card background to match app */
-    color: #f1f5f9; /* light text */
-    border: 1px solid rgba(255,255,255,0.06);
+    background-color: var(--panel-bg);
+    color: var(--text);
+    border: 1px solid var(--border-color);
     padding: 0;
     text-align: left;
 }
@@ -17,8 +17,8 @@
 .selection-card .card-body,
 .selection-card.card,
 button.selection-card {
-    background-color: #1f2933 !important;
-    color: #f1f5f9 !important;
+    background-color: var(--panel-bg) !important;
+    color: var(--text) !important;
 }
 
 /* If an item provides a bg-* utility, make it subtle on dark cards */
@@ -26,8 +26,8 @@ button.selection-card {
 .selection-card .bg-info,
 .selection-card .bg-warning,
 .selection-card .bg-success {
-    background-color: rgba(255,255,255,0.06) !important;
-    color: #f1f5f9 !important;
+    background-color: color-mix(in srgb, var(--panel-contrast) 12%, transparent) !important;
+    color: var(--text) !important;
 }
 
 /* Provide a few common color classes for item badges (kept as-is) */
@@ -43,7 +43,7 @@ button.selection-card {
 .modal .selection-card .card-body { min-height: 64px; }
 
 /* Force light text on selection cards for dark theme */
-.selection-card { color: #f1f5f9 !important; }
+.selection-card { color: var(--text) !important; }
 
 /* Make the selection modal wider and constrain its height to the viewport
    so the header (and close button) remain visible. The body becomes scrollable. */
