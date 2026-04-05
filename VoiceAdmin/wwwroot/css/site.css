@@ -3,11 +3,99 @@
 html,
 body {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	background-color: var(--bg);
+	color: var(--text);
+}
+
+:root {
+	/* Core theme variables (light defaults) */
+	--bg: #ffffff;
+	--text: #212529;
+	--muted: #6c757d;
+	--primary: #0366d6;
+	--input-bg: #ffffff;
+	--input-border: #ced4da;
+	--panel-bg: #f7f7f7;
+	--panel-contrast: #e9ecef;
+
+	/* Compatibility variables expected by RazorClassLibrary component CSS (light) */
+	--shell-bg: #f8f9fa;
+	--surface-bg: #ffffff;
+	--surface-alt-bg: #eef2f6;
+	--text-color: #212529;
+	--muted-text: #6c757d;
+	--border-color: #d0d7de;
+	--sidebar-start: #ffffff;
+	--sidebar-end: #eef2f6;
+	--nav-hover-bg: #e9ecef;
+	--nav-active-bg: rgba(13, 110, 253, 0.12);
+	--nav-active-text: #0d6efd;
+	--nav-stripe-odd: #ffffff;
+	--nav-stripe-even: #f5f7fb;
+	--control-bg: #ffffff;
+	--control-text: #212529;
+	--control-placeholder: #6c757d;
+	--control-border: #ced4da;
+	--toggle-bg: rgba(33, 37, 41, 0.08);
+	--toggle-border: rgba(33, 37, 41, 0.16);
+	--toggle-text: #212529;
+	--footer-bg: #ffffff;
+
+	/* Map common Bootstrap CSS variables to our theme variables (light) */
+	--bs-body-bg: var(--bg);
+	--bs-body-color: var(--text);
+	--bs-tertiary-bg: var(--surface-bg);
+	--bs-secondary-bg: var(--surface-alt-bg);
+	--bs-border-color: var(--border-color);
+	--bs-dark-bg-subtle: color-mix(in srgb, var(--panel-bg) 70%, transparent);
+}
+
+[data-bs-theme="dark"] {
+	/* Core dark theme variables */
+	--bg: #0f1113;
+	--text: #e9ecef;
+	--muted: #adb5bd;
+	--primary: #58a6ff;
+	--input-bg: #252525;
+	--input-border: #495057;
+	--panel-bg: #212529;
+	--panel-contrast: #343a40;
+
+	/* Compatibility variables expected by RazorClassLibrary component CSS (dark) */
+	--shell-bg: #111827;
+	--surface-bg: #1f2937;
+	--surface-alt-bg: #273244;
+	--text-color: #f8fafc;
+	--muted-text: #cbd5e1;
+	--border-color: #475569;
+	--sidebar-start: #111827;
+	--sidebar-end: #1f2937;
+	--nav-hover-bg: rgba(255, 255, 255, 0.08);
+	--nav-active-bg: rgba(96, 165, 250, 0.24);
+	--nav-active-text: #dbeafe;
+	--nav-stripe-odd: #111827;
+	--nav-stripe-even: #172133;
+	--control-bg: #0f172a;
+	--control-text: #f8fafc;
+	--control-placeholder: #94a3b8;
+	--control-border: #475569;
+	--toggle-bg: rgba(255, 255, 255, 0.1);
+	--toggle-border: rgba(255, 255, 255, 0.18);
+	--toggle-text: #f8fafc;
+	--footer-bg: #0f172a;
+
+	/* Map Bootstrap variables to our dark theme variables */
+	--bs-body-bg: var(--bg);
+	--bs-body-color: var(--text);
+	--bs-tertiary-bg: var(--surface-bg);
+	--bs-secondary-bg: var(--surface-alt-bg);
+	--bs-border-color: var(--border-color);
+	--bs-dark-bg-subtle: color-mix(in srgb, var(--panel-bg) 72%, transparent);
 }
 
 a,
 .btn-link {
-	color: #0366d6;
+	color: var(--primary);
 }
 
 .btn-lg {
@@ -23,58 +111,22 @@ a,
 	font-size: xx-large;
 }
 
-input {
-	color: white;
-	background-color: #252525;
-	border-color: azure;
-}
-
-.blazored-typeahead__result {
-	color: white;
-	background-color: #252525;
-	border-color: azure;
-}
-
-
-.form-control {
-	color: white;
-	background-color: #252525;
-	border-color: azure;
-}
-
-.form-control-sm {
-	color: white;
-	background-color: #252525;
-	border-color: azure;
-}
-
-.form-control[readonly] {
-	color: #CCCCCC;
-	background-color: #252525;
-	border-color: azure;
-}
-
-.form-control:disabled {
-	color: #CCCCCC;
-	background-color: #252525;
-	border-color: azure;
-}
-
-.form-control:focus {
-	color: white;
-	background-color: #252525;
-	border-color: #DF0024;
-}
-
-
+.blazored-typeahead__result,
+.smartcombobox-suggestions,
+.smartcombobox-suggestion,
+input,
+.form-control,
+.form-control-sm,
+.form-control[readonly],
+.form-control:disabled,
 select {
-	color: white;
-	background-color: #252525;
-	border-color: azure;
+	color: var(--text);
+	background-color: var(--input-bg);
+	border-color: var(--input-border);
 }
 
 input:disabled {
-	color: white;
+	color: var(--muted);
 }
 
 .content {
@@ -169,8 +221,9 @@ input:disabled {
 	top: 100px;
 	left: 200px;
 	right: 0;
-	background-color: rgba(38, 38, 38, 0.9);
+	background-color: color-mix(in srgb, var(--panel-bg) 85%, transparent);
 	box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+	color: var(--text);
 	display: flex;
 	flex-direction: column;
 	z-index: 2000;
@@ -193,8 +246,8 @@ input:disabled {
 }
 
 .dialog-title {
-	background-color: whitesmoke;
-	color: black;
+	background-color: var(--panel-contrast);
+	color: var(--text);
 	border-color: red;
 	border: solid;
 	border-width: 1px;
@@ -215,6 +268,7 @@ input:disabled {
 	padding: 0.5rem 3rem 1rem 0;
 	margin: 3rem;
 	font-size: large;
+	color: var(--text);
 }
 
 .dialog-buttons {
@@ -222,7 +276,7 @@ input:disabled {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	color: black;
+	color: var(--text);
 	padding: 0 1rem;
 }
 
@@ -230,13 +284,14 @@ input:disabled {
 	display: flex;
 	margin-top: 1rem;
 	align-items: center;
-	color: black;
+	color: var(--text);
 }
 
 .dialog-body label {
 	text-align: right;
 	width: 200px;
 	margin: 0 1.5rem;
+	color: var(--text);
 }
 
 .dialog-body input,
@@ -246,7 +301,7 @@ input:disabled {
 }
 
 .dialog-footer {
-	background-color: white;
+	background-color: var(--panel-contrast);
 }
 
 .dialog-body .size-label {
@@ -295,12 +350,32 @@ header>h3 {
 }
 
 #components-reconnect-modal>h5 {
-	background-color: black;
-	color: red
+	background-color: var(--panel-contrast);
+	color: var(--text);
 }
 
 .table-dark {
-	background-color: black;
+	background-color: var(--panel-bg);
+	color: var(--text);
+}
+
+/* Ensure RazorClassLibrary panels follow theme variables and override scoped CSS when necessary */
+.tvcs-panel,
+.tvcs-panel * {
+	background-color: transparent;
+	color: inherit;
+}
+
+[data-bs-theme="dark"] .tvcs-panel,
+.tvcs-panel {
+	background-color: var(--panel-bg) !important;
+	color: var(--text) !important;
+	border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .tvcs-panel .btn,
+.tvcs-panel .btn {
+	color: var(--text) !important;
 }
 
 .size-medium-custom {
@@ -310,12 +385,12 @@ header>h3 {
 }
 
 .blazored-modal-custom {
-	color: white;
+	color: var(--text);
 	display: flex;
 	flex-direction: column;
-	background-color: #252525;
+	background-color: var(--panel-bg);
 	border-radius: 4px;
-	border: 1px solid #fff;
+	border: 1px solid color-mix(in srgb, var(--panel-contrast) 60%, transparent);
 	padding: 1.5rem;
 	box-shadow: 0 2px 2px rgba(0, 0, 0, .25);
 	margin: 1.75rem;
@@ -363,14 +438,14 @@ header>h3 {
 }
 
 .smartcombobox-suggestions {
-	background-color: #252525;
-	color: white;
+	background-color: var(--input-bg);
+	color: var(--text);
 }
 
 .smartcombobox-suggestion {
 	height: 30px;
-	background-color: #252525;
-	color: white;
+	background-color: var(--input-bg);
+	color: var(--text);
 }
 
 .card-img-top:focus {
@@ -383,6 +458,14 @@ header>h3 {
 	width: 100%;
 	text-align: center;
 	margin: 0 auto;
-	color: whitesmoke;
+	color: var(--text);
 	font-size: small;
+}
+
+/* Ensure sidebar layout is constrained regardless of scoped attribute selectors */
+.sidebar {
+    width: 250px !important;
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
 }

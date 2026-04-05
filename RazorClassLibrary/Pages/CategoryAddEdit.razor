@@ -1,6 +1,57 @@
 @page "/categoryaddedit/{Id:int?}"
 @using SmartComponents
-<div style="min-width:80vw">
+@inject NavigationManager NavManager
+
+@* Inject test styles to override modal/backdrop/input colors when forcing theme via query param *@
+@if (forceDark || forceLight)
+{
+        <style>
+        @((MarkupString)(forceDark ? @"
+            /* Strong global overrides for dark test mode */
+            html, body { background-color: #121212 !important; color: #e6e6e6 !important; }
+            .modal-backdrop, .modal-backdrop.show { background-color: rgba(0,0,0,0.6) !important; }
+            .modal, .modal-dialog, .modal-content { background-color: #222223 !important; color: #e6e6e6 !important; }
+            .modal-content { border-color: #333 !important; }
+            .modal-open .modal { background-color: transparent !important; }
+            input.form-control, textarea.form-control, select.form-control {
+                background-color: #2b2b2b !important;
+                color: #e6e6e6 !important;
+                border-color: #444 !important;
+            }
+            .form-control::placeholder { color: #bdbdbd !important; }
+            .btn-outline-primary, .btn-cancel {
+                border-color: rgba(255,255,255,0.12) !important;
+                color: #e6e6e6 !important;
+            }
+            .btn-cancel:hover { background-color: rgba(255,255,255,0.03) !important; }
+        " : @"
+            /* Strong global overrides for light test mode */
+            html, body { background-color: #ffffff !important; color: #212529 !important; }
+            .modal-backdrop, .modal-backdrop.show { background-color: rgba(0,0,0,0.15) !important; }
+            .modal, .modal-dialog, .modal-content { background-color: #ffffff !important; color: #212529 !important; }
+            .modal-content { border-color: #e0e0e0 !important; }
+            input.form-control, textarea.form-control, select.form-control {
+                background-color: #ffffff !important;
+                color: #212529 !important;
+                border-color: #ced4da !important;
+            }
+            .form-control::placeholder { color: #6c757d !important; }
+            .btn-outline-primary, .btn-cancel {
+                border-color: #ced4da !important;
+                color: #212529 !important;
+            }
+            .btn-cancel:hover { background-color: rgba(0,0,0,0.03) !important; }
+        "))
+        </style>
+}
+
+<div class="category-add-edit @(forceDark ? "force-dark" : (forceLight ? "force-light" : ""))" style="min-width:80vw">
+    <div class="d-flex justify-content-end mb-2">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="forceDarkToggle" @bind="forceDark" />
+            <label class="form-check-label text-muted" for="forceDarkToggle">Force dark</label>
+        </div>
+    </div>
     <EditForm Model="@CategoryDTO" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @*<ValidationSummary />*@
@@ -45,9 +96,30 @@
         </div>
         <hr>
         <div class="" style="float:right">
-            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary"
+            <button type='button' accesskey="c" class="btn btn-lg btn-outline-primary btn-cancel"
                 @onclick="@Close"><u>C</u>ancel</button>
             <button @TaskRunning accesskey="s" type="submit" class="btn btn-lg btn-primary"><u>S</u>ave Record</button>
         </div>
     </EditForm>
 </div>
+
+    @code {
+        private bool forceDark = false;
+        private bool forceLight = false;
+
+        protected override void OnInitialized()
+        {
+            var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+            if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("theme", out var theme))
+            {
+                var t = theme.ToString().ToLowerInvariant();
+                if (t == "dark") { forceDark = true; forceLight = false; }
+                if (t == "light") { forceLight = true; forceDark = false; }
+            }
+            if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("standalone", out var standalone))
+            {
+                // presence only; reserved for tooling
+            }
+            base.OnInitialized();
+        }
+    }

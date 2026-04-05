@@ -1,15 +1,91 @@
-﻿
-.layout-as-cards {
-	display: flex;
-	flex-direction: column;
-	flex-flow: wrap;
-	text-decoration: none;
-}
-.card {
-	box-shadow: grey 2px 2px;
+﻿.table-theme {
+    /* Base styles — inherited from page theme */
 }
 
-a {
-	text-decoration: none;
-	color: white;
+/* Light mode theme */
+.page.theme-light .table-theme {
+  color: #212529 !important;
+  background-color: #ffffff !important;
+  border-color: #dee2e6 !important;
+}
+
+.page.theme-light .table-theme thead th,
+.page.theme-light .table-theme tbody td,
+.page.theme-light .table-theme tfoot td {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.page.theme-light .table-theme.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f8f9fa !important;
+}
+
+.page.theme-light .table-theme .btn.btn-dark {
+  background-color: #343a40 !important;
+  color: #fff !important;
+  border-color: #343a40 !important;
+}
+
+.page.theme-light .table-theme span,
+.page.theme-light .table-theme .badge,
+.page.theme-light .table-theme a {
+  color: inherit !important;
+}
+
+.page.theme-light .table-theme .form-control {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+  border-color: #dee2e6 !important;
+}
+
+/* Dark mode theme */
+.page.theme-dark .table-theme {
+  color: #f8fafc !important;
+  background-color: #1f2937 !important;
+  border-color: #475569 !important;
+}
+
+.page.theme-dark .table-theme thead th,
+.page.theme-dark .table-theme tbody td,
+.page.theme-dark .table-theme tfoot td {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.page.theme-dark .table-theme.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #111827 !important;
+}
+
+.page.theme-dark .table-theme .btn.btn-dark {
+  background-color: #374151 !important;
+  color: #f8fafc !important;
+  border-color: #374151 !important;
+}
+
+.page.theme-dark .table-theme span,
+.page.theme-dark .table-theme .badge,
+.page.theme-dark .table-theme a {
+  color: inherit !important;
+}
+
+.page.theme-dark .table-theme .form-control {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+.layout-as-cards {
+display: flex;
+flex-direction: column;
+flex-flow: wrap;
+text-decoration: none;
+}
+
+.card {
+box-shadow: grey 2px 2px;
+}
+
+a.layout-as-cards a {
+  text-decoration: none;
+  color: inherit;
 }

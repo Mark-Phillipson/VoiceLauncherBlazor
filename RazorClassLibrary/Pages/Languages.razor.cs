@@ -12,7 +12,8 @@ namespace RazorClassLibrary.Pages
 		[Inject] public required LanguageService LanguageService { get; set; }
 		[Inject] public required NavigationManager NavigationManager { get; set; }
 		public bool ShowDialog { get; set; }
-		public bool ShowAsCards { get; set; } = true;
+		// Default to table view (false) so users land on the table without toggling
+		public bool ShowAsCards { get; set; } = false;
 		private int LanguageIdDelete { get; set; }
 		private List<DataAccessLibrary.Models.Language>? LanguagesModel;
 		public string? StatusMessage { get; set; }

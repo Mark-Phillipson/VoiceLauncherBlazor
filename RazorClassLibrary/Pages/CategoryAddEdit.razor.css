@@ -1,0 +1,139 @@
+.category-add-edit {
+  --bg: #ffffff;
+  --text: #212529;
+  --accent: #0d6efd;
+  --accent-rgb: 13,110,253;
+  --accent-dark: #66b2ff;
+  --accent-dark-rgb: 102,178,255;
+  --panel-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --muted: #6c757d;
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 0.5rem;
+}
+
+.category-add-edit .form-control,
+.category-add-edit textarea.form-control {
+  background-color: var(--input-bg);
+  color: var(--text);
+  border-color: var(--input-border);
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.375rem;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+.category-add-edit label {
+  color: var(--text);
+}
+
+.category-add-edit .form-checkbox {
+  filter: none;
+}
+
+.category-add-edit .btn-outline-primary {
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+/* Restored default spacing for form groups and rows */
+
+/* Input focus emphasis */
+.category-add-edit .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 .18rem rgba(var(--accent-rgb), .12);
+  outline: none;
+}
+
+/* Cancel button emphasis */
+.category-add-edit .btn-cancel {
+  border-width: 2px;
+  border-color: var(--accent);
+  color: var(--accent);
+  background-color: transparent;
+}
+.category-add-edit .btn-cancel:hover {
+  background-color: rgba(var(--accent-rgb), .06);
+  color: #fff;
+  background-image: linear-gradient(180deg, rgba(var(--accent-rgb), .08), rgba(var(--accent-rgb), .04));
+}
+
+/* Dialog border + shadow */
+.category-add-edit .modal-content {
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+}
+
+/* Light theme explicit (defaults above already are light-friendly) */
+@media (prefers-color-scheme: light) {
+  .category-add-edit {
+    --bg: #ffffff;
+    --text: #212529;
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+  }
+}
+
+/* Dark theme variables */
+@media (prefers-color-scheme: dark) {
+  .category-add-edit {
+    --bg: #2b2b2b;
+    --text: #e6e6e6;
+    --panel-bg: #222223;
+    --input-bg: #2b2b2b;
+    --input-border: #444;
+    --muted: #b5b5b5;
+  }
+
+  .category-add-edit {
+    background-color: var(--panel-bg);
+    color: var(--text);
+  }
+
+  .category-add-edit .form-control,
+  .category-add-edit textarea.form-control {
+    background-color: var(--input-bg);
+    color: var(--text);
+    border-color: var(--input-border);
+    box-shadow: none;
+  }
+
+  .category-add-edit .btn-outline-primary {
+    border-color: rgba(255,255,255,0.12);
+    color: var(--text);
+  }
+}
+
+/* Force dark/light helpers for testing */
+.category-add-edit.force-dark {
+  --bg: #222223;
+  --text: #e6e6e6;
+  --panel-bg: #232323;
+  --input-bg: #2b2b2b;
+  --input-border: #444;
+}
+
+.category-add-edit.force-light {
+  --bg: #ffffff;
+  --text: #212529;
+  --panel-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+}
+
+/* Dark-mode friendly adjustments for accents */
+@media (prefers-color-scheme: dark) {
+  .category-add-edit {
+    --accent: var(--accent-dark);
+    --accent-rgb: var(--accent-dark-rgb);
+  }
+  .category-add-edit .form-control:focus {
+    box-shadow: 0 0 0 .18rem rgba(var(--accent-dark-rgb), .12);
+  }
+  .category-add-edit .btn-cancel {
+    color: var(--accent-dark);
+    border-color: var(--accent-dark);
+  }
+}
