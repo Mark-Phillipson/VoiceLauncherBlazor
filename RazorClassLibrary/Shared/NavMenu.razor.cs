@@ -5,10 +5,15 @@ namespace RazorClassLibrary.Shared
 	public partial class NavMenu : ComponentBase
 	{
 		[Inject] NavigationManager? NavigationManager { get; set; }
+		[Parameter] public bool IsDarkTheme { get; set; }
+		[Parameter] public string ThemeToggleLabel { get; set; } = "Switch theme";
+		[Parameter] public EventCallback OnToggleTheme { get; set; }
+		[Parameter] public bool IsSidebarCollapsed { get; set; }
+		[Parameter] public EventCallback OnToggleSidebarCollapse { get; set; }
 		private bool collapseNavMenu = true;
 		private bool accessKeysEnabled = true;
 		// Always show menu; avoid Bootstrap collapse hiding on widescreen
-		private string? NavMenuCssClass => null;
+		private string? NavRootClass => IsSidebarCollapsed ? "collapsed" : null;
 		protected override void OnInitialized()
 		{
 			if (Environment.MachineName == "J40L4V3")
@@ -57,6 +62,12 @@ namespace RazorClassLibrary.Shared
 			// StateHasChanged();
 			return result;
 
+		}
+
+		private bool IsTalonSearchEnabled()
+		{
+			// Show Talon Search in all environments.
+			return true;
 		}
 	}
 }

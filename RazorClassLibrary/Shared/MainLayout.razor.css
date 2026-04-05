@@ -2,14 +2,70 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	min-height: 100vh;
+	background-color: var(--shell-bg);
+	color: var(--text-color);
 }
 
 .main {
 	flex: 1;
+	background-color: var(--shell-bg);
+	color: var(--text-color);
 }
 
 .sidebar {
-	background-image: linear-gradient(180deg, #121212 0%, #363636 70%);
+	background-image: linear-gradient(180deg, var(--sidebar-start) 0%, var(--sidebar-end) 100%);
+	border-right: 1px solid var(--border-color);
+}
+
+.page.theme-light {
+	color-scheme: light;
+	--shell-bg: #f8f9fa;
+	--surface-bg: #ffffff;
+	--surface-alt-bg: #eef2f6;
+	--text-color: #212529;
+	--muted-text: #6c757d;
+	--border-color: #d0d7de;
+	--sidebar-start: #ffffff;
+	--sidebar-end: #eef2f6;
+	--nav-hover-bg: #e9ecef;
+	--nav-active-bg: rgba(13, 110, 253, 0.12);
+	--nav-active-text: #0d6efd;
+	--nav-stripe-odd: #ffffff;
+	--nav-stripe-even: #f5f7fb;
+	--control-bg: #ffffff;
+	--control-text: #212529;
+	--control-placeholder: #6c757d;
+	--control-border: #ced4da;
+	--toggle-bg: rgba(33, 37, 41, 0.08);
+	--toggle-border: rgba(33, 37, 41, 0.16);
+	--toggle-text: #212529;
+	--footer-bg: #ffffff;
+}
+
+.page.theme-dark {
+	color-scheme: dark;
+	--shell-bg: #111827;
+	--surface-bg: #1f2937;
+	--surface-alt-bg: #273244;
+	--text-color: #f8fafc;
+	--muted-text: #cbd5e1;
+	--border-color: #475569;
+	--sidebar-start: #111827;
+	--sidebar-end: #1f2937;
+	--nav-hover-bg: rgba(255, 255, 255, 0.08);
+	--nav-active-bg: rgba(96, 165, 250, 0.24);
+	--nav-active-text: #dbeafe;
+	--nav-stripe-odd: #111827;
+	--nav-stripe-even: #172133;
+	--control-bg: #0f172a;
+	--control-text: #f8fafc;
+	--control-placeholder: #94a3b8;
+	--control-border: #475569;
+	--toggle-bg: rgba(255, 255, 255, 0.1);
+	--toggle-border: rgba(255, 255, 255, 0.18);
+	--toggle-text: #f8fafc;
+	--footer-bg: #0f172a;
 }
 
 @media (max-width: 767.98px) {
@@ -21,14 +77,132 @@
 	}
 
 	.sidebar {
-		width: 230px;
+		width: 300px;
 		height: 100vh;
 		position: sticky;
 		top: 0;
+		transition: width 0.2s ease;
 	}
 
-	.main > div {
-		padding-left: 0.1rem !important;
-		padding-right: 1.5rem !important;
+	.sidebar.sidebar-collapsed {
+		width: 92px;
 	}
+}
+
+.page ::deep .card,
+.page ::deep .list-group-item,
+.page ::deep .modal-content,
+.page ::deep .dropdown-menu {
+	background-color: var(--surface-bg);
+	color: var(--text-color);
+	border-color: var(--border-color);
+}
+
+.page ::deep .table {
+	color: var(--text-color);
+	border-color: var(--border-color);
+	--bs-table-color: var(--text-color);
+	--bs-table-bg: transparent;
+	--bs-table-border-color: var(--border-color);
+	--bs-table-striped-bg: var(--surface-alt-bg);
+	--bs-table-hover-bg: var(--surface-alt-bg);
+}
+
+.page ::deep .table > :not(caption) > * > * {
+	color: inherit;
+	background-color: transparent;
+	border-bottom-color: var(--border-color);
+}
+
+.page ::deep .form-control,
+.page ::deep .form-select,
+.page ::deep .input-group-text,
+.page ::deep .form-check-input,
+.page ::deep input.form-control,
+.page ::deep textarea.form-control,
+.page ::deep input[type=text],
+.page ::deep input[type=email],
+.page ::deep input[type=number],
+.page ::deep input[type=date],
+.page ::deep input[type=datetime-local],
+.page ::deep input[type=tel],
+.page ::deep select.form-select {
+	background-color: var(--control-bg) !important;
+	color: var(--control-text) !important;
+	border-color: var(--control-border) !important;
+	background-image: none;
+}
+
+.page ::deep .form-control:focus,
+.page ::deep .form-select:focus,
+.page ::deep .form-check-input:focus {
+	background-color: var(--control-bg) !important;
+	color: var(--control-text) !important;
+	border-color: var(--nav-active-text) !important;
+	box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--nav-active-text) 18%, transparent);
+}
+
+.page ::deep .form-control::placeholder,
+.page ::deep textarea::placeholder,
+.page ::deep input::placeholder,
+.page ::deep .form-select option,
+.page ::deep .text-muted,
+.page ::deep .small.text-muted {
+	color: var(--muted-text) !important;
+}
+
+.page ::deep .form-control.bg-dark,
+.page ::deep .form-select.bg-dark,
+.page ::deep input.bg-dark,
+.page ::deep textarea.bg-dark,
+.page ::deep select.bg-dark,
+.page ::deep .bg-light {
+	background-color: var(--surface-alt-bg) !important;
+	color: var(--text-color) !important;
+	border-color: var(--border-color) !important;
+}
+
+.page ::deep .btn-outline-secondary,
+.page ::deep .btn-outline-primary,
+.page ::deep .btn-outline-success,
+.page ::deep .btn-outline-danger {
+	color: var(--text-color);
+	border-color: var(--border-color);
+}
+
+.page ::deep .btn-outline-secondary:hover,
+.page ::deep .btn-outline-primary:hover,
+.page ::deep .btn-outline-success:hover,
+.page ::deep .btn-outline-danger:hover {
+	color: var(--text-color);
+	background-color: var(--surface-alt-bg);
+	border-color: var(--border-color);
+}
+
+.page ::deep .badge.bg-secondary {
+	background-color: var(--surface-alt-bg) !important;
+	color: var(--text-color) !important;
+}
+
+footer.center-footer {
+	padding: 0.85rem 1.5rem;
+	border-top: 1px solid var(--border-color);
+}
+
+footer.center-footer.theme-light {
+	background-color: #ffffff;
+	color: #212529;
+	border-top-color: #d0d7de;
+}
+
+footer.center-footer.theme-dark {
+	background-color: #0f172a;
+	color: #f8fafc;
+	border-top-color: #475569;
+}
+
+/* Snippets nav item: override gold to a readable amber in light mode */
+.page.theme-light ::deep .nav-link[href*="intellisenses"],
+.page.theme-light ::deep .nav-link[href*="intellisenses"] span {
+	color: #8a6200 !important;
 }

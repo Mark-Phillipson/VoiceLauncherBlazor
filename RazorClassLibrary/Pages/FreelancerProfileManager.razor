@@ -1,0 +1,396 @@
+@page "/freelancer-profile-manager"
+@using System.ComponentModel.DataAnnotations
+
+<div class="container py-4">
+    <h1 class="mb-4">Freelancer Profile Manager</h1>
+
+    <div class="row g-4">
+        <div class="col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Add / Update Profile</h2>
+
+                    <EditForm Model="@Profile" OnValidSubmit="SaveProfile">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="row gy-3">
+                            <div class="col-12 col-md-6">
+                                <label for="FirstName" class="form-label">First name</label>
+                                <InputText id="FirstName" class="form-control" @bind-Value="Profile.FirstName" />
+                                <ValidationMessage For="@(() => Profile.FirstName)" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="LastName" class="form-label">Last name</label>
+                                <InputText id="LastName" class="form-control" @bind-Value="Profile.LastName" />
+                                <ValidationMessage For="@(() => Profile.LastName)" />
+                            </div>
+                            <div class="col-12">
+                                <label for="Email" class="form-label">Email address</label>
+                                <InputText id="Email" type="email" class="form-control" @bind-Value="Profile.Email" />
+                                <ValidationMessage For="@(() => Profile.Email)" />
+                            </div>
+                            <div class="col-12">
+                                <label for="Address" class="form-label">Address</label>
+                                <InputText id="Address" class="form-control" @bind-Value="Profile.Address" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="Company" class="form-label">Company name</label>
+                                <InputText id="Company" class="form-control" @bind-Value="Profile.CompanyName" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="Airport" class="form-label">Preferred airport</label>
+                                <InputSelect id="Airport" class="form-select" @bind-Value="Profile.PreferredAirport">
+                                    <option value="">Select airport</option>
+                                    @foreach (var airport in Airports)
+                                    {
+                                        <option value="@airport">@airport</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="mb-3">
+                            <h3 class="h6">Compliance / document tracking</h3>
+                            <div class="row gy-3">
+                                <div class="col-12 col-md-6">
+                                    <label for="PliExpiry" class="form-label">PLI expiry date</label>
+                                    <InputDate id="PliExpiry" class="form-control" @bind-Value="Profile.PliExpiry" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label for="DrivingLicence" class="form-label">Driving licence number</label>
+                                    <InputText id="DrivingLicence" class="form-control" @bind-Value="Profile.DrivingLicenceNumber" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label for="DrivingLicenceExpiry" class="form-label">Driving licence expiry</label>
+                                    <InputDate id="DrivingLicenceExpiry" class="form-control" @bind-Value="Profile.DrivingLicenceExpiry" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label for="PassportNumber" class="form-label">Passport number</label>
+                                    <InputText id="PassportNumber" class="form-control" @bind-Value="Profile.PassportNumber" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label for="PassportExpiry" class="form-label">Passport expiry</label>
+                                    <InputDate id="PassportExpiry" class="form-control" @bind-Value="Profile.PassportExpiry" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h3 class="h6">Skills / roles</h3>
+                            @foreach (var role in Profile.Roles)
+                            {
+                                <div class="card mb-3 p-3 bg-light">
+                                    <div class="row gy-3 align-items-end">
+                                        <div class="col-12 col-md-5">
+                                            <label class="form-label">Role</label>
+                                            <InputText class="form-control" @bind-Value="role.Name" placeholder="e.g. Project manager" />
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label">Level</label>
+                                            <InputSelect class="form-select" @bind-Value="role.Level">
+                                                @foreach (var level in RoleLevels)
+                                                {
+                                                    <option value="@level">@level</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label">Hourly rate</label>
+                                            <InputNumber class="form-control" @bind-Value="role.Rate" />
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveRole(role)">Remove role</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AddRole">Add role</button>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" @onclick="ResetForm">Reset</button>
+                            <button type="submit" class="btn btn-primary">Save profile</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Search records</h2>
+
+                    <div class="row gy-3">
+                        <div class="col-12">
+                            <InputText class="form-control" placeholder="Search name, email, company or airport" @bind-Value="SearchText" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Airport</label>
+                            <InputSelect class="form-select" @bind-Value="SearchAirport">
+                                <option value="">All airports</option>
+                                @foreach (var airport in Airports)
+                                {
+                                    <option value="@airport">@airport</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Expiry filter</label>
+                            <InputSelect class="form-select" @bind-Value="SearchExpiryWindow">
+                                <option value="0">All records</option>
+                                <option value="30">Expiring in 30 days</option>
+                                <option value="60">Expiring in 60 days</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Company</th>
+                                    <th>Airport</th>
+                                    <th>Next expiry</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in FilteredProfiles)
+                                {
+                                    <tr>
+                                        <td>@item.FullName</td>
+                                        <td>@item.CompanyName</td>
+                                        <td>@item.PreferredAirport</td>
+                                        <td>
+                                            @if (item.NextExpiry.HasValue)
+                                            {
+                                                <span class="badge @GetExpiryBadge(item.NextExpiry.Value)">@item.NextExpiry.Value.ToString("MMM d")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No expiry</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!FilteredProfiles.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No records match the current search.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Upcoming reminders</h2>
+                    <div class="list-group">
+                        @foreach (var reminder in UpcomingReminders)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@reminder.PersonName</strong>
+                                    <div class="small text-muted">@reminder.DocumentTitle</div>
+                                </div>
+                                <span class="badge @GetReminderBadge(reminder.DaysLeft)">@reminder.DaysLeft d</span>
+                            </div>
+                        }
+                        @if (!UpcomingReminders.Any())
+                        {
+                            <div class="list-group-item text-muted">No reminders in the next 30 days.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly string[] Airports = new[] { "Heathrow", "Gatwick", "Stansted", "Manchester", "Birmingham" };
+    private readonly string[] RoleLevels = new[] { "Beginner", "Intermediate", "Advanced" };
+
+    private FreelancerProfile Profile { get; set; } = new FreelancerProfile();
+    private List<FreelancerProfile> Profiles { get; set; } = new List<FreelancerProfile>();
+
+    private string SearchText { get; set; } = string.Empty;
+    private string SearchAirport { get; set; } = string.Empty;
+    private int SearchExpiryWindow { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        LoadSampleProfiles();
+    }
+
+    private void SaveProfile()
+    {
+        var existing = Profiles.FirstOrDefault(x => x.Id == Profile.Id && x.Id != 0);
+        if (existing is null)
+        {
+            Profile.Id = Profiles.Any() ? Profiles.Max(x => x.Id) + 1 : 1;
+            Profiles.Insert(0, Profile.Clone());
+        }
+        else
+        {
+            var index = Profiles.IndexOf(existing);
+            Profiles[index] = Profile.Clone();
+        }
+
+        ResetForm();
+    }
+
+    private void AddRole()
+    {
+        Profile.Roles.Add(new RoleEntry { Level = RoleLevels.First() });
+    }
+
+    private void RemoveRole(RoleEntry role)
+    {
+        Profile.Roles.Remove(role);
+    }
+
+    private void ResetForm()
+    {
+        Profile = new FreelancerProfile();
+        Profile.Roles.Add(new RoleEntry { Level = RoleLevels.First() });
+    }
+
+    private IEnumerable<FreelancerProfile> FilteredProfiles
+        => Profiles
+            .Where(x => string.IsNullOrWhiteSpace(SearchText) || x.FullName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || x.Email.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || x.CompanyName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || x.PreferredAirport.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            .Where(x => string.IsNullOrWhiteSpace(SearchAirport) || x.PreferredAirport == SearchAirport)
+            .Where(x => SearchExpiryWindow == 0 || x.DaysUntilNextExpiry <= SearchExpiryWindow)
+            .OrderBy(x => x.DaysUntilNextExpiry)
+            .ToList();
+
+    private IEnumerable<ExpiryReminder> UpcomingReminders
+        => Profiles
+            .SelectMany(x => x.BuildReminders())
+            .Where(x => x.DaysLeft >= 0 && x.DaysLeft <= 30)
+            .OrderBy(x => x.DaysLeft)
+            .Take(5);
+
+    private string GetExpiryBadge(DateTime date)
+    {
+        var days = (date - DateTime.Today).Days;
+        return days <= 30 ? "bg-warning text-dark" : "bg-secondary text-light";
+    }
+
+    private string GetReminderBadge(int days)
+        => days <= 7 ? "bg-danger" : days <= 14 ? "bg-warning text-dark" : "bg-secondary";
+
+    private void LoadSampleProfiles()
+    {
+        Profiles = new List<FreelancerProfile>
+        {
+            new FreelancerProfile
+            {
+                Id = 1,
+                FirstName = "Amelia",
+                LastName = "Taylor",
+                Email = "amelia.taylor@example.com",
+                Address = "12 Cherry Lane, London",
+                CompanyName = "Aurora Operations",
+                PreferredAirport = "Heathrow",
+                PliExpiry = DateTime.Today.AddDays(42),
+                DrivingLicenceNumber = "DL456789",
+                DrivingLicenceExpiry = DateTime.Today.AddDays(18),
+                PassportNumber = "P1234567",
+                PassportExpiry = DateTime.Today.AddDays(190),
+                Roles = new List<RoleEntry>
+                {
+                    new RoleEntry { Name = "Safety Advisor", Level = "Advanced", Rate = 45 },
+                    new RoleEntry { Name = "Field Coordinator", Level = "Intermediate", Rate = 35 }
+                }
+            },
+            new FreelancerProfile
+            {
+                Id = 2,
+                FirstName = "Callum",
+                LastName = "Harris",
+                Email = "callum.harris@example.com",
+                Address = "4 Riverbank, Manchester",
+                CompanyName = "North Bridge Ltd.",
+                PreferredAirport = "Manchester",
+                PliExpiry = DateTime.Today.AddDays(22),
+                DrivingLicenceNumber = "DL987654",
+                DrivingLicenceExpiry = DateTime.Today.AddDays(95),
+                PassportNumber = "P7654321",
+                PassportExpiry = DateTime.Today.AddDays(55),
+                Roles = new List<RoleEntry>
+                {
+                    new RoleEntry { Name = "Transport Lead", Level = "Intermediate", Rate = 38 }
+                }
+            }
+        };
+
+        ResetForm();
+    }
+
+    private class FreelancerProfile
+    {
+        public int Id { get; set; }
+        [Required] public string FirstName { get; set; } = string.Empty;
+        [Required] public string LastName { get; set; } = string.Empty;
+        [Required, EmailAddress] public string Email { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
+        public string PreferredAirport { get; set; } = string.Empty;
+        public DateTime? PliExpiry { get; set; }
+        public string DrivingLicenceNumber { get; set; } = string.Empty;
+        public DateTime? DrivingLicenceExpiry { get; set; }
+        public string PassportNumber { get; set; } = string.Empty;
+        public DateTime? PassportExpiry { get; set; }
+        public List<RoleEntry> Roles { get; set; } = new List<RoleEntry>();
+
+        public string FullName => string.Join(' ', new[] { FirstName, LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        public DateTime? NextExpiry => new[] { PliExpiry, DrivingLicenceExpiry, PassportExpiry }.Where(x => x.HasValue).Select(x => x!.Value).OrderBy(x => x).FirstOrDefault();
+        public int DaysUntilNextExpiry => NextExpiry.HasValue ? (NextExpiry.Value - DateTime.Today).Days : int.MaxValue;
+
+        public FreelancerProfile Clone()
+            => new FreelancerProfile
+            {
+                Id = Id,
+                FirstName = FirstName,
+                LastName = LastName,
+                Email = Email,
+                Address = Address,
+                CompanyName = CompanyName,
+                PreferredAirport = PreferredAirport,
+                PliExpiry = PliExpiry,
+                DrivingLicenceNumber = DrivingLicenceNumber,
+                DrivingLicenceExpiry = DrivingLicenceExpiry,
+                PassportNumber = PassportNumber,
+                PassportExpiry = PassportExpiry,
+                Roles = Roles.Select(role => new RoleEntry { Name = role.Name, Level = role.Level, Rate = role.Rate }).ToList()
+            };
+
+        public IEnumerable<ExpiryReminder> BuildReminders()
+        {
+            if (PliExpiry.HasValue) yield return new ExpiryReminder(FullName, "PLI", (PliExpiry.Value - DateTime.Today).Days);
+            if (DrivingLicenceExpiry.HasValue) yield return new ExpiryReminder(FullName, "Driving licence", (DrivingLicenceExpiry.Value - DateTime.Today).Days);
+            if (PassportExpiry.HasValue) yield return new ExpiryReminder(FullName, "Passport", (PassportExpiry.Value - DateTime.Today).Days);
+        }
+    }
+
+    private class RoleEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Level { get; set; } = string.Empty;
+        public decimal? Rate { get; set; }
+    }
+
+    private readonly record struct ExpiryReminder(string PersonName, string DocumentTitle, int DaysLeft);
+}

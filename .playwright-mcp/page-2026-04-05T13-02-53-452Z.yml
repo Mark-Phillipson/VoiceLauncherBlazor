@@ -1,0 +1,229 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - list [ref=e5]:
+      - listitem [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - generic [ref=e9]: Voice Admin
+            - generic [ref=e10]: 🔑
+          - generic [ref=e11]: Voice-first control center
+        - generic [ref=e12]:
+          - button "Keys" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]: 
+            - text: Keys
+          - button "Switch to dark mode" [ref=e17] [cursor=pointer]:
+            - generic [ref=e18]: 🌙
+            - generic [ref=e19]: Dark
+      - listitem [ref=e20]:
+        - link "Home 🏠" [ref=e21] [cursor=pointer]:
+          - /url: ""
+          - generic [ref=e22]: ">"
+          - generic [ref=e23]: Home 🏠
+      - listitem [ref=e24]:
+        - link "Pedal 🎮" [ref=e25] [cursor=pointer]:
+          - /url: accessible-launchers
+          - generic [ref=e26]: "#"
+          - generic [ref=e27]: Pedal 🎮
+      - listitem [ref=e28]:
+        - link "Search 🔍" [ref=e29] [cursor=pointer]:
+          - /url: globalsearch
+          - generic [ref=e30]: "?"
+          - generic [ref=e31]: Search 🔍
+      - listitem [ref=e32]:
+        - link "Freelancer Portal" [ref=e33] [cursor=pointer]:
+          - /url: /freelancer-profile-manager
+          - generic [ref=e34]: F
+          - generic [ref=e35]: Freelancer Portal
+      - listitem [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]: £
+          - generic [ref=e39]: Launch Categories ️
+      - listitem [ref=e40]:
+        - generic [ref=e41]:
+          - link "Launch 🚀" [ref=e42] [cursor=pointer]:
+            - /url: /launcherstable/0
+            - generic [ref=e43]: $
+            - generic [ref=e44]: Launch 🚀
+          - button "Create a new launcher" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]: 
+            - text: New
+      - listitem [ref=e47]:
+        - link "Favorites ⭐" [ref=e48] [cursor=pointer]:
+          - /url: /launchersfavourites/
+          - generic [ref=e49]: "%"
+          - generic [ref=e50]: Favorites ⭐
+      - listitem [ref=e51]:
+        - link "Languages 💻" [ref=e52] [cursor=pointer]:
+          - /url: languages
+          - generic [ref=e53]: "*"
+          - generic [ref=e54]: Languages 💻
+      - listitem [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: (
+          - generic [ref=e58]: Snippet Categories 🏷️
+      - listitem [ref=e59]:
+        - generic [ref=e60]:
+          - 'link "Snippets {}" [ref=e61] [cursor=pointer]':
+            - /url: intellisenses
+            - generic [ref=e62]: "!"
+            - generic [ref=e63]: "Snippets {}"
+          - button "Create a new custom IntelliSense" [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]: 
+            - text: New
+      - listitem [ref=e66]:
+        - link "Talon Search 🎤" [ref=e67] [cursor=pointer]:
+          - /url: talon-voice-command-search
+          - generic [ref=e68]: /
+          - generic [ref=e69]: Talon Search 🎤
+      - listitem [ref=e70]:
+        - link "Calendar 📅" [ref=e71] [cursor=pointer]:
+          - /url: googlecalendar
+          - generic [ref=e72]: )
+          - generic [ref=e73]: Calendar 📅
+      - listitem [ref=e74]:
+        - link "More ... ➕" [ref=e75] [cursor=pointer]:
+          - /url: overspill
+          - generic [ref=e76]: ^
+          - generic [ref=e77]: More ... ➕
+      - listitem [ref=e78]:
+        - link "Todo ✅" [ref=e79] [cursor=pointer]:
+          - /url: todos
+          - generic [ref=e80]: "&"
+          - generic [ref=e81]: Todo ✅
+      - listitem [ref=e82]:
+        - link "AI Chatbot 💬" [ref=e83] [cursor=pointer]:
+          - /url: chat
+          - generic [ref=e84]: +
+          - generic [ref=e85]: AI Chatbot 💬
+      - listitem [ref=e86]:
+        - link "AI Components 🧩" [ref=e87] [cursor=pointer]:
+          - /url: smart-components
+          - generic [ref=e88]: 
+          - text: AI Components 🧩
+    - main [ref=e89]:
+      - article [ref=e90]:
+        - generic [ref=e91]:
+          - heading "Freelancer Profile Manager" [level=1] [ref=e92]
+          - generic [ref=e93]:
+            - generic [ref=e96]:
+              - heading "Add / Update Profile" [level=2] [ref=e97]
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - generic [ref=e100]:
+                    - generic [ref=e101]: First name
+                    - textbox "First name" [ref=e102]
+                  - generic [ref=e103]:
+                    - generic [ref=e104]: Last name
+                    - textbox "Last name" [ref=e105]
+                  - generic [ref=e106]:
+                    - generic [ref=e107]: Email address
+                    - textbox "Email address" [ref=e108]
+                  - generic [ref=e109]:
+                    - generic [ref=e110]: Address
+                    - textbox "Address" [ref=e111]
+                  - generic [ref=e112]:
+                    - generic [ref=e113]: Company name
+                    - textbox "Company name" [ref=e114]
+                  - generic [ref=e115]:
+                    - generic [ref=e116]: Preferred airport
+                    - combobox "Preferred airport" [ref=e117]:
+                      - option "Select airport" [selected]
+                      - option "Heathrow"
+                      - option "Gatwick"
+                      - option "Stansted"
+                      - option "Manchester"
+                      - option "Birmingham"
+                - separator [ref=e118]
+                - generic [ref=e119]:
+                  - heading "Compliance / document tracking" [level=3] [ref=e120]
+                  - generic [ref=e121]:
+                    - generic [ref=e122]:
+                      - generic [ref=e123]: PLI expiry date
+                      - textbox "PLI expiry date" [ref=e124]
+                    - generic [ref=e125]:
+                      - generic [ref=e126]: Driving licence number
+                      - textbox "Driving licence number" [ref=e127]
+                    - generic [ref=e128]:
+                      - generic [ref=e129]: Driving licence expiry
+                      - textbox "Driving licence expiry" [ref=e130]
+                    - generic [ref=e131]:
+                      - generic [ref=e132]: Passport number
+                      - textbox "Passport number" [ref=e133]
+                    - generic [ref=e134]:
+                      - generic [ref=e135]: Passport expiry
+                      - textbox "Passport expiry" [ref=e136]
+                - generic [ref=e137]:
+                  - heading "Skills / roles" [level=3] [ref=e138]
+                  - generic [ref=e140]:
+                    - generic [ref=e141]:
+                      - generic [ref=e142]: Role
+                      - textbox "e.g. Project manager" [ref=e143]
+                    - generic [ref=e144]:
+                      - generic [ref=e145]: Level
+                      - combobox [ref=e146]:
+                        - option "Beginner" [selected]
+                        - option "Intermediate"
+                        - option "Advanced"
+                    - generic [ref=e147]:
+                      - generic [ref=e148]: Hourly rate
+                      - spinbutton [ref=e149]
+                    - button "Remove role" [ref=e151] [cursor=pointer]
+                  - button "Add role" [ref=e152] [cursor=pointer]
+                - generic [ref=e153]:
+                  - button "Reset" [ref=e154] [cursor=pointer]
+                  - button "Save profile" [ref=e155] [cursor=pointer]
+            - generic [ref=e156]:
+              - generic [ref=e158]:
+                - heading "Search records" [level=2] [ref=e159]
+                - generic [ref=e160]:
+                  - textbox "Search name, email, company or airport" [ref=e162]
+                  - generic [ref=e163]:
+                    - generic [ref=e164]: Airport
+                    - combobox [ref=e165]:
+                      - option "All airports" [selected]
+                      - option "Heathrow"
+                      - option "Gatwick"
+                      - option "Stansted"
+                      - option "Manchester"
+                      - option "Birmingham"
+                  - generic [ref=e166]:
+                    - generic [ref=e167]: Expiry filter
+                    - combobox [ref=e168]:
+                      - option "All records" [selected]
+                      - option "Expiring in 30 days"
+                      - option "Expiring in 60 days"
+                - table [ref=e170]:
+                  - rowgroup [ref=e171]:
+                    - row "Name Company Airport Next expiry" [ref=e172]:
+                      - columnheader "Name" [ref=e173]
+                      - columnheader "Company" [ref=e174]
+                      - columnheader "Airport" [ref=e175]
+                      - columnheader "Next expiry" [ref=e176]
+                  - rowgroup [ref=e177]:
+                    - row "Amelia Taylor Aurora Operations Heathrow Apr 23" [ref=e178]:
+                      - cell "Amelia Taylor" [ref=e179]
+                      - cell "Aurora Operations" [ref=e180]
+                      - cell "Heathrow" [ref=e181]
+                      - cell "Apr 23" [ref=e182]:
+                        - generic [ref=e183]: Apr 23
+                    - row "Callum Harris North Bridge Ltd. Manchester Apr 27" [ref=e184]:
+                      - cell "Callum Harris" [ref=e185]
+                      - cell "North Bridge Ltd." [ref=e186]
+                      - cell "Manchester" [ref=e187]
+                      - cell "Apr 27" [ref=e188]:
+                        - generic [ref=e189]: Apr 27
+              - generic [ref=e191]:
+                - heading "Upcoming reminders" [level=2] [ref=e192]
+                - generic [ref=e193]:
+                  - generic [ref=e194]:
+                    - generic [ref=e195]:
+                      - strong [ref=e196]: Amelia Taylor
+                      - generic [ref=e197]: Driving licence
+                    - generic [ref=e198]: 18 d
+                  - generic [ref=e199]:
+                    - generic [ref=e200]:
+                      - strong [ref=e201]: Callum Harris
+                      - generic [ref=e202]: PLI
+                    - generic [ref=e203]: 22 d
+  - contentinfo [ref=e204]:
+    - generic [ref=e205]: © Voice Admin 2026, Powered by.NET 10.0.5

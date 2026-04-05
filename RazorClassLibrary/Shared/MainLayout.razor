@@ -2,33 +2,85 @@
 @using Blazored.Toast.Configuration
 @using RazorClassLibrary.Shared
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome"
     SuccessClass="success-toast-override" SuccessIcon="fa fa-thumbs-up" ErrorIcon="fa fa-bug" ShowProgressBar="true"
     RemoveToastsOnNavigation="true" InfoIcon="fa fa-info" WarningIcon="fa fa-warning" />
 
-<div class="page">
-    <div class="sidebar">
+<div class="page @CurrentThemeClass">
+    <div class="sidebar @(IsSidebarCollapsed ? "sidebar-collapsed" : string.Empty)">
         @if (ShowNavMenu)
         {
-            <NavMenu />
+            <NavMenu IsDarkTheme='@(CurrentThemeClass == "theme-dark")'
+                     ThemeToggleLabel="@ThemeToggleLabel"
+                     IsSidebarCollapsed="@IsSidebarCollapsed"
+                     OnToggleSidebarCollapse="ToggleSidebarCollapse"
+                     OnToggleTheme="ToggleTheme" />
         }
     </div>
 
     <main class="main">
-        <article class="content px-4">
+        <article class="content pe-4 ps-5">
             @Body
         </article>
     </main>
 </div>
-<footer class="center-footer">&copy; Voice Admin @DateTime.Now.Year,
-    @if (Environment.MachineName == "J40L4V3")
-    {
-        <text>Powered by</text>
-        @System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
-    }
+<footer class="center-footer @CurrentThemeClass d-flex justify-content-between align-items-center">
+    <div>
+        &copy; Voice Admin @DateTime.Now.Year,
+        @if (Environment.MachineName == "J40L4V3")
+        {
+            <text>Powered by</text>
+            @System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
+        }
+    </div>
 </footer>
 @code {
+    private string CurrentThemeClass = "theme-light";
+    private bool IsSidebarCollapsed;
+    private const string ThemeStorageKey = "appTheme";
+    private const string SidebarStorageKey = "appSidebarCollapsed";
+    private string ThemeToggleLabel => CurrentThemeClass == "theme-dark" ? "Switch to light mode" : "Switch to dark mode";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var shouldRefreshUi = false;
+
+            var savedTheme = await JS.InvokeAsync<string>("localStorage.getItem", ThemeStorageKey);
+            if (!string.IsNullOrEmpty(savedTheme))
+            {
+                CurrentThemeClass = savedTheme == "dark" ? "theme-dark" : "theme-light";
+                shouldRefreshUi = true;
+            }
+
+            var savedSidebarState = await JS.InvokeAsync<string>("localStorage.getItem", SidebarStorageKey);
+            if (!string.IsNullOrEmpty(savedSidebarState))
+            {
+                IsSidebarCollapsed = savedSidebarState == "1";
+                shouldRefreshUi = true;
+            }
+
+            if (shouldRefreshUi)
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task ToggleTheme()
+    {
+        CurrentThemeClass = CurrentThemeClass == "theme-dark" ? "theme-light" : "theme-dark";
+        await JS.InvokeVoidAsync("localStorage.setItem", ThemeStorageKey, CurrentThemeClass == "theme-dark" ? "dark" : "light");
+    }
+
+    private async Task ToggleSidebarCollapse()
+    {
+        IsSidebarCollapsed = !IsSidebarCollapsed;
+        await JS.InvokeVoidAsync("localStorage.setItem", SidebarStorageKey, IsSidebarCollapsed ? "1" : "0");
+    }
     private bool ShowNavMenu = true;
 
     protected override void OnInitialized()
