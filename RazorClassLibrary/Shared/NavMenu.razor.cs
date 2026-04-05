@@ -12,6 +12,8 @@ namespace RazorClassLibrary.Shared
 		[Parameter] public EventCallback OnToggleSidebarCollapse { get; set; }
 		private bool collapseNavMenu = true;
 		private bool accessKeysEnabled = true;
+		// Keep meaningful icons in collapsed mode; only show access-key glyphs when expanded.
+		private bool ShowAccessKeys => accessKeysEnabled && !IsSidebarCollapsed;
 		// Always show menu; avoid Bootstrap collapse hiding on widescreen
 		private string? NavRootClass => IsSidebarCollapsed ? "collapsed" : null;
 		protected override void OnInitialized()

@@ -49,9 +49,10 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey(">")" class="nav-link" href="" Match="NavLinkMatch.All"
+				title="Home"
 				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>></kbd>
 					}
@@ -67,9 +68,10 @@
 			</NavLink>
 		</li>		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("#")" class="nav-link" href="accessible-launchers"
+				title="Pedal"
 				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>#</kbd>
 					}
@@ -87,9 +89,9 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("?")" class="nav-link" href="globalsearch" @onclick="MenuItemSelected">
+			<NavLink accesskey="@GetAccessKey("?")" class="nav-link" href="globalsearch" title="Search" @onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>?</kbd>
 					}
@@ -106,9 +108,10 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("£")"
+				title="Launch Categories"
 				@onclick="@(() => LoadCategories("Launch Applications"))">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>£</kbd>
 					}
@@ -128,9 +131,10 @@
 		<li class="nav-item px-3">
 			<div class="menu-item-inner">
 				<NavLink accesskey="@GetAccessKey("$")" class="nav-link" href="/launcherstable/0"
+					title="Launch"
 					@onclick="MenuItemSelected">
 					<span aria-hidden="true">
-						@if (accessKeysEnabled)
+						@if (ShowAccessKeys)
 						{
 							<kbd class='mr-1'>$</kbd>
 						}
@@ -155,9 +159,10 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" href="/launchersfavourites/" accesskey="@GetAccessKey("%")"
+				title="Favorites"
 				@onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>%</kbd>
 					}
@@ -174,9 +179,9 @@
 		</li>
 
 		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("*")" class="nav-link" href="languages" @onclick="MenuItemSelected">
+			<NavLink accesskey="@GetAccessKey("*")" class="nav-link" href="languages" title="Languages" @onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>*</kbd>
 					}
@@ -195,9 +200,10 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("(")"
+				title="Snippet Categories"
 				@onclick="@(() => LoadCategories("IntelliSense Command"))">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>(</kbd>
 					}
@@ -215,9 +221,9 @@
 		</li>
 		<li class="nav-item px-3">
 			<div class="menu-item-inner">
-				<NavLink accesskey="@GetAccessKey("!")" class="nav-link" href="intellisenses" @onclick="MenuItemSelected">
+				<NavLink accesskey="@GetAccessKey("!")" class="nav-link" href="intellisenses" title="Snippets" @onclick="MenuItemSelected">
 					<span aria-hidden="true">
-						@if (accessKeysEnabled)
+						@if (ShowAccessKeys)
 						{
 							<kbd class='mr-1'>!</kbd>
 						}
@@ -241,9 +247,9 @@
 		   @if (IsTalonSearchEnabled())
 		   {
 			   <li class="nav-item px-3">
-				   <NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="talon-voice-command-search" @onclick="MenuItemSelected">
+				   <NavLink accesskey="@GetAccessKey("/")" class="nav-link" href="talon-voice-command-search" title="Talon Search" @onclick="MenuItemSelected">
 					   <span aria-hidden="true">
-						   @if (accessKeysEnabled)
+						   @if (ShowAccessKeys)
 						   {
 							   <kbd class='mr-1'>/</kbd>
 						   }
@@ -262,9 +268,9 @@
 		@if (Environment.MachineName == "J40L4V3")
 		{
 			<li class="nav-item px-3">
-				<NavLink class="nav-link" href="googlecalendar" accesskey="@GetAccessKey(")")" @onclick="MenuItemSelected">
+				<NavLink class="nav-link" href="googlecalendar" accesskey="@GetAccessKey(")")" title="Calendar" @onclick="MenuItemSelected">
 					<span aria-hidden="true">
-						@if (accessKeysEnabled)
+						@if (ShowAccessKeys)
 						{
 							<kbd class='mr-1'>)</kbd>
 						}
@@ -282,9 +288,9 @@
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
-				<NavLink class="nav-link" href="overspill" accesskey="@GetAccessKey("^")" @onclick="MenuItemSelected">
+				<NavLink class="nav-link" href="overspill" accesskey="@GetAccessKey("^")" title="More" @onclick="MenuItemSelected">
 					<span aria-hidden="true">
-						@if (accessKeysEnabled)
+						@if (ShowAccessKeys)
 						{
 							<kbd class='mr-1'>^</kbd>
 						}
@@ -300,9 +306,9 @@
 				</NavLink>
 			</li>
 			<li class="nav-item px-3">
-				<NavLink accesskey="@GetAccessKey("&")" class="nav-link" href="todos" @onclick="MenuItemSelected">
+				<NavLink accesskey="@GetAccessKey("&")" class="nav-link" href="todos" title="Todo" @onclick="MenuItemSelected">
 					<span aria-hidden="true">
-						@if (accessKeysEnabled)
+						@if (ShowAccessKeys)
 						{
 							<kbd class='mr-1'>&</kbd>
 						}
@@ -321,9 +327,9 @@
 			</li>
 		}
 		<li class="nav-item px-3">
-			<NavLink accesskey="@GetAccessKey("+")" class="nav-link" href="chat" @onclick="MenuItemSelected">
+			<NavLink accesskey="@GetAccessKey("+")" class="nav-link" href="chat" title="AI Chatbot" @onclick="MenuItemSelected">
 				<span aria-hidden="true">
-					@if (accessKeysEnabled)
+					@if (ShowAccessKeys)
 					{
 						<kbd class='mr-1'>+</kbd>
 					}
@@ -335,7 +341,7 @@
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
-			  <NavLink class="nav-link" href="smart-components">
+			  <NavLink class="nav-link" href="smart-components" title="AI Components">
 				  <span class="oi oi-code" aria-hidden="true"></span>
 				  <span>&nbsp; AI Components 🧩</span>
 			  </NavLink>
@@ -347,4 +353,5 @@
 		</div> *@
 	</ul>
 </div>
+
 
