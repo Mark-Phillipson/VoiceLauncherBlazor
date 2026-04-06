@@ -33,7 +33,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--panel-bg);
+  background-color: pink; /* var(--panel-bg); */
   border-radius: 18px;
   box-shadow: 0 4px 16px color-mix(in srgb, var(--border-color) 14%, transparent);
   padding: 0.5rem;

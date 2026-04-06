@@ -251,6 +251,101 @@
 	min-width: 290px;
 }
 
+/* Narrow sidebar when the layout sets the container to collapsed */
+.sidebar.sidebar-collapsed {
+	width: 48px !important;
+	min-width: 48px !important;
+	max-width: 48px !important;
+	overflow: hidden !important;
+}
+
+/* Remove left padding so icons sit fully inside the visible column */
+.sidebar.sidebar-collapsed {
+	padding-left: 2px !important;
+	padding-right: 2px !important;
+	box-sizing: border-box !important;
+}
+
+/* Ensure nothing inside the collapsed sidebar forces a larger min-width */
+.sidebar.sidebar-collapsed * {
+	min-width: 0 !important;
+}
+
+/* Ensure the NavMenu root element (the component root renders a div with class 'collapsed')
+   occupies the collapsed sidebar width and doesn't keep its original min-width. */
+.sidebar.sidebar-collapsed > .collapsed,
+.sidebar.sidebar-collapsed > div.collapsed {
+	width: 48px !important;
+	min-width: 48px !important;
+	max-width: 48px !important;
+}
+
+/* Ensure the NavMenu element itself shrinks when it receives the `collapsed` class
+   (NavMenu renders its root div with class="collapsed"). This clamps widths
+   and prevents items from stacking horizontally. */
+.sidebar .collapsed,
+.collapsed {
+	width: 48px !important;
+	min-width: 48px !important;
+	max-width: 48px !important;
+	overflow: hidden;
+}
+
+.collapsed .nav {
+	width: 48px;
+}
+
+/* Ensure individual nav items and icons fit within the 48px collapsed column
+   and are vertically centered rather than clipped. */
+.collapsed ::deep .nav-item,
+.collapsed ::deep .nav-item .nav-link {
+	width: 48px !important;
+	box-sizing: border-box;
+}
+
+.collapsed ::deep .nav-item ::deep .nav-link {
+	padding: 0 !important;
+	height: 48px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+/* Ensure anchors inside the collapsed sidebar do not overflow and have no extra margin */
+.sidebar.sidebar-collapsed .nav,
+.sidebar.sidebar-collapsed .nav-item,
+.sidebar.sidebar-collapsed .nav-link {
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: visible !important;
+}
+
+/* Strong override for any leftover Bootstrap padding utilities on the content article */
+.sidebar.sidebar-collapsed + .main .content {
+	padding-left: 2px !important;
+}
+
+/* Make sure SVG/icon elements scale to fit the reduced column */
+.collapsed ::deep svg,
+.collapsed ::deep .oi,
+.collapsed .nav-title-icon {
+	width: 24px !important;
+	height: 24px !important;
+	font-size: 1.25rem !important;
+	line-height: 1 !important;
+}
+
+/* Ensure header control buttons also fit and don't overflow */
+.collapsed .header-action-button,
+.collapsed .menu-item-inner button {
+	width: 40px !important;
+	min-width: 40px !important;
+	padding: 0.25rem !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
 .collapsed .nav-subtitle,
 .collapsed .nav-title,
 .collapsed .nav-item ::deep .nav-link > span + span,
@@ -286,6 +381,10 @@
 
 .collapsed .nav-header-controls {
 	justify-content: center;
+	/* Stack the header control buttons vertically when collapsed */
+	flex-direction: column;
+	gap: 0.45rem;
+	align-items: center;
 }
 
 .collapsed .header-action-button {
