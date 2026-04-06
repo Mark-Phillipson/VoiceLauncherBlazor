@@ -39,26 +39,106 @@ builder.AddServiceDefaults();
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Service defaults added");
 
 // Blazor Server services
-var smartComponentsApiKey =
-    builder.Configuration["SmartComponents:ApiKey"] ??
-    builder.Configuration["OpenAI:ApiKey"] ??
-    Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-
-var smartComponentsBuilder = builder.Services.AddSmartComponents();
-if (!string.IsNullOrWhiteSpace(smartComponentsApiKey))
+// Feature flag: control whether SmartComponents are registered at startup.
+var smartComponentsEnabled = false;
+bool.TryParse(builder.Configuration["SmartComponents:Enabled"] ?? builder.Configuration["Features:SmartComponentsEnabled"], out smartComponentsEnabled);
+object? smartComponentsBuilder = null;
+if (smartComponentsEnabled)
 {
-    try
+    // Only register SmartComponents when explicitly enabled via config.
+    var smartComponentsApiKey =
+        builder.Configuration["SmartComponents:ApiKey"] ??
+        builder.Configuration["OpenAI:ApiKey"] ??
+        Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+    smartComponentsBuilder = builder.Services.AddSmartComponents();
+    if (!string.IsNullOrWhiteSpace(smartComponentsApiKey))
     {
-        smartComponentsBuilder.WithInferenceBackend<OpenAIInferenceBackend>();
+        try
+        {
+            // Use reflection to invoke WithInferenceBackend if actual builder type is internal.
+            var withInference = smartComponentsBuilder.GetType().GetMethod("WithInferenceBackend");
+            if (withInference != null)
+            {
+                // Generic method — attempt to make generic with OpenAI backend type
+                try
+                {
+                    var generic = withInference.MakeGenericMethod(typeof(OpenAIInferenceBackend));
+                    generic.Invoke(smartComponentsBuilder, Array.Empty<object>());
+                }
+                catch
+                {
+                    // Fallback: try direct call if available
+                    try
+                    {
+                        // If builder exposes a strongly-typed method, attempt dynamic invocation
+                        dynamic dyn = smartComponentsBuilder;
+                        dyn.WithInferenceBackend<OpenAIInferenceBackend>();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"OpenAI backend registration failed; continuing without OpenAI inference backend. {ex}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"OpenAI backend registration failed; continuing without OpenAI inference backend. {ex}");
+        }
     }
-    catch (Exception ex)
+    else
     {
-        Console.WriteLine($"OpenAI backend registration failed; continuing without OpenAI inference backend. {ex}");
+        Console.WriteLine("OpenAI API key not configured. Continuing without OpenAI inference backend.");
     }
 }
 else
 {
-    Console.WriteLine("OpenAI API key not configured. Continuing without OpenAI inference backend.");
+    Console.WriteLine("SmartComponents feature disabled by configuration; skipping registration.");
+}
+// Local embeddings: do NOT initialize by default during startup because
+// the local model files can be large and may cause publish/startup issues.
+// Enable via configuration or initialize on-demand using the admin endpoint below.
+var enableLocalEmbeddings = false;
+bool.TryParse(builder.Configuration["SmartComponents:EnableLocalEmbeddings"], out enableLocalEmbeddings);
+if (enableLocalEmbeddings)
+{
+    try
+    {
+        var methods = smartComponentsBuilder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        var candidate = methods.FirstOrDefault(m =>
+            (m.Name.IndexOf("local", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             m.Name.IndexOf("embedd", StringComparison.OrdinalIgnoreCase) >= 0) &&
+            m.GetParameters().Length <= 2
+        );
+
+        if (candidate != null)
+        {
+            try
+            {
+                var paramCount = candidate.GetParameters().Length;
+                object?[] invokeArgs = paramCount == 0 ? Array.Empty<object>() : Enumerable.Repeat<object?>(null, paramCount).ToArray();
+                candidate.Invoke(smartComponentsBuilder, invokeArgs);
+                Console.WriteLine($"Local embeddings backend registered at startup via method '{candidate.Name}'.");
+            }
+            catch (TargetInvocationException tie)
+            {
+                Console.WriteLine($"Local embeddings registration threw during invocation: {tie.InnerException?.Message ?? tie.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Local embeddings registration invocation failed: {ex}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Local embeddings registration method not found on SmartComponents builder; skipping automatic registration.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Local embeddings registration failed; continuing without local embeddings. {ex}");
+    }
 }
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -382,6 +462,57 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.MapStaticAssets();
 app.UseRouting();
+// Admin endpoint to initialize local embeddings on-demand (avoids startup/publish-time loading)
+app.MapPost("/admin/initialize-local-embeddings", async context =>
+{
+    try
+    {
+        if (smartComponentsBuilder == null)
+        {
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsync("SmartComponents feature is disabled; enable it in configuration to initialize local embeddings.");
+            return;
+        }
+
+        var methods = smartComponentsBuilder.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        var candidate = methods.FirstOrDefault(m =>
+            (m.Name.IndexOf("local", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             m.Name.IndexOf("embedd", StringComparison.OrdinalIgnoreCase) >= 0) &&
+            m.GetParameters().Length <= 2
+        );
+
+        if (candidate == null)
+        {
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsync("Local embeddings registration method not available on this SmartComponents version.");
+            return;
+        }
+
+        try
+        {
+            var paramCount = candidate.GetParameters().Length;
+            object?[] invokeArgs = paramCount == 0 ? Array.Empty<object>() : Enumerable.Repeat<object?>(null, paramCount).ToArray();
+            candidate.Invoke(smartComponentsBuilder, invokeArgs);
+            context.Response.StatusCode = 200;
+            await context.Response.WriteAsync($"Local embeddings initialized (registration invoked via '{candidate.Name}').");
+        }
+        catch (TargetInvocationException tie)
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync($"Failed to initialize local embeddings (invocation error): {tie.InnerException?.Message ?? tie.Message}");
+        }
+        catch (Exception ex)
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync($"Failed to initialize local embeddings: {ex.Message}");
+        }
+    }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync($"Failed to initialize local embeddings: {ex.Message}");
+    }
+});
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host"); // Ensure _Host exists from Server template
 

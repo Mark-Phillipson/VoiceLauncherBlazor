@@ -340,12 +340,15 @@
 				 </span> <span>&nbsp; AI Chatbot 💬</span>
 			</NavLink>
 		</li>
-		<li class="nav-item px-3">
-			  <NavLink class="nav-link" href="smart-components" title="AI Components">
-				  <span class="oi oi-code" aria-hidden="true"></span>
-				  <span>&nbsp; AI Components 🧩</span>
-			  </NavLink>
-		</li>
+		@if (ShowSmartComponents)
+		{
+			<li class="nav-item px-3">
+				  <NavLink class="nav-link" href="smart-components" title="AI Components">
+					  <span class="oi oi-code" aria-hidden="true"></span>
+					  <span>&nbsp; AI Components 🧩</span>
+				  </NavLink>
+			</li>
+		}
 		@* <div class="nav-item px-3">
 			<NavLink class="nav-link" href="accessible-launchers">
 				<span class="oi oi-list-rich" aria-hidden="true"></span> Accessible Launchers
@@ -353,5 +356,13 @@
 		</div> *@
 	</ul>
 </div>
+
+	@code {
+		[Microsoft.AspNetCore.Components.Inject]
+		public Microsoft.Extensions.Configuration.IConfiguration? Configuration { get; set; }
+
+		private bool ShowSmartComponents =>
+			bool.TryParse(Configuration?["SmartComponents:Enabled"] ?? Configuration?["Features:SmartComponentsEnabled"], out var v) && v;
+	}
 
 
