@@ -65,3 +65,12 @@ AutoMapper (NuGet package) is now distributed under LuckyPenny's license requiri
 ---
 
 Please pick one of the short-term actions (purchase, pin OSS, migrate spike) and I will implement the chosen path (create PR, or add pinned package updates, or scaffold a Mapster migration).
+
+## Licensing clarification
+
+Per the official AutoMapper pricing page (https://automapper.io/#pricing), AutoMapper offers a free tier for personal, non-commercial, open-source, and educational use. If this project is purely non-commercial and does not generate revenue, you may be able to continue using AutoMapper without purchasing a LuckyPenny license.
+
+Notes / actions to confirm:
+- Verify whether `VoiceLauncherBlazor` (and any downstream deployments) are used in a way considered "commercial" under the AutoMapper/LuckyPenny terms.
+- If there's any uncertainty about legal interpretation, consult legal or the licensed terms directly before deploying to production.
+- If you confirm non-commercial status, update this issue and the project README to record the rationale for continuing to use AutoMapper.
