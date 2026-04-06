@@ -220,4 +220,10 @@ public partial class LauncherAddEdit : ComponentBase
     {
         NavigationManager.NavigateTo($"/launcherstable/{LauncherDTO.CategoryId}");
     }
+
+    protected void ToggleFavourite()
+    {
+        LauncherDTO.Favourite = !LauncherDTO.Favourite;
+        StateHasChanged();
+    }
 }
