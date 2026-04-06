@@ -1,3 +1,39 @@
+/* Scoped theme-aware overrides for AIChatComponent
+   - Replace hard-coded dark backgrounds with CSS variables that map to Bootstrap-like theme variables
+   - This file is scoped to the component so rules won't leak globally
+*/
+
+:root {
+  --ai-surface-bg: var(--bs-body-bg, #ffffff);
+  --ai-surface-color: var(--bs-body-color, #212529);
+  --ai-input-bg: var(--bs-tertiary-bg, #f8f9fa);
+  --ai-input-color: var(--bs-body-color, #212529);
+}
+
+/* Override usages of Bootstrap utility classes inside this component so they follow theme variables */
+.bg-dark {
+  background-color: var(--ai-surface-bg) !important;
+  color: var(--ai-surface-color) !important;
+}
+.text-light {
+  color: var(--ai-surface-color) !important;
+}
+
+/* Input and response areas: use theme variables instead of fixed dark color */
+.ai-input-bg,
+textarea.ai-input-bg,
+.ai-response-bg,
+textarea.ai-response-bg {
+  background-color: var(--ai-input-bg) !important;
+  color: var(--ai-input-color) !important;
+  border-color: var(--bs-border-color, #dee2e6) !important;
+}
+
+/* Progress and badges that relied on dark backgrounds can be tuned via variables if needed */
+.debounce-ready-badge {
+  background: transparent;
+  color: var(--ai-surface-color) !important;
+}
 .chat-bubble {
     display: flex;
     margin-bottom: 1rem;

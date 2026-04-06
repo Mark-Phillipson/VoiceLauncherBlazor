@@ -65,7 +65,7 @@
         </div>
         <label class='sr-only m-1' for='inputElement'>Chat Message</label>
         <textarea rows='4' id='inputElement' @ref="inputElement"
-            class='form-control m-1 text-light border border-success' style="background-color: #2a2a2a !important;"
+            class='form-control m-1 text-light border border-success ai-input-bg'
             placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
             @bind-value='PromptInput' @bind-value:event='oninput'
             @onkeydown="OnInputKeyDown"></textarea>
@@ -326,8 +326,8 @@
             }
             else
             {
-                <textarea @ref='responseElement' class='form-control text-light border-0'
-                    style="background-color: #2a2a2a !important; font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
+                <textarea @ref='responseElement' class='form-control text-light border-0 ai-response-bg'
+                    style="font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
                     rows="30">@TextBlock </textarea>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {

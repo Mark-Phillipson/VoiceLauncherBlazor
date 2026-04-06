@@ -1,3 +1,31 @@
+/* Global theme variable defaults and dark-mode overrides
+   Loaded after app styles; adjust Bootstrap-like CSS variables used by components.
+*/
+
+:root {
+  /* Light theme defaults */
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+  --bs-tertiary-bg: #f8f9fa;
+  --bs-border-color: #dee2e6;
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #212529;
+  --bs-body-color: #f8f9fa;
+  --bs-tertiary-bg: #2a2a2a;
+  --bs-border-color: #444;
+}
+
+/* Optional targeted fixes for the AI chat component when light theme is active */
+.ai-input-bg, textarea.ai-input-bg {
+  background-color: var(--bs-tertiary-bg) !important;
+  color: var(--bs-body-color) !important;
+}
+.ai-response-bg, textarea.ai-response-bg {
+  background-color: var(--bs-tertiary-bg) !important;
+  color: var(--bs-body-color) !important;
+}
 /* Overrides to ensure light theme components don't stay dark
    Loaded after component CSS to override compiled styles when needed. */
 
