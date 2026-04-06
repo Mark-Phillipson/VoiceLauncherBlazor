@@ -9,7 +9,7 @@
 
 .layout-as-cards a {
     text-decoration: none;
-    color: white;
+    color: var(--bs-body-color);
 }
 
 .layout-as-cards .btn {
@@ -32,5 +32,35 @@
 }
 
 .card-title {
-    color: #dcdde8;
+    color: var(--bs-body-color);
+}
+
+/* Theme-aware overrides: ensure outline-light buttons are readable in light theme
+   and remain correct in dark theme. Scoped to this component to avoid global changes. */
+.layout-as-cards .btn.btn-outline-light,
+.layout-as-cards button.btn.btn-outline-light {
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color, rgba(0,0,0,0.125)) !important;
+    background-color: transparent !important;
+}
+.layout-as-cards .btn.btn-outline-light:hover,
+.layout-as-cards .btn.btn-outline-light:focus,
+.layout-as-cards .btn.btn-outline-light:active {
+    color: var(--bs-body-color) !important;
+    background-color: transparent !important;
+    border-color: var(--bs-border-color, rgba(0,0,0,0.125)) !important;
+}
+
+/* Provide a subtle contrast when Bootstrap's --bs-body-color is dark on light themes */
+@media (prefers-color-scheme: light) {
+    .layout-as-cards .btn.btn-outline-light:hover,
+    .layout-as-cards .btn.btn-outline-light:focus {
+        background-color: rgba(0,0,0,0.04) !important;
+    }
+}
+
+/* If using data-bs-theme attribute for dark mode, keep original dark appearance there */
+[data-bs-theme="dark"] .layout-as-cards .btn.btn-outline-light {
+    color: var(--bs-light, #f8f9fa) !important;
+    border-color: var(--bs-light, #f8f9fa) !important;
 }
