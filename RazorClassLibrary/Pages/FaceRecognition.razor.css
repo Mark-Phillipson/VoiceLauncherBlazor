@@ -67,15 +67,17 @@
 }
 
 .list-group-item.active {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--panel-bg);
+    color: var(--text);
 }
 
 .card-header {
-    background-color: #f8f9fa;
+    background-color: var(--panel-bg);
     font-weight: 600;
 }

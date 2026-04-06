@@ -241,6 +241,27 @@ button.selection-card,
 	border-color: var(--control-border) !important;
 }
 
+/* Ensure favorites/cards text is readable in browsers that may cache/scoped styles */
+[data-bs-theme="light"] .layout-as-cards .card span.p-3,
+[data-bs-theme="light"] .layout-as-cards .card span.p-3 u {
+	color: var(--text) !important;
+	-webkit-text-fill-color: var(--text) !important;
+}
+
+[data-bs-theme="light"] .layout-as-cards .card {
+	background-color: var(--panel-bg) !important;
+	border-color: var(--border-color) !important;
+}
+
+/* Aggressive fallback: ensure any text inside the card grid is readable
+   in browsers that keep older compiled scoped CSS rules cached. This
+   forces the computed text color and text-fill color to the theme value. */
+[data-bs-theme="light"] .layout-as-cards,
+[data-bs-theme="light"] .layout-as-cards * {
+	color: var(--text) !important;
+	-webkit-text-fill-color: var(--text) !important;
+}
+
 a,
 .btn-link {
 	color: var(--primary);
@@ -616,4 +637,20 @@ header>h3 {
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
+}
+
+/* Last-resort overrides: ensure card container background uses theme variable
+   even if a compiled/scoped stylesheet with high-specificity is cached */
+body[data-bs-theme="light"] .layout-as-cards .card,
+[data-bs-theme="light"] .layout-as-cards .card {
+	background-color: var(--panel-bg) !important;
+	border-color: var(--border-color) !important;
+	color: var(--text) !important;
+}
+
+/* Also neutralize any inline scoped styles by forcing text fill color */
+[data-bs-theme="light"] .layout-as-cards,
+[data-bs-theme="light"] .layout-as-cards * {
+	-webkit-text-fill-color: var(--text) !important;
+	color: var(--text) !important;
 }

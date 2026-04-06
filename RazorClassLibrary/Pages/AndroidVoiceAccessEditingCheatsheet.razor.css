@@ -1,18 +1,19 @@
 .voice-access-sheet {
-    --sheet-bg: #0e131b;
-    --panel-bg: #141c27;
-    --panel-border: #253446;
-    --title-color: #f2f6fb;
-    --muted-accent: #9ab1c7;
-    --body-text: #d6e2ee;
-    --header-bg: linear-gradient(120deg, #143a63 0%, #0f6a74 100%);
-    --header-text: #f8fcff;
-    --focus-ring: #59a6ff;
-    --command-accent: #9ee6ff;
-    --table-head-bg: #1a2736;
-    --table-row-bg: #141c27;
-    --table-row-alt: #172130;
-    --table-border: #2b3a4a;
+    /* Prefer global theme variables when available, fall back to previous colours */
+    --sheet-bg: var(--sheet-bg, var(--panel-bg, #0e131b));
+    --panel-bg: var(--panel-bg, #141c27);
+    --panel-border: var(--panel-border, #253446);
+    --title-color: var(--title-color, var(--text, #f2f6fb));
+    --muted-accent: var(--muted-accent, #9ab1c7);
+    --body-text: var(--body-text, var(--text, #d6e2ee));
+    --header-bg: var(--header-bg, var(--panel-accent, linear-gradient(120deg, #143a63 0%, #0f6a74 100%)));
+    --header-text: var(--header-text, var(--text, #f8fcff));
+    --focus-ring: var(--focus-ring, #59a6ff);
+    --command-accent: var(--command-accent, #9ee6ff);
+    --table-head-bg: var(--table-head-bg, #1a2736);
+    --table-row-bg: var(--table-row-bg, var(--panel-bg, #141c27));
+    --table-row-alt: var(--table-row-alt, #172130);
+    --table-border: var(--table-border, #2b3a4a);
 
     background:
         radial-gradient(circle at 10% -10%, rgba(22, 118, 129, 0.24), transparent 40%),
@@ -31,7 +32,7 @@
 }
 
 .voice-access-sheet .text-muted {
-    color: #94acc3 !important;
+    color: var(--muted-accent) !important;
 }
 
 .voice-access-hero {
@@ -39,7 +40,7 @@
     border: 1px solid var(--panel-border);
     border-radius: 0.85rem;
     padding: 1rem 1.25rem;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .voice-access-hero h2 {
@@ -61,18 +62,18 @@
 }
 
 .voice-access-search .form-control {
-    border: 1px solid #38516a;
-    background: #0f1620;
-    color: #e7f0fa;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    color: var(--body-text);
 }
 
 .voice-access-search .form-control::placeholder {
-    color: #95abc0;
+    color: var(--placeholder-color, #95abc0);
 }
 
 .voice-access-search .form-control:focus,
 .voice-access-search .btn:focus {
-    box-shadow: 0 0 0 0.25rem rgba(89, 166, 255, 0.22);
+    box-shadow: 0 0 0 0.25rem rgba(89, 166, 255, 0.12);
     border-color: var(--focus-ring);
 }
 
@@ -86,9 +87,9 @@
 }
 
 .meta-chip {
-    background: #1d2c3d;
-    color: #dce9f7;
-    border: 1px solid #35506b;
+    background: var(--meta-chip-bg, var(--panel-bg));
+    color: var(--meta-chip-text, var(--body-text));
+    border: 1px solid var(--meta-chip-border, var(--panel-border));
 }
 
 .source-link {
@@ -97,9 +98,9 @@
 
 .source-link:hover,
 .source-link:focus {
-    color: #ffffff;
-    background: #27415b;
-    border-color: #59a6ff;
+    color: var(--link-hover-text, var(--header-text));
+    background: var(--link-hover-bg, #27415b);
+    border-color: var(--focus-ring);
     text-decoration: none;
 }
 
@@ -127,7 +128,7 @@
 
 .command-category th {
     font-weight: 700;
-    color: #dfeaf6;
+    color: var(--table-head-text, var(--body-text));
     background: var(--table-head-bg);
     border-bottom-width: 1px;
 }
@@ -142,8 +143,8 @@
 
 .command-category.table-hover tbody tr:hover,
 .command-category .table-hover tbody tr:hover {
-    background: #223347;
-    color: #f4f9ff;
+    background: var(--table-row-hover-bg, #223347);
+    color: var(--table-row-hover-text, var(--body-text));
 }
 
 .command-col {
@@ -156,9 +157,9 @@
 }
 
 .category-chip {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--category-chip-text, var(--body-text));
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 999px;
     padding: 0.2rem 0.6rem;
     font-size: 0.8rem;
@@ -167,9 +168,9 @@
 }
 
 .empty-state {
-    background: #2d2a12;
-    border: 1px solid #7a6f2f;
-    color: #f6e8a4;
+    background: var(--empty-state-bg, var(--panel-bg));
+    border: 1px solid var(--empty-state-border, var(--panel-border));
+    color: var(--empty-state-text, var(--body-text));
 }
 
 @media (max-width: 992px) {

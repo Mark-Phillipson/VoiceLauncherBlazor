@@ -9,13 +9,14 @@
 
 .card {
     box-shadow: grey 2px 2px;
-    background-color: black;
+    background-color: var(--panel-bg);
+    color: var(--text);
     margin: 2px;
 }
 
 a {
     text-decoration: none;
-    color: white;
+    color: var(--text);
     margin: 1rem;
 }
 

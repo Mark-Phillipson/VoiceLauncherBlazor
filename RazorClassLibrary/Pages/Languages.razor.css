@@ -83,6 +83,8 @@ text-decoration: none;
 
 .card {
 box-shadow: grey 2px 2px;
+background-color: var(--panel-bg);
+color: var(--text);
 }
 
 a.layout-as-cards a {

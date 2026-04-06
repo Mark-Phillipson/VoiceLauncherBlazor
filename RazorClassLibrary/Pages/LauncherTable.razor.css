@@ -18,6 +18,8 @@
     align-items: center;
     padding: 10px;
     gap: 10px;
+    background-color: var(--panel-bg);
+    color: var(--text);
 }
 
 .card img {
@@ -79,7 +81,7 @@
 }
 
 .card-title {
-    color: #dcdde8;
+    color: var(--text);
     width: 100%;
     text-align: center;
 }

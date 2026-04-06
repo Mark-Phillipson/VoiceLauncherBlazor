@@ -10,10 +10,12 @@
 
 .card {
     box-shadow: grey 2px 2px;
+    background-color: var(--panel-bg);
+    color: var(--text);
 }
 
 a {
     text-decoration: none;
-    color: white;
+    color: var(--text);
     margin:1rem;
 }
