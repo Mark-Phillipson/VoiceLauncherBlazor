@@ -59,3 +59,85 @@
     }
 })();
 </script>
+
+@* Last-resort JS: normalize elements in light mode that still compute very dark backgrounds.
+   This runs on load and when theme is applied to fix stubborn artifacts that come from compiled CSS or inline styles. *@
+<script>
+(() => {
+    try {
+        function lumFromRgbStr(s) {
+            const m = s && s.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (!m) return 1;
+            const r = m[1]/255, g = m[2]/255, b = m[3]/255;
+            const a = [r,g,b].map(c=> c<=0.03928? c/12.92: Math.pow((c+0.055)/1.055,2.4));
+            return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
+        }
+
+        function normalizeLightArtifacts() {
+            const theme = document.documentElement.getAttribute('data-bs-theme') || document.body.getAttribute('data-bs-theme');
+            if (theme !== 'light') return;
+            const panelBg = getComputedStyle(document.documentElement).getPropertyValue('--panel-bg') || '#f7f7f7';
+            const text = getComputedStyle(document.documentElement).getPropertyValue('--text') || '#212529';
+            const els = Array.from(document.querySelectorAll('body *'));
+            for (const el of els) {
+                try {
+                    const cs = getComputedStyle(el);
+                    const bg = cs.backgroundColor;
+                    if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') continue;
+                    const lum = lumFromRgbStr(bg);
+                    if (lum < 0.17) {
+                        el.style.setProperty('background-color', panelBg.trim(), 'important');
+                        el.style.setProperty('color', text.trim(), 'important');
+                    }
+                } catch (e) { /* ignore individual element errors */ }
+            }
+        }
+
+        // Run on load
+        window.addEventListener('load', () => setTimeout(normalizeLightArtifacts, 80));
+        // Run when storage changes (theme toggled elsewhere)
+        window.addEventListener('storage', (e) => { if (e.key === 'appTheme') setTimeout(normalizeLightArtifacts, 80); });
+        // Also observe attribute changes that may indicate theme class toggles
+        const pageEl = document.querySelector('.page') || document.body || document.documentElement;
+        const mo = new MutationObserver(() => setTimeout(normalizeLightArtifacts, 80));
+        mo.observe(pageEl, { attributes: true, attributeFilter: ['class'], subtree: false });
+        // Immediate run
+        setTimeout(normalizeLightArtifacts, 120);
+    } catch (e) { console.error('light-mode-normalize failed', e); }
+})();
+</script>
+
+@* Ensure `data-bs-theme` attribute matches the app's `theme-light` / `theme-dark` setting so attribute-based CSS selectors work *@
+<script>
+(() => {
+    try {
+        const storageKey = 'appTheme';
+        const applyTheme = (theme) => {
+            if (!theme) return;
+            const t = theme === 'dark' ? 'dark' : 'light';
+            try { document.documentElement.setAttribute('data-bs-theme', t); } catch (e) {}
+            try { document.body.setAttribute('data-bs-theme', t); } catch (e) {}
+        };
+
+        // On load, read saved theme or prefer-color-scheme
+        const saved = localStorage.getItem(storageKey);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+
+        // Listen for storage changes (when theme is toggled elsewhere)
+        window.addEventListener('storage', (e) => {
+            if (e.key === storageKey) applyTheme(e.newValue);
+        });
+
+        // Observe class changes on the page container (Blazor toggles theme classes on this element)
+        const obs = new MutationObserver(() => {
+            const pageEl = document.querySelector('.page');
+            const classList = (pageEl && pageEl.className) || document.documentElement.className || document.body.className || '';
+            if (classList.indexOf('theme-dark') !== -1) applyTheme('dark');
+            else if (classList.indexOf('theme-light') !== -1) applyTheme('light');
+        });
+        const target = document.querySelector('.page') || document.body || document.documentElement;
+        obs.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
+    } catch (e) { console.error('theme-sync failed', e); }
+})();
+</script>

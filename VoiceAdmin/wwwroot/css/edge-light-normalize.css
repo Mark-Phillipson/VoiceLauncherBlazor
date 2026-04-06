@@ -1,0 +1,24 @@
+/* Edge / alternative-theme toggles: force light-mode normalization (covers html/body attribute and class toggles) */
+html[data-bs-theme="light"] .tvcs-panel,
+body[data-bs-theme="light"] .tvcs-panel,
+html[data-bs-theme="light"] .card,
+body[data-bs-theme="light"] .card,
+html[data-bs-theme="light"] .card-header,
+body[data-bs-theme="light"] .card-header,
+html.theme-light .tvcs-panel,
+body.theme-light .tvcs-panel,
+.theme-light .tvcs-panel,
+html.theme-light .card,
+body.theme-light .card,
+.theme-light .card,
+html.theme-light .card-header,
+body.theme-light .card-header,
+.theme-light .card-header,
+html[data-bs-theme="light"] .script-content,
+body[data-bs-theme="light"] .script-content,
+html.theme-light .script-content,
+body.theme-light .script-content {
+    background-color: var(--bs-tertiary-bg) !important;
+    color: var(--bs-body-color) !important;
+    border-color: var(--bs-border-color) !important;
+}

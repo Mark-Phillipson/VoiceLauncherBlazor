@@ -36,6 +36,37 @@
         }
     </div>
 </footer>
+@* Sync theme class with `data-bs-theme` for attribute-based CSS selectors *@
+<script>
+(() => {
+    try {
+        const storageKey = 'appTheme';
+        const applyTheme = (theme) => {
+            if (!theme) return;
+            const t = theme === 'dark' ? 'dark' : 'light';
+            try { document.documentElement.setAttribute('data-bs-theme', t); } catch (e) {}
+            try { document.body.setAttribute('data-bs-theme', t); } catch (e) {}
+        };
+
+        const saved = localStorage.getItem(storageKey);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === storageKey) applyTheme(e.newValue);
+        });
+
+        const obs = new MutationObserver(() => {
+            const pageEl = document.querySelector('.page');
+            const classList = (pageEl && pageEl.className) || document.documentElement.className || document.body.className || '';
+            if (classList.indexOf('theme-dark') !== -1) applyTheme('dark');
+            else if (classList.indexOf('theme-light') !== -1) applyTheme('light');
+        });
+        const target = document.querySelector('.page') || document.body || document.documentElement;
+        obs.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
+    } catch (e) { console.error('theme-sync failed', e); }
+})();
+</script>
 @code {
     private string CurrentThemeClass = "theme-light";
     private bool IsSidebarCollapsed;
