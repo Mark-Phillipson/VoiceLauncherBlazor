@@ -49,9 +49,8 @@
         };
 
         const saved = localStorage.getItem(storageKey);
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
-
+        applyTheme(saved || 'light');
+        console.log('theme-sync initialized with', saved);
         window.addEventListener('storage', (e) => {
             if (e.key === storageKey) applyTheme(e.newValue);
         });
@@ -84,6 +83,14 @@
             if (!string.IsNullOrEmpty(savedTheme))
             {
                 CurrentThemeClass = savedTheme == "dark" ? "theme-dark" : "theme-light";
+                shouldRefreshUi = true;
+            }
+            else
+            {
+                CurrentThemeClass = "theme-light";
+                await JS.InvokeVoidAsync("localStorage.setItem", ThemeStorageKey, "light");
+                await JS.InvokeVoidAsync("localStorage.removeItem", "tvc-theme");
+                await JS.InvokeVoidAsync("localStorage.removeItem", "app-theme");
                 shouldRefreshUi = true;
             }
 

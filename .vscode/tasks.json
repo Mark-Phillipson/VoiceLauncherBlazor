@@ -21,7 +21,7 @@
 		{
 			"label": "Run dotnet publish",
 			"type": "shell",
-			"command": "dotnet publish --configuration Release",
+			"command": "dotnet publish \"${workspaceFolder}/VoiceAdmin/VoiceAdmin.csproj\" --configuration Release --output \"${workspaceFolder}/publish/VoiceAdmin\"",
 			"problemMatcher": []
 		},
 		{

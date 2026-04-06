@@ -13,21 +13,17 @@
 				try {
 					var t = null;
 					try {
-						t = localStorage.getItem('tvc-theme') || localStorage.getItem('app-theme');
+						t = localStorage.getItem('appTheme');
 					} catch (storageError) {
-						// localStorage blocked by tracking prevention - use system preference
-						console.warn('localStorage blocked, using system preference:', storageError.message);
+						console.warn('localStorage blocked, defaulting to light:', storageError.message);
 					}
-					if (t === 'dark' || t === 'light') {
-						document.documentElement.setAttribute('data-bs-theme', t);
-					} else {
-						var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-						document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
-					}
+					document.documentElement.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
+					document.body && document.body.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
 				} catch (e) { 
 					// Fallback to light theme if everything fails
 					console.error('Theme initialization failed:', e);
 					document.documentElement.setAttribute('data-bs-theme', 'light');
+					document.body && document.body.setAttribute('data-bs-theme', 'light');
 				}
 			})();
 		</script>

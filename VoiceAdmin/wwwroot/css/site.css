@@ -95,7 +95,7 @@ body {
 
 /* Also apply same variables via prefers-color-scheme so our values override bootstrap's media rules */
 @media (prefers-color-scheme: light) {
-	:root {
+	:root:not([data-bs-theme]) {
 		--bg: #ffffff;
 		--text: #212529;
 		--muted: #6c757d;
@@ -130,7 +130,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:not([data-bs-theme]) {
 		--bg: #0f1113;
 		--text: #e9ecef;
 		--muted: #adb5bd;
