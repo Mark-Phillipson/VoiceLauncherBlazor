@@ -84,7 +84,7 @@
 			<div class="col-8">
 				<div class="form-group">
 					<label accesskey='v' for="SendKeysValue">Snippet <u>V</u>alue: </label>
-					<span class="text-info">Enter the following for variable input `Variable#` (1 to 3).</span>
+					<span class="form-text">Use `Variable1`, `Variable2`, or `Variable3` anywhere in the snippet where you want the user to supply a value. Matching input boxes will appear below for preview and replacement.</span>
 					<InputTextArea rows="10" id="SendKeysValue"
 						style="font-family: 'Cascadia Code', monospace; font-size: 19px; line-height: 1.5; padding: 10px;display: block;"
 						class="form-control" @bind-Value="@CustomIntelliSenseDTO.SendKeysValue"
@@ -131,7 +131,7 @@
 								<label accesskey="1" for="Variable1">Variable<u>1</u>:</label>
 									<input autofocus="true" type="text" id="Variable1"
 										@oninput="@(() => CallChangeAsync("Variable1"))" class="form-control"
-										@bind="@CustomIntelliSenseDTO.Variable1" placeholder="Enter for Variable 1" />
+										@bind="@CustomIntelliSenseDTO.Variable1" placeholder="Text to replace `Variable1`" />
 								</div>
 							}
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable2`"))
@@ -140,7 +140,7 @@
 								<label accesskey="2" for="Variable2">Variable<u>2</u>:</label>
 									<input type="text" id="Variable2" @oninput="@(() => CallChangeAsync("Variable2"))"
 										class="form-control" @bind="@CustomIntelliSenseDTO.Variable2"
-										placeholder="Enter for Variable 2" />
+										placeholder="Text to replace `Variable2`" />
 								</div>
 							}
 							@if (CustomIntelliSenseDTO.SendKeysValue.Contains("`Variable3`"))
@@ -149,7 +149,7 @@
 								<label accesskey="3" for="Variable3">Variable<u>3</u>:</label>
 									<input type="text" id="Variable3" @oninput="@(() => CallChangeAsync("Variable3"))"
 										class="form-control" @bind="CustomIntelliSenseDTO.Variable3"
-										placeholder="Enter for Variable 3" />
+										placeholder="Text to replace `Variable3`" />
 								</div>
 							}
 						</div>
@@ -192,7 +192,7 @@
 		</div>
 	</EditForm>
 </div>
-@if (!RunningInBlazorHybrid && Id > 0)
+@* @if (!RunningInBlazorHybrid && Id > 0)
 {
 	<div class='row'>
 		<div class='col-md-6'>
@@ -202,4 +202,4 @@
 
 		</div>
 	</div>
-}
+} *@
