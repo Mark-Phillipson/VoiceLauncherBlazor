@@ -105,32 +105,53 @@ namespace RazorClassLibrary.Pages
 		}
 		protected async Task HandleValidSubmit()
 		{
-			TaskRunning = true;
-			if ((Id == 0 || Id == null) && CustomIntelliSenseDataService != null)
+			if (TaskRunning)
 			{
-				CustomIntelliSenseDTO? result = await CustomIntelliSenseDataService.AddCustomIntelliSense(CustomIntelliSenseDTO);
-				if (result == null && Logger != null)
-				{
-					Logger.LogError("Custom Intelli Sense failed to add, please investigate Error Adding New Custom Intelli Sense");
-					ToastService?.ShowError("Custom Intelli Sense failed to add, please investigate Error Adding New Custom Intelli Sense");
-					return;
-				}
-				ToastService?.ShowSuccess("Custom Intelli Sense added successfully");
+				return;
 			}
-			else
+
+			TaskRunning = true;
+			try
 			{
-				if (CustomIntelliSenseDataService != null)
+				if ((Id == 0 || Id == null) && CustomIntelliSenseDataService != null)
 				{
-					await CustomIntelliSenseDataService!.UpdateCustomIntelliSense(CustomIntelliSenseDTO, "");
+					CustomIntelliSenseDTO? result = await CustomIntelliSenseDataService.AddCustomIntelliSense(CustomIntelliSenseDTO);
+					if (result == null)
+					{
+						Logger?.LogError("Custom Intelli Sense failed to add, please investigate Error Adding New Custom Intelli Sense");
+						ToastService?.ShowError("Custom Intelli Sense failed to add, please investigate Error Adding New Custom Intelli Sense");
+						return;
+					}
+
+					CustomIntelliSenseDTO = result;
+					Id = result.Id;
+					ToastService?.ShowSuccess("Custom Intelli Sense added successfully");
+				}
+				else if (CustomIntelliSenseDataService != null)
+				{
+					var updatedRecord = await CustomIntelliSenseDataService.UpdateCustomIntelliSense(CustomIntelliSenseDTO, "");
+					if (updatedRecord == null)
+					{
+						Logger?.LogError("Custom Intelli Sense failed to update, please investigate Error Updating Custom Intelli Sense {Id}", CustomIntelliSenseDTO.Id);
+						ToastService?.ShowError("Custom Intelli Sense failed to update, please investigate Error Updating Custom Intelli Sense");
+						return;
+					}
+
+					CustomIntelliSenseDTO = updatedRecord;
+					Id = updatedRecord.Id;
 					ToastService?.ShowSuccess("The Custom Intelli Sense updated successfully");
 				}
+
+				if (ModalInstance != null && !_saveOnly)
+				{
+					await ModalInstance.CloseAsync(ModalResult.Ok(true));
+				}
+				_saveOnly = false;
 			}
-			if (ModalInstance != null && !_saveOnly)
+			finally
 			{
-				await ModalInstance.CloseAsync(ModalResult.Ok(true));
+				TaskRunning = false;
 			}
-			_saveOnly = false;
-			TaskRunning = false;
 		}
 		private async Task CopyItemAsync(string itemToCopy)
 		{

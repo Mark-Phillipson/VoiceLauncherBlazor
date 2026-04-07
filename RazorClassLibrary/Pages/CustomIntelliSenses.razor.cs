@@ -467,7 +467,7 @@ namespace RazorClassLibrary.Pages
 				Class = "blazored-modal-custom",
 				Size = ModalSize.ExtraLarge
 			};
-			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense", parameters, options);
+			var formModal = Modal?.Show<CustomIntelliSenseAddEdit>("Edit Custom IntelliSense/Snippet", parameters, options);
 			if (formModal != null)
 			{
 				var result = await formModal.Result;
