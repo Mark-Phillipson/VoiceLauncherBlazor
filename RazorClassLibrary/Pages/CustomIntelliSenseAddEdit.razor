@@ -91,6 +91,9 @@
 						placeholder="Enter Send Keys Value"></InputTextArea>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.SendKeysValue)" />
 				</div>
+				<div class="form-text mb-2">
+					These steps run in order when their values are greater than 0: select a word from the right, move left by the specified number of characters, then select the specified number of characters to the left.
+				</div>
 				<div class='row'>
 					<div class='col-md-4'>
 						<div class='form-group'>
