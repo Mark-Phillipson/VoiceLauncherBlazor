@@ -157,12 +157,12 @@
 								<div class="d-flex flex-wrap gap-2 mb-1 justify-content-start align-items-start">
 									@if (CustomIntelliSenseDTO.SendKeysValue!=null && CustomIntelliSenseDTO.SendKeysValue.Length>0)
 									{
-										<button accesskey="u" class="btn btn-outline-success" type="button" @onclick="@( () => CreateSnippet() )">Create Visual St<u>u</u>dio Snippet</button>
-										<button accesskey="o" class="btn btn-outline-primary" @onclick="CreateVisualStudioCodeSnippetAsync">Create VS C<u>o</u>de Snippet</button>
+										<button accesskey="u" class="btn btn-outline-success" type="button" @onclick="@( () => CreateSnippet() )"><i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Create Visual St<u>u</u>dio Snippet</button>
+										<button accesskey="o" class="btn btn-outline-primary" @onclick="CreateVisualStudioCodeSnippetAsync"><i class="bi bi-code-slash me-1" aria-hidden="true"></i> Create VS C<u>o</u>de Snippet</button>
 										<button accesskey="p" id="CopyButton" type="button" class="btn btn-outline-primary" title="Copy" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
 											<i class="bi bi-clipboard"></i> Co<u>p</u>y
 										</button>
-										<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
+										<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger ms-auto" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
 											<i class="bi bi-clipboard-check"></i> P<u>a</u>ste
 										</button>
 									}
@@ -183,10 +183,10 @@
 					<input type='checkbox' class='form-checkbox ms-1' @bind='_saveOnly' id='save-only' />
 					@if (CustomIntelliSenseDTO.Id > 0)
 					{
-						<button accesskey="e" class="btn btn-danger" type="button" @onclick="@( () => DeleteRecord() )">D<u>e</u>lete Record</button>
+								<button accesskey="e" class="btn btn-danger" type="button" @onclick="@( () => DeleteRecord() )"><i class="bi bi-trash me-1" aria-hidden="true"></i> D<u>e</u>lete Record</button>
 					}
-					<button accesskey="k" type="button" class="btn btn-outline-secondary" @onclick="GoToCustomIntellisenseTable">Bac<u>k</u></button>
-					<button accesskey="b" disabled="@TaskRunning" type="submit" class="btn btn-primary">Save (su<u>b</u>mit)</button>
+						<button accesskey="k" type="button" class="btn btn-outline-secondary" @onclick="GoToCustomIntellisenseTable"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Bac<u>k</u></button>
+						<button accesskey="b" disabled="@TaskRunning" type="submit" class="btn btn-primary ms-auto"><i class="bi bi-save me-1" aria-hidden="true"></i> Save (su<u>b</u>mit)</button>
 				</div>
 			</div>
 		</div>
