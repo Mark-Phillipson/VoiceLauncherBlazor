@@ -23,20 +23,20 @@
 				</div>
 				<div class='col-2'></div>
 			}
-			<div class="col-3">
+					<div class="col-md-4">
 				<div class="form-group">
-					<label accesskey="l" for="LanguageId"><u>L</u>anguage: </label> <i class="text-danger fa">*</i>
+					<label accesskey="l" for="LanguageId"><u>L</u>anguage or Main Category: </label> <i class="text-danger fa">*</i>
 					<InputSelect id="LanguageId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.LanguageId">
 						<option value="">Select Language</option>
 						@foreach (var item in languages)
 						{
-							<option value="@item.Id">@item.LanguageName</option>
+							<option value="@item.Id">@((string.Equals(item.LanguageName, "Not Applicable", StringComparison.OrdinalIgnoreCase)) ? "Snip" : item.LanguageName)</option>
 						}
 					</InputSelect>
 					<ValidationMessage For="@(() => CustomIntelliSenseDTO.LanguageId)" />
 				</div>
 				<div class="form-group">
-					<label accesskey="g" for="CategoryId">Category (<u>G</u>): </label> <i class="text-danger fa">*</i>
+					<label accesskey="g" for="CategoryId">Category / Subcategory (<u>G</u>): </label> <i class="text-danger fa">*</i>
 					<InputSelect id="CategoryId" class="form-select" @bind-Value="@CustomIntelliSenseDTO.CategoryId">
 						<option value="">Select Category</option>
 						@foreach (var item in categories)
@@ -150,49 +150,40 @@
 								</div>
 							}
 						</div>
-						<div class="col-8 m-2 button-group">
-							@if (CustomIntelliSenseDTO.SendKeysValue!=null && CustomIntelliSenseDTO.SendKeysValue.Length>0) { 
-							<button accesskey="u" class="btn btn-outline-success" type="button"
-								@onclick="@( ( ) => CreateSnippet(  ) )">Create Visual St<u>u</u>dio Snippet</button>
-							<button accesskey="o" class='btn btn-outline-primary' @onclick="CreateVisualStudioCodeSnippetAsync"> Create
-								VS C<u>o</u>de Snippet </button>
-							<button accesskey="p" id="CopyButton" type="button" class="btn btn-outline-primary" title="Copy"
-								@onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
-								<i class="bi bi-clipboard"></i> Co<u>p</u>y
-							</button>
-							<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger mt-1"
-								@onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
-								<i class="bi bi-clipboard-check"></i> P<u>a</u>ste
-							</button>
-							}
-						</div>
-						<div class="col-9 ">
-							@if (!string.IsNullOrWhiteSpace(example))
-							{
-								<textarea @bind="@example" class="form-control mb-2" rows="7"></textarea>
-							}
-						</div>
+							<div class="col-12">
+								<div class="d-flex flex-wrap gap-2 mb-1 justify-content-start align-items-start">
+									@if (CustomIntelliSenseDTO.SendKeysValue!=null && CustomIntelliSenseDTO.SendKeysValue.Length>0)
+									{
+										<button accesskey="u" class="btn btn-outline-success" type="button" @onclick="@( () => CreateSnippet() )">Create Visual St<u>u</u>dio Snippet</button>
+										<button accesskey="o" class="btn btn-outline-primary" @onclick="CreateVisualStudioCodeSnippetAsync">Create VS C<u>o</u>de Snippet</button>
+										<button accesskey="p" id="CopyButton" type="button" class="btn btn-outline-primary" title="Copy" @onclick="@(() => CopyItemAsync(CustomIntelliSenseDTO.SendKeysValue))">
+											<i class="bi bi-clipboard"></i> Co<u>p</u>y
+										</button>
+										<button accesskey="a" type="button" title="Copy and switch and paste" class="btn btn-danger" @onclick="@(() => CopyAndPasteAsync(CustomIntelliSenseDTO.SendKeysValue))">
+											<i class="bi bi-clipboard-check"></i> P<u>a</u>ste
+										</button>
+									}
+								</div>
+								@if (!string.IsNullOrWhiteSpace(example))
+								{
+									<textarea @bind="example" class="form-control mb-2" rows="7"></textarea>
+								}
+							</div>
 
 					</div>
 				}
 			</div>
-			<div class="col-10">
-				<div class="" style='float:right'>
+			<div class="col-md-8 offset-md-4 mt-0 pt-0">
+				<div class="d-flex justify-content-start align-items-center gap-2">
 					<button accesskey="n" type='button' class="btn btn-outline-primary" @onclick="@CloseAsync">Ca<u>n</u>cel</button>
-					<label accesskey='o' class='form-label m-2' for='save-only'>Save <u>O</u>nly?</label>
-					<input type='checkbox' class='form-checkbox m-2' @bind='_saveOnly' id='save-only' />
+					<label accesskey='o' class='form-label m-0' for='save-only'>Save <u>O</u>nly?</label>
+					<input type='checkbox' class='form-checkbox ms-1' @bind='_saveOnly' id='save-only' />
 					@if (CustomIntelliSenseDTO.Id > 0)
 					{
-						<button accesskey="e" class="btn btn-danger" type="button" @onclick="@( ( ) => DeleteRecord(  ) )">D<u>e</u>lete
-							Record</button>
+						<button accesskey="e" class="btn btn-danger" type="button" @onclick="@( () => DeleteRecord() )">D<u>e</u>lete Record</button>
 					}
 					<button accesskey="k" type="button" class="btn btn-outline-secondary" @onclick="GoToCustomIntellisenseTable">Bac<u>k</u></button>
 					<button accesskey="b" @TaskRunning type="submit" class="btn btn-primary">Save (su<u>b</u>mit)</button>
-					@* @if (!RunningInBlazorHybrid)
-					{
-						<SmartPasteButton class='btn btn-outline-danger' DefaultIcon />
-					} *@
-
 				</div>
 			</div>
 		</div>
