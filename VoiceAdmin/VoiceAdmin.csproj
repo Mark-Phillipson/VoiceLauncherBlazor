@@ -10,6 +10,8 @@
     <Platforms>AnyCPU;x86</Platforms>
     <!-- RuntimeIdentifier, PublishReadyToRun and SelfContained are controlled by CI/publish parameters -->
     <AspNetCoreEnv>Production</AspNetCoreEnv>
+    <!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
+    <UseLocalEmbeddings>false</UseLocalEmbeddings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,9 +39,13 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.83.3" />
     <PackageReference Include="Radzen.Blazor" Version="10.1.0" />
     <PackageReference Include="SmartComponents.AspNetCore" Version="0.1.0-preview10148" />
-    <PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
+    <PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(UseLocalEmbeddings)'=='true'">
+    <DefineConstants>$(DefineConstants);USE_LOCAL_EMBEDDINGS</DefineConstants>
+  </PropertyGroup>
 <ItemGroup>
   <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
   <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" />

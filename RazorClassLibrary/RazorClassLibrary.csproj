@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
+		<!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
+		<UseLocalEmbeddings>false</UseLocalEmbeddings>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -32,12 +34,16 @@
 		<PackageReference Include="Radzen.Blazor" Version="10.1.0" />
 		<PackageReference Include="SmartComponents.AspNetCore" Version="0.1.0-preview10148" />
 		<PackageReference Include="SmartComponents.Inference.OpenAI" Version="0.1.0-preview10148" />
-		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
+		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
 	</ItemGroup>
+
+	<PropertyGroup Condition="'$(UseLocalEmbeddings)'=='true'">
+		<DefineConstants>$(DefineConstants);USE_LOCAL_EMBEDDINGS</DefineConstants>
+	</PropertyGroup>
 
 </Project>

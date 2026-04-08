@@ -11,7 +11,9 @@ using Radzen;
 using SampleApplication.Repositories;
 using SampleApplication.Services;
 using SmartComponents.Inference.OpenAI;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using RazorClassLibrary.Services;

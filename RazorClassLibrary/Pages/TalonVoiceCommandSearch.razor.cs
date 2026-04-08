@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using DataAccessLibrary.Models;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 using System.Linq;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Web;

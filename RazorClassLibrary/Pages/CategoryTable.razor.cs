@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using RazorClassLibrary.Shared;
 using System.Security.Claims;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 using DataAccessLibrary.Services;
 
 namespace RazorClassLibrary.Pages
@@ -240,6 +242,7 @@ namespace RazorClassLibrary.Pages
 				var temporary = SearchTerm.ToLower().Trim();
 				if (useSemanticMatching && searchTerm != null && searchTerm.Length > 4)
 				{
+#if USE_LOCAL_EMBEDDINGS
 					var categories = CategoryDTO.Where(f => f.CategoryName != null).Select(v => v.CategoryName).ToList();
 					using var localCommandEmbedder = new LocalEmbedder();
 					IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
@@ -260,6 +263,17 @@ namespace RazorClassLibrary.Pages
 							.OrderByDescending(v => similarityScores[v.CategoryName])
 							.ToList();
 					}
+#else
+					// Local embeddings disabled: fallback to simple substring match
+					var fallbackTerm = SearchTerm.ToLower().Trim();
+					FilteredCategoryDTO = CategoryDTO
+						 .Where(v =>
+						 v.CategoryName != null && v.CategoryName.ToLower().Contains(fallbackTerm)
+						  || v.CategoryType != null && v.CategoryType.ToLower().Contains(fallbackTerm)
+						 )
+						 .ToList();
+					Title = $"Filtered Categorys ({FilteredCategoryDTO.Count})";
+#endif
 				}
 				else
 				{

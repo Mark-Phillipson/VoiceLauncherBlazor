@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
+		<!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
+		<UseLocalEmbeddings>false</UseLocalEmbeddings>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 		<Nullable>enable</Nullable>
 		<Platforms>AnyCPU;x64</Platforms>
@@ -12,6 +14,11 @@
 		<None Remove="appsettings.json" />
 		<None Remove="XML_Import\MyKBCommandsNewCommands.xml" />
 	</ItemGroup>
+
+	<!-- If UseLocalEmbeddings is enabled, add compilation symbol to enable embedding code -->
+	<PropertyGroup Condition="'$(UseLocalEmbeddings)'=='true'">
+		<DefineConstants>$(DefineConstants);USE_LOCAL_EMBEDDINGS</DefineConstants>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Include="appsettings.json">
@@ -36,7 +43,7 @@
 		<!-- Removed unnecessary Microsoft.AspNetCore.Components*, Microsoft.Extensions.Caching.Memory -->
 		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.5" />
 		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="10.0.5" />
-		<PackageReference Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
+		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />

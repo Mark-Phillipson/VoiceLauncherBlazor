@@ -181,3 +181,15 @@ Run tests: `dotnet test` in the TestProjectxUnit directory.
 ## License
 
 See LICENSE file.
+
+## Local embeddings (SmartComponents)
+
+- We temporarily disabled automatic local-embeddings model downloads to avoid build failures when the Hugging Face URL is unreachable. See `docs/LOCAL_EMBEDDINGS.md` for details and re-enable instructions.
+
+To enable local embeddings for a single build:
+
+```powershell
+dotnet build -c Release /p:UseLocalEmbeddings=true
+```
+
+Or set `UseLocalEmbeddings` to `true` in the specific project's `.csproj` (not recommended for CI).

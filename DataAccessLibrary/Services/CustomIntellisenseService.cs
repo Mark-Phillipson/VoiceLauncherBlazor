@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 
 namespace DataAccessLibrary.Services
 {
@@ -92,6 +94,7 @@ namespace DataAccessLibrary.Services
 			}
 			if (useSemanticMatching)
 			{
+#if USE_LOCAL_EMBEDDINGS
 				IQueryable<CustomIntelliSense> snippets = new List<CustomIntelliSense>().AsQueryable();
 				snippets = intellisenses;
 				var result = snippets.Where(f => f.DisplayValue != null).Select(v => v.DisplayValue).Distinct().ToList();
@@ -132,6 +135,17 @@ namespace DataAccessLibrary.Services
 					}
 					return methodResult;
 				}
+#else
+				// Local embeddings disabled: fallback to simple substring matching
+				var searchTerms = (searchTerm ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+				if (searchTerms.Length == 0)
+				{
+					return await intellisenses.Take(maximumRows).ToListAsync();
+				}
+				var snippetsListFallback = await intellisenses.ToListAsync();
+				snippetsListFallback = snippetsListFallback.Where(v => searchTerms.All(term => (v.DisplayValue != null && v.DisplayValue.Contains(term)) || (v.SendKeysValue != null && v.SendKeysValue.Contains(term)))).ToList();
+				return snippetsListFallback.Take(maximumRows).ToList();
+#endif
 			}
 
 			return await intellisenses.Take(maximumRows).ToListAsync();

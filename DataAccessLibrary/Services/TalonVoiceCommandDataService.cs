@@ -9,14 +9,18 @@ using System.Threading.Tasks;
 using DataAccessLibrary.DTO;
 using DataAccessLibrary.Models;
 using Microsoft.EntityFrameworkCore;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 
 namespace DataAccessLibrary.Services
 {
     public class TalonVoiceCommandDataService : ITalonVoiceCommandDataService
     {
         private readonly ApplicationDbContext _context;
+    #if USE_LOCAL_EMBEDDINGS
         private static readonly LocalEmbedder _embedder = new LocalEmbedder();
+    #endif
         
         public TalonVoiceCommandDataService(ApplicationDbContext context)
         {
@@ -242,21 +246,22 @@ namespace DataAccessLibrary.Services
                     return literalMatches;
                 }
 
+#if USE_LOCAL_EMBEDDINGS
                 // Create embeddings for search term
                 var searchEmbedding = _embedder.Embed(searchTerm);
-                
+
                 // Calculate similarity scores and get top results
                 var commandsWithScores = allCommands.Select(cmd =>
                 {
                     // Create a combined text for semantic comparison
                     var combinedText = $"{cmd.Command} {cmd.Script} {cmd.Title ?? ""} {cmd.Application}".Trim();
-                    
+
                     // Get embedding for this command
                     var commandEmbedding = _embedder.Embed(combinedText);
-                    
+
                     // Calculate cosine similarity
                     var similarity = LocalEmbedder.Similarity(searchEmbedding, commandEmbedding);
-                    
+
                     return new { Command = cmd, Similarity = similarity };
                 })
                 .Where(x => x.Similarity > 0.3f) // Filter by minimum similarity threshold
@@ -267,6 +272,21 @@ namespace DataAccessLibrary.Services
 
                 Console.WriteLine($"[DEBUG] Semantic search for '{searchTerm}': found {commandsWithScores.Count} results");
                 return commandsWithScores;
+#else
+                // Local embeddings disabled: fallback to basic text search
+                var lowerTerm = searchTerm.ToLower();
+                var fallback = allCommands
+                    .Where(c => (!string.IsNullOrEmpty(c.Title) && c.Title.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                (!string.IsNullOrEmpty(c.Command) && c.Command.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                (!string.IsNullOrEmpty(c.Script) && c.Script.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                (!string.IsNullOrEmpty(c.Application) && c.Application.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                (!string.IsNullOrEmpty(c.Mode) && c.Mode.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0))
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(100)
+                    .ToList();
+                Console.WriteLine($"[DEBUG] Semantic search disabled; using fallback text search for '{searchTerm}': {fallback.Count} results");
+                return fallback;
+#endif
             }
             catch (Exception ex)
             {
@@ -668,24 +688,35 @@ namespace DataAccessLibrary.Services
                 }
 
                 // Perform semantic search on the in-memory data
+#if USE_LOCAL_EMBEDDINGS
                 var searchEmbedding = _embedder.Embed(searchTerm);
                 var semanticMatches = allCommands.Select(cmd =>
                 {
                     // Create a combined text for semantic comparison
                     var combinedText = $"{cmd.Command} {cmd.Script} {cmd.Title ?? ""} {cmd.Application}".Trim();
-                    
+
                     // Get embedding for this command
                     var commandEmbedding = _embedder.Embed(combinedText);
-                    
+
                     // Calculate cosine similarity
                     var similarity = LocalEmbedder.Similarity(searchEmbedding, commandEmbedding);
-                    
+
                     return new { Command = cmd, Similarity = similarity };
                 })
                 .Where(x => x.Similarity > 0.3f) // Filter by minimum similarity threshold
                 .OrderByDescending(x => x.Similarity)
                 .Select(x => x.Command)
                 .ToList();
+#else
+                // Local embeddings disabled: simple fallback using substring matching
+                var literalMatches = allCommands.Where(c =>
+                    (!string.IsNullOrEmpty(c.Title) && c.Title.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(c.Command) && c.Command.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (!string.IsNullOrEmpty(c.Script) && c.Script.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+                ).OrderByDescending(c => c.CreatedAt).ToList();
+
+                var semanticMatches = literalMatches;
+#endif
 
                 // Find matching lists from in-memory data
                 var listMatches = allLists

@@ -22,7 +22,9 @@ using RazorClassLibrary.Shared;
 using DataAccessLibrary.Services;
 using DataAccessLibrary.DTOs;
 using Microsoft.Extensions.Logging;
+#if USE_LOCAL_EMBEDDINGS
 using SmartComponents.LocalEmbeddings;
+#endif
 
 namespace RazorClassLibrary.Pages
 {
@@ -63,6 +65,7 @@ namespace RazorClassLibrary.Pages
             {
                 if (useSemanticMatching)
                 {
+#if USE_LOCAL_EMBEDDINGS
                     var propertyNameAndDescription = CssPropertyDTO.Where(f => f.PropertyName != null && f.Description != null).Select(v => $"{v.PropertyName} | {v.Description}").ToList();
                     using var localCommandEmbedder = new LocalEmbedder();
                     IList<(string Item, EmbeddingF32 Embedding)> matchedResults;
@@ -81,6 +84,12 @@ namespace RazorClassLibrary.Pages
                             .OrderByDescending(v => similarityScores[v.PropertyName])
                             .ToList();
                     }
+#else
+                    // Local embeddings disabled: fallback to substring match
+                    FilteredCssPropertyDTO = CssPropertyDTO.Where(v => v.PropertyName?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
+                    || v.Description?.Contains(ClientSearchTerm, StringComparison.OrdinalIgnoreCase) == true
+                    ).ToList();
+#endif
                 }
                 else
                 {
