@@ -27,11 +27,12 @@ namespace DataAccessLibrary.Repositories
             List<Transaction> Transactions;
             if (!string.IsNullOrWhiteSpace(serverSearchTerm))
             {
+                var search = serverSearchTerm.ToLowerInvariant();
                 Transactions = await context.Transactions
                                         .Where(v =>
-                    (v.Description != null && v.Description.ToLower().Contains(serverSearchTerm))
-                     || (v.Type != null && v.Type.ToLower().Contains(serverSearchTerm))
-                     || (v.MyTransactionType != null && v.MyTransactionType.ToLower().Contains(serverSearchTerm))
+                    (v.Description != null && v.Description.ToLower().Contains(search))
+                     || (v.Type != null && v.Type.ToLower().Contains(search))
+                     || (v.MyTransactionType != null && v.MyTransactionType.ToLower().Contains(search))
                     )
                     .OrderByDescending(x => x.Date).ThenBy(x => x.Description)
                     .Skip((pageNumber - 1) * pageSize)

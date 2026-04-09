@@ -69,36 +69,33 @@ namespace RazorClassLibrary.Pages
         private DateTime? ToDate { get; set; } = DateTime.Now;
         private void ApplyLocalFilter()
         {
-            if (FilteredTransactionDTO == null || TransactionDTO == null)
+            if (TransactionDTO == null)
             {
                 return;
             }
-            if (string.IsNullOrEmpty(ClientSearchTerm))
-            {
-                FilteredTransactionDTO = TransactionDTO;
-            }
+
+            // Start from the full dataset and apply filters incrementally so they combine correctly
+            IEnumerable<TransactionDTO> items = TransactionDTO;
+
             if (FromDate.HasValue && ToDate.HasValue)
             {
-                FilteredTransactionDTO = FilteredTransactionDTO.Where(v => v.Date >= FromDate && v.Date <= ToDate).ToList();
-                if (!string.IsNullOrEmpty(ClientSearchTerm))
-                {
-                    FilteredTransactionDTO = FilteredTransactionDTO.Where(v =>
-                        (v.Description != null && v.Description.ToLower().Contains(ClientSearchTerm))
-                         || (v.Type != null && v.Type.ToLower().Contains(ClientSearchTerm))
-                         || (v.MyTransactionType != null && v.MyTransactionType.ToLower().Contains(ClientSearchTerm))
-                    ).ToList();
-                }
+                var from = FromDate.Value.Date;
+                var to = ToDate.Value.Date.AddDays(1).AddTicks(-1);
+                items = items.Where(v => v.Date.HasValue && v.Date.Value >= from && v.Date.Value <= to);
             }
-            if (!string.IsNullOrEmpty(ClientSearchTerm))
-            {
-                FilteredTransactionDTO = TransactionDTO.Where(v =>
-                    (v.Description != null && v.Description.ToLower().Contains(ClientSearchTerm))
-                     || (v.Type != null && v.Type.ToLower().Contains(ClientSearchTerm))
-                     || (v.MyTransactionType != null && v.MyTransactionType.ToLower().Contains(ClientSearchTerm))
 
-                ).ToList();
+            if (!string.IsNullOrWhiteSpace(ClientSearchTerm))
+            {
+                var term = ClientSearchTerm.ToLowerInvariant();
+                items = items.Where(v =>
+                    (!string.IsNullOrEmpty(v.Description) && v.Description.ToLowerInvariant().Contains(term))
+                    || (!string.IsNullOrEmpty(v.Type) && v.Type.ToLowerInvariant().Contains(term))
+                    || (!string.IsNullOrEmpty(v.MyTransactionType) && v.MyTransactionType.ToLowerInvariant().Contains(term))
+                );
             }
-            Title = $"Transaction ({FilteredTransactionDTO.Count})";
+
+            FilteredTransactionDTO = items.ToList();
+            Title = $"Transaction ({FilteredTransactionDTO?.Count ?? 0})";
         }
 
         private string? lastSearchTerm { get; set; }

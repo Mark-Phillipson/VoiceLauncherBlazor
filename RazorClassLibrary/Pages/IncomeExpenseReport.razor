@@ -1,0 +1,174 @@
+@page "/income-expense-report"
+@using DataAccessLibrary.DTOs
+
+<div class="container">
+    <h3>Income & Expense Report</h3>
+    <div class="row mb-2">
+        <div class="col-md-3">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-control" @bind="FromDate" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-control" @bind="ToDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Household 10% (editable)</label>
+            <input type="number" class="form-control" @bind="HouseholdTenPercent" step="0.1" min="0" max="100" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Sky business %</label>
+            <input type="number" class="form-control" @bind="SkyBusinessPercent" step="0.1" min="0" max="100" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">giffgaff business %</label>
+            <input type="number" class="form-control" @bind="GiffgaffBusinessPercent" step="0.1" min="0" max="100" />
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-primary me-2" @onclick="GenerateReport">Generate</button>
+            <button class="btn btn-outline-secondary" @onclick="ExportCsv">Export CSV</button>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Expenses</div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Category</th>
+                        <th class="text-end">Total</th>
+                                <th class="text-end">10%</th>
+                                <th class="text-end">Business Portion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ExpenseRows != null)
+                    {
+                        foreach (var row in ExpenseRows)
+                        {
+                            <tr>
+                                <td style="width:32px;"><button class="btn btn-sm btn-link" @onclick="() => ToggleExpand(row)">@(row.IsExpanded ? "▼" : "▶")</button></td>
+                                <td>@row.Category</td>
+                                <td class="text-end">@row.Total.ToString("C")</td>
+                                <td class="text-end">@row.TenPercent.ToString("C")</td>
+                                <td class="text-end">@row.BusinessPortion.ToString("C")</td>
+                            </tr>
+                            @if (row.IsExpanded && row.Transactions != null && row.Transactions.Count > 0)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td colspan="3">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr><th>Date</th><th>Description</th><th class="text-end">MoneyOut</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var t in row.Transactions)
+                                                {
+                                                    <tr>
+                                                        <td>@(t.Date?.ToString("dd/MM/yyyy"))</td>
+                                                        <td>@t.Description</td>
+                                                        <td class="text-end">@t.MoneyOut.ToString("C")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Grand Total</th>
+                        <th class="text-end">@TotalExpenses.ToString("C")</th>
+                        <th class="text-end">@TotalExpensesTax.ToString("C")</th>
+                        <th class="text-end">@TotalBusinessPortion.ToString("C")</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Income</div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Source</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (IncomeRows != null)
+                    {
+                        foreach (var row in IncomeRows)
+                        {
+                            <tr>
+                                <td style="width:32px;"><button class="btn btn-sm btn-link" @onclick="() => ToggleExpand(row)">@(row.IsExpanded ? "▼" : "▶")</button></td>
+                                <td>@row.Category</td>
+                                <td class="text-end">@row.Total.ToString("C")</td>
+                            </tr>
+                            @if (row.IsExpanded && row.Transactions != null && row.Transactions.Count > 0)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td colspan="2">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr><th>Date</th><th>Description</th><th class="text-end">MoneyIn</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var t in row.Transactions)
+                                                {
+                                                    <tr>
+                                                        <td>@(t.Date?.ToString("dd/MM/yyyy"))</td>
+                                                        <td>@t.Description</td>
+                                                        <td class="text-end">@t.MoneyIn.ToString("C")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Grand Total</th>
+                        <th class="text-end">@TotalIncome.ToString("C")</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-2 small text-muted">
+        <strong>Allocations:</strong> The percentages above are applied to the report in real-time; adjust `Household 10%`, `Sky business %`, and `giffgaff business %` as needed before clicking Generate.<br />
+        <strong>Heuristics:</strong> Pension detection: transactions starting with "PGO TAX" or containing "ARMY", "PENSION" or "MNTNLY" will be classified as Pension. Refunds are detected by keywords (REFUND, REVERSAL, RETURN, REIMB) and are excluded from income totals but remain visible in the drill-down.
+    </div>
+
+</div>
+
+<script>
+    window.downloadFileFromBase64 = (fileName, base64) => {
+        try {
+            const link = document.createElement('a');
+            link.href = 'data:text/csv;base64,' + base64;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+</script>
