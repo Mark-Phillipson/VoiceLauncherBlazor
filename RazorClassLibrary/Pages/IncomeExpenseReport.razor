@@ -3,28 +3,28 @@
 
 <div class="container">
     <h3>Income & Expense Report</h3>
-    <div class="row mb-2">
-        <div class="col-md-3">
-            <label class="form-label">From Date</label>
-            <input type="date" class="form-control" @bind="FromDate" />
+    <div class="d-flex align-items-end mb-2 flex-wrap">
+        <div class="col-auto me-3">
+            <label class="form-label mb-1">From Date</label>
+            <input type="date" class="form-control" style="min-width:160px" @bind="FromDate" />
         </div>
-        <div class="col-md-3">
-            <label class="form-label">To Date</label>
-            <input type="date" class="form-control" @bind="ToDate" />
+        <div class="col-auto me-3">
+            <label class="form-label mb-1">To Date</label>
+            <input type="date" class="form-control" style="min-width:160px" @bind="ToDate" />
         </div>
-        <div class="col-md-2">
-            <label class="form-label">Household 10% (editable)</label>
+        <div class="col-auto me-3" style="min-width:140px">
+            <label class="form-label mb-1">Household 10% (editable)</label>
             <input type="number" class="form-control" @bind="HouseholdTenPercent" step="0.1" min="0" max="100" />
         </div>
-        <div class="col-md-2">
-            <label class="form-label">Sky business %</label>
+        <div class="col-auto me-3" style="min-width:120px">
+            <label class="form-label mb-1">Sky business %</label>
             <input type="number" class="form-control" @bind="SkyBusinessPercent" step="0.1" min="0" max="100" />
         </div>
-        <div class="col-md-2">
-            <label class="form-label">giffgaff business %</label>
+        <div class="col-auto me-3" style="min-width:140px">
+            <label class="form-label mb-1">giffgaff business %</label>
             <input type="number" class="form-control" @bind="GiffgaffBusinessPercent" step="0.1" min="0" max="100" />
         </div>
-        <div class="col-md-2 align-self-end">
+        <div class="col-auto d-flex align-items-end">
             <button class="btn btn-primary me-2" @onclick="GenerateReport">Generate</button>
             <button class="btn btn-outline-secondary" @onclick="ExportCsv">Export CSV</button>
         </div>
