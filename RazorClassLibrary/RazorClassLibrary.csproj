@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
+		<!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
 		<UseLocalEmbeddings>false</UseLocalEmbeddings>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>

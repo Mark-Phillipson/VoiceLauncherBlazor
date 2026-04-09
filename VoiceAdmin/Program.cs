@@ -33,6 +33,10 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 var environmentName = builder.Environment.EnvironmentName;
+// Consider development-like environments for convenient defaults
+var isDevLike = builder.Environment.IsDevelopment() ||
+    environmentName.Equals("Local", StringComparison.OrdinalIgnoreCase) ||
+    environmentName.Equals("LocalProduction", StringComparison.OrdinalIgnoreCase);
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] EnvironmentName: {environmentName}");
 
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Logging configured");
@@ -42,8 +46,15 @@ Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Service defaults added");
 
 // Blazor Server services
 // Feature flag: control whether SmartComponents are registered at startup.
-var smartComponentsEnabled = false;
+var smartComponentsEnabled = true;
 bool.TryParse(builder.Configuration["SmartComponents:Enabled"] ?? builder.Configuration["Features:SmartComponentsEnabled"], out smartComponentsEnabled);
+// When running locally for development, enable SmartComponents by default
+// unless the feature flag is explicitly set to false.
+if (!builder.Configuration.AsEnumerable().Any(kv => kv.Key == "SmartComponents:Enabled" || kv.Key == "Features:SmartComponentsEnabled") && isDevLike)
+{
+    smartComponentsEnabled = true;
+    Console.WriteLine("SmartComponents:Enabled not present in configuration. Enabling SmartComponents by default for development-like environment.");
+}
 object? smartComponentsBuilder = null;
 if (smartComponentsEnabled)
 {
@@ -58,28 +69,67 @@ if (smartComponentsEnabled)
     {
         try
         {
-            // Use reflection to invoke WithInferenceBackend if actual builder type is internal.
-            var withInference = smartComponentsBuilder.GetType().GetMethod("WithInferenceBackend");
-            if (withInference != null)
+            var builderType = smartComponentsBuilder.GetType();
+            // Find candidate methods named WithInferenceBackend (generic) or similar
+            var candidates = builderType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(m => m.Name.Equals("WithInferenceBackend", StringComparison.OrdinalIgnoreCase) ||
+                            m.Name.IndexOf("Inference", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            m.Name.IndexOf("Backend", StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToArray();
+
+            if (candidates.Length == 0)
             {
-                // Generic method — attempt to make generic with OpenAI backend type
-                try
+                Console.WriteLine("OpenAI backend registration: no candidate methods found on SmartComponents builder.");
+            }
+            else
+            {
+                MethodInfo? genericMethod = null;
+                // Prefer a generic definition we can close over the OpenAI backend type
+                foreach (var m in candidates)
                 {
-                    var generic = withInference.MakeGenericMethod(typeof(OpenAIInferenceBackend));
-                    generic.Invoke(smartComponentsBuilder, Array.Empty<object>());
+                    if (m.IsGenericMethodDefinition)
+                    {
+                        genericMethod = m;
+                        break;
+                    }
                 }
-                catch
+
+                if (genericMethod != null)
                 {
-                    // Fallback: try direct call if available
                     try
                     {
-                        // If builder exposes a strongly-typed method, attempt dynamic invocation
-                        dynamic dyn = smartComponentsBuilder;
-                        dyn.WithInferenceBackend<OpenAIInferenceBackend>();
+                        var closed = genericMethod.MakeGenericMethod(typeof(OpenAIInferenceBackend));
+                        var paramCount = closed.GetParameters().Length;
+                        object?[] invokeArgs = paramCount == 0 ? Array.Empty<object>() : Enumerable.Repeat<object?>(null, paramCount).ToArray();
+                        closed.Invoke(smartComponentsBuilder, invokeArgs);
+                        Console.WriteLine($"OpenAI inference backend registered via generic WithInferenceBackend (paramCount={paramCount}).");
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Console.WriteLine($"OpenAI backend registration threw: {tie.InnerException?.Message ?? tie.Message}");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"OpenAI backend registration failed; continuing without OpenAI inference backend. {ex}");
+                        Console.WriteLine($"OpenAI backend registration failed: {ex}");
+                    }
+                }
+                else
+                {
+                    // Try a non-generic overload (unlikely) by invoking the first candidate without generic arguments
+                    try
+                    {
+                        var paramCount = candidates[0].GetParameters().Length;
+                        object?[] invokeArgs = paramCount == 0 ? Array.Empty<object>() : Enumerable.Repeat<object?>(null, paramCount).ToArray();
+                        candidates[0].Invoke(smartComponentsBuilder, invokeArgs);
+                        Console.WriteLine($"OpenAI inference backend registered via non-generic method '{candidates[0].Name}' (paramCount={paramCount}).");
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Console.WriteLine($"OpenAI backend registration (non-generic) threw: {tie.InnerException?.Message ?? tie.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"OpenAI backend registration (non-generic) failed: {ex}");
                     }
                 }
             }
@@ -103,7 +153,7 @@ else
 // Enable via configuration or initialize on-demand using the admin endpoint below.
 var enableLocalEmbeddings = false;
 bool.TryParse(builder.Configuration["SmartComponents:EnableLocalEmbeddings"], out enableLocalEmbeddings);
-if (enableLocalEmbeddings)
+if (enableLocalEmbeddings && smartComponentsBuilder != null)
 {
     try
     {
@@ -160,9 +210,6 @@ builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
 var config = builder.Configuration;
 
 
-var isDevLike = builder.Environment.IsDevelopment() ||
-    environmentName.Equals("Local", StringComparison.OrdinalIgnoreCase) ||
-    environmentName.Equals("LocalProduction", StringComparison.OrdinalIgnoreCase);
 var isProdLike = builder.Environment.IsProduction() && !isDevLike;
 
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Configuring SQLite database...");
@@ -427,6 +474,29 @@ Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Calling builder.Build()...");
 var app = builder.Build();
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] builder.Build() succeeded");
 Console.Error.Flush();
+
+// Diagnostic: verify whether an inference backend service was registered
+try
+{
+    // Attempt to find the IInferenceBackend interface type from loaded assemblies
+    var infInterface = AppDomain.CurrentDomain.GetAssemblies()
+        .SelectMany(a => { try { return a.GetTypes(); } catch { return Array.Empty<Type>(); } })
+        .FirstOrDefault(t => t.IsInterface && t.Name.Equals("IInferenceBackend", StringComparison.OrdinalIgnoreCase));
+
+    if (infInterface != null)
+    {
+        var resolved = app.Services.GetService(infInterface);
+        Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Diagnostic: IInferenceBackend resolved: {(resolved == null ? "<null>" : resolved.GetType().FullName)}");
+    }
+    else
+    {
+        Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Diagnostic: IInferenceBackend interface type not found in loaded assemblies.");
+    }
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Diagnostic check for IInferenceBackend failed: {ex}");
+}
 
 // Log all incoming requests and their paths
 app.Use(async (context, next) =>

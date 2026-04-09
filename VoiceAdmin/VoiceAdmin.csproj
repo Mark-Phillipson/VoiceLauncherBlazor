@@ -11,6 +11,7 @@
     <!-- RuntimeIdentifier, PublishReadyToRun and SelfContained are controlled by CI/publish parameters -->
     <AspNetCoreEnv>Production</AspNetCoreEnv>
     <!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
+    <!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
     <UseLocalEmbeddings>false</UseLocalEmbeddings>
   </PropertyGroup>
 
