@@ -4,7 +4,11 @@
 	<div class="col-md-4">
 		<h5 class="page-title m-1">@Title</h5>
 	</div>
-	<div class="col-md-1">
+	<div class="col-md-auto d-flex align-items-center">
+		<button id="btnToggleCompact" accesskey="q" class="btn btn-outline-secondary btn-sm ms-2" type="button" title="Toggle Compact View (Alt+Q)" onclick="toggleCompactView()" aria-pressed="false">
+			<i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+			<span class="ms-1">Compact <span class="shortcut">(Alt+Q)</span></span>
+		</button>
 	</div>
 	<div class="col-md-4">
 		<div class="input-group my-1">
@@ -49,7 +53,7 @@ else if (FilteredLauncherDTO.Count == 0)
 }
 else
 {
-	<div class="layout-as-cards">
+	<div id="cardsContainer" class="layout-as-cards">
 		@{
 			counter = -1;
 		}
@@ -145,11 +149,169 @@ else
 }
 
 <style>
+	/* Compact cards view overrides */
+	.layout-as-cards.compact {
+		/* Doubled compact card width as requested */
+		grid-template-columns: repeat(auto-fit, 120px) !important;
+		gap: 0.6rem !important;
+	}
+	.layout-as-cards.compact .card {
+		padding: 0.2rem !important;
+		min-height: 120px;
+		width: 120px !important;
+		min-width: 120px !important;
+		max-width: 120px !important;
+		height: auto !important;
+	}
+	.layout-as-cards.compact .card .card-inner-fixed img {
+		/* Scale images up to match doubled card width */
+		max-height: 56px;
+		max-width: 72px;
+		width: auto;
+		object-fit: contain;
+	}
+	.layout-as-cards.compact .card .p-3 {
+		padding: 0.25rem !important;
+		font-size: 0.85rem !important;
+		justify-content: flex-start !important;
+		text-align: left !important;
+	}
+	.layout-as-cards.compact .card .p-3 > span:first-child {
+		flex: 1 1 auto;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.layout-as-cards.compact .card i {
+		font-size: 28px !important;
+	}
+
 	/* Small visible shortcut hints */
 	.shortcut {
 		font-size: 0.85rem;
 		margin-left: 0.35rem;
 		color: var(--bs-muted, #6c757d);
+	}
+
+	/* Toggle button active state */
+	#btnToggleCompact.active {
+		background-color: var(--bs-primary); color: #fff; border-color: var(--bs-primary);
+	}
+
+	/* Ensure Compact button stays on a single row and always shows the access key */
+	#btnToggleCompact {
+		white-space: nowrap !important;
+		display: inline-flex !important;
+		align-items: center !important;
+		gap: 0.35rem !important;
+		padding: 0.25rem 0.75rem !important;
+		line-height: 1 !important;
+		min-width: 0 !important; /* allow size to follow caption */
+		width: auto !important;
+		max-height: 36px !important; /* keep button from getting taller */
+		font-size: 0.95rem !important;
+		margin-right: 0.5rem !important; /* spacing between this and the next element */
+		flex: none !important; /* don't stretch */
+		overflow: visible !important; /* allow the shortcut to remain visible */
+	}
+
+	/* Improve caption contrast and readability */
+	#btnToggleCompact {
+		color: var(--bs-body-color, #212529) !important;
+		font-weight: 600 !important;
+	}
+
+	#btnToggleCompact .shortcut {
+		color: rgba(0,0,0,0.6) !important;
+		font-size: 0.85rem !important;
+		margin-left: 0.25rem !important;
+	}
+
+	#btnToggleCompact.active,
+	#btnToggleCompact:active,
+	#btnToggleCompact:focus {
+		color: #fff !important;
+	}
+
+	#btnToggleCompact.active .shortcut {
+		color: rgba(255,255,255,0.92) !important;
+	}
+
+	/* Mobile fallback: reduce width a bit on very small screens */
+	@@media (max-width: 576px) {
+		#btnToggleCompact {
+			min-width: 100px !important;
+			font-size: 0.9rem !important;
+			padding: 0.2rem 0.5rem !important;
+		}
+	}
+
+	#btnToggleCompact .shortcut {
+		display: inline-block !important;
+		white-space: nowrap !important;
+		opacity: 1 !important;
+		margin-left: 0.25rem !important;
+		font-size: 0.85rem !important;
+		position: relative !important;
+		z-index: 3 !important;
+		background: transparent !important;
+		padding-left: 0.15rem !important;
+	}
+
+	/* Ensure cards can overlap when lifted */
+	.layout-as-cards {
+		overflow: visible;
+	}
+
+	/* Base card lift behaviour */
+	.layout-as-cards .card {
+		position: relative;
+		z-index: 1;
+		transition: transform 0.12s ease, box-shadow 0.12s ease;
+		will-change: transform;
+	}
+	.layout-as-cards .card:hover {
+		z-index: 60;
+		transform: translateY(-8px);
+		box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+	}
+
+	/* Slightly smaller lift in compact mode */
+	.layout-as-cards.compact .card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+	}
+
+	/* Hide only the heart toggle when in compact view */
+	.layout-as-cards.compact .heart-toggle {
+		display: none !important;
+	}
+
+	/* Also hide the edit button in compact view to reduce clutter */
+	.layout-as-cards.compact .edit-button {
+		display: none !important;
+	}
+
+	/* Left-align image/icon in compact mode so following card doesn't cover it */
+	.layout-as-cards.compact .card .btn {
+		align-items: flex-start !important;
+		justify-content: center !important;
+		padding-left: 0.5rem !important;
+	}
+
+	.layout-as-cards.compact .card img {
+		max-width: 72px !important;
+		max-height: 56px !important;
+		width: auto !important;
+		height: auto !important;
+		margin-left: 0 !important;
+		margin-right: auto !important;
+		display: block !important;
+	}
+
+	.layout-as-cards.compact .card .p-3 {
+		padding-left: 0.5rem !important;
 	}
 </style>
 
@@ -171,9 +333,45 @@ else
 			} else if (key === 'l') {
 				const el = document.getElementById('btnReload');
 				if (el) { el.click(); e.preventDefault(); }
+			} else if (key === 'q') {
+				// Compact view toggle (Alt+Q)
+				if (typeof window.toggleCompactView === 'function') { window.toggleCompactView(); e.preventDefault(); }
 			}
 		}
+
+		function applyCompactState(isCompact) {
+			const cont = document.getElementById('cardsContainer');
+			const btn = document.getElementById('btnToggleCompact');
+			if (!cont || !btn) return;
+			if (isCompact) {
+				cont.classList.add('compact');
+				btn.setAttribute('aria-pressed', 'true');
+				btn.classList.add('active');
+			} else {
+				cont.classList.remove('compact');
+				btn.setAttribute('aria-pressed', 'false');
+				btn.classList.remove('active');
+			}
+		}
+
+		function toggleCompactView() {
+			const cur = localStorage.getItem('favouritesCompactView') === '1';
+			const next = !cur;
+			localStorage.setItem('favouritesCompactView', next ? '1' : '0');
+			applyCompactState(next);
+		}
+
+		function initCompactView() {
+			const cur = localStorage.getItem('favouritesCompactView') === '1';
+			applyCompactState(cur);
+		}
+
 		document.addEventListener('keydown', handleShortcut);
 		window.addEventListener('unload', function () { document.removeEventListener('keydown', handleShortcut); });
+		document.addEventListener('DOMContentLoaded', initCompactView);
+		// Also try immediate init for cases where DOMContentLoaded already fired
+		setTimeout(initCompactView, 50);
+		// expose toggle for inline onclick
+		window.toggleCompactView = toggleCompactView;
 	})();
 </script>
