@@ -87,6 +87,21 @@
   color: var(--primary);
 }
 
+.heart-toggle i {
+  font-size: 22px;
+  color: red;
+}
+.heart-toggle:hover i {
+  transform: scale(1.08);
+}
+.edit-button i {
+  font-size: 18px;
+  color: var(--bs-muted, #6c757d);
+}
+.edit-button:hover i {
+  color: var(--text);
+}
+
 @media (max-width: 600px) {
   .card {
     width: 98vw;

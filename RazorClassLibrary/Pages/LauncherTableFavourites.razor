@@ -81,8 +81,23 @@ else
 							}
 							<span class='p-3 d-flex align-items-center justify-content-between w-100' style="color:var(--text) !important; -webkit-text-fill-color:var(--text) !important;">
 								<span><u>@counter</u> @launcher.Name</span>
-								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
-									@onblur="@(() => UpdateFavorite(launcher))" />
+								<span class="d-flex align-items-center">
+											    <button type="button" class="btn btn-link p-0 me-2 heart-toggle" title="Toggle Favorite"
+												    aria-pressed="@launcher.Favourite" @onclick:stopPropagation="true" @onclick:preventDefault="true" @onclick="async () => { launcher.Favourite = !launcher.Favourite; await UpdateFavorite(launcher); }">
+										@if (launcher.Favourite)
+										{
+											<i class="bi bi-heart-fill text-danger" aria-hidden="true"></i>
+										}
+										else
+										{
+											<i class="bi bi-heart" aria-hidden="true"></i>
+										}
+									</button>
+										    <button type="button" class="btn btn-link p-0 edit-button" title="Edit Launcher"
+											    @onclick:stopPropagation="true" @onclick:preventDefault="true" @onclick="async () => await EditLauncherAsync(launcher.Id)">
+										<i class="bi bi-pencil" aria-hidden="true"></i>
+									</button>
+								</span>
 							</span>
 						</a>
 					}
@@ -103,8 +118,23 @@ else
 							}
 							<span class='p-3 d-flex align-items-center justify-content-between w-100' style="color:var(--text) !important; -webkit-text-fill-color:var(--text) !important;">
 								<span><u>@counter</u> @launcher.Name</span>
-								<InputCheckbox class='form-checkbox' id="Favorite" @bind-value="launcher.Favourite"
-									@onblur="@(() => UpdateFavorite(launcher))" />
+								<span class="d-flex align-items-center">
+									    <button type="button" class="btn btn-link p-0 me-2 heart-toggle" title="Toggle Favorite"
+										    aria-pressed="@launcher.Favourite" @onclick:stopPropagation="true" @onclick="async () => { launcher.Favourite = !launcher.Favourite; await UpdateFavorite(launcher); }">
+										@if (launcher.Favourite)
+										{
+											<i class="bi bi-heart-fill text-danger" aria-hidden="true"></i>
+										}
+										else
+										{
+											<i class="bi bi-heart" aria-hidden="true"></i>
+										}
+									</button>
+									<button type="button" class="btn btn-link p-0 edit-button" title="Edit Launcher"
+											@onclick:stopPropagation="true" @onclick="async () => await EditLauncherAsync(launcher.Id)">
+										<i class="bi bi-pencil" aria-hidden="true"></i>
+									</button>
+								</span>
 							</span>
 						</a>
 					}
