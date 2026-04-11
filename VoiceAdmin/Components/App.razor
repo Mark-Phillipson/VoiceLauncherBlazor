@@ -2,6 +2,31 @@
 <html lang="en">
 
 <head>
+    <style>
+        /* Suppress color/background transitions until theme is applied to avoid flash */
+        html[data-theme-init] *,
+        html[data-theme-init] *::before,
+        html[data-theme-init] *::after {
+            transition: none !important;
+        }
+    </style>
+    <script>
+        (function(){
+            try {
+                const storageKeys = ['appTheme','tvc-theme','app-theme'];
+                let theme = null;
+                for (const k of storageKeys) { const v = localStorage.getItem(k); if (v) { theme = v; break; } }
+                if (!theme) {
+                    theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                }
+                const t = theme === 'dark' ? 'dark' : 'light';
+                try { document.documentElement.setAttribute('data-bs-theme', t); } catch (e) {}
+                try { document.body && document.body.setAttribute('data-bs-theme', t); } catch (e) {}
+                document.documentElement.setAttribute('data-theme-init', '');
+                requestAnimationFrame(function(){ setTimeout(function(){ document.documentElement.removeAttribute('data-theme-init'); }, 0); });
+            } catch (e) { }
+        })();
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
