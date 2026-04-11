@@ -46,18 +46,41 @@ Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Service defaults added");
 
 // Blazor Server services
 // Feature flag: control whether SmartComponents are registered at startup.
-var smartComponentsEnabled = true;
-bool.TryParse(builder.Configuration["SmartComponents:Enabled"] ?? builder.Configuration["Features:SmartComponentsEnabled"], out smartComponentsEnabled);
-// When running locally for development, enable SmartComponents by default
-// unless the feature flag is explicitly set to false.
-if (!builder.Configuration.AsEnumerable().Any(kv => kv.Key == "SmartComponents:Enabled" || kv.Key == "Features:SmartComponentsEnabled") && isDevLike)
-{
-    smartComponentsEnabled = true;
-    Console.WriteLine("SmartComponents:Enabled not present in configuration. Enabling SmartComponents by default for development-like environment.");
-}
+// New default: enable SmartComponents in non-production environments unless explicitly disabled.
 object? smartComponentsBuilder = null;
-if (smartComponentsEnabled)
 {
+    var cfgValue = builder.Configuration["SmartComponents:Enabled"] ?? builder.Configuration["Features:SmartComponentsEnabled"];
+    bool smartComponentsEnabled;
+
+    if (builder.Environment.IsProduction() && !isDevLike)
+    {
+        // Production-like: disabled by default unless configuration explicitly enables it
+        if (!string.IsNullOrWhiteSpace(cfgValue))
+        {
+            bool.TryParse(cfgValue, out smartComponentsEnabled);
+        }
+        else
+        {
+            smartComponentsEnabled = false;
+            Console.WriteLine("Production-like environment: SmartComponents disabled by default; set SmartComponents:Enabled to true to enable.");
+        }
+    }
+    else
+    {
+        // Non-production: enabled by default, but allow explicit override
+        smartComponentsEnabled = true;
+        if (!string.IsNullOrWhiteSpace(cfgValue))
+        {
+            bool.TryParse(cfgValue, out smartComponentsEnabled);
+        }
+        else
+        {
+            Console.WriteLine("SmartComponents enabled by default in non-production environments.");
+        }
+    }
+
+    if (smartComponentsEnabled)
+    {
     // Only register SmartComponents when explicitly enabled via config.
     var smartComponentsApiKey =
         builder.Configuration["SmartComponents:ApiKey"] ??
@@ -143,10 +166,11 @@ if (smartComponentsEnabled)
     {
         Console.WriteLine("OpenAI API key not configured. Continuing without OpenAI inference backend.");
     }
-}
-else
-{
-    Console.WriteLine("SmartComponents feature disabled by configuration; skipping registration.");
+    }
+    else
+    {
+        Console.WriteLine("SmartComponents feature disabled by configuration; skipping registration.");
+    }
 }
 // Local embeddings: do NOT initialize by default during startup because
 // the local model files can be large and may cause publish/startup issues.

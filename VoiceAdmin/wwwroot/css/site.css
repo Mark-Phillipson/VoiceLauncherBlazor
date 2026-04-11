@@ -91,6 +91,9 @@ body {
 	--bs-secondary-bg: var(--surface-alt-bg);
 	--bs-border-color: var(--border-color);
 	--bs-dark-bg-subtle: color-mix(in srgb, var(--panel-bg) 72%, transparent);
+
+	/* Ensure select/dropdown arrow is visible on dark backgrounds */
+	--bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23F8FAFC' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
 /* Also apply same variables via prefers-color-scheme so our values override bootstrap's media rules */
@@ -349,6 +352,25 @@ input:disabled {
 
 .form-field input {
 	width: 100%;
+}
+
+/* Dark-theme specific: make native selects and .form-select arrows visible */
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] select {
+	background-image: var(--bs-form-select-bg-img) !important;
+	background-repeat: no-repeat !important;
+	background-position: right .75rem center !important;
+	background-size: 16px 12px !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	appearance: none !important;
+	color: var(--control-text) !important;
+	background-color: var(--input-bg) !important;
+}
+
+/* Hide the default dropdown caret in IE/Edge to ensure consistent rendering */
+[data-bs-theme="dark"] select::-ms-expand {
+	display: none;
 }
 
 .valid.modified:not([type=checkbox]) {
