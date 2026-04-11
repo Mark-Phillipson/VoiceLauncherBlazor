@@ -12,10 +12,11 @@ builder.Services.AddServerSideBlazor()
 		options.ClientTimeoutInterval = TimeSpan.FromMinutes(30); // 30 min
 		options.HandshakeTimeout = TimeSpan.FromSeconds(30);
 	});
-builder.Services.AddIdleCircuitHandler(options =>
-	options.IdleTimeout = TimeSpan.FromMinutes(30)); // 30 min
+// builder.Services.AddIdleCircuitHandler(options =>
+//     options.IdleTimeout = TimeSpan.FromMinutes(30)); // 30 min
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddScoped<TalonVoiceCommandDataService>();
+// Temporarily disable TalonVoiceCommandDataService registration for local testing
+// builder.Services.AddScoped<TalonVoiceCommandDataService>();
 
 var app = builder.Build();
 

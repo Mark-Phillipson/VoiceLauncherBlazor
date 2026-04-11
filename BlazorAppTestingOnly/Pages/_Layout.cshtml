@@ -9,6 +9,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
     <meta name="color-scheme" content="dark light">
+    <style>
+        /* Disable color/background transitions during initial theme application */
+        html[data-theme-init] *,
+        html[data-theme-init] *::before,
+        html[data-theme-init] *::after {
+            transition: none !important;
+        }
+    </style>
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('appTheme') || localStorage.getItem('tvc-theme') || null;
+                var theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme-init', '');
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                requestAnimationFrame(function () {
+                    document.documentElement.removeAttribute('data-theme-init');
+                });
+            } catch (e) {
+                // ignore
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="BlazorAppTestingOnly.styles.css" rel="stylesheet" />
@@ -84,7 +107,6 @@
                 }
             });
         </script>
-</body>
-    <script src="/js/darkmode.js"></script>
+        <script src="/js/darkmode.js"></script>
 </body>
 </html>

@@ -50,12 +50,14 @@ namespace RazorClassLibrary.Shared
 		}
 		private void StartNewLauncher()
 		{
-			NavigationManager!.NavigateTo("/launcheradd", true);
+			// Use client-side routing to avoid a full page reload which causes a theme flash
+			NavigationManager!.NavigateTo("/launcheradd", false);
 			MenuItemSelected();
 		}
 		private void StartNewCustomIntelliSense()
 		{
-			NavigationManager!.NavigateTo("/customintellisense", true);
+			// Use client-side routing to avoid a full page reload which causes a theme flash
+			NavigationManager!.NavigateTo("/customintellisense", false);
 			MenuItemSelected();
 		}
 		private string? GetAccessKey(string key)
