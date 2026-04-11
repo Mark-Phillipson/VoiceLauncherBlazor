@@ -87,6 +87,18 @@ All relevant projects in the solution (including `VoiceAdmin`, `RazorClassLibrar
 - Interpret context and similar-sounding words as needed.
 - When returning a response always please to keep it down to a minimum brevity and summarization is the key. 
 
+## Cursorless / Terminal Commands
+
+- When presenting terminal commands for the user, always wrap them in a fenced code block (triple backticks). This makes it easy to use the Cursorless extension or other voice/keyboard tools to pull the exact command text into a terminal without copy/paste.
+- Prefer putting each command or logical command group in its own fenced block and include an appropriate language tag when known (for example, ```powershell or ```bash).
+- Example (preferred):
+
+```powershell
+dotnet build --configuration Debug
+```
+
+This repository-level guidance is intended to be followed by the assistant for all projects in this workspace; if you want it applied to your personal VS Code prompts globally, add the same note to `{{VSCODE_USER_PROMPTS_FOLDER}}/copilot-instructions.md`.
+
 ## Agent Mode Tasks
 
 -  Do not stop the process until you have completed everything then report back and when you give your response make sure they are brief!
