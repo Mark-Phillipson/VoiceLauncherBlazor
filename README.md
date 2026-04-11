@@ -80,16 +80,29 @@ class Actions:
 
 - For a shared path override (no code edit each release), use a user config variable or wrap command in a batch/PowerShell script that sets the path before launching.
 - **Application Launcher**: Launch applications, folders, or websites by category or voice command.
-- **Popular Commands**: Predefined voice commands for common coding tasks.
 - **To-Do Section**: Basic task management.
 - **Accessibility**: Optimized for hands-free use with Talon Voice and Cursorless.
 - **Hybrid Support**: Includes a Blazor Hybrid WinForms project for desktop integration (Windows Only).
+ 
+## Screenshots
+
+Below are examples of the WinForms Blazor hybrid application showing common workflows (click to enlarge):
+
+- ![Insert Custom Snippets](VoiceAdmin/Screenshots/InsertCustomSnippets.png)
+- *Insert custom snippets view — copy or insert snippets from the  SQLite database snippet store.*
+
+- ![WinForms Launcher Example](VoiceAdmin/Screenshots/WinFormsLauncherExample.png)
+- *Launcher UI — filter and launch applications, websites or projects by voice.*
+
+- ![Talon Voice Command Search](VoiceAdmin/Screenshots/TalonVoiceCommandSearch.png)
+- *Talon voice command search — browse and inspect Talon Voice commands.*
+
 
 ## Project Structure
 
 - **VoiceAdmin**: Main Blazor Server application (replaces the deprecated `TalonVoiceCommandsServer`).
 - **WinFormsApp**: Blazor Hybrid WinForms project (Windows-only).
-- **DataAccessLibrary**: EF Core with SQL Server for data access.
+- **DataAccessLibrary**: EF Core with SQLite for data access.
 - **TestProjectxUnit**: Unit tests using XUnit.
 
 > **Note:** The `TalonVoiceCommandsServer` project is deprecated; its folder remains for historical reference and is marked with `TalonVoiceCommandsServer/DEPRECATED.md`.

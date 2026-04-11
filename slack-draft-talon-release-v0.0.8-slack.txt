@@ -1,0 +1,37 @@
+*VoiceLauncherBlazor v0.0.8 — Release (DRAFT)*
+
+*Download / Release page:* <https://github.com/Mark-Phillipson/VoiceLauncherBlazor/releases/latest|Release page>
+
+*Live demo:* <https://voicelauncherblazor.azurewebsites.net/|Demo (evaluation only)>
+
+> PLEASE NOTE: The demo is for evaluation only — anything you save may be overridden. It runs on a free-tier Azure 32-bit plan and may be slow. The app is intended to be run *locally*, with your snippets and launcher items stored in a local SQLite database. Several additional features are only available when running locally.
+
+*What is it?*
+VoiceLauncherBlazor is a Blazor Server app designed for voice-controlled development. It integrates with *Talon Voice* for hands-free coding and provides tools to improve your voice workflow.
+
+*Key features:*
+- Talon Directory Search — Search your Talon commands directory and produce a filtered, sortable list of commands; quickly open a command for editing in VS Code.
+- Custom Snippets — Maintain a personal library of code snippets that can be triggered by voice.
+- Application Launcher — Launch apps, folders, or websites by category or voice command.
+- Hybrid Desktop Support — A Blazor Hybrid WinForms project that lets a Windows form pop up via voice command, showing a filtered list of items to choose from (useful while coding or working hands-free).
+- Accessibility-first UI and keyboard/voice access keys.
+
+*:platforms:*
+*Tested on:* Windows (x64)
+*Untested (volunteers welcome):* macOS (ARM64), Linux (x64) — builds available in the release assets.
+
+If you can test on Mac or Linux, please reply here or open an issue: <https://github.com/Mark-Phillipson/VoiceLauncherBlazor/issues|Open an issue>
+
+*Quick Start (Windows)*
+1. Download `VoiceLauncherBlazor-win-x64.zip` from the release page.
+2. Extract and run `VoiceAdmin.exe`.
+3. Full install guide: <https://github.com/Mark-Phillipson/VoiceLauncherBlazor/blob/main/docs/root-markdown/INSTALL.md|INSTALL.md>
+
+*Run locally (dev):*
+```powershell
+dotnet watch --project VoiceAdmin run --urls http://localhost:5008
+```
+
+Thanks for the feedback so far — please review and suggest edits before I post this in the Talon channel.  
+
+*[DRAFT — images should be uploaded to Slack directly or committed to `docs/images/` and linked from the repo]*
