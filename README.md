@@ -114,6 +114,8 @@ class Actions:
 
 For release/publishing instructions, see [docs/root-markdown/PUBLISHING.md](docs/root-markdown/PUBLISHING.md).
 
+- Release details: [release_details.md](release_details.md)
+
 ## Database
 
 - Uses SQLite by design for all release builds and local deploys (`voicelauncher-azure.db`, bundled in `VoiceAdmin/wwwroot`).

@@ -18,8 +18,8 @@ code "VoiceAdmin\VoiceAdmin.csproj"
 
 - Example: once you know the next version (replace vX.Y.Z with the actual new tag), create and push an annotated tag:
 ```powershell
-git tag -a vX.Y.Z -m "chore(release): vX.Y.Z"
-git push origin vX.Y.Z
+git tag -a v0.0.8 -m "chore(release): v0.0.8"
+git push origin v0.0.8
 ```
 
 - Alternative: push all local tags at once:
@@ -27,9 +27,9 @@ git push origin vX.Y.Z
 git push --tags
 ```
 
-- Optional: create a GitHub Release with the `gh` CLI (replace vX.Y.Z and the title/body as needed):
+- Optional: create a GitHub Release with the `gh` CLI (replace v0.0.8 and the title/body as needed):
 ```powershell
-gh release create vX.Y.Z --title "vX.Y.Z" --notes "Release notes here"
+gh release create v0.0.8 --title "v0.0.8" --notes "Release notes here"
 ```
 
 
