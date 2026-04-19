@@ -96,9 +96,11 @@ else
 				}
 				<tr>
 					<td>
-						<button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary"
+						<button accesskey="@shortcutValue" title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary position-relative"
 							type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
-							@customIntelliSense.DisplayValue</button>
+							<span class="position-absolute start-0 top-50 translate-middle-y ms-2 badge bg-info text-dark">@((counter==10) ? "10" : shortcutValue.ToString())</span>
+							<span class="d-block w-100 text-center">@customIntelliSense.DisplayValue</span>
+						</button>
 					</td>					<td>
 						<div>
 							@if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) ||
@@ -150,16 +152,8 @@ else
 						}
 					</td>
 					<td class="btn-group">
-						<button accesskey="@shortcutValue" title="Copy and switch and paste" style='min-width:80px'
-							class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
-							@if (counter == 10)
-							{
-								<text>1</text>
-							}
-							<u>
-								@shortcutValue.ToString()
-							</u>
-							<i class="fa-solid fa-paste"></i>
+						<button title="Copy" style='min-width:80px' class="btn btn-info" @onclick="@(() => CopyItemAsync(customIntelliSense.Id))">
+							<i class="fa-regular fa-copy"></i>
 						</button>
 						<button class="btn  btn-outline-warning"
 							@onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">

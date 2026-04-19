@@ -18,6 +18,8 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 - **Styling**: Bootstrap for responsive UI.
 - **Accessibility**: Optimized for hands-free use (Talon Voice, Cursorless) Always use access keys to access elements by keyboard shortcut/voice command.
 
+**Important Reuse Guideline**: Place shared UI (pages/components) in `RazorClassLibrary` so they are available to all hosts (VoiceAdmin, WinForms BlazorWebView, and any other app). Do NOT add reusable pages directly to `VoiceAdmin` if the UI must also be accessible from the WinForms hybrid app — instead add the component/page to `RazorClassLibrary` and, if needed, add a thin proxy page in `VoiceAdmin` that renders the shared component.
+
 ## Development Practices
 
 - Use `.razor` and `.razor.cs` for each component.
