@@ -28,4 +28,11 @@
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
   </ItemGroup>
 
+  <!-- Embedded app icon provided by user -->
+  <ItemGroup>
+    <EmbeddedResource Include="C:\Users\MPhil\OneDrive\Pictures\TempestRising.ico">
+      <LogicalName>WinFormsApp.TempestRising.ico</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
