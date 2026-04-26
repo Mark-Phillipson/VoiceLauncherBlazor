@@ -23,16 +23,24 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Windows.Forms;
+using System.IO.Pipes;
+using System.Text;
 
 namespace WinFormsApp
 {
     [SupportedOSPlatform("windows")]
     public partial class MainForm : Form
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
         private bool _reallyExit = false;
         private ContextMenuStrip contextMenu;
         private NotifyIcon notifyIcon;
         private bool launchSearchMode;
+        private CancellationTokenSource _pipeServerCts = new();
+
+        public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
 
         public MainForm(bool launchSearchMode = false)
         {
@@ -72,7 +80,7 @@ namespace WinFormsApp
                 Visible = true,
                 Text = "Blazor Hybrid Voice Admin"
             };
-            notifyIcon.DoubleClick += NotifyIcon_DoubleClick!;
+            notifyIcon.MouseClick += NotifyIcon_MouseClick!;
 
             // Initialize ContextMenu with icons (touch/eye-tracking friendly)
             contextMenu = new ContextMenuStrip();
@@ -158,6 +166,9 @@ namespace WinFormsApp
                 this.Height = workingArea.Height;
                 this.Location = new Point(workingArea.Right - this.Width, workingArea.Top);
             }
+
+            // Start listening for launch arguments from other instances
+            StartNamedPipeServer();
         }
 
         private void InitializeServices()
@@ -423,7 +434,6 @@ namespace WinFormsApp
             {
                 e.Cancel = true;
                 this.Hide();
-                notifyIcon.ShowBalloonTip(1000, "Blazor Hybrid App", "The application is still running in the system tray.", ToolTipIcon.Info);
             }
             // otherwise allow the form to close and the process to exit
         }
@@ -437,16 +447,26 @@ namespace WinFormsApp
             // }
         }
 
-        private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+        private void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
         {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            // Only activate on left-click to avoid interfering with right-click menu
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                this.Focus();
+                this.Activate();
+            }
         }
 
         private void ShowMainForm()
         {
             this.Show();
             this.WindowState = FormWindowState.Normal;
+            this.BringToFront();
+            this.Activate();
+            SetForegroundWindow(this.Handle);
         }
 
         private void ExitApplication()
@@ -455,5 +475,71 @@ namespace WinFormsApp
             _reallyExit = true;
             Application.Exit();
         }
+
+        /// <summary>
+        /// Starts listening for launch arguments on a named pipe.
+        /// Called after the form is fully loaded.
+        /// </summary>
+        public void StartNamedPipeServer()
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    while (!_pipeServerCts.Token.IsCancellationRequested)
+                    {
+                        using var server = new NamedPipeServerStream(
+                            "VoiceLauncherBlazor_LaunchArgs",
+                            PipeDirection.In,
+                            NamedPipeServerStream.MaxAllowedServerInstances,
+                            PipeTransmissionMode.Message);
+
+                        await server.WaitForConnectionAsync(_pipeServerCts.Token);
+
+                        using var reader = new StreamReader(server, Encoding.UTF8);
+                        string? message = reader.ReadLine();
+
+                        if (!string.IsNullOrEmpty(message))
+                        {
+                            Debug.WriteLine($"Received launch args from pipe: {message}");
+                            Invoke(() =>
+                            {
+                                this.Show();
+                                this.WindowState = FormWindowState.Normal;
+                                this.BringToFront();
+                                this.Activate();
+                                SetForegroundWindow(this.Handle);
+
+                                // Raise event so Index component can handle the category
+                                LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
+                            });
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when shutting down
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Named pipe server error: {ex.Message}");
+                }
+            }, _pipeServerCts.Token);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            _pipeServerCts.Cancel();
+            base.OnFormClosing(e);
+        }
+    }
+
+    /// <summary>
+    /// Event args for when launch arguments are received from another instance.
+    /// </summary>
+    public class LaunchArgumentsEventArgs : EventArgs
+    {
+        public string? Arguments { get; set; }
     }
 }
+

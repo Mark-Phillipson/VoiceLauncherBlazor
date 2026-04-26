@@ -21,7 +21,9 @@ namespace WinFormsApp
 		private bool languageAndCategoryListing = false;		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
-		private bool showTalonSearch = false;	// Property for dynamic AI Chat button caption
+		private bool showTalonSearch = false;
+		private MainForm? mainForm;
+		private bool eventSubscribed = false;
 	private string AIChatButtonCaption => showAIChat ? 
 		(arguments != null && arguments.Length > 1 && 
 		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
@@ -33,9 +35,75 @@ namespace WinFormsApp
 		 ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
 		  (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))) ? "Close" : "← Back") :
 		"Talon Search";
-		protected override async Task OnInitializedAsync()
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender && !eventSubscribed)
 		{
-			arguments = Environment.GetCommandLineArgs();
+			try
+			{
+				// Try to get MainForm from service provider to subscribe to IPC events
+				// Note: MainForm is registered as singleton in Program.cs
+				mainForm = null;
+				eventSubscribed = true;
+				MainForm.LaunchArgumentsReceived += OnLaunchArgumentsReceived;
+				System.Diagnostics.Debug.WriteLine("Subscribed to LaunchArgumentsReceived event");
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine($"Failed to subscribe to launch arguments event: {ex.Message}");
+			}
+		}
+		base.OnAfterRender(firstRender);
+	}
+
+	private async void OnLaunchArgumentsReceived(object? sender, LaunchArgumentsEventArgs e)
+	{
+		System.Diagnostics.Debug.WriteLine($"LaunchArgumentsReceived event fired with: {e.Arguments}");
+
+		if (string.IsNullOrEmpty(e.Arguments))
+			return;
+
+		// Parse arguments separated by |
+		var parts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+		var parsedArgs = new List<string> { Environment.GetCommandLineArgs()[0] };
+		parsedArgs.AddRange(parts);
+
+		// Process like command-line arguments
+		arguments = parsedArgs.ToArray();
+
+		System.Diagnostics.Debug.WriteLine($"Parsed {arguments.Length} arguments from IPC");
+		for (int i = 0; i < arguments.Length; i++)
+		{
+			System.Diagnostics.Debug.WriteLine($"Argument {i}: '{arguments[i]}'");
+		}
+
+		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
+		if (arguments.Length >= 3 && arguments[1].Contains("Launcher"))
+		{
+			string categoryName = arguments[2].Replace("/", "").Trim();
+			System.Diagnostics.Debug.WriteLine($"Handling Launcher with category: {categoryName}");
+
+			var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
+			if (category != null)
+			{
+				categoryId = category.Id;
+				SetTitle($"Launch from category: {categoryName}");
+				launcher = true;
+				showTalonSearch = false;
+				showAIChat = false;
+				StateHasChanged();
+			}
+			else
+			{
+				System.Diagnostics.Debug.WriteLine($"Category not found: {categoryName}");
+			}
+		}
+	}
+	
+	protected override async Task OnInitializedAsync()
+	{
+		arguments = Environment.GetCommandLineArgs();
 
 			// Debug: Log all command line arguments
 			System.Diagnostics.Debug.WriteLine($"Command line arguments count: {arguments?.Length ?? 0}");

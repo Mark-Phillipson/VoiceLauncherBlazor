@@ -6,6 +6,8 @@ using System.Linq;
 using System;
 using Microsoft.Extensions.Configuration;
 using RazorClassLibrary.Services;
+using System.IO.Pipes;
+using System.Text;
 
 namespace WinFormsApp
 {
@@ -42,57 +44,80 @@ namespace WinFormsApp
 			{
 				try
 				{
-					var current = Process.GetCurrentProcess();
-					var others = Process.GetProcessesByName(current.ProcessName).Where(p => p.Id != current.Id);
-					foreach (var p in others)
+				// First, bring existing instance to focus
+				var current = Process.GetCurrentProcess();
+				var others = Process.GetProcessesByName(current.ProcessName).Where(p => p.Id != current.Id);
+				foreach (var p in others)
+				{
+					var h = p.MainWindowHandle;
+					if (h != IntPtr.Zero)
 					{
-						var h = p.MainWindowHandle;
-						if (h != IntPtr.Zero)
-						{
-							ShowWindow(h, SW_RESTORE);
-							SetForegroundWindow(h);
-							break;
-						}
+						ShowWindow(h, SW_RESTORE);
+						SetForegroundWindow(h);
+						break;
 					}
 				}
-				catch { }
 
-				return; // another instance is running
+				// Then, send launch arguments via named pipe (if any args provided)
+				if (args.Length > 0)
+				{
+					try
+					{
+						using var client = new NamedPipeClientStream(
+							".",
+							"VoiceLauncherBlazor_LaunchArgs",
+							PipeDirection.Out);
+						
+						client.Connect(1000); // 1 second timeout
+						
+						using var writer = new StreamWriter(client, Encoding.UTF8);
+						// Send all arguments joined as a single message
+						string argsMessage = string.Join("|", args);
+						writer.WriteLine(argsMessage);
+						writer.Flush();
+					}
+					catch (Exception ex)
+					{
+						Debug.WriteLine($"Failed to send args to running instance: {ex.Message}");
+					}
+				}
 			}
+			catch { }
 
-			// Initialize configuration first
-			var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
-			
-			Configuration = new ConfigurationBuilder()
-				.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-				.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-				.AddEnvironmentVariables()
-				.Build();
+		return; // another instance is running
+	}
 
-			// Allow multiple instances by removing mutex logic
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
-			ApplicationConfiguration.Initialize();
-			
-			// Check for command line arguments to determine launch mode
-			var launchSearchMode = args.Length > 0 && 
-				(args[0].Equals("search", StringComparison.OrdinalIgnoreCase) || 
-				 args[0].Equals("Talon", StringComparison.OrdinalIgnoreCase));
-			
-			Application.Run(new MainForm(launchSearchMode));			AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
-			{
+	// Initialize configuration first
+	var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
+	
+	Configuration = new ConfigurationBuilder()
+		.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+		.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+		.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+		.AddEnvironmentVariables()
+		.Build();
+
+	Application.EnableVisualStyles();
+	Application.SetCompatibleTextRenderingDefault(false);
+	ApplicationConfiguration.Initialize();
+	
+	// Check for command line arguments to determine launch mode
+	var launchSearchMode = args.Length > 0 && 
+		(args[0].Equals("search", StringComparison.OrdinalIgnoreCase) || 
+		 args[0].Equals("Talon", StringComparison.OrdinalIgnoreCase));
+	
+	AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
+	{
 #if DEBUG
-				MessageBox.Show(text: error.ExceptionObject.ToString(), caption: "Error");
+		MessageBox.Show(text: error.ExceptionObject.ToString(), caption: "Error");
 #else
-				MessageBox.Show(text: "An error has occurred.", caption: "Error");
+		MessageBox.Show(text: "An error has occurred.", caption: "Error");
 #endif
-				// Log the error information (error.ExceptionObject)
-			};
+		// Log the error information (error.ExceptionObject)
+	};
 
-			// To customize application configuration such as set high DPI settings or default font,
-			// see https://aka.ms/applicationconfiguration.
-		}
+	Application.Run(new MainForm(launchSearchMode));
+}
 		public static IConfiguration? Configuration { get; private set; }
 	}
 }

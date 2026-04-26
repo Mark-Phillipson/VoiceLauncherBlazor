@@ -7,7 +7,13 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 
 ## Terminal Interactions
 
--  If you're going to run a dotnet build always check to see if the current application is running and then shut it down first.
+### **MANDATORY: Before Any Build**
+1. **Always** run port check: `powershell -ExecutionPolicy Bypass -File "./stop-processes-on-port-5008.ps1"`
+2. If process is running, stop it
+3. **Then** proceed with `dotnet build`
+
+Do NOT skip this step. Check first, stop if needed, build second. Every time.
+
 -  if you are asked to use playwright tools to demonstrate the application working always make sure the application is running first and utilize the integrated browser.
 
 ## Project Overview
