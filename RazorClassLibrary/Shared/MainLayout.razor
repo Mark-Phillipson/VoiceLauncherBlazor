@@ -1,6 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
 @using RazorClassLibrary.Shared
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Hosting
+@inject IConfiguration Configuration
+@inject IHostEnvironment HostEnv
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
@@ -24,18 +28,24 @@
         <article class="content pe-4 ps-5">
             @Body
         </article>
-    </main>
-</div>
-<footer class="center-footer @CurrentThemeClass d-flex justify-content-between align-items-center">
-    <div>
-        &copy; Voice Admin @DateTime.Now.Year,
-        @if (Environment.MachineName == "J40L4V3")
-        {
-            <text>Powered by</text>
-            @System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
-        }
-    </div>
-</footer>
+            </main>
+        </div>
+        <footer class="center-footer @CurrentThemeClass d-flex justify-content-between align-items-center">
+            <div>
+                &copy; Voice Admin @DateTime.Now.Year,
+                @if (Environment.MachineName == "J40L4V3")
+                {
+                    <text>Powered by</text>
+                    @System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription
+                }
+            </div>
+            <div>
+                @if (DemoFooterEnabled)
+                {
+                    <DemoFooter Text="@DemoFooterText" LinkUrl="@DemoFooterLink" />
+                }
+            </div>
+        </footer>
 @* Sync theme class with `data-bs-theme` for attribute-based CSS selectors *@
 <script>
 (() => {
@@ -72,6 +82,11 @@
     private const string ThemeStorageKey = "appTheme";
     private const string SidebarStorageKey = "appSidebarCollapsed";
     private string ThemeToggleLabel => CurrentThemeClass == "theme-dark" ? "Switch to light mode" : "Switch to dark mode";
+
+    // Demo footer configuration
+    private bool DemoFooterEnabled;
+    private string DemoFooterText = "This app is a demo hosted on Azure to reduce hosting costs. Functionality, uptime, or data may be limited.";
+    private string? DemoFooterLink;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -125,8 +140,34 @@
     {
         base.OnInitialized();
         // Ensure NavMenu is shown by default and remove page-specific hiding logic
-        ShowNavMenu = true; 
+        ShowNavMenu = true;
         NavigationManager.LocationChanged += HandleLocationChanged;
+
+        // Initialize demo footer settings (Production default unless overridden)
+        try
+        {
+            var cfgEnabled = Configuration.GetValue<bool?>("DemoFooter:Enabled");
+            if (cfgEnabled.HasValue)
+            {
+                DemoFooterEnabled = cfgEnabled.Value;
+            }
+            else
+            {
+                DemoFooterEnabled = HostEnv.IsProduction();
+            }
+
+            var cfgText = Configuration["DemoFooter:Text"];
+            if (!string.IsNullOrEmpty(cfgText))
+            {
+                DemoFooterText = cfgText;
+            }
+
+            DemoFooterLink = Configuration["DemoFooter:LinkUrl"];
+        }
+        catch
+        {
+            DemoFooterEnabled = false;
+        }
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)

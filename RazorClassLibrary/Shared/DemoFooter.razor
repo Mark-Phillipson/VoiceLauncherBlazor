@@ -1,0 +1,15 @@
+@using Microsoft.AspNetCore.Components
+
+<div class="demo-footer" role="status" aria-live="polite" tabindex="-1">
+    <span>@(Text ?? DefaultText)</span>
+    @if (!string.IsNullOrEmpty(LinkUrl))
+    {
+        <span class="ms-2"><a href="@LinkUrl" target="_blank" rel="noopener noreferrer">More info</a></span>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public string? LinkUrl { get; set; }
+    private readonly string DefaultText = "This app is a demo hosted on Azure to reduce hosting costs. Functionality, uptime, or data may be limited.";
+}

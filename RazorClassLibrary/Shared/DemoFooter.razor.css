@@ -1,0 +1,18 @@
+.demo-footer {
+    font-size: 0.85rem;
+    line-height: 1;
+    opacity: 0.95;
+}
+
+body[data-bs-theme='light'] .demo-footer {
+    color: #6c757d;
+}
+
+body[data-bs-theme='dark'] .demo-footer {
+    color: #e9ecef;
+}
+
+.demo-footer a {
+    text-decoration: underline;
+    color: inherit;
+}
