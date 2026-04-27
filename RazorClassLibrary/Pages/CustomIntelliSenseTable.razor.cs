@@ -7,8 +7,10 @@ using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 
 using System.Security.Claims;
+using System.Linq;
 using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
 
@@ -51,6 +53,415 @@ namespace RazorClassLibrary.Pages
             _ = InvokeAsync(() => ApplyFilter());
          }
       }
+      // Lookup lists and selection state for header typeahead controls
+      public List<LanguageDTO> Languages { get; set; } = new List<LanguageDTO>();
+      public List<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
+      public int SelectedLanguageId { get; set; }
+      public int SelectedCategoryId { get; set; }
+      public string LanguageQuery { get; set; } = "";
+      public string CategoryQuery { get; set; } = "";
+      public List<LanguageDTO> LanguageSuggestions { get; set; } = new List<LanguageDTO>();
+      public List<CategoryDTO> CategorySuggestions { get; set; } = new List<CategoryDTO>();
+      public bool ShowLanguageSuggestions { get; set; } = false;
+      public bool ShowCategorySuggestions { get; set; } = false;
+      private int LanguageSuggestionIndex { get; set; } = -1;
+      private int CategorySuggestionIndex { get; set; } = -1;
+
+      private async Task LoadLookups()
+      {
+         try
+         {
+            // Load languages first so we can fetch categories for the selected language
+            Languages = await LanguageDataService.GetAllLanguagesAsync();
+            SelectedLanguageId = LanguageId;
+            SelectedCategoryId = CategoryId;
+            // Load categories filtered by the selected language when possible
+            if (SelectedLanguageId > 0)
+            {
+               Categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", SelectedLanguageId);
+            }
+            else
+            {
+               Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
+            }
+
+            LanguageQuery = Languages.FirstOrDefault(l => l.Id == SelectedLanguageId)?.LanguageName ?? "";
+            CategoryQuery = Categories.FirstOrDefault(c => c.Id == SelectedCategoryId)?.CategoryName ?? "";
+         }
+         catch (Exception ex)
+         {
+            Console.WriteLine(ex.Message);
+         }
+      }
+
+      private async Task OnLanguageInput(ChangeEventArgs e)
+      {
+         LanguageQuery = e?.Value?.ToString() ?? "";
+         if (string.IsNullOrWhiteSpace(LanguageQuery))
+         {
+            LanguageSuggestions.Clear();
+            ShowLanguageSuggestions = false;
+            // If no language query, load all categories
+            Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
+         }
+         else
+         {
+            LanguageSuggestions = Languages.Where(l => (!string.IsNullOrEmpty(l.LanguageName) && l.LanguageName.Contains(LanguageQuery, StringComparison.OrdinalIgnoreCase))).Take(20).ToList();
+            ShowLanguageSuggestions = LanguageSuggestions.Any();
+
+            // If the query exactly matches a language, proactively load categories for that language
+            var exactMatch = Languages.FirstOrDefault(l => string.Equals(l.LanguageName?.Trim(), LanguageQuery.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (exactMatch != null)
+            {
+               SelectedLanguageId = exactMatch.Id;
+               // Load categories filtered to this language
+                  await LoadCategoriesForLanguage(SelectedLanguageId);
+            }
+         }
+      }
+
+         private async Task OnLanguageKeyDown(KeyboardEventArgs e)
+         {
+            if ((e.Key == "ArrowDown" || e.Code == "ArrowDown") && ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
+            {
+               LanguageSuggestionIndex = 0;
+               await FocusLanguageSuggestion(LanguageSuggestionIndex);
+            }
+            else if (e.Key == "Enter")
+            {
+               // If a suggestion is highlighted, activate it.
+               if (LanguageSuggestionIndex >= 0 && LanguageSuggestions != null && LanguageSuggestionIndex < LanguageSuggestions.Count)
+               {
+                  var lang = LanguageSuggestions[LanguageSuggestionIndex];
+                  await SelectLanguageById(lang.Id, lang.LanguageName);
+               }
+               // If nothing is highlighted but suggestions exist, activate the first suggestion.
+               else if (LanguageSuggestions != null && LanguageSuggestions.Count > 0)
+               {
+                  var lang = LanguageSuggestions[0];
+                  await SelectLanguageById(lang.Id, lang.LanguageName);
+               }
+               // Fallback: if no suggestions but the input exactly matches a language, activate it.
+               else
+               {
+                  var exact = Languages.FirstOrDefault(l => string.Equals(l.LanguageName?.Trim(), LanguageQuery.Trim(), StringComparison.OrdinalIgnoreCase));
+                  if (exact != null)
+                  {
+                     await SelectLanguageById(exact.Id, exact.LanguageName);
+                  }
+               }
+               // Prevent default browser behavior when possible (handled on client side if needed)
+            }
+            else if (e.Key == "Escape")
+            {
+               ShowLanguageSuggestions = false;
+               LanguageSuggestionIndex = -1;
+            }
+         }
+
+      private void OnCategoryInput(ChangeEventArgs e)
+      {
+         CategoryQuery = e?.Value?.ToString() ?? "";
+         if (string.IsNullOrWhiteSpace(CategoryQuery))
+         {
+            CategorySuggestions.Clear();
+            ShowCategorySuggestions = false;
+         }
+         else
+         {
+            CategorySuggestions = Categories.Where(c => (!string.IsNullOrEmpty(c.CategoryName) && c.CategoryName.Contains(CategoryQuery, StringComparison.OrdinalIgnoreCase))).Take(20).ToList();
+            ShowCategorySuggestions = CategorySuggestions.Any();
+         }
+      }
+
+      private async Task OnCategoryKeyDown(KeyboardEventArgs e)
+      {
+         if ((e.Key == "ArrowDown" || e.Code == "ArrowDown") && ShowCategorySuggestions && CategorySuggestions?.Count > 0)
+         {
+            CategorySuggestionIndex = 0;
+            await FocusCategorySuggestion(CategorySuggestionIndex);
+         }
+         else if (e.Key == "Enter")
+         {
+            if (CategorySuggestionIndex >= 0 && CategorySuggestions != null && CategorySuggestionIndex < CategorySuggestions.Count)
+            {
+               var cat = CategorySuggestions[CategorySuggestionIndex];
+               await SelectCategoryById(cat.Id, cat.CategoryName);
+            }
+            else if (CategorySuggestions != null && CategorySuggestions.Count > 0)
+            {
+               var cat = CategorySuggestions[0];
+               await SelectCategoryById(cat.Id, cat.CategoryName);
+            }
+            else
+            {
+               var exact = Categories.FirstOrDefault(c => string.Equals(c.CategoryName?.Trim(), CategoryQuery.Trim(), StringComparison.OrdinalIgnoreCase));
+               if (exact != null)
+               {
+                  await SelectCategoryById(exact.Id, exact.CategoryName);
+               }
+            }
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowCategorySuggestions = false;
+            CategorySuggestionIndex = -1;
+         }
+      }
+
+      private async Task LoadCategoriesForLanguage(int languageId)
+      {
+         try
+         {
+            if (languageId <= 0)
+            {
+               Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
+            }
+            else
+            {
+               Categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", languageId);
+            }
+            // Update CategoryQuery to keep selected category visible if still applicable
+            CategoryQuery = Categories.FirstOrDefault(c => c.Id == SelectedCategoryId)?.CategoryName ?? CategoryQuery;
+         }
+         catch (Exception ex)
+         {
+            Console.WriteLine(ex.Message);
+         }
+      }
+
+      private async Task OnLanguageSuggestionKeyDown(KeyboardEventArgs e, int index)
+      {
+         // Guard against stale or out-of-range indices (suggestions can change between render and event)
+         if (LanguageSuggestions == null || index < 0 || index >= LanguageSuggestions.Count)
+         {
+            ShowLanguageSuggestions = false;
+            LanguageSuggestionIndex = -1;
+            try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+            return;
+         }
+         if (e.Key == "ArrowDown")
+         {
+            var next = index + 1;
+            if (next < LanguageSuggestions.Count)
+            {
+               LanguageSuggestionIndex = next;
+               await FocusLanguageSuggestion(next);
+            }
+         }
+         else if (e.Key == "ArrowUp")
+         {
+            var prev = index - 1;
+            if (prev >= 0)
+            {
+               LanguageSuggestionIndex = prev;
+               await FocusLanguageSuggestion(prev);
+            }
+            else
+            {
+               LanguageSuggestionIndex = -1;
+               await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput");
+            }
+         }
+         else if (e.Key == "Enter")
+         {
+            if (index >= 0 && index < LanguageSuggestions.Count)
+            {
+               var lang = LanguageSuggestions[index];
+               await SelectLanguageById(lang.Id, lang.LanguageName);
+            }
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowLanguageSuggestions = false;
+            LanguageSuggestionIndex = -1;
+            await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput");
+         }
+      }
+
+      private async Task OnCategorySuggestionKeyDown(KeyboardEventArgs e, int index)
+      {
+         // Guard against stale or out-of-range indices
+         if (CategorySuggestions == null || index < 0 || index >= CategorySuggestions.Count)
+         {
+            ShowCategorySuggestions = false;
+            CategorySuggestionIndex = -1;
+            try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+            return;
+         }
+         if (e.Key == "ArrowDown")
+         {
+            var next = index + 1;
+            if (next < CategorySuggestions.Count)
+            {
+               CategorySuggestionIndex = next;
+               await FocusCategorySuggestion(next);
+            }
+         }
+         else if (e.Key == "ArrowUp")
+         {
+            var prev = index - 1;
+            if (prev >= 0)
+            {
+               CategorySuggestionIndex = prev;
+               await FocusCategorySuggestion(prev);
+            }
+            else
+            {
+               CategorySuggestionIndex = -1;
+               await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput");
+            }
+         }
+         else if (e.Key == "Enter")
+         {
+            if (index >= 0 && index < CategorySuggestions.Count)
+            {
+               var cat = CategorySuggestions[index];
+               await SelectCategoryById(cat.Id, cat.CategoryName);
+            }
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowCategorySuggestions = false;
+            CategorySuggestionIndex = -1;
+            await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput");
+         }
+      }
+
+      private async Task FocusLanguageSuggestion(int index)
+      {
+         try
+         {
+            await JSRuntime.InvokeVoidAsync("setFocus", $"LanguageSuggestion_{index}");
+         }
+         catch { }
+      }
+
+      private async Task FocusCategorySuggestion(int index)
+      {
+         try
+         {
+            await JSRuntime.InvokeVoidAsync("setFocus", $"CategorySuggestion_{index}");
+         }
+         catch { }
+      }
+
+      // Handle Enter/Arrow/Escape when the suggestions list container has focus
+      private async Task OnLanguageSuggestionsListKeyDown(KeyboardEventArgs e)
+      {
+         if (e.Key == "Enter")
+         {
+            if (LanguageSuggestionIndex >= 0 && LanguageSuggestions != null && LanguageSuggestionIndex < LanguageSuggestions.Count)
+            {
+               var lang = LanguageSuggestions[LanguageSuggestionIndex];
+               await SelectLanguageById(lang.Id, lang.LanguageName);
+            }
+            else if (LanguageSuggestions != null && LanguageSuggestions.Count > 0)
+            {
+               var lang = LanguageSuggestions[0];
+               await SelectLanguageById(lang.Id, lang.LanguageName);
+            }
+            return;
+         }
+
+         if (e.Key == "ArrowDown")
+         {
+            var next = Math.Min(LanguageSuggestionIndex + 1, (LanguageSuggestions?.Count ?? 1) - 1);
+            if (next >= 0 && LanguageSuggestions != null && next < LanguageSuggestions.Count)
+            {
+               LanguageSuggestionIndex = next;
+               await FocusLanguageSuggestion(next);
+            }
+         }
+         else if (e.Key == "ArrowUp")
+         {
+            var prev = LanguageSuggestionIndex - 1;
+            if (prev >= 0)
+            {
+               LanguageSuggestionIndex = prev;
+               await FocusLanguageSuggestion(prev);
+            }
+            else
+            {
+               LanguageSuggestionIndex = -1;
+               try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+            }
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowLanguageSuggestions = false;
+            LanguageSuggestionIndex = -1;
+            try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+         }
+      }
+
+      private async Task OnCategorySuggestionsListKeyDown(KeyboardEventArgs e)
+      {
+         if (e.Key == "Enter")
+         {
+            if (CategorySuggestionIndex >= 0 && CategorySuggestions != null && CategorySuggestionIndex < CategorySuggestions.Count)
+            {
+               var cat = CategorySuggestions[CategorySuggestionIndex];
+               await SelectCategoryById(cat.Id, cat.CategoryName);
+            }
+            else if (CategorySuggestions != null && CategorySuggestions.Count > 0)
+            {
+               var cat = CategorySuggestions[0];
+               await SelectCategoryById(cat.Id, cat.CategoryName);
+            }
+            return;
+         }
+
+         if (e.Key == "ArrowDown")
+         {
+            var next = Math.Min(CategorySuggestionIndex + 1, (CategorySuggestions?.Count ?? 1) - 1);
+            if (next >= 0 && CategorySuggestions != null && next < CategorySuggestions.Count)
+            {
+               CategorySuggestionIndex = next;
+               await FocusCategorySuggestion(next);
+            }
+         }
+         else if (e.Key == "ArrowUp")
+         {
+            var prev = CategorySuggestionIndex - 1;
+            if (prev >= 0)
+            {
+               CategorySuggestionIndex = prev;
+               await FocusCategorySuggestion(prev);
+            }
+            else
+            {
+               CategorySuggestionIndex = -1;
+               try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+            }
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowCategorySuggestions = false;
+            CategorySuggestionIndex = -1;
+            try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+         }
+      }
+
+      private async Task SelectLanguageById(int id, string? name = null)
+      {
+         SelectedLanguageId = id;
+         LanguageQuery = name ?? Languages.FirstOrDefault(l => l.Id == id)?.LanguageName ?? "";
+         ShowLanguageSuggestions = false;
+         LanguageSuggestionIndex = -1;
+         LanguageId = SelectedLanguageId;
+         await InvalidateCache();
+      }
+
+      private async Task SelectCategoryById(int id, string? name = null)
+      {
+         SelectedCategoryId = id;
+         CategoryQuery = name ?? Categories.FirstOrDefault(c => c.Id == id)?.CategoryName ?? "";
+         ShowCategorySuggestions = false;
+         CategorySuggestionIndex = -1;
+         CategoryId = SelectedCategoryId;
+         await InvalidateCache();
+      }
       public string ExceptionMessage { get; set; } = string.Empty;
       public List<string>? PropertyInfo { get; set; }
       [CascadingParameter] public ClaimsPrincipal? User { get; set; }
@@ -65,11 +476,13 @@ namespace RazorClassLibrary.Pages
       private CancellationTokenSource? _searchCancellation;
       private bool _isLoading = false;
       private Task? _prefetchTask;
-      private const int SEARCH_DEBOUNCE_MS = 300;      protected override async Task OnInitializedAsync()
+      private const int SEARCH_DEBOUNCE_MS = 300;
+      protected override async Task OnInitializedAsync()
       {
          Console.WriteLine($"CustomIntelliSenseTable OnInitializedAsync - GlobalSearchTerm: '{GlobalSearchTerm}', LanguageId: {LanguageId}, CategoryId: {CategoryId}");
-         // Load data only once during initialization
+         // Load data first (it may set defaults), then load lookups so the autocomplete textboxes are prefilled
          await LoadData();
+         await LoadLookups();
       }
       
       protected override async Task OnParametersSetAsync()
@@ -91,6 +504,8 @@ namespace RazorClassLibrary.Pages
       {
          Cache.InvalidateCache($"CustomIntelliSenseTable_{LanguageId}_{CategoryId}");
          await LoadData();
+         // Refresh lookup lists and update the input query text to reflect current language/category
+         await LoadLookups();
       }
 
       // Reset the filter and clear cache
@@ -168,6 +583,7 @@ namespace RazorClassLibrary.Pages
          var parameters = new ModalParameters();
 
          parameters.Add(nameof(CategoryId), CategoryId);
+         parameters.Add(nameof(LanguageId), LanguageId);
          parameters.Add("RunningInBlazorHybrid", RunningInBlazorHybrid);
          var options = new ModalOptions()
          {
@@ -446,6 +862,17 @@ namespace RazorClassLibrary.Pages
 
                currentLanguage = cachedState.Language;
                currentCategory = cachedState.Category;
+               // Ensure the autocomplete inputs reflect the currently loaded language/category
+               if (currentLanguage != null)
+               {
+                  SelectedLanguageId = currentLanguage.Id;
+                  LanguageQuery = currentLanguage.LanguageName ?? LanguageQuery;
+               }
+               if (currentCategory != null)
+               {
+                  SelectedCategoryId = currentCategory.Id;
+                  CategoryQuery = currentCategory.CategoryName ?? CategoryQuery;
+               }
                CustomIntelliSenseDTO = cachedState.Data;
 
                // Now apply filter and cache the filtered result

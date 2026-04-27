@@ -6,19 +6,36 @@
 		<div class="col-md-7">
 			<div class="m-1" style='font-size:15px'>
 				<span class='ml-1'>@Title </span>&nbsp;
-				@if (currentLanguage != null && currentCategory != null)
-				{
-					<span class='ml-1 text-warning'>
-						@if (currentLanguage.LanguageName == "Not Applicable")
-						{
-							<text>Snip</text>
-						}
-						else
-						{
-							@currentLanguage.LanguageName
-						}
-						/ @currentCategory.CategoryName</span>
-				}
+				<!-- Typeahead for Language -->
+				<div class="d-inline-block ml-2" style="min-width:260px; position:relative;">
+					<label for="LanguageInput" class="mb-0 me-2"><u>L</u>anguage <small class="text-muted">(Alt+L)</small></label>
+					<input id="LanguageInput" accesskey="l" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language" class="form-control form-control-sm" placeholder="Language" @oninput="OnLanguageInput" @onkeydown="OnLanguageKeyDown" value="@LanguageQuery" />
+					@if (ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
+					{
+						<ul class="list-group position-absolute" role="listbox" aria-labelledby="LanguageInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnLanguageSuggestionsListKeyDown">
+							@for (int i = 0; i < LanguageSuggestions.Count; i++)
+							{
+								var lang = LanguageSuggestions[i];
+								<li id="LanguageSuggestion_@i" role="option" tabindex="0" aria-selected="@(LanguageSuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectLanguageById(lang.Id, lang.LanguageName) )" @onkeydown="@( (e) => OnLanguageSuggestionKeyDown(e, i) )">@lang.LanguageName</li>
+							}
+						</ul>
+					}
+				</div>
+				<!-- Typeahead for Category -->
+				<div class="d-inline-block ml-2" style="min-width:260px; position:relative;">
+					<label for="CategoryInput" class="mb-0 me-2"><u>G</u>ategory <small class="text-muted">(Alt+G)</small></label>
+					<input id="CategoryInput" accesskey="g" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category" class="form-control form-control-sm" placeholder="Category" @oninput="OnCategoryInput" @onkeydown="OnCategoryKeyDown" value="@CategoryQuery" />
+					@if (ShowCategorySuggestions && CategorySuggestions?.Count > 0)
+					{
+						<ul class="list-group position-absolute" role="listbox" aria-labelledby="CategoryInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnCategorySuggestionsListKeyDown">
+							@for (int i = 0; i < CategorySuggestions.Count; i++)
+							{
+								var cat = CategorySuggestions[i];
+								<li id="CategorySuggestion_@i" role="option" tabindex="0" aria-selected="@(CategorySuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectCategoryById(cat.Id, cat.CategoryName) )" @onkeydown="@( (e) => OnCategorySuggestionKeyDown(e, i) )">@cat.CategoryName</li>
+							}
+						</ul>
+					}
+				</div>
 			</div>
 		</div>
 		<div class="col-md-2">

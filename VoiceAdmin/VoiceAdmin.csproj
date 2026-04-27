@@ -13,6 +13,7 @@
     <!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
     <!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
     <UseLocalEmbeddings>false</UseLocalEmbeddings>
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
