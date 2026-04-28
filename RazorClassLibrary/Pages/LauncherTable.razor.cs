@@ -34,6 +34,7 @@ namespace RazorClassLibrary.Pages
 		[Parameter] public int CategoryId { get; set; } = 0;
 		[Parameter] public EventCallback CloseApplication { get; set; }
 		[Parameter] public bool RunningInBlazorHybrid { get; set; }
+        
 		[Parameter] public string GlobalSearchTerm { get; set; } = "";
 		public required AlphabetHelper Alphabet { get; set; } = new AlphabetHelper();
 		private int alphabetCounter = 0;
@@ -56,6 +57,8 @@ namespace RazorClassLibrary.Pages
 				_ = LoadData(); // Always reload from backend when search changes
 			}
 		}
+
+        
 		[Parameter] public string? ServerSearchTerm { get; set; }
 		public string ExceptionMessage { get; set; } = string.Empty;
 		public List<string>? PropertyInfo { get; set; }

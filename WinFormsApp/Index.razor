@@ -16,6 +16,20 @@
 			</button>
 			<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
 				@AIChatButtonCaption</button>
+			@* Top-level switch buttons: show only the relevant toggle depending on current view *@
+			@if (launcher)
+			{
+				<button accesskey="S" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild"><u>S</u>nippets</button>
+			}
+			else if (languageAndCategoryListing)
+			{
+				<button accesskey="L" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher</button>
+			}
+			else
+			{
+				<button accesskey="S" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild"><u>S</u>Snippets</button>
+				<button accesskey="L" class="btn btn-sm btn-outline-secondary ms-2" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher</button>
+			}
 			<button accesskey="T" class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())"><u>T</u>alon
 				@TalonSearchButtonCaption</button>
 		</div>
@@ -27,12 +41,12 @@
 		{
 			<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" />
 		}
-		else if (languageAndCategoryListing)
+			else if (languageAndCategoryListing)
 		{
 			<CustomIntelliSenseTable CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"
 				CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
 		}
-		else if (launcher)
+			else if (launcher)
 		{
 			<LauncherTable CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true"
 				RefreshData="@refreshRequested" />

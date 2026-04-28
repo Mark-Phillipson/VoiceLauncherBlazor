@@ -4,7 +4,7 @@
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-md-7">
-            <div class="m-1" style='font-size:15px'>
+                <div class="m-1" style='font-size:15px'>
                 <span class='ml-1'>@Title </span>&nbsp;
                 <!-- Typeahead for Language -->
                 <div class="d-inline-block ml-2" style="min-width:120px; max-width:45%; position:relative;">
@@ -115,7 +115,7 @@ else
                         </button>
                     </td>
                     <td>
-                        @* Snippet preview or details *@
+                        @* ape. preview or details *@
                         @if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) ||
                             (currentCategory != null && !currentCategory!.Sensitive && string.IsNullOrWhiteSpace(GlobalSearchTerm)))
                         {

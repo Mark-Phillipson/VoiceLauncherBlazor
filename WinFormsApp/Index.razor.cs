@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.ComponentModel;
 using System.Linq;
+using Blazored.Modal;
+using Blazored.Modal.Services;
+using RazorClassLibrary.Pages;
 
 namespace WinFormsApp
 {
@@ -13,6 +16,7 @@ namespace WinFormsApp
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IJSRuntime JSRuntime { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LauncherService LauncherService { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required ILauncherDataService LauncherDataService { get; set; }
+		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IModalService Modal { get; set; }
 		private int languageId;
 		private int categoryId;
 		private string message = "";
@@ -22,7 +26,6 @@ namespace WinFormsApp
 		private bool refreshRequested;
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
-		private MainForm? mainForm;
 		private bool eventSubscribed = false;
 	private string AIChatButtonCaption => showAIChat ? 
 		(arguments != null && arguments.Length > 1 && 
@@ -44,10 +47,12 @@ namespace WinFormsApp
 			{
 				// Try to get MainForm from service provider to subscribe to IPC events
 				// Note: MainForm is registered as singleton in Program.cs
-				mainForm = null;
 				eventSubscribed = true;
-				MainForm.LaunchArgumentsReceived += OnLaunchArgumentsReceived;
-				System.Diagnostics.Debug.WriteLine("Subscribed to LaunchArgumentsReceived event");
+				if (OperatingSystem.IsWindows())
+				{
+					MainForm.LaunchArgumentsReceived += OnLaunchArgumentsReceived;
+					System.Diagnostics.Debug.WriteLine("Subscribed to LaunchArgumentsReceived event");
+				}
 			}
 			catch (Exception ex)
 			{
@@ -304,6 +309,47 @@ namespace WinFormsApp
 		StateHasChanged();
 	}
 
+	private void ShowTeleSense()
+	{
+		if (languageAndCategoryListing)
+		{
+			// Turning off Snippets - restore previous view based on arguments if present
+			languageAndCategoryListing = false;
+			if (arguments != null && arguments.Length > 1)
+			{
+				if (arguments[1].Contains("Launcher"))
+				{
+					launcher = true;
+					SetTitle($"Launch Applications");
+				}
+				else if (arguments[1].Contains("AIChat"))
+				{
+					showAIChat = true;
+					SetTitle("AI Chat Assistant");
+				}
+				else if (arguments[1].Contains("Talon") || arguments[1].Contains("search"))
+				{
+					showTalonSearch = true;
+					SetTitle("Talon Voice Command Search");
+				}
+				else
+				{
+					SetTitle("Filtering Snippets by Display Value");
+				}
+			}
+		}
+		else
+		{
+			// Turning on Snippets view
+			languageAndCategoryListing = true;
+			showAIChat = false;
+			launcher = false;
+			showTalonSearch = false;
+			SetTitle("Snippets");
+		}
+		StateHasChanged();
+	}
+
 	private void ShowTalonSearch()
 	{		if (showTalonSearch)
 		{
@@ -352,6 +398,25 @@ namespace WinFormsApp
 		StateHasChanged();
 	}
 		
+	private async Task SwitchToLauncherFromChild()
+	{
+		launcher = true;
+		languageAndCategoryListing = false;
+		showAIChat = false;
+		showTalonSearch = false;
+		await SetTitleCallback.InvokeAsync("Launch Applications");
+		StateHasChanged();
+	}
+
+	private async Task SwitchToSnippetsFromChild()
+	{
+		languageAndCategoryListing = true;
+		launcher = false;
+		showAIChat = false;
+		showTalonSearch = false;
+		await SetTitleCallback.InvokeAsync("Snippets");
+		StateHasChanged();
+	}
 		private async Task RefreshCache()
 		{
 			// Invalidate both legacy and modern service caches

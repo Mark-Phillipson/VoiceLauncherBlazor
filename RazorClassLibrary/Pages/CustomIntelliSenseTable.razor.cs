@@ -34,6 +34,7 @@ namespace RazorClassLibrary.Pages
       [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
       [Parameter] public EventCallback CloseApplication { get; set; }
       [Parameter] public EventCallback MaximizeApplication { get; set; }
+      
       private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
       public List<CustomIntelliSenseDTO>? CustomIntelliSenseDTO { get; set; }
@@ -80,7 +81,7 @@ namespace RazorClassLibrary.Pages
             {
                Categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", SelectedLanguageId);
             }
-            else
+               else
             {
                Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
             }
@@ -92,8 +93,9 @@ namespace RazorClassLibrary.Pages
          {
             Console.WriteLine(ex.Message);
          }
-      }
+         }
 
+      
       private async Task OnLanguageInput(ChangeEventArgs e)
       {
          LanguageQuery = e?.Value?.ToString() ?? "";
@@ -907,7 +909,7 @@ namespace RazorClassLibrary.Pages
                   FilteredCustomIntelliSenseDTO = filteredResult;
                   // Get total count from first item if available
                   var totalCount = CustomIntelliSenseDTO?.FirstOrDefault()?.TotalCount ?? 0;
-                  Title = $"Snippets ({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
+                  Title = $"({FilteredCustomIntelliSenseDTO.Count}) of {totalCount}";
 
                   // Start prefetching next page
                   PrefetchNextPage();

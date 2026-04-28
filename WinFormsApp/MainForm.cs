@@ -34,6 +34,9 @@ namespace WinFormsApp
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern bool DestroyIcon(IntPtr hIcon);
+
         private bool _reallyExit = false;
         private ContextMenuStrip contextMenu;
         private NotifyIcon notifyIcon;
@@ -47,39 +50,89 @@ namespace WinFormsApp
             this.launchSearchMode = launchSearchMode;
             InitializeComponent();
 
-            // Initialize NotifyIcon - prefer the embedded app icon resource if available
+            // Initialize NotifyIcon - prefer the MCP/branding image if available, then Microphone.ico, then embedded app icon
             Icon? trayIcon = null;
-
-            // Try embedded resource first (from project EmbeddedResource)
             try
             {
-                var asm = Assembly.GetExecutingAssembly();
-                using var rs = asm.GetManifestResourceStream("WinFormsApp.TempestRising.ico");
-                if (rs != null)
+                var basePath = AppDomain.CurrentDomain.BaseDirectory ?? string.Empty;
+                var mcpPath = Path.Combine(basePath, "wwwroot", "images", "MCP_Logo.png");
+                var micPath = Path.Combine(basePath, "wwwroot", "images", "Microphone.ico");
+
+                // Prefer the MCP logo PNG (convert to icon at runtime)
+                if (File.Exists(mcpPath))
                 {
-                    trayIcon = new Icon(rs);
-                    // also set Form icon so designer and Alt-Tab show it
-                    try { this.Icon = (Icon)trayIcon.Clone(); } catch { }
+                    try
+                    {
+                        using var bmp = new Bitmap(mcpPath);
+                        IntPtr hIcon = bmp.GetHicon();
+                        try
+                        {
+                            using var iconFromHandle = Icon.FromHandle(hIcon);
+                            trayIcon = (Icon)iconFromHandle.Clone();
+                            try { this.Icon = (Icon)trayIcon.Clone(); } catch { }
+                        }
+                        finally
+                        {
+                            DestroyIcon(hIcon);
+                        }
+                    }
+                    catch { }
                 }
-            }
-            catch { }
 
-            // Fall back to form designer icon then exe-associated icon
-            if (trayIcon == null)
-            {
-                try { trayIcon = this.Icon; } catch { }
-            }
-            if (trayIcon == null)
-            {
-                try { trayIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
-            }
+                // Fall back to a dedicated .ico in wwwroot
+                if (trayIcon == null && File.Exists(micPath))
+                {
+                    try
+                    {
+                        trayIcon = new Icon(micPath);
+                        try { this.Icon = (Icon)trayIcon.Clone(); } catch { }
+                    }
+                    catch { }
+                }
 
-            notifyIcon = new NotifyIcon
+                // Embedded resource (project EmbeddedResource)
+                if (trayIcon == null)
+                {
+                    try
+                    {
+                        var asm = Assembly.GetExecutingAssembly();
+                        using var rs = asm.GetManifestResourceStream("WinFormsApp.TempestRising.ico");
+                        if (rs != null)
+                        {
+                            trayIcon = new Icon(rs);
+                            try { this.Icon = (Icon)trayIcon.Clone(); } catch { }
+                        }
+                    }
+                    catch { }
+                }
+
+                // Final fallbacks
+                if (trayIcon == null)
+                {
+                    try { trayIcon = this.Icon; } catch { }
+                }
+                if (trayIcon == null)
+                {
+                    try { trayIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
+                }
+
+                notifyIcon = new NotifyIcon
+                {
+                    Icon = trayIcon ?? SystemIcons.Application,
+                    Visible = true,
+                    Text = "Blazor Hybrid Voice Admin"
+                };
+            }
+            catch
             {
-                Icon = trayIcon ?? SystemIcons.Application,
-                Visible = true,
-                Text = "Blazor Hybrid Voice Admin"
-            };
+                // Ensure notify icon exists even if icon loading fails
+                notifyIcon = new NotifyIcon
+                {
+                    Icon = SystemIcons.Application,
+                    Visible = true,
+                    Text = "Blazor Hybrid Voice Admin"
+                };
+            }
             notifyIcon.MouseClick += NotifyIcon_MouseClick!;
 
             // Initialize ContextMenu with icons (touch/eye-tracking friendly)
