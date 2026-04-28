@@ -404,7 +404,25 @@ namespace WinFormsApp
 		languageAndCategoryListing = false;
 		showAIChat = false;
 		showTalonSearch = false;
-		await SetTitleCallback.InvokeAsync("Launch Applications");
+		// Default to the "Code Projects" launch category when opening the launcher from the UI
+		try
+		{
+			var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
+			if (defaultCategory != null)
+			{
+				categoryId = defaultCategory.Id;
+				await SetTitleCallback.InvokeAsync($"Launch Applications — {defaultCategory.CategoryName}");
+			}
+			else
+			{
+				await SetTitleCallback.InvokeAsync("Launch Applications");
+			}
+		}
+		catch (Exception ex)
+		{
+			System.Diagnostics.Debug.WriteLine($"Error setting default launcher category: {ex.Message}");
+			await SetTitleCallback.InvokeAsync("Launch Applications");
+		}
 		StateHasChanged();
 	}
 
