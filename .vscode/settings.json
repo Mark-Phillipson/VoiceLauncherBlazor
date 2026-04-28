@@ -1,7 +1,7 @@
 {
     "appService.defaultWebAppToDeploy": "/subscriptions/f921b96c-ab1c-4de7-93c7-011dc6104df2/resourceGroups/functions-msp/providers/Microsoft.Web/sites/VoiceLauncherBlazor",
-    "appService.deploySubpath": "."
-    ,
+    "appService.deploySubpath": ".",
+    "problems.decorations.enabled": false,
     "problems.exclude": {
         "**/*.razor": true,
         "**/*.cshtml": true
