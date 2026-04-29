@@ -19,18 +19,18 @@
 			@* Top-level switch buttons: show only the relevant toggle depending on current view *@
 			@if (launcher)
 			{
-				<button accesskey="S" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild"><u>S</u>nippets</button>
+				<button accesskey="!" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild"><i class="bi bi-box-arrow-up-right"></i> Snippets (!)</button>
 			}
 			else if (languageAndCategoryListing)
 			{
-				<button accesskey="L" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher</button>
+				<button accesskey="!" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher (!)</button>
 			}
 			else
 			{
-				<button accesskey="S" class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild"><u>S</u>Snippets</button>
-				<button accesskey="L" class="btn btn-sm btn-outline-secondary ms-2" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher</button>
+				<button  class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild">Snippets</button>
+				<button  class="btn btn-sm btn-outline-secondary ms-2" @onclick="SwitchToLauncherFromChild"> Launcher</button>
 			}
-			<button accesskey="T" class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())"><u>T</u>alon
+			<button class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())">Talon
 				@TalonSearchButtonCaption</button>
 		</div>
 	}	<div class='m-2'>

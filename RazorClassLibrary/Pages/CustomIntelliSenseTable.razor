@@ -4,50 +4,54 @@
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-md-7">
-                <div class="m-1" style='font-size:15px'>
-                <span class='ml-1'>@Title </span>&nbsp;
-                <!-- Typeahead for Language -->
-                <div class="d-inline-block ml-2" style="min-width:120px; max-width:45%; position:relative;">
-                    <label for="LanguageInput" class="mb-0 me-2"><u>L</u>anguage <small class="text-muted">(Alt+L)</small></label>
-                    <input id="LanguageInput" accesskey="l" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language" class="form-control form-control-sm" placeholder="Language" @oninput="OnLanguageInput" @onkeydown="OnLanguageKeyDown" value="@LanguageQuery" />
-                    @if (ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
-                    {
-                        <ul class="list-group position-absolute" role="listbox" aria-labelledby="LanguageInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnLanguageSuggestionsListKeyDown">
-                            @for (int i = 0; i < LanguageSuggestions.Count; i++)
+            <div class="m-1" style='font-size:15px'>
+                <div class="mt-2">
+                    <div class="d-flex" style="gap:12px; align-items:flex-start;">
+                        <div style="min-width:160px; max-width:45%; position:relative;">
+                            <label for="LanguageInput" class="form-label mb-1">Language <small class="text-muted">(Alt+L)</small></label>
+                            <input id="LanguageInput" accesskey="l" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language" class="form-control form-control-sm" placeholder="Language" @oninput="OnLanguageInput" @onkeydown="OnLanguageKeyDown" value="@LanguageQuery" />
+                            @if (ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
                             {
-                                var lang = LanguageSuggestions[i];
-                                <li id="LanguageSuggestion_@i" role="option" tabindex="0" aria-selected="@(LanguageSuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectLanguageById(lang.Id, lang.LanguageName) )" @onkeydown="@( (e) => OnLanguageSuggestionKeyDown(e, i) )">@lang.LanguageName</li>
+                                <ul class="list-group position-absolute" role="listbox" aria-labelledby="LanguageInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnLanguageSuggestionsListKeyDown">
+                                    @for (int i = 0; i < LanguageSuggestions.Count; i++)
+                                    {
+                                        var lang = LanguageSuggestions[i];
+                                        <li id="LanguageSuggestion_@i" role="option" tabindex="0" aria-selected="@(LanguageSuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectLanguageById(lang.Id, lang.LanguageName) )" @onkeydown="@( (e) => OnLanguageSuggestionKeyDown(e, i) )">@lang.LanguageName</li>
+                                    }
+                                </ul>
                             }
-                        </ul>
-                    }
-                </div>
+                        </div>
 
-                <!-- Typeahead for Category -->
-                <div class="d-inline-block ml-2" style="min-width:120px; max-width:45%; position:relative;">
-                    <label for="CategoryInput" class="mb-0 me-2"><u>G</u>ategory <small class="text-muted">(Alt+G)</small></label>
-                    <input id="CategoryInput" accesskey="g" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category" class="form-control form-control-sm" placeholder="Category" @oninput="OnCategoryInput" @onkeydown="OnCategoryKeyDown" value="@CategoryQuery" />
-                    @if (ShowCategorySuggestions && CategorySuggestions?.Count > 0)
-                    {
-                        <ul class="list-group position-absolute" role="listbox" aria-labelledby="CategoryInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnCategorySuggestionsListKeyDown">
-                            @for (int i = 0; i < CategorySuggestions.Count; i++)
+                        <div style="min-width:160px; max-width:45%; position:relative;">
+                            <label for="CategoryInput" class="form-label mb-1">Category <small class="text-muted">(Alt+G)</small></label>
+                            <input id="CategoryInput" accesskey="g" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category" class="form-control form-control-sm" placeholder="Category" @oninput="OnCategoryInput" @onkeydown="OnCategoryKeyDown" value="@CategoryQuery" />
+                            @if (ShowCategorySuggestions && CategorySuggestions?.Count > 0)
                             {
-                                var cat = CategorySuggestions[i];
-                                <li id="CategorySuggestion_@i" role="option" tabindex="0" aria-selected="@(CategorySuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectCategoryById(cat.Id, cat.CategoryName) )" @onkeydown="@( (e) => OnCategorySuggestionKeyDown(e, i) )">@cat.CategoryName</li>
+                                <ul class="list-group position-absolute" role="listbox" aria-labelledby="CategoryInput" style="z-index:2000; width:100%" tabindex="0" @onkeydown="OnCategorySuggestionsListKeyDown">
+                                    @for (int i = 0; i < CategorySuggestions.Count; i++)
+                                    {
+                                        var cat = CategorySuggestions[i];
+                                        <li id="CategorySuggestion_@i" role="option" tabindex="0" aria-selected="@(CategorySuggestionIndex == i ? "true" : "false")" class="list-group-item list-group-item-action" @onclick="@( () => SelectCategoryById(cat.Id, cat.CategoryName) )" @onkeydown="@( (e) => OnCategorySuggestionKeyDown(e, i) )">@cat.CategoryName</li>
+                                    }
+                                </ul>
                             }
-                        </ul>
-                    }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <!-- Page number moved to below the table for more header space -->
         <div class="col-md-3">
-            <div class="input-group my-1">
-                <input @ref="SearchInput" accesskey="i" type="text" class="form-control"
-                    @bind="SearchTerm" @bind:event="oninput"
-                    id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
-                <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-                    <i class="fas fa-redo"></i>
-                </button>
+            <div class="my-1">
+                <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted">(Alt+I)</small></label>
+                <div class="input-group">
+                    <input @ref="SearchInput" accesskey="i" type="text" class="form-control form-control-sm"
+                        @bind="SearchTerm" @bind:event="oninput"
+                        id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+                    <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
             </div>
         </div>
     }
@@ -110,8 +114,15 @@ else
                 }
                 <tr>
                     <td>
-                        <button title='@customIntelliSense.SendKeysValue' style='width:100%' class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
-                            @customIntelliSense.DisplayValue
+                        <button accesskey="@shortcutValue" title='@customIntelliSense.SendKeysValue' style='width:100%; display:flex; justify-content:space-between; align-items:center;' class="btn btn-outline-primary" type="button" @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
+                            <span>@customIntelliSense.DisplayValue</span>
+                            <span class="badge bg-info text-dark ms-2">
+                                @if (counter == 10)
+                                {
+                                    <text>1</text>
+                                }
+                                <u>@shortcutValue.ToString()</u>
+                            </span>
                         </button>
                     </td>
                     <td>
@@ -166,12 +177,7 @@ else
                         }
                     </td>
                     <td class="btn-group">
-                        <button accesskey="@shortcutValue" title="Copy and switch and paste" style='min-width:80px' class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
-                            @if (counter == 10)
-                            {
-                                <text>1</text>
-                            }
-                            <u>@shortcutValue.ToString()</u>
+                        <button title="Copy and switch and paste" style='min-width:80px' class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
                             <i class="fa-solid fa-paste"></i>
                         </button>
                         <button class="btn  btn-outline-warning" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
@@ -206,7 +212,9 @@ else
                     <u>N</u>ext Page
                 </button>
             </div>
-            <div class="text-muted small">Page #: @pageNumber</div>
+            <div class="text-muted small">
+                <span class='ml-1'>@Title </span>&nbsp;
+                Page #: @pageNumber</div>
         </div>
     }
 }

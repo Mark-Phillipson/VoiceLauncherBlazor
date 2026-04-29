@@ -94,7 +94,9 @@ namespace WinFormsApp
 			{
 				categoryId = category.Id;
 				SetTitle($"Launch from category: {categoryName}");
+				// Ensure only the launcher view is active
 				launcher = true;
+				languageAndCategoryListing = false;
 				showTalonSearch = false;
 				showAIChat = false;
 				StateHasChanged();
@@ -128,7 +130,11 @@ namespace WinFormsApp
 				(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
 				 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
 			{
+				// Enable Talon search exclusively
 				showTalonSearch = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
 				// Check if there are additional arguments to use as search terms
 				if (arguments.Length >= 3)
 				{
@@ -167,17 +173,29 @@ namespace WinFormsApp
 			if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
 			{
 				SetTitle("AI Chat");
+				// Enable AI Chat exclusively
 				showAIChat = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showTalonSearch = false;
 			}
 			else if (arguments.Count() >= 3 && arguments[2].Contains("AIChat"))
 			{
 				SetTitle("AI Chat");
+				// Enable AI Chat exclusively
 				showAIChat = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showTalonSearch = false;
 			}
 			else if (arguments.Count() >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search")))
 			{
 				SetTitle("Talon Voice Command Search");
+				// Enable Talon search exclusively
 				showTalonSearch = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
 
 				// Check if there are additional arguments to use as search terms
 				if (arguments.Length >= 3)
@@ -195,7 +213,11 @@ namespace WinFormsApp
 			else if (arguments.Count() >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search")))
 			{
 				SetTitle("Talon Voice Command Search");
+				// Enable Talon search exclusively
 				showTalonSearch = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
 
 				// Check if there are additional arguments to use as search terms  
 				if (arguments.Length >= 4)
@@ -223,7 +245,11 @@ namespace WinFormsApp
 					languageId = language.Id;
 					categoryId = category.Id;
 				}
+				// Enable Snippets listing exclusively
 				languageAndCategoryListing = true;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
 			else if (arguments.Length == 3 && arguments[1].Contains("Launcher"))
@@ -235,7 +261,11 @@ namespace WinFormsApp
 					categoryId = category.Id;
 				}
 				SetTitle($"Launch from category: {categoryName}");
-				launcher = true;
+					// Enable launcher view exclusively
+					launcher = true;
+					languageAndCategoryListing = false;
+					showAIChat = false;
+					showTalonSearch = false;
 			}
 			else if (arguments.Length == 3)
 			{
