@@ -137,8 +137,8 @@ namespace WinFormsApp
 
             // Initialize ContextMenu with icons (touch/eye-tracking friendly)
             contextMenu = new ContextMenuStrip();
-            // Show images inline so captions line up predictably with icons
-            contextMenu.ShowImageMargin = false;
+            // Show images in the left margin so captions and icons line up vertically
+            contextMenu.ShowImageMargin = true;
             contextMenu.ImageScalingSize = new Size(24, 24);
             contextMenu.Font = new Font("Segoe UI", 14F, FontStyle.Regular);
             contextMenu.RenderMode = ToolStripRenderMode.System;
@@ -159,6 +159,8 @@ namespace WinFormsApp
             }
 
             var imgSize = contextMenu.ImageScalingSize;
+            // Reserve space for the image column (margin). Add a small gap for padding.
+            int imgColumnWidth = contextMenu.ShowImageMargin ? imgSize.Width + 12 : imgSize.Width;
             var openIcon = (Icon?)(trayIcon) ?? SystemIcons.Application;
             Bitmap openBmp = ScaleIconToBitmap(openIcon, imgSize);
             Bitmap exitBmp = ScaleIconToBitmap(SystemIcons.Error, imgSize);
@@ -171,32 +173,37 @@ namespace WinFormsApp
                 return Math.Max(240, textSize.Width + imgWidth + pad.Left + pad.Right + 48);
             }
 
-            var defaultPadding = new Padding(12, 8, 12, 8);
-            int openWidth = ComputeMenuItemWidth("Open", contextMenu.Font, imgSize.Width, defaultPadding);
-            int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgSize.Width, defaultPadding);
+            // Reduce vertical padding so icons sit closer to the text vertically, and
+            // compute item height from the icon size for consistent vertical centering.
+            var defaultPadding = new Padding(12, 4, 12, 4);
+            int openWidth = ComputeMenuItemWidth("Open", contextMenu.Font, imgColumnWidth, defaultPadding);
+            int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
             int menuWidth = Math.Max(openWidth, exitWidth);
+
+            // Item height: icon height + vertical padding (ensure a sensible minimum)
+            int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
 
             var openItem = new ToolStripMenuItem("Open", openBmp, (s, e) => ShowMainForm())
             {
                 Padding = defaultPadding,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 AutoSize = false,
-                Size = new Size(menuWidth, 48),
+                Size = new Size(menuWidth, menuItemHeight),
                 TextAlign = ContentAlignment.MiddleLeft
             };
             openItem.ImageScaling = ToolStripItemImageScaling.None;
-            openItem.ImageAlign = ContentAlignment.MiddleLeft;
+            openItem.ImageAlign = ContentAlignment.MiddleCenter;
 
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
                 Padding = defaultPadding,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 AutoSize = false,
-                Size = new Size(menuWidth, 48),
+                Size = new Size(menuWidth, menuItemHeight),
                 TextAlign = ContentAlignment.MiddleLeft
             };
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
-            exitItem.ImageAlign = ContentAlignment.MiddleLeft;
+            exitItem.ImageAlign = ContentAlignment.MiddleCenter;
 
             contextMenu.Items.Add(openItem);
             contextMenu.Items.Add(exitItem);
