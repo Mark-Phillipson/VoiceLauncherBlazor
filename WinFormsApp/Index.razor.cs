@@ -19,6 +19,14 @@ namespace WinFormsApp
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required IModalService Modal { get; set; }
 		private int languageId;
 		private int categoryId;
+		// Component references to read child selection state when toggling views
+		private RazorClassLibrary.Pages.CustomIntelliSenseTable? customIntelliSenseTableRef;
+		private RazorClassLibrary.Pages.CustomIntelliSenses? customIntelliSensesRef;
+		private RazorClassLibrary.Pages.LauncherTable? launcherTableRef;
+		// Remember last seen snippet and launcher selections so toggling preserves them
+		private int lastSnippetLanguageId = 0;
+		private int lastSnippetCategoryId = 0;
+		private int lastLauncherCategoryId = 0;
 		private string message = "";
 		private string[]? arguments;
 		string searchTerm = "";
@@ -92,7 +100,9 @@ namespace WinFormsApp
 			var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
 			if (category != null)
 			{
-				categoryId = category.Id;
+						categoryId = category.Id;
+						// Save as last known launcher category
+						lastLauncherCategoryId = categoryId;
 				SetTitle($"Launch from category: {categoryName}");
 				// Ensure only the launcher view is active
 				launcher = true;
@@ -244,6 +254,9 @@ namespace WinFormsApp
 				{
 					languageId = language.Id;
 					categoryId = category.Id;
+						// initialize last-snippet values from launch args
+						lastSnippetLanguageId = languageId;
+						lastSnippetCategoryId = categoryId;
 				}
 				// Enable Snippets listing exclusively
 				languageAndCategoryListing = true;
@@ -259,6 +272,7 @@ namespace WinFormsApp
 				if (category != null)
 				{
 					categoryId = category.Id;
+					lastLauncherCategoryId = categoryId;
 				}
 				SetTitle($"Launch from category: {categoryName}");
 					// Enable launcher view exclusively
@@ -430,34 +444,91 @@ namespace WinFormsApp
 		
 	private async Task SwitchToLauncherFromChild()
 	{
+		// Save current snippet selection so we can restore it when toggling back
+		try
+		{
+			if (customIntelliSenseTableRef != null)
+			{
+				lastSnippetLanguageId = customIntelliSenseTableRef.SelectedLanguageId;
+				lastSnippetCategoryId = customIntelliSenseTableRef.SelectedCategoryId;
+			}
+			else if (customIntelliSensesRef != null)
+			{
+				lastSnippetLanguageId = customIntelliSensesRef.LanguageIdFilter ?? 0;
+				lastSnippetCategoryId = customIntelliSensesRef.CategoryIdFilter ?? 0;
+			}
+		}
+		catch { }
+
+		// Switch to launcher view
 		launcher = true;
 		languageAndCategoryListing = false;
 		showAIChat = false;
 		showTalonSearch = false;
-		// Default to the "Code Projects" launch category when opening the launcher from the UI
+
+		// Restore last used launcher category if available, otherwise default to Code Projects
 		try
 		{
-			var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
-			if (defaultCategory != null)
+			if (lastLauncherCategoryId != 0)
 			{
-				categoryId = defaultCategory.Id;
-				await SetTitleCallback.InvokeAsync($"Launch Applications — {defaultCategory.CategoryName}");
+				categoryId = lastLauncherCategoryId;
+				var cat = await CategoryService.GetCategoryAsync(categoryId);
+				if (cat != null)
+				{
+					await SetTitleCallback.InvokeAsync($"Launch Applications — {cat.CategoryName}");
+				}
+				else
+				{
+					await SetTitleCallback.InvokeAsync("Launch Applications");
+				}
 			}
 			else
 			{
-				await SetTitleCallback.InvokeAsync("Launch Applications");
+				var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
+				if (defaultCategory != null)
+				{
+					categoryId = defaultCategory.Id;
+					lastLauncherCategoryId = categoryId;
+					await SetTitleCallback.InvokeAsync($"Launch Applications — {defaultCategory.CategoryName}");
+				}
+				else
+				{
+					await SetTitleCallback.InvokeAsync("Launch Applications");
+				}
 			}
 		}
 		catch (Exception ex)
 		{
-			System.Diagnostics.Debug.WriteLine($"Error setting default launcher category: {ex.Message}");
+			System.Diagnostics.Debug.WriteLine($"Error setting launcher category: {ex.Message}");
 			await SetTitleCallback.InvokeAsync("Launch Applications");
 		}
+
 		StateHasChanged();
 	}
 
 	private async Task SwitchToSnippetsFromChild()
 	{
+		// Save current launcher category so toggling back preserves it
+		try
+		{
+			if (launcherTableRef != null)
+			{
+				lastLauncherCategoryId = launcherTableRef.CategoryId;
+			}
+			else
+			{
+				lastLauncherCategoryId = categoryId;
+			}
+		}
+		catch { }
+
+		// Restore last snippet selection if we have it
+		if (lastSnippetLanguageId != 0 || lastSnippetCategoryId != 0)
+		{
+			languageId = lastSnippetLanguageId;
+			categoryId = lastSnippetCategoryId;
+		}
+
 		languageAndCategoryListing = true;
 		launcher = false;
 		showAIChat = false;
