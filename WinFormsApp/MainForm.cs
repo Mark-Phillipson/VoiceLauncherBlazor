@@ -33,6 +33,28 @@ namespace WinFormsApp
     {
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
+        private const int SW_RESTORE = 9;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
         private static extern bool DestroyIcon(IntPtr hIcon);
@@ -42,6 +64,7 @@ namespace WinFormsApp
         private NotifyIcon notifyIcon;
         private bool launchSearchMode;
         private CancellationTokenSource _pipeServerCts = new();
+        private string? _lastLaunchArgs;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
 
@@ -134,6 +157,7 @@ namespace WinFormsApp
                 };
             }
             notifyIcon.MouseClick += NotifyIcon_MouseClick!;
+            notifyIcon.BalloonTipClicked += NotifyIcon_BalloonTipClicked!;
 
             // Initialize ContextMenu with icons (touch/eye-tracking friendly)
             contextMenu = new ContextMenuStrip();
@@ -512,21 +536,114 @@ namespace WinFormsApp
             // Only activate on left-click to avoid interfering with right-click menu
             if (e.Button == MouseButtons.Left)
             {
-                this.Show();
-                this.WindowState = FormWindowState.Normal;
-                this.BringToFront();
-                this.Focus();
-                this.Activate();
+                ShowMainForm();
             }
         }
 
         private void ShowMainForm()
         {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
-            this.BringToFront();
-            this.Activate();
-            SetForegroundWindow(this.Handle);
+            try
+            {
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                this.Activate();
+                ForceBringToFront();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ShowMainForm error: {ex.Message}");
+            }
+        }
+
+        private void ForceBringToFront()
+        {
+            try
+            {
+                var hWnd = this.Handle;
+                if (hWnd == IntPtr.Zero)
+                    return;
+
+                IntPtr foreground = GetForegroundWindow();
+                if (foreground == IntPtr.Zero)
+                {
+                    // no foreground window, try simple set
+                    SetForegroundWindow(hWnd);
+                    return;
+                }
+
+                uint foregroundThread = GetWindowThreadProcessId(foreground, out _);
+                uint currentThread = GetCurrentThreadId();
+
+                // Attach threads to allow setting foreground
+                if (AttachThreadInput(currentThread, foregroundThread, true))
+                {
+                    ShowWindow(hWnd, SW_RESTORE);
+                    BringWindowToTop(hWnd);
+                    SetActiveWindow(hWnd);
+                    SetForegroundWindow(hWnd);
+                    AttachThreadInput(currentThread, foregroundThread, false);
+                }
+                else
+                {
+                    // Fallback
+                    ShowWindow(hWnd, SW_RESTORE);
+                    SetForegroundWindow(hWnd);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ForceBringToFront failed: {ex.Message}");
+                // best-effort fallback
+                try { SetForegroundWindow(this.Handle); } catch { }
+            }
+        }
+
+        private void ShowTrayNotification(string title, string message, int timeoutMs = 5000)
+        {
+            try
+            {
+                if (notifyIcon == null)
+                    return;
+                notifyIcon.Visible = true;
+                // Limit message length for balloon presentation
+                var display = message?.Length > 240 ? message.Substring(0, 240) + "…" : message;
+                notifyIcon.ShowBalloonTip(timeoutMs, title, display ?? string.Empty, ToolTipIcon.Info);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ShowTrayNotification failed: {ex.Message}");
+            }
+        }
+
+        private void NotifyIcon_BalloonTipClicked(object? sender, EventArgs e)
+        {
+            try
+            {
+                ShowMainForm();
+                // If there are stored args, re-raise them so UI can navigate
+                if (!string.IsNullOrEmpty(_lastLaunchArgs))
+                {
+                    LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = _lastLaunchArgs });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"NotifyIcon_BalloonTipClicked error: {ex.Message}");
+            }
+        }
+
+        private void AppendLog(string text)
+        {
+            try
+            {
+                var basePath = AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory;
+                var logDir = Path.Combine(basePath, "logs");
+                Directory.CreateDirectory(logDir);
+                var logFile = Path.Combine(logDir, "ipc.log");
+                File.AppendAllText(logFile, $"{DateTime.Now:O} {text}{Environment.NewLine}");
+            }
+            catch { }
         }
 
         private void ExitApplication()
@@ -562,13 +679,22 @@ namespace WinFormsApp
                         if (!string.IsNullOrEmpty(message))
                         {
                             Debug.WriteLine($"Received launch args from pipe: {message}");
+                            AppendLog($"Received launch args from pipe: {message}");
+                            // store the last args so balloon clicks can re-use them
+                            _lastLaunchArgs = message;
+                            try
+                            {
+                                ShowTrayNotification("VoiceLauncher", message);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"ShowTrayNotification error: {ex.Message}");
+                                AppendLog($"ShowTrayNotification error: {ex.Message}");
+                            }
+
                             Invoke(() =>
                             {
-                                this.Show();
-                                this.WindowState = FormWindowState.Normal;
-                                this.BringToFront();
-                                this.Activate();
-                                SetForegroundWindow(this.Handle);
+                                ShowMainForm();
 
                                 // Raise event so Index component can handle the category
                                 LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
@@ -583,6 +709,14 @@ namespace WinFormsApp
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Named pipe server error: {ex.Message}");
+                    AppendLog($"Named pipe server error: {ex.Message}");
+                    try
+                    {
+                        ShowTrayNotification("VoiceLauncher IPC error", ex.Message);
+                    }
+                    catch { }
+                    // Wait briefly before retrying to avoid tight loop on repeated failures
+                    await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
                 }
             }, _pipeServerCts.Token);
         }
