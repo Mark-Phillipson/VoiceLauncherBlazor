@@ -1,3 +1,89 @@
+/* Component-scoped layout fixes for CustomIntelliSenses to prevent overflow and overlap */
+
+.layout-as-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.layout-as-cards .card {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 280px; /* base width, allows wrapping */
+  min-width: 180px;
+  max-width: 420px;
+  overflow: visible;
+}
+
+.layout-as-cards .card .btn {
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.layout-as-cards .card img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure long strings (URLs, sendkeys) wrap instead of forcing horizontal scroll */
+.intellisense-textarea,
+.layout-as-cards textarea,
+.layout-as-cards pre,
+.layout-as-cards code,
+.layout-as-cards .sendkeys-preview {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.intellisense-textarea {
+  min-height: 3rem;
+  resize: vertical;
+}
+
+.intellisense-preview {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  background: #000;
+  color: #fff;
+  padding: .5rem;
+  border-radius: .25rem;
+  resize: vertical;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+}
+
+/* Make cards full-width on very small screens */
+@media (max-width: 576px) {
+  .layout-as-cards .card {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Small visual: bring hovered card forward so floating previews don't overlap */
+.layout-as-cards .card:hover {
+  z-index: 10;
+}
+
+/* Protect against unscoped pre/code elsewhere in component */
+pre.m-2, code.m-2 {
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 .layout-as-cards {
 	display: flex;
 	flex-direction: row;

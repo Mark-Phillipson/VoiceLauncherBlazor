@@ -244,8 +244,8 @@ else
 								<input class="form-control-sm" style="min-width: 200px" @bind="@intellisense.DisplayValue" />
 							</td>
 							<td>
-								<textarea style="min-width: 380px;height: 60px" rows=3 title="@intellisense?.SendKeysValue"
-									class="form-control-sm" @bind="@intellisense!.SendKeysValue"></textarea>
+								<textarea rows="3" title="@intellisense?.SendKeysValue" class="form-control-sm intellisense-textarea"
+									@bind="@intellisense!.SendKeysValue"></textarea>
 							</td>
 							<td>
 								<select style="min-width: 130px" class="form-select-sm col-md-8" @bind="@intellisense.DeliveryType">
@@ -285,16 +285,14 @@ else
 		</table>
 	}
 
-	<pre class='mt-2'>
-																																																						<code class='m-2'>
-			@if (customIntelliSenseCurrent != null)
-			{
-																																																																																																												<textarea rows="7" style='width:95%;color:white;background:black'>
-					@customIntelliSenseCurrent.SendKeysValue
-																																																																																																																														</textarea>
-			}
-																																																											</code>
-																																																											</pre>
+		<pre class='mt-2'>
+			<code class='m-2'>
+				@if (customIntelliSenseCurrent != null)
+				{
+					<textarea rows="7" class="form-control-sm intellisense-preview" readonly>@customIntelliSenseCurrent.SendKeysValue</textarea>
+				}
+			</code>
+		</pre>
 }
 @if (CustomIntellisenseIdDelete != null)
 {

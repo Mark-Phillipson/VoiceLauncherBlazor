@@ -16,15 +16,15 @@
 				@bind="SearchTerm" @bind:event="oninput"
 				id="SearchInput" name="SearchTerm"
 				placeholder="Filter by Name/Command Line (Alt+I)" />
-<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-					<!-- Bootstrap Icon Delete/Clear -->
-					<i class="bi bi-x-circle text-danger"></i>
-					<span class="shortcut">(Alt+R)</span>
+			<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Clear Filter (Alt+R)" @onclick="ResetFilter">
+				<i class="bi bi-x-circle text-danger"></i>
+				<span class="ms-1 d-none d-sm-inline">Clear Filter</span>
+				<span class="shortcut">(Alt+R)</span>
 			</button>
-<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Clear Cache & Refresh from DB (Alt+S)" @onclick="RefreshFromDatabaseAsync">
-					<!-- Bootstrap Icon Sync -->
-					<i class="bi bi-arrow-clockwise"></i>
-					<span class="shortcut">(Alt+S)</span>
+			<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Refresh Page (clear cache) (Alt+S)" @onclick="RefreshFromDatabaseAsync">
+				<i class="bi bi-arrow-clockwise"></i>
+				<span class="ms-1 d-none d-sm-inline">Refresh Page</span>
+				<span class="shortcut">(Alt+S)</span>
 			</button>
 		</div>
 	</div>

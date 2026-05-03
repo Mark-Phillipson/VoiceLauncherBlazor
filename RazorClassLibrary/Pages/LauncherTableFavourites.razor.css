@@ -1,4 +1,53 @@
-﻿.card-inner-fixed {
+﻿/* Component-scoped layout fixes for LauncherTableFavourites to prevent overflow and overlap */
+
+.layout-as-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+.layout-as-cards .card {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 160px; /* base width, allows wrapping */
+  min-width: 120px;
+  max-width: 320px;
+  overflow: visible;
+}
+
+.layout-as-cards .card .card-inner-fixed {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.layout-as-cards .card img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure text inside buttons/cards can wrap instead of causing horizontal scroll */
+.layout-as-cards .btn,
+.layout-as-cards .card .p-3 {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Small screens: make cards full-width */
+@media (max-width: 576px) {
+  .layout-as-cards .card {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+.card-inner-fixed {
   width: 100%;
   height: 200px;
   min-height: 200px;
