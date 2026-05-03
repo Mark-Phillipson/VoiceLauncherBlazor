@@ -14,6 +14,7 @@
     <!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
     <UseLocalEmbeddings>false</UseLocalEmbeddings>
     <NoWarn>$(NoWarn);NU1902</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1903</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -49,9 +50,10 @@
     <DefineConstants>$(DefineConstants);USE_LOCAL_EMBEDDINGS</DefineConstants>
   </PropertyGroup>
 <ItemGroup>
-  <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
-  <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" />
-  <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.5" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.11" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.5" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
 </ItemGroup>
 
   <ItemGroup>

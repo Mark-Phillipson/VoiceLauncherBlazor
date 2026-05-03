@@ -1,0 +1,23 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#000000"></rect>
+
+  <!-- BBC blocks -->
+  <g fill="#ffffff">
+    <rect x="60" y="70" width="40" height="40"></rect>
+    <rect x="110" y="70" width="40" height="40"></rect>
+    <rect x="160" y="70" width="40" height="40"></rect>
+  </g>
+
+  <!-- BBC letters -->
+  <g fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" text-anchor="middle">
+    <text x="80" y="98">B</text>
+    <text x="130" y="98">B</text>
+    <text x="180" y="98">C</text>
+  </g>
+
+  <!-- Radio 4 text -->
+  <text x="150" y="170" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="28" text-anchor="middle">
+    RADIO 4
+  </text>
+</svg>

@@ -126,18 +126,59 @@
                         <label for="iconUrl" class="me-2">Enter web address</label>
                         <InputText accesskey="5" class="form-control flex-grow-1" style="max-width: 250px;" placeholder="Type to filter images... (5)" @bind-Value="ImageFilterText" />
                     </div>
+
+                    <div class="mb-2 d-flex align-items-center gap-2">
+                        <div class="form-check form-switch me-2">
+                            <input class="form-check-input" type="checkbox" id="useAiToggle" @bind="UseAiGeneration" />
+                            <label class="form-check-label" for="useAiToggle">Use AI</label>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="GenerateImageAsync" disabled="@GeneratingImage">
+                            @if (GeneratingImage)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span class="ms-2">Generating...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-image"></i>
+                                <span class="ms-2">Generate Image</span>
+                            }
+                        </button>
+                    </div>
+
+                    @if (PromptBuilderVisible)
+                    {
+                        <div class="mt-2 p-2 border bg-light">
+                            <label class="form-label text-dark fw-bold">Prompt Builder</label>
+                            <textarea class="form-control" rows="4" @bind="PromptBuilderText"></textarea>
+                            <div class="mt-2 d-flex gap-2 align-items-center">
+                                <button type="button" class="btn btn-sm btn-primary" @onclick="CopyPromptToClipboard">Copy Prompt</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="OpenThirdPartySite">Open image site</button>
+                                <InputFile OnChange="UploadImageAsync" accept="image/*" />
+                                <button type="button" class="btn btn-sm btn-success" @onclick="UsePromptToGenerateAsync">Generate from Prompt</button>
+                            </div>
+                        </div>
+                    }
                     @if (!UseCustomIconUrl)
                     {
                         <div class="d-flex flex-wrap gap-2 border p-2" style="flex-grow: 1; overflow-y: auto; min-height: 400px;">
-                            @foreach (var item in FilteredImageUrls)
+                            @foreach (var item in FilteredImages)
                             {
-                                <div class="d-flex flex-column align-items-center" style="width: 100px;">
-                                    <img src="/images/@item" 
-                                         class="img-thumbnail mb-1" 
-                                         style="width: 100px; height: 48px; cursor: pointer; border: @(LauncherDTO.Icon == item ? "2px solid #007bff" : "1px solid #dee2e6"); object-fit: contain;"
-                                         @onclick="@(() => LauncherDTO.Icon = item)"
-                                         alt="@item" />
-                                    <small class="text-center" style="word-break: break-all;">@item</small>
+                                <div class="d-flex flex-column align-items-center" style="width: 120px;">
+                                    <img src="/images/@item.Thumb"
+                                         class="img-thumbnail mb-1"
+                                         style="width: 100px; height: 80px; cursor: pointer; border: @(LauncherDTO.Icon == item.Full ? "2px solid #007bff" : "1px solid #dee2e6"); object-fit: contain;"
+                                         @onclick="@(() => OpenImagePreview(item.Full))"
+                                         alt="@item.Name" />
+                                    <small class="text-center" style="word-break: break-all; max-width:100px;">@item.Name</small>
+                                    <div class="d-flex flex-column gap-1 mt-1 w-100">
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100" @onclick="@(() => SelectImage(item.Full))">Select</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" @onclick="@(() => OpenImagePreview(item.Full))">View</button>
+                                        @if (!item.IsLinked)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger w-100" @onclick="@(() => DeleteImageAsync(item.Name))">Delete</button>
+                                        }
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -154,6 +195,18 @@
                         }
                     }
                     <ValidationMessage For="@(() => LauncherDTO.Icon)" />
+                    @* Last generation debug info *@
+                    @if (!string.IsNullOrEmpty(LastImagePrompt))
+                    {
+                        <div class="mt-2 p-2 border bg-dark text-light" style="font-size:0.85rem; white-space:pre-wrap; max-height:200px; overflow:auto;">
+                            <strong>Last prompt sent:</strong>
+                            <div>@LastImagePrompt</div>
+                                    <strong class="mt-2">Model used:</strong>
+                                    <div>@(string.IsNullOrEmpty(LastImageModel) ? "<none>" : LastImageModel)</div>
+                            <strong class="mt-2">Provider response (truncated):</strong>
+                            <div>@(string.IsNullOrEmpty(LastImageProviderResponse) ? "<none>" : (LastImageProviderResponse.Length > 1000 ? LastImageProviderResponse.Substring(0,1000) + "..." : LastImageProviderResponse))</div>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="col-3">
@@ -260,4 +313,26 @@
         <!-- Action buttons moved to third column under Favourite checkbox -->
     </EditForm>
 </div>
+
+    @* Image preview modal *@
+    @if (IsImagePreviewOpen)
+    {
+        <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Image preview</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="CloseImagePreview"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="@(string.IsNullOrEmpty(PreviewImageFilename) ? string.Empty : $"/images/{PreviewImageFilename}")" class="img-fluid" alt="Preview" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" @onclick="SelectPreviewImage">Select Image</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseImagePreview">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
