@@ -5,12 +5,13 @@
 </heading>
 <main class='row'>    <div class='col-12'>
         <label for="searchTerm" accesskey="s">Search <kbd>Alt</kbd>+<kbd>S</kbd></label>
-        <div class="input-group mb-2">
+            <div class="input-group mb-2">
             <input id="searchTerm" type="text" @bind-value="InputValue"
                    placeholder="Enter a Search Value Here and Search Relevant Tables :)" class="form-control"
                    @bind-value:event="oninput" />
-            <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Search (Alt+R)" @onclick="ResetFilter">
-                <i class="fas fa-redo"></i>
+            <button id="btnResetFilterGlobalSearch" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Search (Alt+R)" aria-label="Reset Search (Alt+R)" @onclick="ResetFilter">
+                <i class="fas fa-redo" aria-hidden="true"></i>
+                <span class="ms-1">Reset <span class="shortcut">(Alt+R)</span></span>
             </button>
         </div>
         

@@ -46,11 +46,12 @@
                 <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted">(Alt+I)</small></label>
                 <div class="input-group">
                     <input @ref="SearchInput" accesskey="i" type="text" class="form-control form-control-sm"
-                        @bind="SearchTerm" @bind:event="oninput"
-                        id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
-                    <button class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" @onclick="ResetFilter">
-                        <i class="fas fa-redo"></i>
-                    </button>
+                            @bind="SearchTerm" @bind:event="oninput"
+                            id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+                        <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
+                            <i class="fas fa-redo" aria-hidden="true"></i>
+                            <span class="ms-1">Reset <span class="shortcut">(Alt+R)</span></span>
+                        </button>
                 </div>
             </div>
         </div>

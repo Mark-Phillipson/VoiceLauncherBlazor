@@ -1,32 +1,34 @@
 ﻿@page "/launchersfavourites/"
 <PageTitle>Favorites 🚀</PageTitle>
-<div class="row">
-	<div class="col-md-4">
+<div class="row align-items-center">
+	<div class="col-md-3">
 		<h5 class="page-title m-1">@Title</h5>
 	</div>
-	<div class="col-md-auto d-flex align-items-center">
-		<button id="btnToggleCompact" accesskey="q" class="btn btn-outline-secondary btn-sm ms-2" type="button" title="Toggle Compact View (Alt+Q)" onclick="toggleCompactView()" aria-pressed="false">
-			<i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
-			<span class="ms-1">Compact <span class="shortcut">(Alt+Q)</span></span>
-		</button>
-	</div>
-	<div class="col-md-4">
+
+	<div class="col-md-6">
 		<div class="input-group my-1">
 			<input @ref="SearchInput" accesskey="i" type="text" class="form-control"
 				@bind="SearchTerm" @bind:event="oninput"
 				id="SearchInput" name="SearchTerm"
 				placeholder="Filter by Name/Command Line (Alt+I)" />
 			<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Clear Filter (Alt+R)" @onclick="ResetFilter">
-				<i class="bi bi-x-circle text-danger"></i>
+				<i class="bi bi-x-circle text-danger" aria-hidden="true"></i>
 				<span class="ms-1 d-none d-sm-inline">Clear Filter</span>
 				<span class="shortcut">(Alt+R)</span>
 			</button>
 			<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Refresh Page (clear cache) (Alt+S)" @onclick="RefreshFromDatabaseAsync">
-				<i class="bi bi-arrow-clockwise"></i>
+				<i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
 				<span class="ms-1 d-none d-sm-inline">Refresh Page</span>
 				<span class="shortcut">(Alt+S)</span>
 			</button>
 		</div>
+	</div>
+
+	<div class="col-md-auto d-flex align-items-center">
+		<button id="btnToggleCompact" accesskey="q" class="btn btn-outline-secondary btn-sm ms-2" type="button" title="Toggle Compact View (Alt+Q)" onclick="toggleCompactView()" aria-pressed="false">
+			<i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+			<span class="ms-1">Compact <span class="shortcut">(Alt+Q)</span></span>
+		</button>
 	</div>
 </div>
 @if (!string.IsNullOrWhiteSpace(Message))
