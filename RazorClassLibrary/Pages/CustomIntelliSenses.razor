@@ -19,18 +19,18 @@
 	{
 		<input title='Filter by Language (Alt+1)' accesskey="1" style="width: 200px;" id="languageFilter"
 			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
-			placeholder="Language Filter (1)" class="form-control" />
+			placeholder="Language Filter (1)" class="form-control form-control-sm" />
 		<input title='Filter by Category (Alt+2)' accesskey="2" style="width: 200px;" id="categoryFilter"
-			@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))"
-			placeholder="Category Filter (2)" class="form-control" />
+			@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryfilter"))"
+			placeholder="Category Filter (2)" class="form-control form-control-sm" />
 		<div class="input-group" style="width: 350px;">
-			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
-				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
+					<input title='Filter by Display and Send Keys' @bind="SearchTerm"
+				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control form-control-sm"
 				accesskey="3" placeholder="Blur to Filter (3)" />
-			<button class="btn btn-outline-secondary" type="button" accesskey="4" title="Reset Filters (Alt+4)" @onclick="RemoveFilter">
-				<i class="bi bi-funnel text-danger"></i>
-				Remove Filter (4)
-			</button>
+					<button class="btn btn-sm btn-outline-secondary" type="button" title="Remove Filter" aria-label="Remove Filter" @onclick="RemoveFilter">
+						<i class="bi bi-funnel text-danger"></i>
+						<span class="ms-1 d-none d-sm-inline">Remove</span>
+					</button>
 		</div>
 		@if (!RunningInBlazorHybrid)
 		{
@@ -43,14 +43,17 @@
 		@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 				!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 		{
-			<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary" type="button"
-				@onclick="@( ( ) => RemoveFilter(  ) )">
-				<i class="bi bi-funnel text-danger"></i>
-				</button>
+							<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary" type="button"
+							@onclick="@( ( ) => RemoveFilter(  ) )">
+							<i class="bi bi-funnel text-danger"></i>
+							<span class="ms-1 d-none d-sm-inline">Remove All Filters</span>
+							<span class="shortcut">(Alt+4)</span>
+							</button>
 		}
-		<button class="btn btn-outline-secondary btn-sm" type="button" @onclick="@( ( ) => LoadData(  ) )">
-			<i class="bi bi-arrow-clockwise"></i>
-		</button>
+							<button class="btn btn-sm btn-outline-secondary" type="button" title="Refresh" @onclick="@( ( ) => LoadData(  ) )">
+							<i class="bi bi-arrow-clockwise"></i>
+							<span class="ms-1 d-none d-sm-inline">Refresh</span>
+						</button>
 	}
 	else
 	{
@@ -69,8 +72,8 @@
 			@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 					!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 			{
-				<button accesskey="4" class="btn btn-sm btn-outline-primary ms-2" type="button"
-					@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i> (4)</button>
+									<button accesskey="4" class="btn btn-sm btn-outline-primary ms-2" type="button"
+										@onclick="@( ( ) => RemoveFilter(  ) )"><i class="fa-solid fa-filter-circle-xmark"></i><span class="ms-1 d-none d-sm-inline">Remove Filter</span><span class="shortcut">(Alt+4)</span></button>
 			}
 		</div>
 	}
