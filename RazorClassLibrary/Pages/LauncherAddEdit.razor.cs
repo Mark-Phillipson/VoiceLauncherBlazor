@@ -93,7 +93,7 @@ public partial class LauncherAddEdit : ComponentBase
                     return new { Full = full, Thumb = thumb };
                 })
                 .Where(x => x.Full != null)
-                .OrderByDescending(x => x.Full.LastWriteTimeUtc)
+                .OrderByDescending(x => x.Full!.LastWriteTimeUtc)
                 .ToList();
 
             // Determine which images are referenced by any launcher

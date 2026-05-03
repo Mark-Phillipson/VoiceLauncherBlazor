@@ -23,12 +23,13 @@
 		<input title='Filter by Category (Alt+2)' accesskey="2" style="width: 200px;" id="categoryFilter"
 			@bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryFilter"))"
 			placeholder="Category Filter (2)" class="form-control" />
-		<div class="input-group" style="width: 250px;">
+		<div class="input-group" style="width: 350px;">
 			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
 				@onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
 				accesskey="3" placeholder="Blur to Filter (3)" />
 			<button class="btn btn-outline-secondary" type="button" accesskey="4" title="Reset Filters (Alt+4)" @onclick="RemoveFilter">
 				<i class="bi bi-funnel text-danger"></i>
+				Remove Filter (4)
 			</button>
 		</div>
 		@if (!RunningInBlazorHybrid)
@@ -53,14 +54,14 @@
 	}
 	else
 	{
-		<input accesskey="1" style="width: 250px;" id="languageFilter"
+		<input accesskey="1" style="width: 480px; max-width:100%;" id="languageFilter"
 			@oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter"
 			placeholder="Language Filter (1)" class="form-control" />
-		<input accesskey="2" style="width: 250px;" id="categoryFilter" @bind="_categoryFilter"
+		<input accesskey="2" style="width: 480px; max-width:100%;" id="categoryFilter" @bind="_categoryFilter"
 			@oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)"
 			class="form-control" />
 		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-			id="SearchInput" class="form-control" style="width: 250px;" accesskey="3" placeholder="Blur to Filter (3)" />
+			id="SearchInput" class="form-control" style="width: 480px; max-width:100%;" accesskey="3" placeholder="Blur to Filter (3)" />
 		<div class="d-flex align-items-center">
 			<label for='useSemanticMatching' class="me-2">Semantic?</label>
 			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
