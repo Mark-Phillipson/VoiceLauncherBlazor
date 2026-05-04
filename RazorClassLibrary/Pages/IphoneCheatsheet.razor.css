@@ -2,23 +2,20 @@
     font-size: 1.25rem;
 }
 
+/* Multi-column newspaper flow: cards pack tightly, no half-empty gaps */
 .cheatsheet-grid {
-    display: grid;
-    gap: 12px;
-    /* Try to fit multiple narrow columns to reduce vertical scrolling on phones */
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    column-width: 260px;
+    column-gap: 12px;
 }
 
 .cheatsheet-card {
-    min-height: 90px;
+    break-inside: avoid;
+    display: inline-block; /* required for column flow */
+    width: 100%;
+    margin-bottom: 12px;
+    box-sizing: border-box;
 }
 
 .commands-list li {
-    break-inside: avoid-column;
-}
-
-@media (min-width: 992px) {
-    .cheatsheet-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
+    break-inside: avoid;
 }
