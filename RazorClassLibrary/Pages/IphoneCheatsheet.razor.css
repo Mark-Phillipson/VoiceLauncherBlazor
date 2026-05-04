@@ -1,0 +1,24 @@
+.iphone-cheatsheet .cheatsheet-hero h2 {
+    font-size: 1.25rem;
+}
+
+.cheatsheet-grid {
+    display: grid;
+    gap: 12px;
+    /* Try to fit multiple narrow columns to reduce vertical scrolling on phones */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.cheatsheet-card {
+    min-height: 90px;
+}
+
+.commands-list li {
+    break-inside: avoid-column;
+}
+
+@media (min-width: 992px) {
+    .cheatsheet-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
