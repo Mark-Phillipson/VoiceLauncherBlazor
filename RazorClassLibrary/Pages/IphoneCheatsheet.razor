@@ -1,0 +1,46 @@
+@page "/iphone-cheatsheet"
+
+<PageTitle>iPhone Voice Control Cheatsheet</PageTitle>
+
+<div class="iphone-cheatsheet container-fluid py-3">
+    <section class="cheatsheet-hero mb-3" aria-labelledby="cheatsheetTitle">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 id="cheatsheetTitle" class="mb-0">iPhone Voice Control Cheatsheet</h2>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="badge bg-light text-dark">Categories: @FilteredGroups.Count</span>
+                <span class="badge bg-light text-dark">Commands: @FilteredCount</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="cheatsheet-search mb-3" aria-label="Search commands">
+        <input class="form-control form-control-lg" placeholder="Search commands (phrase, category)"
+               @bind="SearchTerm" @bind:event="oninput" />
+    </section>
+
+    @if (FilteredGroups.Count == 0)
+    {
+        <div class="alert alert-warning">No commands match <strong>@SearchTerm</strong>.</div>
+    }
+    else
+    {
+        <div class="cheatsheet-grid">
+            @foreach (var group in FilteredGroups)
+            {
+                <div class="cheatsheet-card card border-0 shadow-sm p-2">
+                    <h3 class="h6 mb-2">@group.Section</h3>
+                    <ul class="commands-list list-unstyled mb-0">
+                        @foreach (var cmd in group.Commands)
+                        {
+                            <li class="mb-2">
+                                <div class="fw-semibold">@cmd.Phrase</div>
+                                <div class="text-muted small">@cmd.Description</div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+
+</div>

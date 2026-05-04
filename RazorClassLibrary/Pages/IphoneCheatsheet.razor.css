@@ -1,0 +1,21 @@
+.iphone-cheatsheet .cheatsheet-hero h2 {
+    font-size: 1.25rem;
+}
+
+/* Multi-column newspaper flow: cards pack tightly, no half-empty gaps */
+.cheatsheet-grid {
+    column-width: 260px;
+    column-gap: 12px;
+}
+
+.cheatsheet-card {
+    break-inside: avoid;
+    display: inline-block; /* required for column flow */
+    width: 100%;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.commands-list li {
+    break-inside: avoid;
+}
