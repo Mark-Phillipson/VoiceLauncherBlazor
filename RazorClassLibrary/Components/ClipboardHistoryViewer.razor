@@ -5,21 +5,24 @@
 @using DataAccessLibrary
 @using DataAccessLibrary.Configuration
 @using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Components.Web
+@using Blazored.Toast.Services
 @inject IClipboardHistoryService ClipboardService
 @inject ISqlDataAccess SqlDataAccess
 @inject IConfiguration Configuration
+@inject IJSRuntime JS
+@inject IToastService ToastService
 
 <div class="clipboard-history">
-  <div class="mb-2 d-flex align-items-center">
-    <input class="form-control me-2" placeholder="Search..." @bind="Search" />
-    <button class="btn btn-primary me-2" @onclick="SearchAsync">Search</button>
-    <button class="btn btn-secondary" @onclick="Refresh">Refresh</button>
+    <div class="mb-2 d-flex align-items-center">
+    <input class="form-control me-2" placeholder="Search... (K)" @bind="Search" @onkeydown="HandleSearchKeyDown" title="Press Enter to search" accesskey="k" aria-keyshortcuts="K" @ref="searchInputRef" />
+    <button class="btn btn-primary me-2" @onclick="SearchAsync" accesskey="s" aria-keyshortcuts="S" title="Search (accesskey: S)">Search <kbd class="ms-1">S</kbd></button>
+    <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R" title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
   </div>
 
-  <table class="table table-striped">
+    <table class="table table-striped">
     <thead>
       <tr>
-        <th></th>
         <th>Preview</th>
         <th>Created</th>
         <th>Actions</th>
@@ -28,19 +31,21 @@
     <tbody>
       @if (Items?.Any() != true)
       {
-        <tr><td colspan="4">No entries</td></tr>
+        <tr><td colspan="3">No entries</td></tr>
       }
       else
       {
         @foreach (var item in Items)
         {
           <tr>
-            <td><input type="checkbox" @onchange="e => ToggleSelection(item.Id, ((ChangeEventArgs)e).Value)" /></td>
             <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
             <td>@item.CreatedAt.ToString("g")</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => Edit(item.Id)">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
+              <div class="d-flex gap-1 flex-nowrap align-items-center">
+                <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" title="Copy to clipboard">Copy</button>
+                <button class="btn btn-sm btn-outline-primary" @onclick="() => Edit(item.Id)">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
+              </div>
             </td>
           </tr>
         }
@@ -93,7 +98,6 @@
 
 @code {
     private List<ClipboardEntry> Items = new();
-    private HashSet<long> SelectedIds = new();
     private int Page = 1;
     private int PageSize = 25;
     private int TotalCount = 0;
@@ -105,6 +109,36 @@
     private string DiagnosticsMessage = string.Empty;
     private string EffectiveConnectionString = string.Empty;
     private string SchemaInfo = string.Empty;
+    private ElementReference searchInputRef;
+    private bool _searchFocused = false;
+    
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+      if (e?.Key == "Enter")
+      {
+        Page = 1;
+        await LoadPage();
+      }
+    }
+
+    private async Task CopyContent(ClipboardEntry item)
+    {
+      try
+      {
+        var txt = item?.Content ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(txt))
+        {
+          ToastService?.ShowWarning("Nothing to copy");
+          return;
+        }
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
+        ToastService?.ShowSuccess("Copied to clipboard");
+      }
+      catch (Exception ex)
+      {
+        ToastService?.ShowError("Copy failed: " + ex.Message);
+      }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -179,16 +213,22 @@
 
     private async Task Refresh()
     {
-        await LoadPage();
+      // Clear any active search filter and reload the first page
+      Search = string.Empty;
+      Page = 1;
+      await LoadPage();
+      // Ensure keyboard focus returns to the search box
+      try
+      {
+        await searchInputRef.FocusAsync();
+      }
+      catch
+      {
+        // ignore focus errors (prerender or unsupported)
+      }
     }
 
-    private void ToggleSelection(long id, object? value)
-    {
-        if (value is bool b && b)
-            SelectedIds.Add(id);
-        else
-            SelectedIds.Remove(id);
-    }
+    
 
     private async Task Edit(long id)
     {
@@ -235,5 +275,21 @@
     private async Task NextPage()
     {
         if (CanNext) { Page++; await LoadPage(); }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+      if (firstRender && !_searchFocused)
+      {
+        try
+        {
+          await searchInputRef.FocusAsync();
+          _searchFocused = true;
+        }
+        catch
+        {
+          // ignore focus errors (server prerender or unsupported)
+        }
+      }
     }
 }

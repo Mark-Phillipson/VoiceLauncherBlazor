@@ -329,18 +329,8 @@
 		@if (ShowClipboardNav())
 		{
 			<li class="nav-item px-3">
-				<NavLink accesskey='@GetAccessKey("c")' class="nav-link" href="/clipboard-history" title="Clipboard History"
-				 @onclick="MenuItemSelected">
-					<span aria-hidden="true">
-						@if (ShowAccessKeys)
-						{
-							<kbd class='mr-1'>c</kbd>
-						}
-						else
-						{
-							<span aria-hidden="true">📋</span>
-						}
-					</span> <span>&nbsp; Clipboard History 📋</span>
+				<NavLink class="nav-link" href="/clipboard-history" title="Clipboard History" @onclick="MenuItemSelected">
+					<span aria-hidden="true">📋</span> <span>&nbsp; Clipboard History 📋</span>
 				</NavLink>
 			</li>
 		}
