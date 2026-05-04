@@ -385,5 +385,19 @@ namespace RazorClassLibrary.Pages
 				}
 			}
 		}
+
+		public string BorderStyleFor(DataAccessLibrary.DTO.CategoryDTO category)
+		{
+			if (category == null) return string.Empty;
+			if (CategoryType != "Launch Applications") return string.Empty;
+			var c = category.Colour ?? string.Empty;
+			// If colour not set or default black, generate a visible color based on Id
+			if (string.IsNullOrWhiteSpace(c) || c.Trim() == "#000000" || c.Trim() == "#000")
+			{
+				var hue = (category.Id * 37) % 360;
+				return $"box-shadow: 0 0 0 4px hsl({hue} 70% 40%);";
+			}
+			return $"box-shadow: 0 0 0 4px {c};";
+		}
 	}
 }

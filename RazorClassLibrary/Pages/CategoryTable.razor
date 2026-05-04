@@ -111,9 +111,10 @@ else
 								counter = null;
 							}
 							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
-								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
+								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id" style='@BorderStyleFor(category)'>
+
 									<div accesskey="@counter" class="card-body"
-										Style="background-color:@category.Colour;height:100px;align-content:center">
+										Style='height:100px;align-content:center;'>
 										@if (@category.Icon != null)
 										{
 											<h2> @((MarkupString)category.Icon) </h2>
@@ -194,9 +195,9 @@ else
 						counter = null;
 					}
 							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
-						<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id">
-							<div accesskey="@counter" class="card-body"
-								Style="background-color:@category.Colour;height:100px;align-content:center">
+							<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id" style='@BorderStyleFor(category)'>
+								<div accesskey="@counter" class="card-body"
+									Style='height:100px;align-content:center;'>
 								@if (@category.Icon != null)
 								{
 									<h2> @((MarkupString)category.Icon) </h2>
