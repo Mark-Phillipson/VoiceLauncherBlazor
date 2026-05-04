@@ -313,7 +313,7 @@
 		}
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("+")" class="nav-link" href="chat" title="AI Chatbot"
-					 @onclick="MenuItemSelected">
+				 @onclick="MenuItemSelected">
 				<span aria-hidden="true">
 					@if (ShowAccessKeys)
 					{
@@ -326,6 +326,24 @@
 				</span> <span>&nbsp; AI Chatbot 💬</span>
 			</NavLink>
 		</li>
+		@if (ShowClipboardNav())
+		{
+			<li class="nav-item px-3">
+				<NavLink accesskey='@GetAccessKey("c")' class="nav-link" href="/clipboard-history" title="Clipboard History"
+				 @onclick="MenuItemSelected">
+					<span aria-hidden="true">
+						@if (ShowAccessKeys)
+						{
+							<kbd class='mr-1'>c</kbd>
+						}
+						else
+						{
+							<span aria-hidden="true">📋</span>
+						}
+					</span> <span>&nbsp; Clipboard History 📋</span>
+				</NavLink>
+			</li>
+		}
 		@if (ShowSmartComponents)
 		{
 			<li class="nav-item px-3">
@@ -350,6 +368,17 @@
 	private bool ShowSmartComponents =>
 		bool.TryParse(Configuration?["SmartComponents:Enabled"] ?? Configuration?["Features:SmartComponentsEnabled"], out var v)
 && v;
+
+	private bool ShowClipboardNav()
+	{
+		var env = Configuration?["ASPNETCORE_ENVIRONMENT"] ?? System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+		if (!string.IsNullOrEmpty(env) && (env.Equals("Local", System.StringComparison.OrdinalIgnoreCase) || env.Equals("Development", System.StringComparison.OrdinalIgnoreCase)))
+		{
+			return true;
+		}
+		// Fallback: show on the developer machine by name
+		return System.Environment.MachineName.Equals("J40L4V3", System.StringComparison.OrdinalIgnoreCase);
+	}
 }
 
 

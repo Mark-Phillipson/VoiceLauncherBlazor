@@ -60,6 +60,7 @@
     <ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
     <ProjectReference Include="..\VoiceAdmin.ServiceDefaults\VoiceAdmin.ServiceDefaults.csproj" />
+    
   </ItemGroup>
 
   <ItemGroup>

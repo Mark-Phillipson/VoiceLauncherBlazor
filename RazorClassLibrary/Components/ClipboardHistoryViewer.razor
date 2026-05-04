@@ -1,0 +1,239 @@
+@using RazorClassLibrary.Models
+@using RazorClassLibrary.Services
+@using System.Linq
+@using Microsoft.Data.Sqlite
+@using DataAccessLibrary
+@using DataAccessLibrary.Configuration
+@using Microsoft.Extensions.Configuration
+@inject IClipboardHistoryService ClipboardService
+@inject ISqlDataAccess SqlDataAccess
+@inject IConfiguration Configuration
+
+<div class="clipboard-history">
+  <div class="mb-2 d-flex align-items-center">
+    <input class="form-control me-2" placeholder="Search..." @bind="Search" />
+    <button class="btn btn-primary me-2" @onclick="SearchAsync">Search</button>
+    <button class="btn btn-secondary" @onclick="Refresh">Refresh</button>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Preview</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (Items?.Any() != true)
+      {
+        <tr><td colspan="4">No entries</td></tr>
+      }
+      else
+      {
+        @foreach (var item in Items)
+        {
+          <tr>
+            <td><input type="checkbox" @onchange="e => ToggleSelection(item.Id, ((ChangeEventArgs)e).Value)" /></td>
+            <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
+            <td>@item.CreatedAt.ToString("g")</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => Edit(item.Id)">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+  
+  @if (!string.IsNullOrEmpty(DiagnosticsMessage))
+  {
+    <div class="alert alert-warning mt-3" role="alert">
+      <strong>Diagnostics:</strong>
+      <div>@DiagnosticsMessage</div>
+      @if (!string.IsNullOrEmpty(SchemaInfo))
+      {
+        <div><strong>Schema:</strong> @SchemaInfo</div>
+      }
+    </div>
+  }
+
+  <div class="d-flex justify-content-between align-items-center">
+    <div>Showing page @Page (@TotalCount entries)</div>
+    <div>
+      <button class="btn btn-sm btn-outline-secondary me-1" @onclick="PrevPage" disabled="@(!CanPrev)">Prev</button>
+      <button class="btn btn-sm btn-outline-secondary" @onclick="NextPage" disabled="@(!CanNext)">Next</button>
+    </div>
+  </div>
+
+  @if (Editing)
+  {
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Clipboard Entry</h5>
+            <button type="button" class="btn-close" @onclick="CancelEdit"></button>
+          </div>
+          <div class="modal-body">
+            <textarea class="form-control" rows="8" @bind="EditingContent"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+            <button class="btn btn-primary" @onclick="SaveEdit">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+@code {
+    private List<ClipboardEntry> Items = new();
+    private HashSet<long> SelectedIds = new();
+    private int Page = 1;
+    private int PageSize = 25;
+    private int TotalCount = 0;
+    private string Search = string.Empty;
+    private bool Editing = false;
+    private long? EditingId;
+    private string EditingContent = string.Empty;
+    private bool IsLoading = false;
+    private string DiagnosticsMessage = string.Empty;
+    private string EffectiveConnectionString = string.Empty;
+    private string SchemaInfo = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    private async Task LoadPage()
+    {
+      IsLoading = true;
+      DiagnosticsMessage = string.Empty;
+      try
+      {
+        // Use the clipboard-specific connection string if configured
+        var clipboardConn = Configuration.GetConnectionString("ClipboardHistory");
+        EffectiveConnectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(clipboardConn);
+
+        // Attempt to read the table schema directly for diagnostics
+        try
+        {
+          SchemaInfo = string.Empty;
+          using var conn = new SqliteConnection(EffectiveConnectionString);
+          await conn.OpenAsync();
+          using var cmd = conn.CreateCommand();
+          cmd.CommandText = "PRAGMA table_info('ClipboardHistory');";
+          using var reader = await cmd.ExecuteReaderAsync();
+          var cols = new List<string>();
+          while (await reader.ReadAsync())
+          {
+            // PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
+            var colName = reader.IsDBNull(1) ? "" : reader.GetString(1);
+            var colType = reader.IsDBNull(2) ? "" : reader.GetString(2);
+            cols.Add(colName + "(" + colType + ")");
+          }
+          if (cols.Any()) SchemaInfo = string.Join(", ", cols);
+        }
+        catch (Exception exSchema)
+        {
+          SchemaInfo = "(schema read error: " + exSchema.Message + ")";
+        }
+
+        var res = await ClipboardService.QueryAsync(Page, PageSize, Search, null, null);
+        Items = res.Items.ToList();
+        TotalCount = res.TotalCount;
+
+        if (TotalCount == 0)
+        {
+          DiagnosticsMessage = $"Table 'ClipboardHistory' present but contains no rows. Connection: {EffectiveConnectionString}";
+        }
+        else
+        {
+          DiagnosticsMessage = $"Loaded {TotalCount} rows from ClipboardHistory. Connection: {EffectiveConnectionString}";
+        }
+      }
+      catch (Exception ex)
+      {
+        DiagnosticsMessage = "Error loading clipboard entries (table missing or DB error): " + ex.Message + $". Connection: {EffectiveConnectionString}";
+        Items = new List<ClipboardEntry>();
+        TotalCount = 0;
+      }
+      finally
+      {
+        IsLoading = false;
+        StateHasChanged();
+      }
+    }
+
+    private async Task SearchAsync()
+    {
+        Page = 1;
+        await LoadPage();
+    }
+
+    private async Task Refresh()
+    {
+        await LoadPage();
+    }
+
+    private void ToggleSelection(long id, object? value)
+    {
+        if (value is bool b && b)
+            SelectedIds.Add(id);
+        else
+            SelectedIds.Remove(id);
+    }
+
+    private async Task Edit(long id)
+    {
+        var item = await ClipboardService.GetAsync(id);
+        if (item != null)
+        {
+            EditingId = id;
+            EditingContent = item.Content ?? string.Empty;
+            Editing = true;
+        }
+    }
+
+    private async Task SaveEdit()
+    {
+        if (EditingId.HasValue)
+        {
+            await ClipboardService.UpdateAsync(new ClipboardEntry { Id = EditingId.Value, Content = EditingContent });
+            Editing = false;
+            EditingId = null;
+            await LoadPage();
+        }
+    }
+
+    private void CancelEdit()
+    {
+        Editing = false;
+        EditingId = null;
+    }
+
+    private async Task Delete(long id)
+    {
+        await ClipboardService.DeleteAsync(id);
+        await LoadPage();
+    }
+
+    private bool CanPrev => Page > 1;
+    private bool CanNext => Page * PageSize < TotalCount;
+
+    private async Task PrevPage()
+    {
+        if (CanPrev) { Page--; await LoadPage(); }
+    }
+
+    private async Task NextPage()
+    {
+        if (CanNext) { Page++; await LoadPage(); }
+    }
+}

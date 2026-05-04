@@ -414,6 +414,13 @@ builder.Services.AddScoped<ComputerService>();
 builder.Services.AddScoped<CustomIntellisenseService>();
 builder.Services.AddScoped<GeneralLookupService>();
 builder.Services.AddScoped<ISqlDataAccess, SqlDataAccess>();
+        builder.Services.AddScoped<IClipboardHistoryService>(sp =>
+        {
+            var cfg = sp.GetRequiredService<IConfiguration>();
+            var db = Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<SqlDataAccess>(sp);
+            db.ConnectionStringName = "ClipboardHistory";
+            return new ClipboardHistoryService(db, cfg);
+        });
 		builder.Services.AddScoped<ITodoData, TodoDataEf>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<VisualStudioCommandService>();
