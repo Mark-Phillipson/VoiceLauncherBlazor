@@ -126,6 +126,56 @@ namespace WinFormsApp
 				System.Diagnostics.Debug.WriteLine($"Category not found: {categoryName}");
 			}
 		}
+
+			// Handle Talon / search invocation (e.g., Talon|launch code projects)
+			else if (arguments.Length >= 2 &&
+					(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
+					 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+			{
+				System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
+				// Enable Talon search exclusively
+				showTalonSearch = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
+				// If additional args present, use them as the search term
+				if (arguments.Length >= 3)
+				{
+					searchTerm = string.Join(" ", arguments.Skip(2));
+					searchTerm = searchTerm.Replace("/", "").Trim();
+					System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
+					// Normalize arguments for downstream components
+					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
+					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
+				}
+				StateHasChanged();
+			}
+
+			// Handle SearchIntelliSense invocation (language + category)
+			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
+			{
+				SetTitle("Search Snippets");
+				string languageName = "";
+				string categoryName = "";
+				languageName = arguments[2].Replace("/", "").Trim();
+				categoryName = arguments[3].Replace("/", "").Trim();
+				var language = await LanguageService.GetLanguageAsync(languageName);
+				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+				if (language != null && category != null)
+				{
+					languageId = language.Id;
+					categoryId = category.Id;
+					// initialize last-snippet values from launch args
+					lastSnippetLanguageId = languageId;
+					lastSnippetCategoryId = categoryId;
+				}
+				// Enable Snippets listing exclusively
+				languageAndCategoryListing = true;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				StateHasChanged();
+			}
 	}
 	
 	protected override async Task OnInitializedAsync()
