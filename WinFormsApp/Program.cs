@@ -61,33 +61,47 @@ namespace WinFormsApp
 				// Then, send launch arguments via named pipe (if any args provided)
 				if (args.Length > 0)
 				{
-					try
+					// Normalize arguments: trim whitespace, strip surrounding quotes and leading slashes
+					var normalized = args.Select(a => (a ?? string.Empty)
+						.Trim()
+						.Trim('"')
+						.Trim('\'')
+						.TrimStart('/')
+						.Trim())
+						.ToArray();
+					string argsMessage = string.Join("|", normalized);
+
+					// Retry connecting because the first instance may not have started
+					// its pipe server yet (StartNamedPipeServer is called in OnLoad).
+					const int maxAttempts = 5;
+					const int retryDelayMs = 1000;
+					bool sent = false;
+					for (int attempt = 1; attempt <= maxAttempts && !sent; attempt++)
 					{
-						using var client = new NamedPipeClientStream(
-							".",
-							"VoiceLauncherBlazor_LaunchArgs",
-							PipeDirection.Out);
-						
-						client.Connect(1000); // 1 second timeout
-						
-						using var writer = new StreamWriter(client, Encoding.UTF8);
-							// Normalize arguments: trim whitespace, strip surrounding quotes and leading slashes
-							var normalized = args.Select(a => (a ?? string.Empty)
-								.Trim()
-								.Trim('"')
-								.Trim('\'')
-								.TrimStart('/')
-								.Trim())
-								.ToArray();
-							string argsMessage = string.Join("|", normalized);
-							Debug.WriteLine($"Sending normalized args via pipe: '{argsMessage}'");
+						try
+						{
+							using var client = new NamedPipeClientStream(
+								".",
+								"VoiceLauncherBlazor_LaunchArgs",
+								PipeDirection.Out);
+
+							client.Connect(1000); // 1 second timeout per attempt
+
+							using var writer = new StreamWriter(client, Encoding.UTF8);
+							Debug.WriteLine($"Sending normalized args via pipe (attempt {attempt}): '{argsMessage}'");
 							writer.WriteLine(argsMessage);
 							writer.Flush();
+							sent = true;
+						}
+						catch (Exception ex)
+						{
+							Debug.WriteLine($"IPC connect attempt {attempt}/{maxAttempts} failed: {ex.Message}");
+							if (attempt < maxAttempts)
+								Thread.Sleep(retryDelayMs);
+						}
 					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine($"Failed to send args to running instance: {ex.Message}");
-					}
+					if (!sent)
+						Debug.WriteLine("Failed to send args to running instance after all retry attempts.");
 				}
 			}
 			catch { }
