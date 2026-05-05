@@ -1,4 +1,5 @@
 using DataAccessLibrary.Services;
+using System.IO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.ComponentModel;
@@ -95,11 +96,20 @@ namespace WinFormsApp
 		// Process like command-line arguments
 		arguments = parsedArgs.ToArray();
 
-		System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
-		for (int i = 0; i < arguments.Length; i++)
-		{
-			System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
-		}
+			// Write a persistent trace to the ipc log for easier diagnosis
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ParsedIPC: {string.Join('|', arguments)}{Environment.NewLine}");
+			}
+			catch { }
+
+			System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
+			for (int i = 0; i < arguments.Length; i++)
+			{
+				System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
+			}
 
 		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
 		if (arguments.Length >= 3 && arguments[1].Contains("Launcher"))
