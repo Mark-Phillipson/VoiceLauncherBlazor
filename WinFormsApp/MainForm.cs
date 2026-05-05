@@ -732,6 +732,7 @@ namespace WinFormsApp
                     catch (OperationCanceledException)
                     {
                         // Expected when shutting down
+                        Debug.WriteLine("Named pipe server shutting down (cancellation requested).");
                         break;
                     }
                     catch (Exception ex)
