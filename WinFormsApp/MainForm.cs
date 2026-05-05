@@ -544,15 +544,18 @@ namespace WinFormsApp
         {
             try
             {
+                AppendLog($"ShowMainForm: start Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 this.BringToFront();
                 this.Activate();
                 ForceBringToFront();
+                AppendLog($"ShowMainForm: done Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"ShowMainForm error: {ex.Message}");
+                AppendLog($"ShowMainForm error: {ex.Message}");
             }
         }
 
@@ -561,23 +564,31 @@ namespace WinFormsApp
             try
             {
                 var hWnd = this.Handle;
+                AppendLog($"ForceBringToFront: start hWnd={hWnd}");
                 if (hWnd == IntPtr.Zero)
+                {
+                    AppendLog("ForceBringToFront: handle is zero, aborting");
                     return;
+                }
 
                 IntPtr foreground = GetForegroundWindow();
+                AppendLog($"ForceBringToFront: foreground={foreground}");
                 if (foreground == IntPtr.Zero)
                 {
                     // no foreground window, try simple set
+                    AppendLog("ForceBringToFront: no foreground window, calling SetForegroundWindow");
                     SetForegroundWindow(hWnd);
                     return;
                 }
 
                 uint foregroundThread = GetWindowThreadProcessId(foreground, out _);
                 uint currentThread = GetCurrentThreadId();
+                AppendLog($"ForceBringToFront: foregroundThread={foregroundThread} currentThread={currentThread}");
 
                 // Attach threads to allow setting foreground
                 if (AttachThreadInput(currentThread, foregroundThread, true))
                 {
+                    AppendLog("ForceBringToFront: AttachThreadInput succeeded");
                     ShowWindow(hWnd, SW_RESTORE);
                     BringWindowToTop(hWnd);
                     SetActiveWindow(hWnd);
@@ -587,13 +598,16 @@ namespace WinFormsApp
                 else
                 {
                     // Fallback
+                    AppendLog("ForceBringToFront: AttachThreadInput failed, using fallback");
                     ShowWindow(hWnd, SW_RESTORE);
                     SetForegroundWindow(hWnd);
                 }
+                AppendLog("ForceBringToFront: end");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"ForceBringToFront failed: {ex.Message}");
+                AppendLog($"ForceBringToFront failed: {ex.Message}");
                 // best-effort fallback
                 try { SetForegroundWindow(this.Handle); } catch { }
             }
@@ -694,10 +708,33 @@ namespace WinFormsApp
 
                             Invoke(() =>
                             {
-                                ShowMainForm();
+                                    try
+                                    {
+                                        AppendLog($"IPC: pre-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
+                                    }
+                                    catch { }
 
-                                // Raise event so Index component can handle the category
-                                LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
+                                    try
+                                    {
+                                        ShowMainForm();
+                                        AppendLog($"IPC: post-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine($"ShowMainForm invocation error: {ex.Message}");
+                                        AppendLog($"ShowMainForm invocation error: {ex.Message}");
+                                    }
+
+                                    // Raise event so Index component can handle the category
+                                    try
+                                    {
+                                        LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine($"LaunchArgumentsReceived invocation error: {ex.Message}");
+                                        AppendLog($"LaunchArgumentsReceived invocation error: {ex.Message}");
+                                    }
                             });
                         }
                     }
