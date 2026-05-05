@@ -258,10 +258,14 @@ if (Test-Path $logPath) {
 
     if ($content -match 'Index\.ViewChanged: Launcher') { Write-Info "Index changed view to Launcher on startup." } else { Write-Err "Index did NOT show Launcher view on startup." ; $allPassed = $false }
 
-    if ($content -match ("Index\.ParsedIPC.*" + [regex]::Escape($secondCategory))) { Write-Info "Index parsed second launcher token." } else { Write-Err "Index did not parse second launcher token." ; $allPassed = $false }
+    $secondParsedMatch = [regex]::Match($content, ("Index\.ParsedIPC.*" + [regex]::Escape($secondCategory)))
+    if ($secondParsedMatch.Success) { Write-Info "Index parsed second launcher token." } else { Write-Err "Index did not parse second launcher token." ; $allPassed = $false }
 
-    # Verify the extra 'admin' arg did NOT contaminate the category lookup
-    if ($content -match 'Index\.ViewChanged: Launcher') { Write-Info "Launcher view shown after forwarded IPC." } else { Write-Err "Launcher view NOT shown after forwarded IPC." ; $allPassed = $false }
+    # Verify the extra 'admin' arg did NOT contaminate the category lookup, and that the launcher view change happened after the forwarded IPC was parsed
+    if ($secondParsedMatch.Success) {
+        $contentAfterSecondParsed = $content.Substring($secondParsedMatch.Index + $secondParsedMatch.Length)
+        if ($contentAfterSecondParsed -match 'Index\.ViewChanged: Launcher') { Write-Info "Launcher view shown after forwarded IPC." } else { Write-Err "Launcher view NOT shown after forwarded IPC." ; $allPassed = $false }
+    }
 
     # Confirm 'code projects admin' never appeared as a category (the bug we fixed)
     if ($content -notmatch [regex]::Escape("$secondCategory $secondExtraArg")) {
