@@ -16,6 +16,7 @@ using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Web.WebView2.Core;
@@ -55,6 +56,15 @@ namespace WinFormsApp
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_SHOWWINDOW = 0x0040;
 
         [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
         private static extern bool DestroyIcon(IntPtr hIcon);
@@ -584,7 +594,6 @@ namespace WinFormsApp
                 uint foregroundThread = GetWindowThreadProcessId(foreground, out _);
                 uint currentThread = GetCurrentThreadId();
                 AppendLog($"ForceBringToFront: foregroundThread={foregroundThread} currentThread={currentThread}");
-
                 // Attach threads to allow setting foreground
                 if (AttachThreadInput(currentThread, foregroundThread, true))
                 {
@@ -597,10 +606,40 @@ namespace WinFormsApp
                 }
                 else
                 {
-                    // Fallback
-                    AppendLog("ForceBringToFront: AttachThreadInput failed, using fallback");
-                    ShowWindow(hWnd, SW_RESTORE);
-                    SetForegroundWindow(hWnd);
+                    // Improved fallback: try multiple strategies to force the window to front
+                    AppendLog("ForceBringToFront: AttachThreadInput failed, using improved fallback");
+                    const int maxRetries = 3;
+                    const int retryDelayMs = 60;
+                    for (int attempt = 1; attempt <= maxRetries; attempt++)
+                    {
+                        AppendLog($"ForceBringToFront: fallback attempt {attempt}");
+                        try
+                        {
+                            ShowWindow(hWnd, SW_RESTORE);
+                        }
+                        catch { }
+
+                        // Temporarily make topmost, then remove topmost to change Z-order
+                        try
+                        {
+                            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                            SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                        }
+                        catch { }
+
+                        try { BringWindowToTop(hWnd); } catch { }
+                        try { SetActiveWindow(hWnd); } catch { }
+                        try { SetForegroundWindow(hWnd); } catch { }
+
+                        Thread.Sleep(retryDelayMs);
+
+                        var nowFg = GetForegroundWindow();
+                        if (nowFg == hWnd)
+                        {
+                            AppendLog("ForceBringToFront: success on fallback");
+                            break;
+                        }
+                    }
                 }
                 AppendLog("ForceBringToFront: end");
             }

@@ -104,7 +104,8 @@ namespace WinFormsApp
 
 		// Process like command-line arguments
 		arguments = parsedArgs.ToArray();
-
+		try
+		{
 			// Write a persistent trace to the ipc log for easier diagnosis
 			try
 			{
@@ -223,6 +224,17 @@ namespace WinFormsApp
 				showTalonSearch = false;
 				await InvokeAsync(StateHasChanged);
 			}
+		}
+		finally
+		{
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.HandledIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
+			}
+			catch { }
+		}
 	}
 	
 	protected override async Task OnInitializedAsync()

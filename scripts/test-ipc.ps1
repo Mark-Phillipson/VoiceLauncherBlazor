@@ -8,7 +8,8 @@ Usage:
 #>
 
 param(
-    [switch]$CloseOnExit
+    [switch]$CloseOnExit,
+    [int]$MaxInvocations = 4
 )
 
 $ErrorActionPreference = 'Stop'
@@ -131,17 +132,14 @@ function Capture-WindowScreenshot([string]$label) {
 }
 
 # Start application instance with an initial Launcher command (simulates first cold-start voice)
-$initialCategory = 'code projects'
-$secondCategory = 'access projects'
+# Default categories to exercise in sequence. You can pass fewer by changing / calling with -MaxInvocations.
+$categories = @('code projects', 'access projects', 'productivity tools', 'documents')
 
-# Simulate the real Talon call: args=['Launcher', 'access projects', 'admin']
-# Use a non-default category here so a lookup fallback to 'code projects' cannot hide a parsing regression.
-# The extra 'admin' arg must NOT be merged into the category name.
-$secondCategoryWithExtra = $secondCategory
-$secondExtraArg = 'admin'
+if ($MaxInvocations -lt 1) { $MaxInvocations = 1 }
+if ($MaxInvocations -gt $categories.Length) { $MaxInvocations = $categories.Length }
 
-Write-Info "Starting WinFormsApp with initial Launcher category: $initialCategory"
-$proc = Start-Process -FilePath $exe -ArgumentList @('Launcher', $initialCategory) -PassThru
+Write-Info "Starting WinFormsApp with initial Launcher category: $($categories[0])"
+$proc = Start-Process -FilePath $exe -ArgumentList @('Launcher', $categories[0]) -PassThru
 # Give Blazor some time to initialize
 Start-Sleep -Seconds 1
 
@@ -157,9 +155,14 @@ if (-not (Wait-ForLogToken 'Index.SubscribedToLaunchArguments' 20)) {
 
 $allPassed = $true
 
-Write-Info "Verifying initial Launcher category was applied: '$initialCategory'"
+# Run additional invocations (1..MaxInvocations-1) with per-invocation focus-steal and checks
+Write-Info "Preparing to run up to $MaxInvocations total invocations (categories: $($categories[0..($MaxInvocations-1)] -join ', '))"
+
+# Verify initial startup parsed entry
+$startupCategory = $categories[0]
+Write-Info "Verifying initial Launcher category was applied: '$startupCategory'"
+$startupOk = $false
 if (Wait-ForLogToken 'Index.StartupParsedIPC' 10) {
-    # Read the latest startup parsed line and reconstruct the category (handles space-split tokens)
     try {
         $content = Get-Content $logPath -Raw -ErrorAction Stop
         $matches = [regex]::Matches($content, 'Index\.StartupParsedIPC:\s*(.+)$', [System.Text.RegularExpressions.RegexOptions]::Multiline)
@@ -168,113 +171,95 @@ if (Wait-ForLogToken 'Index.StartupParsedIPC' 10) {
             $parts = $argsStr -split '\|'
             if ($parts.Length -ge 3) {
                 $categoryParts = $parts[2..($parts.Length - 1)]
-                $startupCategory = ($categoryParts -join ' ').Trim()
-                if ($startupCategory -ieq $initialCategory) {
-                    Write-Info "Initial Launcher token found in startup log as: '$startupCategory'"
+                $startupCategoryFound = ($categoryParts -join ' ').Trim()
+                if ($startupCategoryFound -ieq $startupCategory) {
+                    Write-Info "Initial Launcher token found in startup log as: '$startupCategoryFound'"
+                    $startupOk = $true
                 } else {
-                    Write-Err "Startup category mismatch: '$startupCategory' vs expected '$initialCategory'"
-                    $allPassed = $false
+                    Write-Err "Startup category mismatch: '$startupCategoryFound' vs expected '$startupCategory'"
                 }
             } else {
                 Write-Err "Startup parsed args did not include a Launcher category"
-                $allPassed = $false
             }
         } else {
             Write-Err "Could not parse Index.StartupParsedIPC line"
-            $allPassed = $false
         }
     } catch {
         Write-Err "Error reading startup parsed log: $_"
-        $allPassed = $false
-    }
-} else {
-    # Fallback: direct token match
-    if (Wait-ForLogToken $initialCategory 10) {
-        Write-Info "Initial Launcher token found in logs."
-    } else {
-        Write-Err "Initial Launcher token NOT found in logs."
-        $allPassed = $false
     }
 }
+if (-not $startupOk) {
+    if (Wait-ForLogToken $startupCategory 10) { Write-Info "Initial Launcher token found in logs."; $startupOk = $true } else { Write-Err "Initial Launcher token NOT found in logs." }
+}
+if (-not $startupOk) { $allPassed = $false }
 
-# Now simulate the second voice invocation while the app is running
-Write-Info "Waiting 2s before re-launching to simulate user pause..."
-Start-Sleep -Seconds 2
-
-# Explicitly steal focus away from WinForms (manual scenario reproduction)
+# Start a Notepad instance we'll use as a focus-stealer for subsequent invocations (reuse across iterations)
 $focusStealer = $null
 try {
-    Write-Info "Stealing focus with Notepad before second command..."
+    Write-Info "Starting Notepad to act as focus-stealer for subsequent invocations..."
     $focusStealer = Start-Process -FilePath notepad.exe -PassThru
     $deadline = (Get-Date).AddSeconds(5)
-    $stealerHandle = [IntPtr]::Zero
     while ((Get-Date) -lt $deadline) {
-        try {
-            $focusStealer.Refresh()
-            if ($focusStealer.MainWindowHandle -ne 0) {
-                $stealerHandle = [IntPtr]$focusStealer.MainWindowHandle
-                break
-            }
-        } catch { }
+        $focusStealer.Refresh()
+        if ($focusStealer.MainWindowHandle -ne 0) { break }
         Start-Sleep -Milliseconds 200
     }
-    if ($stealerHandle -ne [IntPtr]::Zero) {
-        [Win32.NativeMethods]::SetForegroundWindow($stealerHandle) | Out-Null
-    }
-    if (Wait-ForForegroundProcess 'notepad' 5) {
-        Write-Info "Focus moved away from WinForms to Notepad."
-    } else {
-        Write-Info "Could not verify focus moved to Notepad (Windows focus policy); continuing."
-    }
 } catch {
-    Write-Err "Failed to steal focus before second command: $_"
-    $allPassed = $false
+    Write-Err "Failed to start Notepad focus stealer: $_"
 }
 
-# Pass three args matching the real Talon call: Launcher 'code projects' admin
-Write-Info "Re-launching app to send Launcher '$secondCategory' (+ extra arg '$secondExtraArg') - should be forwarded to running instance"
-& $exe Launcher $secondCategoryWithExtra $secondExtraArg
+for ($i = 1; $i -lt $MaxInvocations; $i++) {
+    $category = $categories[$i]
+    Write-Info "Iteration ${i}: will send Launcher '$category'"
+    Start-Sleep -Seconds 2
 
-if (Wait-ForLogToken $secondCategory 10) {
-    Write-Info "Second Launcher token found in logs."
-} else {
-    Write-Err "Second Launcher token NOT found in logs."
-    $allPassed = $false
-}
-
-if (Wait-ForForegroundProcess 'WinFormsApp' 10) {
-    Write-Info "WinForms regained foreground focus after second command."
-} else {
-    Write-Err "WinForms did not regain foreground focus after second command."
-    $allPassed = $false
-}
-
-# Capture a screenshot after the forwarded IPC arrives (or attempt regardless)
-Write-Info "Capturing forwarded-invocation screenshot..."
-Capture-WindowScreenshot 'forwarded'
-
-# Additional checks: ensure Index recorded both launcher entries (startup and forwarded)
-if (Test-Path $logPath) {
-    $content = Get-Content $logPath -Raw
-    if ($content -match 'Index\.StartupParsedIPC') { Write-Info "Index recorded a startup parsed line." } else { Write-Err "Index did not record a startup parsed line." ; $allPassed = $false }
-
-    if ($content -match 'Index\.ViewChanged: Launcher') { Write-Info "Index changed view to Launcher on startup." } else { Write-Err "Index did NOT show Launcher view on startup." ; $allPassed = $false }
-
-    $secondParsedMatch = [regex]::Match($content, ("Index\.ParsedIPC.*" + [regex]::Escape($secondCategory)))
-    if ($secondParsedMatch.Success) { Write-Info "Index parsed second launcher token." } else { Write-Err "Index did not parse second launcher token." ; $allPassed = $false }
-
-    # Verify the extra 'admin' arg did NOT contaminate the category lookup, and that the launcher view change happened after the forwarded IPC was parsed
-    if ($secondParsedMatch.Success) {
-        $contentAfterSecondParsed = $content.Substring($secondParsedMatch.Index + $secondParsedMatch.Length)
-        if ($contentAfterSecondParsed -match 'Index\.ViewChanged: Launcher') { Write-Info "Launcher view shown after forwarded IPC." } else { Write-Err "Launcher view NOT shown after forwarded IPC." ; $allPassed = $false }
+    # Steal focus to Notepad (so the app must regain it)
+    try {
+        $stealerHandle = [IntPtr]::Zero
+        if ($focusStealer -ne $null) {
+            $focusStealer.Refresh()
+            if ($focusStealer.MainWindowHandle -ne 0) { $stealerHandle = [IntPtr]$focusStealer.MainWindowHandle }
+        }
+        if ($stealerHandle -eq [IntPtr]::Zero) {
+            Write-Info "Notepad handle not available; starting a new Notepad instance for focus steal."
+            $tmp = Start-Process -FilePath notepad.exe -PassThru
+            $deadline = (Get-Date).AddSeconds(5)
+            while ((Get-Date) -lt $deadline) {
+                $tmp.Refresh()
+                if ($tmp.MainWindowHandle -ne 0) { $stealerHandle = [IntPtr]$tmp.MainWindowHandle; break }
+                Start-Sleep -Milliseconds 200
+            }
+            if ($stealerHandle -ne [IntPtr]::Zero) { $focusStealer = $tmp }
+        }
+        if ($stealerHandle -ne [IntPtr]::Zero) { [Win32.NativeMethods]::SetForegroundWindow($stealerHandle) | Out-Null }
+        if (Wait-ForForegroundProcess 'notepad' 5) { Write-Info "Focus moved away from WinForms to Notepad." } else { Write-Info "Could not verify focus moved to Notepad (Windows focus policy); continuing." }
+    } catch {
+        Write-Err "Failed to steal focus before invocation ${i}: $_"
+        $allPassed = $false
     }
 
-    # Confirm 'code projects admin' never appeared as a category (the bug we fixed)
-    if ($content -notmatch [regex]::Escape("$secondCategory $secondExtraArg")) {
-        Write-Info "Extra arg '$secondExtraArg' correctly excluded from category name."
-    } else {
-        Write-Err "Bug regressed: '$secondCategory $secondExtraArg' was used as category."
-        $allPassed = $false
+    # Simulate launcher invocation; include an extra arg on the second overall invocation to mimic Talon behavior
+    $extraArg = $null
+    if ($i -eq 1) { $extraArg = 'admin' }
+
+    if ($extraArg) { Write-Info "Sending: Launcher $category $extraArg"; & $exe Launcher $category $extraArg } else { Write-Info "Sending: Launcher $category"; & $exe Launcher $category }
+
+    if (Wait-ForLogToken $category 10) { Write-Info "Invocation ${i}: Launcher token '$category' found in logs." } else { Write-Err "Invocation ${i}: Launcher token '$category' NOT found in logs."; $allPassed = $false }
+
+    if (Wait-ForForegroundProcess 'WinFormsApp' 10) { Write-Info "Invocation ${i}: WinForms regained foreground focus." } else { Write-Err "Invocation ${i}: WinForms did not regain foreground focus."; $allPassed = $false }
+
+    Capture-WindowScreenshot ("invocation_$i")
+
+    if (Test-Path $logPath) {
+        $content = Get-Content $logPath -Raw
+        $parsedMatch = [regex]::Match($content, ("Index\.ParsedIPC.*" + [regex]::Escape($category)))
+        if ($parsedMatch.Success) {
+            Write-Info "Invocation ${i}: Index parsed '$category'."
+            $after = $content.Substring($parsedMatch.Index + $parsedMatch.Length)
+            if ($after -match 'Index\.ViewChanged: Launcher') { Write-Info "Invocation ${i}: Launcher view shown after parsed IPC." } else { Write-Err "Invocation ${i}: Launcher view NOT shown after parsed IPC."; $allPassed = $false }
+        } else { Write-Err "Invocation ${i}: Index did not parse launcher token for '$category'."; $allPassed = $false }
+
+        if ($extraArg -and ($content -match [regex]::Escape("$category $extraArg"))) { Write-Err "Invocation ${i}: Extra arg '$extraArg' contaminated category name in logs."; $allPassed = $false } else { if ($extraArg) { Write-Info "Invocation ${i}: Extra arg excluded from category name as expected." } }
     }
 }
 

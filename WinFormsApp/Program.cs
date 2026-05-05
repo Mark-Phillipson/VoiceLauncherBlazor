@@ -1,5 +1,6 @@
 using System.Runtime.Versioning;
 using System.Threading;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Linq;
@@ -92,6 +93,42 @@ namespace WinFormsApp
 							writer.WriteLine(argsMessage);
 							writer.Flush();
 							sent = true;
+
+							// Wait for Index to process the IPC and write an ACK into ipc.log
+							try
+							{
+								int ackTimeoutMs = 8000;
+								var ackDeadline = DateTime.Now.AddMilliseconds(ackTimeoutMs);
+								var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+								bool ackFound = false;
+								Debug.WriteLine($"Waiting up to {ackTimeoutMs}ms for Index.HandledIPC ack (searching for '{argsMessage}')");
+								while (DateTime.Now < ackDeadline)
+								{
+									try
+									{
+										if (File.Exists(logPath))
+										{
+											var content = File.ReadAllText(logPath);
+											if (content.Contains("Index.HandledIPC") && content.Contains(argsMessage))
+											{
+												Debug.WriteLine($"Received Index.HandledIPC ack for args: '{argsMessage}'");
+												ackFound = true;
+												break;
+											}
+										}
+									}
+									catch { }
+									Thread.Sleep(200);
+								}
+								if (!ackFound)
+								{
+									Debug.WriteLine("Did not receive Index.HandledIPC ack within timeout.");
+								}
+							}
+							catch (Exception ex)
+							{
+								Debug.WriteLine($"Error while waiting for IPC ACK: {ex.Message}");
+							}
 						}
 						catch (Exception ex)
 						{
