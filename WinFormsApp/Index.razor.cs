@@ -155,7 +155,7 @@ namespace WinFormsApp
 				languageAndCategoryListing = false;
 				showTalonSearch = false;
 				showAIChat = false;
-				StateHasChanged();
+				await InvokeAsync(StateHasChanged);
 
 				// Persist the view change so tests can verify the visible view
 				try
@@ -189,7 +189,7 @@ namespace WinFormsApp
 				languageAndCategoryListing = false;
 				showAIChat = false;
 				showTalonSearch = false;
-				StateHasChanged();
+				await InvokeAsync(StateHasChanged);
 				try
 				{
 					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
@@ -221,7 +221,7 @@ namespace WinFormsApp
 					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
 					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
 				}
-				StateHasChanged();
+				await InvokeAsync(StateHasChanged);
 			}
 
 			// Handle SearchIntelliSense invocation (language + category)
@@ -247,7 +247,7 @@ namespace WinFormsApp
 				launcher = false;
 				showAIChat = false;
 				showTalonSearch = false;
-				StateHasChanged();
+				await InvokeAsync(StateHasChanged);
 			}
 	}
 	
@@ -400,15 +400,47 @@ namespace WinFormsApp
 			}
 			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
 			{
-				// arguments[2] is the full category name. Don't join further args — they are separate parameters.
-				categoryName = arguments[2].Replace("/", "").Trim();
-				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-				if (category != null)
+				// Cold-start can arrive as either:
+				//   Launcher|Access Projects
+				// or split words:
+				//   Launcher|access|projects|...
+				var tokens = arguments.Skip(2)
+					.Select(a => (a ?? string.Empty).Replace("/", "").Trim())
+					.Where(s => !string.IsNullOrEmpty(s))
+					.ToArray();
+
+				Category? matchedCategory = null;
+				for (int len = tokens.Length; len >= 1; len--)
 				{
-					categoryId = category.Id;
-					lastLauncherCategoryId = categoryId;
+					var candidate = string.Join(" ", tokens.Take(len)).Trim();
+					try
+					{
+						matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+					}
+					catch
+					{
+						matchedCategory = null;
+					}
+
+					if (matchedCategory != null)
+					{
+						categoryName = matchedCategory.CategoryName;
+						break;
+					}
 				}
-				SetTitle($"Launch from category: {categoryName}");
+
+				if (matchedCategory != null)
+				{
+					categoryId = matchedCategory.Id;
+					lastLauncherCategoryId = categoryId;
+					SetTitle($"Launch from category: {matchedCategory.CategoryName}");
+				}
+				else
+				{
+					// Keep launcher mode even when category lookup fails.
+					SetTitle("Launch Applications");
+				}
+
 				// Enable launcher view exclusively
 				launcher = true;
 				languageAndCategoryListing = false;

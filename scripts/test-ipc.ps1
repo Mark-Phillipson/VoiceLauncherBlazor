@@ -7,6 +7,10 @@ Usage:
   powershell -ExecutionPolicy Bypass -File .\scripts\test-ipc.ps1
 #>
 
+param(
+    [switch]$CloseOnExit
+)
+
 $ErrorActionPreference = 'Stop'
 
 function Write-Info($msg) { Write-Host "[INFO] $msg" }
@@ -58,9 +62,28 @@ namespace Win32 {
         public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
 "@ -Language CSharp
+
+function Wait-ForForegroundProcess([string]$processName, [int]$timeoutSec) {
+    $deadline = (Get-Date).AddSeconds($timeoutSec)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $fg = [Win32.NativeMethods]::GetForegroundWindow()
+            if ($fg -ne [IntPtr]::Zero) {
+                $p = Get-Process -Name $processName -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -eq $fg } | Select-Object -First 1
+                if ($p) { return $true }
+            }
+        } catch { }
+        Start-Sleep -Milliseconds 250
+    }
+    return $false
+}
 
 function Capture-WindowScreenshot([string]$label) {
     try {
@@ -175,6 +198,36 @@ if (Wait-ForLogToken 'Index.StartupParsedIPC' 10) {
 Write-Info "Waiting 2s before re-launching to simulate user pause..."
 Start-Sleep -Seconds 2
 
+# Explicitly steal focus away from WinForms (manual scenario reproduction)
+$focusStealer = $null
+try {
+    Write-Info "Stealing focus with Notepad before second command..."
+    $focusStealer = Start-Process -FilePath notepad.exe -PassThru
+    $deadline = (Get-Date).AddSeconds(5)
+    $stealerHandle = [IntPtr]::Zero
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $focusStealer.Refresh()
+            if ($focusStealer.MainWindowHandle -ne 0) {
+                $stealerHandle = [IntPtr]$focusStealer.MainWindowHandle
+                break
+            }
+        } catch { }
+        Start-Sleep -Milliseconds 200
+    }
+    if ($stealerHandle -ne [IntPtr]::Zero) {
+        [Win32.NativeMethods]::SetForegroundWindow($stealerHandle) | Out-Null
+    }
+    if (Wait-ForForegroundProcess 'notepad' 5) {
+        Write-Info "Focus moved away from WinForms to Notepad."
+    } else {
+        Write-Info "Could not verify focus moved to Notepad (Windows focus policy); continuing."
+    }
+} catch {
+    Write-Err "Failed to steal focus before second command: $_"
+    $allPassed = $false
+}
+
 # Pass three args matching the real Talon call: Launcher 'code projects' admin
 Write-Info "Re-launching app to send Launcher '$secondCategory' (+ extra arg '$secondExtraArg') - should be forwarded to running instance"
 & $exe Launcher $secondCategoryWithExtra $secondExtraArg
@@ -183,6 +236,13 @@ if (Wait-ForLogToken $secondCategory 10) {
     Write-Info "Second Launcher token found in logs."
 } else {
     Write-Err "Second Launcher token NOT found in logs."
+    $allPassed = $false
+}
+
+if (Wait-ForForegroundProcess 'WinFormsApp' 10) {
+    Write-Info "WinForms regained foreground focus after second command."
+} else {
+    Write-Err "WinForms did not regain foreground focus after second command."
     $allPassed = $false
 }
 
@@ -212,9 +272,20 @@ if (Test-Path $logPath) {
 }
 
 # Cleanup
-Write-Info "Stopping app..."
+if (-not $CloseOnExit) {
+    Write-Info "Keeping WinFormsApp open for manual inspection (KeepOpen=True)."
+    Write-Info "When done, close it manually or run: Stop-Process -Name WinFormsApp -Force"
+} else {
+    Write-Info "Stopping app..."
+    try {
+        Get-Process -Name WinFormsApp -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    } catch { }
+}
+
 try {
-    Get-Process -Name WinFormsApp -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    if ($focusStealer) {
+        Stop-Process -Id $focusStealer.Id -Force -ErrorAction SilentlyContinue
+    }
 } catch { }
 
 if ($allPassed) {
