@@ -53,7 +53,8 @@ function Wait-ForLogToken([string]$token, [int]$timeoutSec) {
 }
 
 # Screenshot helper: captures the WinFormsApp window if available, otherwise full screen
-Add-Type -TypeDefinition @"
+if (-not ([System.Management.Automation.PSTypeName]'Win32.NativeMethods').Type) {
+    Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;
 namespace Win32 {
@@ -69,6 +70,7 @@ namespace Win32 {
     }
 }
 "@ -Language CSharp
+}
 
 function Wait-ForForegroundProcess([string]$processName, [int]$timeoutSec) {
     $deadline = (Get-Date).AddSeconds($timeoutSec)
