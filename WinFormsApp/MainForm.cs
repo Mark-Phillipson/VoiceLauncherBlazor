@@ -696,15 +696,6 @@ namespace WinFormsApp
                             AppendLog($"Received launch args from pipe: {message}");
                             // store the last args so balloon clicks can re-use them
                             _lastLaunchArgs = message;
-                            try
-                            {
-                                ShowTrayNotification("VoiceLauncher", message);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"ShowTrayNotification error: {ex.Message}");
-                                AppendLog($"ShowTrayNotification error: {ex.Message}");
-                            }
 
                             Invoke(() =>
                             {
@@ -747,11 +738,6 @@ namespace WinFormsApp
                 {
                     Debug.WriteLine($"Named pipe server error: {ex.Message}");
                     AppendLog($"Named pipe server error: {ex.Message}");
-                    try
-                    {
-                        ShowTrayNotification("VoiceLauncher IPC error", ex.Message);
-                    }
-                    catch { }
                     // Wait briefly before retrying to avoid tight loop on repeated failures
                     await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
                 }

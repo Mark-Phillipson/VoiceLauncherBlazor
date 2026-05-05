@@ -1,4 +1,5 @@
 using DataAccessLibrary.Services;
+using DataAccessLibrary.Models;
 using System.IO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -120,35 +121,89 @@ namespace WinFormsApp
 			}
 
 		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
-		if (arguments.Length >= 3 && arguments[1].Contains("Launcher"))
+		if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
 		{
-			string categoryName = arguments[2].Replace("/", "").Trim();
-			System.Diagnostics.Debug.WriteLine($"Handling Launcher with category: {categoryName}");
+			// Tokens after the 'Launcher' token (may be split into multiple args)
+			var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+			System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
 
-			var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-			if (category != null)
+			int matchedCount = 0;
+			Category? matchedCategory = null;
+			// Try longest-prefix matching of tokens to find a category
+			for (int len = tokens.Length; len >= 1; len--)
 			{
-						categoryId = category.Id;
-						// Save as last known launcher category
-						lastLauncherCategoryId = categoryId;
-				SetTitle($"Launch from category: {categoryName}");
-				// Ensure only the launcher view is active
+				var candidate = string.Join(" ", tokens.Take(len)).Trim();
+				try
+				{
+					matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+				}
+				catch { matchedCategory = null; }
+				if (matchedCategory != null)
+				{
+					matchedCount = len;
+					System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
+					break;
+				}
+			}
+
+			if (matchedCategory != null)
+			{
+				categoryId = matchedCategory.Id;
+				lastLauncherCategoryId = categoryId;
+				SetTitle($"Launch from category: {matchedCategory.CategoryName}");
 				launcher = true;
 				languageAndCategoryListing = false;
 				showTalonSearch = false;
 				showAIChat = false;
 				StateHasChanged();
+
+				// Persist the view change so tests can verify the visible view
+				try
+				{
+					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
+				}
+				catch { }
 			}
 			else
 			{
-				System.Diagnostics.Debug.WriteLine($"Category not found: {categoryName}");
+				System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - falling back to default Launcher view");
+				// Fall back to showing the Launcher view with a sensible default category
+				try
+				{
+					var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
+					if (defaultCategory != null)
+					{
+						categoryId = defaultCategory.Id;
+						lastLauncherCategoryId = categoryId;
+						SetTitle($"Launch from category: {defaultCategory.CategoryName}");
+					}
+					else
+					{
+						SetTitle("Launch Applications");
+					}
+				}
+				catch { SetTitle("Launch Applications"); }
+				launcher = true;
+				languageAndCategoryListing = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				StateHasChanged();
+				try
+				{
+					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher (fallback){Environment.NewLine}");
+				}
+				catch { }
 			}
 		}
 
 			// Handle Talon / search invocation (e.g., Talon|launch code projects)
-			else if (arguments.Length >= 2 &&
-					(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
-					 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+			    else if (arguments.Length >= 2 &&
+				    (arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
+				     arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
 			{
 				System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
 				// Enable Talon search exclusively
@@ -170,7 +225,7 @@ namespace WinFormsApp
 			}
 
 			// Handle SearchIntelliSense invocation (language + category)
-			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense"))
+			else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
 			{
 				SetTitle("Search Snippets");
 				string languageName = "";
@@ -343,9 +398,10 @@ namespace WinFormsApp
 				showTalonSearch = false;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
-			else if (arguments.Length == 3 && arguments[1].Contains("Launcher"))
+			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
 			{
-				categoryName = arguments[2].Replace("/", "");
+				// arguments[2] is the full category name. Don't join further args — they are separate parameters.
+				categoryName = arguments[2].Replace("/", "").Trim();
 				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
 				if (category != null)
 				{
@@ -353,17 +409,35 @@ namespace WinFormsApp
 					lastLauncherCategoryId = categoryId;
 				}
 				SetTitle($"Launch from category: {categoryName}");
-					// Enable launcher view exclusively
-					launcher = true;
-					languageAndCategoryListing = false;
-					showAIChat = false;
-					showTalonSearch = false;
+				// Enable launcher view exclusively
+				launcher = true;
+				languageAndCategoryListing = false;
+				showAIChat = false;
+				showTalonSearch = false;
+
+				// Persist the view change so external tests can detect the visible view at startup
+				try
+				{
+					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
+				}
+				catch { }
 			}
 			else if (arguments.Length == 3)
 			{
 				searchTerm = arguments[2].Replace("/", "");
 				SetTitle("Filtering Snippets by Display Value");
 			}
+
+			// Persist a startup-parsed args trace so external tests can detect cold-start args processing
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.StartupParsedIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
+			}
+			catch { }
 		}
 		private async void CloseWindow()
 		{

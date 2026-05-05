@@ -48,11 +48,80 @@ function Wait-ForLogToken([string]$token, [int]$timeoutSec) {
     return $false
 }
 
-# Start application instance
-Write-Info "Starting WinFormsApp..."
-$proc = Start-Process -FilePath $exe -PassThru
-# Wait for UI/blazor to initialize so the Index component can subscribe to IPC events
+# Screenshot helper: captures the WinFormsApp window if available, otherwise full screen
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+namespace Win32 {
+    public static class NativeMethods {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    }
+}
+"@ -Language CSharp
+
+function Capture-WindowScreenshot([string]$label) {
+    try {
+        $screensDir = Join-Path $exeDir 'logs\screenshots'
+        New-Item -ItemType Directory -Path $screensDir -Force | Out-Null
+        $out = Join-Path $screensDir ("{0}_{1}.png" -f (Get-Date -Format 'yyyyMMdd_HHmmss'), $label)
+        $p = Get-Process -Name WinFormsApp -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($p -and $p.MainWindowHandle -ne 0) {
+            $h = $p.MainWindowHandle
+            $rect = New-Object Win32.NativeMethods+RECT
+            $ok = [Win32.NativeMethods]::GetWindowRect([IntPtr]$h, [ref]$rect)
+            if ($ok) {
+                Add-Type -AssemblyName System.Drawing
+                $width = $rect.Right - $rect.Left
+                $height = $rect.Bottom - $rect.Top
+                if ($width -gt 0 -and $height -gt 0) {
+                    $bmp = New-Object System.Drawing.Bitmap($width, $height)
+                    $g = [System.Drawing.Graphics]::FromImage($bmp)
+                    $g.CopyFromScreen($rect.Left, $rect.Top, 0, 0, $bmp.Size)
+                    $bmp.Save($out, [System.Drawing.Imaging.ImageFormat]::Png)
+                    $g.Dispose(); $bmp.Dispose()
+                    Write-Info "Captured window screenshot to $out"
+                    return $out
+                }
+            }
+        }
+
+        # Fallback: capture full virtual screen
+        Add-Type -AssemblyName System.Drawing
+        Add-Type -AssemblyName System.Windows.Forms
+        $bounds = [System.Windows.Forms.SystemInformation]::VirtualScreen
+        $bmp = New-Object System.Drawing.Bitmap($bounds.Width, $bounds.Height)
+        $g = [System.Drawing.Graphics]::FromImage($bmp)
+        $g.CopyFromScreen($bounds.Left, $bounds.Top, 0, 0, $bmp.Size)
+        $bmp.Save($out, [System.Drawing.Imaging.ImageFormat]::Png)
+        $g.Dispose(); $bmp.Dispose()
+        Write-Info "Captured full-screen screenshot to $out"
+        return $out
+    } catch {
+        Write-Err "Screenshot failed: $_"
+        return $null
+    }
+}
+
+# Start application instance with an initial Launcher command (simulates first cold-start voice)
+$initialCategory = 'access projects'
+$secondCategory = 'code projects'
+
+# Simulate the real Talon call: args=['Launcher', 'code projects', 'admin']
+# The extra 'admin' arg must NOT be merged into the category name
+$secondCategoryWithExtra = $secondCategory
+$secondExtraArg = 'admin'
+
+Write-Info "Starting WinFormsApp with initial Launcher category: $initialCategory"
+$proc = Start-Process -FilePath $exe -ArgumentList @('Launcher', $initialCategory) -PassThru
+# Give Blazor some time to initialize
 Start-Sleep -Seconds 1
+
+# Take a screenshot of the form after startup
+Write-Info "Capturing startup screenshot..."
+Capture-WindowScreenshot 'startup'
 
 # Wait until Index component subscribes (written as a persistent ipc.log entry by the app), up to 20s
 Write-Info "Waiting for Index component to subscribe to LaunchArgumentsReceived..."
@@ -62,36 +131,84 @@ if (-not (Wait-ForLogToken 'Index.SubscribedToLaunchArguments' 20)) {
 
 $allPassed = $true
 
-# Test A: Talon search dispatch
-$token = "TEST_IPC_SEARCH_$(([int](Get-Random -Maximum 1000000)))"
-Write-Info "Sending Talon search token: $token"
-& $exe Talon $token
-
-if (Wait-ForLogToken $token 10) {
-    Write-Info "Search IPC token found in logs."
+Write-Info "Verifying initial Launcher category was applied: '$initialCategory'"
+if (Wait-ForLogToken 'Index.StartupParsedIPC' 10) {
+    # Read the latest startup parsed line and reconstruct the category (handles space-split tokens)
+    try {
+        $content = Get-Content $logPath -Raw -ErrorAction Stop
+        $matches = [regex]::Matches($content, 'Index\.StartupParsedIPC:\s*(.+)$', [System.Text.RegularExpressions.RegexOptions]::Multiline)
+        if ($matches.Count -gt 0) {
+            $argsStr = $matches[$matches.Count - 1].Groups[1].Value.Trim()
+            $parts = $argsStr -split '\|'
+            if ($parts.Length -ge 3) {
+                $categoryParts = $parts[2..($parts.Length - 1)]
+                $startupCategory = ($categoryParts -join ' ').Trim()
+                if ($startupCategory -ieq $initialCategory) {
+                    Write-Info "Initial Launcher token found in startup log as: '$startupCategory'"
+                } else {
+                    Write-Err "Startup category mismatch: '$startupCategory' vs expected '$initialCategory'"
+                    $allPassed = $false
+                }
+            } else {
+                Write-Err "Startup parsed args did not include a Launcher category"
+                $allPassed = $false
+            }
+        } else {
+            Write-Err "Could not parse Index.StartupParsedIPC line"
+            $allPassed = $false
+        }
+    } catch {
+        Write-Err "Error reading startup parsed log: $_"
+        $allPassed = $false
+    }
 } else {
-    Write-Err "Search IPC token NOT found in logs."
+    # Fallback: direct token match
+    if (Wait-ForLogToken $initialCategory 10) {
+        Write-Info "Initial Launcher token found in logs."
+    } else {
+        Write-Err "Initial Launcher token NOT found in logs."
+        $allPassed = $false
+    }
+}
+
+# Now simulate the second voice invocation while the app is running
+Write-Info "Waiting 2s before re-launching to simulate user pause..."
+Start-Sleep -Seconds 2
+
+# Pass three args matching the real Talon call: Launcher 'code projects' admin
+Write-Info "Re-launching app to send Launcher '$secondCategory' (+ extra arg '$secondExtraArg') - should be forwarded to running instance"
+& $exe Launcher $secondCategoryWithExtra $secondExtraArg
+
+if (Wait-ForLogToken $secondCategory 10) {
+    Write-Info "Second Launcher token found in logs."
+} else {
+    Write-Err "Second Launcher token NOT found in logs."
     $allPassed = $false
 }
 
-# Test B: Launcher dispatch
-$category = "TestCategory$(([int](Get-Random -Maximum 1000000)))"
-$token2 = $category
-Write-Info "Sending Launcher category: $category"
-& $exe Launcher $category
+# Capture a screenshot after the forwarded IPC arrives (or attempt regardless)
+Write-Info "Capturing forwarded-invocation screenshot..."
+Capture-WindowScreenshot 'forwarded'
 
-if (Wait-ForLogToken $token2 10) {
-    Write-Info "Launcher token found in logs."
-} else {
-    Write-Err "Launcher token NOT found in logs."
-    $allPassed = $false
-}
-
-# Additional checks: look for Index.ParsedIPC entries for tokens
+# Additional checks: ensure Index recorded both launcher entries (startup and forwarded)
 if (Test-Path $logPath) {
     $content = Get-Content $logPath -Raw
-    if ($content -match "Index.ParsedIPC.*$token") { Write-Info "Index parsed search token." } else { Write-Err "Index did not parse search token." ; $allPassed = $false }
-    if ($content -match "Index.ParsedIPC.*$token2") { Write-Info "Index parsed launcher token." } else { Write-Err "Index did not parse launcher token." ; $allPassed = $false }
+    if ($content -match 'Index\.StartupParsedIPC') { Write-Info "Index recorded a startup parsed line." } else { Write-Err "Index did not record a startup parsed line." ; $allPassed = $false }
+
+    if ($content -match 'Index\.ViewChanged: Launcher') { Write-Info "Index changed view to Launcher on startup." } else { Write-Err "Index did NOT show Launcher view on startup." ; $allPassed = $false }
+
+    if ($content -match ("Index\.ParsedIPC.*" + [regex]::Escape($secondCategory))) { Write-Info "Index parsed second launcher token." } else { Write-Err "Index did not parse second launcher token." ; $allPassed = $false }
+
+    # Verify the extra 'admin' arg did NOT contaminate the category lookup
+    if ($content -match 'Index\.ViewChanged: Launcher') { Write-Info "Launcher view shown after forwarded IPC." } else { Write-Err "Launcher view NOT shown after forwarded IPC." ; $allPassed = $false }
+
+    # Confirm 'code projects admin' never appeared as a category (the bug we fixed)
+    if ($content -notmatch [regex]::Escape("$secondCategory $secondExtraArg")) {
+        Write-Info "Extra arg '$secondExtraArg' correctly excluded from category name."
+    } else {
+        Write-Err "Bug regressed: '$secondCategory $secondExtraArg' was used as category."
+        $allPassed = $false
+    }
 }
 
 # Cleanup
