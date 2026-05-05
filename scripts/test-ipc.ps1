@@ -129,11 +129,12 @@ function Capture-WindowScreenshot([string]$label) {
 }
 
 # Start application instance with an initial Launcher command (simulates first cold-start voice)
-$initialCategory = 'access projects'
-$secondCategory = 'code projects'
+$initialCategory = 'code projects'
+$secondCategory = 'access projects'
 
-# Simulate the real Talon call: args=['Launcher', 'code projects', 'admin']
-# The extra 'admin' arg must NOT be merged into the category name
+# Simulate the real Talon call: args=['Launcher', 'access projects', 'admin']
+# Use a non-default category here so a lookup fallback to 'code projects' cannot hide a parsing regression.
+# The extra 'admin' arg must NOT be merged into the category name.
 $secondCategoryWithExtra = $secondCategory
 $secondExtraArg = 'admin'
 
