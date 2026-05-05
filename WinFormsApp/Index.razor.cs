@@ -61,6 +61,14 @@ namespace WinFormsApp
 				{
 					MainForm.LaunchArgumentsReceived += OnLaunchArgumentsReceived;
 					System.Diagnostics.Debug.WriteLine("Subscribed to LaunchArgumentsReceived event");
+					// Also write a persistent trace so external tests can detect subscription
+					try
+					{
+						var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+						Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+						File.AppendAllText(logPath, $"{DateTime.Now:O} Index.SubscribedToLaunchArguments{Environment.NewLine}");
+					}
+					catch { }
 				}
 			}
 			catch (Exception ex)
