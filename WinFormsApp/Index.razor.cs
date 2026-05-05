@@ -168,35 +168,8 @@ namespace WinFormsApp
 			}
 			else
 			{
-				System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - falling back to default Launcher view");
-				// Fall back to showing the Launcher view with a sensible default category
-				try
-				{
-					var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
-					if (defaultCategory != null)
-					{
-						categoryId = defaultCategory.Id;
-						lastLauncherCategoryId = categoryId;
-						SetTitle($"Launch from category: {defaultCategory.CategoryName}");
-					}
-					else
-					{
-						SetTitle("Launch Applications");
-					}
-				}
-				catch { SetTitle("Launch Applications"); }
-				launcher = true;
-				languageAndCategoryListing = false;
-				showAIChat = false;
-				showTalonSearch = false;
-				await InvokeAsync(StateHasChanged);
-				try
-				{
-					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher (fallback){Environment.NewLine}");
-				}
-				catch { }
+				System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
+				return;
 			}
 		}
 
@@ -211,6 +184,7 @@ namespace WinFormsApp
 				languageAndCategoryListing = false;
 				launcher = false;
 				showAIChat = false;
+				SetTitle("Talon Voice Command Search");
 				// If additional args present, use them as the search term
 				if (arguments.Length >= 3)
 				{

@@ -675,9 +675,9 @@ namespace WinFormsApp
         {
             _ = Task.Run(async () =>
             {
-                try
+                while (!_pipeServerCts.Token.IsCancellationRequested)
                 {
-                    while (!_pipeServerCts.Token.IsCancellationRequested)
+                    try
                     {
                         using var server = new NamedPipeServerStream(
                             "VoiceLauncherBlazor_LaunchArgs",
@@ -729,17 +729,18 @@ namespace WinFormsApp
                             });
                         }
                     }
-                }
-                catch (OperationCanceledException)
-                {
-                    // Expected when shutting down
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Named pipe server error: {ex.Message}");
-                    AppendLog($"Named pipe server error: {ex.Message}");
-                    // Wait briefly before retrying to avoid tight loop on repeated failures
-                    await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
+                    catch (OperationCanceledException)
+                    {
+                        // Expected when shutting down
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Named pipe server error: {ex.Message}");
+                        AppendLog($"Named pipe server error: {ex.Message}");
+                        // Wait briefly before retrying to avoid tight loop on repeated failures
+                        await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
+                    }
                 }
             }, _pipeServerCts.Token);
         }
