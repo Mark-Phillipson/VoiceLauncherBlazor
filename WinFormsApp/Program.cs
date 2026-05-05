@@ -1,5 +1,6 @@
 using System.Runtime.Versioning;
 using System.Threading;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Linq;
@@ -61,25 +62,83 @@ namespace WinFormsApp
 				// Then, send launch arguments via named pipe (if any args provided)
 				if (args.Length > 0)
 				{
-					try
+					// Normalize arguments: trim whitespace, strip surrounding quotes and leading slashes
+					var normalized = args.Select(a => (a ?? string.Empty)
+						.Trim()
+						.Trim('"')
+						.Trim('\'')
+						.TrimStart('/')
+						.Trim())
+						.ToArray();
+					string argsMessage = string.Join("|", normalized);
+
+					// Retry connecting because the first instance may not have started
+					// its pipe server yet (StartNamedPipeServer is called in OnLoad).
+					const int maxAttempts = 5;
+					const int retryDelayMs = 1000;
+					bool sent = false;
+					for (int attempt = 1; attempt <= maxAttempts && !sent; attempt++)
 					{
-						using var client = new NamedPipeClientStream(
-							".",
-							"VoiceLauncherBlazor_LaunchArgs",
-							PipeDirection.Out);
-						
-						client.Connect(1000); // 1 second timeout
-						
-						using var writer = new StreamWriter(client, Encoding.UTF8);
-						// Send all arguments joined as a single message
-						string argsMessage = string.Join("|", args);
-						writer.WriteLine(argsMessage);
-						writer.Flush();
+						try
+						{
+							using var client = new NamedPipeClientStream(
+								".",
+								"VoiceLauncherBlazor_LaunchArgs",
+								PipeDirection.Out);
+
+							client.Connect(1000); // 1 second timeout per attempt
+
+							using var writer = new StreamWriter(client, Encoding.UTF8);
+							Debug.WriteLine($"Sending normalized args via pipe (attempt {attempt}): '{argsMessage}'");
+							writer.WriteLine(argsMessage);
+							writer.Flush();
+							sent = true;
+
+							// Wait for Index to process the IPC and write an ACK into ipc.log
+							try
+							{
+								int ackTimeoutMs = 8000;
+								var ackDeadline = DateTime.Now.AddMilliseconds(ackTimeoutMs);
+								var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+								bool ackFound = false;
+								Debug.WriteLine($"Waiting up to {ackTimeoutMs}ms for Index.HandledIPC ack (searching for '{argsMessage}')");
+								while (DateTime.Now < ackDeadline)
+								{
+									try
+									{
+										if (File.Exists(logPath))
+										{
+											var content = File.ReadAllText(logPath);
+											if (content.Contains("Index.HandledIPC") && content.Contains(argsMessage))
+											{
+												Debug.WriteLine($"Received Index.HandledIPC ack for args: '{argsMessage}'");
+												ackFound = true;
+												break;
+											}
+										}
+									}
+									catch { }
+									Thread.Sleep(200);
+								}
+								if (!ackFound)
+								{
+									Debug.WriteLine("Did not receive Index.HandledIPC ack within timeout.");
+								}
+							}
+							catch (Exception ex)
+							{
+								Debug.WriteLine($"Error while waiting for IPC ACK: {ex.Message}");
+							}
+						}
+						catch (Exception ex)
+						{
+							Debug.WriteLine($"IPC connect attempt {attempt}/{maxAttempts} failed: {ex.Message}");
+							if (attempt < maxAttempts)
+								Thread.Sleep(retryDelayMs);
+						}
 					}
-					catch (Exception ex)
-					{
-						Debug.WriteLine($"Failed to send args to running instance: {ex.Message}");
-					}
+					if (!sent)
+						Debug.WriteLine("Failed to send args to running instance after all retry attempts.");
 				}
 			}
 			catch { }

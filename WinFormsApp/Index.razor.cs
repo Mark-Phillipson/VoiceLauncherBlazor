@@ -1,4 +1,6 @@
 using DataAccessLibrary.Services;
+using DataAccessLibrary.Models;
+using System.IO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.ComponentModel;
@@ -60,6 +62,14 @@ namespace WinFormsApp
 				{
 					MainForm.LaunchArgumentsReceived += OnLaunchArgumentsReceived;
 					System.Diagnostics.Debug.WriteLine("Subscribed to LaunchArgumentsReceived event");
+					// Also write a persistent trace so external tests can detect subscription
+					try
+					{
+						var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+						Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+						File.AppendAllText(logPath, $"{DateTime.Now:O} Index.SubscribedToLaunchArguments{Environment.NewLine}");
+					}
+					catch { }
 				}
 			}
 			catch (Exception ex)
@@ -77,44 +87,153 @@ namespace WinFormsApp
 		if (string.IsNullOrEmpty(e.Arguments))
 			return;
 
-		// Parse arguments separated by |
-		var parts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+		// Parse and normalize arguments separated by |
+		var rawParts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+		var parts = rawParts
+			.Select(p => (p ?? string.Empty)
+				.Trim()
+				.Trim('"')
+				.Trim('\'')
+				.TrimStart('/')
+				.Trim())
+			.Where(p => !string.IsNullOrEmpty(p))
+			.ToArray();
+
 		var parsedArgs = new List<string> { Environment.GetCommandLineArgs()[0] };
 		parsedArgs.AddRange(parts);
 
 		// Process like command-line arguments
 		arguments = parsedArgs.ToArray();
-
-		System.Diagnostics.Debug.WriteLine($"Parsed {arguments.Length} arguments from IPC");
-		for (int i = 0; i < arguments.Length; i++)
+		try
 		{
-			System.Diagnostics.Debug.WriteLine($"Argument {i}: '{arguments[i]}'");
-		}
+			// Write a persistent trace to the ipc log for easier diagnosis
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ParsedIPC: {string.Join('|', arguments)}{Environment.NewLine}");
+			}
+			catch { }
+
+			System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
+			for (int i = 0; i < arguments.Length; i++)
+			{
+				System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
+			}
 
 		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
-		if (arguments.Length >= 3 && arguments[1].Contains("Launcher"))
+		if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
 		{
-			string categoryName = arguments[2].Replace("/", "").Trim();
-			System.Diagnostics.Debug.WriteLine($"Handling Launcher with category: {categoryName}");
+			// Tokens after the 'Launcher' token (may be split into multiple args)
+			var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+			System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
 
-			var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-			if (category != null)
+			int matchedCount = 0;
+			Category? matchedCategory = null;
+			// Try longest-prefix matching of tokens to find a category
+			for (int len = tokens.Length; len >= 1; len--)
 			{
-						categoryId = category.Id;
-						// Save as last known launcher category
-						lastLauncherCategoryId = categoryId;
-				SetTitle($"Launch from category: {categoryName}");
-				// Ensure only the launcher view is active
+				var candidate = string.Join(" ", tokens.Take(len)).Trim();
+				try
+				{
+					matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+				}
+				catch { matchedCategory = null; }
+				if (matchedCategory != null)
+				{
+					matchedCount = len;
+					System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
+					break;
+				}
+			}
+
+			if (matchedCategory != null)
+			{
+				categoryId = matchedCategory.Id;
+				lastLauncherCategoryId = categoryId;
+				SetTitle($"Launch from category: {matchedCategory.CategoryName}");
 				launcher = true;
 				languageAndCategoryListing = false;
 				showTalonSearch = false;
 				showAIChat = false;
-				StateHasChanged();
+				await InvokeAsync(StateHasChanged);
+
+				// Persist the view change so tests can verify the visible view
+				try
+				{
+					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
+				}
+				catch { }
 			}
 			else
 			{
-				System.Diagnostics.Debug.WriteLine($"Category not found: {categoryName}");
+				System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
+				return;
 			}
+		}
+
+			// Handle Talon / search invocation (e.g., Talon|launch code projects)
+			    else if (arguments.Length >= 2 &&
+				    (arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
+				     arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+			{
+				System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
+				// Enable Talon search exclusively
+				showTalonSearch = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
+				SetTitle("Talon Voice Command Search");
+				// If additional args present, use them as the search term
+				if (arguments.Length >= 3)
+				{
+					searchTerm = string.Join(" ", arguments.Skip(2));
+					searchTerm = searchTerm.Replace("/", "").Trim();
+					System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
+					// Normalize arguments for downstream components
+					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
+					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
+				}
+				await InvokeAsync(StateHasChanged);
+			}
+
+			// Handle SearchIntelliSense invocation (language + category)
+			else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				SetTitle("Search Snippets");
+				string languageName = "";
+				string categoryName = "";
+				languageName = arguments[2].Replace("/", "").Trim();
+				categoryName = arguments[3].Replace("/", "").Trim();
+				var language = await LanguageService.GetLanguageAsync(languageName);
+				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+				if (language != null && category != null)
+				{
+					languageId = language.Id;
+					categoryId = category.Id;
+					// initialize last-snippet values from launch args
+					lastSnippetLanguageId = languageId;
+					lastSnippetCategoryId = categoryId;
+				}
+				// Enable Snippets listing exclusively
+				languageAndCategoryListing = true;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				await InvokeAsync(StateHasChanged);
+			}
+		}
+		finally
+		{
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.HandledIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
+			}
+			catch { }
 		}
 	}
 	
@@ -265,27 +384,78 @@ namespace WinFormsApp
 				showTalonSearch = false;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
-			else if (arguments.Length == 3 && arguments[1].Contains("Launcher"))
+			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
 			{
-				categoryName = arguments[2].Replace("/", "");
-				var category = await CategoryService.GetCategoryAsync(categoryName, "Launch Applications");
-				if (category != null)
+				// Cold-start can arrive as either:
+				//   Launcher|Access Projects
+				// or split words:
+				//   Launcher|access|projects|...
+				var tokens = arguments.Skip(2)
+					.Select(a => (a ?? string.Empty).Replace("/", "").Trim())
+					.Where(s => !string.IsNullOrEmpty(s))
+					.ToArray();
+
+				Category? matchedCategory = null;
+				for (int len = tokens.Length; len >= 1; len--)
 				{
-					categoryId = category.Id;
-					lastLauncherCategoryId = categoryId;
+					var candidate = string.Join(" ", tokens.Take(len)).Trim();
+					try
+					{
+						matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+					}
+					catch
+					{
+						matchedCategory = null;
+					}
+
+					if (matchedCategory != null)
+					{
+						categoryName = matchedCategory.CategoryName;
+						break;
+					}
 				}
-				SetTitle($"Launch from category: {categoryName}");
-					// Enable launcher view exclusively
-					launcher = true;
-					languageAndCategoryListing = false;
-					showAIChat = false;
-					showTalonSearch = false;
+
+				if (matchedCategory != null)
+				{
+					categoryId = matchedCategory.Id;
+					lastLauncherCategoryId = categoryId;
+					SetTitle($"Launch from category: {matchedCategory.CategoryName}");
+				}
+				else
+				{
+					// Keep launcher mode even when category lookup fails.
+					SetTitle("Launch Applications");
+				}
+
+				// Enable launcher view exclusively
+				launcher = true;
+				languageAndCategoryListing = false;
+				showAIChat = false;
+				showTalonSearch = false;
+
+				// Persist the view change so external tests can detect the visible view at startup
+				try
+				{
+					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
+				}
+				catch { }
 			}
 			else if (arguments.Length == 3)
 			{
 				searchTerm = arguments[2].Replace("/", "");
 				SetTitle("Filtering Snippets by Display Value");
 			}
+
+			// Persist a startup-parsed args trace so external tests can detect cold-start args processing
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.StartupParsedIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
+			}
+			catch { }
 		}
 		private async void CloseWindow()
 		{

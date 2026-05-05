@@ -16,6 +16,7 @@ using SampleApplication.Services;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Web.WebView2.Core;
@@ -55,6 +56,15 @@ namespace WinFormsApp
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_SHOWWINDOW = 0x0040;
 
         [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
         private static extern bool DestroyIcon(IntPtr hIcon);
@@ -544,15 +554,18 @@ namespace WinFormsApp
         {
             try
             {
+                AppendLog($"ShowMainForm: start Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
                 this.BringToFront();
                 this.Activate();
                 ForceBringToFront();
+                AppendLog($"ShowMainForm: done Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"ShowMainForm error: {ex.Message}");
+                AppendLog($"ShowMainForm error: {ex.Message}");
             }
         }
 
@@ -561,23 +574,30 @@ namespace WinFormsApp
             try
             {
                 var hWnd = this.Handle;
+                AppendLog($"ForceBringToFront: start hWnd={hWnd}");
                 if (hWnd == IntPtr.Zero)
+                {
+                    AppendLog("ForceBringToFront: handle is zero, aborting");
                     return;
+                }
 
                 IntPtr foreground = GetForegroundWindow();
+                AppendLog($"ForceBringToFront: foreground={foreground}");
                 if (foreground == IntPtr.Zero)
                 {
                     // no foreground window, try simple set
+                    AppendLog("ForceBringToFront: no foreground window, calling SetForegroundWindow");
                     SetForegroundWindow(hWnd);
                     return;
                 }
 
                 uint foregroundThread = GetWindowThreadProcessId(foreground, out _);
                 uint currentThread = GetCurrentThreadId();
-
+                AppendLog($"ForceBringToFront: foregroundThread={foregroundThread} currentThread={currentThread}");
                 // Attach threads to allow setting foreground
                 if (AttachThreadInput(currentThread, foregroundThread, true))
                 {
+                    AppendLog("ForceBringToFront: AttachThreadInput succeeded");
                     ShowWindow(hWnd, SW_RESTORE);
                     BringWindowToTop(hWnd);
                     SetActiveWindow(hWnd);
@@ -586,14 +606,47 @@ namespace WinFormsApp
                 }
                 else
                 {
-                    // Fallback
-                    ShowWindow(hWnd, SW_RESTORE);
-                    SetForegroundWindow(hWnd);
+                    // Improved fallback: try multiple strategies to force the window to front
+                    AppendLog("ForceBringToFront: AttachThreadInput failed, using improved fallback");
+                    const int maxRetries = 3;
+                    const int retryDelayMs = 60;
+                    for (int attempt = 1; attempt <= maxRetries; attempt++)
+                    {
+                        AppendLog($"ForceBringToFront: fallback attempt {attempt}");
+                        try
+                        {
+                            ShowWindow(hWnd, SW_RESTORE);
+                        }
+                        catch { }
+
+                        // Temporarily make topmost, then remove topmost to change Z-order
+                        try
+                        {
+                            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                            SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                        }
+                        catch { }
+
+                        try { BringWindowToTop(hWnd); } catch { }
+                        try { SetActiveWindow(hWnd); } catch { }
+                        try { SetForegroundWindow(hWnd); } catch { }
+
+                        Thread.Sleep(retryDelayMs);
+
+                        var nowFg = GetForegroundWindow();
+                        if (nowFg == hWnd)
+                        {
+                            AppendLog("ForceBringToFront: success on fallback");
+                            break;
+                        }
+                    }
                 }
+                AppendLog("ForceBringToFront: end");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"ForceBringToFront failed: {ex.Message}");
+                AppendLog($"ForceBringToFront failed: {ex.Message}");
                 // best-effort fallback
                 try { SetForegroundWindow(this.Handle); } catch { }
             }
@@ -661,9 +714,9 @@ namespace WinFormsApp
         {
             _ = Task.Run(async () =>
             {
-                try
+                while (!_pipeServerCts.Token.IsCancellationRequested)
                 {
-                    while (!_pipeServerCts.Token.IsCancellationRequested)
+                    try
                     {
                         using var server = new NamedPipeServerStream(
                             "VoiceLauncherBlazor_LaunchArgs",
@@ -682,41 +735,52 @@ namespace WinFormsApp
                             AppendLog($"Received launch args from pipe: {message}");
                             // store the last args so balloon clicks can re-use them
                             _lastLaunchArgs = message;
-                            try
-                            {
-                                ShowTrayNotification("VoiceLauncher", message);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"ShowTrayNotification error: {ex.Message}");
-                                AppendLog($"ShowTrayNotification error: {ex.Message}");
-                            }
 
                             Invoke(() =>
                             {
-                                ShowMainForm();
+                                    try
+                                    {
+                                        AppendLog($"IPC: pre-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
+                                    }
+                                    catch { }
 
-                                // Raise event so Index component can handle the category
-                                LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
+                                    try
+                                    {
+                                        ShowMainForm();
+                                        AppendLog($"IPC: post-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine($"ShowMainForm invocation error: {ex.Message}");
+                                        AppendLog($"ShowMainForm invocation error: {ex.Message}");
+                                    }
+
+                                    // Raise event so Index component can handle the category
+                                    try
+                                    {
+                                        LaunchArgumentsReceived?.Invoke(this, new LaunchArgumentsEventArgs { Arguments = message });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine($"LaunchArgumentsReceived invocation error: {ex.Message}");
+                                        AppendLog($"LaunchArgumentsReceived invocation error: {ex.Message}");
+                                    }
                             });
                         }
                     }
-                }
-                catch (OperationCanceledException)
-                {
-                    // Expected when shutting down
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Named pipe server error: {ex.Message}");
-                    AppendLog($"Named pipe server error: {ex.Message}");
-                    try
+                    catch (OperationCanceledException)
                     {
-                        ShowTrayNotification("VoiceLauncher IPC error", ex.Message);
+                        // Expected when shutting down
+                        Debug.WriteLine("Named pipe server shutting down (cancellation requested).");
+                        break;
                     }
-                    catch { }
-                    // Wait briefly before retrying to avoid tight loop on repeated failures
-                    await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Named pipe server error: {ex.Message}");
+                        AppendLog($"Named pipe server error: {ex.Message}");
+                        // Wait briefly before retrying to avoid tight loop on repeated failures
+                        await Task.Delay(500, _pipeServerCts.Token).ContinueWith(_ => { });
+                    }
                 }
             }, _pipeServerCts.Token);
         }
