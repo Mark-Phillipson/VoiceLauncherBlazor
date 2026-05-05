@@ -71,10 +71,18 @@ namespace WinFormsApp
 						client.Connect(1000); // 1 second timeout
 						
 						using var writer = new StreamWriter(client, Encoding.UTF8);
-						// Send all arguments joined as a single message
-						string argsMessage = string.Join("|", args);
-						writer.WriteLine(argsMessage);
-						writer.Flush();
+							// Normalize arguments: trim whitespace, strip surrounding quotes and leading slashes
+							var normalized = args.Select(a => (a ?? string.Empty)
+								.Trim()
+								.Trim('"')
+								.Trim('\'')
+								.TrimStart('/')
+								.Trim())
+								.ToArray();
+							string argsMessage = string.Join("|", normalized);
+							Debug.WriteLine($"Sending normalized args via pipe: '{argsMessage}'");
+							writer.WriteLine(argsMessage);
+							writer.Flush();
 					}
 					catch (Exception ex)
 					{

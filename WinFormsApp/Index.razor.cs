@@ -77,18 +77,28 @@ namespace WinFormsApp
 		if (string.IsNullOrEmpty(e.Arguments))
 			return;
 
-		// Parse arguments separated by |
-		var parts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+		// Parse and normalize arguments separated by |
+		var rawParts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+		var parts = rawParts
+			.Select(p => (p ?? string.Empty)
+				.Trim()
+				.Trim('"')
+				.Trim('\'')
+				.TrimStart('/')
+				.Trim())
+			.Where(p => !string.IsNullOrEmpty(p))
+			.ToArray();
+
 		var parsedArgs = new List<string> { Environment.GetCommandLineArgs()[0] };
 		parsedArgs.AddRange(parts);
 
 		// Process like command-line arguments
 		arguments = parsedArgs.ToArray();
 
-		System.Diagnostics.Debug.WriteLine($"Parsed {arguments.Length} arguments from IPC");
+		System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
 		for (int i = 0; i < arguments.Length; i++)
 		{
-			System.Diagnostics.Debug.WriteLine($"Argument {i}: '{arguments[i]}'");
+			System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
 		}
 
 		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
