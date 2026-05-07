@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using Blazored.Modal;
 using Blazored.Modal.Services;
 using RazorClassLibrary.Pages;
 
 namespace WinFormsApp
 {
-	public partial class Index : ComponentBase
+	public partial class Index : ComponentBase, IDisposable
 	{
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required LanguageService LanguageService { get; set; }
 		[Inject][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public required CategoryService CategoryService { get; set; }
@@ -37,6 +38,9 @@ namespace WinFormsApp
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
 		private bool eventSubscribed = false;
+		// Serialize view-toggle/IPC handling to avoid rapid teardown/rebuild races
+		private readonly SemaphoreSlim _viewToggleLock = new(1, 1);
+		private bool _disposed = false;
 	private string AIChatButtonCaption => showAIChat ? 
 		(arguments != null && arguments.Length > 1 && 
 		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
