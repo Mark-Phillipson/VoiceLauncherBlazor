@@ -477,6 +477,7 @@ namespace RazorClassLibrary.Pages
       private int shortcutValue = 0;
       private CancellationTokenSource? _searchCancellation;
       private bool _isLoading = false;
+      private bool _disposed = false;
       private Task? _prefetchTask;
       private const int SEARCH_DEBOUNCE_MS = 300;
       protected override async Task OnInitializedAsync()
@@ -562,10 +563,10 @@ namespace RazorClassLibrary.Pages
             }
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-      {
-         if (firstRender)
+            protected override async Task OnAfterRenderAsync(bool firstRender)
          {
+             if (firstRender && !_disposed)
+             {
             try
             {
                if (JSRuntime != null)
@@ -638,7 +639,7 @@ namespace RazorClassLibrary.Pages
                    )
                    .ToList();
                FilteredCustomIntelliSenseDTO = filtered;
-               StateHasChanged();
+               await SafeStateHasChangedAsync();
                return;
             }
 
@@ -824,7 +825,7 @@ namespace RazorClassLibrary.Pages
          try
          {
             _isLoading = true;
-            StateHasChanged();
+            await SafeStateHasChangedAsync();
 
             if (CustomIntelliSenseDataService != null)
             {
@@ -925,7 +926,7 @@ namespace RazorClassLibrary.Pages
          finally
          {
             _isLoading = false;
-            StateHasChanged();
+            await SafeStateHasChangedAsync();
          }
       }
 
@@ -948,7 +949,7 @@ namespace RazorClassLibrary.Pages
          pageNumber++;
          searchTerm = null; // Reset search when changing pages
          await LoadData();
-         StateHasChanged();
+         await SafeStateHasChangedAsync();
       }
 
       private async Task PreviousPageAsync()
@@ -962,13 +963,22 @@ namespace RazorClassLibrary.Pages
 
          searchTerm = null; // Reset search when changing pages
          await LoadData();
-         StateHasChanged();
+         await SafeStateHasChangedAsync();
+      }
+
+      private Task SafeStateHasChangedAsync()
+      {
+         if (_disposed)
+            return Task.CompletedTask;
+         return InvokeAsync(StateHasChanged);
       }
 
       public void Dispose()
       {
-         _searchCancellation?.Cancel();
-         _searchCancellation?.Dispose();
+         if (_disposed) return;
+         _disposed = true;
+         try { _searchCancellation?.Cancel(); } catch { }
+         try { _searchCancellation?.Dispose(); } catch { }
       }
    }
 }

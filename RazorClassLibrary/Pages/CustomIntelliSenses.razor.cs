@@ -15,7 +15,7 @@ using WindowsInput.Native;
 
 namespace RazorClassLibrary.Pages
 {
-	public partial class CustomIntelliSenses : ComponentBase
+	public partial class CustomIntelliSenses : ComponentBase, IDisposable
 	{
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
@@ -50,6 +50,7 @@ namespace RazorClassLibrary.Pages
 		public List<Language>? Languages { get; set; }
 		public List<DataAccessLibrary.Models.GeneralLookup>? GeneralLookups { get; set; }
 		private bool _showTiles = true;
+		private bool _disposed = false;
 		private bool _showOnlyLanguageAndCategory = false;
 		public int MaximumRows { get; set; } = 2000;
 #pragma warning disable 414
@@ -106,7 +107,7 @@ namespace RazorClassLibrary.Pages
 		}
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			if (firstRender && JSRuntime != null)
+			if (firstRender && !_disposed && JSRuntime != null)
 			{
 				try
 				{
@@ -120,6 +121,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task RemoveFilter()
 		{
+			if (_disposed) return;
 			// Clear all filters
 			CategoryIdFilter = null;
 			LanguageIdFilter = null;
@@ -135,7 +137,8 @@ namespace RazorClassLibrary.Pages
 			// Refocus the search input
 			try
 			{
-				await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+				if (!_disposed)
+					await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
 			}
 			catch { }
 		}
@@ -194,6 +197,7 @@ namespace RazorClassLibrary.Pages
 		// 
 		async Task ApplyFilter()
 		{
+			if (_disposed) return;
 			if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(_languageFilter) || !string.IsNullOrWhiteSpace(_categoryFilter))
 			{
 				try
@@ -207,7 +211,7 @@ namespace RazorClassLibrary.Pages
 				}
 				await PopulateFilters();
 				Title = $"Snippets ({intellisenses?.Count})";
-				StateHasChanged();
+				await SafeStateHasChangedAsync();
 			}
 		}
 		async Task PopulateFilters()
@@ -377,6 +381,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
+			if (_disposed) return;
 			if (JSRuntime != null)
 			{
 				await JSRuntime.InvokeVoidAsync("CallChange", elementId);
@@ -421,6 +426,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task CopyItemAsync(string itemToCopy, int customIntellisenseId)
 		{
+			if (_disposed) return;
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 			if (customIntelliSenseCurrent != null)
 			{
@@ -436,6 +442,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
+			if (_disposed) return;
 			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
 			if (customIntelliSenseCurrent != null)
 			{
@@ -511,6 +518,18 @@ namespace RazorClassLibrary.Pages
 			}
 
 			return itemToCopy;
+		}
+
+		private Task SafeStateHasChangedAsync()
+		{
+			if (_disposed)
+				return Task.CompletedTask;
+			return InvokeAsync(StateHasChanged);
+		}
+
+		public void Dispose()
+		{
+			_disposed = true;
 		}
 	}
 }

@@ -20,7 +20,7 @@ using System.Text.Json;
 
 namespace RazorClassLibrary.Pages
 {
-	public partial class LauncherTable : ComponentBase
+	public partial class LauncherTable : ComponentBase, IDisposable
 	{
 		[Inject] public ILauncherDataService? LauncherDataService { get; set; }
 		[Inject] public ICategoryDataService? CategoryDataService { get; set; }
@@ -49,6 +49,7 @@ namespace RazorClassLibrary.Pages
 		private string? searchTerm = null;
 		private string? _randomColor1;
 		string Message = "";
+        private bool _disposed = false;
 #pragma warning restore 414, 649
 		public string? SearchTerm {
 			get => searchTerm;
@@ -107,7 +108,7 @@ namespace RazorClassLibrary.Pages
 				LauncherDTO = new List<LauncherDTO>();
 				FilteredLauncherDTO = new List<LauncherDTO>();
 				Title = "No launchers to display (no filter applied)";
-				StateHasChanged();
+				await SafeStateHasChangedAsync();
 				return;
 			}
 
@@ -189,25 +190,25 @@ namespace RazorClassLibrary.Pages
 			{
 				Title = $"Filtered Launchers ({FilteredLauncherDTO.Count})";
 			}
-			StateHasChanged();
+			await SafeStateHasChangedAsync();
 		}
-		protected override async Task OnAfterRenderAsync(bool firstRender)
-		{
-			if (firstRender)
+			protected override async Task OnAfterRenderAsync(bool firstRender)
 			{
-				try
+				if (firstRender && !_disposed)
 				{
-					if (JSRuntime != null)
+					try
 					{
-						await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+						if (JSRuntime != null)
+						{
+							await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+						}
+					}
+					catch (Exception exception)
+					{
+						Console.WriteLine(exception.Message);
 					}
 				}
-				catch (Exception exception)
-				{
-					Console.WriteLine(exception.Message);
-				}
 			}
-		}
 		void AddNewLauncherAsync()
 		{
 			if (NavigationManager != null)
@@ -427,14 +428,25 @@ namespace RazorClassLibrary.Pages
             ApplyFilter();
 
             // Set focus back to search input
-            try
-            {
-                if (JSRuntime != null)
-                {
-                    await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
-                }
-            }
-            catch { }
+			try
+			{
+				if (!_disposed && JSRuntime != null)
+				{
+					await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+				}
+			}
+			catch { }
         }
+
+		private Task SafeStateHasChangedAsync()
+		{
+			if (_disposed) return Task.CompletedTask;
+			return InvokeAsync(StateHasChanged);
+		}
+
+		public void Dispose()
+		{
+			_disposed = true;
+		}
 	}
 }
