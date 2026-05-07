@@ -6,6 +6,7 @@ using Microsoft.JSInterop;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Blazored.Modal;
 using Blazored.Modal.Services;
 using RazorClassLibrary.Pages;
@@ -41,6 +42,9 @@ namespace WinFormsApp
 		// Serialize view-toggle/IPC handling to avoid rapid teardown/rebuild races
 		private readonly SemaphoreSlim _viewToggleLock = new(1, 1);
 		private bool _disposed = false;
+		// IPC debounce state to coalesce rapid incoming messages
+		private DateTime _lastIpcHandled = DateTime.MinValue;
+		private readonly TimeSpan _ipcDebounceWindow = TimeSpan.FromMilliseconds(150);
 	private string AIChatButtonCaption => showAIChat ? 
 		(arguments != null && arguments.Length > 1 && 
 		 ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) || 
@@ -86,158 +90,178 @@ namespace WinFormsApp
 
 	private async void OnLaunchArgumentsReceived(object? sender, LaunchArgumentsEventArgs e)
 	{
+		if (_disposed) return;
 		System.Diagnostics.Debug.WriteLine($"LaunchArgumentsReceived event fired with: {e.Arguments}");
 
 		if (string.IsNullOrEmpty(e.Arguments))
+		{
+			AppendIpcLog("Index.Received empty IPC - ignoring");
 			return;
-
-		// Parse and normalize arguments separated by |
-		var rawParts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
-		var parts = rawParts
-			.Select(p => (p ?? string.Empty)
-				.Trim()
-				.Trim('"')
-				.Trim('\'')
-				.TrimStart('/')
-				.Trim())
-			.Where(p => !string.IsNullOrEmpty(p))
-			.ToArray();
-
-		var parsedArgs = new List<string> { Environment.GetCommandLineArgs()[0] };
-		parsedArgs.AddRange(parts);
-
-		// Process like command-line arguments
-		arguments = parsedArgs.ToArray();
-		try
-		{
-			// Write a persistent trace to the ipc log for easier diagnosis
-			try
-			{
-				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ParsedIPC: {string.Join('|', arguments)}{Environment.NewLine}");
-			}
-			catch { }
-
-			System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
-			for (int i = 0; i < arguments.Length; i++)
-			{
-				System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
-			}
-
-		// Handle Launcher category launch (e.g., /Launcher /Code Projects)
-		if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
-		{
-			// Tokens after the 'Launcher' token (may be split into multiple args)
-			var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
-			System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
-
-			int matchedCount = 0;
-			Category? matchedCategory = null;
-			// Try longest-prefix matching of tokens to find a category
-			for (int len = tokens.Length; len >= 1; len--)
-			{
-				var candidate = string.Join(" ", tokens.Take(len)).Trim();
-				try
-				{
-					matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
-				}
-				catch { matchedCategory = null; }
-				if (matchedCategory != null)
-				{
-					matchedCount = len;
-					System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
-					break;
-				}
-			}
-
-			if (matchedCategory != null)
-			{
-				categoryId = matchedCategory.Id;
-				lastLauncherCategoryId = categoryId;
-				SetTitle($"Launch from category: {matchedCategory.CategoryName}");
-				launcher = true;
-				languageAndCategoryListing = false;
-				showTalonSearch = false;
-				showAIChat = false;
-				await InvokeAsync(StateHasChanged);
-
-				// Persist the view change so tests can verify the visible view
-				try
-				{
-					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
-				}
-				catch { }
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
-				return;
-			}
 		}
 
-			// Handle Talon / search invocation (e.g., Talon|launch code projects)
-			    else if (arguments.Length >= 2 &&
-				    (arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
-				     arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+		await _viewToggleLock.WaitAsync();
+		try
+		{
+			if (_disposed) return;
+			var now = DateTime.UtcNow;
+			var elapsed = now - _lastIpcHandled;
+			if (elapsed < _ipcDebounceWindow)
 			{
-				System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
-				// Enable Talon search exclusively
-				showTalonSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
-				SetTitle("Talon Voice Command Search");
-				// If additional args present, use them as the search term
-				if (arguments.Length >= 3)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(2));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
-					// Normalize arguments for downstream components
-					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
-				}
-				await InvokeAsync(StateHasChanged);
+				var wait = _ipcDebounceWindow - elapsed;
+				AppendIpcLog($"Index.IPC.Debounce: waiting {wait.TotalMilliseconds}ms");
+				await Task.Delay(wait);
 			}
 
-			// Handle SearchIntelliSense invocation (language + category)
-			else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
+			AppendIpcLog($"Index.IPC.Start: {e.Arguments}");
+
+			// Parse and normalize arguments separated by |
+			var rawParts = e.Arguments.Split('|', StringSplitOptions.RemoveEmptyEntries);
+			var parts = rawParts
+				.Select(p => (p ?? string.Empty)
+						.Trim()
+						.Trim('"')
+						.Trim('\'')
+						.TrimStart('/')
+						.Trim())
+				.Where(p => !string.IsNullOrEmpty(p))
+				.ToArray();
+
+			var parsedArgs = new List<string> { Environment.GetCommandLineArgs()[0] };
+			parsedArgs.AddRange(parts);
+
+			// Process like command-line arguments
+			arguments = parsedArgs.ToArray();
+			try
 			{
-				SetTitle("Search Snippets");
-				string languageName = "";
-				string categoryName = "";
-				languageName = arguments[2].Replace("/", "").Trim();
-				categoryName = arguments[3].Replace("/", "").Trim();
-				var language = await LanguageService.GetLanguageAsync(languageName);
-				var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
-				if (language != null && category != null)
+				// Write a persistent trace to the ipc log for easier diagnosis
+				try
 				{
-					languageId = language.Id;
-					categoryId = category.Id;
-					// initialize last-snippet values from launch args
-					lastSnippetLanguageId = languageId;
-					lastSnippetCategoryId = categoryId;
+					AppendIpcLog($"Index.ParsedIPC: {string.Join('|', arguments)}");
 				}
-				// Enable Snippets listing exclusively
-				languageAndCategoryListing = true;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
-				await InvokeAsync(StateHasChanged);
+				catch { }
+
+				System.Diagnostics.Debug.WriteLine($"IPC parsed {arguments.Length} arguments:");
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
+				}
+
+				// Handle Launcher category launch (e.g., /Launcher /Code Projects)
+				if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					// Tokens after the 'Launcher' token (may be split into multiple args)
+					var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+					System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
+
+					int matchedCount = 0;
+					Category? matchedCategory = null;
+					// Try longest-prefix matching of tokens to find a category
+					for (int len = tokens.Length; len >= 1; len--)
+					{
+						var candidate = string.Join(" ", tokens.Take(len)).Trim();
+						try
+						{
+							matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+						}
+						catch { matchedCategory = null; }
+						if (matchedCategory != null)
+						{
+							matchedCount = len;
+							System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
+							break;
+						}
+					}
+
+					if (matchedCategory != null)
+					{
+						categoryId = matchedCategory.Id;
+						lastLauncherCategoryId = categoryId;
+						SetTitle($"Launch from category: {matchedCategory.CategoryName}");
+						launcher = true;
+						languageAndCategoryListing = false;
+						showTalonSearch = false;
+						showAIChat = false;
+						await InvokeAsync(StateHasChanged);
+
+						// Persist the view change so tests can verify the visible view
+						try
+						{
+							AppendIpcLog("Index.ViewChanged: Launcher");
+						}
+						catch { }
+					}
+					else
+					{
+						System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
+						return;
+					}
+				}
+
+				// Handle Talon / search invocation (e.g., Talon|launch code projects)
+					    else if (arguments.Length >= 2 &&
+					    (arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
+					     arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+				{
+					System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
+					// Enable Talon search exclusively
+					showTalonSearch = true;
+					languageAndCategoryListing = false;
+					launcher = false;
+					showAIChat = false;
+					SetTitle("Talon Voice Command Search");
+					// If additional args present, use them as the search term
+					if (arguments.Length >= 3)
+					{
+						searchTerm = string.Join(" ", arguments.Skip(2));
+						searchTerm = searchTerm.Replace("/", "").Trim();
+						System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
+						// Normalize arguments for downstream components
+						var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
+						arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
+					}
+					await InvokeAsync(StateHasChanged);
+				}
+
+				// Handle SearchIntelliSense invocation (language + category)
+				else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					SetTitle("Search Snippets");
+					string languageName = "";
+					string categoryName = "";
+					languageName = arguments[2].Replace("/", "").Trim();
+					categoryName = arguments[3].Replace("/", "").Trim();
+					var language = await LanguageService.GetLanguageAsync(languageName);
+					var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+					if (language != null && category != null)
+					{
+						languageId = language.Id;
+						categoryId = category.Id;
+						// initialize last-snippet values from launch args
+						lastSnippetLanguageId = languageId;
+						lastSnippetCategoryId = categoryId;
+					}
+					// Enable Snippets listing exclusively
+					languageAndCategoryListing = true;
+					launcher = false;
+					showAIChat = false;
+					showTalonSearch = false;
+					await InvokeAsync(StateHasChanged);
+				}
+			}
+			finally
+			{
+				try
+				{
+					AppendIpcLog($"Index.HandledIPC: {string.Join('|', arguments ?? new string[0])}");
+				}
+				catch { }
 			}
 		}
 		finally
 		{
-			try
-			{
-				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.HandledIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
-			}
-			catch { }
+			_lastIpcHandled = DateTime.UtcNow;
+			AppendIpcLog($"Index.IPC.End: {e.Arguments}");
+			try { _viewToggleLock.Release(); } catch { }
 		}
 	}
 	
@@ -458,6 +482,17 @@ namespace WinFormsApp
 				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
 				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
 				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.StartupParsedIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
+			}
+			catch { }
+		}
+
+		private void AppendIpcLog(string text)
+		{
+			try
+			{
+				var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
+				Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+				File.AppendAllText(logPath, $"{DateTime.Now:O} {text}{Environment.NewLine}");
 			}
 			catch { }
 		}
