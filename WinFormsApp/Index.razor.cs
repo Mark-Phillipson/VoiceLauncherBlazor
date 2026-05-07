@@ -727,5 +727,29 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MinimizeWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback RestoreWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
+
+		public void Dispose()
+		{
+			if (_disposed) return;
+			_disposed = true;
+			try
+			{
+				if (OperatingSystem.IsWindows())
+				{
+					try
+					{
+						MainForm.LaunchArgumentsReceived -= OnLaunchArgumentsReceived;
+						System.Diagnostics.Debug.WriteLine("Unsubscribed from LaunchArgumentsReceived event in Dispose");
+					}
+					catch (Exception ex)
+					{
+						System.Diagnostics.Debug.WriteLine($"Error unsubscribing in Dispose: {ex.Message}");
+					}
+				}
+			}
+			catch { }
+
+			try { _viewToggleLock?.Dispose(); } catch { }
+		}
 	}
 }
