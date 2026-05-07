@@ -28,8 +28,7 @@
 			<button  class="btn btn-sm btn-outline-secondary" @onclick="SwitchToSnippetsFromChild">Snippets</button>
 			<button  class="btn btn-sm btn-outline-secondary ms-2" @onclick="SwitchToLauncherFromChild"> Launcher</button>
 		}
-		<button class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())">Talon
-			@TalonSearchButtonCaption</button>
+			<button class="btn btn-sm btn-outline-success" @onclick="@(() => ShowTalonSearch())">@TalonSearchButtonCaption</button>
 	</div>
 	<div class='m-2'>
 		@if (showAIChat)
