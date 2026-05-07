@@ -15,18 +15,18 @@ namespace TestProjectxUnit.TestStubs
 
             try
             {
-                // Stub the ES module import that the component calls
-                var module = ctx.JSInterop.SetupModule("/_content/RazorClassLibrary/selectionModalInterop.js");
-                module.SetupVoid("showModal", args => true);
+                // Stub the ES module import that the component calls (match relative path used in component)
+                var module = ctx.JSInterop.SetupModule("./_content/RazorClassLibrary/selectionModalInterop.js");
+                module.SetupVoid("showModal", args => true).SetVoidResult();
 
                 // Stub the global fallback used in ShowSelectionModalAsync
-                ctx.JSInterop.SetupVoid("bootstrapInterop.showModal", args => true);
+                ctx.JSInterop.SetupVoid("bootstrapInterop.showModal", args => true).SetVoidResult();
                 // Stub common JS functions used in the component to avoid bUnit diagnostics
-                ctx.JSInterop.SetupVoid("console.log", _ => true);
-                ctx.JSInterop.SetupVoid("console.debug", _ => true);
-                ctx.JSInterop.SetupVoid("console.error", _ => true);
-                ctx.JSInterop.SetupVoid("setTimeout", args => true);
-                ctx.JSInterop.SetupVoid("window.open", args => true);
+                ctx.JSInterop.SetupVoid("console.log", _ => true).SetVoidResult();
+                ctx.JSInterop.SetupVoid("console.debug", _ => true).SetVoidResult();
+                ctx.JSInterop.SetupVoid("console.error", _ => true).SetVoidResult();
+                ctx.JSInterop.SetupVoid("setTimeout", args => true).SetVoidResult();
+                ctx.JSInterop.SetupVoid("window.open", args => true).SetVoidResult();
             }
             catch
             {
