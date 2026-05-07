@@ -20,6 +20,14 @@
     <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R" title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
   </div>
 
+  @if (IsLoading)
+  {
+    <div class="mb-2 d-flex align-items-center">
+      <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+      <span class="ms-2">Loading...</span>
+    </div>
+  }
+
     <table class="table table-striped">
     <thead>
       <tr>
