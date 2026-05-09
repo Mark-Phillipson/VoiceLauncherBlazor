@@ -336,6 +336,9 @@ input:disabled {
 	top: 0.5rem;
 }
 
+/* Reconnect bridge override: ensure the banner can be forced visible by JS */
+#blazor-error-ui.reconnect-bridge-show { display: block !important; }
+
 /*// Below this was already here*/
 .form-field {
 	display: flex;

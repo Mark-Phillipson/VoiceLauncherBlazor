@@ -18,8 +18,13 @@
     <span class="dismiss">🗙</span>
 </div>
 
+@* Reconnect modal component (Dialog lives in DOM so JS bridge and reconnect script can target it) *@
+<VoiceAdmin.Components.Layout.ReconnectModal />
+
 @* Inject auto-refresh script for offline recovery *@
 <script src="/js/auto-refresh-on-focus.js"></script>
+@* Reconnect bridge: shows offline banner and dispatches reconnect events *@
+<script src="/js/reconnect-bridge.js"></script>
 
 @* Theme override script: set CSS variables inline so they win over compiled stylesheets *@
 <script>

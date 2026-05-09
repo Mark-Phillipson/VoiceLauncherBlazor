@@ -9,3 +9,15 @@ window.applyBoldStyling = function () {
         }
     }
 };
+
+// Ensure reconnect-bridge is loaded even if the explicit script tag is missing
+(function injectReconnectBridge() {
+    try {
+        if (document.querySelector('script[src="/js/reconnect-bridge.js"]')) return;
+        const s = document.createElement('script');
+        s.src = '/js/reconnect-bridge.js';
+        s.async = true;
+        document.head.appendChild(s);
+        console.debug && console.debug('[site.js] injected /js/reconnect-bridge.js');
+    } catch (e) { }
+})();
