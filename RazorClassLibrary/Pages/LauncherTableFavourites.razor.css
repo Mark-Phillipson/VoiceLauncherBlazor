@@ -1,4 +1,124 @@
-﻿/* Component-scoped layout fixes for LauncherTableFavourites to prevent overflow and overlap */
+﻿/* Component-scoped styles for LauncherTableFavourites */
+/* Fix card overlap by ensuring a grid layout and safe item sizing */
+
+.layout-as-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0; /* no internal gap; spacing provided by card margins */
+  padding: 0; /* container edge spacing moved to card margins */
+  align-items: start;
+  overflow: visible;
+}
+
+@media (max-width: 576px) {
+  .layout-as-cards {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+.layout-as-cards.compact {
+  grid-template-columns: repeat(auto-fit, 120px);
+  gap: 0; /* compact spacing also handled by card margins */
+}
+
+.layout-as-cards .card {
+  box-sizing: border-box;
+  min-width: 0; /* prevents grid item overflow */
+  overflow: visible;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+  margin: 2px; /* small external gap on all sides */
+}
+
+/* Make the clickable area fill the card and avoid layout shifting */
+.layout-as-cards .card .card-inner-fixed > a,
+.layout-as-cards .card .card-inner-fixed > button {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.layout-as-cards .card img {
+  max-width: 72px;
+  max-height: 56px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+/* keep internal card padding as defined in the component's inline styles;
+   external spacing is provided via the card margin above */
+
+/* Card lift visual with limited overlap */
+.layout-as-cards .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  z-index: 10;
+}
+
+.layout-as-cards.compact .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+  z-index: 10;
+}
+
+/* Reduce clutter in compact mode */
+.layout-as-cards.compact .heart-toggle,
+.layout-as-cards.compact .edit-button {
+  display: none !important;
+}
+
+/* Ensure toggle button remains usable and readable */
+#btnToggleCompact {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  line-height: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+#btnToggleCompact.active,
+#btnToggleCompact:active,
+#btnToggleCompact:focus {
+  color: #fff;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+#btnToggleCompact .shortcut {
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
+  color: rgba(0,0,0,0.6);
+}
+
+/* Helpful fallback if grid is not desired: ensure items still wrap */
+@supports (display: grid) {
+  /* do nothing; grid is applied above */
+}
+@supports not (display: grid) {
+  .layout-as-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0;
+  }
+  .layout-as-cards .card {
+    flex: 0 0 160px;
+    margin: 2px;
+  }
+}
+/* Component-scoped layout fixes for LauncherTableFavourites to prevent overflow and overlap */
 
 .layout-as-cards {
   display: flex;
@@ -157,4 +277,62 @@
     min-width: 0;
     height: auto;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Final overrides: symmetric outer gaps and restore inner card sizing */
+/* These come last to override previous conflicting rules in this file. */
+/* Use a small symmetric gap between cards (rows and columns) and ensure
+   the inner card (`.card-inner-fixed`) sizes naturally (no forced height). */
+.layout-as-cards {
+  display: grid !important;
+  /* flexible columns: prefer ~260px but allow wrapping on smaller screens */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 4px !important;        /* equal horizontal and vertical spacing */
+  padding: 4px !important;    /* space between container edge and first/last cards */
+  justify-content: start !important;
+  align-items: start !important;
+}
+
+.layout-as-cards.compact {
+  grid-template-columns: repeat(auto-fit, 120px) !important;
+  gap: 4px !important;
+  padding: 4px !important;
+}
+
+.layout-as-cards .card {
+  margin: 0 !important;      /* spacing is handled by grid gap, not per-card margins */
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;   /* do not force a fixed card height here */
+}
+
+/* Restore the inner card to natural sizing (no forced 200px height) */
+.card-inner-fixed {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.5rem !important; /* small internal padding to match original look */
+}
+
+.layout-as-cards .card .card-inner-fixed > a,
+.layout-as-cards .card .card-inner-fixed > button {
+  width: 100% !important;
+  height: auto !important;    /* do not force full-height anchors */
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.25rem !important;
+}
+
+/* Ensure images remain contained and do not force overflow */
+.layout-as-cards .card img {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
 }
