@@ -122,7 +122,7 @@ else
         @foreach (var launcher in FilteredLauncherDTO)
         {
             alphabetCounter++;
-            currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
+            currentLetter = Alphabet.GetLetterByIndex(alphabetCounter);
             var hasEditAccessKey = alphabetCounter <= 6;
             var editAccessKeyNum = 3 + alphabetCounter;
             @if (launcher.CommandLine.ToLower().StartsWith("http"))
