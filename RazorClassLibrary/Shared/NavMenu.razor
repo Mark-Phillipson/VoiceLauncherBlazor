@@ -223,6 +223,21 @@
 				</button>
 			</div>
 		</li>
+		<li class="nav-item px-3">
+			<NavLink accesskey="@GetAccessKey("~")" class="nav-link" href="cursorless-quiz" title="Cursorless Quiz"
+				 @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (ShowAccessKeys)
+					{
+						<kbd class='mr-1'>~</kbd>
+					}
+					else
+					{
+						<span aria-hidden="true">❓</span>
+					}
+				</span> <span>&nbsp; Cursorless Quiz</span>
+			</NavLink>
+		</li>
 		
 		@if (IsTalonSearchEnabled())
 		{
