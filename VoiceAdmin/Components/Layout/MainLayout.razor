@@ -18,6 +18,18 @@
     <span class="dismiss">🗙</span>
 </div>
 
+@* Connectivity settings: user-settable idle timeout for showing the reconnect banner *@
+<div id="connectivity-settings" class="connectivity-settings" aria-label="Connectivity settings">
+    <label for="idleTimeoutSelect">Idle banner:</label>
+    <select id="idleTimeoutSelect" aria-label="Idle banner timeout">
+        <option value="0">Off</option>
+        <option value="60000">1 minute</option>
+        <option value="120000">2 minutes</option>
+        <option value="240000">4 minutes (default)</option>
+        <option value="600000">10 minutes</option>
+    </select>
+</div>
+
 @* Reconnect modal component (Dialog lives in DOM so JS bridge and reconnect script can target it) *@
 <VoiceAdmin.Components.Layout.ReconnectModal />
 
@@ -144,5 +156,30 @@
         const target = document.querySelector('.page') || document.body || document.documentElement;
         obs.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
     } catch (e) { console.error('theme-sync failed', e); }
+})();
+</script>
+
+<script>
+(() => {
+    try {
+        const sel = document.getElementById('idleTimeoutSelect');
+        if (!sel) return;
+        // Initialize from localStorage if present
+        const stored = localStorage.getItem('reconnectBridge.idleMs');
+        if (stored !== null) sel.value = stored;
+        // Notify the bridge if it's already loaded
+        const applyToBridge = () => {
+            try {
+                const ms = Number(sel.value) || 0;
+                localStorage.setItem('reconnectBridge.idleMs', String(ms));
+                if (window.reconnectBridge && typeof window.reconnectBridge.setIdleTimeout === 'function') {
+                    window.reconnectBridge.setIdleTimeout(ms);
+                }
+            } catch (e) { }
+        };
+        sel.addEventListener('change', applyToBridge);
+        // Call once on load
+        setTimeout(applyToBridge, 120);
+    } catch (e) { console.error('connectivity-settings init failed', e); }
 })();
 </script>
