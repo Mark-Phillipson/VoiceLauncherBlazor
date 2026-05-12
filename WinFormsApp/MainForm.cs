@@ -195,8 +195,6 @@ namespace WinFormsApp
             var imgSize = contextMenu.ImageScalingSize;
             // Reserve space for the image column (margin). Add a small gap for padding.
             int imgColumnWidth = contextMenu.ShowImageMargin ? imgSize.Width + 12 : imgSize.Width;
-            var openIcon = (Icon?)(trayIcon) ?? SystemIcons.Application;
-            Bitmap openBmp = ScaleIconToBitmap(openIcon, imgSize);
             Bitmap exitBmp = ScaleIconToBitmap(SystemIcons.Error, imgSize);
 
             // Helper to compute a touch-friendly width so text is visible
@@ -210,23 +208,11 @@ namespace WinFormsApp
             // Reduce vertical padding so icons sit closer to the text vertically, and
             // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
-            int openWidth = ComputeMenuItemWidth("Open", contextMenu.Font, imgColumnWidth, defaultPadding);
             int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-            int menuWidth = Math.Max(openWidth, exitWidth);
+            int menuWidth = exitWidth;
 
             // Item height: icon height + vertical padding (ensure a sensible minimum)
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
-
-            var openItem = new ToolStripMenuItem("Open", openBmp, (s, e) => ShowMainForm())
-            {
-                Padding = defaultPadding,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                AutoSize = false,
-                Size = new Size(menuWidth, menuItemHeight),
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-            openItem.ImageScaling = ToolStripItemImageScaling.None;
-            openItem.ImageAlign = ContentAlignment.MiddleCenter;
 
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
@@ -239,7 +225,7 @@ namespace WinFormsApp
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
 
-            contextMenu.Items.Add(openItem);
+            // Only add the Exit item; the "Open" item was removed as it is redundant
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
