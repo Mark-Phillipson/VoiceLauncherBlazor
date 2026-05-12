@@ -1,0 +1,7 @@
+ID,Name,CommandLine,WorkingDirectory,Arguments,CategoryID,ComputerID,Colour,Icon,Favourite,SortOrder
+30868,Microsoft Copilot,https://copilot.microsoft.com/,NULL,NULL,4,NULL,#000080,ArtificialIntelligence.png,0,0
+32945,Copilot That Jawn,https://copilotthatjawn,NULL,NULL,12,NULL,#000080,ArtificialIntelligence.png,0,0
+32946,Copilot on Github,https://github.com/copilot,NULL,NULL,4,NULL,#000080,github-logo-white.png,0,0
+32949,Copilot Features Page,https://github.com/settings/copilot/features,NULL,NULL,4,NULL,#000080,DotNetBot.png,0,0
+32989,Awesome Copilot Github,https://github.com/github/awesome-copilot,NULL,NULL,12,NULL,#000080,GithubLogo.png,0,0
+34056,Copilot (Microsoft),https://copilot.microsoft.com,NULL,NULL,4146,NULL,#000080,launcher-c9fca65c97064e2381e5318d13c32000.png,1,0
