@@ -1,3 +1,33 @@
+/* Styles for Cursorless Quiz page - render access keys as keyboard badges */
+.quiz-kbd {
+    margin-right: 0.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.5rem;
+    border-radius: 0.35rem;
+    font-weight: 700;
+    font-size: 0.9em;
+    line-height: 1;
+    color: #ffffff;
+    background: #212529; /* distinct, high-contrast key background */
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(33,37,41,0.06);
+    vertical-align: middle;
+}
+
+/* Keep the same visible key style when rendered inside choice buttons */
+.quiz-choice .quiz-kbd {
+    color: #ffffff;
+    background: #212529;
+}
+
+/* Ensure small visual spacing in results/controls */
+.quiz-actions .quiz-kbd {
+    margin-right: 0.6rem;
+}
 .quiz-shell {
     min-height: calc(100vh - 10rem);
     padding: 1.5rem;
@@ -18,7 +48,17 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    align-items: flex-start; /* allow badge and meta to align more predictably */
+}
+
+/* Compact actions variant used in the play panel to vertically align shortcuts with the Quit button */
+.quiz-actions-spread.quiz-actions-compact {
     align-items: center;
+}
+
+.quiz-actions-spread.quiz-actions-compact .quiz-shortcuts {
+    margin-top: 0.08rem; /* small nudge so the text lines up with the key badge */
+    opacity: 0.85;
 }
 
 .quiz-header {
@@ -43,19 +83,43 @@
     font-weight: 600;
 }
 
+/* Stronger, attention-grabbing badge used inside an active quiz panel */
+.quiz-badge--panel {
+    margin-left: auto;
+    background: #0d6efd; /* bootstrap primary blue */
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(13,110,253,0.15);
+    align-self: flex-end; /* align the badge to the bottom of the prompt row so it lines up with choices */
+    padding: 0.45rem 0.8rem;
+    margin-top: 0.15rem;
+}
+
 .quiz-grid {
     display: grid;
     gap: 1rem;
+    color: rgba(7, 11, 17, 0.95);
+    font-weight: 700;
     grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
 }
 
 .quiz-panel {
+    color: rgba(10, 12, 15, 0.92);
     padding: 1.25rem;
     border: 1px solid rgba(127, 127, 127, 0.2);
     border-radius: 1rem;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(8px);
+    color: rgba(75, 85, 99, 0.9);
     box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.06);
+    /* High-contrast text for better readability on the light panel */
+    color: rgba(10, 12, 15, 0.95);
+}
+    color: rgba(44, 52, 66, 0.9);
+
+/* Ensure links and prompt text inside the panel are clearly readable */
+.quiz-panel a {
+    color: rgb(3, 37, 65);
+    text-decoration: underline;
 }
 
 .quiz-play-panel,
@@ -84,6 +148,17 @@
     gap: 0.75rem;
 }
 
+.quiz-choices {
+    position: relative; /* allow the question badge to sit aligned with the choices */
+    padding-top: 0.5rem;
+}
+
+.quiz-choices-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .quiz-choice {
     display: flex;
     align-items: flex-start;
@@ -104,6 +179,28 @@
 .quiz-prompt {
     margin: 0;
     font-size: clamp(1.4rem, 3vw, 2.1rem);
+}
+
+.quiz-prompt-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .quiz-prompt-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+.quiz-badge-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 .quiz-shortcuts {

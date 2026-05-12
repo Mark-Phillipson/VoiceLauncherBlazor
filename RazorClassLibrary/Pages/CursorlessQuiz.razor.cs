@@ -276,6 +276,16 @@ public partial class CursorlessQuiz : ComponentBase
         };
     }
 
+    private static string FormatAccessKey(string? key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return string.Empty;
+        }
+
+        return $" [{key.ToUpperInvariant()}]";
+    }
+
     private async Task ContinueAfterFeedbackAsync()
     {
         if (string.IsNullOrWhiteSpace(_feedbackMessage))

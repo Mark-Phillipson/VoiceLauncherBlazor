@@ -130,8 +130,12 @@
 				<button class="btn btn-sm btn-success" accesskey="v" aria-keyshortcuts="Alt+V"
 						@onclick="StartNewLauncher" title="Create a new launcher (Alt+V)"
 						aria-label="Create a new launcher (Alt+V)">
+					@if (ShowAccessKeys)
+					{
+						<kbd class='mr-1'>V</kbd>
+					}
 					<span class="bi bi-plus-circle me-1" aria-hidden="true"></span>
-					<span>New V</span>
+					<span>New</span>
 				</button>
 			</div>
 		</li>
@@ -218,8 +222,12 @@
 				<button class="btn btn-sm btn-success" accesskey="j" aria-keyshortcuts="Alt+J"
 						@onclick="StartNewCustomIntelliSense" title="Create a new custom IntelliSense (Alt+J)"
 						aria-label="Create a new custom IntelliSense (Alt+J)">
+					@if (ShowAccessKeys)
+					{
+						<kbd class='mr-1'>J</kbd>
+					}
 					<span class="bi bi-plus-circle me-1" aria-hidden="true"></span>
-					<span>New J</span>
+					<span>New</span>
 				</button>
 			</div>
 		</li>

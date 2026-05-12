@@ -2,14 +2,17 @@
 
 <PageTitle>Cursorless Quiz</PageTitle>
 
-<div class="quiz-shell" tabindex="0" @onkeydown:window="HandleKeyDown">
+<div class="quiz-shell" tabindex="0" @onkeydown="HandleKeyDown">
     <div class="quiz-card">
         <div class="quiz-header">
             <div>
                 <h1 class="quiz-title">Cursorless Quiz</h1>
                 <p class="quiz-subtitle">Keyboard-first practice for the cheatsheet and docs.</p>
             </div>
-            <div class="quiz-badge">@(_quizActive ? $"Question {_currentQuestionIndex + 1} / {_questions.Count}" : "Ready")</div>
+            @if (!_quizActive)
+            {
+                <div class="quiz-badge">Ready</div>
+            }
         </div>
 
         @if (_isLoadingHistory)
@@ -34,7 +37,7 @@
                     </select>
 
                     <div class="quiz-actions quiz-start-actions">
-                        <button type="button" class="btn btn-primary" accesskey="s" @onclick="StartQuizAsync">Start quiz</button>
+                        <button type="button" class="btn btn-primary" accesskey="s" @onclick="StartQuizAsync"><kbd class="quiz-kbd">S</kbd> Start quiz</button>
                     </div>
                 </section>
 
@@ -65,29 +68,65 @@
                 <div class="quiz-meta-row">
                     <span>Score: @_correctAnswers / @_currentQuestionIndex</span>
                     <span>Source: @CurrentQuestion.Source</span>
+                    @if (!string.IsNullOrWhiteSpace(CurrentQuestion.DocLink))
+                    {
+                        <span>
+                            <a href="@CurrentQuestion.DocLink" target="_blank" rel="noopener noreferrer">
+                                @((CurrentQuestion.Category != null && CurrentQuestion.Category.IndexOf("shape", StringComparison.OrdinalIgnoreCase) >= 0) ? "Shape documentation" : "Docs")
+                            </a>
+                        </span>
+                    }
                     <span>Category: @CurrentQuestion.Category</span>
                 </div>
 
-                <h2 class="quiz-prompt">@CurrentQuestion.Prompt</h2>
+                <div class="quiz-prompt-row">
+                    <h2 class="quiz-prompt">@CurrentQuestion.Prompt</h2>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(CurrentQuestion.Image))
+                {
+                    <div class="quiz-question-image">
+                        <img src="@((CurrentQuestion.Image.StartsWith("/") ? "" : "/") + CurrentQuestion.Image)" alt="question image" />
+                    </div>
+                }
 
                 <div class="quiz-choices" role="list" aria-label="Answer choices">
+                            <div class="quiz-choices-header">
+                                <div class="quiz-badge quiz-badge--panel">@($"Question {_currentQuestionIndex + 1} / {_questions.Count}")</div>
+                            </div>
                     @for (var index = 0; index < CurrentQuestion.Choices.Count; index++)
                     {
                         var choiceIndex = index;
                         var choiceText = CurrentQuestion.Choices[choiceIndex];
+                        string? choiceImage = null;
+                        if (CurrentQuestion.ChoiceImagePaths != null && CurrentQuestion.ChoiceImagePaths.Count > choiceIndex)
+                        {
+                            choiceImage = CurrentQuestion.ChoiceImagePaths[choiceIndex];
+                        }
+
                         <button type="button"
                                 class="quiz-choice btn btn-outline-secondary"
                                 accesskey="@GetChoiceAccessKey(choiceIndex)"
                                 @onclick="() => SubmitAnswerAsync(choiceIndex)">
-                            <span class="quiz-choice-letter">@GetChoiceLabel(choiceIndex)</span>
-                            <span class="quiz-choice-text">@choiceText</span>
+                            <kbd class="quiz-kbd">@GetChoiceAccessKey(choiceIndex)</kbd>
+                            @if (!string.IsNullOrWhiteSpace(choiceImage))
+                            {
+                                <div class="quiz-choice-media">
+                                    <img src="@((choiceImage.StartsWith("/") ? "" : "/") + choiceImage)" alt="@choiceText" class="quiz-choice-thumb" />
+                                    <div class="quiz-choice-text">@choiceText</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="quiz-choice-text">@choiceText</span>
+                            }
                         </button>
                     }
                 </div>
 
-                <div class="quiz-actions quiz-actions-spread">
-                    <button type="button" class="btn btn-outline-danger" accesskey="q" @onclick="QuitQuizAsync">Quit</button>
-                    <div class="quiz-shortcuts">1-4 answer, Q quits</div>
+                <div class="quiz-actions quiz-actions-spread quiz-actions-compact">
+                    <button type="button" class="btn btn-outline-danger" accesskey="q" @onclick="QuitQuizAsync"><kbd class="quiz-kbd">Q</kbd> Quit</button>
+                    <div class="quiz-shortcuts">1-4 answer</div>
                 </div>
 
                 @if (!string.IsNullOrWhiteSpace(_feedbackMessage))
@@ -97,7 +136,7 @@
                     </div>
 
                     <div class="quiz-actions">
-                        <button type="button" class="btn btn-outline-light" accesskey="n" @onclick="ContinueAfterFeedbackAsync">Next</button>
+                        <button type="button" class="btn btn-outline-light" accesskey="n" @onclick="ContinueAfterFeedbackAsync"><kbd class="quiz-kbd">N</kbd> Next</button>
                         <div class="quiz-shortcuts">Press Enter, Space, or N to continue</div>
                     </div>
                 }
@@ -111,7 +150,7 @@
                 <p>Your score has been saved for later review.</p>
 
                 <div class="quiz-actions">
-                    <button type="button" class="btn btn-primary" accesskey="p" @onclick="StartQuizAsync">Play again</button>
+                    <button type="button" class="btn btn-primary" accesskey="p" @onclick="StartQuizAsync"><kbd class="quiz-kbd">P</kbd> Play again</button>
                     <button type="button" class="btn btn-outline-secondary" @onclick="ResetToStartAsync">Back to start</button>
                 </div>
             </div>

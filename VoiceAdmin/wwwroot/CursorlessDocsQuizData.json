@@ -62,5 +62,9 @@
   { "Id": 61, "SpokenForm": "quad", "Meaning": "Double quotes", "CursorlessType": "Paired delimiter", "YoutubeLink": null },
   { "Id": 62, "SpokenForm": "twin", "Meaning": "Single quotes", "CursorlessType": "Paired delimiter", "YoutubeLink": null },
   { "Id": 63, "SpokenForm": "skis", "Meaning": "Backtick quotes", "CursorlessType": "Paired delimiter", "YoutubeLink": null },
-  { "Id": 64, "SpokenForm": "void", "Meaning": "Whitespace", "CursorlessType": "Paired delimiter", "YoutubeLink": null }
+  { "Id": 64, "SpokenForm": "void", "Meaning": "Whitespace", "CursorlessType": "Paired delimiter", "YoutubeLink": null },
+  { "Id": 65, "SpokenForm": "scope", "Meaning": "A semantic/syntactic extent used to expand or describe a selection (e.g., token, line, block, file)", "CursorlessType": "Modifier", "YoutubeLink": null },
+  { "Id": 66, "SpokenForm": "target", "Meaning": "The selected target element or selection that actions operate on", "CursorlessType": "Mark", "YoutubeLink": null },
+  { "Id": 67, "SpokenForm": "destination", "Meaning": "A location where content is sent or moved (destination)", "CursorlessType": "Modifier", "YoutubeLink": null },
+  { "Id": 68, "SpokenForm": "modifier", "Meaning": "A semantic marker that changes or refines how a target is interpreted or expanded (e.g., 'line', 'token', 'scope')", "CursorlessType": "Modifier", "YoutubeLink": null }
 ]

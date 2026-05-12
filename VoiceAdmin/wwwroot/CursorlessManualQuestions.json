@@ -1,0 +1,119 @@
+[
+  {
+    "Prompt": "Which of the following defines a modifier in Cursorless?",
+    "Choices": [
+      "A token that changes how a target is interpreted (e.g., 'line', 'inside', 'every')",
+      "A paired delimiter like parentheses or brackets",
+      "A specific hat color used for selection",
+      "An action that inserts text at the cursor"
+    ],
+    "CorrectAnswer": "A token that changes how a target is interpreted (e.g., 'line', 'inside', 'every')",
+    "CorrectIndex": 0,
+    "Category": "Modifier",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "What is a 'hat shape' (shape) in Cursorless and how is it used? Examples: bolt, curve.",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": [
+      "A syntactic modifier that expands a selection to a block or file",
+      "A paired delimiter type like 'round' or 'curly' used to match brackets",
+      "An action that inserts a new line above the target",
+      "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)"
+    ],
+    "CorrectAnswer": "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)",
+    "CorrectIndex": 3,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["round", "puff", "bolt", "blue"],
+    "CorrectAnswer": "bolt",
+    "CorrectIndex": 2,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["pour", "curve", "green", "curly"],
+    "CorrectAnswer": "curve",
+    "CorrectIndex": 1,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["red", "box", "chuck", "fox"],
+    "CorrectAnswer": "fox",
+    "CorrectIndex": 3,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["quad", "copy", "frame", "pink"],
+    "CorrectAnswer": "frame",
+    "CorrectIndex": 2,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["puff", "play", "yellow", "token"],
+    "CorrectAnswer": "play",
+    "CorrectIndex": 1,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["blue", "line", "pour", "wing"],
+    "CorrectAnswer": "wing",
+    "CorrectIndex": 3,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["box", "chuck", "hole", "green"],
+    "CorrectAnswer": "hole",
+    "CorrectIndex": 2,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["copy", "ex", "red", "curly"],
+    "CorrectAnswer": "ex",
+    "CorrectIndex": 1,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["pink", "round", "puff", "cross"],
+    "CorrectAnswer": "cross",
+    "CorrectIndex": 3,
+    "Category": "Hat shape",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "DocLink": "https://www.cursorless.org/docs/#shapes",
+    "Choices": ["token", "pour", "eye", "yellow"],
+    "CorrectAnswer": "eye",
+    "CorrectIndex": 2,
+    "Category": "Hat shape",
+    "Source": "manual"
+  }
+]
