@@ -38,6 +38,7 @@ namespace WinFormsApp
 		private bool refreshRequested;
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
+		private bool showClipboardHistory = false;
 		private bool eventSubscribed = false;
 		// Serialize view-toggle/IPC handling to avoid rapid teardown/rebuild races
 		private readonly SemaphoreSlim _viewToggleLock = new(1, 1);
@@ -650,6 +651,50 @@ namespace WinFormsApp
 		}
 		StateHasChanged();
 	}
+		private void ShowClipboardHistory()
+		{
+			if (showClipboardHistory)
+			{
+				// Turning off clipboard history - restore previous view based on arguments if present
+				showClipboardHistory = false;
+				if (arguments != null && arguments.Length > 1)
+				{
+					if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
+					    (arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search"))))
+					{
+						showTalonSearch = true;
+						SetTitle("Talon Voice Command Search");
+					}
+					else if (arguments[1].Contains("Launcher"))
+					{
+						launcher = true;
+						SetTitle("Launch Applications");
+					}
+					else if (arguments[1].Contains("AIChat"))
+					{
+						showAIChat = true;
+						SetTitle("AI Chat Assistant");
+					}
+					else
+					{
+						languageAndCategoryListing = true;
+						SetTitle("Snippets");
+					}
+				}
+			}
+			else
+			{
+				// Turning on Clipboard History
+				showClipboardHistory = true;
+				// Reset other views when showing clipboard history
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				SetTitle("Clipboard History");
+			}
+			StateHasChanged();
+		}
 		
 	private async Task SwitchToLauncherFromChild()
 	{

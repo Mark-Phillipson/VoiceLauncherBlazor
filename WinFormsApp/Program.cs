@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using RazorClassLibrary.Services;
 using System.IO.Pipes;
@@ -155,6 +156,30 @@ namespace WinFormsApp
 		.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
 		.AddEnvironmentVariables()
 		.Build();
+
+			// Add a developer-friendly fallback for the ClipboardHistory DB if not configured.
+			try
+			{
+				var cbConn = Configuration.GetConnectionString("ClipboardHistory");
+				if (string.IsNullOrWhiteSpace(cbConn))
+				{
+					// Known local repo path (developer-provided). Use when present.
+					var altPath = @"C:\Users\MPhil\source\repos\personal-assistant\clipboard-history.db";
+					if (File.Exists(altPath))
+					{
+						var mem = new Dictionary<string, string>
+						{
+							["ConnectionStrings:ClipboardHistory"] = $"Data Source={altPath}"
+						};
+						Configuration = new ConfigurationBuilder().AddConfiguration(Configuration).AddInMemoryCollection(mem).Build();
+						Console.WriteLine($"ClipboardHistory connection string set from fallback: {altPath}");
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"Error applying ClipboardHistory fallback: {ex.Message}");
+			}
 
 	Application.EnableVisualStyles();
 	Application.SetCompatibleTextRenderingDefault(false);

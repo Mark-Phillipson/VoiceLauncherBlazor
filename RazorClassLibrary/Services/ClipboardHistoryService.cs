@@ -106,6 +106,16 @@ namespace RazorClassLibrary.Services
                 parameters.Add("to", to.Value);
             }
 
+            // Exclude known browser-extension generated clipboard items (JSON action/request payloads)
+            // These typically contain keys like "version", "type":"request", or specific action names like "directClickElement".
+            if (!string.IsNullOrEmpty(_contentCol) && _columnsFound.Contains(_contentCol))
+            {
+                whereClauses.Add($"NOT (\"{_contentCol}\" LIKE @excludeJsonA OR \"{_contentCol}\" LIKE @excludeJsonB OR \"{_contentCol}\" LIKE @excludeJsonC)");
+                parameters.Add("excludeJsonA", @"%{""version"":%");
+                parameters.Add("excludeJsonB", @"%""type"":""request""%");
+                parameters.Add("excludeJsonC", @"%""directClickElement""%");
+            }
+
             var where = whereClauses.Count > 0 ? "WHERE " + string.Join(" AND ", whereClauses) : string.Empty;
 
             var countSql = $"SELECT COUNT(1) FROM \"{TableName}\" {where}";

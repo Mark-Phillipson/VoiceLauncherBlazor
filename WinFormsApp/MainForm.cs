@@ -20,6 +20,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Data.Sqlite;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
@@ -301,6 +302,15 @@ namespace WinFormsApp
             services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
             services.AddScoped<LauncherService>();
             services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, TalonVoiceCommandDataService>();
+            // Register generic SQL data access and clipboard history service used by Razor components
+            services.AddScoped<DataAccessLibrary.ISqlDataAccess, DataAccessLibrary.SqlDataAccess>();
+            services.AddScoped<RazorClassLibrary.Services.IClipboardHistoryService>(sp =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>();
+                var db = Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<DataAccessLibrary.SqlDataAccess>(sp);
+                db.ConnectionStringName = "ClipboardHistory";
+                return new RazorClassLibrary.Services.ClipboardHistoryService(db, cfg);
+            });
             services.AddBlazoredModal();
             services.AddBlazoredToast();
 
@@ -360,6 +370,38 @@ namespace WinFormsApp
                             Debug.WriteLine($"Error counting rows: {exCount.Message}");
                         }
                     }
+                }
+
+                // Ensure ClipboardHistory table exists in the configured clipboard DB (SQLite).
+                try
+                {
+                    var clipboardConnName = Program.Configuration?.GetConnectionString("ClipboardHistory");
+                    var effectiveClipboardConn = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(clipboardConnName);
+                    if (!string.IsNullOrWhiteSpace(effectiveClipboardConn) && effectiveClipboardConn.IndexOf("Data Source=", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        try
+                        {
+                            using var sqliteConn = new SqliteConnection(effectiveClipboardConn);
+                            sqliteConn.Open();
+                            using var cmd = sqliteConn.CreateCommand();
+                            cmd.CommandText = @"CREATE TABLE IF NOT EXISTS ClipboardHistory (
+                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                Content TEXT NOT NULL,
+                                CreatedAt TEXT NOT NULL,
+                                Type TEXT
+                            );";
+                            cmd.ExecuteNonQuery();
+                            Debug.WriteLine("Ensured ClipboardHistory table exists.");
+                        }
+                        catch (Exception exCreate)
+                        {
+                            Debug.WriteLine($"Error creating ClipboardHistory table: {exCreate.Message}");
+                        }
+                    }
+                }
+                catch (Exception exEnsure)
+                {
+                    Debug.WriteLine($"ClipboardHistory ensure error: {exEnsure.Message}");
                 }
             }
             catch (Exception ex)
