@@ -319,21 +319,25 @@ public sealed class QuizService : IQuizService
 
     private static List<string> GatherCategoryDistractors(QuizFact fact, IReadOnlyList<QuizFact> facts, string correctAnswer)
     {
-        var sameCategory = facts
-            .Where(candidate => !candidate.IsSameFact(fact) && string.Equals(candidate.Category, fact.Category, StringComparison.OrdinalIgnoreCase))
-            .Select(candidate => candidate.SpokenForm)
-            .Where(choice => !string.IsNullOrWhiteSpace(choice) && !string.Equals(choice, correctAnswer, StringComparison.OrdinalIgnoreCase))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        var fallback = facts
+        // For category questions ("Which of the following is a <Category>?") we want
+        // distractors that are *not* in the same category as the correct answer.
+        // Prefer items from other categories and fall back to same-category items
+        // only if there aren't enough alternatives.
+        var differentCategory = facts
             .Where(candidate => !candidate.IsSameFact(fact) && !string.Equals(candidate.Category, fact.Category, StringComparison.OrdinalIgnoreCase))
             .Select(candidate => candidate.SpokenForm)
             .Where(choice => !string.IsNullOrWhiteSpace(choice) && !string.Equals(choice, correctAnswer, StringComparison.OrdinalIgnoreCase))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        return sameCategory
+        var fallback = facts
+            .Where(candidate => !candidate.IsSameFact(fact) && string.Equals(candidate.Category, fact.Category, StringComparison.OrdinalIgnoreCase))
+            .Select(candidate => candidate.SpokenForm)
+            .Where(choice => !string.IsNullOrWhiteSpace(choice) && !string.Equals(choice, correctAnswer, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        return differentCategory
             .Concat(fallback)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(_ => Random.Shared.Next())

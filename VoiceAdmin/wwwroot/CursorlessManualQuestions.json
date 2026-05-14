@@ -27,7 +27,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["round", "puff", "bolt", "blue"],
     "CorrectAnswer": "bolt",
@@ -36,7 +36,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["pour", "curve", "green", "curly"],
     "CorrectAnswer": "curve",
@@ -45,7 +45,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["red", "box", "chuck", "fox"],
     "CorrectAnswer": "fox",
@@ -54,7 +54,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["quad", "copy", "frame", "pink"],
     "CorrectAnswer": "frame",
@@ -63,7 +63,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["puff", "play", "yellow", "token"],
     "CorrectAnswer": "play",
@@ -72,7 +72,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["blue", "line", "pour", "wing"],
     "CorrectAnswer": "wing",
@@ -81,7 +81,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["box", "chuck", "hole", "green"],
     "CorrectAnswer": "hole",
@@ -90,7 +90,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["copy", "ex", "red", "curly"],
     "CorrectAnswer": "ex",
@@ -99,7 +99,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["pink", "round", "puff", "cross"],
     "CorrectAnswer": "cross",
@@ -108,7 +108,7 @@
     "Source": "manual"
   },
   {
-    "Prompt": "Which of the following is a Cursorless hat shape?",
+    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
     "Choices": ["token", "pour", "eye", "yellow"],
     "CorrectAnswer": "eye",
