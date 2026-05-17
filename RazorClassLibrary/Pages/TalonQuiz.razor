@@ -1,0 +1,119 @@
+@page "/talon-quiz"
+@using RazorClassLibrary.Shared
+@using RazorClassLibrary.Models
+@using DataAccessLibrary.Models
+@inject RazorClassLibrary.Services.ITalonListDataService TalonListDataService
+
+<GenericQuiz Title="Talon Voice Commands Quiz"
+             Subtitle="Keyboard-first practice for Talon list category packs."
+             ScoreStorageKey="talonQuizScores"
+             GenerateQuestions="GenerateTalonQuestionsAsync"
+             AvailablePacks="@_listNames"
+             DefaultQuestionCount="10" />
+
+@code {
+    private List<TalonList> _allItems = new();
+    private List<string> _listNames = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var items = (await TalonListDataService.GetAllTalonListsAsync())
+                .Where(x => !string.IsNullOrWhiteSpace(x.ListName)
+                    && !string.IsNullOrWhiteSpace(x.SpokenForm)
+                    && !string.IsNullOrWhiteSpace(x.ListValue))
+                .ToList();
+
+            _allItems = items;
+            _listNames = items
+                .Select(x => x.ListName.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+        }
+        catch
+        {
+            _allItems = new List<TalonList>();
+            _listNames = new List<string>();
+        }
+    }
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateTalonQuestionsAsync(int count, string? packName)
+    {
+        var pool = string.IsNullOrWhiteSpace(packName)
+            ? _allItems
+            : _allItems.Where(x => string.Equals(x.ListName, packName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var distinctFacts = pool
+            .DistinctBy(x => new { Name = x.ListName.Trim(), Spoken = x.SpokenForm.Trim(), Value = x.ListValue.Trim() })
+            .ToList();
+
+        if (distinctFacts.Count == 0)
+        {
+            return Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+        }
+
+        var chosen = distinctFacts.OrderBy(_ => Random.Shared.Next()).Take(Math.Min(count, distinctFacts.Count)).ToList();
+        var questions = chosen.Select(f => BuildQuestion(f, distinctFacts)).ToList();
+        return Task.FromResult((IReadOnlyList<QuizQuestion>)questions);
+    }
+
+    private QuizQuestion BuildQuestion(TalonList fact, IReadOnlyList<TalonList> facts)
+    {
+        var correctAnswer = fact.ListValue.Trim();
+
+        var sameListDistractors = facts
+            .Where(x => !ReferenceEquals(x, fact)
+                && string.Equals(x.ListName, fact.ListName, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(x.ListValue, correctAnswer, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.ListValue.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(3)
+            .ToList();
+
+        var distractors = sameListDistractors;
+        if (distractors.Count < 3)
+        {
+            var additional = facts
+                .Where(x => !string.Equals(x.ListValue, correctAnswer, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.ListValue.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Except(distractors, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(3 - distractors.Count);
+
+            distractors = distractors.Concat(additional).ToList();
+        }
+
+        var choices = distractors.Append(correctAnswer)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(4)
+            .ToList();
+
+        if (!choices.Contains(correctAnswer, StringComparer.OrdinalIgnoreCase))
+        {
+            if (choices.Count == 4)
+            {
+                choices[0] = correctAnswer;
+            }
+            else
+            {
+                choices.Add(correctAnswer);
+            }
+        }
+
+        return new QuizQuestion
+        {
+            Prompt = $"In list '{fact.ListName}', what value matches spoken form '{fact.SpokenForm}'?",
+            Choices = choices,
+            CorrectAnswer = correctAnswer,
+            CorrectIndex = choices.FindIndex(x => string.Equals(x, correctAnswer, StringComparison.OrdinalIgnoreCase)),
+            Category = fact.ListName,
+            Source = "talon"
+        };
+    }
+}

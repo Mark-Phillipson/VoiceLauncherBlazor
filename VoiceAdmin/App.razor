@@ -1,6 +1,7 @@
 <CascadingBlazoredModal Class="blazored-modal-custom">
 
-    <Router AppAssembly="@typeof(App).Assembly">
+    <Router AppAssembly="@typeof(App).Assembly"
+            AdditionalAssemblies="new[] { typeof(RazorClassLibrary.Pages.CursorlessQuiz).Assembly }">
         <Found Context="routeData">
             <RouteView RouteData="@routeData" DefaultLayout="@typeof(RazorClassLibrary.Shared.MainLayout)" />
             @* <FocusOnNavigate RouteData="@routeData" Selector="textarea" /> *@

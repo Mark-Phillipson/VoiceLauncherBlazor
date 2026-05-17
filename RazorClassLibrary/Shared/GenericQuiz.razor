@@ -1,0 +1,577 @@
+@using System.Security.Cryptography
+@using System.Text
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using RazorClassLibrary.Models
+@inject IJSRuntime JS
+
+<div class="quiz-shell" tabindex="0" @onkeydown="HandleKeyDown">
+    <div class="quiz-card">
+        <div class="quiz-header">
+            <div>
+                <h1 class="quiz-title">@Title</h1>
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                {
+                    <p class="quiz-subtitle">@Subtitle</p>
+                }
+            </div>
+            @if (!_quizActive)
+            {
+                <div class="quiz-badge">Ready</div>
+            }
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="quiz-panel">
+                <p>Loading quiz data...</p>
+            </div>
+        }
+        else if (!_quizActive && !_showingResults)
+        {
+            <div class="quiz-grid">
+                <section class="quiz-panel">
+                    <h2>Start a quiz</h2>
+
+                    @if (AvailablePacks != null && AvailablePacks.Any())
+                    {
+                        <label class="quiz-label">Category pack</label>
+                        <select class="form-select quiz-select-wide" @bind="SelectedPackName">
+                            <option value="">All</option>
+                            @foreach (var pack in AvailablePacks)
+                            {
+                                <option value="@pack">@pack</option>
+                            }
+                        </select>
+                    }
+
+                    <label class="quiz-label">Questions</label>
+                    <select class="form-select quiz-select" @bind="QuestionCount">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+
+                    <div class="quiz-actions quiz-start-actions">
+                        <button type="button" class="btn btn-primary" accesskey="s" @onclick="StartQuizAsync"><kbd class="quiz-kbd">S</kbd> Start quiz</button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="ToggleExcludedManager">Manage excluded</button>
+                    </div>
+                </section>
+
+                <section class="quiz-panel">
+                    <h2>Review</h2>
+                    <p class="mb-1"><strong>@_scoreHistory.Count</strong> saved scores</p>
+                    <p class="mb-2"><strong>@_excluded.Count</strong> excluded questions</p>
+                    <p class="quiz-shortcuts mb-0">Shortcuts: S start, 1-4 answer, N next, Q quit, P play again</p>
+                </section>
+            </div>
+        }
+        else if (_quizActive && CurrentQuestion is not null)
+        {
+            <div class="quiz-panel quiz-play-panel">
+                <div class="quiz-meta-row">
+                    <span>Score: @_correctAnswers / @_currentQuestionIndex</span>
+                    <span>Source: @CurrentQuestion.Source</span>
+                    <span>Category: @CurrentQuestion.Category</span>
+                </div>
+
+                <div class="quiz-prompt-row">
+                    <h2 class="quiz-prompt">@CurrentQuestion.Prompt</h2>
+                </div>
+
+                <div class="quiz-choices" role="list" aria-label="Answer choices">
+                    <div class="quiz-choices-header">
+                        <div class="quiz-badge quiz-badge--panel">@($"Question {_currentQuestionIndex + 1} / {_questions.Count}")</div>
+                    </div>
+                    @for (var index = 0; index < CurrentQuestion.Choices.Count; index++)
+                    {
+                        var choiceIndex = index;
+                        <button type="button"
+                                class="quiz-choice btn btn-outline-secondary"
+                                accesskey="@GetChoiceAccessKey(choiceIndex)"
+                                @onclick="() => SubmitAnswerAsync(choiceIndex)">
+                            <kbd class="quiz-kbd">@GetChoiceAccessKey(choiceIndex)</kbd>
+                            <span class="quiz-choice-text">@CurrentQuestion.Choices[choiceIndex]</span>
+                        </button>
+                    }
+                </div>
+
+                <div class="quiz-actions quiz-actions-spread quiz-actions-compact">
+                    <button type="button" class="btn btn-outline-danger" accesskey="q" @onclick="QuitQuizAsync"><kbd class="quiz-kbd">Q</kbd> Quit</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ExcludeCurrentQuestionAsync">Never use again</button>
+                    <div class="quiz-shortcuts">1-4 answer</div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_feedback))
+                {
+                    <div class="quiz-feedback @(_lastAnswerCorrect ? "quiz-feedback-success" : "quiz-feedback-error")">@_feedback</div>
+                    <div class="quiz-actions">
+                        <button type="button" class="btn btn-outline-light" accesskey="n" @onclick="ContinueAfterFeedbackAsync"><kbd class="quiz-kbd">N</kbd> Next</button>
+                        <div class="quiz-shortcuts">Press Enter, Space, or N to continue</div>
+                    </div>
+                }
+            </div>
+        }
+        else if (_showingResults)
+        {
+            <div class="quiz-panel quiz-results-panel">
+                <h2>Quiz complete</h2>
+                <p class="quiz-results-score">@_correctAnswers / @_questions.Count correct</p>
+                <p>Your score has been saved for later review.</p>
+                <div class="quiz-actions">
+                    <button type="button" class="btn btn-primary" accesskey="p" @onclick="StartQuizAsync"><kbd class="quiz-kbd">P</kbd> Play again</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ResetToStartAsync">Back to start</button>
+                </div>
+            </div>
+        }
+
+        @if (_showExcludedManager)
+        {
+            <div class="quiz-panel mt-3">
+                <h3>Excluded questions</h3>
+                @if (_excluded.Count == 0)
+                {
+                    <p class="mb-0">No excluded questions.</p>
+                }
+                else
+                {
+                    <ul class="mb-0">
+                        @foreach (var excluded in _excluded.OrderByDescending(x => x.ExcludedAt))
+                        {
+                            <li class="mb-2">
+                                <div><strong>Q:</strong> @excluded.Prompt</div>
+                                <div class="text-muted"><strong>A:</strong> @excluded.CorrectAnswer</div>
+                                <div class="text-muted"><strong>Category:</strong> @excluded.Category</div>
+                                <div class="text-muted"><strong>Flagged:</strong> @excluded.ExcludedAt.ToLocalTime().ToString("g")</div>
+                                <div class="mt-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="() => UnexcludeAsync(excluded.Id)">Allow again</button>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Func<int, string?, Task<IReadOnlyList<QuizQuestion>>> GenerateQuestions { get; set; } = default!;
+
+    [Parameter]
+    public string Title { get; set; } = "Quiz";
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    [Parameter]
+    public string ScoreStorageKey { get; set; } = "quizScores";
+
+    [Parameter]
+    public IEnumerable<string>? AvailablePacks { get; set; }
+
+    [Parameter]
+    public int DefaultQuestionCount { get; set; } = 10;
+
+    private readonly List<QuizQuestion> _questions = new();
+    private List<QuizScore> _scoreHistory = new();
+    private List<ExcludedEntry> _excluded = new();
+
+    private bool _quizActive;
+    private bool _showingResults;
+    private bool _isLoading = true;
+    private int _currentQuestionIndex;
+    private int _correctAnswers;
+    private int QuestionCount { get; set; }
+    private string? SelectedPackName { get; set; }
+    private string? _feedback;
+    private bool _lastAnswerCorrect;
+    private bool _processingAnswer;
+    private bool _showExcludedManager;
+
+    private string ExcludedStorageKey => $"{ScoreStorageKey}:excluded";
+
+    private QuizQuestion? CurrentQuestion => _quizActive && _currentQuestionIndex < _questions.Count
+        ? _questions[_currentQuestionIndex]
+        : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        QuestionCount = DefaultQuestionCount;
+        await LoadScoresAsync();
+        await LoadExcludedAsync();
+        _isLoading = false;
+    }
+
+    private async Task LoadScoresAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", ScoreStorageKey);
+            _scoreHistory = string.IsNullOrWhiteSpace(json)
+                ? new List<QuizScore>()
+                : JsonSerializer.Deserialize<List<QuizScore>>(json) ?? new List<QuizScore>();
+        }
+        catch
+        {
+            _scoreHistory = new List<QuizScore>();
+        }
+    }
+
+    private async Task SaveScoresAsync()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_scoreHistory);
+            await JS.InvokeVoidAsync("localStorage.setItem", ScoreStorageKey, json);
+        }
+        catch
+        {
+            // ignore localStorage write errors
+        }
+    }
+
+    private async Task LoadExcludedAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", ExcludedStorageKey);
+            _excluded = string.IsNullOrWhiteSpace(json)
+                ? new List<ExcludedEntry>()
+                : JsonSerializer.Deserialize<List<ExcludedEntry>>(json) ?? new List<ExcludedEntry>();
+        }
+        catch
+        {
+            _excluded = new List<ExcludedEntry>();
+        }
+    }
+
+    private async Task SaveExcludedAsync()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(_excluded);
+            await JS.InvokeVoidAsync("localStorage.setItem", ExcludedStorageKey, json);
+        }
+        catch
+        {
+            // ignore localStorage write errors
+        }
+    }
+
+    private static string ComputeQuestionId(QuizQuestion question)
+    {
+        var data = $"{question.Prompt}|{question.CorrectAnswer}|{question.Category}";
+        using var sha = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(data);
+        var hash = sha.ComputeHash(bytes);
+        return Convert.ToHexString(hash);
+    }
+
+    private async Task StartQuizAsync()
+    {
+        _feedback = null;
+        _lastAnswerCorrect = false;
+        _processingAnswer = false;
+        _questions.Clear();
+
+        if (GenerateQuestions == null)
+        {
+            _quizActive = false;
+            _showingResults = true;
+            return;
+        }
+
+        var desiredCount = QuestionCount;
+        var attempts = 0;
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        while (_questions.Count < desiredCount && attempts < 3)
+        {
+            var requestCount = Math.Max(desiredCount - _questions.Count, desiredCount);
+            var candidates = (await GenerateQuestions(requestCount, SelectedPackName)).ToList();
+
+            foreach (var question in candidates)
+            {
+                if (_questions.Count >= desiredCount)
+                {
+                    break;
+                }
+
+                var questionId = ComputeQuestionId(question);
+                if (_excluded.Any(x => string.Equals(x.Id, questionId, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                if (ids.Add(questionId))
+                {
+                    _questions.Add(question);
+                }
+            }
+
+            attempts++;
+        }
+
+        _currentQuestionIndex = 0;
+        _correctAnswers = 0;
+        _quizActive = _questions.Count > 0;
+        _showingResults = !_quizActive;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SubmitAnswerAsync(int choiceIndex)
+    {
+        var question = CurrentQuestion;
+        if (question is null)
+        {
+            return;
+        }
+
+        if (_processingAnswer)
+        {
+            return;
+        }
+
+        _processingAnswer = true;
+
+        try
+        {
+            var choices = question.Choices ?? new List<string>();
+            if (choiceIndex < 0 || choiceIndex >= choices.Count)
+            {
+                return;
+            }
+
+            var selected = choices[choiceIndex];
+            _lastAnswerCorrect = string.Equals(selected, question.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+
+            if (_lastAnswerCorrect)
+            {
+                _correctAnswers++;
+            }
+
+            _feedback = _lastAnswerCorrect
+                ? $"Correct. {question.CorrectAnswer}"
+                : $"Not quite. Correct answer: {question.CorrectAnswer}";
+
+            await InvokeAsync(StateHasChanged);
+
+            if (_lastAnswerCorrect)
+            {
+                await Task.Delay(700);
+                await MoveToNextQuestionAsync();
+            }
+        }
+        finally
+        {
+            _processingAnswer = false;
+        }
+    }
+
+    private async Task MoveToNextQuestionAsync()
+    {
+        _currentQuestionIndex++;
+
+        if (_currentQuestionIndex >= _questions.Count)
+        {
+            await FinishQuizAsync();
+            return;
+        }
+
+        _feedback = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ContinueAfterFeedbackAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_feedback))
+        {
+            return;
+        }
+
+        await MoveToNextQuestionAsync();
+    }
+
+    private async Task FinishQuizAsync()
+    {
+        _quizActive = false;
+        _showingResults = true;
+        _feedback = null;
+
+        _scoreHistory.Insert(0, new QuizScore
+        {
+            PlayedAt = DateTime.UtcNow,
+            TotalQuestions = _questions.Count,
+            CorrectAnswers = _correctAnswers
+        });
+
+        _scoreHistory = _scoreHistory
+            .OrderByDescending(x => x.PlayedAt)
+            .Take(20)
+            .ToList();
+
+        await SaveScoresAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task QuitQuizAsync()
+    {
+        if (!_quizActive)
+        {
+            return;
+        }
+
+        await FinishQuizAsync();
+    }
+
+    private async Task ExcludeCurrentQuestionAsync()
+    {
+        var question = CurrentQuestion;
+        if (question is null)
+        {
+            return;
+        }
+
+        var id = ComputeQuestionId(question);
+        if (_excluded.Any(x => string.Equals(x.Id, id, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        _excluded.Add(new ExcludedEntry
+        {
+            Id = id,
+            Prompt = question.Prompt,
+            CorrectAnswer = question.CorrectAnswer,
+            Category = question.Category,
+            ExcludedAt = DateTime.UtcNow
+        });
+
+        await SaveExcludedAsync();
+
+        _questions.RemoveAt(_currentQuestionIndex);
+
+        if (_currentQuestionIndex >= _questions.Count)
+        {
+            await FinishQuizAsync();
+            return;
+        }
+
+        _feedback = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UnexcludeAsync(string id)
+    {
+        _excluded.RemoveAll(x => string.Equals(x.Id, id, StringComparison.OrdinalIgnoreCase));
+        await SaveExcludedAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ResetToStartAsync()
+    {
+        _quizActive = false;
+        _showingResults = false;
+        _questions.Clear();
+        _currentQuestionIndex = 0;
+        _correctAnswers = 0;
+        _feedback = null;
+        _processingAnswer = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleExcludedManager()
+    {
+        _showExcludedManager = !_showExcludedManager;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        var rawKey = args.Key ?? string.Empty;
+
+        if (!_quizActive || CurrentQuestion is null)
+        {
+            if (_showingResults && IsEnterOrSpace(rawKey))
+            {
+                await StartQuizAsync();
+            }
+
+            return;
+        }
+
+        if (_processingAnswer)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_feedback))
+        {
+            if (IsEnterOrSpace(rawKey) || rawKey.Equals("N", StringComparison.OrdinalIgnoreCase))
+            {
+                await ContinueAfterFeedbackAsync();
+            }
+
+            return;
+        }
+
+        var key = rawKey.ToUpperInvariant();
+        var answerIndex = key switch
+        {
+            "DIGIT1" => 0,
+            "1" or "NUMPAD1" => 0,
+            "DIGIT2" => 1,
+            "2" or "NUMPAD2" => 1,
+            "DIGIT3" => 2,
+            "3" or "NUMPAD3" => 2,
+            "DIGIT4" => 3,
+            "4" or "NUMPAD4" => 3,
+            "Q" or "ESCAPE" => -2,
+            _ => -1
+        };
+
+        if (answerIndex == -2)
+        {
+            await QuitQuizAsync();
+            return;
+        }
+
+        if (answerIndex >= 0 && answerIndex < CurrentQuestion.Choices.Count)
+        {
+            await SubmitAnswerAsync(answerIndex);
+        }
+    }
+
+    private static string GetChoiceAccessKey(int index)
+    {
+        return index switch
+        {
+            0 => "1",
+            1 => "2",
+            2 => "3",
+            3 => "4",
+            _ => string.Empty
+        };
+    }
+
+    private static bool IsEnterOrSpace(string key)
+    {
+        return key.Equals("Enter", StringComparison.OrdinalIgnoreCase)
+            || key.Equals(" ", StringComparison.OrdinalIgnoreCase)
+            || key.Equals("Spacebar", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private sealed class ExcludedEntry
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Prompt { get; set; } = string.Empty;
+        public string CorrectAnswer { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public DateTime ExcludedAt { get; set; }
+    }
+}
+
