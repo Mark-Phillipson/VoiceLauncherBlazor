@@ -1,0 +1,41 @@
+{
+  "id": "talon",
+  "title": "Talon Voice Commands",
+  "description": "Learn Talon voice commands for hands-free programming and productivity.",
+  "version": "1.0.0",
+  "contentFormat": "json",
+  "tags": ["productivity", "voice", "accessibility", "talon"],
+  "documentationUrl": "https://talon.wiki/",
+  "categories": [
+    {
+      "id": "editing",
+      "name": "Editing Commands",
+      "description": "Text editing and manipulation operations",
+      "icon": "✏️"
+    },
+    {
+      "id": "navigation",
+      "name": "Navigation Commands",
+      "description": "Moving through code and documents",
+      "icon": "🧭"
+    },
+    {
+      "id": "selection",
+      "name": "Selection Commands",
+      "description": "Selecting code and text",
+      "icon": "📝"
+    },
+    {
+      "id": "file_operations",
+      "name": "File Operations",
+      "description": "File and project management",
+      "icon": "📁"
+    },
+    {
+      "id": "mode",
+      "name": "Mode Switching",
+      "description": "Talon mode and context switching",
+      "icon": "🔄"
+    }
+  ]
+}

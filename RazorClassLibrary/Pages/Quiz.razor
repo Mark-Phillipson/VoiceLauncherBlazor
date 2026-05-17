@@ -1,0 +1,250 @@
+@page "/quiz/{PackId}"
+@using RazorClassLibrary.Models
+@using RazorClassLibrary.Services
+@using Microsoft.Extensions.Logging
+@inject IQuizService QuizService
+@inject QuizPackRegistry PackRegistry
+@inject NavigationManager NavigationManager
+@inject ILogger<Quiz> Logger
+
+<PageTitle>Quiz - @PackId</PageTitle>
+
+<div class="container quiz-container mt-5">
+    @if (isLoading)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading quiz...</span>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!quizStarted)
+    {
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">@(packMetadata?.Title ?? PackId)</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>@(packMetadata?.Description ?? "Ready to test your knowledge?")</p>
+                        <div class="mb-4">
+                            <label for="questionCount" class="form-label">Number of Questions:</label>
+                            <input type="number" class="form-control" id="questionCount" @bind="questionCount" min="5" max="50" />
+                        </div>
+                        <button class="btn btn-primary btn-lg" @onclick="StartQuiz" accesskey="s">
+                            Start Quiz (Alt+S)
+                        </button>
+                        <a href="/quiz-hub" class="btn btn-secondary btn-lg">Back to Hub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (questions == null || questions.Count == 0)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-warning">
+                    <strong>No questions available.</strong> Please check that quiz pack data is loaded correctly.
+                </div>
+                <a href="/quiz-hub" class="btn btn-secondary">Back to Hub</a>
+            </div>
+        </div>
+    }
+    else if (currentQuestionIndex < questions.Count)
+    {
+        var currentQuestion = questions[currentQuestionIndex];
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <div>Question @(currentQuestionIndex + 1) of @questions.Count</div>
+                            <div>Score: @score/@correctAnswerCount</div>
+                        </div>
+                        <div class="progress mt-2">
+                            <div class="progress-bar" role="progressbar" style="width: @((currentQuestionIndex * 100) / questions.Count)%"></div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5>@currentQuestion.Prompt</h5>
+                        @if (!string.IsNullOrEmpty(currentQuestion.Image))
+                        {
+                            <div class="mb-3">
+                                <img src="@currentQuestion.Image" alt="Question image" class="img-fluid" />
+                            </div>
+                        }
+
+                        <div class="btn-group-vertical w-100" role="group">
+                            @for (int i = 0; i < currentQuestion.Choices.Count; i++)
+                            {
+                                var choice = currentQuestion.Choices[i];
+                                var choiceIndex = i;
+                                var isSelected = selectedAnswerIndex == choiceIndex;
+                                var isCorrect = choiceIndex == currentQuestion.CorrectIndex;
+                                var btnClass = "btn btn-outline-primary btn-lg text-start";
+
+                                if (isSelected && answered)
+                                {
+                                    btnClass = isCorrect ? "btn btn-success btn-lg text-start" : "btn btn-danger btn-lg text-start";
+                                }
+                                else if (answered && isCorrect)
+                                {
+                                    btnClass = "btn btn-success btn-lg text-start";
+                                }
+
+                                <button type="button" class="@btnClass" @onclick="@(() => SelectAnswer(choiceIndex))" 
+                                    disabled="@answered" accesskey="@((char)('a' + i)).ToString().ToLower()">
+                                    <strong>@((char)('A' + i)).</strong> @choice
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    @if (answered)
+                    {
+                        var feedback = selectedAnswerIndex == currentQuestion.CorrectIndex ? "Correct!" : "Incorrect. Try again!";
+                        <div class="card-footer bg-light">
+                            <p>@feedback</p>
+                            <button class="btn btn-primary" @onclick="NextQuestion" accesskey="n">
+                                Next (Alt+N)
+                            </button>
+                            <button class="btn btn-secondary" @onclick="EndQuiz" accesskey="q">
+                                Quit (Alt+Q)
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="card-title mb-0">Quiz Complete!</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5>Final Score: @score / @questions.Count</h5>
+                        <p>Percentage: @((score * 100) / Math.Max(1, questions.Count))%</p>
+                        <a href="/quiz-hub" class="btn btn-primary">Back to Hub</a>
+                        <button class="btn btn-secondary" @onclick="RestartQuiz">Take Another Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? PackId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? Category { get; set; }
+
+    private List<QuizQuestion>? questions;
+    private QuizPack? packMetadata;
+    private bool isLoading = true;
+    private bool quizStarted = false;
+    private int currentQuestionIndex = 0;
+    private int selectedAnswerIndex = -1;
+    private bool answered = false;
+    private int score = 0;
+    private int correctAnswerCount = 0;
+    private int questionCount = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            
+            if (string.IsNullOrEmpty(PackId))
+            {
+                NavigationManager.NavigateTo("/quiz-hub");
+                return;
+            }
+
+            // Load pack metadata
+            packMetadata = await PackRegistry.GetPackAsync(PackId);
+            
+            Logger.LogInformation($"Initialized quiz for pack: {PackId}, category: {Category ?? "all"}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error initializing quiz: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task StartQuiz()
+    {
+        try
+        {
+            quizStarted = true;
+            questions = (await QuizService.GenerateQuestionsAsync(questionCount, PackId ?? "cursorless", Category))
+                .ToList();
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswerCount = 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error starting quiz: {ex.Message}");
+            quizStarted = false;
+        }
+    }
+
+    private void SelectAnswer(int choiceIndex)
+    {
+        if (answered || questions == null || currentQuestionIndex >= questions.Count)
+            return;
+
+        selectedAnswerIndex = choiceIndex;
+        answered = true;
+
+        var currentQuestion = questions[currentQuestionIndex];
+        if (choiceIndex == currentQuestion.CorrectIndex)
+        {
+            score++;
+        }
+        correctAnswerCount++;
+    }
+
+    private void NextQuestion()
+    {
+        if (questions == null)
+            return;
+
+        currentQuestionIndex++;
+        selectedAnswerIndex = -1;
+        answered = false;
+    }
+
+    private void RestartQuiz()
+    {
+        quizStarted = false;
+        currentQuestionIndex = 0;
+        selectedAnswerIndex = -1;
+        answered = false;
+        score = 0;
+        correctAnswerCount = 0;
+        questions = null;
+    }
+
+    private void EndQuiz()
+    {
+        if (questions != null)
+        {
+            currentQuestionIndex = questions.Count;
+        }
+    }
+}

@@ -1,0 +1,129 @@
+@page "/quiz-hub"
+@using RazorClassLibrary.Models
+@using RazorClassLibrary.Services
+@using Microsoft.Extensions.Logging
+@inject QuizPackRegistry PackRegistry
+@inject NavigationManager NavigationManager
+@inject ILogger<QuizHub> Logger
+
+<PageTitle>Quiz Hub</PageTitle>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Quiz Hub</h1>
+            <p class="lead">Select a quiz pack and category to get started.</p>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading quiz packs...</span>
+                </div>
+            </div>
+        </div>
+    }
+    else if (packs == null || packs.Count == 0)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <strong>No quiz packs available.</strong> Please check that quiz pack files are installed correctly.
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var pack in packs)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">@pack.Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@pack.Description</p>
+                            <p class="small text-muted">Version: @pack.Version</p>
+
+                            @if (pack.Categories != null && pack.Categories.Count > 0)
+                            {
+                                <div class="mb-3">
+                                    <p class="small"><strong>Categories:</strong></p>
+                                    <div class="btn-group-vertical w-100" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm text-start" @onclick="@(() => StartQuiz(pack.Id, null))">
+                                            All Categories
+                                        </button>
+                                        @foreach (var category in pack.Categories)
+                                        {
+                                            <button type="button" class="btn btn-outline-secondary btn-sm text-start" @onclick="@(() => StartQuiz(pack.Id, category.Id))">
+                                                @(category.Icon != null ? category.Icon + " " : "")@category.Name
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary w-100" @onclick="@(() => StartQuiz(pack.Id, null))">
+                                    Start Quiz
+                                </button>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(pack.DocumentationUrl))
+                        {
+                            <div class="card-footer bg-light">
+                                <a href="@pack.DocumentationUrl" target="_blank" class="card-link small">
+                                    View Documentation
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h5>Quick Links</h5>
+                <ul>
+                    <li><a href="/cheatsheet-quiz">Cursorless Quiz (Legacy)</a> - Direct link to the original Cursorless quiz</li>
+                </ul>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<QuizPack>? packs;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            packs = (await PackRegistry.GetAllPacksAsync()).ToList();
+            Logger.LogInformation($"Loaded {packs.Count} quiz packs");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error loading quiz packs: {ex.Message}");
+            packs = new List<QuizPack>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void StartQuiz(string packId, string? categoryId)
+    {
+        var categoryParam = !string.IsNullOrEmpty(categoryId) ? $"?category={categoryId}" : "";
+        NavigationManager.NavigateTo($"/quiz/{packId}{categoryParam}");
+    }
+}

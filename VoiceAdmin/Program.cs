@@ -222,6 +222,10 @@ if (enableLocalEmbeddings && smartComponentsBuilder != null)
 }
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// Register multi-pack quiz services
+builder.Services.AddScoped<IQuizContentLoader, JsonQuizContentLoader>();
+builder.Services.AddScoped<QuizPackRegistry>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 // Increase resilience for transient disconnects: extend SignalR and circuit retention timeouts
 builder.Services.AddSignalR(options =>

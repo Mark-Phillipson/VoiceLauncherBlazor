@@ -1,0 +1,59 @@
+{
+  "id": "cursorless",
+  "title": "Cursorless Voice Commands",
+  "description": "Learn Cursorless voice commands through interactive quizzes covering actions, scopes, modifiers, and more.",
+  "version": "1.0.0",
+  "contentFormat": "json",
+  "tags": ["productivity", "voice", "accessibility", "coding"],
+  "documentationUrl": "https://www.cursorless.org/",
+  "categories": [
+    {
+      "id": "action",
+      "name": "Actions",
+      "description": "Commands that perform code editing operations",
+      "icon": "⚡"
+    },
+    {
+      "id": "scope",
+      "name": "Scopes",
+      "description": "Syntax elements and code structures to select",
+      "icon": "🎯"
+    },
+    {
+      "id": "modifier",
+      "name": "Modifiers",
+      "description": "Operators that refine scope selection",
+      "icon": "🔧"
+    },
+    {
+      "id": "destination",
+      "name": "Destinations",
+      "description": "Locations where actions are applied",
+      "icon": "📍"
+    },
+    {
+      "id": "paired_delimiters",
+      "name": "Paired Delimiters",
+      "description": "Bracket and quote pair types",
+      "icon": "⟨⟩"
+    },
+    {
+      "id": "scope_visualizer",
+      "name": "Scope Visualizer",
+      "description": "Tools to visualize scope selection",
+      "icon": "👁️"
+    },
+    {
+      "id": "compound_targets",
+      "name": "Compound Targets",
+      "description": "Combinations of multiple targets",
+      "icon": "🔗"
+    },
+    {
+      "id": "special_mark",
+      "name": "Special Marks",
+      "description": "Special cursor positions and references",
+      "icon": "✨"
+    }
+  ]
+}
