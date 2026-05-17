@@ -22,16 +22,16 @@
 		</details>
 		<details class="d-inline-block mb-1">
 			<summary accesskey="^" class="btn btn-sm btn-outline-primary"><u>^</u> Views</summary>
-			<div class="btn-group-vertical mt-1">
-				<button accesskey="&#64;" class="btn btn-sm btn-outline-primary text-start" @onclick="@(() => ShowAIChat())"><u>&#64;</u> AI @AIChatButtonCaption</button>
+				<div class="btn-group-vertical mt-1">
+				<button accesskey="£" class="btn btn-sm btn-outline-primary text-start" @onclick="@(() => ShowAIChat())"><u>£</u> AI @AIChatButtonCaption</button>
 				@* Top-level switch buttons: show only the relevant toggle depending on current view *@
 				@if (launcher)
 				{
-					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>!</u> Snippets</button>
+					<button accesskey="(" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>(</u> Snippets</button>
 				}
 				else if (languageAndCategoryListing)
 				{
-					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>!</u> Launcher</button>
+					<button accesskey=")" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>)</u> Launcher</button>
 				}
 				else
 				{
@@ -72,3 +72,53 @@
 		}
 	</div>
 </CascadingBlazoredModal>
+
+<script>
+(function(){
+	function initDetailsMenu(detail) {
+		const summary = detail.querySelector('summary');
+		if (!summary) return;
+		const focusable = Array.from(detail.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])'))
+			.filter(el => !el.disabled);
+
+		summary.addEventListener('keydown', function(e) {
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				if (focusable.length) focusable[0].focus();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				if (focusable.length) focusable[focusable.length-1].focus();
+			}
+		});
+
+		focusable.forEach((el, idx) => {
+			el.addEventListener('keydown', function(e) {
+				if (e.key === 'ArrowDown') {
+					e.preventDefault();
+					const next = focusable[(idx+1) % focusable.length];
+					next.focus();
+				} else if (e.key === 'ArrowUp') {
+					e.preventDefault();
+					const prev = focusable[(idx-1 + focusable.length) % focusable.length];
+					prev.focus();
+				} else if (e.key === 'Escape') {
+					detail.removeAttribute('open');
+					summary.focus();
+				}
+			});
+		});
+	}
+
+	function initAll() {
+		document.querySelectorAll('details').forEach(initDetailsMenu);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initAll);
+	} else {
+		initAll();
+	}
+
+	window.__initDetailsKeyboard = initAll;
+})();
+</script>

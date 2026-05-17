@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<!-- Apply saved or system theme as early as possible to avoid flash of the wrong theme -->
+		<script>
+			(function(){
+				try {
+					var t = null;
+					try {
+						t = localStorage.getItem('appTheme');
+					} catch (storageError) {
+						console.warn('localStorage blocked, defaulting to light:', storageError.message);
+					}
+					document.documentElement.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
+					document.body && document.body.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
+				} catch (e) { 
+					// Fallback to light theme if everything fails
+					console.error('Theme initialization failed:', e);
+					document.documentElement.setAttribute('data-bs-theme', 'light');
+					document.body && document.body.setAttribute('data-bs-theme', 'light');
+				}
+			})();
+		</script>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<base href="/" />
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<link href="css/site.css" rel="stylesheet" />
+	<!-- Load host app isolated CSS (was VoiceLauncher.styles.css causing 404) -->
+	<link href="VoiceAdmin.styles.css" rel="stylesheet" />
+	<!-- Load Razor Class Library isolated component CSS -->
+	<link href="_content/RazorClassLibrary/RazorClassLibrary.styles.css" rel="stylesheet" />
+	<link href="/css/overrides-theme.css" rel="stylesheet" />
+	<link rel="stylesheet" href="css/animate.min.css" />
+	<link rel="stylesheet" href="css/bootstrap-icons.min.css">
+
+	<link rel="stylesheet" href="/css/prism.css" />
+	<!--Blazor:{"type":"server","prerenderId":"8fcdc0ef5078481087e88689a0e68d0a","key":{"locationHash":"5ACC588A828552DE06ADC1412E29BEBD6046569940475C11BDB1D51145298823:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVgtuOOdzb1rtvTJeuNwjbXX9\u002BMIoxpUPGSIzLgRBVgxC72eX72\u002BIYpnYBrp0I28eLPoDxMlF1Civ8yrzGsAvKuTQCmYKkGMFzbLRRZ1Hfr6LfaUTOP6q2MLgqxV9TAi2VihWWorgy/1CVtwi/VtJSqI/MnRiMeMNLzHvDuY2zWbZsuK71I/VmgM38K4MwJ9GFBGdJqsahW6qquPb6OM8if2Cz8VqIlIAq4fcf8zJve7dOxZt6kuGBFUnPg\u002BnsfRw2noIJW2eFHFrQDN722oTyfhJ2GeN/g2D3XMSEr2k7hmiRywEkXLf/n9dKujI5\u002BqFD6dAtqXiVnE8cBLhj0iD/BdUi5RTci10FfjKjIsAnEqYf/1SzYdbL\u002B3as4/5pXDyqM3GbnETdY\u002B/1i0yh3Ktsuk4vv\u002BnN5VJdh1znezwvXXBC4hiqrXCMUGpOIEeRu0vl/8aH6MtcwKbzcq03ajALMaWlEB\u002BvmzXxV4i6MMg/NP3GTYDbMbvJPYKQtcKcY7raJoTHWYDuxZ4KAJ27jo2ve5HzrSJfcXsSrbCFi\u002BkK9zUgtwOUynS5j96ZHVFcdSPI41iaV1\u002BS6GwP4hsy9ZArM3jhp62MPpvlhCly\u002BLqmOh9wXQfnP\u002B8QR\u002B/nNcVY1uTpw="}--><link rel="preload" href="_content/Radzen.Blazor/fonts/MaterialSymbolsOutlined.woff2" as="font" type="font/woff2" crossorigin="anonymous" /><link id="radzen-theme-link" rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css?v=10.1.0.0" /><!--Blazor:{"prerenderId":"8fcdc0ef5078481087e88689a0e68d0a"}-->
+	<!--Blazor:{"type":"server","prerenderId":"a15785cb6bca46a2912cdc48d6f7e6ac","key":{"locationHash":"77D12F14A8105320B1AAED6AE7E689DA0EC4483270A645E84079EAA0FFDF550D:0","formattedComponentKey":""},"sequence":1,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVhPsJcWhWvC8Q/0SMFQW9O5T6WkVv2ulFexPI6zumsgg5yQsQXJxufHCrekmX4DwkeI6a0Ey3AwdDbeitQnkjhfSMiZu8PiZLxOIyetZXlYLcSy2odjrdlNM2AMNTBI48fgFoL1FlgnbGGEAOSIi7QMUde7YA25zOGal8XMxjmalQsmNufhhAzO/yNTPm/P2nE15T8eo1ocBYrlUPXIJl5WDzDCZVIx7dDEtUS86\u002Bn6jsHQ5Vh33IOSTxkzKlDhtmkazHXPVeYokDz1b4Uib7fValQs5XWSIqzcAD\u002BmBGmZmRRaD0Xex\u002Bv92q6vzK8CU8VlCB6Hmb0tIvGSoKupwom\u002BqTLYZwoPqVt7wz6DV9InXxRNWGoLelGbtccspbJEaN6LQyA8qYSTHF/wC0ZUrhFIr74bMGDETFvphc5ecT13Rq0R29vPCE0e8Pmb4DPyMkhv7NMnps7bq10Ycyi0wJtX2xcw38tdDDqfWMbo4kVreGuraNHhnC25hlkCTswkatmDW3ObQ7FbAXFN4AviJDnPEZMRI6nb0ELEmYYxYAQG96Gn\u002BYl0rwe\u002Blbb6RnHtDL8="}--><title>Voice Admin🎙️ Homepage</title><!--Blazor:{"prerenderId":"a15785cb6bca46a2912cdc48d6f7e6ac"}-->
+</head>
+
+<body>
+	
+<!--Blazor:{"type":"server","prerenderId":"9d90003e359949b8ab44d8d92aa37e14","key":{"locationHash":"E8D549723A14C8F4E9191932CC10142E53F62DFD6087E7D4FE0E6FDCD62D901B:0","formattedComponentKey":""},"sequence":2,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVg2R5pG4bl8bnLcJSIOYGV5PlUutQTOmRxSbCtMPluOssw6GMma47J03uZ1st6\u002B8V0gIoPB2525JunDt3Taym2pFKzGg76iRh00/F4Y5I9Dj1x8K/nOYJ6LSQMXObLe/L8oJik0vE9lVA4Zn6XqM8Et\u002BqcdiBnLYTiGUhqAcrQGCgUmKH6ibY9Gd6PWT5GppgabSTIjengtSjUDaQsOF4rS53Gii/LpBvsCdMVaoyftExafLOAtzXgPvyFXXnJ5Durf2b5yNVLgIZxXuy1F3uQvcTQSOtfGDuq4KX3Erx1\u002BMuRkYnwP5kjK05fsHAg5g9ifIbpYwMlb44mcAjzW0KFRMV\u002B9tJCsV8\u002BjBrhP9FzwzZyCWAkbPyaLLNY7sOmlRObSOoKJjg3s41Odju6uaQ0oqT\u002BHnQxeTBz1jbPu0BgaK/lyKas8wguuWU6kRP\u002BMdqBw1lh0PUYCgMrydoZoiHPMftxik/AvbGcyCgs\u002BWFV4APvlKW9QozgYWHPImWYGJWw="}-->
+    
+
+<div class="page theme-light" b-h549jgl2u7><div class="sidebar " b-h549jgl2u7><div b-yuunnzkns1><ul class="nav flex-column" b-yuunnzkns1><li class="nav-item nav-menu-header px-3" b-yuunnzkns1><div class="nav-header-brand" b-yuunnzkns1><div class="nav-title-wrap" b-yuunnzkns1><span class="fw-bold nav-title" b-yuunnzkns1>Voice Admin</span>
+					<span class="nav-title-icon" aria-hidden="true" b-yuunnzkns1>🔑</span></div>
+				<span class="nav-subtitle" b-yuunnzkns1>Voice-first control center</span></div>
+			<div class="nav-header-controls" b-yuunnzkns1><button aria-label="Toggle Navigation Menu" class="navbar-toggler" b-yuunnzkns1><span class="navbar-toggler-icon" b-yuunnzkns1></span></button>
+				<button title="Toggle Access Keys" class="btn btn-sm btn-secondary header-action-button" b-yuunnzkns1><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16" b-yuunnzkns1><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5" b-yuunnzkns1></path>
+						<path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" b-yuunnzkns1></path></svg>
+					<span b-yuunnzkns1>Keys</span></button>
+				<button type="button" class="btn btn-sm theme-toggle-button header-action-button" title="Switch to dark mode" aria-label="Switch to dark mode" b-yuunnzkns1><span aria-hidden="true" b-yuunnzkns1>🌙</span>
+						<span b-yuunnzkns1>Dark</span></button>
+				<button type="button" class="btn btn-sm btn-outline-secondary header-action-button collapse-toggle-button" title="Collapse sidebar" aria-label="Collapse sidebar" b-yuunnzkns1><span aria-hidden="true" b-yuunnzkns1>&#xAB;</span>
+					<span b-yuunnzkns1>Collapse</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&gt;" href="" title="Home" class="nav-link active" aria-current="page"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>></kbd></span> <span b-yuunnzkns1>&nbsp; Home 🏠</span></a></li>
+		
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="?" href="globalsearch" title="Search" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>?</kbd></span> <span b-yuunnzkns1>&nbsp; Search 🔍</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&#xA3;" title="Launch Categories" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>£</kbd></span> <span b-yuunnzkns1>&nbsp; Launch Categories ️</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><div class="menu-item-inner" b-yuunnzkns1><a accesskey="$" href="/launcherstable/0" title="Launch" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>$</kbd></span> <span b-yuunnzkns1>&nbsp; Launch 🚀</span></a>
+				<button class="btn btn-sm btn-success" accesskey="v" aria-keyshortcuts="Alt&#x2B;V" title="Create a new launcher (Alt&#x2B;V)" aria-label="Create a new launcher (Alt&#x2B;V)" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>V</kbd><span class="bi bi-plus-circle me-1" aria-hidden="true" b-yuunnzkns1></span>
+					<span b-yuunnzkns1>New</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a href="/launchersfavourites/" accesskey="%" title="Favorites" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>%</kbd></span> <span b-yuunnzkns1>&nbsp; Favorites ⭐</span></a></li>
+
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="*" href="languages" title="Languages" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>*</kbd></span> <span b-yuunnzkns1>&nbsp; Languages 💻</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="(" title="Snippet Categories" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>(</kbd></span> <span b-yuunnzkns1>&nbsp; Snippet Categories 🏷️</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><div class="menu-item-inner" b-yuunnzkns1><a accesskey="!" href="intellisenses" title="Snippets" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>!</kbd></span> <span b-yuunnzkns1>&nbsp; Snippets {} </span></a>
+				<button class="btn btn-sm btn-success" accesskey="j" aria-keyshortcuts="Alt&#x2B;J" title="Create a new custom IntelliSense (Alt&#x2B;J)" aria-label="Create a new custom IntelliSense (Alt&#x2B;J)" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>J</kbd><span class="bi bi-plus-circle me-1" aria-hidden="true" b-yuunnzkns1></span>
+					<span b-yuunnzkns1>New</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="~" href="cursorless-quiz" title="Cursorless Quiz" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>~</kbd></span> <span b-yuunnzkns1>&nbsp; Cursorless Quiz</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a accesskey="/" href="talon-voice-command-search" title="Talon Search" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>/</kbd></span> <span b-yuunnzkns1>&nbsp; Talon Search 🎤</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a href="googlecalendar" accesskey=")" title="Calendar" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>)</kbd></span> <span b-yuunnzkns1>&nbsp; Calendar 📅</span></a></li>
+			<li class="nav-item px-3" b-yuunnzkns1><a href="overspill" accesskey="^" title="More" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>^</kbd></span> <span b-yuunnzkns1>&nbsp; More ... ➕</span></a></li>
+			<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&amp;" href="https://github.com/issues?q=is%3Aopen&#x2B;is%3Aissue&#x2B;user%3AMark-Phillipson" target="_blank" title="Todo" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>&</kbd></span> <span b-yuunnzkns1>&nbsp; Todo ✅</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a accesskey="&#xA3;" href="chat" title="AI Chatbot" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>£</kbd></span> <span b-yuunnzkns1>&nbsp; AI Chatbot 💬</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a href="/clipboard-history" title="Clipboard History" class="nav-link"><span aria-hidden="true" b-yuunnzkns1>📋</span> <span b-yuunnzkns1>&nbsp; Clipboard History 📋</span></a></li></ul></div></div>
+
+    <main class="main" b-h549jgl2u7><article class="content pe-4 ps-5" b-h549jgl2u7>
+<div class="m-1" b-jhl1ylioa3><section class="mb-3" b-jhl1ylioa3><div class="alert alert-info p-2" role="alert" style="margin-bottom: 1rem;" b-jhl1ylioa3><strong b-jhl1ylioa3>Current Environment:</strong> Local</div></section>
+	<header b-jhl1ylioa3><h1 class="d-none d-lg-block p-2 d-flex justify-content-between align-items-center" style="font-size: 10.5rem;" b-jhl1ylioa3><span b-jhl1ylioa3>Voice Admin</span>
+			<span b-jhl1ylioa3>🎙️</span></h1></header>
+	<main b-jhl1ylioa3><p b-jhl1ylioa3>Development Powered By:</p>
+		<article class="d-lg-none" style="display:flex;flex-direction:column" b-jhl1ylioa3><div class="card m-1" style="width: 15rem;" b-jhl1ylioa3><div class="card-img-top text-center" b-jhl1ylioa3><i class="oi oi-microphone" b-jhl1ylioa3></i></div>
+				<div class="card-body" b-jhl1ylioa3><div class="card-title fs-4" b-jhl1ylioa3>Speech Recognition Consultant</div>
+					<p class="card-text" b-jhl1ylioa3>Setting up bespoke speech recognition environments.</p></div></div>
+			<div class="card m-2 p-2" style="width: 15rem;" b-jhl1ylioa3><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank" b-jhl1ylioa3><img src="/images/BlazorIcon.png" class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px" alt="Blazor Logo" b-jhl1ylioa3></a>
+				<div class="card-body" b-jhl1ylioa3><div class="card-title fs-4" b-jhl1ylioa3>Blazor</div>
+					<p class="card-text" b-jhl1ylioa3>Blazor Server/Client WebAssembly Applications</p></div></div>
+			<div class="card m-2 p-2" style="width: 15rem;" b-jhl1ylioa3><a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank" b-jhl1ylioa3><img src="/images/ASP-NET-logo.png" class="card-img-top d-block mx-auto img-responsive" style="max-height:100px;max-width:100px" alt="Dot Net Logo" b-jhl1ylioa3></a>
+				<div class="card-body" b-jhl1ylioa3><div class="card-title fs-4" b-jhl1ylioa3>MVC ASP.NET</div>
+					<p class="card-text" b-jhl1ylioa3>MVC ASP.NET Web Applications</p></div></div></article>		<div class="d-none d-lg-block w-100" b-jhl1ylioa3><article class="d-flex justify-content-between w-100" b-jhl1ylioa3><div class="card m-2 p-2" style="width: 16rem;" b-jhl1ylioa3><a href="https://dotnet.microsoft.com/en-us/languages/csharp" target="_blank" b-jhl1ylioa3><img src="/images/CSharpLogo.jpeg" class="card-img-top border border-dark border-2" alt="C Sharp Logo which is also a link to the Microsoft languages C sharp" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-1" b-jhl1ylioa3>C Sharp</div>
+						<p class="card-text" b-jhl1ylioa3>C Sharp is known for its versatility and power, making it a great choice
+							for a wide range of applications from web development to game design.</p></div></div>
+				<div class="card m-2 p-2" style="width: 17rem;" b-jhl1ylioa3><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor" target="_blank" b-jhl1ylioa3><img src="/images/BlazorIcon.png" class="card-img-top" alt="Blazor Logo and link to the Blazor site" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div id="focusMe" class="card-title fs-1" b-jhl1ylioa3>Blazor</div>
+						<p class="card-text" b-jhl1ylioa3>Blazor is a powerful framework for creating rich, interactive web
+							applications
+							using C Sharp instead of JavaScript. It simplifies the development process and enhances
+							productivity.
+						</p></div></div>
+				<div class="card m-2 p-2" style="width: 18rem;" b-jhl1ylioa3><a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank" b-jhl1ylioa3><img src="/images/ASP-NET-logo.png" class="card-img-top" alt="Dot Net Logo and also a link to ASP.NET Microsoft Site" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-1" b-jhl1ylioa3>MVC ASP.NET</div>
+						<p class="card-text" b-jhl1ylioa3>ASP.NET Core MVC is known for its lightweight, open-source framework that
+							enables a clean separation of concerns and highly testable code.</p></div></div>
+				<div class="card m-2 p-2" style="width: 15rem;" b-jhl1ylioa3><a href="https://visualstudio.microsoft.com/" target="_blank" b-jhl1ylioa3><img src="/images/VisualStudioLogo.png" class="card-img-top border border-dark border-2" alt="Visual Studio Logo And a link to Microsoft Visual Studio" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-1" b-jhl1ylioa3>Visual Studio</div>
+						<p class="card-text" b-jhl1ylioa3>Visual Studio is renowned for its comprehensive suite of tools that support
+							a wide range of programming languages and development tasks, making it a powerful IDE for
+							developers.</p></div></div></article>			<article class="d-flex justify-content-between w-100" b-jhl1ylioa3><div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://portal.azure.com/#home" target="_blank" b-jhl1ylioa3><img src="/images/Azure.jpeg" class="card-img-top border border-dark border-2" alt="Azure Logo and a link to Azure portal homesite" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-3" b-jhl1ylioa3>Microsoft Azure</div>
+						<p class="card-text" b-jhl1ylioa3>Cloud platform for hosting Blazor Server applications, Azure SQL Database, Azure App Service, and DevOps CI/CD pipelines for scalable deployment.</p></div></div>
+				<div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://getbootstrap.com/" target="_blank" b-jhl1ylioa3><img src="/images/bootstrap-logo-shadow.png" class="card-img-top" alt="Talon Logo and a link to the bootstrap site" b-jhl1ylioa3></a>					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-5" b-jhl1ylioa3>Bootstrap</div>
+						<p class="card-text" b-jhl1ylioa3>CSS framework providing accessible, responsive components for consistent UI styling across all Blazor pages.</p></div></div>
+				<div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://code.visualstudio.com/" target="_blank" b-jhl1ylioa3><img src="/images/VisualStudioCode.jpeg" class="card-img-top border border-dark border-2" alt="Dot Net Logo and a link to Visual Studio Code" b-jhl1ylioa3></a>					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-5" b-jhl1ylioa3>VSCode</div>
+						<p class="card-text" b-jhl1ylioa3>Primary IDE for hands-free Blazor development with Talon Voice and Cursorless extension integration.</p></div></div>				<div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://www.microasoft.com/en-us/sql-server/" target="_blank" b-jhl1ylioa3><img src="/images/SQLServerLogo.jpeg" class="card-img-top border border-dark border-2" alt="SQLServer Logo and a link to SQL server Microsoft site" b-jhl1ylioa3></a>					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-5" b-jhl1ylioa3>MS SQL Server</div>
+						<p class="card-text" b-jhl1ylioa3>Enterprise database platform for storing Talon voice commands, user configurations, and application data with Entity Framework Core integration.</p></div></div>
+				<div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://talonvoice.com/" target="_blank" b-jhl1ylioa3><img src="/images/Talon.png" class="d-block mx-auto" style="object-fit: contain; max-width: 100px; height: auto;" alt="Talon Logo and a link to Talon Voice" b-jhl1ylioa3></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-5" b-jhl1ylioa3>Talon Voice</div>
+						<p class="card-text" b-jhl1ylioa3>Advanced voice control software enabling hands-free coding, navigation, and accessibility workflows.</p></div></div>
+				<div class="card m-2 p-2" style="width: 12rem;" b-jhl1ylioa3><a href="https://www.cursorless.org/" target="_blank" b-jhl1ylioa3><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1920 1920" title="Logo and a link to Cursorless organization" width="100px" height="100px" class="d-block mx-auto" b-jhl1ylioa3><path fill="currentColor" d="M960.001 237.896c180.579 0 346.359 72.247 476.599 192.984C1388.26 184.524 1193.47 0 960.001 0 726.538 0 531.747 184.524 483.405 431.206c130.24-120.738 296.024-193.31 476.596-193.31M960.001 1681.92c-180.572 0-346.356-72.3-476.596-193.13C531.747 1735.34 726.538 1920 960.001 1920c233.469 0 428.259-184.66 476.599-431.21-130.24 120.83-296.02 193.13-476.599 193.13M238.075 960c0-180.571 72.302-346.356 193.131-476.595C184.663 531.747 0 726.537 0 960c0 233.47 184.663 428.26 431.206 476.6-120.503-130.24-193.131-296.02-193.131-476.6M1681.92 960c0 180.58-72.3 346.36-193.13 476.6C1735.34 1388.26 1920 1193.47 1920 960c0-233.463-184.66-428.253-431.21-476.595C1609.62 613.644 1681.92 779.429 1681.92 960" b-jhl1ylioa3></path></svg></a>
+					<div class="card-body" b-jhl1ylioa3><div class="card-title fs-5" b-jhl1ylioa3>Cursorless</div>
+						<p class="card-text" b-jhl1ylioa3>VS Code extension for rapid, voice-driven code editing with visual targets for hands-free programming.</p></div></div></article></div></main></div>
+
+<p b-jhl1ylioa3>My Details:</p>
+<section class="center-content" title='My Details' b-jhl1ylioa3><article class="d-flex justify-content-between w-100" b-jhl1ylioa3><div class="card m-2 p-2" style="width: 20rem;" b-jhl1ylioa3><a target='_blank' title='VoiceLauncherBlazor Repository on Github' href="https://github.com/Mark-Phillipson/VoiceLauncherBlazor" b-jhl1ylioa3><img alt="Github Logo Enclosed in a link to VoiceLauncherBlazor Repository" width="300" src='/images/githublogo.png' b-jhl1ylioa3></a>
+			<div class="card-body" b-jhl1ylioa3><div class="card-title fs-1" b-jhl1ylioa3>VoiceLauncherBlazor</div>
+				<p class="card-text" b-jhl1ylioa3>Voice-controlled Blazor application for hands-free development and accessibility</p></div></div>
+		<div class="card m-2 p-2" style="width: 20rem;" b-jhl1ylioa3><iframe title='My Voice Coding Demo on YouTube 37 minutes long but has chapters' width="300" height="200" src="https://www.youtube.com/embed/UtnEG0E_rg8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen b-jhl1ylioa3></iframe>			<div class="card-body" b-jhl1ylioa3><div id="focusMe" class="card-title fs-1" b-jhl1ylioa3>Voice Coding</div>
+				<p class="card-text" b-jhl1ylioa3>Comprehensive demonstration of hands-free development using Talon Voice and Cursorless. Watch real-world coding workflows, voice command techniques, and accessibility solutions in action. Perfect for developers interested in RSI prevention and efficient voice-driven programming.</p>
+				<a class='text-light' href="https://www.youtube.com/@MPhillipson007" b-jhl1ylioa3>YouTube Channel</a></div></div>
+		<div class="card m-2 p-2" style="width: 27.5rem;" b-jhl1ylioa3><a title="Click to View My Upwork Profile" target="_blank" href="https://www.upwork.com/fl/markp2" class="btn btn-lg btn-outline-primary" b-jhl1ylioa3><img src="/images/upwork-logo.svg" alt="Upwork Logo and a link to my Upwork profile" class="d-block mx-auto img-responsive" width="250" b-jhl1ylioa3></a>			<div class="card-body" b-jhl1ylioa3><div class="card-title fs-1" b-jhl1ylioa3>Upwork Freelancer</div>
+				<p class="card-text" b-jhl1ylioa3>Specialized fullstack developer with expertise in Blazor Server/WebAssembly, Blazor Hybrid, ASP.NET Core, MVC, Web API, and Entity Framework Core. Passionate about accessibility-focused development, voice-controlled applications, and hands-free coding solutions for developers with RSI or mobility challenges.
+				</p></div></div></article></section></article></main></div>
+        <footer class="center-footer theme-light d-flex justify-content-between align-items-center" b-h549jgl2u7><div b-h549jgl2u7>
+                &copy; Voice Admin 2026,
+Powered by.NET 10.0.8</div>
+            <div b-h549jgl2u7></div></footer>
+<script b-h549jgl2u7>
+(() => {
+    try {
+        const storageKey = 'appTheme';
+        const applyTheme = (theme) => {
+            if (!theme) return;
+            const t = theme === 'dark' ? 'dark' : 'light';
+            try { document.documentElement.setAttribute('data-bs-theme', t); } catch (e) {}
+            try { document.body.setAttribute('data-bs-theme', t); } catch (e) {}
+        };
+
+        const saved = localStorage.getItem(storageKey);
+        applyTheme(saved || 'light');
+        console.log('theme-sync initialized with', saved);
+        window.addEventListener('storage', (e) => {
+            if (e.key === storageKey) applyTheme(e.newValue);
+        });
+
+        const obs = new MutationObserver(() => {
+            const pageEl = document.querySelector('.page');
+            const classList = (pageEl && pageEl.className) || document.documentElement.className || document.body.className || '';
+            if (classList.indexOf('theme-dark') !== -1) applyTheme('dark');
+            else if (classList.indexOf('theme-light') !== -1) applyTheme('light');
+        });
+        const target = document.querySelector('.page') || document.body || document.documentElement;
+        obs.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
+    } catch (e) { console.error('theme-sync failed', e); }
+})();
+</script>
+        <!--Blazor:{"prerenderId":"9d90003e359949b8ab44d8d92aa37e14"}-->
+
+<script>
+  window.scrollFocusedIntoView = () => {
+    const focused = document.querySelector('.card.focused');
+    if (focused) {
+      focused.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+</script>
+
+	<div>
+	</div>
+	<div id="blazor-error-ui">
+		
+		
+		<a href="" class="reload">Reload</a>
+		<a class="dismiss">🗙</a>
+	</div>
+
+	<script src="_framework/blazor.server.js"></script>
+	<script
+		src="_content/Radzen.Blazor/Radzen.Blazor.js?v=10.1.0.0"></script>
+	<script src="/scripts/prism.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<script type="module">
+		// Eagerly import the selection modal interop module so it can attach fallback helpers and log its load status
+		(async () => {
+			try {
+				const m = await import('/_content/RazorClassLibrary/selectionModalInterop.js');
+				console.log('selectionModalInterop module eagerly imported');
+			} catch (e) {
+				console.warn('selectionModalInterop eager import failed', e);
+			}
+		})();
+	</script>
+	<script>
+		function CallChange(elementId) {
+			var element = document.getElementById(elementId);
+			if (element) {
+				var event = new Event('change');
+				element.dispatchEvent(event);
+				//console.log(elementId + " change fired " + element.localName)
+			}
+		}
+		window.setFocus = (elementId) => {
+			setTimeout(internalFocus, 10, elementId);
+		};
+		window["window.setFocus"] = window.setFocus;
+		function internalFocus(elementId) {
+			var element = document.getElementById(elementId);
+			if (element == null) {
+				setTimeout(internalFocus, 10, elementId);
+				return;
+			}
+			element.focus();
+			//element.select();
+		}
+		window.myJsFunctions = {
+			focusElement: function (element) {
+				element.focus();
+			}
+		}
+		window.clipboardCopy = {
+			copyText: function (text) {
+				navigator.clipboard.writeText(text).then(function () {
+					// alert("Copied to clipboard!");
+					//console.log("Copied to clipboard!");
+				})
+					.catch(function (error) {
+						console.log(error);
+					});
+			}
+		};
+		window.getPageYOffset = function () {
+			return window.pageYOffset;
+		}
+		function adjustTextArea(textArea) {
+			textArea.style.height = 'auto'; // Reset the height
+			textArea.style.height = (textArea.scrollHeight) + 'px'; // Set the height to the scroll height
+		}
+	</script>
+	<script src="js/site.js"></script>
+	<!-- Face recognition helpers: ensure available to pages that use this layout -->
+	<script src="/js/faceRecognition.js"></script>
+	<script>
+		// Minimal fallback helpers for Blazor components in case faceRecognition.js isn't available
+		window.blazorHelpers = window.blazorHelpers || {};
+		window.blazorHelpers.getBoundingClientRect = function (element) {
+			if (!element) return null;
+			const rect = element.getBoundingClientRect();
+			return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+		};
+		window.blazorHelpers.focusElement = function (element) {
+			if (!element) return false;
+			try { element.focus(); return true; } catch (e) { return false; }
+		};
+	</script>
+
+<script type="module" src="/_content/SmartComponents.AspNetCore.Components/SmartComponents.AspNetCore.Components.lib.module.js?v=sxCZsSeDTiMOv3T10qaoj7rLD4tLcr7wfPjUF7Hizf4"></script></body>
+
+</html>

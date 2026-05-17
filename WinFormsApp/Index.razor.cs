@@ -34,7 +34,8 @@ namespace WinFormsApp
 		private string message = "";
 		private string[]? arguments;
 		string searchTerm = "";
-		private bool languageAndCategoryListing = false;		private bool launcher = false;
+		private bool languageAndCategoryListing = false;		
+		private bool launcher = false;
 		private bool refreshRequested;
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
@@ -558,6 +559,8 @@ namespace WinFormsApp
 			languageAndCategoryListing = false;
 			launcher = false;
 			showTalonSearch = false;
+			// Ensure clipboard history is cleared when switching to AI Chat
+			showClipboardHistory = false;
 			SetTitle("AI Chat Assistant");
 		}
 		StateHasChanged();
@@ -599,6 +602,8 @@ namespace WinFormsApp
 			showAIChat = false;
 			launcher = false;
 			showTalonSearch = false;
+			// Ensure clipboard history is cleared when switching to Snippets
+			showClipboardHistory = false;
 			SetTitle("Snippets");
 		}
 		StateHasChanged();
@@ -647,6 +652,8 @@ namespace WinFormsApp
 			languageAndCategoryListing = false;
 			launcher = false;
 			showAIChat = false;
+			// Ensure clipboard history is cleared when switching to Talon Search
+			showClipboardHistory = false;
 			SetTitle("Talon Voice Command Search");
 		}
 		StateHasChanged();
@@ -719,6 +726,8 @@ namespace WinFormsApp
 		languageAndCategoryListing = false;
 		showAIChat = false;
 		showTalonSearch = false;
+		// Ensure clipboard history is cleared when switching to Launcher
+		showClipboardHistory = false;
 
 		// Restore last used launcher category if available, otherwise default to Code Projects
 		try
@@ -787,6 +796,8 @@ namespace WinFormsApp
 		launcher = false;
 		showAIChat = false;
 		showTalonSearch = false;
+		// Ensure clipboard history is cleared when switching to Snippets
+		showClipboardHistory = false;
 		await SetTitleCallback.InvokeAsync("Snippets");
 		StateHasChanged();
 	}

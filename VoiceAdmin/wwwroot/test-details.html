@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Details Keyboard Navigation Test</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; }
+    details { margin: 12px 0; }
+    #test-menu button { display:block; margin:6px 0; padding:8px 12px; }
+  </style>
+</head>
+<body>
+  <h1>Details Keyboard Navigation Test</h1>
+  <p>Use ArrowDown/ArrowUp to cycle items, Escape to close.</p>
+
+  <details id="test-details">
+    <summary id="test-summary" tabindex="0">Views</summary>
+    <div id="test-menu" style="padding:8px">
+      <button id="item1">Snippets</button>
+      <button id="item2">Launcher</button>
+      <button id="item3">Other</button>
+    </div>
+  </details>
+
+  <script>
+  (function(){
+    function initDetailsMenu(detail) {
+      const summary = detail.querySelector('summary');
+      if (!summary) return;
+      const focusable = Array.from(detail.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.disabled);
+
+      summary.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (focusable.length) focusable[0].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (focusable.length) focusable[focusable.length-1].focus();
+        }
+      });
+
+      focusable.forEach((el, idx) => {
+        el.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = focusable[(idx+1) % focusable.length];
+            next.focus();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = focusable[(idx-1 + focusable.length) % focusable.length];
+            prev.focus();
+          } else if (e.key === 'Escape') {
+            detail.removeAttribute('open');
+            summary.focus();
+          }
+        });
+      });
+    }
+
+    function initAll() {
+      document.querySelectorAll('details').forEach(initDetailsMenu);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+      initAll();
+    }
+  })();
+  </script>
+</body>
+</html>

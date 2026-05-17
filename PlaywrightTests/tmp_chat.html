@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<!-- Apply saved or system theme as early as possible to avoid flash of the wrong theme -->
+		<script>
+			(function(){
+				try {
+					var t = null;
+					try {
+						t = localStorage.getItem('appTheme');
+					} catch (storageError) {
+						console.warn('localStorage blocked, defaulting to light:', storageError.message);
+					}
+					document.documentElement.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
+					document.body && document.body.setAttribute('data-bs-theme', t === 'dark' ? 'dark' : 'light');
+				} catch (e) { 
+					// Fallback to light theme if everything fails
+					console.error('Theme initialization failed:', e);
+					document.documentElement.setAttribute('data-bs-theme', 'light');
+					document.body && document.body.setAttribute('data-bs-theme', 'light');
+				}
+			})();
+		</script>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<base href="/" />
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<link href="css/site.css" rel="stylesheet" />
+	<!-- Load host app isolated CSS (was VoiceLauncher.styles.css causing 404) -->
+	<link href="VoiceAdmin.styles.css" rel="stylesheet" />
+	<!-- Load Razor Class Library isolated component CSS -->
+	<link href="_content/RazorClassLibrary/RazorClassLibrary.styles.css" rel="stylesheet" />
+	<link href="/css/overrides-theme.css" rel="stylesheet" />
+	<link rel="stylesheet" href="css/animate.min.css" />
+	<link rel="stylesheet" href="css/bootstrap-icons.min.css">
+
+	<link rel="stylesheet" href="/css/prism.css" />
+	<!--Blazor:{"type":"server","prerenderId":"cc6fea7fa56f4a7093a505606d523421","key":{"locationHash":"5ACC588A828552DE06ADC1412E29BEBD6046569940475C11BDB1D51145298823:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVhHNuwVDsCakbO0m2bvrz\u002BEub3SB6vpGvDRku3rqlnrS\u002Bp3\u002B1r\u002BseRVrTvVsZclKQxL18JvOXhLgMIuJdGDxK0ZeKMlOoOXV/XHF7kw1NbWQpj\u002BJU1RV84qPVhrkHble/FEPIyZfXHg2RKMfreyEX4P4QSvMAZQQGl\u002BvnHCPbIX5MRAEyZwul5I/KMejAZhfZmI1NM3on/J8LGYrrpI2/bUzkHgKTHvL5GG9hqaRsrfDRQXRT1/NdcXHulEwout5aWqmsSatSYq7VjeRgAYO3WaFeAzxlCnGAkoJ0H4GIH3CfaOwBTvSLR8//G89/DnPm5Ubcd3t2G2qXnX\u002Be\u002BPPc9VMlHrLUpxvzr4fSyQb0iLRYYgKD3HtCN2jwbxzmDCU63ptpx5/\u002Bt9AFyvEwdpyTCfz/VbtCGSdPdBsZMZwRIqbsBSJsXtbIymW044CMbd55YVgSI0P1up7u9ULcxmRds5TX2ZPOvqkVRbCHrSD4NoE5FIC8GZW9ZOj1fESCvoZES153hpNb/x3jWwJamGAq86aX8tKC4vKJwoswktII0jceloWhJEckdKSFKj3IROxVL6hUr/AJg8j8\u002Bi8vdiMk\u002BIPpEza7d74KhrqTsNC5clp8Oj6KscerFXbse4n/Ms4\u002Bg="}--><link rel="preload" href="_content/Radzen.Blazor/fonts/MaterialSymbolsOutlined.woff2" as="font" type="font/woff2" crossorigin="anonymous" /><link id="radzen-theme-link" rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css?v=10.1.0.0" /><!--Blazor:{"prerenderId":"cc6fea7fa56f4a7093a505606d523421"}-->
+	<!--Blazor:{"type":"server","prerenderId":"5acb2a96f2b24fffa9f96363ebb0e016","key":{"locationHash":"77D12F14A8105320B1AAED6AE7E689DA0EC4483270A645E84079EAA0FFDF550D:0","formattedComponentKey":""},"sequence":1,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVig3dnPOeTm\u002BDfNpLiWUoPU188wYRTcH/2BqAZyyqqMs52YxmN71yiV\u002BCPW\u002BUKnJbGmg9yUQ/wAEVH8fTAliI2RAZaG9u6nvxeLMtyDqb7pjcmqgeMcO4noXWhHylrnIhu7VZlVtXGxO0qOHjrjGHRmKUeaerDNlxzMwDUg\u002B8mJtLTwqbICKvjZ9WG/FQWLC5G72CefmAH24b0bekXAUHlqEQWPwqHVInVkOThY29PuE\u002BHYOH7kIlj7DDOCxVoi2c5aJBUSjB1\u002BePcU83zD75x00vR2a\u002Bpjh6WWCasGcOC17q2nx3E2gFDqHBUm\u002B0e7Xn25wKJTojMeRD74A4\u002BQhl0hF8YlT0uZnlnBSXGgDbQ5AY1F\u002BVSxzYjPhw9FM5x6qkpS6HdMbJ83I4geMm9z3O4urDoaSck1KBt96jlr3c4UAGRRW9mLt2PnqaanfFtBuz93dqldy8LajOrZ/4gTvF2WWgboVzmO03pWu9FfrSCc2T2MC3yOnsV9XJ\u002BbWnZSU8gGZvqYiLF6HkJecgCD7ja\u002B436b9vIYiRs1R7AniwP9piPyoPVOONGf9lIyab8z/x0="}--><title>AI Chat Component</title><!--Blazor:{"prerenderId":"5acb2a96f2b24fffa9f96363ebb0e016"}-->
+</head>
+
+<body>
+	
+<!--Blazor:{"type":"server","prerenderId":"aeb03ec29ae64ae698f3fb70cbda464e","key":{"locationHash":"E8D549723A14C8F4E9191932CC10142E53F62DFD6087E7D4FE0E6FDCD62D901B:0","formattedComponentKey":""},"sequence":2,"descriptor":"CfDJ8HzBA/j8Sn1Hpu6UN0X1bVj91jMMY\u002BTCNuuD5WVzkP24maI4uG\u002BtbSKruh2p1aqJcF3zxhONGPpOkW5vqf/pYzCnGKpXQpjOHgekNXD93jCcvve4jpkzZpHnApV9jOOdpAwRPimTkdPdyJUavsrobN6QvpsO42/At\u002BFEO5EKSrJL4s5hZw1HFIeJIw0cQ1FtwxrpWrI/0bEhRD\u002BqrMgVc0OdYJTD5b5b9fvWEHU9FVSwtWd9ZOdERCDHei\u002BWieFpPpIJJzzRf4fG62OgQfk7PNKRdtgzQ7lHfuf\u002BMZUcugsvqoG2wk\u002BcXKgwVxE2d9RKNKDK7HC46OerOjLw6PO9o0O8OKxGbXnBmzONKWteFU9QGFUDeZwHXsZNuxNg/aWY1wh6x8Vxy5GquBa2b/q\u002Bei9fPAgrGcZaVWnblJwLo\u002Bk\u002BfBOaFZzfWfPzdGVKqeJ/PqZHdVKz/YarP0WoW54t4jY0qUE\u002BwRmAYx4ftu9gpAwUdJ/hLlDb8J0Zx/2Urq6UsWVzRMQ0SMo84aUo/qgQOl4="}-->
+    
+
+<div class="page theme-light" b-h549jgl2u7><div class="sidebar " b-h549jgl2u7><div b-yuunnzkns1><ul class="nav flex-column" b-yuunnzkns1><li class="nav-item nav-menu-header px-3" b-yuunnzkns1><div class="nav-header-brand" b-yuunnzkns1><div class="nav-title-wrap" b-yuunnzkns1><span class="fw-bold nav-title" b-yuunnzkns1>Voice Admin</span>
+					<span class="nav-title-icon" aria-hidden="true" b-yuunnzkns1>🔑</span></div>
+				<span class="nav-subtitle" b-yuunnzkns1>Voice-first control center</span></div>
+			<div class="nav-header-controls" b-yuunnzkns1><button aria-label="Toggle Navigation Menu" class="navbar-toggler" b-yuunnzkns1><span class="navbar-toggler-icon" b-yuunnzkns1></span></button>
+				<button title="Toggle Access Keys" class="btn btn-sm btn-secondary header-action-button" b-yuunnzkns1><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16" b-yuunnzkns1><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5" b-yuunnzkns1></path>
+						<path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" b-yuunnzkns1></path></svg>
+					<span b-yuunnzkns1>Keys</span></button>
+				<button type="button" class="btn btn-sm theme-toggle-button header-action-button" title="Switch to dark mode" aria-label="Switch to dark mode" b-yuunnzkns1><span aria-hidden="true" b-yuunnzkns1>🌙</span>
+						<span b-yuunnzkns1>Dark</span></button>
+				<button type="button" class="btn btn-sm btn-outline-secondary header-action-button collapse-toggle-button" title="Collapse sidebar" aria-label="Collapse sidebar" b-yuunnzkns1><span aria-hidden="true" b-yuunnzkns1>&#xAB;</span>
+					<span b-yuunnzkns1>Collapse</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&gt;" href="" title="Home" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>></kbd></span> <span b-yuunnzkns1>&nbsp; Home 🏠</span></a></li>
+		
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="?" href="globalsearch" title="Search" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>?</kbd></span> <span b-yuunnzkns1>&nbsp; Search 🔍</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&#xA3;" title="Launch Categories" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>£</kbd></span> <span b-yuunnzkns1>&nbsp; Launch Categories ️</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><div class="menu-item-inner" b-yuunnzkns1><a accesskey="$" href="/launcherstable/0" title="Launch" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>$</kbd></span> <span b-yuunnzkns1>&nbsp; Launch 🚀</span></a>
+				<button class="btn btn-sm btn-success" accesskey="v" aria-keyshortcuts="Alt&#x2B;V" title="Create a new launcher (Alt&#x2B;V)" aria-label="Create a new launcher (Alt&#x2B;V)" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>V</kbd><span class="bi bi-plus-circle me-1" aria-hidden="true" b-yuunnzkns1></span>
+					<span b-yuunnzkns1>New</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a href="/launchersfavourites/" accesskey="%" title="Favorites" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>%</kbd></span> <span b-yuunnzkns1>&nbsp; Favorites ⭐</span></a></li>
+
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="*" href="languages" title="Languages" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>*</kbd></span> <span b-yuunnzkns1>&nbsp; Languages 💻</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="(" title="Snippet Categories" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>(</kbd></span> <span b-yuunnzkns1>&nbsp; Snippet Categories 🏷️</span></a></li>
+		<li class="nav-item px-3" b-yuunnzkns1><div class="menu-item-inner" b-yuunnzkns1><a accesskey="!" href="intellisenses" title="Snippets" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>!</kbd></span> <span b-yuunnzkns1>&nbsp; Snippets {} </span></a>
+				<button class="btn btn-sm btn-success" accesskey="j" aria-keyshortcuts="Alt&#x2B;J" title="Create a new custom IntelliSense (Alt&#x2B;J)" aria-label="Create a new custom IntelliSense (Alt&#x2B;J)" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>J</kbd><span class="bi bi-plus-circle me-1" aria-hidden="true" b-yuunnzkns1></span>
+					<span b-yuunnzkns1>New</span></button></div></li>
+		<li class="nav-item px-3" b-yuunnzkns1><a accesskey="~" href="cursorless-quiz" title="Cursorless Quiz" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>~</kbd></span> <span b-yuunnzkns1>&nbsp; Cursorless Quiz</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a accesskey="/" href="talon-voice-command-search" title="Talon Search" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>/</kbd></span> <span b-yuunnzkns1>&nbsp; Talon Search 🎤</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a href="googlecalendar" accesskey=")" title="Calendar" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>)</kbd></span> <span b-yuunnzkns1>&nbsp; Calendar 📅</span></a></li>
+			<li class="nav-item px-3" b-yuunnzkns1><a href="overspill" accesskey="^" title="More" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>^</kbd></span> <span b-yuunnzkns1>&nbsp; More ... ➕</span></a></li>
+			<li class="nav-item px-3" b-yuunnzkns1><a accesskey="&amp;" href="https://github.com/issues?q=is%3Aopen&#x2B;is%3Aissue&#x2B;user%3AMark-Phillipson" target="_blank" title="Todo" class="nav-link"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>&</kbd></span> <span b-yuunnzkns1>&nbsp; Todo ✅</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a accesskey="&#x2B;" href="chat" title="AI Chatbot" class="nav-link active" aria-current="page"><span aria-hidden="true" b-yuunnzkns1><kbd class='mr-1' b-yuunnzkns1>+</kbd></span> <span b-yuunnzkns1>&nbsp; AI Chatbot 💬</span></a></li><li class="nav-item px-3" b-yuunnzkns1><a href="/clipboard-history" title="Clipboard History" class="nav-link"><span aria-hidden="true" b-yuunnzkns1>📋</span> <span b-yuunnzkns1>&nbsp; Clipboard History 📋</span></a></li></ul></div></div>
+
+    <main class="main" b-h549jgl2u7><article class="content pe-4 ps-5" b-h549jgl2u7>
+
+<h4 class="text-light mb-1" b-3vo76lhta6><i class="bi bi-chat-dots-fill" b-3vo76lhta6></i> AI Chat (Using gpt-4o-mini)</h4><div class="row" b-3vo76lhta6><div class="col-md-5 bg-dark text-light p-2 rounded" b-3vo76lhta6><label for='selectedPromptId' class="form-label text-light" b-3vo76lhta6><i class="bi bi-list-ul" b-3vo76lhta6></i> Select a <u b-3vo76lhta6>P</u>redefined
+                Prompt</label><a target="_blank" class="btn btn-outline-primary btn-sm text-light ms-3" href="/prompt/22" b-3vo76lhta6><i class="bi bi-pencil-fill" b-3vo76lhta6></i> Manage
+                </a><select accesskey="p" id="selectedPromptId" name="selectedPromptId" class="form-select bg-success text-light m-1" value="22"><option value="1" b-3vo76lhta6>Natural Language Conversion to C# Code</option><option value="2" b-3vo76lhta6>C# Code Helper (no comments)</option><option value="4" b-3vo76lhta6>Marv the Chatbot (Role Prompt)</option><option value="14" b-3vo76lhta6>Artwork Guidelines</option><option value="15" b-3vo76lhta6>Questions About SQL Server Databases</option><option value="16" b-3vo76lhta6>Get JSON response on C# problems</option><option value="17" b-3vo76lhta6>Get AI to Prompt You</option><option value="18" b-3vo76lhta6>Include Pros and Cons</option><option value="19" b-3vo76lhta6>One Step at a Time</option><option value="20" b-3vo76lhta6>Chat About Anything And Get Sworn At</option><option value="21" b-3vo76lhta6>Basic C# Assistant</option><option selected value="22" b-3vo76lhta6 selected>Do Dictation</option><option value="23" b-3vo76lhta6>Generic Intelligent Assistant</option></select><div class="mb-2" b-3vo76lhta6><label class="form-label text-light me-2 d-block" for="modelSelect" b-3vo76lhta6><i class="bi bi-gear-fill" b-3vo76lhta6></i> <u b-3vo76lhta6>M</u>odel <small class="text-muted" b-3vo76lhta6>(Alt+M)</small></label>
+            <div class="input-group" style="max-width: 520px;" b-3vo76lhta6><select id="modelSelect" accesskey="m" aria-keyshortcuts="Alt&#x2B;M" title="Alt&#x2B;M: Focus Model" style="min-width: 260px;" name="SelectedModel" class="form-select bg-dark text-light border-success" value="gpt-4o-mini"><option value="chat-latest" b-3vo76lhta6>chat-latest</option><option value="gpt-3.5-turbo" b-3vo76lhta6>gpt-3.5-turbo</option><option value="gpt-3.5-turbo-0125" b-3vo76lhta6>gpt-3.5-turbo-0125</option><option value="gpt-3.5-turbo-1106" b-3vo76lhta6>gpt-3.5-turbo-1106</option><option value="gpt-3.5-turbo-16k" b-3vo76lhta6>gpt-3.5-turbo-16k</option><option value="gpt-3.5-turbo-instruct" b-3vo76lhta6>gpt-3.5-turbo-instruct</option><option value="gpt-3.5-turbo-instruct-0914" b-3vo76lhta6>gpt-3.5-turbo-instruct-0914</option><option value="gpt-4" b-3vo76lhta6>gpt-4</option><option value="gpt-4-0613" b-3vo76lhta6>gpt-4-0613</option><option value="gpt-4-turbo" b-3vo76lhta6>gpt-4-turbo</option><option value="gpt-4-turbo-2024-04-09" b-3vo76lhta6>gpt-4-turbo-2024-04-09</option><option value="gpt-4.1" b-3vo76lhta6>gpt-4.1</option><option value="gpt-4.1-2025-04-14" b-3vo76lhta6>gpt-4.1-2025-04-14</option><option value="gpt-4.1-mini" b-3vo76lhta6>gpt-4.1-mini</option><option value="gpt-4.1-mini-2025-04-14" b-3vo76lhta6>gpt-4.1-mini-2025-04-14</option><option value="gpt-4.1-nano" b-3vo76lhta6>gpt-4.1-nano</option><option value="gpt-4.1-nano-2025-04-14" b-3vo76lhta6>gpt-4.1-nano-2025-04-14</option><option value="gpt-4o" b-3vo76lhta6>gpt-4o</option><option value="gpt-4o-2024-05-13" b-3vo76lhta6>gpt-4o-2024-05-13</option><option value="gpt-4o-2024-08-06" b-3vo76lhta6>gpt-4o-2024-08-06</option><option value="gpt-4o-2024-11-20" b-3vo76lhta6>gpt-4o-2024-11-20</option><option value="gpt-4o-mini" b-3vo76lhta6 selected>gpt-4o-mini</option><option value="gpt-4o-mini-2024-07-18" b-3vo76lhta6>gpt-4o-mini-2024-07-18</option><option value="gpt-4o-mini-realtime-preview" b-3vo76lhta6>gpt-4o-mini-realtime-preview</option><option value="gpt-4o-mini-realtime-preview-2024-12-17" b-3vo76lhta6>gpt-4o-mini-realtime-preview-2024-12-17</option><option value="gpt-4o-mini-search-preview" b-3vo76lhta6>gpt-4o-mini-search-preview</option><option value="gpt-4o-mini-search-preview-2025-03-11" b-3vo76lhta6>gpt-4o-mini-search-preview-2025-03-11</option><option value="gpt-4o-mini-tts" b-3vo76lhta6>gpt-4o-mini-tts</option><option value="gpt-4o-mini-tts-2025-03-20" b-3vo76lhta6>gpt-4o-mini-tts-2025-03-20</option><option value="gpt-4o-mini-tts-2025-12-15" b-3vo76lhta6>gpt-4o-mini-tts-2025-12-15</option><option value="gpt-4o-realtime-preview" b-3vo76lhta6>gpt-4o-realtime-preview</option><option value="gpt-4o-realtime-preview-2024-12-17" b-3vo76lhta6>gpt-4o-realtime-preview-2024-12-17</option><option value="gpt-4o-realtime-preview-2025-06-03" b-3vo76lhta6>gpt-4o-realtime-preview-2025-06-03</option><option value="gpt-4o-search-preview" b-3vo76lhta6>gpt-4o-search-preview</option><option value="gpt-4o-search-preview-2025-03-11" b-3vo76lhta6>gpt-4o-search-preview-2025-03-11</option><option value="gpt-5" b-3vo76lhta6>gpt-5</option><option value="gpt-5-2025-08-07" b-3vo76lhta6>gpt-5-2025-08-07</option><option value="gpt-5-chat-latest" b-3vo76lhta6>gpt-5-chat-latest</option><option value="gpt-5-codex" b-3vo76lhta6>gpt-5-codex</option><option value="gpt-5-mini" b-3vo76lhta6>gpt-5-mini</option><option value="gpt-5-mini-2025-08-07" b-3vo76lhta6>gpt-5-mini-2025-08-07</option><option value="gpt-5-nano" b-3vo76lhta6>gpt-5-nano</option><option value="gpt-5-nano-2025-08-07" b-3vo76lhta6>gpt-5-nano-2025-08-07</option><option value="gpt-5-pro" b-3vo76lhta6>gpt-5-pro</option><option value="gpt-5-pro-2025-10-06" b-3vo76lhta6>gpt-5-pro-2025-10-06</option><option value="gpt-5-search-api" b-3vo76lhta6>gpt-5-search-api</option><option value="gpt-5-search-api-2025-10-14" b-3vo76lhta6>gpt-5-search-api-2025-10-14</option><option value="gpt-5.1" b-3vo76lhta6>gpt-5.1</option><option value="gpt-5.1-2025-11-13" b-3vo76lhta6>gpt-5.1-2025-11-13</option><option value="gpt-5.1-chat-latest" b-3vo76lhta6>gpt-5.1-chat-latest</option><option value="gpt-5.1-codex" b-3vo76lhta6>gpt-5.1-codex</option><option value="gpt-5.1-codex-max" b-3vo76lhta6>gpt-5.1-codex-max</option><option value="gpt-5.1-codex-mini" b-3vo76lhta6>gpt-5.1-codex-mini</option><option value="gpt-5.2" b-3vo76lhta6>gpt-5.2</option><option value="gpt-5.2-2025-12-11" b-3vo76lhta6>gpt-5.2-2025-12-11</option><option value="gpt-5.2-chat-latest" b-3vo76lhta6>gpt-5.2-chat-latest</option><option value="gpt-5.2-codex" b-3vo76lhta6>gpt-5.2-codex</option><option value="gpt-5.2-pro" b-3vo76lhta6>gpt-5.2-pro</option><option value="gpt-5.2-pro-2025-12-11" b-3vo76lhta6>gpt-5.2-pro-2025-12-11</option><option value="gpt-5.3-chat-latest" b-3vo76lhta6>gpt-5.3-chat-latest</option><option value="gpt-5.3-codex" b-3vo76lhta6>gpt-5.3-codex</option><option value="gpt-5.4" b-3vo76lhta6>gpt-5.4</option><option value="gpt-5.4-2026-03-05" b-3vo76lhta6>gpt-5.4-2026-03-05</option><option value="gpt-5.4-mini" b-3vo76lhta6>gpt-5.4-mini</option><option value="gpt-5.4-mini-2026-03-17" b-3vo76lhta6>gpt-5.4-mini-2026-03-17</option><option value="gpt-5.4-nano" b-3vo76lhta6>gpt-5.4-nano</option><option value="gpt-5.4-nano-2026-03-17" b-3vo76lhta6>gpt-5.4-nano-2026-03-17</option><option value="gpt-5.4-pro" b-3vo76lhta6>gpt-5.4-pro</option><option value="gpt-5.4-pro-2026-03-05" b-3vo76lhta6>gpt-5.4-pro-2026-03-05</option><option value="gpt-5.5" b-3vo76lhta6>gpt-5.5</option><option value="gpt-5.5-2026-04-23" b-3vo76lhta6>gpt-5.5-2026-04-23</option><option value="gpt-5.5-pro" b-3vo76lhta6>gpt-5.5-pro</option><option value="gpt-5.5-pro-2026-04-23" b-3vo76lhta6>gpt-5.5-pro-2026-04-23</option><option value="gpt-realtime" b-3vo76lhta6>gpt-realtime</option><option value="gpt-realtime-1.5" b-3vo76lhta6>gpt-realtime-1.5</option><option value="gpt-realtime-2" b-3vo76lhta6>gpt-realtime-2</option><option value="gpt-realtime-2025-08-28" b-3vo76lhta6>gpt-realtime-2025-08-28</option><option value="gpt-realtime-mini" b-3vo76lhta6>gpt-realtime-mini</option><option value="gpt-realtime-mini-2025-10-06" b-3vo76lhta6>gpt-realtime-mini-2025-10-06</option><option value="gpt-realtime-mini-2025-12-15" b-3vo76lhta6>gpt-realtime-mini-2025-12-15</option><option value="gpt-realtime-translate" b-3vo76lhta6>gpt-realtime-translate</option><option value="o1" b-3vo76lhta6>o1</option><option value="o1-2024-12-17" b-3vo76lhta6>o1-2024-12-17</option><option value="o1-pro" b-3vo76lhta6>o1-pro</option><option value="o1-pro-2025-03-19" b-3vo76lhta6>o1-pro-2025-03-19</option><option value="o3" b-3vo76lhta6>o3</option><option value="o3-2025-04-16" b-3vo76lhta6>o3-2025-04-16</option><option value="o3-deep-research" b-3vo76lhta6>o3-deep-research</option><option value="o3-deep-research-2025-06-26" b-3vo76lhta6>o3-deep-research-2025-06-26</option><option value="o3-mini" b-3vo76lhta6>o3-mini</option><option value="o3-mini-2025-01-31" b-3vo76lhta6>o3-mini-2025-01-31</option><option value="o3-pro" b-3vo76lhta6>o3-pro</option><option value="o3-pro-2025-06-10" b-3vo76lhta6>o3-pro-2025-06-10</option><option value="o4-mini" b-3vo76lhta6>o4-mini</option><option value="o4-mini-2025-04-16" b-3vo76lhta6>o4-mini-2025-04-16</option><option value="o4-mini-deep-research" b-3vo76lhta6>o4-mini-deep-research</option><option value="o4-mini-deep-research-2025-06-26" b-3vo76lhta6>o4-mini-deep-research-2025-06-26</option></select>
+                <button class="btn btn-outline-secondary" type="button" title="Refresh models from OpenAI" b-3vo76lhta6><i class="bi bi-arrow-clockwise" b-3vo76lhta6></i></button>
+                <button class="btn btn-outline-info" type="button" title="Toggle showing all raw models" b-3vo76lhta6><i class="bi bi-eye" b-3vo76lhta6></i></button></div>
+            <div class="mt-1" b-3vo76lhta6><small class="text-muted" b-3vo76lhta6>Selected: <strong b-3vo76lhta6>gpt-4o-mini</strong> &nbsp; • &nbsp; Fetched 97 text-capable models (raw: 136)</small></div></div>
+        <div class="mb-2 d-flex gap-2 align-items-center" b-3vo76lhta6><input id="customModel" class="form-control bg-dark text-light border-success" placeholder="Add custom model id (e.g., gpt-4o-mini)" value="" b-3vo76lhta6 />
+            <button class="btn btn-outline-success" disabled="disabled" b-3vo76lhta6>Add</button></div>
+        <label class='sr-only m-1' for='inputElement' b-3vo76lhta6>Chat Message</label>
+        <textarea rows="4" id="inputElement" class="form-control m-1 text-light border border-success ai-input-bg" placeholder="Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl&#x2B;Enter or click Chat." b-3vo76lhta6></textarea>
+        <div class="mb-2 d-flex align-items-center gap-2 flex-wrap" b-3vo76lhta6><input accesskey="d" id="debounceToggle" type="checkbox" class="form-check-input align-middle" style="margin-bottom: 0; margin-right: 4px;" b-3vo76lhta6 />
+            <label for="debounceToggle" class="form-label text-light mb-0 me-2 align-middle" b-3vo76lhta6><u b-3vo76lhta6>D</u>ebounce</label>
+            <div class="d-none d-md-flex align-items-center ms-2" b-3vo76lhta6><label for="debounceBox" class="form-label text-light mb-0 align-middle" b-3vo76lhta6>Wait (ms):</label>
+                <input id="debounceBox" type="number" min="100" max="10000" step="100" class="form-control bg-dark text-light border-success text-end align-middle" style="display: inline-block; margin-bottom: 0;width: 100px;" disabled="disabled" value="4200" b-3vo76lhta6 /></div></div>
+        <div class="d-flex flex-wrap gap-2 mt-2" b-3vo76lhta6><button accesskey="z" aria-keyshortcuts="Alt&#x2B;Z" title="Chat (Alt&#x2B;Z)" class="btn btn-outline-success btn-sm" type="button" b-3vo76lhta6><i class="bi bi-send" b-3vo76lhta6></i> Chat (<u b-3vo76lhta6>Z</u>)</button>
+            <button accesskey="l" class="btn btn-outline-success btn-sm" type="button" b-3vo76lhta6><i class="bi bi-eraser-fill" b-3vo76lhta6></i> C<u b-3vo76lhta6>l</u>ear</button>
+            <button accesskey="t" class="btn btn-outline-danger btn-sm" type="button" b-3vo76lhta6><i class="bi bi-trash-fill" b-3vo76lhta6></i> Forge<u b-3vo76lhta6>t</u></button></div><br b-3vo76lhta6><label class='m-1 text-light' b-3vo76lhta6><i class="bi bi-info-circle-fill" b-3vo76lhta6></i> Current Prompt:</label><hr class="text-light" b-3vo76lhta6>
+    <button class="btn btn-outline-success m-1" b-3vo76lhta6><i class="bi bi-clock-history" b-3vo76lhta6></i> Response History <span class="badge bg-success" b-3vo76lhta6>0</span></button></div>
+    <div class="col-md-7 bg-dark text-light p-2 rounded" b-3vo76lhta6><div class="d-flex justify-content-center align-items-center border border-light" style="width:100%;height:300px;" b-3vo76lhta6><span class="text-muted" b-3vo76lhta6>The Results Will Appear Here.. 🙂</span></div></div></div>
+<div class='row' b-3vo76lhta6><div class='col-12 text-secondary' b-3vo76lhta6><p b-3vo76lhta6>
+            Talon Command Reminder: Draft All (VSCode should be open), Draft This, Draft Submit, Voice Typing in Code,
+            Voice Typing
+        </p></div></div></article></main></div>
+        <footer class="center-footer theme-light d-flex justify-content-between align-items-center" b-h549jgl2u7><div b-h549jgl2u7>
+                &copy; Voice Admin 2026,
+Powered by.NET 10.0.8</div>
+            <div b-h549jgl2u7></div></footer>
+<script b-h549jgl2u7>
+(() => {
+    try {
+        const storageKey = 'appTheme';
+        const applyTheme = (theme) => {
+            if (!theme) return;
+            const t = theme === 'dark' ? 'dark' : 'light';
+            try { document.documentElement.setAttribute('data-bs-theme', t); } catch (e) {}
+            try { document.body.setAttribute('data-bs-theme', t); } catch (e) {}
+        };
+
+        const saved = localStorage.getItem(storageKey);
+        applyTheme(saved || 'light');
+        console.log('theme-sync initialized with', saved);
+        window.addEventListener('storage', (e) => {
+            if (e.key === storageKey) applyTheme(e.newValue);
+        });
+
+        const obs = new MutationObserver(() => {
+            const pageEl = document.querySelector('.page');
+            const classList = (pageEl && pageEl.className) || document.documentElement.className || document.body.className || '';
+            if (classList.indexOf('theme-dark') !== -1) applyTheme('dark');
+            else if (classList.indexOf('theme-light') !== -1) applyTheme('light');
+        });
+        const target = document.querySelector('.page') || document.body || document.documentElement;
+        obs.observe(target, { attributes: true, attributeFilter: ['class'], subtree: true });
+    } catch (e) { console.error('theme-sync failed', e); }
+})();
+</script>
+        <!--Blazor:{"prerenderId":"aeb03ec29ae64ae698f3fb70cbda464e"}-->
+
+<script>
+  window.scrollFocusedIntoView = () => {
+    const focused = document.querySelector('.card.focused');
+    if (focused) {
+      focused.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+</script>
+
+	<div>
+	</div>
+	<div id="blazor-error-ui">
+		
+		
+		<a href="" class="reload">Reload</a>
+		<a class="dismiss">🗙</a>
+	</div>
+
+	<script src="_framework/blazor.server.js"></script>
+	<script
+		src="_content/Radzen.Blazor/Radzen.Blazor.js?v=10.1.0.0"></script>
+	<script src="/scripts/prism.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<script type="module">
+		// Eagerly import the selection modal interop module so it can attach fallback helpers and log its load status
+		(async () => {
+			try {
+				const m = await import('/_content/RazorClassLibrary/selectionModalInterop.js');
+				console.log('selectionModalInterop module eagerly imported');
+			} catch (e) {
+				console.warn('selectionModalInterop eager import failed', e);
+			}
+		})();
+	</script>
+	<script>
+		function CallChange(elementId) {
+			var element = document.getElementById(elementId);
+			if (element) {
+				var event = new Event('change');
+				element.dispatchEvent(event);
+				//console.log(elementId + " change fired " + element.localName)
+			}
+		}
+		window.setFocus = (elementId) => {
+			setTimeout(internalFocus, 10, elementId);
+		};
+		window["window.setFocus"] = window.setFocus;
+		function internalFocus(elementId) {
+			var element = document.getElementById(elementId);
+			if (element == null) {
+				setTimeout(internalFocus, 10, elementId);
+				return;
+			}
+			element.focus();
+			//element.select();
+		}
+		window.myJsFunctions = {
+			focusElement: function (element) {
+				element.focus();
+			}
+		}
+		window.clipboardCopy = {
+			copyText: function (text) {
+				navigator.clipboard.writeText(text).then(function () {
+					// alert("Copied to clipboard!");
+					//console.log("Copied to clipboard!");
+				})
+					.catch(function (error) {
+						console.log(error);
+					});
+			}
+		};
+		window.getPageYOffset = function () {
+			return window.pageYOffset;
+		}
+		function adjustTextArea(textArea) {
+			textArea.style.height = 'auto'; // Reset the height
+			textArea.style.height = (textArea.scrollHeight) + 'px'; // Set the height to the scroll height
+		}
+	</script>
+	<script src="js/site.js"></script>
+	<!-- Face recognition helpers: ensure available to pages that use this layout -->
+	<script src="/js/faceRecognition.js"></script>
+	<script>
+		// Minimal fallback helpers for Blazor components in case faceRecognition.js isn't available
+		window.blazorHelpers = window.blazorHelpers || {};
+		window.blazorHelpers.getBoundingClientRect = function (element) {
+			if (!element) return null;
+			const rect = element.getBoundingClientRect();
+			return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+		};
+		window.blazorHelpers.focusElement = function (element) {
+			if (!element) return false;
+			try { element.focus(); return true; } catch (e) { return false; }
+		};
+	</script>
+
+<script type="module" src="/_content/SmartComponents.AspNetCore.Components/SmartComponents.AspNetCore.Components.lib.module.js?v=sxCZsSeDTiMOv3T10qaoj7rLD4tLcr7wfPjUF7Hizf4"></script></body>
+
+</html>
