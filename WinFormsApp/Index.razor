@@ -13,7 +13,7 @@
 			<i class="bi bi-arrow-repeat"></i> Refresh Data
 		</button>
 		<button class="btn btn-sm btn-outline-secondary ms-2" @onclick="@(() => ShowClipboardHistory())">Clipboard History</button>
-		<button accesskey="A" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
+		<button accesskey="@" class="btn btn-sm btn-outline-primary" @onclick="@(() => ShowAIChat())"><u>A</u>I
 			@AIChatButtonCaption</button>
 		@* Top-level switch buttons: show only the relevant toggle depending on current view *@
 		@if (launcher)
