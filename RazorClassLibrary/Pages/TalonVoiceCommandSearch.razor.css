@@ -421,6 +421,12 @@
     color: var(--bs-light) !important;
 }
 
+/* Ensure textual captions/labels in the tvcs panel remain readable in dark theme */
+[data-bs-theme="dark"] .tvcs-panel strong,
+[data-bs-theme="dark"] .tvcs-panel strong:hover {
+    color: var(--bs-light) !important;
+}
+
 /* Fix dropdown option visibility in both light and dark modes */
 .filter-mode option,
 .filter-tags option,
