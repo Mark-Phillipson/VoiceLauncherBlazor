@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -176,6 +178,24 @@ public sealed class QuizService : IQuizService
                         q.CorrectIndex = 0;
                     }
                 }
+
+                // Sanitize manual prompts: redact explicit occurrences of the correct answer
+                // to avoid leaking answers inside the question text.
+                if (string.Equals(q.Source, "manual", StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(q.CorrectAnswer)
+                    && !string.IsNullOrWhiteSpace(q.Prompt)
+                    && WouldLeakAnswer(q.Prompt, q.CorrectAnswer))
+                {
+                    var redacted = RedactAnswerTokens(q.Prompt, q.CorrectAnswer);
+                    if (!string.IsNullOrWhiteSpace(redacted))
+                    {
+                        q.Prompt = redacted;
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"[QuizService] Manual prompt redaction produced empty prompt for answer '{q.CorrectAnswer}'");
+                    }
+                }
             }
 
             return items;
@@ -200,14 +220,42 @@ public sealed class QuizService : IQuizService
     {
         var correctAnswer = fact.Meaning;
         var distractors = GatherDistractors(fact, facts, candidate => candidate.Meaning, correctAnswer);
-        return CreateQuestion($"What does '{fact.SpokenForm}' do?", fact.Category, fact.Source, correctAnswer, distractors);
+        var prompt = $"What does '{fact.SpokenForm}' do?";
+        if (WouldLeakAnswer(prompt, correctAnswer))
+        {
+            var redacted = RedactAnswerTokens(prompt, correctAnswer);
+            if (!WouldLeakAnswer(redacted, correctAnswer) && !string.IsNullOrWhiteSpace(redacted))
+            {
+                prompt = redacted;
+            }
+            else
+            {
+                return BuildCategoryQuestion(fact, facts);
+            }
+        }
+
+        return CreateQuestion(prompt, fact.Category, fact.Source, correctAnswer, distractors);
     }
 
     private static QuizQuestion BuildMeaningToSpokenQuestion(QuizFact fact, IReadOnlyList<QuizFact> facts)
     {
         var correctAnswer = fact.SpokenForm;
         var distractors = GatherDistractors(fact, facts, candidate => candidate.SpokenForm, correctAnswer);
-        return CreateQuestion($"Which voice command means '{fact.Meaning}'?", fact.Category, fact.Source, correctAnswer, distractors);
+        var prompt = $"Which voice command means '{fact.Meaning}'?";
+        if (WouldLeakAnswer(prompt, correctAnswer))
+        {
+            var redacted = RedactAnswerTokens(prompt, correctAnswer);
+            if (!WouldLeakAnswer(redacted, correctAnswer) && !string.IsNullOrWhiteSpace(redacted))
+            {
+                prompt = redacted;
+            }
+            else
+            {
+                return BuildCategoryQuestion(fact, facts);
+            }
+        }
+
+        return CreateQuestion(prompt, fact.Category, fact.Source, correctAnswer, distractors);
     }
 
     private static QuizQuestion BuildCategoryQuestion(QuizFact fact, IReadOnlyList<QuizFact> facts)
@@ -215,7 +263,22 @@ public sealed class QuizService : IQuizService
         var correctAnswer = fact.SpokenForm;
         var distractors = GatherCategoryDistractors(fact, facts, correctAnswer);
         var article = GetIndefiniteArticle(fact.Category);
-        return CreateQuestion($"Which of the following is {article} {fact.Category}?", fact.Category, fact.Source, correctAnswer, distractors);
+        var prompt = $"Which of the following is {article} {fact.Category}?";
+        if (WouldLeakAnswer(prompt, correctAnswer))
+        {
+            var redacted = RedactAnswerTokens(prompt, correctAnswer);
+            if (!WouldLeakAnswer(redacted, correctAnswer) && !string.IsNullOrWhiteSpace(redacted))
+            {
+                prompt = redacted;
+            }
+            else
+            {
+                // Fallback to a spoken->meaning question if category prompt would leak
+                return BuildSpokenToMeaningQuestion(fact, facts);
+            }
+        }
+
+        return CreateQuestion(prompt, fact.Category, fact.Source, correctAnswer, distractors);
     }
 
     private static string GetIndefiniteArticle(string? phrase)
@@ -282,6 +345,21 @@ public sealed class QuizService : IQuizService
             }
         }
 
+        // Final safeguard: ensure the prompt does not contain the correct answer verbatim.
+        if (WouldLeakAnswer(prompt, correctAnswer))
+        {
+            var redacted = RedactAnswerTokens(prompt, correctAnswer);
+            // If redaction yields an empty prompt, keep the original prompt but log for diagnostics.
+            if (!string.IsNullOrWhiteSpace(redacted))
+            {
+                prompt = redacted;
+            }
+            else
+            {
+                Debug.WriteLine($"[QuizService] Sanitization produced empty prompt for question with answer '{correctAnswer}'");
+            }
+        }
+
         return new QuizQuestion
         {
             Prompt = prompt,
@@ -291,6 +369,35 @@ public sealed class QuizService : IQuizService
             Category = category,
             Source = source
         };
+    }
+
+    private static bool WouldLeakAnswer(string prompt, string correctAnswer)
+    {
+        if (string.IsNullOrWhiteSpace(prompt) || string.IsNullOrWhiteSpace(correctAnswer)) return false;
+        try
+        {
+            // Case-insensitive containment check for the exact answer text.
+            return Regex.IsMatch(prompt, Regex.Escape(correctAnswer), RegexOptions.IgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string RedactAnswerTokens(string prompt, string correctAnswer)
+    {
+        if (string.IsNullOrWhiteSpace(prompt) || string.IsNullOrWhiteSpace(correctAnswer)) return prompt;
+        try
+        {
+            var pattern = Regex.Escape(correctAnswer);
+            var redacted = Regex.Replace(prompt, pattern, "____", RegexOptions.IgnoreCase);
+            return redacted;
+        }
+        catch
+        {
+            return prompt;
+        }
     }
 
     private static List<string> GatherDistractors(QuizFact fact, IReadOnlyList<QuizFact> facts, Func<QuizFact, string> selector, string correctAnswer)

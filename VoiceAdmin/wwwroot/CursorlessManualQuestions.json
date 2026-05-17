@@ -1,353 +1,403 @@
 [
-  {
-    "Prompt": "Which of the following defines a modifier in Cursorless?",
-    "Choices": [
-      "A token that changes how a target is interpreted (e.g., 'line', 'inside', 'every')",
-      "A paired delimiter like parentheses or brackets",
-      "A specific hat color used for selection",
-      "An action that inserts text at the cursor"
-    ],
-    "CorrectAnswer": "A token that changes how a target is interpreted (e.g., 'line', 'inside', 'every')",
-    "CorrectIndex": 0,
-    "Category": "Modifier",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What is a 'hat shape' (shape) in Cursorless and how is it used? Examples: bolt, curve.",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": [
-      "A syntactic modifier that expands a selection to a block or file",
-      "A paired delimiter type like 'round' or 'curly' used to match brackets",
-      "An action that inserts a new line above the target",
-      "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)"
-    ],
-    "CorrectAnswer": "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)",
-    "CorrectIndex": 3,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["round", "puff", "bolt", "blue"],
-    "CorrectAnswer": "bolt",
-    "CorrectIndex": 2,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["pour", "curve", "green", "curly"],
-    "CorrectAnswer": "curve",
-    "CorrectIndex": 1,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["red", "box", "chuck", "fox"],
-    "CorrectAnswer": "fox",
-    "CorrectIndex": 3,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["quad", "copy", "frame", "pink"],
-    "CorrectAnswer": "frame",
-    "CorrectIndex": 2,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["puff", "play", "yellow", "token"],
-    "CorrectAnswer": "play",
-    "CorrectIndex": 1,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["blue", "line", "pour", "wing"],
-    "CorrectAnswer": "wing",
-    "CorrectIndex": 3,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["box", "chuck", "hole", "green"],
-    "CorrectAnswer": "hole",
-    "CorrectIndex": 2,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["copy", "ex", "red", "curly"],
-    "CorrectAnswer": "ex",
-    "CorrectIndex": 1,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["pink", "round", "puff", "cross"],
-    "CorrectAnswer": "cross",
-    "CorrectIndex": 3,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
-    "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["token", "pour", "eye", "yellow"],
-    "CorrectAnswer": "eye",
-    "CorrectIndex": 2,
-    "Category": "Hat shape",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "How can you select a line in Cursorless?",
-    "Choices": [
-      "Take line [target]",
-      "Take inside [target]",
-      "Take every [target]",
-      "Take block [target]"
-    ],
-    "CorrectAnswer": "Take line [target]",
-    "CorrectIndex": 0,
-    "Category": "Modifier",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "How do you select the contents of a string without including the string itself in Cursorless?",
-    "Choices": [
-      "Take every [target]",
-      "Take line [target]",
-      "Take block [target]",
-      "Take inside [target]"
-    ],
-    "CorrectAnswer": "Take inside [target]",
-    "CorrectIndex": 3,
-    "Category": "Modifier",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "How do you go to a concrete implementation instead of an interface in Cursorless?",
-    "Choices": [
-      "definition [target]",
-      "concrete [target]",
-      "references [target]",
-      "implementations [target]"
-    ],
-    "CorrectAnswer": "concrete [target]",
-    "CorrectIndex": 1,
-    "Category": "Navigation",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What are the following in Cursorless: box, curly, diamond, quad, round, skis, string, twin, and void?",
-    "Choices": [
-      "They are all hat shapes",
-      "They are all actions",
-      "They are all paired delimiters",
-      "They are all modifiers"
-    ],
-    "CorrectAnswer": "They are all paired delimiters",
-    "CorrectIndex": 2,
-    "Category": "Paired delimiter",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "How in Cursorless can you select a single character at the beginning of a target?",
-    "Choices": [
-      "take last char [target]",
-      "take first char [target]",
-      "take line [target]",
-      "take inside [target]"
-    ],
-    "CorrectAnswer": "take first char [target]",
-    "CorrectIndex": 1,
-    "Category": "Modifier",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "How do you select the whole of a function in code?",
-    "Choices": [
-      "take line [target]",
-      "take inside [target]",
-      "take funk [target]",
-      "take block [target]"
-    ],
-    "CorrectAnswer": "take funk [target]",
-    "CorrectIndex": 2,
-    "Category": "Modifier",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What does crown [target] do?",
-    "Choices": [
-      "scroll the target to the top of the current code window",
-      "move the cursor to the end of the target",
-      "select the whole file",
-      "rename the target"
-    ],
-    "CorrectAnswer": "scroll the target to the top of the current code window",
-    "CorrectIndex": 0,
-    "Category": "Navigation",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "When you're in Cursorless and you don't know what something is called, what's the best way to figure it out?",
-    "Choices": [
-      "Say 'bar Cursorless' and look at the scopes currently available",
-      "Say 'help me'",
-      "Say 'concrete path'",
-      "Say 'wtf'"
-    ],
-    "CorrectAnswer": "Say 'bar Cursorless' and look at the scopes currently available",
-    "CorrectIndex": 0,
-    "Category": "Help",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action carve do?",
-    "Choices": [
-      "cut the target to the clipboard",
-      "copy the target to the clipboard",
-      "delete the target without clipboard",
-      "rename the target"
-    ],
-    "CorrectAnswer": "cut the target to the clipboard",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action center do?",
-    "Choices": [
-      "scroll the target to the center of the current code window",
-      "scroll the target to the top of the current code window",
-      "scroll the target to the bottom of the current code window",
-      "rename the target"
-    ],
-    "CorrectAnswer": "scroll the target to the center of the current code window",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action bottom do?",
-    "Choices": [
-      "scroll the target to the bottom of the current code window",
-      "scroll the target to the center of the current code window",
-      "scroll the target to the top of the current code window",
-      "copy the target to the clipboard"
-    ],
-    "CorrectAnswer": "scroll the target to the bottom of the current code window",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action drink do?",
-    "Choices": [
-      "insert a new line above the target",
-      "insert a new line below the target",
-      "insert an empty line above the target",
-      "insert an empty line below the target"
-    ],
-    "CorrectAnswer": "insert a new line above the target",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action pour do?",
-    "Choices": [
-      "insert a new line below the target",
-      "insert a new line above the target",
-      "insert an empty line above the target",
-      "insert empty lines or spaces around the target"
-    ],
-    "CorrectAnswer": "insert a new line below the target",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action drop do?",
-    "Choices": [
-      "insert an empty line above the target",
-      "insert a new line above the target",
-      "insert a new line below the target",
-      "insert an empty line below the target"
-    ],
-    "CorrectAnswer": "insert an empty line above the target",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action float do?",
-    "Choices": [
-      "insert an empty line below the target",
-      "insert an empty line above the target",
-      "insert a new line above the target",
-      "insert a new line below the target"
-    ],
-    "CorrectAnswer": "insert an empty line below the target",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action puff do?",
-    "Choices": [
-      "insert empty lines or spaces around the target",
-      "insert a new line above the target",
-      "insert a new line below the target",
-      "scroll the target to the center of the current code window"
-    ],
-    "CorrectAnswer": "insert empty lines or spaces around the target",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action phones do?",
-    "Choices": [
-      "cycle homophones",
-      "extract a variable",
-      "rename the target",
-      "copy the target to the clipboard"
-    ],
-    "CorrectAnswer": "cycle homophones",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  },
-  {
-    "Prompt": "What will the action extract do?",
-    "Choices": [
-      "extract a variable",
-      "cycle homophones",
-      "insert empty lines or spaces around the target",
-      "cut the target to the clipboard"
-    ],
-    "CorrectAnswer": "extract a variable",
-    "CorrectIndex": 0,
-    "Category": "Action",
-    "Source": "manual"
-  }
+    {
+        "Prompt":  "Which of the following defines a modifier in Cursorless?",
+        "Choices":  [
+                        "A token that changes how a target is interpreted (e.g., \u0027line\u0027, \u0027inside\u0027, \u0027every\u0027)",
+                        "A paired delimiter like parentheses or brackets",
+                        "A specific hat color used for selection",
+                        "An action that inserts text at the cursor"
+                    ],
+        "CorrectAnswer":  "A token that changes how a target is interpreted (e.g., \u0027line\u0027, \u0027inside\u0027, \u0027every\u0027)",
+        "CorrectIndex":  0,
+        "Category":  "Modifier",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What is a \u0027hat shape\u0027 (shape) in Cursorless and how is it used? Examples: bolt, curve.",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "A syntactic modifier that expands a selection to a block or file",
+                        "A paired delimiter type like \u0027round\u0027 or \u0027curly\u0027 used to match brackets",
+                        "An action that inserts a new line above the target",
+                        "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)"
+                    ],
+        "CorrectAnswer":  "A spoken alias selecting a selection shape used to pick targets quickly (e.g., bolt, curve)",
+        "CorrectIndex":  3,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: ____, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "round",
+                        "puff",
+                        "bolt",
+                        "blue"
+                    ],
+        "CorrectAnswer":  "bolt",
+        "CorrectIndex":  2,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, ____, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "pour",
+                        "curve",
+                        "green",
+                        "curly"
+                    ],
+        "CorrectAnswer":  "curve",
+        "CorrectIndex":  1,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, ____)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "red",
+                        "box",
+                        "chuck",
+                        "fox"
+                    ],
+        "CorrectAnswer":  "fox",
+        "CorrectIndex":  3,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "quad",
+                        "copy",
+                        "frame",
+                        "pink"
+                    ],
+        "CorrectAnswer":  "frame",
+        "CorrectIndex":  2,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "puff",
+                        "play",
+                        "yellow",
+                        "token"
+                    ],
+        "CorrectAnswer":  "play",
+        "CorrectIndex":  1,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "blue",
+                        "line",
+                        "pour",
+                        "wing"
+                    ],
+        "CorrectAnswer":  "wing",
+        "CorrectIndex":  3,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "box",
+                        "chuck",
+                        "hole",
+                        "green"
+                    ],
+        "CorrectAnswer":  "hole",
+        "CorrectIndex":  2,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "copy",
+                        "ex",
+                        "red",
+                        "curly"
+                    ],
+        "CorrectAnswer":  "ex",
+        "CorrectIndex":  1,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "pink",
+                        "round",
+                        "puff",
+                        "cross"
+                    ],
+        "CorrectAnswer":  "cross",
+        "CorrectIndex":  3,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets Ã¢â‚¬â€ examples: bolt, curve, fox)",
+        "DocLink":  "https://www.cursorless.org/docs/#shapes",
+        "Choices":  [
+                        "token",
+                        "pour",
+                        "eye",
+                        "yellow"
+                    ],
+        "CorrectAnswer":  "eye",
+        "CorrectIndex":  2,
+        "Category":  "Hat shape",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "How can you select a line in Cursorless?",
+        "Choices":  [
+                        "Take line [target]",
+                        "Take inside [target]",
+                        "Take every [target]",
+                        "Take block [target]"
+                    ],
+        "CorrectAnswer":  "Take line [target]",
+        "CorrectIndex":  0,
+        "Category":  "Modifier",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "How do you select the contents of a string without including the string itself in Cursorless?",
+        "Choices":  [
+                        "Take every [target]",
+                        "Take line [target]",
+                        "Take block [target]",
+                        "Take inside [target]"
+                    ],
+        "CorrectAnswer":  "Take inside [target]",
+        "CorrectIndex":  3,
+        "Category":  "Modifier",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "How do you go to a concrete implementation instead of an interface in Cursorless?",
+        "Choices":  [
+                        "definition [target]",
+                        "concrete [target]",
+                        "references [target]",
+                        "implementations [target]"
+                    ],
+        "CorrectAnswer":  "concrete [target]",
+        "CorrectIndex":  1,
+        "Category":  "Navigation",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What are the following in Cursorless: box, curly, diamond, quad, round, skis, string, twin, and void?",
+        "Choices":  [
+                        "They are all hat shapes",
+                        "They are all actions",
+                        "They are all paired delimiters",
+                        "They are all modifiers"
+                    ],
+        "CorrectAnswer":  "They are all paired delimiters",
+        "CorrectIndex":  2,
+        "Category":  "Paired delimiter",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "How in Cursorless can you select a single character at the beginning of a target?",
+        "Choices":  [
+                        "take last char [target]",
+                        "take first char [target]",
+                        "take line [target]",
+                        "take inside [target]"
+                    ],
+        "CorrectAnswer":  "take first char [target]",
+        "CorrectIndex":  1,
+        "Category":  "Modifier",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "How do you select the whole of a function in code?",
+        "Choices":  [
+                        "take line [target]",
+                        "take inside [target]",
+                        "take funk [target]",
+                        "take block [target]"
+                    ],
+        "CorrectAnswer":  "take funk [target]",
+        "CorrectIndex":  2,
+        "Category":  "Modifier",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What does crown [target] do?",
+        "Choices":  [
+                        "scroll the target to the top of the current code window",
+                        "move the cursor to the end of the target",
+                        "select the whole file",
+                        "rename the target"
+                    ],
+        "CorrectAnswer":  "scroll the target to the top of the current code window",
+        "CorrectIndex":  0,
+        "Category":  "Navigation",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "When you\u0027re in Cursorless and you don\u0027t know what something is called, what\u0027s the best way to figure it out?",
+        "Choices":  [
+                        "Say \u0027bar Cursorless\u0027 and look at the scopes currently available",
+                        "Say \u0027help me\u0027",
+                        "Say \u0027concrete path\u0027",
+                        "Say \u0027wtf\u0027"
+                    ],
+        "CorrectAnswer":  "Say \u0027bar Cursorless\u0027 and look at the scopes currently available",
+        "CorrectIndex":  0,
+        "Category":  "Help",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action carve do?",
+        "Choices":  [
+                        "cut the target to the clipboard",
+                        "copy the target to the clipboard",
+                        "delete the target without clipboard",
+                        "rename the target"
+                    ],
+        "CorrectAnswer":  "cut the target to the clipboard",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action center do?",
+        "Choices":  [
+                        "scroll the target to the center of the current code window",
+                        "scroll the target to the top of the current code window",
+                        "scroll the target to the bottom of the current code window",
+                        "rename the target"
+                    ],
+        "CorrectAnswer":  "scroll the target to the center of the current code window",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action bottom do?",
+        "Choices":  [
+                        "scroll the target to the bottom of the current code window",
+                        "scroll the target to the center of the current code window",
+                        "scroll the target to the top of the current code window",
+                        "copy the target to the clipboard"
+                    ],
+        "CorrectAnswer":  "scroll the target to the bottom of the current code window",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action drink do?",
+        "Choices":  [
+                        "insert a new line above the target",
+                        "insert a new line below the target",
+                        "insert an empty line above the target",
+                        "insert an empty line below the target"
+                    ],
+        "CorrectAnswer":  "insert a new line above the target",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action pour do?",
+        "Choices":  [
+                        "insert a new line below the target",
+                        "insert a new line above the target",
+                        "insert an empty line above the target",
+                        "insert empty lines or spaces around the target"
+                    ],
+        "CorrectAnswer":  "insert a new line below the target",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action drop do?",
+        "Choices":  [
+                        "insert an empty line above the target",
+                        "insert a new line above the target",
+                        "insert a new line below the target",
+                        "insert an empty line below the target"
+                    ],
+        "CorrectAnswer":  "insert an empty line above the target",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action float do?",
+        "Choices":  [
+                        "insert an empty line below the target",
+                        "insert an empty line above the target",
+                        "insert a new line above the target",
+                        "insert a new line below the target"
+                    ],
+        "CorrectAnswer":  "insert an empty line below the target",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action puff do?",
+        "Choices":  [
+                        "insert empty lines or spaces around the target",
+                        "insert a new line above the target",
+                        "insert a new line below the target",
+                        "scroll the target to the center of the current code window"
+                    ],
+        "CorrectAnswer":  "insert empty lines or spaces around the target",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action phones do?",
+        "Choices":  [
+                        "cycle homophones",
+                        "extract a variable",
+                        "rename the target",
+                        "copy the target to the clipboard"
+                    ],
+        "CorrectAnswer":  "cycle homophones",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    },
+    {
+        "Prompt":  "What will the action extract do?",
+        "Choices":  [
+                        "extract a variable",
+                        "cycle homophones",
+                        "insert empty lines or spaces around the target",
+                        "cut the target to the clipboard"
+                    ],
+        "CorrectAnswer":  "extract a variable",
+        "CorrectIndex":  0,
+        "Category":  "Action",
+        "Source":  "manual"
+    }
 ]
