@@ -218,6 +218,14 @@ button.selection-card,
 	border-color: var(--border-color) !important;
 }
 
+/* Ensure captions inside tvcs panels are readable in dark theme specifically */
+html[data-bs-theme="dark"] .tvcs-panel strong,
+html[data-bs-theme="dark"] .tvcs-panel strong:hover,
+html[data-bs-theme="dark"] .tvcs-panel strong:focus {
+	color: var(--bs-light) !important;
+	-webkit-text-fill-color: var(--bs-light) !important;
+}
+
 /* Light-theme specific overrides to neutralize remaining hard-coded dark fragments */
 [data-bs-theme="light"] .selection-card,
 [data-bs-theme="light"] .selection-card .card-body,
