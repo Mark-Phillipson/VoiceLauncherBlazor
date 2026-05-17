@@ -240,7 +240,7 @@
 
 [data-bs-theme="dark"] .btn-outline-secondary:hover {
     background-color: var(--bs-secondary);
-    color: var(--bs-dark);
+    color: var(--bs-body-color);
 }
 
 /* Filter buttons: make their backgrounds match the underscore/badge colors used elsewhere
@@ -412,6 +412,13 @@
 
 [data-bs-theme="dark"] .filter-title {
     background-color: rgba(var(--bs-success-rgb), 0.15) !important;
+}
+
+/* Ensure filter button text remains readable in dark theme */
+[data-bs-theme="dark"] .filter-btn-tags,
+[data-bs-theme="dark"] .filter-btn-tags:hover,
+[data-bs-theme="dark"] .filter-btn-tags:focus {
+    color: var(--bs-light) !important;
 }
 
 /* Fix dropdown option visibility in both light and dark modes */
