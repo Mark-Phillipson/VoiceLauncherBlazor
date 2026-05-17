@@ -4,7 +4,7 @@
 <CascadingBlazoredModal>
 	<div class='m-2 text-center'>
 		<details class="d-inline-block me-2 mb-1">
-			<summary class="btn btn-sm btn-outline-secondary">Window</summary>
+			<summary accesskey="&" class="btn btn-sm btn-outline-secondary"><u>&amp;</u> Window</summary>
 			<div class="btn-group-vertical mt-1">
 				<button accesskey="/" class="btn btn-sm btn-outline-secondary text-start" @onclick="@(() => MaximizeWindow())"><u>/</u> Maximize</button>
 				<button accesskey="_" class="btn btn-sm btn-outline-secondary text-start" @onclick="@(() => MinimizeWindow())"><u>_</u> Minimize</button>
@@ -12,33 +12,33 @@
 			</div>
 		</details>
 		<details class="d-inline-block me-2 mb-1">
-			<summary class="btn btn-sm btn-outline-info">Data</summary>
+			<summary accesskey="$" class="btn btn-sm btn-outline-info"><u>$</u> Data</summary>
 			<div class="btn-group-vertical mt-1">
-				<button class="btn btn-sm btn-outline-info text-start" @onclick="@(() => RefreshCache())">
-					<i class="bi bi-arrow-repeat"></i> Refresh Data
+				<button accesskey="%" class="btn btn-sm btn-outline-info text-start" @onclick="@(() => RefreshCache())">
+					<i class="bi bi-arrow-repeat"></i> <u>%</u> Refresh Data
 				</button>
-				<button class="btn btn-sm btn-outline-secondary text-start" @onclick="@(() => ShowClipboardHistory())">Clipboard History</button>
+				<button accesskey="#" class="btn btn-sm btn-outline-secondary text-start" @onclick="@(() => ShowClipboardHistory())"><u>#</u> Clipboard History</button>
 			</div>
 		</details>
 		<details class="d-inline-block mb-1">
-			<summary class="btn btn-sm btn-outline-primary">Views</summary>
+			<summary accesskey="^" class="btn btn-sm btn-outline-primary"><u>^</u> Views</summary>
 			<div class="btn-group-vertical mt-1">
-				<button accesskey="A" class="btn btn-sm btn-outline-primary text-start" @onclick="@(() => ShowAIChat())"><u>A</u>I @AIChatButtonCaption</button>
+				<button accesskey="@" class="btn btn-sm btn-outline-primary text-start" @onclick="@(() => ShowAIChat())"><u>@</u> AI @AIChatButtonCaption</button>
 				@* Top-level switch buttons: show only the relevant toggle depending on current view *@
 				@if (launcher)
 				{
-					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild"><i class="bi bi-box-arrow-up-right"></i> Snippets (!)</button>
+					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>!</u> Snippets</button>
 				}
 				else if (languageAndCategoryListing)
 				{
-					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> Launcher (!)</button>
+					<button accesskey="!" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild"><i class="bi bi-box-arrow-up-right"></i> <u>!</u> Launcher</button>
 				}
 				else
 				{
-					<button class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild">Snippets</button>
-					<button class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild">Launcher</button>
+					<button accesskey="(" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToSnippetsFromChild"><u>(</u> Snippets</button>
+					<button accesskey=")" class="btn btn-sm btn-outline-secondary text-start" @onclick="SwitchToLauncherFromChild"><u>)</u> Launcher</button>
 				}
-				<button class="btn btn-sm btn-outline-success text-start" @onclick="@(() => ShowTalonSearch())">@TalonSearchButtonCaption</button>
+				<button accesskey="+" class="btn btn-sm btn-outline-success text-start" @onclick="@(() => ShowTalonSearch())"><u>+</u> @TalonSearchButtonCaption</button>
 			</div>
 		</details>
 	</div>
