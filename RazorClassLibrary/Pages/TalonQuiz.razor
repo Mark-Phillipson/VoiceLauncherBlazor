@@ -2,7 +2,25 @@
 @using RazorClassLibrary.Shared
 @using RazorClassLibrary.Models
 @using DataAccessLibrary.Models
+@using Microsoft.AspNetCore.Hosting
+@using System.IO
+@using System.Text.Json
 @inject RazorClassLibrary.Services.ITalonListDataService TalonListDataService
+@inject IWebHostEnvironment Env
+
+<div class="mb-3 d-flex gap-2 align-items-center">
+    <label class="mb-0">Export quiz pack</label>
+    <select id="export-pack-select" class="form-select d-inline-block" style="width: 20rem;">
+        <option value="">All Talon Lists</option>
+        @foreach (var p in _listNames)
+        {
+            <option value="@p">@p</option>
+        }
+    </select>
+    <button type="button" class="btn btn-outline-primary" onclick="exportTalonPack()">Export pack</button>
+    <div id="exportMessage" class="text-muted ms-2">@(_exportMessage ?? string.Empty)</div>
+    <div id="exportedPackLink">@if (!string.IsNullOrWhiteSpace(_exportedPackUrl)) { <a href="@_exportedPackUrl" target="_blank">Open exported pack</a> }</div>
+</div>
 
 <GenericQuiz Title="Talon Voice Commands Quiz"
              Subtitle="Keyboard-first practice for Talon list category packs."
@@ -14,6 +32,10 @@
 @code {
     private List<TalonList> _allItems = new();
     private List<string> _listNames = new();
+
+    // Export UI state
+    private string? _exportedPackUrl;
+    private string? _exportMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,4 +138,80 @@
             Source = "talon"
         };
     }
+
+    private async Task ExportPackAsync(string? packName)
+    {
+        try
+        {
+            var pool = string.IsNullOrWhiteSpace(packName)
+                ? _allItems
+                : _allItems.Where(x => string.Equals(x.ListName, packName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var entries = pool
+                .Select(x => new
+                {
+                    listName = x.ListName,
+                    spokenForm = x.SpokenForm,
+                    listValue = x.ListValue,
+                    sourceFile = x.SourceFile,
+                    importedAt = x.ImportedAt
+                })
+                .ToList();
+
+            var cleanPack = string.IsNullOrWhiteSpace(packName) ? "all" : string.Join("-", packName.Split(Path.GetInvalidFileNameChars()));
+            var fileName = $"talon-pack-{cleanPack}-{DateTime.UtcNow:yyyyMMddHHmmss}.json";
+
+            var packObj = new
+            {
+                packId = $"talon-{DateTime.UtcNow:yyyyMMddHHmmss}",
+                packName = cleanPack,
+                createdAt = DateTime.UtcNow,
+                generator = "TalonExport",
+                entries = entries
+            };
+
+            var webRootPath = !string.IsNullOrWhiteSpace(Env.WebRootPath) ? Env.WebRootPath : Path.Combine(Env.ContentRootPath, "wwwroot");
+            var dir = Path.Combine(webRootPath, "quiz-packs");
+            Directory.CreateDirectory(dir);
+            var filePath = Path.Combine(dir, fileName);
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(packObj, options));
+
+            _exportedPackUrl = $"/quiz-packs/{fileName}";
+            _exportMessage = "Export successful";
+        }
+        catch (Exception ex)
+        {
+            _exportMessage = $"Export failed: {ex.Message}";
+            _exportedPackUrl = null;
+        }
+    }
 }
+
+<script>
+    async function exportTalonPack() {
+        const sel = document.getElementById('export-pack-select');
+        const pack = sel ? sel.value : '';
+        const status = document.getElementById('exportMessage');
+        const link = document.getElementById('exportedPackLink');
+        if (status) status.textContent = 'Exporting...';
+        try {
+            const res = await fetch('/api/quizpacks/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ packName: pack })
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                if (status) status.textContent = 'Export failed: ' + res.status + ' ' + (text || res.statusText);
+                return;
+            }
+            const data = await res.json();
+            if (status) status.innerHTML = 'Export successful';
+            if (link) link.innerHTML = `<a href="${data.url}" target="_blank">Open exported pack</a>`;
+        } catch (err) {
+            if (status) status.textContent = 'Export failed: ' + err;
+        }
+    }
+</script>

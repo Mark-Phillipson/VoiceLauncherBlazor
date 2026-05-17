@@ -1,0 +1,218 @@
+{
+  "packId": "talon-20260517153334",
+  "packName": "user.emoji",
+  "createdAt": "2026-05-17T15:33:34.0159758Z",
+  "generator": "TalonExport",
+  "entries": [
+    {
+      "listName": "user.emoji",
+      "spokenForm": "angry",
+      "listValue": "\uD83D\uDE20",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "blushing",
+      "listValue": "\uD83D\uDE0A",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "broken heart",
+      "listValue": "\uD83D\uDC94",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "clapping",
+      "listValue": "\uD83D\uDC4F",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "cool",
+      "listValue": "\uD83D\uDE0E",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "crying",
+      "listValue": "\uD83D\uDE2D",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "dancing",
+      "listValue": "\uD83D\uDC83",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "disappointed",
+      "listValue": "\uD83D\uDE1E",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "eyes",
+      "listValue": "\uD83D\uDC40",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "happy",
+      "listValue": "\uD83D\uDE00",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "heart",
+      "listValue": "\u2764",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "heart eyes",
+      "listValue": "\uD83D\uDE0D",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "hugging",
+      "listValue": "\uD83E\uDD17",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "kissing",
+      "listValue": "\uD83D\uDE17",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "monocle",
+      "listValue": "\uD83E\uDDD0",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "party",
+      "listValue": "\uD83C\uDF89",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "pleading",
+      "listValue": "\uD83E\uDD7A",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "poop",
+      "listValue": "\uD83D\uDCA9",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "rofl",
+      "listValue": "\uD83E\uDD23",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "roll eyes",
+      "listValue": "\uD83D\uDE44",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "sad",
+      "listValue": "\uD83D\uDE41",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "shrugging",
+      "listValue": "\uD83E\uDD37",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "shushing",
+      "listValue": "\uD83E\uDD2B",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "star eyes",
+      "listValue": "\uD83E\uDD29",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "thinking",
+      "listValue": "\uD83E\uDD14",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "thumbs down",
+      "listValue": "\uD83D\uDC4E",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "thumbs up",
+      "listValue": "\uD83D\uDC4D",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "worried",
+      "listValue": "\uD83D\uDE1F",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "writing",
+      "listValue": "\u270D",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.emoji",
+      "spokenForm": "yawning",
+      "listValue": "\uD83E\uDD71",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    }
+  ]
+}

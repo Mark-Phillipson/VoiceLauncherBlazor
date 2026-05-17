@@ -809,6 +809,63 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
     }
 });
 
+// Export Talon quiz pack to wwwroot/quiz-packs
+app.MapPost("/api/quizpacks/export", async (HttpContext http, RazorClassLibrary.Services.ITalonListDataService talonService, IWebHostEnvironment env) =>
+{
+    try
+    {
+        var req = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+        string? packName = null;
+        if (req != null && req.TryGetValue("packName", out var pn))
+        {
+            packName = string.IsNullOrWhiteSpace(pn) ? null : pn;
+        }
+
+        var all = (await talonService.GetAllTalonListsAsync()).ToList();
+        var pool = string.IsNullOrWhiteSpace(packName)
+            ? all
+            : all.Where(x => string.Equals(x.ListName, packName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var entries = pool
+            .Select(x => new
+            {
+                listName = x.ListName,
+                spokenForm = x.SpokenForm,
+                listValue = x.ListValue,
+                sourceFile = x.SourceFile,
+                importedAt = x.ImportedAt
+            })
+            .ToList();
+
+        var cleanPack = string.IsNullOrWhiteSpace(packName) ? "all" : string.Join("-", packName.Split(Path.GetInvalidFileNameChars()));
+        var fileName = $"talon-pack-{cleanPack}-{DateTime.UtcNow:yyyyMMddHHmmss}.json";
+
+        var packObj = new
+        {
+            packId = $"talon-{DateTime.UtcNow:yyyyMMddHHmmss}",
+            packName = cleanPack,
+            createdAt = DateTime.UtcNow,
+            generator = "TalonExport",
+            entries = entries
+        };
+
+        var webRootPath = !string.IsNullOrWhiteSpace(env.WebRootPath) ? env.WebRootPath : Path.Combine(env.ContentRootPath, "wwwroot");
+        var dir = Path.Combine(webRootPath, "quiz-packs");
+        Directory.CreateDirectory(dir);
+        var filePath = Path.Combine(dir, fileName);
+
+        var options = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
+        await File.WriteAllTextAsync(filePath, System.Text.Json.JsonSerializer.Serialize(packObj, options));
+
+        var url = $"/quiz-packs/{fileName}";
+        return Results.Ok(new { url = url, message = "Export successful" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Export failed: {ex.Message}");
+    }
+});
+
 // Upload an image file (multipart/form-data). Field name: "file"
 app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment env, HttpContext http) =>
 {

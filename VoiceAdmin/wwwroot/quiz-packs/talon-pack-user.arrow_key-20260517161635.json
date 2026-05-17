@@ -1,0 +1,36 @@
+{
+  "packId": "talon-20260517161635",
+  "packName": "user.arrow_key",
+  "createdAt": "2026-05-17T16:16:35.024522Z",
+  "generator": "TalonExport",
+  "entries": [
+    {
+      "listName": "user.arrow_key",
+      "spokenForm": "down",
+      "listValue": "down",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.arrow_key",
+      "spokenForm": "left",
+      "listValue": "left",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.arrow_key",
+      "spokenForm": "right",
+      "listValue": "right",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    },
+    {
+      "listName": "user.arrow_key",
+      "spokenForm": "up",
+      "listValue": "up",
+      "sourceFile": null,
+      "importedAt": "0001-01-01T00:00:00"
+    }
+  ]
+}
