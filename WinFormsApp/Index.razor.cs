@@ -40,6 +40,11 @@ namespace WinFormsApp
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
 		private bool showClipboardHistory = false;
+
+		[Parameter]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public bool RunningInWinForms { get; set; }
+
 		private bool eventSubscribed = false;
 		// Serialize view-toggle/IPC handling to avoid rapid teardown/rebuild races
 		private readonly SemaphoreSlim _viewToggleLock = new(1, 1);

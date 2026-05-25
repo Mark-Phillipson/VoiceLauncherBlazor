@@ -3,65 +3,61 @@
 @using RazorClassLibrary.Pages
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 <CascadingBlazoredModal>
-	<div class='m-2 text-center'>
-		<div class="dropdown d-inline-block me-2 mb-1" role="menubar">
-			<button id="windowMenuToggle" class="nav-link dropdown-toggle" type="button" tabindex="0" accesskey="&" aria-haspopup="true" aria-expanded="false">
-				<i class="bi bi-window me-1" aria-hidden="true"></i><u>&amp;</u> Window
-			</button>
-			<ul class="dropdown-menu" aria-labelledby="windowMenuToggle" role="menu">
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="/" class="dropdown-item text-start" href="#" @onclick="@(() => MaximizeWindow())" @onclick:preventDefault="true">
-					<i class="bi bi-arrows-fullscreen me-1" aria-hidden="true"></i><u>/</u> Maximize
-				</a></li>
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="_" class="dropdown-item text-start" href="#" @onclick="@(() => MinimizeWindow())" @onclick:preventDefault="true">
-					<i class="bi bi-dash-lg me-1" aria-hidden="true"></i><u>_</u> Minimize
-				</a></li>
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="*" class="dropdown-item text-start" href="#" @onclick="@(() => RestoreWindow())" @onclick:preventDefault="true">
-					<i class="bi bi-window-sidebar me-1" aria-hidden="true"></i><u>*</u> Restore
-				</a></li>
-			</ul>
-		</div>
-		<div class="dropdown d-inline-block me-2 mb-1" role="menubar">
-			<button id="dataViewsToggle" class="nav-link dropdown-toggle" type="button" tabindex="0" accesskey="$" aria-haspopup="true" aria-expanded="false">
-				<i class="bi bi-stack me-1" aria-hidden="true"></i><u>$</u> Data &amp; Views
-			</button>
-			<ul class="dropdown-menu" aria-labelledby="dataViewsToggle" role="menu">
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="%" class="dropdown-item text-start" href="#" @onclick="@(() => RefreshCache())" @onclick:preventDefault="true">
-					<i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i><u>%</u> Refresh Data
-				</a></li>
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="#" class="dropdown-item text-start" href="#" @onclick="@(() => ShowClipboardHistory())" @onclick:preventDefault="true">
-					<i class="bi bi-clipboard me-1" aria-hidden="true"></i><u>#</u> Clipboard History
-				</a></li>
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="£" class="dropdown-item text-start" href="#" @onclick="@(() => ShowAIChat())" @onclick:preventDefault="true">
-					<i class="bi bi-chat-dots me-1" aria-hidden="true"></i><u>£</u> AI @AIChatButtonCaption
-				</a></li>
-				@* Top-level switch buttons: show only the relevant toggle depending on current view *@
-				@if (launcher)
+@if (!RunningInWinForms)
+{
+	<div class="m-2 text-center">
+		<div class="btn-toolbar justify-content-center" role="toolbar" aria-label="Top controls">
+			<div class="btn-group" role="group" aria-label="Main actions">
+				<button id="btnRefresh" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => RefreshCache())">
+					<i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i> Refresh
+				</button>
+
+				<button id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowClipboardHistory())">
+					<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
+				</button>
+
+				<button id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowAIChat())">
+					<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI @AIChatButtonCaption
+				</button>
+
+				@* Snippets / Launcher switches: keep the existing visibility logic *@
+					@if (launcher)
 				{
-					<li role="none"><a role="menuitem" tabindex="-1" accesskey="(" class="dropdown-item text-start" href="#" @onclick="SwitchToSnippetsFromChild" @onclick:preventDefault="true">
-						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i><u>(</u> Snippets
-					</a></li>
+					<button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToSnippetsFromChild">
+						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
+					</button>
 				}
 				else if (languageAndCategoryListing)
 				{
-					<li role="none"><a role="menuitem" tabindex="-1" accesskey=")" class="dropdown-item text-start" href="#" @onclick="SwitchToLauncherFromChild" @onclick:preventDefault="true">
-						<i class="bi bi-grid me-1" aria-hidden="true"></i><u>)</u> Launcher
-					</a></li>
+					<button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToLauncherFromChild">
+						<i class="bi bi-grid me-1" aria-hidden="true"></i> Launcher
+					</button>
 				}
 				else
 				{
-					<li role="none"><a role="menuitem" tabindex="-1" accesskey="(" class="dropdown-item text-start" href="#" @onclick="SwitchToSnippetsFromChild" @onclick:preventDefault="true">
-						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i><u>(</u> Snippets
-					</a></li>
-					<li role="none"><a role="menuitem" tabindex="-1" accesskey=")" class="dropdown-item text-start" href="#" @onclick="SwitchToLauncherFromChild" @onclick:preventDefault="true">
-						<i class="bi bi-grid me-1" aria-hidden="true"></i><u>)</u> Launcher
-					</a></li>
+					<button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToSnippetsFromChild">
+						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
+					</button>
+					<button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToLauncherFromChild">
+						<i class="bi bi-grid me-1" aria-hidden="true"></i> Launcher
+					</button>
 				}
-				<li role="none"><a role="menuitem" tabindex="-1" accesskey="+" class="dropdown-item text-start" href="#" @onclick="@(() => ShowTalonSearch())" @onclick:preventDefault="true">
-					<i class="bi bi-search me-1" aria-hidden="true"></i><u>+</u> @TalonSearchButtonCaption
-				</a></li>
-			</ul>
+
+				<button id="btnTalonSearch" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowTalonSearch())">
+					<i class="bi bi-search me-1" aria-hidden="true"></i> @TalonSearchButtonCaption
+				</button>
+			</div>
 		</div>
 	</div>
+
+}
+
+@if (RunningInWinForms)
+{
+	<div class="mx-2 mb-2 alert alert-secondary py-2 text-truncate" role="note" aria-label="Voice command hint">
+		Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat, snippets, launcher, and talon search.
+	</div>
+}
 	<div class='m-2'>
 		@if (showAIChat)
 		{
@@ -98,44 +94,16 @@
 	function initDetailsMenu(detail) {
 		const summary = detail.querySelector('summary');
 		if (!summary) return;
-
-		// Reflect initial state
-		summary.setAttribute('aria-expanded', detail.hasAttribute('open') ? 'true' : 'false');
-
 		const focusable = Array.from(detail.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])'))
 			.filter(el => !el.disabled);
-
-		// Keep aria-expanded updated when the details toggles
-		detail.addEventListener('toggle', function() {
-			summary.setAttribute('aria-expanded', detail.hasAttribute('open') ? 'true' : 'false');
-		});
 
 		summary.addEventListener('keydown', function(e) {
 			if (e.key === 'ArrowDown') {
 				e.preventDefault();
-				if (!detail.hasAttribute('open')) {
-					detail.setAttribute('open', '');
-					summary.setAttribute('aria-expanded','true');
-				}
 				if (focusable.length) focusable[0].focus();
 			} else if (e.key === 'ArrowUp') {
 				e.preventDefault();
-				if (!detail.hasAttribute('open')) {
-					detail.setAttribute('open', '');
-					summary.setAttribute('aria-expanded','true');
-				}
 				if (focusable.length) focusable[focusable.length-1].focus();
-			} else if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				// Toggle the details open state on Enter/Space
-				if (detail.hasAttribute('open')) {
-					detail.removeAttribute('open');
-					summary.setAttribute('aria-expanded','false');
-				} else {
-					detail.setAttribute('open','');
-					summary.setAttribute('aria-expanded','true');
-					if (focusable.length) focusable[0].focus();
-				}
 			}
 		});
 
@@ -152,105 +120,13 @@
 				} else if (e.key === 'Escape') {
 					detail.removeAttribute('open');
 					summary.focus();
-					summary.setAttribute('aria-expanded','false');
 				}
 			});
-		});
-	}
-
-	function initDropdownMenu(dropdown) {
-		const toggle = dropdown.querySelector('.dropdown-toggle');
-		const menu = dropdown.querySelector('.dropdown-menu');
-		if (!toggle || !menu) return;
-
-		// Reflect initial state
-		toggle.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
-
-		const focusable = Array.from(menu.querySelectorAll('a[role="menuitem"], button[role="menuitem"], [tabindex]:not([tabindex="-1"])'))
-			.filter(el => !el.disabled);
-
-		function openMenu() {
-			menu.classList.add('show');
-			dropdown.classList.add('show');
-			toggle.setAttribute('aria-expanded','true');
-		}
-
-		function closeMenu() {
-			menu.classList.remove('show');
-			dropdown.classList.remove('show');
-			toggle.setAttribute('aria-expanded','false');
-		}
-
-		toggle.addEventListener('click', function(e) {
-			e.preventDefault();
-			if (menu.classList.contains('show')) {
-				closeMenu();
-			} else {
-				openMenu();
-				if (focusable.length) focusable[0].focus();
-			}
-		});
-
-		toggle.addEventListener('keydown', function(e) {
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				if (!menu.classList.contains('show')) openMenu();
-				if (focusable.length) focusable[0].focus();
-			} else if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				if (!menu.classList.contains('show')) openMenu();
-				if (focusable.length) focusable[focusable.length-1].focus();
-			} else if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				if (menu.classList.contains('show')) {
-					closeMenu();
-				} else {
-					openMenu();
-					if (focusable.length) focusable[0].focus();
-				}
-			} else if (e.key === 'Escape') {
-				e.preventDefault();
-				closeMenu();
-				toggle.focus();
-			}
-		});
-
-		focusable.forEach((el, idx) => {
-			el.addEventListener('keydown', function(e) {
-				if (e.key === 'ArrowDown') {
-					e.preventDefault();
-					const next = focusable[(idx+1) % focusable.length];
-					next.focus();
-				} else if (e.key === 'ArrowUp') {
-					e.preventDefault();
-					const prev = focusable[(idx-1 + focusable.length) % focusable.length];
-					prev.focus();
-				} else if (e.key === 'Escape') {
-					e.preventDefault();
-					closeMenu();
-					toggle.focus();
-				}
-			});
-			// Close the menu on click selection
-			el.addEventListener('click', function() {
-				// Defer closing so Blazor's delegated click handler can process first
-				setTimeout(closeMenu, 0);
-			});
-		});
-
-		// Close when clicking outside
-		document.addEventListener('click', function(e) {
-			if (!dropdown.contains(e.target)) {
-				closeMenu();
-			}
 		});
 	}
 
 	function initAll() {
-		// Initialize legacy details menus
-		document.querySelectorAll('details[role="menu"]').forEach(initDetailsMenu);
-		// Initialize bootstrap-style dropdown menus used here
-		document.querySelectorAll('.dropdown[role="menubar"]').forEach(initDropdownMenu);
+		document.querySelectorAll('details').forEach(initDetailsMenu);
 	}
 
 	if (document.readyState === 'loading') {
