@@ -3,61 +3,50 @@
 @using RazorClassLibrary.Pages
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 <CascadingBlazoredModal>
-@if (!RunningInWinForms)
-{
-	<div class="m-2 text-center">
-		<div class="btn-toolbar justify-content-center" role="toolbar" aria-label="Top controls">
-			<div class="btn-group" role="group" aria-label="Main actions">
-				<button id="btnRefresh" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => RefreshCache())">
-					<i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i> Refresh
-				</button>
+	@if (!RunningInWinForms)
+	{
+		<div class="m-2 text-center">
+			<div class="btn-toolbar justify-content-center" role="toolbar" aria-label="Top controls">
+				<div class="btn-group" role="group" aria-label="Main actions">
 
-				<button id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowClipboardHistory())">
-					<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
-				</button>
+					    <button id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1"
+						    accesskey="£" aria-keyshortcuts="Alt+£"
+						    @onclick="@(() => ShowClipboardHistory())">
+						<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
+					</button>
 
-				<button id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowAIChat())">
-					<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI @AIChatButtonCaption
-				</button>
-
-				@* Snippets / Launcher switches: keep the existing visibility logic *@
-					@if (launcher)
-				{
-					<button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToSnippetsFromChild">
+					<button id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" accesskey="$" aria-keyshortcuts="Alt+$" @onclick="@(() => ShowAIChat())">
+						<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI Chat
+					</button>
+					    <button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1"
+						    accesskey="%" aria-keyshortcuts="Alt+%"
+						    @onclick="SwitchToSnippetsFromChild">
 						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
 					</button>
-				}
-				else if (languageAndCategoryListing)
-				{
-					<button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToLauncherFromChild">
+					    <button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1"
+						    accesskey="&" aria-keyshortcuts="Alt+&"
+						    @onclick="SwitchToLauncherFromChild">
 						<i class="bi bi-grid me-1" aria-hidden="true"></i> Launcher
 					</button>
-				}
-				else
-				{
-					<button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToSnippetsFromChild">
-						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
-					</button>
-					<button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1" @onclick="SwitchToLauncherFromChild">
-						<i class="bi bi-grid me-1" aria-hidden="true"></i> Launcher
-					</button>
-				}
 
-				<button id="btnTalonSearch" class="btn btn-sm btn-outline-secondary me-1" @onclick="@(() => ShowTalonSearch())">
-					<i class="bi bi-search me-1" aria-hidden="true"></i> @TalonSearchButtonCaption
-				</button>
+					    <button id="btnTalonSearch" class="btn btn-sm btn-outline-secondary me-1"
+						    accesskey="*" aria-keyshortcuts="Alt+*"
+						    @onclick="@(() => ShowTalonSearch())">
+						<i class="bi bi-search me-1" aria-hidden="true"></i> Talon Search
+					</button>
+				</div>
 			</div>
 		</div>
-	</div>
 
-}
+	}
 
-@if (RunningInWinForms)
-{
-	<div class="mx-2 mb-2 alert alert-secondary py-2 text-truncate" role="note" aria-label="Voice command hint">
-		Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat, snippets, launcher, and talon search.
-	</div>
-}
+	@if (RunningInWinForms)
+	{
+		<div class="mx-2 mb-2 alert alert-secondary py-2 text-truncate" role="note" aria-label="Voice command hint">
+			Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat,
+			snippets, launcher, and talon search.
+		</div>
+	}
 	<div class='m-2'>
 		@if (showAIChat)
 		{
@@ -73,68 +62,73 @@
 		}
 		else if (languageAndCategoryListing)
 		{
-			<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId" RunningInBlazorHybrid="true"
-				CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+			<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId"
+									 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
 		}
 		else if (launcher)
 		{
-			<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow" RunningInBlazorHybrid="true"
-				RefreshData="@refreshRequested" />
+			<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow"
+						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
 		}
 		else // filtering by display value mostly
 		{
-			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId" RunningInBlazorHybrid="true"
-				SearchTermParameter="@searchTerm" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
+								 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
+								 MaximizeApplication="MaximizeWindow" />
 		}
 	</div>
 </CascadingBlazoredModal>
 
 <script>
-(function(){
-	function initDetailsMenu(detail) {
-		const summary = detail.querySelector('summary');
-		if (!summary) return;
-		const focusable = Array.from(detail.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])'))
-			.filter(el => !el.disabled);
+	(function () {
+		function initDetailsMenu(detail) {
+			const summary = detail.querySelector('summary');
+			if (!summary) return;
+			const focusable = Array.from(detail.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])'))
+				.filter(el => !el.disabled);
 
-		summary.addEventListener('keydown', function(e) {
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				if (focusable.length) focusable[0].focus();
-			} else if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				if (focusable.length) focusable[focusable.length-1].focus();
-			}
-		});
-
-		focusable.forEach((el, idx) => {
-			el.addEventListener('keydown', function(e) {
+			summary.addEventListener('keydown', function (e) {
 				if (e.key === 'ArrowDown') {
 					e.preventDefault();
-					const next = focusable[(idx+1) % focusable.length];
-					next.focus();
+					if (focusable.length) focusable[0].focus();
 				} else if (e.key === 'ArrowUp') {
 					e.preventDefault();
-					const prev = focusable[(idx-1 + focusable.length) % focusable.length];
-					prev.focus();
-				} else if (e.key === 'Escape') {
-					detail.removeAttribute('open');
-					summary.focus();
+					if (focusable.length) focusable[focusable.length - 1].focus();
 				}
 			});
-		});
-	}
 
-	function initAll() {
-		document.querySelectorAll('details').forEach(initDetailsMenu);
-	}
+			focusable.forEach((el, idx) => {
+				el.addEventListener('keydown', function (e) {
+					if (e.key === 'ArrowDown') {
+						e.preventDefault();
+						const next = focusable[(idx + 1) % focusable.length];
+						next.focus();
+					} else if (e.key === 'ArrowUp') {
+						e.preventDefault();
+						const prev = focusable[(idx - 1 + focusable.length) % focusable.length];
+						prev.focus();
+					} else if (e.key === 'Escape') {
+						detail.removeAttribute('open');
+						summary.focus();
+					}
+				});
+			});
+		}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initAll);
-	} else {
-		initAll();
-	}
+		function initAll() {
+			document.querySelectorAll('details').forEach(initDetailsMenu);
+		}
 
-	window.__initDetailsKeyboard = initAll;
-})();
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initAll);
+		} else {
+			initAll();
+		}
+
+		window.__initDetailsKeyboard = initAll;
+	})();
 </script>
+	@if (!RunningInWinForms)
+	{
+		<script src="/js/winforms-shortcuts.js"></script>
+	}

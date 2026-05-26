@@ -167,7 +167,7 @@ namespace WinFormsApp
 					var altPath = @"C:\Users\MPhil\source\repos\personal-assistant\clipboard-history.db";
 					if (File.Exists(altPath))
 					{
-						var mem = new Dictionary<string, string>
+						var mem = new Dictionary<string, string?>
 						{
 							["ConnectionStrings:ClipboardHistory"] = $"Data Source={altPath}"
 						};

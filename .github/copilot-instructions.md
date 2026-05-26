@@ -1,10 +1,5 @@
 # Copilot Instructions for VoiceLauncherBlazor
 
-## Talon Voice Commands Server Project Port
-
-For local development and UI testing, the Talon Voice Commands Server project runs on port **5008** (see `launchSettings.json`).
-When using Playwright or other browser automation tools, use `http://localhost:5008` as the base URL for accessing the app. Always use the integrated browser unless asked not to.
-
 ## Terminal Interactions
 
 ### **MANDATORY: Before Any Build**
@@ -14,7 +9,7 @@ When using Playwright or other browser automation tools, use `http://localhost:5
 
 Do NOT skip this step. Check first, stop if needed, build second. Every time.
 
--  if you are asked to use playwright tools to demonstrate the application working always make sure the application is running first and utilize the integrated browser.
+-  if you are asked to use Playwright tools to demonstrate the application working always make sure the application is running first and utilize the integrated browser.
 
 ## Project Overview
 
@@ -44,7 +39,7 @@ Do NOT skip this step. Check first, stop if needed, build second. Every time.
 
 ## Entity Framework Migrations
 
-- Create commandline commands for  in code blocks for transferring by voice.
+- Create commandline commands for in code blocks for transferring by voice.
 - Do not run commands directly.
 - Always create a script; do not use "Update Database."
 
