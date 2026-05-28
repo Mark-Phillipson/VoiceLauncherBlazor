@@ -122,5 +122,24 @@ namespace TestProjectxUnit.TestStubs
         {
             return Task.FromResult(_commands.Take(count).ToList());
         }
+
+        public Task<int> BackfillDescriptionsAsync() => Task.FromResult(0);
+        public Task<int> RecreateAllDescriptionsAsync() => Task.FromResult(0);
+
+        public Task<DataAccessLibrary.DTO.QuizPackDTO> GenerateQuizPackAsync(string? applicationFilter = null, int questionCount = 10, int distractors = 3)
+        {
+            var pack = new DataAccessLibrary.DTO.QuizPackDTO
+            {
+                Source = "stub",
+                ApplicationFilter = applicationFilter,
+                QuestionCount = 0
+            };
+            return Task.FromResult(pack);
+        }
+        public Task<TalonVoiceCommand?> GetCommandByIdAsync(int id)
+        {
+            var cmd = _commands.FirstOrDefault(c => c.Id == id);
+            return Task.FromResult(cmd);
+        }
     }
 }

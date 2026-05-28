@@ -19,5 +19,9 @@ namespace DataAccessLibrary.Services
     Task<int> ImportTalonListsFromFileAsync(string filePath);
     Task<List<DataAccessLibrary.DTO.CommandsBreakdown>> GetTalonCommandsBreakdownAsync();
     Task<List<DataAccessLibrary.Models.TalonVoiceCommand>> GetRandomCommandsAsync(int count, string os);
+    Task<int> BackfillDescriptionsAsync();
+    Task<int> RecreateAllDescriptionsAsync();
+    Task<DataAccessLibrary.Models.TalonVoiceCommand?> GetCommandByIdAsync(int id);
+    Task<DataAccessLibrary.DTO.QuizPackDTO> GenerateQuizPackAsync(string? applicationFilter = null, int questionCount = 10, int distractors = 3);
     }
 }

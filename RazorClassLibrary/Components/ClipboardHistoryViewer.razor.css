@@ -1,0 +1,43 @@
+.clipboard-history table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Reserve a fixed-ish column for action buttons so they don't get pushed off-screen */
+.clipboard-history thead th:nth-child(3),
+.clipboard-history tbody td:nth-child(3) {
+  width: 200px;
+  white-space: nowrap;
+}
+
+/* Make the preview column truncate with an ellipsis when space is limited */
+.clipboard-history thead th:nth-child(1),
+.clipboard-history tbody td:nth-child(1) {
+  min-width: 0; /* allows the cell to shrink inside a fixed table layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure the action buttons container doesn't wrap and buttons don't shrink */
+.clipboard-history tbody td:nth-child(3) .d-flex {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+.clipboard-history tbody td:nth-child(3) .d-flex > button {
+  flex: 0 0 auto;
+}
+
+/* Slightly reduce button padding on very narrow screens so labels remain readable */
+@media (max-width: 480px) {
+  .clipboard-history thead th:nth-child(3),
+  .clipboard-history tbody td:nth-child(3) {
+    width: 160px;
+  }
+  .clipboard-history .btn-sm {
+    padding: .18rem .4rem;
+    font-size: .78rem;
+  }
+}

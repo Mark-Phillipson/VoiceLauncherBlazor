@@ -524,6 +524,46 @@ var app = builder.Build();
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] builder.Build() succeeded");
 Console.Error.Flush();
 
+// Ensure TalonVoiceCommands table has a Description column (safe for SQLite ALTER TABLE ADD COLUMN)
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DataAccessLibrary.Models.ApplicationDbContext>>();
+        using var db = factory.CreateDbContext();
+        var conn = db.Database.GetDbConnection();
+        conn.Open();
+        using (var cmd = conn.CreateCommand())
+        {
+            cmd.CommandText = "PRAGMA table_info('TalonVoiceCommands');";
+            using var reader = cmd.ExecuteReader();
+            var hasDescription = false;
+            while (reader.Read())
+            {
+                var name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                if (string.Equals(name, "Description", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasDescription = true;
+                    break;
+                }
+            }
+
+            if (!hasDescription)
+            {
+                reader.Close();
+                using var alter = conn.CreateCommand();
+                alter.CommandText = "ALTER TABLE TalonVoiceCommands ADD COLUMN Description TEXT;";
+                alter.ExecuteNonQuery();
+                Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Added Description column to TalonVoiceCommands table.");
+            }
+        }
+    }
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"[{DateTime.UtcNow:O}] Failed to ensure Description column: {ex.Message}");
+}
+
 // Diagnostic: verify whether an inference backend service was registered
 try
 {
@@ -866,6 +906,101 @@ app.MapPost("/api/quizpacks/export", async (HttpContext http, RazorClassLibrary.
     }
 });
 
+    // List exported quiz pack files
+    app.MapGet("/api/quizpacks/list", (IWebHostEnvironment env) =>
+    {
+        var webRootPath = !string.IsNullOrWhiteSpace(env.WebRootPath) ? env.WebRootPath : Path.Combine(env.ContentRootPath, "wwwroot");
+        var dir = Path.Combine(webRootPath, "quiz-packs");
+        if (!Directory.Exists(dir)) return Results.Ok(Array.Empty<object>());
+
+            var files = Directory.GetFiles(dir, "*.json")
+            .Select(f => new
+            {
+                name = Path.GetFileName(f),
+                size = new System.IO.FileInfo(f).Length,
+                lastModifiedUtc = File.GetLastWriteTimeUtc(f)
+            })
+            .OrderByDescending(x => x.lastModifiedUtc)
+            .ToArray();
+
+        return Results.Ok(files);
+    });
+
+    // Import a quiz pack JSON into the TalonList table (deduped)
+    app.MapPost("/api/quizpacks/import", async (HttpContext http, DataAccessLibrary.Repositories.ITalonListRepository repo, IWebHostEnvironment env) =>
+    {
+        try
+        {
+            var req = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+            if (req == null || !req.TryGetValue("fileName", out var fileName) || string.IsNullOrWhiteSpace(fileName))
+            {
+                return Results.BadRequest(new { error = "Missing fileName in request body" });
+            }
+
+            var webRootPath = !string.IsNullOrWhiteSpace(env.WebRootPath) ? env.WebRootPath : Path.Combine(env.ContentRootPath, "wwwroot");
+            var filePath = Path.Combine(webRootPath, "quiz-packs", fileName);
+            if (!File.Exists(filePath)) return Results.NotFound(new { error = "File not found" });
+
+            var json = await File.ReadAllTextAsync(filePath);
+            // strip JS-style block comments (/* ... */) that may be present in generated quiz packs
+            var cleanedJson = System.Text.RegularExpressions.Regex.Replace(json, "/\\*.*?\\*/", string.Empty, System.Text.RegularExpressions.RegexOptions.Singleline);
+            var doc = System.Text.Json.JsonDocument.Parse(cleanedJson);
+            if (!doc.RootElement.TryGetProperty("entries", out var entriesEl))
+            {
+                return Results.BadRequest(new { error = "Invalid pack format: missing 'entries'" });
+            }
+
+            var items = new List<DataAccessLibrary.Models.TalonList>();
+            foreach (var e in entriesEl.EnumerateArray())
+            {
+                string listName = "";
+                string spokenForm = "";
+                string listValue = "";
+                string? sourceFile = null;
+
+                // support multiple pack schemas:
+                // - Talon-export: listName, spokenForm, listValue
+                // - quiz-schema: category, correctAnswer, listValue
+                if (e.TryGetProperty("listName", out var ln) && ln.ValueKind == System.Text.Json.JsonValueKind.String)
+                    listName = ln.GetString() ?? string.Empty;
+                else if (e.TryGetProperty("category", out var cat) && cat.ValueKind == System.Text.Json.JsonValueKind.String)
+                    listName = cat.GetString() ?? string.Empty;
+                else if (doc.RootElement.TryGetProperty("packName", out var pn) && pn.ValueKind == System.Text.Json.JsonValueKind.String)
+                    listName = pn.GetString() ?? string.Empty;
+
+                if (e.TryGetProperty("spokenForm", out var sf) && sf.ValueKind == System.Text.Json.JsonValueKind.String)
+                    spokenForm = sf.GetString() ?? string.Empty;
+                else if (e.TryGetProperty("correctAnswer", out var ca) && ca.ValueKind == System.Text.Json.JsonValueKind.String)
+                    spokenForm = ca.GetString() ?? string.Empty;
+
+                if (e.TryGetProperty("listValue", out var lv) && lv.ValueKind == System.Text.Json.JsonValueKind.String)
+                    listValue = lv.GetString() ?? string.Empty;
+                if (e.TryGetProperty("sourceFile", out var src) && src.ValueKind == System.Text.Json.JsonValueKind.String)
+                    sourceFile = src.GetString();
+
+                if (string.IsNullOrWhiteSpace(listName) || string.IsNullOrWhiteSpace(spokenForm) || string.IsNullOrWhiteSpace(listValue))
+                    continue;
+
+                items.Add(new DataAccessLibrary.Models.TalonList
+                {
+                    ListName = listName.Trim(),
+                    SpokenForm = spokenForm.Trim(),
+                    ListValue = listValue.Trim(),
+                    SourceFile = sourceFile,
+                    CreatedAt = DateTime.UtcNow,
+                    ImportedAt = DateTime.UtcNow
+                });
+            }
+
+            var inserted = await repo.InsertTalonListsAsync(items);
+            return Results.Ok(new { processed = items.Count, inserted = inserted });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Import failed: {ex.Message}");
+        }
+    });
+
 // Upload an image file (multipart/form-data). Field name: "file"
 app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment env, HttpContext http) =>
 {
@@ -955,6 +1090,100 @@ app.MapPost("/api/images/generate", async (HttpContext http) =>
         await http.Response.WriteAsync($"Error generating image: {ex.Message}");
     }
 });
+ 
+// Admin endpoint to run BackfillDescriptionsAsync and populate Description values
+app.MapPost("/admin/backfill-descriptions", async (HttpContext http) =>
+{
+    try
+    {
+        var svc = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
+        var updated = await svc.BackfillDescriptionsAsync();
+        await http.Response.WriteAsJsonAsync(new { updated = updated });
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsync($"Backfill failed: {ex.Message}");
+    }
+});
+// Admin endpoint to recreate all descriptions from the `Command` field (force rewrite)
+app.MapPost("/admin/recreate-all-descriptions", async (HttpContext http) =>
+{
+    try
+    {
+        var svc = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
+        var updated = await svc.RecreateAllDescriptionsAsync();
+        await http.Response.WriteAsJsonAsync(new { updated = updated });
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsync($"Recreate failed: {ex.Message}");
+    }
+});
+// Admin endpoint to generate a quiz pack (JSON)
+app.MapPost("/admin/generate-quiz-pack", async (HttpContext http) =>
+{
+    try
+    {
+        var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+        string? appFilter = null;
+        int questionCount = 10;
+        int distractors = 3;
+        if (body != null)
+        {
+            if (body.TryGetValue("application", out var af) && !string.IsNullOrWhiteSpace(af)) appFilter = af;
+            if (body.TryGetValue("count", out var c) && int.TryParse(c, out var ci)) questionCount = ci;
+            if (body.TryGetValue("distractors", out var d) && int.TryParse(d, out var di)) distractors = di;
+        }
+
+        var svc = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
+        var pack = await svc.GenerateQuizPackAsync(appFilter, questionCount, distractors);
+        await http.Response.WriteAsJsonAsync(pack);
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+});
+// Temporary debug endpoint: inspect commands by substring in Script or Command
+app.MapGet("/admin/inspect-commands", async (HttpContext http) =>
+{
+    try
+    {
+        var q = http.Request.Query["q"].FirstOrDefault() ?? "mouse";
+        var svc = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
+        var list = await svc.SemanticSearchWithListsAsync(q);
+        var outList = list.Select(c => new { c.Id, c.Command, c.Script, c.Description, c.Title }).ToList();
+        await http.Response.WriteAsJsonAsync(outList);
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsync($"Error: {ex.Message}");
+    }
+});
+
+// Temporary POST debug endpoint: query commands by substring in JSON body { q: "mouse" }
+app.MapPost("/admin/query-commands", async (HttpContext http) =>
+{
+    try
+    {
+        var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+        var q = body != null && body.TryGetValue("q", out var val) && !string.IsNullOrWhiteSpace(val) ? val : "mouse";
+        var svc = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ITalonVoiceCommandDataService>();
+        var list = await svc.SemanticSearchWithListsAsync(q);
+        var outList = list.Select(c => new { c.Id, c.Command, c.Script, c.Description, c.Title }).ToList();
+        await http.Response.WriteAsJsonAsync(outList);
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+});
+
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host"); // Ensure _Host exists from Server template

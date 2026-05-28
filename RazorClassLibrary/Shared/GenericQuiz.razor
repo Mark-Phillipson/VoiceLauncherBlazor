@@ -77,8 +77,12 @@
                     <span>Category: @CurrentQuestion.Category</span>
                 </div>
 
-                <div class="quiz-prompt-row">
-                    <h2 class="quiz-prompt">@CurrentQuestion.Prompt</h2>
+                <div class="quiz-prompt-row d-flex align-items-start gap-2">
+                    <h2 class="quiz-prompt mb-0">@CurrentQuestion.Prompt</h2>
+                    @if (CurrentQuestion?.RelatedCommandId != null)
+                    {
+                        <a class="btn btn-outline-secondary btn-sm mt-1" href="/talon-voice-command-search?focusCommandId=@CurrentQuestion.RelatedCommandId" target="_blank" rel="noopener noreferrer">Open command</a>
+                    }
                 </div>
 
                 <div class="quiz-choices" role="list" aria-label="Answer choices">
@@ -176,6 +180,9 @@
     [Parameter]
     public int DefaultQuestionCount { get; set; } = 10;
 
+    [Parameter]
+    public string? InitialPackName { get; set; }
+
     private readonly List<QuizQuestion> _questions = new();
     private List<QuizScore> _scoreHistory = new();
     private List<ExcludedEntry> _excluded = new();
@@ -201,6 +208,7 @@
     protected override async Task OnInitializedAsync()
     {
         QuestionCount = DefaultQuestionCount;
+        SelectedPackName = InitialPackName;
         await LoadScoresAsync();
         await LoadExcludedAsync();
         _isLoading = false;

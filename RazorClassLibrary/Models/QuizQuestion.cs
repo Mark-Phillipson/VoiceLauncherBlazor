@@ -24,4 +24,7 @@ public sealed class QuizQuestion
 
     // Optional per-choice image paths (aligned with Choices list). Null entries mean no image for that choice.
     public List<string?> ChoiceImagePaths { get; set; } = new();
+
+    // Optional: related TalonVoiceCommand Id so UI can deep-link to the command detail
+    public int? RelatedCommandId { get; set; }
 }

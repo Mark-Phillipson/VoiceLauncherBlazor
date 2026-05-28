@@ -41,6 +41,9 @@ namespace DataAccessLibrary.Models
         [StringLength(100)]
         public string? Hostname { get; set; }
 
+        [StringLength(2000)]
+        public string? Description { get; set; }
+
         [Required]
         public DateTime CreatedAt { get; set; }
     }

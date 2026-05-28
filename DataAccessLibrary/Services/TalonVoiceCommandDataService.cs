@@ -66,6 +66,23 @@ namespace DataAccessLibrary.Services
                 return null;
             }
         }
+        private static string GetApplicationKey(string? application)
+        {
+            if (string.IsNullOrWhiteSpace(application)) return "global";
+            var lower = application.ToLowerInvariant();
+            if (lower.Contains("vscode") || lower.Contains("visual studio code") || lower.Contains("code")) return "vscode";
+            if (lower.Contains("visual studio") || lower.Contains("visual_studio") || lower.Contains("visualstudio")) return "visual_studio";
+            if (lower.Contains("edge") || lower.Contains("microsoft edge")) return "edge";
+            if (lower.Contains("chrome")) return "chrome";
+            if (lower.Contains("firefox")) return "firefox";
+            if (lower.Contains("spotify")) return "spotify";
+            if (lower.Contains("windowsterminal") || lower.Contains("windows terminal") || lower.Contains("windowsterminal.exe")) return "windowsterminal";
+            if (lower.Contains("azure data studio") || lower.Contains("azure_data_studio")) return "azure_data_studio";
+            if (lower.Contains("sql server") || lower.Contains("ssms")) return "ssms";
+            if (lower.Contains("explorer") || lower.Contains("windows_file_browser") || lower.Contains("explorer.exe")) return "explorer";
+            if (lower.Contains("terminal") || lower.Contains("bash") || lower.Contains("powershell") || lower.Contains("cmd")) return "terminal";
+            return "global";
+        }
 
         public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
         {
@@ -208,6 +225,7 @@ namespace DataAccessLibrary.Services
                             CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                             Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                             Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
+                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr),
                             CreatedAt = File.GetCreationTimeUtc(file)
                         });
                     }
@@ -309,6 +327,323 @@ namespace DataAccessLibrary.Services
         {
             // Return ALL commands for building filter dropdowns
             return await _context.TalonVoiceCommands.ToListAsync();
+        }
+        
+        public async Task<TalonVoiceCommand?> GetCommandByIdAsync(int id)
+        {
+            return await _context.TalonVoiceCommands.FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public async Task<DataAccessLibrary.DTO.QuizPackDTO> GenerateQuizPackAsync(string? applicationFilter = null, int questionCount = 10, int distractors = 3)
+        {
+            var all = await _context.TalonVoiceCommands
+                .Where(c => !string.IsNullOrWhiteSpace(c.Description))
+                .ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(applicationFilter) && !applicationFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                all = all.Where(c => c.Application != null && c.Application.IndexOf(applicationFilter, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
+
+            // Shuffle
+            var rng = new Random();
+            all = all.OrderBy(x => rng.Next()).ToList();
+
+            var selected = all.Take(questionCount).ToList();
+
+            var pack = new DataAccessLibrary.DTO.QuizPackDTO
+            {
+                Source = "talon-voice-command",
+                ApplicationFilter = applicationFilter,
+                QuestionCount = selected.Count
+            };
+
+            // Prebuild candidate map for distractors by application
+            var byApp = all.GroupBy(c => c.Application ?? "global").ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var cmd in selected)
+            {
+                var q = new DataAccessLibrary.DTO.QuizQuestionDTO
+                {
+                    SourceCommandId = cmd.Id,
+                    RelatedCommandId = cmd.Id
+                };
+
+                // Build prompt: prefer a clean Description, but if it's ambiguous fall back to rephrasing the spoken `Command`.
+                string prompt;
+                // Extract primary tag if present
+                string? primaryTag = null;
+                if (!string.IsNullOrWhiteSpace(cmd.Tags))
+                {
+                    primaryTag = System.Text.RegularExpressions.Regex.Split(cmd.Tags ?? string.Empty, "[,;|]+")
+                        .Select(t => t.Trim())
+                        .FirstOrDefault(t => !string.IsNullOrWhiteSpace(t));
+                }
+
+                if (!string.IsNullOrWhiteSpace(cmd.Description) && !IsAmbiguousDescription(cmd.Description, cmd.Script, cmd.Command))
+                {
+                    prompt = cmd.Description!;
+                    // Ensure application, tag or code language context is present
+                    if (!string.IsNullOrWhiteSpace(cmd.Application) && !cmd.Application.Equals("global", StringComparison.OrdinalIgnoreCase) && !prompt.Contains(cmd.Application))
+                        prompt += $" in {cmd.Application}";
+                    if (!string.IsNullOrWhiteSpace(primaryTag) && !prompt.Contains(primaryTag))
+                        prompt += $" (tag: {primaryTag})";
+                    else if (!string.IsNullOrWhiteSpace(cmd.CodeLanguage) && !prompt.Contains(cmd.CodeLanguage))
+                        prompt += $" when working in {cmd.CodeLanguage}";
+                }
+                else
+                {
+                    // First try to derive a plain-language action from the script/title/command
+                    var derivedAction = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, null);
+                    var action = !string.IsNullOrWhiteSpace(derivedAction) ? derivedAction : RephraseCommandForPrompt(cmd.Command);
+
+                    var appPart = !string.IsNullOrWhiteSpace(cmd.Application) && !cmd.Application.Equals("global", StringComparison.OrdinalIgnoreCase)
+                        ? $"in {FormatAppForPrompt(cmd.Application)}"
+                        : string.Empty;
+                    var langPart = !string.IsNullOrWhiteSpace(cmd.CodeLanguage) ? $"when working in {cmd.CodeLanguage}" : string.Empty;
+                    var tagPart = !string.IsNullOrWhiteSpace(primaryTag) ? $"with tag '{primaryTag}' active" : string.Empty;
+                    var osPart = !string.IsNullOrWhiteSpace(cmd.OperatingSystem) ? $"on {cmd.OperatingSystem}" : string.Empty;
+
+                    var parts = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(appPart)) parts.Add(appPart);
+                    if (!string.IsNullOrWhiteSpace(tagPart)) parts.Add(tagPart);
+                    if (!string.IsNullOrWhiteSpace(osPart)) parts.Add(osPart);
+                    if (!string.IsNullOrWhiteSpace(langPart)) parts.Add(langPart);
+
+                    var context = parts.Count > 0 ? (" (" + string.Join("; ", parts) + ")") : string.Empty;
+                    prompt = $"What voice command would you use to {action}{context}?";
+                }
+
+                q.Prompt = prompt;
+
+                // Correct choice text: prefer spoken `Command`, cleaned for readability
+                string correctText = !string.IsNullOrWhiteSpace(cmd.Command) ? CleanSpokenForm(cmd.Command) : (!string.IsNullOrWhiteSpace(cmd.Title) ? cmd.Title : (cmd.Script.Length > 80 ? cmd.Script.Substring(0, 80) + "..." : cmd.Script));
+
+                var choices = new List<DataAccessLibrary.DTO.ChoiceDTO>();
+                choices.Add(new DataAccessLibrary.DTO.ChoiceDTO { Text = correctText, CommandId = cmd.Id });
+
+                // Find distractors: prefer same application
+                var candidates = new List<TalonVoiceCommand>();
+                if (!string.IsNullOrWhiteSpace(cmd.Application) && byApp.TryGetValue(cmd.Application, out var appList))
+                {
+                    candidates.AddRange(appList.Where(c => c.Id != cmd.Id));
+                }
+
+                // Add global fallback candidates
+                candidates.AddRange(all.Where(c => c.Id != cmd.Id && !candidates.Any(x => x.Id == c.Id)));
+
+                // Score candidates by token overlap to pick similar but not identical distractors
+                var targetTokens = TokenizeForMatching(correctText);
+                var scored = candidates.Select(cand => new { Cand = cand, Score = TokenOverlapScore(targetTokens, TokenizeForMatching(cand.Command ?? cand.Title ?? cand.Script)) })
+                    .OrderByDescending(x => x.Score).ThenBy(x => rng.Next()).ToList();
+
+                foreach (var s in scored.Take(distractors))
+                {
+                    var text = !string.IsNullOrWhiteSpace(s.Cand.Command) ? CleanSpokenForm(s.Cand.Command) : (!string.IsNullOrWhiteSpace(s.Cand.Title) ? s.Cand.Title : (s.Cand.Script.Length > 80 ? s.Cand.Script.Substring(0, 80) + "..." : s.Cand.Script));
+                    if (!choices.Any(c => c.Text == text))
+                        choices.Add(new DataAccessLibrary.DTO.ChoiceDTO { Text = text, CommandId = s.Cand.Id });
+                }
+
+                // If not enough choices, fill with random commands
+                var idx = 0;
+                while (choices.Count < Math.Max(4, distractors + 1) && idx < all.Count)
+                {
+                    var cand = all[idx];
+                    if (!choices.Any(c => c.CommandId == cand.Id) && cand.Id != cmd.Id)
+                    {
+                        var text = !string.IsNullOrWhiteSpace(cand.Command) ? CleanSpokenForm(cand.Command) : (!string.IsNullOrWhiteSpace(cand.Title) ? cand.Title : (cand.Script.Length > 80 ? cand.Script.Substring(0, 80) + "..." : cand.Script));
+                        if (!choices.Any(c => c.Text == text))
+                            choices.Add(new DataAccessLibrary.DTO.ChoiceDTO { Text = text, CommandId = cand.Id });
+                    }
+                    idx++;
+                }
+
+                // Shuffle choices and set correct index
+                choices = choices.OrderBy(x => rng.Next()).ToList();
+                q.Choices = choices;
+                q.CorrectChoiceIndex = choices.FindIndex(c => c.CommandId == cmd.Id);
+
+                // Determine category: prefer primary tag, then application, then code language, else 'global'
+                var category = "global";
+                if (!string.IsNullOrWhiteSpace(cmd.Tags))
+                {
+                    var firstTag = System.Text.RegularExpressions.Regex.Split(cmd.Tags ?? string.Empty, "[,;|]+")
+                        .Select(t => t.Trim())
+                        .FirstOrDefault(t => !string.IsNullOrWhiteSpace(t));
+                    if (!string.IsNullOrWhiteSpace(firstTag)) category = firstTag!;
+                }
+                else if (!string.IsNullOrWhiteSpace(cmd.Application) && !cmd.Application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                {
+                    category = cmd.Application;
+                }
+                else if (!string.IsNullOrWhiteSpace(cmd.CodeLanguage))
+                {
+                    category = cmd.CodeLanguage;
+                }
+
+                q.Category = category;
+
+                pack.Questions.Add(q);
+            }
+
+            return pack;
+        }
+
+        private static string[] TokenizeForMatching(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return new string[0];
+            var cleaned = s.ToLowerInvariant();
+            var tokens = System.Text.RegularExpressions.Regex.Split(cleaned, "[^a-z0-9]+").Where(t => t.Length > 0).ToArray();
+            return tokens;
+        }
+
+        private static int TokenOverlapScore(string[] a, string[] b)
+        {
+            if (a == null || b == null) return 0;
+            var setA = new HashSet<string>(a);
+            var setB = new HashSet<string>(b);
+            setA.IntersectWith(setB);
+            return setA.Count;
+        }
+
+        private static bool IsAmbiguousDescription(string? desc, string script, string? command)
+        {
+            if (string.IsNullOrWhiteSpace(desc)) return true;
+            var d = desc.Trim();
+            // If description is identical to script or contains many code-like tokens, treat as ambiguous
+            if (!string.IsNullOrWhiteSpace(script) && d.Equals(script.Trim(), StringComparison.OrdinalIgnoreCase)) return true;
+            var codeChars = new[] { '{', '}', '<', '>', '(', ')', '[', ']', ';', ':', '=', '"', '\'' };
+            var nonAlpha = d.Count(c => !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c));
+            if (nonAlpha > d.Length / 6) return true; // too many non-alphanumeric chars
+            if (d.IndexOf("->", StringComparison.OrdinalIgnoreCase) >= 0 || d.IndexOf("|", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            // If description contains common talon placeholder prefixes, treat as ambiguous
+            if (d.IndexOf("user.", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (d.IndexOf("\\u003c", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            // Detect dot-separated code-like identifiers
+            if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\b[a-z0-9_]+\\.[a-z0-9_]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
+            // If description starts with a raw 'press <modifier>' style phrase, treat as ambiguous
+            if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\bpress\\s+(ctrl|control|alt|shift|cmd|win|meta|super)\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                return true;
+
+            // If description is extremely short (1-2 words) it's likely ambiguous
+            var wordCount = d.Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+            if (wordCount <= 2) return true;
+            return false;
+        }
+        // stray placeholder removed
+
+        private static string RephraseCommandForPrompt(string? command)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return "perform that action";
+            var s = command.Trim();
+            // Remove anchors and leading/trailing punctuation
+            s = System.Text.RegularExpressions.Regex.Replace(s, "^[\\^\\$\\s]+|[\\s\\^\\$]+$", "");
+            // Replace common separators with spaces and trim
+            s = s.Replace('_', ' ').Replace('.', ' ').Replace(':', ' ').Replace("  ", " ").Trim();
+
+            // Drop common namespace prefixes (e.g. 'user', 'global', 'cursorless') so prompts use the meaningful part
+            var firstToken = s.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLowerInvariant() ?? string.Empty;
+            var prefixes = new[] { "user", "global", "cursorless", "vscode", "code", "talon", "app" };
+            if (prefixes.Contains(firstToken))
+            {
+                var parts = s.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 1)
+                    s = string.Join(' ', parts.Skip(1));
+            }
+
+            // Handle optional bracketed groups like [prev | previous] -> pick the longest alternative (prefer readability)
+                s = System.Text.RegularExpressions.Regex.Replace(s, @"\[([^\]]+)\]", m =>
+            {
+                var opts = m.Groups[1].Value.Split('|').Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+                if (!opts.Any()) return "";
+                // prefer longest (more descriptive) and skip bare 'the'
+                var best = opts.Where(o => !o.Equals("the", StringComparison.OrdinalIgnoreCase)).OrderByDescending(o => o.Length).FirstOrDefault() ?? opts.First();
+                return best;
+            });
+
+            // Replace capture/list placeholders {user.foo} and <user.foo> with a readable placeholder
+            s = System.Text.RegularExpressions.Regex.Replace(s, "[\\{<]([^>\\}]+)[\\}>]", m =>
+            {
+                var token = m.Groups[1].Value;
+                // take last segment after '.' or '_' if present
+                var parts = token.Split(new[] { '.', '_' }, StringSplitOptions.RemoveEmptyEntries);
+                var last = parts.LastOrDefault() ?? token;
+                last = last.Replace("user", "").Trim();
+                if (string.IsNullOrWhiteSpace(last)) return "a value";
+                // turn camelCase/underscores into words
+                last = System.Text.RegularExpressions.Regex.Replace(last, "([a-z])([A-Z])", "$1 $2");
+                last = last.Replace("-", " ").Replace("_", " ");
+                return last.Length <= 2 ? last : last;
+            });
+
+            // Clean leftover punctuation
+            s = System.Text.RegularExpressions.Regex.Replace(s, "[\\(\\)\\\"\\']", "");
+            s = System.Text.RegularExpressions.Regex.Replace(s, "\\s+", " ").Trim();
+
+            // Lowercase start for natural continuation in prompts
+            if (s.Length > 0) s = char.ToLowerInvariant(s[0]) + s.Substring(1);
+            return s;
+        }
+
+        private static string CleanSpokenForm(string? spoken)
+        {
+            if (string.IsNullOrWhiteSpace(spoken)) return string.Empty;
+            var s = spoken.Trim();
+            // Normalize escaped angle brackets sometimes present in serialized values
+            s = s.Replace("\\u003c", "<").Replace("\\u003e", ">");
+            // Normalize dotted prefixes and drop common leading namespace tokens
+            s = s.Replace('.', ' ');
+            var first = s.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLowerInvariant() ?? string.Empty;
+            var commonPrefixes = new[] { "user", "global", "cursorless", "vscode", "code", "talon", "app" };
+            if (commonPrefixes.Contains(first))
+            {
+                var parts = s.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 1) s = string.Join(' ', parts.Skip(1));
+            }
+            // Remove caret/anchors
+            s = System.Text.RegularExpressions.Regex.Replace(s, "^[\\^\\$]+|[\\^\\$]+$", "");
+            // Expand optional groups similar to RephraseCommandForPrompt
+            s = System.Text.RegularExpressions.Regex.Replace(s, @"\[([^\]]+)\]", m =>
+            {
+                var opts = m.Groups[1].Value.Split('|').Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+                if (!opts.Any()) return "";
+                // pick the most natural looking option (prefer longest)
+                var best = opts.OrderByDescending(o => o.Length).First();
+                return best;
+            });
+            // Replace list/capture placeholders
+            s = System.Text.RegularExpressions.Regex.Replace(s, "[\\{<]([^>\\}]+)[\\}>]", m =>
+            {
+                var token = m.Groups[1].Value;
+                var parts = token.Split(new[] { '.', '_' }, StringSplitOptions.RemoveEmptyEntries);
+                var last = parts.LastOrDefault() ?? token;
+                last = last.Replace("user", "").Trim();
+                last = last.Replace("-", " ").Replace("_", " ");
+                return last;
+            });
+            // Remove remaining punctuation that's not helpful
+            s = System.Text.RegularExpressions.Regex.Replace(s, "[\\(\\)\\\"\\'{}<>]", "");
+            s = System.Text.RegularExpressions.Regex.Replace(s, "\\s+", " ").Trim();
+            return s;
+        }
+
+        private static string FormatAppForPrompt(string app)
+        {
+            if (string.IsNullOrWhiteSpace(app)) return "global";
+            var t = app.Trim();
+            if (string.Equals(t, "global", StringComparison.OrdinalIgnoreCase)) return "global";
+            var lower = t.ToLowerInvariant();
+            if (lower.Contains("edge")) return "Microsoft Edge";
+            if (lower.Contains("chrome")) return "Google Chrome";
+            if (lower.Contains("vscode") || lower.Contains("visual studio code") || lower.Contains("code")) return "Visual Studio Code";
+            if (lower.Contains("obs")) return "OBS";
+            try
+            {
+                return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(lower);
+            }
+            catch
+            {
+                return t;
+            }
         }
         public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
         {
@@ -437,6 +772,7 @@ namespace DataAccessLibrary.Services
                         CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                         Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                         Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
+                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr),
                         CreatedAt = DateTime.UtcNow
                     });
                 }
@@ -489,6 +825,77 @@ namespace DataAccessLibrary.Services
                 progressCallback?.Invoke(filesProcessed, talonFiles.Length, totalImported);
             }
             return totalImported;
+        }
+
+        public async Task<int> BackfillDescriptionsAsync()
+        {
+            var all = await _context.TalonVoiceCommands.ToListAsync();
+            int updated = 0;
+            foreach (var cmd in all)
+            {
+                try
+                {
+                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application);
+                    if (!string.IsNullOrWhiteSpace(newDesc) && newDesc != cmd.Description)
+                    {
+                        cmd.Description = newDesc;
+                        updated++;
+                    }
+                }
+                catch
+                {
+                    // ignore per-row errors
+                }
+            }
+            if (updated > 0)
+                await _context.SaveChangesAsync();
+            return updated;
+        }
+
+        public async Task<int> RecreateAllDescriptionsAsync()
+        {
+            var all = await _context.TalonVoiceCommands.ToListAsync();
+            int updated = 0;
+            foreach (var cmd in all)
+            {
+                try
+                {
+                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application);
+                    if (string.IsNullOrWhiteSpace(newDesc))
+                    {
+                        newDesc = RephraseCommandForPrompt(cmd.Command);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(newDesc))
+                    {
+                        if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem) && !newDesc.Contains(cmd.OperatingSystem, StringComparison.OrdinalIgnoreCase))
+                        {
+                            newDesc = $"{newDesc} (on {cmd.OperatingSystem})";
+                        }
+
+                        // Update when the derived description differs, or when the existing description
+                        // is considered ambiguous (force-rewrite ambiguous entries to the derived text).
+                        var shouldUpdate = !string.Equals(newDesc, cmd.Description, StringComparison.Ordinal);
+                        if (!shouldUpdate && IsAmbiguousDescription(cmd.Description, cmd.Script ?? string.Empty, cmd.Command))
+                        {
+                            shouldUpdate = true;
+                        }
+
+                        if (shouldUpdate)
+                        {
+                            cmd.Description = newDesc.Length > 2000 ? newDesc.Substring(0, 2000) : newDesc;
+                            updated++;
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore per-row errors
+                }
+            }
+            if (updated > 0)
+                await _context.SaveChangesAsync();
+            return updated;
         }
 
         /// <summary>
@@ -788,6 +1195,496 @@ namespace DataAccessLibrary.Services
                 
                 return directMatches;
             }
+        }
+
+        /// <summary>
+        /// Derives a plain-language description from a talon script line.
+        /// Prefers the provided title when available. Expands lists before attempting heuristics.
+        /// Returns null when no useful description can be derived (caller may skip such entries).
+        /// </summary>
+        private async Task<string?> DerivePlainLanguageDescriptionAsync(string script, string? title, string? command, string? application = null)
+        {
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                return title.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(script)) return null;
+
+            string expanded = script;
+            try
+            {
+                expanded = await ExpandListsInScriptAsync(script);
+            }
+            catch
+            {
+                expanded = script;
+            }
+
+            // Keep original line breaks for sequence analysis
+            var sWithNewlines = expanded.Replace("\r\n", "\n").Replace('\r', '\n');
+            var s = System.Text.RegularExpressions.Regex.Replace(expanded, "\\s+", " ").Trim();
+            if (string.IsNullOrWhiteSpace(s)) return null;
+
+            // Normalize application into a short key so we can apply app-specific combo mappings
+            var appKey = GetApplicationKey(application);
+            var appOverrides = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "vscode", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+n", "create a new file or item" },
+                        { "ctrl+shift+p", "open the command palette" },
+                        { "ctrl+p", "quick open file" },
+                        { "ctrl+b", "toggle the sidebar" },
+                        { "ctrl+shift+f", "search across files" },
+                        { "ctrl+tab", "switch to the next editor tab" }
+                    }
+                },
+                { "chrome", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+n", "open a new browser window" },
+                        { "ctrl+t", "open a new tab" },
+                        { "ctrl+w", "close the current tab" },
+                        { "ctrl+shift+t", "reopen the last closed tab" },
+                        { "ctrl+f", "find on the page" },
+                        { "ctrl+l", "focus the address bar" }
+                    }
+                },
+                { "edge", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+n", "open a new browser window" },
+                        { "ctrl+t", "open a new tab" },
+                        { "ctrl+w", "close the current tab" },
+                        { "ctrl+f", "find on the page" }
+                    }
+                },
+                { "windowsterminal", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+c", "interrupt the current process" },
+                        { "ctrl+v", "paste from the clipboard" },
+                        { "ctrl+shift+c", "copy the selection" }
+                    }
+                },
+                { "visual_studio", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+n", "create a new file" },
+                        { "ctrl+shift+n", "open a new project window" },
+                        { "ctrl+shift+f", "find in files" }
+                    }
+                },
+                { "explorer", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "ctrl+n", "create a new folder" }
+                    }
+                }
+            };
+
+            // Sequence detection: look for ordered key(...) and insert(...) tokens and produce combined plain-language descriptions
+            try
+            {
+                var tokenPattern = new System.Text.RegularExpressions.Regex(
+                    "key\\(\\s*['\"]?([^'\")]+)['\"]?\\s*\\)|insert\\(\\s*['\"](?<insert>.+?)['\"]\\s*\\)|mouse\\.(?<mouse>\\w+)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                var matches = tokenPattern.Matches(sWithNewlines);
+                if (matches.Count > 0)
+                {
+                    var tokens = new List<(string Type, string Value)>();
+                    foreach (System.Text.RegularExpressions.Match m in matches)
+                    {
+                        if (m.Groups[1].Success)
+                        {
+                            tokens.Add(("key", m.Groups[1].Value.Trim()));
+                        }
+                        else if (m.Groups["insert"].Success)
+                        {
+                            tokens.Add(("insert", m.Groups["insert"].Value));
+                        }
+                        else if (m.Groups["mouse"].Success)
+                        {
+                            tokens.Add(("mouse", m.Groups["mouse"].Value));
+                        }
+                    }
+
+                    // Helper to normalize key names
+                    static string NormalizeKeyForSeq(string key)
+                    {
+                        var k = System.Text.RegularExpressions.Regex.Replace(key.ToLowerInvariant(), "[\"'\\s]+", "");
+                        if (k == "win" || k == "windows" || k == "super" || k == "meta" || k == "command") return "super";
+                        if (k == "return") return "enter";
+                        return k;
+                    }
+
+                    for (int i = 0; i < tokens.Count; i++)
+                    {
+                        var t = tokens[i];
+                        if (t.Type == "key")
+                        {
+                            var nk = NormalizeKeyForSeq(t.Value);
+                            // Super/Windows key + insert("text") => open Start and type
+                            if (nk == "super")
+                            {
+                                string? inserted = null;
+                                bool hasEnter = false;
+                                if (i + 1 < tokens.Count && tokens[i + 1].Type == "insert")
+                                {
+                                    inserted = tokens[i + 1].Value;
+                                }
+                                if (i + 2 < tokens.Count && tokens[i + 2].Type == "key")
+                                {
+                                    var nextKey = NormalizeKeyForSeq(tokens[i + 2].Value);
+                                    if (nextKey == "enter") hasEnter = true;
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(inserted))
+                                {
+                                    var preview = inserted.Length > 120 ? inserted.Substring(0, 120) + "..." : inserted;
+                                    var desc = $"open Start and type \"{preview}\"";
+                                    if (hasEnter) desc += ", then press Enter";
+                                    return desc;
+                                }
+                            }
+
+                            // Win+R (super + r) -> open Run dialog
+                            if (nk == "super")
+                            {
+                                if (i + 1 < tokens.Count && tokens[i + 1].Type == "key")
+                                {
+                                    var next = NormalizeKeyForSeq(tokens[i + 1].Value);
+                                    if (next == "r") return "open the Run dialog";
+                                }
+                            }
+                        }
+                    }
+
+                    // Build a full-sequence description for the whole script (e.g., "press Ctrl+B then press Q")
+                    try
+                    {
+                        var phraseParts = new List<string>();
+                        foreach (var tk in tokens)
+                        {
+                            if (tk.Type == "key")
+                            {
+                                var raw = tk.Value;
+                                var parts = System.Text.RegularExpressions.Regex.Split(raw, "[+\\s-]+");
+                                var mapped = parts.Select(p =>
+                                {
+                                    var pp = p.ToLowerInvariant();
+                                    return pp switch
+                                    {
+                                        "ctrl" or "control" => "Ctrl",
+                                        "alt" => "Alt",
+                                        "shift" => "Shift",
+                                        "super" or "meta" or "win" or "windows" or "command" => "Win",
+                                        _ => p.Length == 1 ? p.ToUpperInvariant() : p
+                                    };
+                                }).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+                                var keyPhrase = mapped.Length > 1 ? string.Join("+", mapped) : mapped.FirstOrDefault() ?? raw;
+                                phraseParts.Add($"press {keyPhrase}");
+                            }
+                            else if (tk.Type == "insert")
+                            {
+                                var preview = tk.Value.Length > 120 ? tk.Value.Substring(0, 120) + "..." : tk.Value;
+                                phraseParts.Add($"type \"{preview}\"");
+                            }
+                            else if (tk.Type == "mouse")
+                            {
+                                // Try to find a numeric mouse arg nearby in the expanded script
+                                var mouseNumM = System.Text.RegularExpressions.Regex.Match(sWithNewlines, "mouse[_\\.]?click\\s*\\(?\\s*['\"]?(?<num>\\d+)['\"]?\\s*\\)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                if (mouseNumM.Success)
+                                {
+                                    var num = mouseNumM.Groups["num"].Value;
+                                    var btn = num == "0" ? "left mouse button" : num == "1" ? "right mouse button" : num == "2" ? "middle mouse button" : $"mouse button {num}";
+                                    phraseParts.Add($"click the {btn}");
+                                }
+                                else if (sWithNewlines.IndexOf("mouse.left", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    phraseParts.Add("click the left mouse button");
+                                }
+                                else if (sWithNewlines.IndexOf("mouse.right", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    phraseParts.Add("click the right mouse button");
+                                }
+                                else
+                                {
+                                    phraseParts.Add("mouse action");
+                                }
+                            }
+                        }
+
+                        if (phraseParts.Count > 0)
+                        {
+                            var combined = string.Join(", then ", phraseParts);
+
+                            // Map common keyboard combos that the sequence parser returned as "press ..." into plain-language intents
+                            var comboMapSeq = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                            {
+                                { "ctrl+a", "select all text" },
+                                { "control+a", "select all text" },
+                                { "cmd+a", "select all text" },
+                                { "meta+a", "select all text" },
+
+                                { "ctrl+n", "create a new file or item" },
+                                { "control+n", "create a new file or item" },
+                                { "cmd+n", "create a new file or item" },
+
+                                { "ctrl+o", "open a file" },
+                                { "control+o", "open a file" },
+                                { "cmd+o", "open a file" },
+
+                                { "ctrl+p", "open quick open" },
+                                { "ctrl+shift+p", "open the command palette" },
+                                { "ctrl+shift+n", "open a new window" },
+                                { "ctrl+shift+f", "search across files" },
+                                { "ctrl+f", "open the find dialog" },
+
+                                { "ctrl+s", "save the file" },
+                                { "control+s", "save the file" },
+                                { "cmd+s", "save the file" },
+                                { "meta+s", "save the file" },
+                                { "ctrl+shift+s", "save the file as" },
+
+                                { "ctrl+w", "close the current tab" },
+                                { "alt+f4", "close the window" },
+                                { "ctrl+shift+i", "show the developer tools" },
+
+                                { "ctrl+c", "copy the selection" },
+                                { "ctrl+v", "paste from the clipboard" },
+                                { "ctrl+x", "cut the selection" },
+                                { "ctrl+z", "undo the last action" },
+                                { "ctrl+y", "redo the last action" },
+
+                                { "ctrl+tab", "switch to the next tab" },
+                                { "ctrl+shift+tab", "switch to the previous tab" },
+                                { "ctrl+enter", "execute or run the current selection" }
+                            };
+
+                            var pressMatch = System.Text.RegularExpressions.Regex.Match(combined, "press\\s+([A-Za-z0-9\\+\\- ]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                            if (pressMatch.Success)
+                            {
+                                var comboRaw = pressMatch.Groups[1].Value;
+                                var norm = System.Text.RegularExpressions.Regex.Replace(comboRaw.ToLowerInvariant(), "[\\s\\-]+", "+");
+                                norm = System.Text.RegularExpressions.Regex.Replace(norm, "[^\\w\\+]", "");
+
+                                // Prefer application-specific mapping first
+                                if (appOverrides.TryGetValue(appKey, out var appMap) && appMap.TryGetValue(norm, out var appMapped))
+                                {
+                                    var seqMappedApp = appMapped;
+                                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        seqMappedApp += $" in {FormatAppForPrompt(application)}";
+                                    }
+                                    return seqMappedApp;
+                                }
+
+                                if (comboMapSeq.TryGetValue(norm, out var seqMappedGlobal))
+                                {
+                                    var seqMapped = seqMappedGlobal;
+                                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        seqMapped += $" in {FormatAppForPrompt(application)}";
+                                    }
+                                    return seqMapped;
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                            {
+                                combined += $" in {application}";
+                            }
+                            return combined;
+                        }
+                    }
+                    catch
+                    {
+                        // ignore and continue
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore sequence parsing errors and continue with fallback heuristics
+            }
+
+            // key(...) single-pattern fallback
+            var keyMatch = System.Text.RegularExpressions.Regex.Match(s, "key\\(\\s*['\"]?([A-Za-z0-9\\-_+ ]+)['\"]?\\s*\\)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (keyMatch.Success)
+            {
+                var keySpec = keyMatch.Groups[1].Value.Trim();
+                var normalized = System.Text.RegularExpressions.Regex.Replace(keySpec.ToLowerInvariant(), "[\"'\\s]+", "");
+                var parts = System.Text.RegularExpressions.Regex.Split(normalized, "[+\\s-]+");
+                var mainKey = parts.LastOrDefault() ?? string.Empty;
+                var modifiers = parts.Take(parts.Length - 1).ToArray();
+                var combo = (modifiers.Length > 0 ? string.Join("+", modifiers) + "+" + mainKey : mainKey).ToLowerInvariant();
+                var comboMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "ctrl+s", "save the file" },
+                    { "control+s", "save the file" },
+                    { "cmd+s", "save the file" },
+                    { "meta+s", "save the file" },
+
+                    { "ctrl+a", "select all text" },
+                    { "control+a", "select all text" },
+                    { "cmd+a", "select all text" },
+                    { "meta+a", "select all text" },
+
+                    { "ctrl+f", "open the find dialog" },
+                    { "ctrl+t", "open a new tab" },
+                    { "ctrl+n", "create a new file or item" },
+                    { "control+n", "create a new file or item" },
+                    { "cmd+n", "create a new file or item" },
+                    { "ctrl+o", "open a file" },
+                    { "control+o", "open a file" },
+                    { "cmd+o", "open a file" },
+                    { "ctrl+p", "open quick open" },
+                    { "ctrl+shift+p", "open the command palette" },
+                    { "ctrl+shift+n", "open a new window" },
+                    { "ctrl+shift+f", "search across files" },
+                    { "ctrl+shift+s", "save the file as" },
+
+                    { "ctrl+w", "close the current tab" },
+                    { "alt+f4", "close the window" },
+                    { "ctrl+shift+i", "show the developer tools" },
+
+                    { "ctrl+c", "copy the selection" },
+                    { "ctrl+v", "paste from the clipboard" },
+                    { "ctrl+x", "cut the selection" },
+                    { "ctrl+z", "undo the last action" },
+                    { "ctrl+y", "redo the last action" },
+
+                    { "ctrl+tab", "switch to the next tab" },
+                    { "ctrl+shift+tab", "switch to the previous tab" },
+                    { "ctrl+enter", "execute or run the current selection" }
+                };
+
+                // Prefer application-specific mapping when available
+                if (appOverrides.TryGetValue(appKey, out var appMap) && appMap.TryGetValue(combo, out var appMapped))
+                {
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                        return appMapped + $" in {FormatAppForPrompt(application)}";
+                    return appMapped;
+                }
+
+                if (comboMap.TryGetValue(combo, out var mapped))
+                {
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                        return mapped + $" in {FormatAppForPrompt(application)}";
+                    return mapped;
+                }
+
+                var bareKeyMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "tab", "move focus to the next element" },
+                    { "enter", "insert a new line or confirm" },
+                    { "newline", "move the cursor to the next line" },
+                    { "space", "insert a space" },
+                    { "escape", "cancel the current operation" },
+                    { "backspace", "delete the previous character" }
+                };
+
+                if (modifiers.Length == 0 && bareKeyMap.TryGetValue(mainKey, out var bareMapped))
+                    return bareMapped;
+
+                // Ambiguous bare single keys are not useful as verbal quiz prompts
+                if (modifiers.Length == 0 && mainKey.Length <= 2)
+                    return null;
+
+                // Avoid storing vague 'bound to key' descriptions; prefer null so import skips these rows
+                return null;
+            }
+
+            // insert("text") -> type "text"
+            var insertMatch = System.Text.RegularExpressions.Regex.Match(s, "insert\\(\\s*['\"](.+?)['\"]\\s*\\)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (insertMatch.Success)
+            {
+                var text = insertMatch.Groups[1].Value;
+                return $"type \"{text}\"";
+            }
+
+            // mouse_click or mouse.click with numeric arg -> map 1/2/3 to left/middle/right
+            var mouseClickNumMatch = System.Text.RegularExpressions.Regex.Match(s, "mouse[_\\.]click\\s*\\(?\\s*['\"]?(?<num>\\d+)['\"]?\\s*\\)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (mouseClickNumMatch.Success)
+            {
+                var num = mouseClickNumMatch.Groups["num"].Value;
+                // Talon uses 0/1/2 for left/right/middle in practice
+                if (num == "0" || num == "1" || num == "2")
+                {
+                    var btn = num == "0" ? "left mouse button" : num == "1" ? "right mouse button" : "middle mouse button";
+                    return $"click the {btn}";
+                }
+                return $"click the mouse button {num}";
+            }
+
+            // mouse patterns
+            if (s.IndexOf("mouse.left", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "click the left mouse button";
+            if (s.IndexOf("mouse.right", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "click the right mouse button";
+
+            // function-like script starting with a dotted or underscored name followed by args
+            var funcMatch = System.Text.RegularExpressions.Regex.Match(s, "^([\\w\\.]+)\\s+(.+)$");
+            if (funcMatch.Success)
+            {
+                var name = funcMatch.Groups[1].Value;
+                var args = funcMatch.Groups[2].Value.Trim();
+
+                var shortName = name.Contains('.') ? name.Split('.').Last() : name;
+                var nameWords = shortName.Replace('_', ' ').Trim();
+                // If the function ends with ' change' put 'change' first
+                if (nameWords.EndsWith(" change", StringComparison.OrdinalIgnoreCase))
+                {
+                    nameWords = "change " + nameWords.Substring(0, nameWords.Length - " change".Length).Trim();
+                }
+
+                // Handle simple mouse click numeric args: e.g. "mouse_click 2" -> "click the middle mouse button"
+                    try
+                    {
+                        var mouseNumberMatch = System.Text.RegularExpressions.Regex.Match(args, "\\b([0-2])\\b");
+                        if (mouseNumberMatch.Success && shortName.IndexOf("mouse", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            var num = mouseNumberMatch.Groups[1].Value;
+                            var btn = num == "0" ? "left mouse button" : num == "1" ? "right mouse button" : "middle mouse button";
+                            return $"click the {btn}";
+                        }
+                    }
+                catch
+                {
+                    // ignore and continue to other parsing
+                }
+
+                var argsMatch = System.Text.RegularExpressions.Regex.Match(args, "^['\"]?([^\\'\",]+)['\"]?\\s*,\\s*([0-9]+)");
+                if (argsMatch.Success)
+                {
+                    var param = argsMatch.Groups[1].Value.Trim();
+                    var val = argsMatch.Groups[2].Value.Trim();
+                    return $"{nameWords}: set \"{param}\" to {val}";
+                }
+
+                // Short fallback showing the function intent and a truncated arg preview
+                var preview = args.Length > 120 ? args.Substring(0, 120) + "..." : args;
+                return $"{nameWords}: {preview}";
+            }
+
+            // Fallback: provide a neutral action description with truncated script
+            var cleaned = System.Text.RegularExpressions.Regex.Replace(s, "[{}<>();]", " ");
+            cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, "\\s+", " ").Trim();
+            if (string.IsNullOrWhiteSpace(cleaned)) return null;
+
+            // If the cleaned fallback still looks like a code/command token (e.g., contains 'user.' or dot-separated ids),
+            // prefer rephrasing from the `command` name so prompts come from the meaningful command text.
+            if (IsAmbiguousDescription(cleaned, script, command))
+            {
+                var alt = RephraseCommandForPrompt(command);
+                if (!string.IsNullOrWhiteSpace(alt))
+                {
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                        alt = alt + " in " + application;
+                    return alt.Length > 200 ? alt.Substring(0, 200) + "..." : alt;
+                }
+            }
+
+            return cleaned.Length > 200 ? cleaned.Substring(0, 200) + "..." : cleaned;
         }
 
         /// <summary>

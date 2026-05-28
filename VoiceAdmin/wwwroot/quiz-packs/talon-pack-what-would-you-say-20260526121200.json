@@ -1,0 +1,416 @@
+﻿{
+    "packId":  "talon-what-would-you-say-20260526121200",
+    "packName":  "what-would-you-say",
+    "createdAt":  "2026-05-26T15:32:52.2344727Z",
+    "generator":  "ConvertedFromQuizSchema",
+    "entries":  [
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "angry",
+                        "listValue":  "ðŸ˜ ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "blushing",
+                        "listValue":  "ðŸ˜Š",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "broken heart",
+                        "listValue":  "ðŸ’”",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "clapping",
+                        "listValue":  "ðŸ‘",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "cool",
+                        "listValue":  "ðŸ˜Ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "crying",
+                        "listValue":  "ðŸ˜­",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "dancing",
+                        "listValue":  "ðŸ’ƒ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "disappointed",
+                        "listValue":  "ðŸ˜ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "eyes",
+                        "listValue":  "ðŸ‘€",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "happy",
+                        "listValue":  "ðŸ˜€",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "heart",
+                        "listValue":  "â¤",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "heart eyes",
+                        "listValue":  "ðŸ˜",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "hugging",
+                        "listValue":  "ðŸ¤—",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "kissing",
+                        "listValue":  "ðŸ˜˜",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "monocle",
+                        "listValue":  "ðŸ§",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "party",
+                        "listValue":  "ðŸŽ‰",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "pleading",
+                        "listValue":  "ðŸ¥º",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "poop",
+                        "listValue":  "ðŸ’©",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "rofl",
+                        "listValue":  "ðŸ¤£",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "roll eyes",
+                        "listValue":  "ðŸ™„",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "sad",
+                        "listValue":  "ðŸ™",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "shrugging",
+                        "listValue":  "ðŸ¤·",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "shushing",
+                        "listValue":  "ðŸ¤«",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "star eyes",
+                        "listValue":  "ðŸ¤©",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thinking",
+                        "listValue":  "ðŸ¤”",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thumbs down",
+                        "listValue":  "ðŸ‘Ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thumbs up",
+                        "listValue":  "ðŸ‘",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "worried",
+                        "listValue":  "ðŸ˜Ÿ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "writing",
+                        "listValue":  "âœ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "yawning",
+                        "listValue":  "ðŸ¥±",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "down",
+                        "listValue":  "down",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "left",
+                        "listValue":  "left",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "right",
+                        "listValue":  "right",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "up",
+                        "listValue":  "up",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "angry",
+                        "listValue":  "ðŸ˜ ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "blushing",
+                        "listValue":  "ðŸ˜Š",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "broken heart",
+                        "listValue":  "ðŸ’”",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "clapping",
+                        "listValue":  "ðŸ‘",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "cool",
+                        "listValue":  "ðŸ˜Ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "crying",
+                        "listValue":  "ðŸ˜­",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "dancing",
+                        "listValue":  "ðŸ’ƒ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "disappointed",
+                        "listValue":  "ðŸ˜ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "eyes",
+                        "listValue":  "ðŸ‘€",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "happy",
+                        "listValue":  "ðŸ˜€",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "heart",
+                        "listValue":  "â¤",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "heart eyes",
+                        "listValue":  "ðŸ˜",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "hugging",
+                        "listValue":  "ðŸ¤—",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "kissing",
+                        "listValue":  "ðŸ˜˜",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "monocle",
+                        "listValue":  "ðŸ§",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "party",
+                        "listValue":  "ðŸŽ‰",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "pleading",
+                        "listValue":  "ðŸ¥º",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "poop",
+                        "listValue":  "ðŸ’©",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "rofl",
+                        "listValue":  "ðŸ¤£",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "roll eyes",
+                        "listValue":  "ðŸ™„",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "sad",
+                        "listValue":  "ðŸ™",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "shrugging",
+                        "listValue":  "ðŸ¤·",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "shushing",
+                        "listValue":  "ðŸ¤«",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "star eyes",
+                        "listValue":  "ðŸ¤©",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thinking",
+                        "listValue":  "ðŸ¤”",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thumbs down",
+                        "listValue":  "ðŸ‘Ž",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "thumbs up",
+                        "listValue":  "ðŸ‘",
+                        "sourceFile":  "talon-pack-user.emoji-20260517153334.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "worried",
+                        "listValue":  "ðŸ˜Ÿ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "writing",
+                        "listValue":  "âœ",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "yawning",
+                        "listValue":  "ðŸ¥±",
+                        "sourceFile":  "talon-pack-user.emoji-20260517163451.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "down",
+                        "listValue":  "down",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "left",
+                        "listValue":  "left",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "right",
+                        "listValue":  "right",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    },
+                    {
+                        "listName":  "what-would-you-say",
+                        "spokenForm":  "up",
+                        "listValue":  "up",
+                        "sourceFile":  "talon-pack-user.arrow_key-20260517161635.json"
+                    }
+                ]
+}

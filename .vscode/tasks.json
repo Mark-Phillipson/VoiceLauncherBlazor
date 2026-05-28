@@ -13,10 +13,10 @@
 		},
 		{
 			"type": "shell",
-			"command": "dotnet watch",
+			"command": "dotnet watch --project VoiceAdmin/VoiceAdmin.csproj --urls http://localhost:5008",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "dotnet: watch VoiceLauncher"
+			"label": "dotnet: watch VoiceAdmin"
 		},
 		{
 			"label": "Run dotnet publish",

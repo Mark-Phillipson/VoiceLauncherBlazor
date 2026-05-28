@@ -1,5 +1,9 @@
 @page "/quiz-hub"
 
+@using System.Net.Http.Json
+@using RazorClassLibrary.Models
+@using DataAccessLibrary.Models
+
 <PageTitle>Quiz Hub</PageTitle>
 
 <div class="container py-4">
@@ -11,33 +15,617 @@
         <NavLink class="btn btn-outline-secondary" href="/cursorless-quiz">Quick Start</NavLink>
     </div>
 
-    <div class="row g-3">
-        <div class="col-12 col-lg-6">
-            <section class="card h-100 shadow-sm" aria-label="Cursorless quiz mode">
-                <div class="card-body d-flex flex-column">
-                    <h2 class="h5 card-title">Cursorless Quiz</h2>
-                    <p class="card-text text-muted">
-                        Practice Cursorless spoken forms, meanings, and categories from cheatsheet and docs content.
-                    </p>
-                    <div class="mt-auto d-flex gap-2 flex-wrap">
-                        <NavLink class="btn btn-primary" href="/cursorless-quiz">Launch Quiz</NavLink>
+    <div class="mt-4">
+        <h2 class="h6">Exported Quiz Packs</h2>
+        @if (_packs == null)
+        {
+            <div>Loading...</div>
+        }
+        else if (!_packs.Any())
+        {
+            <div class="text-muted">No exported packs found.</div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var p in _packs)
+                {
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold">@p.name</div>
+                            <div class="text-muted small">@p.lastModifiedUtc.ToLocalTime().ToString()</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-outline-secondary btn-sm" href="/quiz-packs/@p.name" target="_blank">Open</a>
+                            <button class="btn btn-primary btn-sm" @onclick="() => ImportPackAsync(p.name)">Import</button>
+                        </div>
                     </div>
-                </div>
-            </section>
+                }
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(_importMessage))
+        {
+            <div class="mt-2 text-success">@_importMessage</div>
+        }
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(_activeQuiz))
+    {
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <section class="card h-100 shadow-sm" aria-label="Cursorless quiz mode">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Cursorless Quiz</h2>
+                        <p class="card-text text-muted">
+                            Practice Cursorless spoken forms, meanings, and categories from cheatsheet and docs content.
+                        </p>
+                        <div class="mt-auto d-flex gap-2 flex-wrap">
+                            <button class="btn btn-primary" @onclick="LaunchCursorlessAsync">Launch Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <section class="card h-100 shadow-sm" aria-label="Talon voice command quiz mode">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Talon Voice Commands Quiz</h2>
+                        <p class="card-text text-muted">
+                            Category-pack quiz generated from imported Talon list data. Focus on spoken form to value mapping by list name.
+                        </p>
+                        <div class="mt-auto d-flex gap-2 flex-wrap">
+                            <button class="btn btn-primary" @onclick="LaunchTalonAsync">Launch Talon Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <section class="card h-100 shadow-sm" aria-label="What would you say quiz mode">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">What would you say?</h2>
+                        <p class="card-text text-muted">
+                            Intent-style prompts generated from Talon lists ("What would you say to do X?").
+                        </p>
+                        <div class="mt-auto d-flex gap-2 flex-wrap">
+                            <button class="btn btn-primary" @onclick="LaunchWhatWouldYouSayAsync">Launch "What would you say"</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <button class="btn btn-link" @onclick="ResetHub">← Back to Quiz Hub</button>
         </div>
 
-        <div class="col-12 col-lg-6">
-            <section class="card h-100 shadow-sm" aria-label="Talon voice command quiz mode">
-                <div class="card-body d-flex flex-column">
-                    <h2 class="h5 card-title">Talon Voice Commands Quiz</h2>
-                    <p class="card-text text-muted">
-                        Category-pack quiz generated from imported Talon list data. Focus on spoken form to value mapping by list name.
-                    </p>
-                    <div class="mt-auto d-flex gap-2 flex-wrap">
-                        <NavLink class="btn btn-primary" href="/talon-quiz">Launch Talon Quiz</NavLink>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </div>
+        @if (_activeQuiz == "cursorless")
+        {
+            <GenericQuiz Title="Cursorless Quiz"
+                         Subtitle="Keyboard-first practice for the cheatsheet and docs."
+                         ScoreStorageKey="cursorlessQuizScores"
+                         GenerateQuestions="GenerateForCursorless" />
+        }
+        else if (_activeQuiz == "talon")
+        {
+            <GenericQuiz Title="Talon Voice Commands Quiz"
+                         Subtitle="Category-pack quiz generated from imported Talon list data."
+                         ScoreStorageKey="talonQuizScores"
+                         GenerateQuestions="GenerateTalonQuestionsAsync"
+                         AvailablePacks="@_talonListNames"
+                         DefaultQuestionCount="10" />
+        }
+        else if (_activeQuiz == "what-would-you-say")
+        {
+            <GenericQuiz Title="What would you say?"
+                         Subtitle="Intent-style prompts generated from Talon voice commands."
+                         ScoreStorageKey="whatWouldYouSayQuizScores"
+                         GenerateQuestions="GenerateTalonVoiceCommandQuestionsAsync"
+                         AvailablePacks="@_applications"
+                         InitialPackName="global"
+                         DefaultQuestionCount="10" />
+        }
+    }
 </div>
+
+@code {
+    [Inject]
+    private HttpClient Http { get; set; } = default!;
+    [Inject]
+    private RazorClassLibrary.Services.IQuizService QuizService { get; set; } = default!;
+    [Inject]
+    private RazorClassLibrary.Services.ITalonListDataService TalonListDataService { get; set; } = default!;
+    [Inject]
+    private DataAccessLibrary.Services.ITalonVoiceCommandDataService TalonVoiceCommandDataService { get; set; } = default!;
+
+    private List<PackInfo>? _packs;
+    private string? _importMessage;
+    private string? _activeQuiz;
+    private List<TalonList> _allTalonItems = new();
+    private List<string> _talonListNames = new();
+    private List<TalonVoiceCommand> _allVoiceCommands = new();
+    private List<string> _applications = new();
+
+    private record PackInfo(string name, long size, DateTime lastModifiedUtc);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _packs = await Http.GetFromJsonAsync<List<PackInfo>>("/api/quizpacks/list");
+        }
+        catch
+        {
+            _packs = new List<PackInfo>();
+        }
+    }
+
+    private async Task ImportPackAsync(string fileName)
+    {
+        _importMessage = null;
+        try
+        {
+            var res = await Http.PostAsJsonAsync("/api/quizpacks/import", new { fileName });
+            if (!res.IsSuccessStatusCode)
+            {
+                var txt = await res.Content.ReadAsStringAsync();
+                _importMessage = "Import failed: " + txt;
+                return;
+            }
+            var data = await res.Content.ReadFromJsonAsync<Dictionary<string, int>>();
+            if (data != null && data.TryGetValue("inserted", out var inserted))
+            {
+                _importMessage = $"Imported {inserted} new entries from {fileName}";
+            }
+            else
+            {
+                _importMessage = "Import completed";
+            }
+            // refresh pack list
+            _packs = await Http.GetFromJsonAsync<List<PackInfo>>("/api/quizpacks/list");
+        }
+        catch (Exception ex)
+        {
+            _importMessage = "Import failed: " + ex.Message;
+        }
+    }
+
+    private Task LaunchCursorlessAsync()
+    {
+        _activeQuiz = "cursorless";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task LaunchTalonAsync()
+    {
+        await EnsureTalonLoadedAsync();
+        _activeQuiz = "talon";
+        StateHasChanged();
+    }
+
+    private async Task LaunchWhatWouldYouSayAsync()
+    {
+        await EnsureVoiceCommandsLoadedAsync();
+        _activeQuiz = "what-would-you-say";
+        StateHasChanged();
+    }
+
+    private void ResetHub()
+    {
+        _activeQuiz = null;
+        StateHasChanged();
+    }
+
+    private async Task EnsureTalonLoadedAsync()
+    {
+        if (_allTalonItems.Count > 0)
+            return;
+
+        try
+        {
+            var items = (await TalonListDataService.GetAllTalonListsAsync())
+                .Where(x => !string.IsNullOrWhiteSpace(x.ListName)
+                    && !string.IsNullOrWhiteSpace(x.SpokenForm)
+                    && !string.IsNullOrWhiteSpace(x.ListValue))
+                .ToList();
+
+            _allTalonItems = items;
+            _talonListNames = items
+                .Select(x => x.ListName.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+        }
+        catch
+        {
+            _allTalonItems = new List<TalonList>();
+            _talonListNames = new List<string>();
+        }
+    }
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateForCursorless(int count, string? pack)
+        => QuizService.GenerateQuestionsAsync(count);
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateTalonQuestionsAsync(int count, string? packName)
+    {
+        var pool = string.IsNullOrWhiteSpace(packName)
+            ? _allTalonItems
+            : _allTalonItems.Where(x => string.Equals(x.ListName, packName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var distinctFacts = pool
+            .DistinctBy(x => new { Name = x.ListName.Trim(), Spoken = x.SpokenForm.Trim(), Value = x.ListValue.Trim() })
+            .ToList();
+
+        if (distinctFacts.Count == 0)
+        {
+            return Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+        }
+
+        var chosen = distinctFacts.OrderBy(_ => Random.Shared.Next()).Take(Math.Min(count, distinctFacts.Count)).ToList();
+        var questions = chosen.Select(f => BuildQuestion(f, distinctFacts)).ToList();
+        return Task.FromResult((IReadOnlyList<QuizQuestion>)questions);
+    }
+
+    private async Task EnsureVoiceCommandsLoadedAsync()
+    {
+        if (_allVoiceCommands.Count > 0)
+            return;
+
+        try
+        {
+            var items = await TalonVoiceCommandDataService.GetAllCommandsForFiltersAsync();
+            _allVoiceCommands = items
+                .Where(x => !string.IsNullOrWhiteSpace(x.Command))
+                .ToList();
+
+            _applications = _allVoiceCommands
+                .Select(x => (x.Application ?? "global").Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+        }
+        catch
+        {
+            _allVoiceCommands = new List<TalonVoiceCommand>();
+            _applications = new List<string>();
+        }
+    }
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateTalonVoiceCommandQuestionsAsync(int count, string? packName)
+    {
+        var pool = string.IsNullOrWhiteSpace(packName)
+            ? _allVoiceCommands
+            : _allVoiceCommands.Where(x => string.Equals((x.Application ?? "global").Trim(), packName.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var usable = pool.Where(x => !string.IsNullOrWhiteSpace(x.Command) && (!string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Script))).ToList();
+
+        if (usable.Count == 0)
+        {
+            return Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+        }
+
+        // dedupe by normalized command
+        var unique = usable
+            .GroupBy(x => NormalizeKey(x.Command))
+            .Select(g => g.First())
+            .ToList();
+
+        var chosen = unique.OrderBy(_ => Random.Shared.Next()).Take(Math.Min(count, unique.Count)).ToList();
+        var questions = new List<QuizQuestion>();
+        foreach (var cmd in chosen)
+        {
+            var q = BuildQuestionFromVoiceCommand(cmd, unique);
+            if (q != null)
+                questions.Add(q);
+        }
+
+        return Task.FromResult((IReadOnlyList<QuizQuestion>)questions);
+    }
+
+    private QuizQuestion? BuildQuestionFromVoiceCommand(TalonVoiceCommand cmd, IReadOnlyList<TalonVoiceCommand> pool)
+    {
+        var application = string.IsNullOrWhiteSpace(cmd.Application) ? "global" : cmd.Application.Trim();
+
+        // Determine primary tag and language context
+        string? primaryTag = null;
+        if (!string.IsNullOrWhiteSpace(cmd.Tags))
+        {
+            primaryTag = System.Text.RegularExpressions.Regex.Split(cmd.Tags ?? string.Empty, "[,;|]+")
+                .Select(t => t.Trim())
+                .FirstOrDefault(t => !string.IsNullOrWhiteSpace(t));
+        }
+
+        string prompt;
+        // Prefer stored Description (plain-language) if available, then Title, then derive from Script
+        var plain = !string.IsNullOrWhiteSpace(cmd.Description) ? cmd.Description?.Trim() : null;
+        if (string.IsNullOrWhiteSpace(plain) && !string.IsNullOrWhiteSpace(cmd.Title))
+            plain = cmd.Title.Trim().TrimEnd('.');
+
+        if (string.IsNullOrWhiteSpace(plain))
+        {
+            var derived = DeriveIntentFromScript(cmd.Script);
+            if (string.IsNullOrWhiteSpace(derived))
+                return null; // skip poor rows
+            plain = derived;
+        }
+
+        string friendlyApp = FormatApplicationName(application);
+        // Build context parts: application, primary tag, code language
+        var contextParts = new List<string>();
+        if (!string.Equals(application, "global", StringComparison.OrdinalIgnoreCase)) contextParts.Add($"in {friendlyApp}");
+        if (!string.IsNullOrWhiteSpace(primaryTag)) contextParts.Add($"with tag '{primaryTag}' active");
+        if (!string.IsNullOrWhiteSpace(cmd.OperatingSystem)) contextParts.Add($"on {cmd.OperatingSystem}");
+        if (!string.IsNullOrWhiteSpace(cmd.CodeLanguage)) contextParts.Add($"when working in {cmd.CodeLanguage}");
+
+        var contextStr = contextParts.Count > 0 ? (" (" + string.Join("; ", contextParts) + ")") : string.Empty;
+        if (string.Equals(application, "global", StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(primaryTag) && string.IsNullOrWhiteSpace(cmd.CodeLanguage))
+        {
+            prompt = $"What global voice command would you use to {plain}?";
+        }
+        else
+        {
+            prompt = $"What voice command would you use to {plain}{contextStr}?";
+        }
+
+        var correct = NormalizeDisplay(cmd.Command);
+
+        var candidates = pool.Where(x => !string.Equals(NormalizeKey(x.Command), NormalizeKey(cmd.Command), StringComparison.OrdinalIgnoreCase)).ToList();
+        var sameApp = candidates.Where(x => string.Equals((x.Application ?? "global").Trim(), application, StringComparison.OrdinalIgnoreCase)).ToList();
+        var distractorPool = sameApp.Any() ? sameApp : candidates;
+
+        var distractors = distractorPool
+            .Select(x => NormalizeDisplay(x.Command))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(3)
+            .ToList();
+
+        if (distractors.Count < 3)
+        {
+            var additional = candidates
+                .Select(x => NormalizeDisplay(x.Command))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Except(distractors, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(3 - distractors.Count);
+            distractors = distractors.Concat(additional).ToList();
+        }
+
+        var choices = distractors.Append(correct)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(4)
+            .ToList();
+
+        if (!choices.Contains(correct, StringComparer.OrdinalIgnoreCase))
+        {
+            if (choices.Count == 4)
+            {
+                choices[0] = correct;
+            }
+            else
+            {
+                choices.Add(correct);
+            }
+        }
+
+        var correctIndex = choices.FindIndex(x => string.Equals(x, correct, StringComparison.OrdinalIgnoreCase));
+
+        var category = "global";
+        if (!string.IsNullOrWhiteSpace(primaryTag)) category = primaryTag!;
+        else if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase)) category = application;
+
+        return new QuizQuestion
+        {
+            Prompt = prompt,
+            Choices = choices,
+            CorrectAnswer = correct,
+            CorrectIndex = correctIndex,
+            Category = category,
+            Source = "talon-voice-command",
+            RelatedCommandId = cmd.Id
+        };
+    }
+
+    private static string NormalizeKey(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+        var t = s.Trim();
+        if ((t.StartsWith("\"") && t.EndsWith("\"")) || (t.StartsWith("'") && t.EndsWith("'")))
+            t = t.Substring(1, t.Length - 2);
+        t = System.Text.RegularExpressions.Regex.Replace(t, "\\s+", " ");
+        return t.ToLowerInvariant();
+    }
+
+    private static string NormalizeDisplay(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+        var t = s.Trim();
+        if ((t.StartsWith("\"") && t.EndsWith("\"")) || (t.StartsWith("'") && t.EndsWith("'")))
+            t = t.Substring(1, t.Length - 2);
+        t = System.Text.RegularExpressions.Regex.Replace(t, "\\s+", " ");
+        return t;
+    }
+
+    private static string DeriveIntentFromScript(string script)
+    {
+        if (string.IsNullOrWhiteSpace(script)) return string.Empty;
+        var s = script.Trim();
+
+        var m = System.Text.RegularExpressions.Regex.Match(s, "key\\(\\s*['\\\"]?([A-Za-z0-9\\-_+ ]+)['\\\"]?\\s*\\)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (m.Success)
+        {
+            var keySpec = m.Groups[1].Value.Trim();
+            var normalized = System.Text.RegularExpressions.Regex.Replace(keySpec.ToLowerInvariant(), "[\"'\\s]+", "");
+            var parts = System.Text.RegularExpressions.Regex.Split(normalized, "[+\\s-]+");
+            var mainKey = parts.LastOrDefault() ?? string.Empty;
+            var modifiers = parts.Take(parts.Length - 1).ToArray();
+
+            var combo = (modifiers.Length > 0 ? string.Join("+", modifiers) + "+" + mainKey : mainKey).ToLowerInvariant();
+            var comboMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "ctrl+s", "save the file" },
+                { "control+s", "save the file" },
+                { "cmd+s", "save the file" },
+                { "meta+s", "save the file" },
+                { "ctrl+a", "select all text" },
+                { "control+a", "select all text" },
+                { "cmd+a", "select all text" },
+                { "meta+a", "select all text" },
+                { "ctrl+f", "open the find dialog" },
+                { "ctrl+t", "open a new tab" },
+                { "ctrl+w", "close the current tab" },
+                { "alt+f4", "close the window" },
+                { "ctrl+shift+i", "show the developer tools" },
+                { "ctrl+c", "copy the selection" },
+                { "ctrl+v", "paste from the clipboard" },
+                { "ctrl+z", "undo the last action" },
+                { "ctrl+y", "redo the last action" }
+            };
+
+            if (comboMap.TryGetValue(combo, out var mapped))
+            {
+                return mapped;
+            }
+
+            var bareKeyMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "tab", "move focus to the next element" },
+                { "enter", "insert a new line or confirm" },
+                { "newline", "move the cursor to the next line" },
+                { "space", "insert a space" },
+                { "escape", "cancel the current operation" },
+                { "backspace", "delete the previous character" },
+            };
+
+            if (modifiers.Length == 0 && bareKeyMap.TryGetValue(mainKey, out var bareMapped))
+            {
+                return bareMapped;
+            }
+
+            if (modifiers.Length == 0 && mainKey.Length <= 2)
+            {
+                return string.Empty;
+            }
+
+            return $"press the {mainKey} key";
+        }
+
+        // mouse_click or mouse.click with numeric arg -> map 1/2/3 to left/middle/right
+        var mouseNumMatch = System.Text.RegularExpressions.Regex.Match(s, "mouse[_\\.]?click\\s*\\(?\\s*['\"]?(?<num>\\d+)['\"]?\\s*\\)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (mouseNumMatch.Success)
+        {
+            var num = mouseNumMatch.Groups["num"].Value;
+            if (num == "0" || num == "1" || num == "2")
+            {
+                var btn = num == "0" ? "left mouse button" : num == "1" ? "right mouse button" : "middle mouse button";
+                return $"click the {btn}";
+            }
+            return $"click the mouse button {num}";
+        }
+
+        if (s.IndexOf("mouse.left", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "click the left mouse button";
+        if (s.IndexOf("mouse.right", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "click the right mouse button";
+        if (s.IndexOf("mouse.click", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "click the mouse button";
+
+        if (s.IndexOf("restart", StringComparison.OrdinalIgnoreCase) >= 0 || s.IndexOf("reboot", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "restart the computer";
+
+        if (s.IndexOf("obs", StringComparison.OrdinalIgnoreCase) >= 0 || s.IndexOf("record", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "start recording in OBS";
+
+        if (s.IndexOf("newline", StringComparison.OrdinalIgnoreCase) >= 0 || s.IndexOf("line", StringComparison.OrdinalIgnoreCase) >= 0)
+            return "move the cursor to the next line";
+
+        var firstLine = s.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() ?? string.Empty;
+        firstLine = System.Text.RegularExpressions.Regex.Replace(firstLine, "[{}();]", " ");
+        firstLine = System.Text.RegularExpressions.Regex.Replace(firstLine, "\\s+", " ").Trim();
+        if (firstLine.Length > 120) firstLine = firstLine.Substring(0, 120).Trim();
+        return firstLine;
+    }
+
+    private static string FormatApplicationName(string app)
+    {
+        if (string.IsNullOrWhiteSpace(app)) return "global";
+        var t = app.Trim();
+        if (string.Equals(t, "global", StringComparison.OrdinalIgnoreCase)) return "global";
+        var lower = t.ToLowerInvariant();
+        if (lower.Contains("edge")) return "Microsoft Edge";
+        if (lower.Contains("chrome")) return "Google Chrome";
+        if (lower.Contains("vscode") || lower.Contains("visual studio code") || lower.Contains("code")) return "Visual Studio Code";
+        if (lower.Contains("obs")) return "OBS";
+        try
+        {
+            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(lower);
+        }
+        catch
+        {
+            return t;
+        }
+    }
+
+    private QuizQuestion BuildQuestion(TalonList fact, IReadOnlyList<TalonList> facts)
+    {
+        var correctAnswer = fact.ListValue.Trim();
+
+        var sameListDistractors = facts
+            .Where(x => !ReferenceEquals(x, fact)
+                && string.Equals(x.ListName, fact.ListName, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(x.ListValue, correctAnswer, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.ListValue.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(3)
+            .ToList();
+
+        var distractors = sameListDistractors;
+        if (distractors.Count < 3)
+        {
+            var additional = facts
+                .Where(x => !string.Equals(x.ListValue, correctAnswer, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.ListValue.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Except(distractors, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(3 - distractors.Count);
+
+            distractors = distractors.Concat(additional).ToList();
+        }
+
+        var choices = distractors.Append(correctAnswer)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(4)
+            .ToList();
+
+        if (!choices.Contains(correctAnswer, StringComparer.OrdinalIgnoreCase))
+        {
+            if (choices.Count == 4)
+            {
+                choices[0] = correctAnswer;
+            }
+            else
+            {
+                choices.Add(correctAnswer);
+            }
+        }
+
+        return new QuizQuestion
+        {
+            Prompt = $"In list '{fact.ListName}', what value matches spoken form '{fact.SpokenForm}'?",
+            Choices = choices,
+            CorrectAnswer = correctAnswer,
+            CorrectIndex = choices.FindIndex(x => string.Equals(x, correctAnswer, StringComparison.OrdinalIgnoreCase)),
+            Category = fact.ListName,
+            Source = "talon"
+        };
+    }
+}

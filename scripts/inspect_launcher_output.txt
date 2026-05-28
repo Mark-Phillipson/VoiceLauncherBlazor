@@ -1,0 +1,652 @@
+COLUMNS: ['ID', 'Name', 'CommandLine', 'WorkingDirectory', 'Arguments', 'CategoryID', 'ComputerID', 'Colour', 'Icon', 'Favourite', 'SortOrder']
+SAMPLE ROWS: 50
+ROWID=352
+  ID: 352
+  Name: Access Invoice Control
+  CommandLine: "C:\MSOffice\access\AccessInvoiceControl.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=353
+  ID: 353
+  Name: Piping Systems Open Items
+  CommandLine: "C:\MSOffice\access\PipingSystemsOpenItems.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=354
+  ID: 354
+  Name: Piping Systems Labour Tracking
+  CommandLine: "C:\MSOffice\access\Labor Tracking.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=355
+  ID: 355
+  Name: Piping Systems Job Costs
+  CommandLine: "C:\MSOffice\access\JobCosts.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=356
+  ID: 356
+  Name: Keel Over CRM
+  CommandLine: "C:\MSOffice\access\KOMCRMFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 2
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=357
+  ID: 357
+  Name: Q&A Complaints
+  CommandLine: "C:\MSOffice\Access\QAComplaintsFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 5
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=358
+  ID: 358
+  Name: Chain of Custody
+  CommandLine: "C:\MSOffice\Access\ChainOfCustodyFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 1
+  ComputerID: None
+  Colour: #000080
+  Icon: MicrosoftAccess.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=359
+  ID: 359
+  Name: PTO Database
+  CommandLine: "C:\MSOffice\Access\PTODatabaseFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=360
+  ID: 360
+  Name: Pantry Database
+  CommandLine: "C:\MSOffice\Access\PantryClient.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 9
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=362
+  ID: 362
+  Name: Stock Feeds
+  CommandLine: "C:\MSOffice\Access\StockFeedsFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=363
+  ID: 363
+  Name: Inventory Management Analysis
+  CommandLine: "C:\MSOffice\Access\InventoryManagementAnalysisFE.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 2
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=365
+  ID: 365
+  Name: SQL Server Cheat Sheet
+  CommandLine:  http://www.petefreitag.com/cheatsheets/sqlserver/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 12
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=366
+  ID: 366
+  Name: Vocola Website
+  CommandLine: http://vocola.net/default.asp
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 3
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=367
+  ID: 367
+  Name: X / Formerly Twitter
+  CommandLine: https://twitter.com/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2098
+  ComputerID: None
+  Colour: #000080
+  Icon: twitter.png
+  Favourite: 1
+  SortOrder: 0
+----
+ROWID=368
+  ID: 368
+  Name: Bayer Car Sales
+  CommandLine: "C:\MSOffice\access\BayerCarSales.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 1
+  ComputerID: None
+  Colour: #000080
+  Icon: MicrosoftAccess.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=369
+  ID: 369
+  Name: Bayer Car Sales Backend
+  CommandLine: "C:\MSPSystems\BayerCarSales_be.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=371
+  ID: 371
+  Name: Weather
+  CommandLine: http://www.bbc.co.uk/weather/me15
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 10
+  ComputerID: None
+  Colour: #000080
+  Icon: BBC.png
+  Favourite: 0
+  SortOrder: -22
+----
+ROWID=372
+  ID: 372
+  Name: Norpoint Management
+  CommandLine: "C:\Msoffice\Access\NorpointManagementSystem.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=373
+  ID: 373
+  Name: Family Resource Centre
+  CommandLine: "C:\Msoffice\Access\FamilyResourceCentre.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=375
+  ID: 375
+  Name: Sea Turtle Project
+  CommandLine: "C:\Msoffice\Access\SeaTurtleProject.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=376
+  ID: 376
+  Name: Geralds front-end
+  CommandLine: "C:\MSOffice\access\DEV_Manage Connectivity Desktop FE.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=378
+  ID: 378
+  Name: SharePoint Admin
+  CommandLine: "C:\MSOffice\access\SharePointAdmin.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=379
+  ID: 379
+  Name: Piping Systems Boulders and Important Tasks
+  CommandLine: "C:\MSOffice\access\BouldersImportantTasksAndSuggestions.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=380
+  ID: 380
+  Name: Geralds Web App
+  CommandLine: "C:\MSOffice\access\OSF Manage Connectivity Web App.accdw"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=381
+  ID: 381
+  Name: Materials Handling
+  CommandLine: "C:\MSOffice\access\MaterialsHandlingFE.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=382
+  ID: 382
+  Name: Piping Systems Finance and Administration
+  CommandLine: "C:\MSOffice\access\Finance and Admin.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=383
+  ID: 383
+  Name: What is on telly
+  CommandLine: http://tvguideuk.telegraph.co.uk/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: None
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=384
+  ID: 384
+  Name: Sample Application
+  CommandLine: "C:\MSOffice\access\SampleApplication.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 2
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=385
+  ID: 385
+  Name: Paris Construction Company
+  CommandLine: "C:\MSOffice\Access\ParisConstructionCoFrontEnd.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=386
+  ID: 386
+  Name: Citizen Maths
+  CommandLine: https://www.citizenmaths.com/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 4
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=387
+  ID: 387
+  Name: Start LaunchApplicationsTouch
+  CommandLine: "C:\Program Files\dotnet\dotnet.exe" "C:\Users\MPhil\OneDrive\Documents\Launch\ApplicationLauncherTouch.dll"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: None
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=388
+  ID: 388
+  Name: Shopping List
+  CommandLine: https://www.amazon.co.uk/gp/alexa-shopping-list
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 3
+  Colour: #000080
+  Icon: AmazonLogo.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=389
+  ID: 389
+  Name: China Mountain Trading
+  CommandLine: "C:\MSOffice\Access\ChinaMountainTradingFE.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 4
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=390
+  ID: 390
+  Name: Icons 8
+  CommandLine: https://icons8.com/icon/set/Product/all
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 3
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=391
+  ID: 391
+  Name: Language Understanding
+  CommandLine: https://www.luis.ai/home
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: 3
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=392
+  ID: 392
+  Name: Utilities Add-In
+  CommandLine: "C:\MSOffice\access\Utilities Add-in.accda"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 1
+  ComputerID: None
+  Colour: #000080
+  Icon: MicrosoftAccess.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=393
+  ID: 393
+  Name: Dragon Scripting PDF
+  CommandLine: "C:\Users\Mark\Documents\R10_SCRIPTING_Mark Phillipson.pdf"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 3
+  ComputerID: 1
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=394
+  ID: 394
+  Name: General Tasks
+  CommandLine: "C:\msoffice\access\Tasks.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 1
+  ComputerID: None
+  Colour: #000080
+  Icon: MicrosoftAccess.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=395
+  ID: 395
+  Name: Development Template
+  CommandLine: "C:\Msoffice\Access\DevelopmentTemplate.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 1
+  ComputerID: None
+  Colour: #000080
+  Icon: MicrosoftAccess.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=396
+  ID: 396
+  Name: MyCommands XML
+  CommandLine: code
+  WorkingDirectory: C:\Users\MPhil\OneDrive\Documents
+  Arguments: -g C:\Users\MPhil\OneDrive\Documents\MyCommands.xml:2
+  CategoryID: 3
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=397
+  ID: 397
+  Name: Dragon Generic Functions
+  CommandLine: "C:\Users\Public\Documents\DragonAdvancedScriptingSharedCode.txt"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 3
+  ComputerID: None
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=405
+  ID: 405
+  Name: Dragon Tips
+  CommandLine:  http://www.knowbrainer.com/downloads/NatPro_Quick_Tips.pdf
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 3
+  ComputerID: None
+  Colour: #000000
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=409
+  ID: 409
+  Name: Dragon Scripts
+  CommandLine: "C:\MSOffice\Access\DragonScripts.accdb"
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 3
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=414
+  ID: 414
+  Name: Bank Login
+  CommandLine: http://www.co-operativebank.co.uk/servlet/Satellite/1193206375355%2CCFSweb/Page/Bank
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 4
+  ComputerID: None
+  Colour: #000080
+  Icon: co-operativebankLogo.png
+  Favourite: 1
+  SortOrder: 0
+----
+ROWID=415
+  ID: 415
+  Name: Amazon UK
+  CommandLine: http://www.amazon.co.uk/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 4
+  ComputerID: None
+  Colour: #000080
+  Icon: AmazonLogo.png
+  Favourite: 1
+  SortOrder: 0
+----
+ROWID=416
+  ID: 416
+  Name: San Fairy Ann
+  CommandLine: https://www.sanfairyanncc.co.uk/d-group
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2098
+  ComputerID: None
+  Colour: #000080
+  Icon: sfa.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=418
+  ID: 418
+  Name: Exorcism
+  CommandLine: https://exercism.org/tracks/csharp
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2098
+  ComputerID: None
+  Colour: #000080
+  Icon: VisualStudioLogo.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=421
+  ID: 421
+  Name: Github
+  CommandLine: https://github.com/Mark-Phillipson/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2098
+  ComputerID: None
+  Colour: #000080
+  Icon: GithubLogo.png
+  Favourite: 1
+  SortOrder: 0
+----
+ROWID=422
+  ID: 422
+  Name: Click by Voice Github
+  CommandLine: https://github.com/mdbridge/click-by-voice
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 4105
+  ComputerID: None
+  Colour: #000080
+  Icon: GithubLogo.png
+  Favourite: 0
+  SortOrder: 0
+----
+ROWID=423
+  ID: 423
+  Name: Zwift Events
+  CommandLine: https://zwift.com/events/
+  WorkingDirectory: None
+  Arguments: None
+  CategoryID: 2
+  ComputerID: None
+  Colour: #000080
+  Icon: None
+  Favourite: 0
+  SortOrder: 0
+----

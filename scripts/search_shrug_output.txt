@@ -1,0 +1,6 @@
+FOUND: 1
+ROWID=427488
+Command: dump string
+Script: user.debugger_dump_ascii_string()
+FilePath: C:\Users\MPhil\AppData\Roaming\talon\user\community\tags\debugger\debugger.talon
+----

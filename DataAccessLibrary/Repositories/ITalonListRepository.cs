@@ -7,5 +7,6 @@ namespace DataAccessLibrary.Repositories
     public interface ITalonListRepository
     {
         Task<IEnumerable<TalonList>> GetAllTalonListsAsync();
+        Task<int> InsertTalonListsAsync(IEnumerable<TalonList> items);
     }
 }

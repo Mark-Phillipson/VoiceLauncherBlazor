@@ -318,6 +318,9 @@ namespace RazorClassLibrary.Pages
         private ElementReference searchInput;
         
         [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "focusCommandId")]
+        public int? FocusCommandId { get; set; }
         [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
         
         public string SearchTerm { get; set; } = string.Empty;
@@ -498,7 +501,24 @@ namespace RazorClassLibrary.Pages
                 SearchTerm = InitialSearchTerm.Replace("/", "").Trim();
                 // System.Diagnostics.Debug.WriteLine($"SearchTerm set from parameter to: '{SearchTerm}'");
             }
-            
+
+            // If a focusCommandId query parameter was provided, try to load and focus that command
+            if (FocusCommandId.HasValue && TalonService != null)
+            {
+                try
+                {
+                    var cmd = await TalonService.GetCommandByIdAsync(FocusCommandId.Value);
+                    if (cmd != null)
+                    {
+                        await FocusOnCommand(cmd);
+                    }
+                }
+                catch
+                {
+                    // ignore failures - search UI will function normally
+                }
+            }
+
             await base.OnParametersSetAsync();
         }
 

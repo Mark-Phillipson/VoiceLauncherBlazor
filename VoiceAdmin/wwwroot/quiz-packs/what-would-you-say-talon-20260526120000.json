@@ -1,0 +1,116 @@
+{
+  "packId": "what-would-you-say-20260526120000",
+  "packName": "what-would-you-say.talon",
+  "createdAt": "2026-05-26T12:00:00Z",
+  "generator": "WhatWouldYouSayGenerator",
+  "entries": [
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the heart emoji?",
+      "choices": ["heart", "happy", "thumbs up", "angry"],
+      "correctAnswer": "heart",
+      "correctIndex": 0,
+      "listValue": "❤",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the rofl emoji?",
+      "choices": ["rofl", "crying", "sad", "happy"],
+      "correctAnswer": "rofl",
+      "correctIndex": 0,
+      "listValue": "🤣",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.arrow_key",
+      "prompt": "What would you say to press the down arrow key?",
+      "choices": ["down", "left", "right", "up"],
+      "correctAnswer": "down",
+      "correctIndex": 0,
+      "listValue": "down",
+      "sourceFile": "talon-pack-user.arrow_key-20260517161635.json"
+    },
+    {
+      "category": "user.arrow_key",
+      "prompt": "What would you say to press the left arrow key?",
+      "choices": ["left", "down", "right", "up"],
+      "correctAnswer": "left",
+      "correctIndex": 0,
+      "listValue": "left",
+      "sourceFile": "talon-pack-user.arrow_key-20260517161635.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert a thumbs up emoji?",
+      "choices": ["thumbs up", "thumbs down", "clapping", "happy"],
+      "correctAnswer": "thumbs up",
+      "correctIndex": 0,
+      "listValue": "👍",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the poop emoji?",
+      "choices": ["poop", "angry", "shrugging", "party"],
+      "correctAnswer": "poop",
+      "correctIndex": 0,
+      "listValue": "💩",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the clapping emoji?",
+      "choices": ["clapping", "party", "happy", "thumbs up"],
+      "correctAnswer": "clapping",
+      "correctIndex": 0,
+      "listValue": "👏",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the thinking emoji?",
+      "choices": ["thinking", "monocle", "pleading", "writing"],
+      "correctAnswer": "thinking",
+      "correctIndex": 0,
+      "listValue": "🤔",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the star eyes emoji?",
+      "choices": ["star eyes", "heart eyes", "rofl", "happy"],
+      "correctAnswer": "star eyes",
+      "correctIndex": 0,
+      "listValue": "🤩",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert a thumbs down emoji?",
+      "choices": ["thumbs down", "thumbs up", "sad", "angry"],
+      "correctAnswer": "thumbs down",
+      "correctIndex": 0,
+      "listValue": "👎",
+      "sourceFile": "talon-pack-user.emoji-20260517163451.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the happy emoji?",
+      "choices": ["happy", "blushing", "kissing", "rofl"],
+      "correctAnswer": "happy",
+      "correctIndex": 0,
+      "listValue": "😀",
+      "sourceFile": "talon-pack-user.emoji-20260517153334.json"
+    },
+    {
+      "category": "user.emoji",
+      "prompt": "What would you say to insert the party emoji?",
+      "choices": ["party", "dancing", "clapping", "happy"],
+      "correctAnswer": "party",
+      "correctIndex": 0,
+      "listValue": "🎉",
+      "sourceFile": "talon-pack-user.emoji-20260517153334.json"
+    }
+  ]
+}

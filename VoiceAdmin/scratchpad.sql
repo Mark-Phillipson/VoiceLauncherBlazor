@@ -1,1 +1,4 @@
- SELECT Name,Icon FROM Launcher WHERE Icon  LIKE 'launcher-%'
+
+ SELECT * FROM TalonVoiceCommands WHERE Repository LIKE '%stuff%'
+
+ 
