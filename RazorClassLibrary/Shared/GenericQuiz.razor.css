@@ -57,6 +57,25 @@
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Launch-specific shortcut chips (QuizHub only): dark background in dark theme, light in light theme. */
+.quiz-kbd.quiz-kbd-launch {
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+
+.page.theme-dark .quiz-kbd.quiz-kbd-launch {
+    background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end));
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.page.theme-light .quiz-kbd.quiz-kbd-launch {
+    background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end));
+    color: var(--text-color);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 .quiz-actions .quiz-kbd {
     margin-right: 0.6rem;
 }

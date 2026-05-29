@@ -414,6 +414,32 @@ input:disabled {
 	gap: 0.5rem;
 	align-items: center;
 }
+
+/* QuizHub launch shortcut chips: theme-aware light/dark backgrounds
+   Targets only elements with class `quiz-kbd-launch` (we added this to
+   the three launch KBDs in QuizHub). This does not affect other KBDs. */
+.quiz-kbd-launch {
+	/* keep text following theme text color; border for contrast */
+	color: var(--text-color) !important;
+	border: 1px solid var(--border-color) !important;
+	box-shadow: none !important;
+}
+
+/* Dark theme: dark/nav-like background */
+[data-bs-theme="dark"] .quiz-kbd-launch,
+.page.theme-dark .quiz-kbd-launch {
+	background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end)) !important;
+	color: var(--text-color) !important;
+	border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Light theme: light background */
+[data-bs-theme="light"] .quiz-kbd-launch,
+.page.theme-light .quiz-kbd-launch {
+	background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end)) !important;
+	color: var(--text-color) !important;
+	border: 1px solid rgba(0,0,0,0.08) !important;
+}
 .connectivity-settings label { font-weight: 600; color: #fff; }
 .connectivity-settings select { background: #fff; color: #000; border-radius: 4px; padding: 0.15rem 0.35rem; }
 }
