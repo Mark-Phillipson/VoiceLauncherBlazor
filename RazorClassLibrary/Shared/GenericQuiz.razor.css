@@ -18,6 +18,24 @@
     vertical-align: middle;
 }
 
+.quiz-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+}
+
+.quiz-loading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+.quiz-loading .loading-message {
+    margin-top: 0.5rem;
+    color: rgba(0,0,0,0.65);
+    font-size: 0.98rem;
+}
+
 .quiz-choice .quiz-kbd {
     color: #ffffff;
     background: #212529;

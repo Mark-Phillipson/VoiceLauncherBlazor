@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to set the date to next month?",
+    "Notes": "Clarified the prompt for better understanding.",
+    "OriginalPrompt": "What global voice command would you use to date next month?"
+  },
+  {
+    "Index": 1,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to battle group four (on Windows)?",
+    "Notes": "Corrected \u0027fourth\u0027 to \u0027four\u0027 for accuracy.",
+    "OriginalPrompt": "What global voice command would you use to battle group fourth (on windows)?"
+  },
+  {
+    "Index": 2,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to tab or push (on Windows)?",
+    "Notes": "Replaced \u0027tabby\u0027 with \u0027tab\u0027 for clarity.",
+    "OriginalPrompt": "What global voice command would you use to tabby or push (on windows)?"
+  },
+  {
+    "Index": 3,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command would you use to uninstall Anaconda (with the \u0027terminal\u0027 tag active)?",
+    "Notes": "Clarified the command context.",
+    "OriginalPrompt": "What voice command would you use to anaconda uninstall (with tag \u0027terminal\u0027 active)?"
+  },
+  {
+    "Index": 4,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command would you use to access the previous list (on Windows) with the \u0027user.jaws_running\u0027 tag active?",
+    "Notes": "Improved clarity on context.",
+    "OriginalPrompt": "What voice command would you use to previous list (on windows) (with tag \u0027user.jaws_running\u0027 active; on windows)?"
+  },
+  {
+    "Index": 5,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to access inside quotes or a string?",
+    "Notes": "Clarified the prompt for better understanding.",
+    "OriginalPrompt": "What global voice command would you use to inside quotes or string?"
+  },
+  {
+    "Index": 6,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to echo this?",
+    "Notes": "No changes needed; prompt is clear.",
+    "OriginalPrompt": "What global voice command would you use to echo this?"
+  },
+  {
+    "Index": 7,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command would you use to mux the next window (on Linux) with the \u0027user.tmux\u0027 tag active?",
+    "Notes": "Clarified the context for better understanding.",
+    "OriginalPrompt": "What voice command would you use to mux next window (on linux) (with tag \u0027user.tmux\u0027 active; on linux)?"
+  },
+  {
+    "Index": 8,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command would you use to pick an item?",
+    "Notes": "Clarified \u0027pick to\u0027 for better understanding.",
+    "OriginalPrompt": "What global voice command would you use to pick to?"
+  },
+  {
+    "Index": 9,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command would you use to access the previous form field (on Windows) with the \u0027user.jaws_running\u0027 tag active?",
+    "Notes": "Improved clarity on context.",
+    "OriginalPrompt": "What voice command would you use to previous form field (on windows) (with tag \u0027user.jaws_running\u0027 active; on windows)?"
+  }
+]

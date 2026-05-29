@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command would you use to navigate to the next unresolved discussion (with \u0027browser\u0027 tag active)?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to next unresolved discussion (with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 1,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command would you use to drag to nine o\u0027clock?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to drag nine oclock?"
+  },
+  {
+    "Index": 2,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command would you use to start macro recording?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to macro record?"
+  },
+  {
+    "Index": 3,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command would you use to go to spam (with \u0027browser\u0027 tag active)?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to go or jump to spam (with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command would you use to move right (on Windows)?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to move right (on windows)?"
+  },
+  {
+    "Index": 5,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command would you use to launch text (on Linux) (with \u0027user.i3wm\u0027 tag active)?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to launch text (on linux) (with tag \u0027user.i3wm\u0027 active; on linux)?"
+  },
+  {
+    "Index": 6,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command would you use to split flip (with \u0027user.splits\u0027 tag active)?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to split flip (with tag \u0027user.splits\u0027 active)?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command would you use to show Talon HUD widget names on sleep (with \u0027user.talon_hud_available\u0027 tag active)?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to head up show talon hud widget names on sleep (with tag \u0027user.talon_hud_available\u0027 active)?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command would you use for recent close?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to recent close?"
+  },
+  {
+    "Index": 9,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command would you use for padding?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to padding?"
+  }
+]

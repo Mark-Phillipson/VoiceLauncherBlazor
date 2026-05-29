@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command comments a specific line number with the \u0027user.line_commands\u0027 tag active?",
+    "Notes": "Clarified the prompt for better understanding.",
+    "OriginalPrompt": "What voice command would you use to comment line number (with tag \u0027user.line_commands\u0027 active)?"
+  },
+  {
+    "Index": 1,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command selects the next text over with the \u0027user.find_and_replace\u0027 tag active?",
+    "Notes": "Improved clarity and conciseness.",
+    "OriginalPrompt": "What voice command would you use to select next text over (with tag \u0027user.find_and_replace\u0027 active)?"
+  },
+  {
+    "Index": 2,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command touches the fourth item on Windows?",
+    "Notes": "Simplified the prompt.",
+    "OriginalPrompt": "What global voice command would you use to touch fourth (on windows)?"
+  },
+  {
+    "Index": 3,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command executes \u0027until [number]\u0027 with the \u0027terminal\u0027 tag active on Linux?",
+    "Notes": "Clarified the context and command.",
+    "OriginalPrompt": "What voice command would you use to \u0022until [number - list not found]\u0022 (on linux) (with tag \u0027terminal\u0027 active; on linux)?"
+  },
+  {
+    "Index": 4,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command sets the time to one o\u0027clock on Windows?",
+    "Notes": "Rephrased for clarity.",
+    "OriginalPrompt": "What global voice command would you use to one oclock (on windows)?"
+  },
+  {
+    "Index": 5,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command selects the previous option with the \u0027user.nvda_running\u0027 tag active on Windows?",
+    "Notes": "Made the prompt more straightforward.",
+    "OriginalPrompt": "What voice command would you use to previous option (on windows) (with tag \u0027user.nvda_running\u0027 active; on windows)?"
+  },
+  {
+    "Index": 6,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command moves the gamepad d-pad down with the \u0027user.gamepad\u0027 tag active?",
+    "Notes": "Corrected terminology for clarity.",
+    "OriginalPrompt": "What voice command would you use to gamepaddpad down (with tag \u0027user.gamepad\u0027 active)?"
+  },
+  {
+    "Index": 7,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command activates the grid frame with the \u0027user.flex_mouse_grid_showing\u0027 tag active?",
+    "Notes": "Improved clarity.",
+    "OriginalPrompt": "What voice command would you use to grid frame (with tag \u0027user.flex_mouse_grid_showing\u0027 active)?"
+  },
+  {
+    "Index": 8,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command performs a right mouse click?",
+    "Notes": "Simplified the prompt.",
+    "OriginalPrompt": "What global voice command would you use to mouse right?"
+  },
+  {
+    "Index": 9,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command sets the unit to five on Windows?",
+    "Notes": "Clarified the prompt.",
+    "OriginalPrompt": "What global voice command would you use to unit five (on windows)?"
+  }
+]

@@ -19,6 +19,7 @@ using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
 using VoiceAdmin;
 using VoiceAdmin.Services;
+using RazorClassLibrary.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Microsoft.AspNetCore.Http;
@@ -236,6 +237,12 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddBlazoredModal();
 builder.Services.AddBlazoredToast();
 builder.Services.AddScoped<RazorClassLibrary.Services.ComponentCacheService>();
+// HTTP client used by AI review service
+builder.Services.AddHttpClient();
+
+// AI review service (OpenAI-backed). Registered as singleton so background worker can read the queue.
+builder.Services.AddSingleton<IAIReviewService, OpenAIReviewService>();
+builder.Services.AddHostedService<AIReviewBackgroundService>();
 var config = builder.Configuration;
 
 
@@ -1162,6 +1169,47 @@ app.MapGet("/admin/inspect-commands", async (HttpContext http) =>
     {
         http.Response.StatusCode = 500;
         await http.Response.WriteAsync($"Error: {ex.Message}");
+    }
+});
+
+// Audit endpoint: list command rows that still look like bad quiz prompts.
+app.MapGet("/admin/inspect-problematic-quiz-prompts", async (HttpContext http) =>
+{
+    try
+    {
+        var limitRaw = http.Request.Query["limit"].FirstOrDefault();
+        var limit = int.TryParse(limitRaw, out var parsedLimit) ? Math.Clamp(parsedLimit, 1, 500) : 200;
+
+        var dbFactory = http.RequestServices.GetRequiredService<IDbContextFactory<DataAccessLibrary.Models.ApplicationDbContext>>();
+        await using var db = await dbFactory.CreateDbContextAsync();
+
+        var rows = await db.TalonVoiceCommands
+            .Where(c => !string.IsNullOrWhiteSpace(c.Description))
+            .Where(c =>
+                ((c.Description ?? string.Empty).StartsWith("press ") && !(c.Command ?? string.Empty).StartsWith("press "))
+                || (c.Description ?? string.Empty).Contains("list+not+found")
+                || (c.Description ?? string.Empty).Contains("[", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(c => c.Application)
+            .ThenBy(c => c.Command)
+            .Take(limit)
+            .Select(c => new
+            {
+                c.Id,
+                c.Command,
+                c.Description,
+                c.Script,
+                c.Application,
+                c.Tags,
+                c.OperatingSystem
+            })
+            .ToListAsync();
+
+        await http.Response.WriteAsJsonAsync(new { count = rows.Count, items = rows });
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsJsonAsync(new { error = ex.Message });
     }
 });
 

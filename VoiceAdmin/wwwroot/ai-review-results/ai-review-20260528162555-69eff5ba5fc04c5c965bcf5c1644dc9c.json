@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": false,
+    "SuggestedPrompt": "What global voice command adjusts the apex screen step one number signed small?",
+    "Notes": "Clarified the prompt for better understanding.",
+    "OriginalPrompt": "What global voice command would you use to adjust apex screen step one number signed small?"
+  },
+  {
+    "Index": 1,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command repeats the code type when working in protobuf?",
+    "Notes": "Rephrased for clarity.",
+    "OriginalPrompt": "What voice command would you use to repeated type code type (when working in protobuf)?"
+  },
+  {
+    "Index": 2,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command is used for the CSS at-rule?",
+    "Notes": "Simplified the prompt.",
+    "OriginalPrompt": "What voice command would you use to at css at rule (when working in css, scss)?"
+  },
+  {
+    "Index": 3,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command replaces \u0027confirm that\u0027 when the user.find_and_replace tag is active?",
+    "Notes": "Clarified the context.",
+    "OriginalPrompt": "What voice command would you use to replace confirm that (with tag \u0027user.find_and_replace\u0027 active)?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "Prompt is clear and concise.",
+    "OriginalPrompt": "What global voice command would you use to wheel right?"
+  },
+  {
+    "Index": 5,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command navigates to a page or focuses on a page with the browser tag active?",
+    "Notes": "Rephrased for clarity.",
+    "OriginalPrompt": "What voice command would you use to go page or page focus (with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 6,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command is used for importing code libraries in R?",
+    "Notes": "Clarified the context.",
+    "OriginalPrompt": "What voice command would you use to using code libraries (when working in r)?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "Prompt is clear and concise.",
+    "OriginalPrompt": "What voice command would you use to save contact (with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "Prompt is clear and concise.",
+    "OriginalPrompt": "What voice command would you use to inner dock comment (when working in rust)?"
+  },
+  {
+    "Index": 9,
+    "Ok": false,
+    "SuggestedPrompt": "What voice command checks if a value is not NA in R?",
+    "Notes": "Rephrased for clarity.",
+    "OriginalPrompt": "What voice command would you use to is not N A (when working in r)?"
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to \u0027speak selection\u0027 on Windows?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to speak selection or say selection (on windows) (with tag \u0027user.jaws_running\u0027 active; on windows)?"
+  },
+  {
+    "Index": 1,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to \u0027grid bigger bump\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to grid bigger bump (with tag \u0027user.flex_mouse_grid_showing\u0027 active)?"
+  },
+  {
+    "Index": 2,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command do you use to increase the volume?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to volume up?"
+  },
+  {
+    "Index": 3,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command do you use for \u0027dub click\u0027 or \u0027duke\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to dub click or duke?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to \u0027cube proxy\u0027 in the terminal?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to cube proxy (with tag \u0027terminal\u0027 active)?"
+  },
+  {
+    "Index": 5,
+    "Ok": true,
+    "SuggestedPrompt": "What global voice command do you use for \u0027prose formatter\u0027 with a phrase ender?",
+    "Notes": "",
+    "OriginalPrompt": "What global voice command would you use to prose formatter prose phrase ender?"
+  },
+  {
+    "Index": 6,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to \u0027hunt all\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to hunt all (with tag \u0027user.find_and_replace\u0027 active)?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to delete a task by number in the terminal on Linux?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to \u0022task [number - list not found] delete\u0022 (on linux) (with tag \u0027terminal\u0027 active; on linux)?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to state a module while working in Ruby?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to state module (when working in ruby)?"
+  },
+  {
+    "Index": 9,
+    "Ok": true,
+    "SuggestedPrompt": "What voice command do you use to select the next clip?",
+    "Notes": "",
+    "OriginalPrompt": "What voice command would you use to select next clip (with tag \u0027user.find_and_replace\u0027 active)?"
+  }
+]

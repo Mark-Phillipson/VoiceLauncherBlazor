@@ -84,6 +84,97 @@ namespace DataAccessLibrary.Services
             return "global";
         }
 
+        private static bool ShouldPreferCommandIntentForShortcut(string? command)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return false;
+
+            var trimmed = command.Trim();
+            if (trimmed.StartsWith("^")) trimmed = trimmed.Substring(1).Trim();
+
+            // Keep literal press-style commands as press-style.
+            if (trimmed.StartsWith("press ", StringComparison.OrdinalIgnoreCase)) return false;
+            if (trimmed.StartsWith("press<", StringComparison.OrdinalIgnoreCase)) return false;
+
+            var intent = RephraseCommandForPrompt(command);
+            if (string.IsNullOrWhiteSpace(intent)) return false;
+            if (string.Equals(intent, "perform that action", StringComparison.OrdinalIgnoreCase)) return false;
+
+            return true;
+        }
+
+        private static bool ShouldPreferCommandIntent(string? command)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return false;
+            var intent = RephraseCommandForPrompt(command);
+            if (string.IsNullOrWhiteSpace(intent)) return false;
+            if (string.Equals(intent, "perform that action", StringComparison.OrdinalIgnoreCase)) return false;
+            return true;
+        }
+
+        private static bool IsFootSwitchFile(string? filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return false;
+            var fileName = Path.GetFileName(filePath);
+            return fileName.IndexOf("foot_switch", StringComparison.OrdinalIgnoreCase) >= 0
+                || fileName.IndexOf("footswitch", StringComparison.OrdinalIgnoreCase) >= 0
+                || fileName.IndexOf("foot_pedal", StringComparison.OrdinalIgnoreCase) >= 0
+                || fileName.IndexOf("footpedal", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string? DescribeFootSwitchTrigger(string? command, string? script, string? filePath)
+        {
+            if (!IsFootSwitchFile(filePath)) return null;
+            var fileName = Path.GetFileName(filePath);
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
+
+            if (script != null && script.IndexOf("mouse_click(0)", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"click the left mouse button with {fileName}";
+
+            if (script != null && script.IndexOf("mouse_click(1)", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"click the right mouse button with {fileName}";
+
+            if (script != null && script.IndexOf("mouse_click(2)", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"click the middle mouse button with {fileName}";
+
+            if (script != null && script.IndexOf("speech.toggle", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"toggle speech with {fileName}";
+
+            if (script != null && script.IndexOf("mouse_click", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"click the mouse with {fileName}";
+
+            return null;
+        }
+
+        private static bool IsRawHardwareTrigger(string? command, string? script, string? filePath)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return false;
+
+            if (IsFootSwitchFile(filePath)) return false;
+
+            var normalizedCommand = command.Trim();
+            if (System.Text.RegularExpressions.Regex.IsMatch(normalizedCommand, "^key\\(f\\d+\\)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                return true;
+
+            // Treat footpedal-style bindings and other raw function-key triggers as non-quiz material.
+            if (string.Equals(normalizedCommand, "key(f15)", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalizedCommand, "key(f14)", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalizedCommand, "key(f13)", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalizedCommand, "key(f9)", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(script)
+                && (script.IndexOf("mouse_click", StringComparison.OrdinalIgnoreCase) >= 0
+                    || script.IndexOf("speech.toggle", StringComparison.OrdinalIgnoreCase) >= 0)
+                && System.Text.RegularExpressions.Regex.IsMatch(normalizedCommand, "^key\\(f\\d+\\)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
         {
             // Remove all existing records before importing new ones
@@ -225,7 +316,7 @@ namespace DataAccessLibrary.Services
                             CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                             Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                             Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
-                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr),
+                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, file),
                             CreatedAt = File.GetCreationTimeUtc(file)
                         });
                     }
@@ -337,6 +428,9 @@ namespace DataAccessLibrary.Services
         {
             var all = await _context.TalonVoiceCommands
                 .Where(c => !string.IsNullOrWhiteSpace(c.Description))
+                .Where(c => c.Command != null && !c.Command.Contains("<") && !c.Command.Contains("{"))
+                .Where(c => c.Description != null && !c.Description.Contains("list+not+found"))
+                .Where(c => !IsRawHardwareTrigger(c.Command, c.Script, c.FilePath))
                 .ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(applicationFilter) && !applicationFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
@@ -393,7 +487,7 @@ namespace DataAccessLibrary.Services
                 else
                 {
                     // First try to derive a plain-language action from the script/title/command
-                    var derivedAction = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, null);
+                    var derivedAction = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, null, cmd.FilePath);
                     var action = !string.IsNullOrWhiteSpace(derivedAction) ? derivedAction : RephraseCommandForPrompt(cmd.Command);
 
                     var appPart = !string.IsNullOrWhiteSpace(cmd.Application) && !cmd.Application.Equals("global", StringComparison.OrdinalIgnoreCase)
@@ -520,6 +614,10 @@ namespace DataAccessLibrary.Services
             if (d.IndexOf("\\u003c", StringComparison.OrdinalIgnoreCase) >= 0) return true;
             // Detect dot-separated code-like identifiers
             if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\b[a-z0-9_]+\\.[a-z0-9_]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
+            // Detect underscored identifiers and coordinate-like output that read like raw script instead of intent
+            if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\b[a-z0-9]+_[a-z0-9_]+\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
+            if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\b\\d{2,}\\s*,\\s*\\d{2,}\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
+            if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\b(mouse|key|insert|sleep|edit|clip|wheel|drag)_", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
             // If description starts with a raw 'press <modifier>' style phrase, treat as ambiguous
             if (System.Text.RegularExpressions.Regex.IsMatch(d, "\\bpress\\s+(ctrl|control|alt|shift|cmd|win|meta|super)\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
                 return true;
@@ -772,7 +870,7 @@ namespace DataAccessLibrary.Services
                         CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                         Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                         Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
-                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr),
+                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, fileName),
                         CreatedAt = DateTime.UtcNow
                     });
                 }
@@ -835,7 +933,7 @@ namespace DataAccessLibrary.Services
             {
                 try
                 {
-                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application);
+                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application, cmd.FilePath);
                     if (!string.IsNullOrWhiteSpace(newDesc) && newDesc != cmd.Description)
                     {
                         cmd.Description = newDesc;
@@ -860,7 +958,17 @@ namespace DataAccessLibrary.Services
             {
                 try
                 {
-                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application);
+                    if (IsRawHardwareTrigger(cmd.Command, cmd.Script, cmd.FilePath))
+                    {
+                        if (!string.IsNullOrWhiteSpace(cmd.Description))
+                        {
+                            cmd.Description = null;
+                            updated++;
+                        }
+                        continue;
+                    }
+
+                    var newDesc = await DerivePlainLanguageDescriptionAsync(cmd.Script ?? string.Empty, cmd.Title, cmd.Command, cmd.Application, cmd.FilePath);
                     if (string.IsNullOrWhiteSpace(newDesc))
                     {
                         newDesc = RephraseCommandForPrompt(cmd.Command);
@@ -1202,7 +1310,7 @@ namespace DataAccessLibrary.Services
         /// Prefers the provided title when available. Expands lists before attempting heuristics.
         /// Returns null when no useful description can be derived (caller may skip such entries).
         /// </summary>
-        private async Task<string?> DerivePlainLanguageDescriptionAsync(string script, string? title, string? command, string? application = null)
+        private async Task<string?> DerivePlainLanguageDescriptionAsync(string script, string? title, string? command, string? application = null, string? filePath = null)
         {
             if (!string.IsNullOrWhiteSpace(title))
             {
@@ -1225,6 +1333,56 @@ namespace DataAccessLibrary.Services
             var sWithNewlines = expanded.Replace("\r\n", "\n").Replace('\r', '\n');
             var s = System.Text.RegularExpressions.Regex.Replace(expanded, "\\s+", " ").Trim();
             if (string.IsNullOrWhiteSpace(s)) return null;
+
+            var footSwitchDescription = DescribeFootSwitchTrigger(command, s, filePath);
+            if (!string.IsNullOrWhiteSpace(footSwitchDescription))
+            {
+                if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                {
+                    footSwitchDescription += $" in {FormatAppForPrompt(application)}";
+                }
+                return footSwitchDescription;
+            }
+
+            // If this is fundamentally a shortcut wrapper, prefer the spoken command text as the intent.
+            // This avoids useless prompts like "press H" when the command is actually "next heading".
+            if (ShouldPreferCommandIntentForShortcut(command))
+            {
+                var shortcutLikeScript = System.Text.RegularExpressions.Regex.IsMatch(
+                    s,
+                    "^(key\\(|user\\.[\\w_]*press\\(|user\\.with_[\\w_]*press\\()",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                if (shortcutLikeScript)
+                {
+                    var shortcutIntent = RephraseCommandForPrompt(command);
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                    {
+                        shortcutIntent += $" in {FormatAppForPrompt(application)}";
+                    }
+                    return shortcutIntent;
+                }
+            }
+
+            // More generally, if the script already looks like low-level code or automation internals,
+            // prefer the spoken command meaning over exposing raw script details in quiz prompts.
+            if (ShouldPreferCommandIntent(command))
+            {
+                var codeLikeScript = System.Text.RegularExpressions.Regex.IsMatch(
+                    s,
+                    "(mouse_|key\\(|insert\\(|sleep\\(|user\\.|edit\\.|clip\\.|wheel_|drag_|\\b\\d{2,}\\s*,\\s*\\d{2,}\\b)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                if (codeLikeScript)
+                {
+                    var commandIntent = RephraseCommandForPrompt(command);
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                    {
+                        commandIntent += $" in {FormatAppForPrompt(application)}";
+                    }
+                    return commandIntent;
+                }
+            }
 
             // Normalize application into a short key so we can apply app-specific combo mappings
             var appKey = GetApplicationKey(application);
@@ -1416,6 +1574,27 @@ namespace DataAccessLibrary.Services
                         if (phraseParts.Count > 0)
                         {
                             var combined = string.Join(", then ", phraseParts);
+                            var keysOnly = tokens.Count > 0 && tokens.All(tk => string.Equals(tk.Type, "key", StringComparison.OrdinalIgnoreCase));
+                            var commandIntent = RephraseCommandForPrompt(command);
+                            var preferCommandIntent = keysOnly && ShouldPreferCommandIntentForShortcut(command);
+
+                            if (ShouldPreferCommandIntentForShortcut(command))
+                            {
+                                var looksLikeRawAutomation = combined.StartsWith("press ", StringComparison.OrdinalIgnoreCase)
+                                    && (combined.Contains(", then ", StringComparison.OrdinalIgnoreCase)
+                                        || combined.Contains("list+not+found", StringComparison.OrdinalIgnoreCase)
+                                        || combined.Length > 80);
+
+                                if (looksLikeRawAutomation)
+                                {
+                                    var intent = commandIntent!;
+                                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        intent += $" in {FormatAppForPrompt(application)}";
+                                    }
+                                    return intent;
+                                }
+                            }
 
                             // Map common keyboard combos that the sequence parser returned as "press ..." into plain-language intents
                             var comboMapSeq = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -1467,6 +1646,19 @@ namespace DataAccessLibrary.Services
                                 var norm = System.Text.RegularExpressions.Regex.Replace(comboRaw.ToLowerInvariant(), "[\\s\\-]+", "+");
                                 norm = System.Text.RegularExpressions.Regex.Replace(norm, "[^\\w\\+]", "");
 
+                                // For shortcut-only scripts, the spoken command usually carries the real intent.
+                                // Example: key(h) with command "next heading" should produce "next heading",
+                                // not "press H".
+                                if (preferCommandIntent)
+                                {
+                                    var intent = commandIntent!;
+                                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        intent += $" in {FormatAppForPrompt(application)}";
+                                    }
+                                    return intent;
+                                }
+
                                 // Prefer application-specific mapping first
                                 if (appOverrides.TryGetValue(appKey, out var appMap) && appMap.TryGetValue(norm, out var appMapped))
                                 {
@@ -1517,6 +1709,18 @@ namespace DataAccessLibrary.Services
                 var mainKey = parts.LastOrDefault() ?? string.Empty;
                 var modifiers = parts.Take(parts.Length - 1).ToArray();
                 var combo = (modifiers.Length > 0 ? string.Join("+", modifiers) + "+" + mainKey : mainKey).ToLowerInvariant();
+                var commandIntent = RephraseCommandForPrompt(command);
+
+                if (ShouldPreferCommandIntentForShortcut(command))
+                {
+                    var intent = commandIntent!;
+                    if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase))
+                    {
+                        intent += $" in {FormatAppForPrompt(application)}";
+                    }
+                    return intent;
+                }
+
                 var comboMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "ctrl+s", "save the file" },

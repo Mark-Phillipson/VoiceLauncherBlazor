@@ -3,6 +3,7 @@
 @using System.Net.Http.Json
 @using RazorClassLibrary.Models
 @using DataAccessLibrary.Models
+@using RazorClassLibrary.Services
 
 <PageTitle>Quiz Hub</PageTitle>
 
@@ -85,16 +86,16 @@
                     <div class="card-body d-flex flex-column">
                         <h2 class="h5 card-title">What would you say?</h2>
                         <p class="card-text text-muted">
-                            Intent-style prompts generated from Talon lists ("What would you say to do X?").
+                            Intent-style prompts generated from Talon voice commands ("What would you say to do X?").
                         </p>
                         <div class="mt-auto d-flex gap-2 flex-wrap">
                             <button class="btn btn-primary" @onclick="LaunchWhatWouldYouSayAsync">Launch "What would you say"</button>
                         </div>
                     </div>
-                </section>
-            </div>
-        </div>
-    }
+                            </section>
+                        </div>
+                    </div>
+                }
     else
     {
         <div class="mb-3">
@@ -123,7 +124,8 @@
                          Subtitle="Intent-style prompts generated from Talon voice commands."
                          ScoreStorageKey="whatWouldYouSayQuizScores"
                          GenerateQuestions="GenerateTalonVoiceCommandQuestionsAsync"
-                         AvailablePacks="@_applications"
+                         AvailablePacks="@_voiceSources"
+                         PackLabel="Source scope"
                          InitialPackName="global"
                          DefaultQuestionCount="10" />
         }
@@ -133,6 +135,8 @@
 @code {
     [Inject]
     private HttpClient Http { get; set; } = default!;
+    [Inject]
+    private RazorClassLibrary.Services.IAIReviewService AIReviewService { get; set; } = default!;
     [Inject]
     private RazorClassLibrary.Services.IQuizService QuizService { get; set; } = default!;
     [Inject]
@@ -146,7 +150,7 @@
     private List<TalonList> _allTalonItems = new();
     private List<string> _talonListNames = new();
     private List<TalonVoiceCommand> _allVoiceCommands = new();
-    private List<string> _applications = new();
+    private List<string> _voiceSources = new();
 
     private record PackInfo(string name, long size, DateTime lastModifiedUtc);
 
@@ -267,6 +271,16 @@
 
         var chosen = distinctFacts.OrderBy(_ => Random.Shared.Next()).Take(Math.Min(count, distinctFacts.Count)).ToList();
         var questions = chosen.Select(f => BuildQuestion(f, distinctFacts)).ToList();
+        // Enqueue for asynchronous AI review (fire-and-forget)
+        try
+        {
+            _ = AIReviewService.EnqueueForReviewAsync(questions);
+        }
+        catch
+        {
+            // Ignore review enqueue failures - do not block quiz generation
+        }
+
         return Task.FromResult((IReadOnlyList<QuizQuestion>)questions);
     }
 
@@ -282,25 +296,29 @@
                 .Where(x => !string.IsNullOrWhiteSpace(x.Command))
                 .ToList();
 
-            _applications = _allVoiceCommands
-                .Select(x => (x.Application ?? "global").Trim())
+            var repositories = _allVoiceCommands
+                .Select(x => (x.Repository ?? string.Empty).Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x)
                 .ToList();
+
+            _voiceSources = new List<string> { "global" };
+            _voiceSources.AddRange(repositories.Where(x => !string.Equals(x, "global", StringComparison.OrdinalIgnoreCase)));
         }
         catch
         {
             _allVoiceCommands = new List<TalonVoiceCommand>();
-            _applications = new List<string>();
+            _voiceSources = new List<string> { "global" };
         }
     }
 
     private Task<IReadOnlyList<QuizQuestion>> GenerateTalonVoiceCommandQuestionsAsync(int count, string? packName)
     {
-        var pool = string.IsNullOrWhiteSpace(packName)
-            ? _allVoiceCommands
-            : _allVoiceCommands.Where(x => string.Equals((x.Application ?? "global").Trim(), packName.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+        var selectedScope = string.IsNullOrWhiteSpace(packName) ? "global" : packName.Trim();
+        var pool = string.Equals(selectedScope, "global", StringComparison.OrdinalIgnoreCase)
+            ? _allVoiceCommands.Where(x => string.Equals((x.Application ?? "global").Trim(), "global", StringComparison.OrdinalIgnoreCase)).ToList()
+            : _allVoiceCommands.Where(x => string.Equals((x.Repository ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
 
         var usable = pool.Where(x => !string.IsNullOrWhiteSpace(x.Command) && (!string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Script))).ToList();
 
@@ -353,6 +371,9 @@
                 return null; // skip poor rows
             plain = derived;
         }
+
+        // Normalize terse or pipe-separated titles into more natural language prompts
+        plain = NormalizePlainIntent(plain);
 
         string friendlyApp = FormatApplicationName(application);
         // Build context parts: application, primary tag, code language
@@ -428,7 +449,8 @@
             CorrectIndex = correctIndex,
             Category = category,
             Source = "talon-voice-command",
-            RelatedCommandId = cmd.Id
+            RelatedCommandId = cmd.Id,
+            RelatedFileName = string.IsNullOrWhiteSpace(cmd.FilePath) ? null : System.IO.Path.GetFileName(cmd.FilePath)
         };
     }
 
@@ -570,6 +592,21 @@
         {
             return t;
         }
+    }
+
+    private static string NormalizePlainIntent(string plain)
+    {
+        if (string.IsNullOrWhiteSpace(plain)) return plain;
+        // Map common drag end patterns to a clearer, user-friendly phrase
+        if (System.Text.RegularExpressions.Regex.IsMatch(plain, "(?i)\\b(end\\s*drag|drag\\s*end|drag_end|dragend)\\b"))
+        {
+            return "stop dragging the mouse";
+        }
+        // Replace pipe separators with ' or ' for readability
+        var cleaned = System.Text.RegularExpressions.Regex.Replace(plain, "\\s*\\|\\s*", " or ");
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, "\\s+", " ").Trim();
+        cleaned = cleaned.Trim().TrimEnd('.', '?', '!');
+        return cleaned;
     }
 
     private QuizQuestion BuildQuestion(TalonList fact, IReadOnlyList<TalonList> facts)

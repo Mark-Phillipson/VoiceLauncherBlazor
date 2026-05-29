@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to mark all or workspace or server read (in file \u0027messaging.talon\u0027; with tag \u0027user.messaging\u0027 active)?"
+  },
+  {
+    "Index": 1,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to go to issues (in file \u0027github_web.talon\u0027; with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 2,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to select folder numb number small (in file \u0027file_manager.talon\u0027; with tag \u0027user.file_manager\u0027 active)?"
+  },
+  {
+    "Index": 3,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What global voice command would you use to arrow stop?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What global voice command would you use to all lazy (on windows)?"
+  },
+  {
+    "Index": 5,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What global voice command would you use to triple quote?"
+  },
+  {
+    "Index": 6,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to select the message or conversation (in file \u0027protonmail.talon\u0027; with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to previous radio button (on windows) (in file \u0027jaws.talon\u0027; with tag \u0027user.jaws_running\u0027 active; on windows)?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What voice command would you use to delete contact (in file \u0027protonmail.talon\u0027; with tag \u0027browser\u0027 active)?"
+  },
+  {
+    "Index": 9,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The prompt is clear and correctly formatted.",
+    "OriginalPrompt": "What global voice command would you use to running list?"
+  }
+]

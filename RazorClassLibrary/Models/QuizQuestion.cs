@@ -27,4 +27,7 @@ public sealed class QuizQuestion
 
     // Optional: related TalonVoiceCommand Id so UI can deep-link to the command detail
     public int? RelatedCommandId { get; set; }
+
+    // Optional: related Talon script file name (e.g. "foot_switch_FS3.talon") for context-aware labels
+    public string? RelatedFileName { get; set; }
 }
