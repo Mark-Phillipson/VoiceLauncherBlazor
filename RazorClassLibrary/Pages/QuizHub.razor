@@ -61,7 +61,7 @@
                             Practice Cursorless spoken forms, meanings, and categories from cheatsheet and docs content.
                         </p>
                         <div class="mt-auto d-flex gap-2 flex-wrap">
-                            <button class="btn btn-primary" @onclick="LaunchCursorlessAsync">Launch Quiz</button>
+                            <button type="button" class="btn btn-primary" accesskey="1" aria-keyshortcuts="Alt+1" title="Alt+1: Launch Cursorless Quiz" @onclick="LaunchCursorlessAsync"><kbd class="quiz-kbd">1</kbd> Launch Quiz</button>
                         </div>
                     </div>
                 </section>
@@ -75,7 +75,7 @@
                             Category-pack quiz generated from imported Talon list data. Focus on spoken form to value mapping by list name.
                         </p>
                         <div class="mt-auto d-flex gap-2 flex-wrap">
-                            <button class="btn btn-primary" @onclick="LaunchTalonAsync">Launch Talon Quiz</button>
+                            <button type="button" class="btn btn-primary" accesskey="2" aria-keyshortcuts="Alt+2" title="Alt+2: Launch Talon Quiz" @onclick="LaunchTalonAsync"><kbd class="quiz-kbd">2</kbd> Launch Talon Quiz</button>
                         </div>
                     </div>
                 </section>
@@ -89,7 +89,7 @@
                             Intent-style prompts generated from Talon voice commands ("What would you say to do X?").
                         </p>
                         <div class="mt-auto d-flex gap-2 flex-wrap">
-                            <button class="btn btn-primary" @onclick="LaunchWhatWouldYouSayAsync">Launch "What would you say"</button>
+                            <button type="button" class="btn btn-primary" accesskey="3" aria-keyshortcuts="Alt+3" title="Alt+3: Launch 'What would you say' quiz" @onclick="LaunchWhatWouldYouSayAsync"><kbd class="quiz-kbd">3</kbd> Launch "What would you say"</button>
                         </div>
                     </div>
                             </section>

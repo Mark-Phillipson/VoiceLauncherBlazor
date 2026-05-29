@@ -4,7 +4,7 @@ using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Hosting;
 using RazorClassLibrary.Models;
-
+    
 namespace RazorClassLibrary.Services;
 
 public sealed class QuizService : IQuizService

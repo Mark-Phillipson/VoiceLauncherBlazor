@@ -1,4 +1,4 @@
-
- SELECT * FROM TalonVoiceCommands WHERE Repository LIKE '%stuff%'
-
- 
+SELECT Id, Command, Description
+FROM TalonVoiceCommands
+WHERE Id IN (430483,430484,430485,430486,430487,430488,430489,430490)
+ORDER BY Id;
