@@ -318,7 +318,8 @@ input:disabled {
 }
 
 #blazor-error-ui {
-	background: lightyellow;
+	background: #fff4b8;
+	color: #000;
 	bottom: 0;
 	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
 	display: none;
@@ -327,6 +328,7 @@ input:disabled {
 	position: fixed;
 	width: 100%;
 	z-index: 1000;
+	font-size: 0.95rem;
 }
 
 #blazor-error-ui .dismiss {
@@ -338,6 +340,16 @@ input:disabled {
 
 /* Reconnect bridge override: ensure the banner can be forced visible by JS */
 #blazor-error-ui.reconnect-bridge-show { display: block !important; }
+
+#blazor-error-ui .reconnect-bridge-message {
+	color: inherit;
+	font-weight: 600;
+}
+
+/* Force high-contrast text for the reconnect banner to override scoped CSS */
+#blazor-error-ui, #blazor-error-ui * {
+	color: #000 !important;
+}
 
 /*// Below this was already here*/
 .form-field {

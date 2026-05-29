@@ -37,7 +37,8 @@ article.content {
 
 #blazor-error-ui {
     color-scheme: light only;
-    background: lightyellow;
+    background: #fff4b8; /* slightly richer yellow for better contrast */
+    color: #000; /* force readable text in both light and dark themes */
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
@@ -47,6 +48,7 @@ article.content {
     position: fixed;
     width: 100%;
     z-index: 1000;
+    font-size: 0.95rem;
 }
 
     #blazor-error-ui .dismiss {
@@ -55,3 +57,8 @@ article.content {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+#blazor-error-ui .reconnect-bridge-message {
+    color: inherit;
+    font-weight: 600;
+}
