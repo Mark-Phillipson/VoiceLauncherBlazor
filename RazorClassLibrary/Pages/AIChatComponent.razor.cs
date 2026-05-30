@@ -10,6 +10,8 @@ using SampleApplication.Services;
 using Microsoft.SemanticKernel;
 using Microsoft.AspNetCore.Components.Web;
 using System.Text.Json;
+using System.IO;
+using System.Diagnostics;
 namespace RazorClassLibrary.Pages;
 
 public partial class AIChatComponent : ComponentBase, IDisposable
@@ -590,6 +592,83 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
         await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
+    }
+
+    private async Task EditInVsCode(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return;
+
+        // If running as a Blazor Hybrid host (WinForms), delegate to the host bridge
+        if (RunningInBlazorHybrid)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("blazorHybrid.openInCode", content);
+                Message = "Requested host to open content in VS Code.";
+            }
+            catch (Exception ex)
+            {
+                Message = "Host bridge error: " + ex.Message + " — copying to clipboard as fallback.";
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", content);
+                    // Attempt to trigger paste on the host as a fallback
+                    await TriggerPasteAsync();
+                }
+                catch (Exception innerEx)
+                {
+                    Message += " Fallback clipboard/paste failed: " + innerEx.Message;
+                }
+            }
+            StateHasChanged();
+            return;
+        }
+
+        // Otherwise, create a temporary file locally and attempt to open it in VS Code.
+        try
+        {
+            var ext = ".md";
+            var fileName = $"VoiceLauncher_{Guid.NewGuid():N}{ext}";
+            var tempPath = Path.Combine(Path.GetTempPath(), fileName);
+            await File.WriteAllTextAsync(tempPath, content);
+
+            try
+            {
+                // Try launching using the 'code' CLI first
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "code",
+                    Arguments = $"\"{tempPath}\"",
+                    UseShellExecute = true
+                });
+                Message = $"Opened in VS Code: {tempPath}";
+            }
+            catch
+            {
+                try
+                {
+                    // Fallback: open with default associated editor
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = tempPath,
+                        UseShellExecute = true
+                    });
+                    Message = $"Opened with default editor: {tempPath}";
+                }
+                catch (Exception ex2)
+                {
+                    // Final fallback: copy to clipboard and inform user
+                    await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", content);
+                    Message = "Failed to open editor: " + ex2.Message + ". Content copied to clipboard as fallback.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = "Error preparing file: " + ex.Message;
+        }
+
+        StateHasChanged();
     }
     private async Task CopyChatResultsAsync()
     {

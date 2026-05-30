@@ -153,6 +153,14 @@
 						console.error("Paste error:", error);
 					});
 			}
+			,
+			openInCode: function (content) {
+				this.testConnection();
+				console.log("Requesting host to open content in VS Code...");
+				DotNet.invokeMethodAsync('WinFormsApp', 'OpenInVisualStudioCode', content)
+					.then(function () { console.log('OpenInVisualStudioCode invoked'); })
+					.catch(function (error) { console.error('OpenInVisualStudioCode error:', error); });
+			}
 		};
 		window.getPageYOffset = function () {
 			return window.pageYOffset;

@@ -30,4 +30,7 @@ public sealed class QuizQuestion
 
     // Optional: related Talon script file name (e.g. "foot_switch_FS3.talon") for context-aware labels
     public string? RelatedFileName { get; set; }
+
+    // Flag set when a question prompt has been modified/applied from an AI suggestion
+    public bool CorrectedByAI { get; set; } = false;
 }

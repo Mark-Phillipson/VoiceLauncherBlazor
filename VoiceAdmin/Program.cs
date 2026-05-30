@@ -19,7 +19,6 @@ using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
 using VoiceAdmin;
 using VoiceAdmin.Services;
-using RazorClassLibrary.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Microsoft.AspNetCore.Http;
@@ -243,6 +242,8 @@ builder.Services.AddHttpClient();
 // AI review service (OpenAI-backed). Registered as singleton so background worker can read the queue.
 builder.Services.AddSingleton<IAIReviewService, OpenAIReviewService>();
 builder.Services.AddHostedService<AIReviewBackgroundService>();
+// Service to apply AI review suggestions back to persisted data files
+builder.Services.AddScoped<AIReviewApplier>();
 var config = builder.Configuration;
 
 
@@ -1152,6 +1153,50 @@ app.MapPost("/admin/generate-quiz-pack", async (HttpContext http) =>
     {
         http.Response.StatusCode = 500;
         await http.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+});
+
+// Admin endpoint to apply AI review suggestions to persisted files (manual questions)
+app.MapPost("/admin/apply-ai-review", async (HttpContext http) =>
+{
+    try
+    {
+        var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+        string? fileName = null;
+        if (body != null && body.TryGetValue("fileName", out var fn) && !string.IsNullOrWhiteSpace(fn)) fileName = fn;
+
+        var outDir = Path.Combine(http.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "App_Data", "ai-review-results");
+        if (!Directory.Exists(outDir)) return Results.NotFound(new { error = "ai-review-results directory not found" });
+
+        string[] files;
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            files = Directory.GetFiles(outDir, "ai-review-*.json").OrderByDescending(f => File.GetLastWriteTimeUtc(f)).Take(1).ToArray();
+            if (files.Length == 0) return Results.NotFound(new { error = "No ai-review result files found" });
+        }
+        else
+        {
+            var filePath = Path.Combine(outDir, fileName);
+            if (!File.Exists(filePath)) return Results.NotFound(new { error = "File not found", file = fileName });
+            files = new[] { filePath };
+        }
+
+        var applier = http.RequestServices.GetRequiredService<AIReviewApplier>();
+        var totalApplied = 0;
+        foreach (var f in files)
+        {
+            var json = await File.ReadAllTextAsync(f);
+            var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var results = System.Text.Json.JsonSerializer.Deserialize<List<RazorClassLibrary.Models.AIReviewResult>>(json, opts) ?? new List<RazorClassLibrary.Models.AIReviewResult>();
+            var applied = await applier.ApplyResultsToManualFileAsync(results);
+            totalApplied += applied;
+        }
+
+        return Results.Ok(new { applied = totalApplied });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
     }
 });
 // Temporary debug endpoint: inspect commands by substring in Script or Command

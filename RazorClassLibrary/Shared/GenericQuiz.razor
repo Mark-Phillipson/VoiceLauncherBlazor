@@ -5,6 +5,7 @@
 @using Microsoft.JSInterop
 @using RazorClassLibrary.Models
 @inject IJSRuntime JS
+@inject RazorClassLibrary.Services.IAIReviewService AIReviewService
 
 <div class="quiz-shell" tabindex="0" @onkeydown="HandleKeyDown">
     <div class="quiz-card">
@@ -37,7 +38,7 @@
                     @if (AvailablePacks != null && AvailablePacks.Any())
                     {
                         <label class="quiz-label">@((string.IsNullOrWhiteSpace(PackLabel) ? "Category pack" : PackLabel))</label>
-                        <select class="form-select quiz-select-wide" @bind="SelectedPackName">
+                        <select class="form-select quiz-select-wide" @bind="SelectedPackName" disabled="@_isStartingQuiz">
                             <option value="">All</option>
                             @foreach (var pack in AvailablePacks)
                             {
@@ -47,17 +48,47 @@
                     }
 
                     <label class="quiz-label">Questions</label>
-                    <select class="form-select quiz-select" @bind="QuestionCount">
+                    <select class="form-select quiz-select" @bind="QuestionCount" disabled="@_isStartingQuiz">
                         <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="15">15</option>
                         <option value="20">20</option>
                     </select>
 
-                    <div class="quiz-actions quiz-start-actions">
-                        <button type="button" class="btn btn-primary" accesskey="s" @onclick="StartQuizAsync"><kbd class="quiz-kbd">S</kbd> Start quiz</button>
-                        <button type="button" class="btn btn-outline-secondary" @onclick="ToggleExcludedManager">Manage excluded</button>
+                    <div class="form-check form-switch mt-2 align-items-center d-flex flex-wrap">
+                        <input class="form-check-input" type="checkbox" id="onlyAiCorrected" @bind="_onlyAICorrected" @bind:after="OnOnlyAiCorrectedChanged" disabled="@_isStartingQuiz" />
+                        <label class="form-check-label ms-2" for="onlyAiCorrected">Only AI-corrected</label>
+                        @if (_onlyAICorrected)
+                        {
+                            <span class="badge bg-success ms-2" title="Only AI-corrected enabled">ON</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-2" title="Only AI-corrected disabled">OFF</span>
+                        }
                     </div>
+                    @if (!string.IsNullOrWhiteSpace(_aiFilterNotice))
+                    {
+                        <div class="small text-warning mt-1" role="status">@_aiFilterNotice</div>
+                    }
+                    <div class="small text-muted mt-1">
+                        AI-corrected available: <strong>@_aiCorrectedAvailableCount</strong>
+                    </div>
+
+                    <div class="quiz-actions quiz-start-actions">
+                        <button type="button" class="btn btn-primary" accesskey="s" @onclick="StartQuizAsync" disabled="@_isStartingQuiz">
+                            @if (_isStartingQuiz)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            }
+                            <kbd class="quiz-kbd">S</kbd> @(_isStartingQuiz ? "Starting..." : "Start quiz")
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="ToggleExcludedManager" disabled="@_isStartingQuiz">Manage excluded</button>
+                    </div>
+                    @if (_isStartingQuiz)
+                    {
+                        <div class="small text-info mt-2" role="status" aria-live="polite">@_quizStartStatus</div>
+                    }
                 </section>
 
                 <section class="quiz-panel">
@@ -79,6 +110,10 @@
 
                 <div class="quiz-prompt-row d-flex align-items-start gap-2">
                     <h2 class="quiz-prompt mb-0">@CurrentQuestion.Prompt</h2>
+                    @if (CurrentQuestion.CorrectedByAI)
+                    {
+                        <span class="badge bg-warning text-dark align-self-start mt-1">Corrected by AI</span>
+                    }
                     @if (CurrentQuestion?.RelatedCommandId != null)
                     {
                         <a class="btn btn-outline-secondary btn-sm mt-1" href="/talon-voice-command-search?focusCommandId=@CurrentQuestion.RelatedCommandId" target="_blank" rel="noopener noreferrer">@((string.IsNullOrWhiteSpace(CurrentQuestion.RelatedFileName) ? "Open command" : CurrentQuestion.RelatedFileName))</a>
@@ -89,7 +124,8 @@
                     <div class="quiz-choices-header">
                         <div class="quiz-badge quiz-badge--panel">@($"Question {_currentQuestionIndex + 1} / {_questions.Count}")</div>
                     </div>
-                    @for (var index = 0; index < CurrentQuestion.Choices.Count; index++)
+                    @{ var currentQuestion = CurrentQuestion; }
+                    @for (var index = 0; index < (currentQuestion?.Choices.Count ?? 0); index++)
                     {
                         var choiceIndex = index;
                         <button type="button"
@@ -97,7 +133,7 @@
                                 accesskey="@GetChoiceAccessKey(choiceIndex)"
                                 @onclick="() => SubmitAnswerAsync(choiceIndex)">
                             <kbd class="quiz-kbd">@GetChoiceAccessKey(choiceIndex)</kbd>
-                            <span class="quiz-choice-text">@CurrentQuestion.Choices[choiceIndex]</span>
+                            <span class="quiz-choice-text">@currentQuestion!.Choices[choiceIndex]</span>
                         </button>
                     }
                 </div>
@@ -197,10 +233,15 @@
     private int _correctAnswers;
     private int QuestionCount { get; set; }
     private string? SelectedPackName { get; set; }
+    private bool _onlyAICorrected;
     private string? _feedback;
     private bool _lastAnswerCorrect;
     private bool _processingAnswer;
     private bool _showExcludedManager;
+    private string? _aiFilterNotice;
+    private int _aiCorrectedAvailableCount;
+    private bool _isStartingQuiz;
+    private string _quizStartStatus = string.Empty;
 
     private string ExcludedStorageKey => $"{ScoreStorageKey}:excluded";
 
@@ -284,55 +325,183 @@
 
     private async Task StartQuizAsync()
     {
-        _feedback = null;
-        _lastAnswerCorrect = false;
-        _processingAnswer = false;
-        _questions.Clear();
-
-        if (GenerateQuestions == null)
+        if (_isStartingQuiz)
         {
-            _quizActive = false;
-            _showingResults = true;
             return;
         }
 
-        var desiredCount = QuestionCount;
-        var attempts = 0;
-        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        _isStartingQuiz = true;
+        _quizStartStatus = _onlyAICorrected
+            ? "Generating and AI-reviewing questions..."
+            : "Generating quiz questions...";
+        await InvokeAsync(StateHasChanged);
 
-        while (_questions.Count < desiredCount && attempts < 3)
+        try
         {
-            var requestCount = Math.Max(desiredCount - _questions.Count, desiredCount);
-            var candidates = (await GenerateQuestions(requestCount, SelectedPackName)).ToList();
+            _aiFilterNotice = null;
+            _aiCorrectedAvailableCount = 0;
+            _feedback = null;
+            _lastAnswerCorrect = false;
+            _processingAnswer = false;
+            _questions.Clear();
 
-            foreach (var question in candidates)
+            if (GenerateQuestions == null)
             {
-                if (_questions.Count >= desiredCount)
+                _quizActive = false;
+                _showingResults = true;
+                return;
+            }
+
+            var desiredCount = QuestionCount;
+            var attempts = 0;
+            var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            while (_questions.Count < desiredCount && attempts < 3)
+            {
+                var requestCount = _onlyAICorrected ? Math.Max(desiredCount * 3, desiredCount) : Math.Max(desiredCount - _questions.Count, desiredCount);
+                var candidates = (await GenerateQuestions(requestCount, SelectedPackName)).ToList();
+
+                if (_onlyAICorrected)
                 {
-                    break;
+                    var review = await ApplyAiReviewAsync(candidates);
+                    var aiOnlyCandidates = candidates.Where(q => q.CorrectedByAI).ToList();
+                    _aiCorrectedAvailableCount = aiOnlyCandidates.Count;
+                    if (aiOnlyCandidates.Count == 0)
+                    {
+                        _onlyAICorrected = false;
+                        if (review.TotalChunks > 0 && review.FailedChunks == review.TotalChunks)
+                        {
+                            _aiFilterNotice = "AI-only filter was disabled for this run because all AI review calls failed (check API key, quota, or network).";
+                        }
+                        else if (review.TotalChunks > 0 && review.EmptyChunks == review.TotalChunks)
+                        {
+                            _aiFilterNotice = "AI-only filter was disabled for this run because AI returned no review results.";
+                        }
+                        else
+                        {
+                            _aiFilterNotice = "AI-only filter was disabled for this run because zero corrected questions were available.";
+                        }
+                    }
+                    else
+                    {
+                        candidates = aiOnlyCandidates;
+                    }
                 }
 
-                var questionId = ComputeQuestionId(question);
-                if (_excluded.Any(x => string.Equals(x.Id, questionId, StringComparison.OrdinalIgnoreCase)))
+                foreach (var question in candidates)
+                {
+                    if (_questions.Count >= desiredCount)
+                    {
+                        break;
+                    }
+
+                    var questionId = ComputeQuestionId(question);
+                    if (_excluded.Any(x => string.Equals(x.Id, questionId, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    if (ids.Add(questionId))
+                    {
+                        _questions.Add(question);
+                    }
+                }
+
+                attempts++;
+            }
+
+            _currentQuestionIndex = 0;
+            _correctAnswers = 0;
+            _quizActive = _questions.Count > 0;
+            _showingResults = !_quizActive;
+
+            await InvokeAsync(StateHasChanged);
+        }
+        finally
+        {
+            _isStartingQuiz = false;
+            _quizStartStatus = string.Empty;
+        }
+    }
+
+    private async Task<AiReviewSummary> ApplyAiReviewAsync(List<QuizQuestion> candidates)
+    {
+        if (candidates.Count == 0)
+        {
+            return new AiReviewSummary();
+        }
+
+        const int reviewChunkSize = 10;
+        var summary = new AiReviewSummary();
+        var reviewedCount = 0;
+
+        for (var offset = 0; offset < candidates.Count; offset += reviewChunkSize)
+        {
+            summary.TotalChunks++;
+            var chunk = candidates.Skip(offset).Take(reviewChunkSize).ToList();
+            IReadOnlyList<AIReviewResult> results;
+            try
+            {
+                results = await AIReviewService.ReviewQuestionsAsync(chunk);
+            }
+            catch
+            {
+                summary.FailedChunks++;
+                continue;
+            }
+
+            if (results == null || results.Count == 0)
+            {
+                summary.EmptyChunks++;
+                continue;
+            }
+
+            foreach (var result in results)
+            {
+                if (result.Index < 0 || result.Index >= chunk.Count)
                 {
                     continue;
                 }
 
-                if (ids.Add(questionId))
+                var question = chunk[result.Index];
+                var suggested = result.SuggestedPrompt;
+                if (!string.IsNullOrWhiteSpace(suggested) && !string.Equals(suggested, question.Prompt, StringComparison.Ordinal))
                 {
-                    _questions.Add(question);
+                    question.Prompt = suggested;
+                    if (!question.CorrectedByAI)
+                    {
+                        reviewedCount++;
+                    }
+
+                    question.CorrectedByAI = true;
+                }
+                else if (result.Ok)
+                {
+                    if (!question.CorrectedByAI)
+                    {
+                        reviewedCount++;
+                    }
+
+                    question.CorrectedByAI = true;
                 }
             }
-
-            attempts++;
         }
 
-        _currentQuestionIndex = 0;
-        _correctAnswers = 0;
-        _quizActive = _questions.Count > 0;
-        _showingResults = !_quizActive;
+        summary.ReviewedCount = reviewedCount;
+        return summary;
+    }
 
-        await InvokeAsync(StateHasChanged);
+    private sealed class AiReviewSummary
+    {
+        public int ReviewedCount { get; set; }
+        public int TotalChunks { get; set; }
+        public int FailedChunks { get; set; }
+        public int EmptyChunks { get; set; }
+    }
+
+    private void OnOnlyAiCorrectedChanged()
+    {
+        _aiFilterNotice = null;
     }
 
     private async Task SubmitAnswerAsync(int choiceIndex)

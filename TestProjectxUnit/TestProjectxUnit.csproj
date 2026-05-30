@@ -37,4 +37,8 @@
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VoiceAdmin\VoiceAdmin.csproj" />
+  </ItemGroup>
+
 </Project>

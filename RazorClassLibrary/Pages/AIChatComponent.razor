@@ -313,6 +313,11 @@
                     @onclick="@(() => CopyItemAsync(TextBlock))">
                     <i class="bi bi-clipboard"></i> Cop<u>y</u>
                 </button>
+                <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
+                    aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)"
+                    @onclick="@(() => EditInVsCode(TextBlock))">
+                    <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
+                </button>
             }
             @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
             {
@@ -320,6 +325,10 @@
                     <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                         @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
                         <i class="bi bi-clipboard"></i> Cop<u>y</u>
+                    </button>
+                    <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
+                        @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
+                        <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
                     </button>
                 }
                 <MarkdownConverter MarkdownContent="@(responseHistory?.LastOrDefault()?.Content ?? string.Empty)" />
@@ -329,6 +338,12 @@
                 <textarea @ref='responseElement' class='form-control text-light border-0 ai-response-bg'
                     style="font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
                     rows="30">@TextBlock </textarea>
+                <div class="mt-2">
+                    <button accesskey='e' class='btn btn-outline-primary' aria-keyshortcuts="Alt+E" 
+                        @onclick='@(() => EditInVsCode(TextBlock))'>
+                        <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
+                    </button>
+                </div>
                 @if (!string.IsNullOrWhiteSpace(AIComments))
                 {
                     <div class="alert alert-success" role="alert">@AIComments</div>

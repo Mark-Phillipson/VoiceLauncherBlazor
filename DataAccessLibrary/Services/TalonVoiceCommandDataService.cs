@@ -473,7 +473,7 @@ namespace DataAccessLibrary.Services
                         .FirstOrDefault(t => !string.IsNullOrWhiteSpace(t));
                 }
 
-                if (!string.IsNullOrWhiteSpace(cmd.Description) && !IsAmbiguousDescription(cmd.Description, cmd.Script, cmd.Command))
+                if (!string.IsNullOrWhiteSpace(cmd.Description) && !IsAmbiguousDescription(cmd.Description, cmd.Script ?? string.Empty, cmd.Command))
                 {
                     prompt = cmd.Description!;
                     // Ensure application, tag or code language context is present
@@ -510,7 +510,12 @@ namespace DataAccessLibrary.Services
                 q.Prompt = prompt;
 
                 // Correct choice text: prefer spoken `Command`, cleaned for readability
-                string correctText = !string.IsNullOrWhiteSpace(cmd.Command) ? CleanSpokenForm(cmd.Command) : (!string.IsNullOrWhiteSpace(cmd.Title) ? cmd.Title : (cmd.Script.Length > 80 ? cmd.Script.Substring(0, 80) + "..." : cmd.Script));
+                var cmdScript = cmd.Script ?? string.Empty;
+                string correctText = !string.IsNullOrWhiteSpace(cmd.Command)
+                    ? CleanSpokenForm(cmd.Command)
+                    : (!string.IsNullOrWhiteSpace(cmd.Title)
+                        ? cmd.Title
+                        : (cmdScript.Length > 80 ? cmdScript.Substring(0, 80) + "..." : cmdScript));
 
                 var choices = new List<DataAccessLibrary.DTO.ChoiceDTO>();
                 choices.Add(new DataAccessLibrary.DTO.ChoiceDTO { Text = correctText, CommandId = cmd.Id });
@@ -527,12 +532,17 @@ namespace DataAccessLibrary.Services
 
                 // Score candidates by token overlap to pick similar but not identical distractors
                 var targetTokens = TokenizeForMatching(correctText);
-                var scored = candidates.Select(cand => new { Cand = cand, Score = TokenOverlapScore(targetTokens, TokenizeForMatching(cand.Command ?? cand.Title ?? cand.Script)) })
+                var scored = candidates.Select(cand => new { Cand = cand, Score = TokenOverlapScore(targetTokens, TokenizeForMatching(cand.Command ?? cand.Title ?? cand.Script ?? string.Empty)) })
                     .OrderByDescending(x => x.Score).ThenBy(x => rng.Next()).ToList();
 
                 foreach (var s in scored.Take(distractors))
                 {
-                    var text = !string.IsNullOrWhiteSpace(s.Cand.Command) ? CleanSpokenForm(s.Cand.Command) : (!string.IsNullOrWhiteSpace(s.Cand.Title) ? s.Cand.Title : (s.Cand.Script.Length > 80 ? s.Cand.Script.Substring(0, 80) + "..." : s.Cand.Script));
+                    var candScript = s.Cand.Script ?? string.Empty;
+                    var text = !string.IsNullOrWhiteSpace(s.Cand.Command)
+                        ? CleanSpokenForm(s.Cand.Command)
+                        : (!string.IsNullOrWhiteSpace(s.Cand.Title)
+                            ? s.Cand.Title
+                            : (candScript.Length > 80 ? candScript.Substring(0, 80) + "..." : candScript));
                     if (!choices.Any(c => c.Text == text))
                         choices.Add(new DataAccessLibrary.DTO.ChoiceDTO { Text = text, CommandId = s.Cand.Id });
                 }

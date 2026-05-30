@@ -66,7 +66,7 @@ public class OpenAIReviewService : IAIReviewService
 
         if (string.IsNullOrWhiteSpace(_apiKey))
         {
-            _logger.LogWarning("OpenAI API key not configured (env var '{envVar}'). Skipping review.", _apiKeyEnvVar);
+            _logger.LogWarning("OpenAI API key not configured (env var '{envVar}'). Skipping review. Set the key to enable 'Only AI-corrected' quiz filtering.", _apiKeyEnvVar);
             return Array.Empty<Models.AIReviewResult>();
         }
 

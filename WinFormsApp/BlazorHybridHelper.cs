@@ -1,6 +1,8 @@
 using Microsoft.JSInterop;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.IO;
+using System.Diagnostics;
 
 namespace WinFormsApp
 {
@@ -88,6 +90,52 @@ namespace WinFormsApp
             {
                 Console.WriteLine($"Overall paste operation failed: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        [JSInvokable]
+        public static async Task OpenInVisualStudioCode(string content)
+        {
+            try
+            {
+                var ext = ".md";
+                var fileName = $"VoiceLauncher_{Guid.NewGuid():N}{ext}";
+                var tempPath = Path.Combine(Path.GetTempPath(), fileName);
+                await File.WriteAllTextAsync(tempPath, content);
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "code",
+                        Arguments = $"\"{tempPath}\"",
+                        UseShellExecute = true
+                    });
+                    Console.WriteLine($"Opened in VS Code: {tempPath}");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"'code' CLI failed: {ex.Message}");
+                }
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = tempPath,
+                        UseShellExecute = true
+                    });
+                    Console.WriteLine($"Opened with default editor: {tempPath}");
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine($"Failed to open file: {ex2.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OpenInVisualStudioCode error: {ex.Message}");
             }
         }
     }
