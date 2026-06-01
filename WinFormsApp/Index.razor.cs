@@ -205,9 +205,9 @@ namespace WinFormsApp
 				}
 
 				// Handle Talon / search invocation (e.g., Talon|launch code projects)
-					    else if (arguments.Length >= 2 &&
-					    (arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
-					     arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+						else if (arguments.Length >= 2 &&
+						(arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ||
+						 arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase)))
 				{
 					System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
 					// Enable Talon search exclusively
@@ -226,6 +226,24 @@ namespace WinFormsApp
 						var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
 						arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
 					}
+					await InvokeAsync(StateHasChanged);
+				}
+
+				// Handle Clipboard invocation (e.g., Clipboard or Clippy)
+				else if ((arguments.Length >= 2 &&
+						 (arguments[1].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+						  arguments[1].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0))
+					  || (arguments.Length >= 3 &&
+						 (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+						  arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
+				{
+					SetTitle("Clipboard History");
+					// Enable Clipboard History exclusively
+					showClipboardHistory = true;
+					languageAndCategoryListing = false;
+					launcher = false;
+					showAIChat = false;
+					showTalonSearch = false;
 					await InvokeAsync(StateHasChanged);
 				}
 
@@ -351,6 +369,23 @@ namespace WinFormsApp
 				languageAndCategoryListing = false;
 				launcher = false;
 				showTalonSearch = false;
+			}
+			// Handle Clipboard cold-start invocation (e.g., Clipboard or Clippy)
+			else if ((arguments.Count() >= 2 &&
+					  (arguments[1].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+					   arguments[1].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0))
+				   || (arguments.Count() >= 3 &&
+					  (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+					   arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
+			{
+				SetTitle("Clipboard History");
+				// Enable Clipboard History exclusively
+				showClipboardHistory = true;
+				languageAndCategoryListing = false;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				return;
 			}
 			else if (arguments.Count() >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search")))
 			{

@@ -32,7 +32,7 @@
     <thead>
       <tr>
         <th>Preview</th>
-        <th>Created</th>
+        <th class="created-col">Created</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -47,7 +47,7 @@
         {
           <tr>
             <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
-            <td>@TimeFormatter.FormatTimestamp(item.CreatedAt)</td>
+            <td class="created-col">@TimeFormatter.FormatTimestamp(item.CreatedAt)</td>
             <td>
               <div class="d-flex gap-1 flex-nowrap align-items-center">
                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" title="Copy to clipboard">Copy</button>

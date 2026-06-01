@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using Humanizer;
 
 namespace RazorClassLibrary.Services
 {
@@ -11,10 +10,20 @@ namespace RazorClassLibrary.Services
             var nowUtc = (now ?? DateTime.UtcNow).ToUniversalTime();
             var createdUtc = createdAt.Kind == DateTimeKind.Utc ? createdAt : createdAt.ToUniversalTime();
             var age = nowUtc - createdUtc;
-            if (age < TimeSpan.FromDays(1))
+
+            if (age < TimeSpan.FromMinutes(1))
             {
-                var human = age.Humanize(2);
-                return human + " ago";
+                return "just now";
+            }
+            else if (age < TimeSpan.FromHours(1))
+            {
+                var minutes = (int)Math.Floor(age.TotalMinutes);
+                return minutes == 1 ? "1 minute ago" : $"{minutes} minutes ago";
+            }
+            else if (age < TimeSpan.FromDays(1))
+            {
+                var hours = (int)Math.Floor(age.TotalHours);
+                return hours == 1 ? "1 hour ago" : $"{hours} hours ago";
             }
             else
             {

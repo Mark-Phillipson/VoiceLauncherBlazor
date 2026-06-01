@@ -1,3 +1,19 @@
+.clipboard-history table th.created-col,
+.clipboard-history table td.created-col {
+  width: 90px;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 800px) {
+  .clipboard-history table th.created-col,
+  .clipboard-history table td.created-col {
+    width: 72px;
+    max-width: 72px;
+  }
+}
 .clipboard-history table {
   width: 100%;
   table-layout: fixed;

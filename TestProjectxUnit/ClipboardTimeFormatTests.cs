@@ -16,6 +16,15 @@ namespace TestProjectxUnit
         }
 
         [Fact]
+        public void HoursTimestamp_IsHoursOnly()
+        {
+            var now = new DateTime(2026, 5, 13, 12, 0, 0, DateTimeKind.Utc);
+            var created = now.AddHours(-3);
+            var formatted = TimeFormatter.FormatTimestamp(created, now);
+            Assert.Equal("3 hours ago", formatted);
+        }
+
+        [Fact]
         public void OlderTimestamp_IsAbsolute()
         {
             var now = new DateTime(2026, 5, 13, 12, 0, 0, DateTimeKind.Local);

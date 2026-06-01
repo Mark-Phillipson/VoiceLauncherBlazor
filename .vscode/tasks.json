@@ -34,6 +34,14 @@
 				"panel": "shared",
 				"clear": true
 			}
+		},
+		{
+			"label": "Build and Run WinFormsApp (Debug)",
+			"type": "shell",
+			"command": "dotnet build --configuration Debug && dotnet run --project WinFormsApp/WinFormsApp.csproj --configuration Debug",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }
