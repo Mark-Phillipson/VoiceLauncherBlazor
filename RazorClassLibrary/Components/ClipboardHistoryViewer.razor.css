@@ -14,6 +14,20 @@
     max-width: 72px;
   }
 }
+
+.clipboard-history .copy-kbd kbd {
+  background: #f8f9fa;
+  border: 1px solid #bbb;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.clipboard-history .copy-kbd {
+  display: inline-block;
+  vertical-align: middle;
+}
 .clipboard-history table {
   width: 100%;
   table-layout: fixed;

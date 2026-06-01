@@ -229,6 +229,25 @@ namespace WinFormsApp
 					await InvokeAsync(StateHasChanged);
 				}
 
+				// Handle AI Chat invocation (hot IPC) (e.g., AIChat)
+				else if ((arguments.Length >= 2 &&
+					  arguments[1].IndexOf("AIChat", System.StringComparison.OrdinalIgnoreCase) >= 0)
+					 || (arguments.Length >= 3 &&
+						  arguments[2].IndexOf("AIChat", System.StringComparison.OrdinalIgnoreCase) >= 0))
+				{
+					System.Diagnostics.Debug.WriteLine("Handling AIChat IPC invocation");
+					SetTitle("AI Chat");
+					// Enable AI Chat exclusively
+					showAIChat = true;
+					languageAndCategoryListing = false;
+					launcher = false;
+					showTalonSearch = false;
+					// Ensure clipboard history is cleared when switching to AI Chat
+					showClipboardHistory = false;
+					try { AppendIpcLog("Index.ViewChanged: AIChat"); } catch { }
+					await InvokeAsync(StateHasChanged);
+				}
+
 				// Handle Clipboard invocation (e.g., Clipboard or Clippy)
 				else if ((arguments.Length >= 2 &&
 						 (arguments[1].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||

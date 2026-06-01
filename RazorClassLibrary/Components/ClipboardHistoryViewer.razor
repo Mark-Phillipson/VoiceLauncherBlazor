@@ -43,14 +43,27 @@
       }
       else
       {
-        @foreach (var item in Items)
+        @for (var i = 0; i < Items.Count; i++)
         {
+          var item = Items[i];
+          var accessKey = AccessKeyMapper.GetKeyForIndex(i);
+          var ariaShortcut = !string.IsNullOrEmpty(accessKey) ? AccessKeyMapper.GetAriaKeyShortcuts(accessKey) : string.Empty;
           <tr>
             <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
             <td class="created-col">@TimeFormatter.FormatTimestamp(item.CreatedAt)</td>
             <td>
               <div class="d-flex gap-1 flex-nowrap align-items-center">
-                <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" title="Copy to clipboard">Copy</button>
+                @if (!string.IsNullOrEmpty(accessKey))
+                {
+                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" accesskey="@accessKey" aria-keyshortcuts="@ariaShortcut" title="Copy to clipboard (access key: @accessKey)" aria-label="Copy to clipboard. Access key: @accessKey">
+                    Copy
+                    <span class="ms-1 copy-kbd"><kbd>@accessKey</kbd></span>
+                  </button>
+                }
+                else
+                {
+                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" title="Copy to clipboard" aria-label="Copy to clipboard">Copy</button>
+                }
                 <button class="btn btn-sm btn-outline-primary" @onclick="() => Edit(item.Id)">Edit</button>
                 <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
               </div>
