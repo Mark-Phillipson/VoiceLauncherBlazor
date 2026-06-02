@@ -66,8 +66,11 @@ public partial class LauncherAddEdit : ComponentBase
         if (Directory.Exists(directoryPath))
         {
             // Order files by last write time (newest first) so recently-generated thumbnails appear at the top
+            var allowedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { 
+                ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico" };
             var files = Directory.GetFiles(directoryPath)
                 .Select(f => new FileInfo(f))
+                .Where(fi => allowedExtensions.Contains(fi.Extension))
                 .OrderByDescending(fi => fi.LastWriteTimeUtc)
                 .ToList();
 

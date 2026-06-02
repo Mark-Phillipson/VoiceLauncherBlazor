@@ -746,9 +746,10 @@ app.MapGet("/api/images/unlinked", async (DataAccessLibrary.Services.ILauncherDa
         return Results.Ok(Array.Empty<string>());
     }
 
+    var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico" };
     var files = Directory.GetFiles(imagesDir)
         .Select(f => Path.GetFileName(f) ?? string.Empty)
-        .Where(n => !string.IsNullOrWhiteSpace(n))
+        .Where(n => !string.IsNullOrWhiteSpace(n) && allowed.Contains(Path.GetExtension(n)))
         .ToList();
 
     // Consider only non-thumb files as primary images
@@ -803,15 +804,14 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
             return;
         }
 
-        var targetPath = Path.Combine(imagesDir, filename);
-        if (!File.Exists(targetPath))
+        // Normalize filename by stripping common compression suffixes (.gz/.br)
+        var normalized = filename;
+        while (normalized.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || normalized.EndsWith(".br", StringComparison.OrdinalIgnoreCase))
         {
-            http.Response.StatusCode = 404;
-            await http.Response.WriteAsync("File not found");
-            return;
+            normalized = Path.GetFileNameWithoutExtension(normalized);
         }
 
-        // Check references
+        // Check references (compare against normalized filename)
         var launchers = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ILauncherDataService>();
         var allLaunchers = await launchers.GetAllLaunchersAsync(0);
         var referenced = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -823,29 +823,44 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
             }
         }
 
-        if (!force && referenced.Contains(filename))
+        var checkFilename = normalized;
+        if (!force && referenced.Contains(checkFilename))
         {
             http.Response.StatusCode = 400;
             await http.Response.WriteAsync("Image is referenced by at least one launcher; set force=true to override");
             return;
         }
 
-        // Delete both primary and thumbnail variants for common extensions
-        var baseName = Path.GetFileNameWithoutExtension(filename).Replace("-thumb", string.Empty);
-        var exts = new[] { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
+        // Delete both primary and thumbnail variants for common extensions, and their compressed variants
+        var baseName = Path.GetFileNameWithoutExtension(normalized).Replace("-thumb", string.Empty);
+        var exts = new[] { ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico" };
         var deleted = new List<string>();
         foreach (var ext in exts)
         {
-            var full = Path.Combine(imagesDir, baseName + ext);
-            var thumb = Path.Combine(imagesDir, baseName + "-thumb" + ext);
-            if (File.Exists(full))
+            var candidates = new[]
             {
-                try { File.Delete(full); deleted.Add(Path.GetFileName(full)); } catch { }
-            }
-            if (File.Exists(thumb))
+                Path.Combine(imagesDir, baseName + ext),
+                Path.Combine(imagesDir, baseName + ext + ".gz"),
+                Path.Combine(imagesDir, baseName + ext + ".br"),
+                Path.Combine(imagesDir, baseName + "-thumb" + ext),
+                Path.Combine(imagesDir, baseName + "-thumb" + ext + ".gz"),
+                Path.Combine(imagesDir, baseName + "-thumb" + ext + ".br")
+            };
+
+            foreach (var p in candidates)
             {
-                try { File.Delete(thumb); deleted.Add(Path.GetFileName(thumb)); } catch { }
+                if (File.Exists(p))
+                {
+                    try { File.Delete(p); deleted.Add(Path.GetFileName(p)); } catch { }
+                }
             }
+        }
+
+        if (deleted.Count == 0)
+        {
+            http.Response.StatusCode = 404;
+            await http.Response.WriteAsync("File not found");
+            return;
         }
 
         await http.Response.WriteAsJsonAsync(new { deleted = deleted.ToArray() });
