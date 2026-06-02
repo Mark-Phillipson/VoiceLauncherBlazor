@@ -1,0 +1,484 @@
+@page "/talon-captures"
+@using RazorClassLibrary.Components
+@inject System.Net.Http.HttpClient? Http
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+@inject Microsoft.JSInterop.IJSRuntime JS
+@implements System.IAsyncDisposable
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Talon Captures</h2>
+        <small class="text-muted">Bundled cheatsheet</small>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <input id="talon-captures-search" class="form-control" placeholder="Type capture name e.g. user.text" @bind="SearchTerm" @bind:event="oninput" accesskey="s" aria-label="Search captures" />
+        </div>
+        <div class="col-md-6 text-end">
+            <small class="text-muted">@FilteredCaptures.Count() matches (total @captures.Count)</small>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (IsLoading)
+        {
+            <div class="col-12">
+                <div class="d-flex justify-content-center align-items-center py-5">
+                    <div class="spinner-border text-primary me-3" role="status" aria-hidden="true"></div>
+                    <span class="text-muted">Loading captures...</span>
+                </div>
+            </div>
+        }
+        else if (!captures.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-info">No captures found in the bundled cheatsheet.</div>
+            </div>
+        }
+        else
+        {
+            @foreach (var c in FilteredCaptures.Take(2000))
+            {
+                <div class="col-12 col-sm-6 col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0 text-truncate">@c.Name</h5>
+                                <small class="text-muted">@c.Type</small>
+                            </div>
+                            <p class="card-text text-muted small flex-grow-1" style="white-space:pre-wrap;">@GetPreview(c.SanitizedSnippet)</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">@c.Anchor</small>
+                            </div>
+
+                            <div id="@GetDetailsContainerId(c.Anchor)" class="markdown-container mt-3">
+                                <MarkdownConverter MarkdownContent="@c.SanitizedSnippet" />
+                            </div>
+
+                            @if (c.InlineMatches?.Any() == true)
+                            {
+                                <div class="mt-2">
+                                    <strong>Example matches</strong>
+                                    <div class="mt-1 small">
+                                        @foreach (var m in c.InlineMatches.Take(50))
+                                        {
+                                            <span class="badge bg-secondary me-1 mb-1">@m</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (c.ReferencedLists != null && c.ReferencedLists.Any())
+                            {
+                                <div class="mt-2">
+                                    <strong>Referenced lists</strong>
+                                    @foreach (var kv in c.ReferencedLists)
+                                    {
+                                        <div class="mt-1">
+                                            <small class="text-muted">@kv.Key</small>
+                                            <ul class="mb-0 small" style="max-height:160px; overflow:auto;">
+                                                @foreach (var v in kv.Value.Take(200))
+                                                {
+                                                    <li>@v</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<CaptureEntry> captures = new();
+    private string SearchTerm { get; set; } = string.Empty;
+    private CaptureEntry? SelectedCapture;
+    private bool IsLoading = true;
+    private string rawMarkdown = string.Empty;
+    private Dictionary<string, List<string>> listValues = new(StringComparer.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCapturesAsync();
+    }
+
+    private async Task LoadCapturesAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            string md = string.Empty;
+            try
+            {
+                if (Http != null)
+                {
+                    md = await Http.GetStringAsync("/cheatsheets/talon-captures.md");
+                }
+                else
+                {
+                    using var client = new System.Net.Http.HttpClient();
+                    md = await client.GetStringAsync(NavigationManager.BaseUri + "cheatsheets/talon-captures.md");
+                }
+            }
+            catch
+            {
+                // swallow - file may not exist in some dev scenarios
+                md = string.Empty;
+            }
+
+            // If HTTP fetch failed or returned empty content, try reading from the server's wwwroot folder directly.
+            if (string.IsNullOrWhiteSpace(md) && Env != null)
+            {
+                try
+                {
+                    var local = System.IO.Path.Combine(Env.ContentRootPath ?? string.Empty, "wwwroot", "cheatsheets", "talon-captures.md");
+                    if (System.IO.File.Exists(local))
+                    {
+                        md = await System.IO.File.ReadAllTextAsync(local);
+                    }
+                }
+                catch { }
+            }
+
+            rawMarkdown = md ?? string.Empty;
+            ParseMarkdown(rawMarkdown);
+            // Attempt to resolve list values from local Talon files (if available)
+            await ResolveListValuesAsync();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task ResolveListValuesAsync()
+    {
+        listValues = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            // Determine candidate Talon user folder from the bundled markdown or environment
+            var candidates = new List<string>();
+            try
+            {
+                var m = System.Text.RegularExpressions.Regex.Match(rawMarkdown ?? string.Empty, @"file:///(?<path>[^)\]\s]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (m.Success)
+                {
+                    var p = m.Groups["path"].Value.Replace('/', System.IO.Path.DirectorySeparatorChar);
+                    try
+                    {
+                        var idx = p.IndexOf("talon" + System.IO.Path.DirectorySeparatorChar + "user", System.StringComparison.OrdinalIgnoreCase);
+                        if (idx >= 0)
+                        {
+                            var root = p.Substring(0, idx + ("talon" + System.IO.Path.DirectorySeparatorChar + "user").Length);
+                            candidates.Add(root);
+                        }
+                        var dir = System.IO.Path.GetDirectoryName(p);
+                        if (!string.IsNullOrWhiteSpace(dir)) candidates.Add(dir);
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            try
+            {
+                var appData = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
+                if (!string.IsNullOrWhiteSpace(appData)) candidates.Add(System.IO.Path.Combine(appData, "talon", "user"));
+                var userProfile = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+                if (!string.IsNullOrWhiteSpace(userProfile)) candidates.Add(System.IO.Path.Combine(userProfile, "AppData", "Roaming", "talon", "user"));
+            }
+            catch { }
+
+            // Search for .talon-list files and parse simple Python-style dict assignments
+            foreach (var candidate in candidates.Where(c => !string.IsNullOrWhiteSpace(c)).Select(c => c.Trim()).Distinct())
+            {
+                try
+                {
+                    if (!System.IO.Directory.Exists(candidate)) continue;
+                    var files = System.IO.Directory.EnumerateFiles(candidate, "*.talon-list", System.IO.SearchOption.AllDirectories).ToList();
+                    if (!files.Any()) continue;
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            var content = await System.IO.File.ReadAllTextAsync(file);
+                            // Match assignments like: user.name = { ... }  or name = { ... }
+                            var assigns = System.Text.RegularExpressions.Regex.Matches(content, @"(?:(user\.)?([A-Za-z0-9_]+))\s*=\s*\{(?<body>.*?)\}", System.Text.RegularExpressions.RegexOptions.Singleline);
+                            foreach (System.Text.RegularExpressions.Match a in assigns)
+                            {
+                                var name = a.Groups[2].Value;
+                                var listName = "user." + name;
+                                if (listValues.ContainsKey(listName)) continue;
+                                var body = a.Groups["body"].Value;
+                                var items = new List<string>();
+                                    {
+                                        var bodyLines = body.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (var bl in bodyLines)
+                                        {
+                                            var idx2 = bl.IndexOf(':');
+                                            if (idx2 <= 0) continue;
+                                            var keyRaw = bl.Substring(0, idx2).Trim();
+                                            keyRaw = keyRaw.Trim().Trim('\'','\"').Trim();
+                                            if (!string.IsNullOrWhiteSpace(keyRaw)) items.Add(keyRaw);
+                                        }
+                                    }
+                                if (items.Any()) listValues[listName] = items;
+                            }
+                        }
+                        catch { }
+                    }
+                    if (listValues.Any()) break;
+                }
+                catch { }
+            }
+
+            // Attach found lists to captures
+            foreach (var c in captures)
+            {
+                c.ReferencedLists = new Dictionary<string, List<string>>(System.StringComparer.OrdinalIgnoreCase);
+                c.InlineMatches = new List<string>();
+                try
+                {
+                    var matches = System.Text.RegularExpressions.Regex.Matches(c.MarkdownSnippet ?? string.Empty, "\\{(?<name>user\\.[A-Za-z0-9_]+)\\}");
+                    foreach (System.Text.RegularExpressions.Match mm in matches)
+                    {
+                        var ln = mm.Groups["name"].Value;
+                        if (listValues.TryGetValue(ln, out var vals)) c.ReferencedLists[ln] = vals;
+                    }
+
+                    var matches2 = System.Text.RegularExpressions.Regex.Matches(c.MarkdownSnippet ?? string.Empty, @"list\s*->\s*(?<name>user\.[A-Za-z0-9_]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    foreach (System.Text.RegularExpressions.Match mm in matches2)
+                    {
+                        var ln = mm.Groups["name"].Value;
+                        if (listValues.TryGetValue(ln, out var vals)) c.ReferencedLists[ln] = vals;
+                    }
+                    // Extract inline 'Matches:' examples from the snippet (multi-line, HTML-escaped)
+                    try
+                    {
+                        var mm = System.Text.RegularExpressions.Regex.Match(c.MarkdownSnippet ?? string.Empty, @"Matches:\s*(?<items>[\s\S]*?)(?:\r?\n\s*\r?\n|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (mm.Success)
+                        {
+                            var itemsRaw = mm.Groups["items"].Value ?? string.Empty;
+                            // Decode any HTML entities (some sheets escape pipe as &#124;)
+                            try { itemsRaw = System.Net.WebUtility.HtmlDecode(itemsRaw); } catch { }
+                            // Normalize whitespace and replace newlines with a single space
+                            itemsRaw = System.Text.RegularExpressions.Regex.Replace(itemsRaw, "[\r\n]+", " ");
+                            // Split on pipe or comma as separators
+                            var tokens = System.Text.RegularExpressions.Regex.Split(itemsRaw, "\\s*\\|\\s*|\\s*,\\s*")
+                                .Select(t => t.Trim())
+                                .Where(t => !string.IsNullOrWhiteSpace(t))
+                                .Select(t => System.Text.RegularExpressions.Regex.Replace(t, "[{}<>\\[\\]]", ""))
+                                .Select(t => System.Text.RegularExpressions.Regex.Replace(t, "\\s{2,}", " "))
+                                .ToList();
+                            if (tokens.Any()) c.InlineMatches = tokens.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                        }
+                    }
+                    catch { }
+                }
+                catch { }
+            }
+        }
+        catch { }
+    }
+
+    private void ParseMarkdown(string md)
+    {
+        if (string.IsNullOrWhiteSpace(md))
+        {
+            captures = new List<CaptureEntry>();
+            return;
+        }
+
+        var lines = md.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+        var dict = new Dictionary<string, CaptureEntry>(StringComparer.OrdinalIgnoreCase);
+
+        var itemRegex = new System.Text.RegularExpressions.Regex(@"^- \[([^\]]+)\]\(#([^\)]+)\)\s*\(([^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i] ?? string.Empty;
+            var trim = line.TrimStart();
+            var match = itemRegex.Match(trim);
+            if (match.Success)
+            {
+                var name = match.Groups[1].Value.Trim();
+                var anchor = match.Groups[2].Value.Trim();
+                var type = match.Groups[3].Value.Trim();
+
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine(trim);
+
+                int j = i + 1;
+                for (; j < lines.Length; j++)
+                {
+                    var next = lines[j] ?? string.Empty;
+                    var nextTrim = next.TrimStart();
+
+                    if (string.IsNullOrWhiteSpace(next) && (j + 1 < lines.Length && string.IsNullOrWhiteSpace(lines[j + 1]) == false && !lines[j + 1].StartsWith(" ") && !lines[j + 1].StartsWith("\t")))
+                    {
+                        break;
+                    }
+
+                    if (nextTrim.StartsWith("- [") || nextTrim.StartsWith("## ") || nextTrim.StartsWith("# "))
+                    {
+                        break;
+                    }
+
+                    sb.AppendLine(next);
+                }
+
+                i = j - 1;
+
+                // Only include captures and lists by default - skip actions/unknown entries
+                try
+                {
+                    var typeParts = type.Split(',').Select(p => p.Trim().ToLowerInvariant()).Where(p => !string.IsNullOrWhiteSpace(p));
+                    var include = typeParts.Any(tp => tp == "capture" || tp == "list");
+                    if (!include)
+                    {
+                        continue; // advance to next parsed item
+                    }
+                }
+                catch { }
+
+                if (!dict.ContainsKey(name))
+                {
+                    var fullSnippet = sb.ToString();
+                    // Remove any "Actions:" blocks from the displayed snippet by default
+                    var sanitized = System.Text.RegularExpressions.Regex.Replace(fullSnippet, @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    dict[name] = new CaptureEntry
+                    {
+                        Name = name,
+                        Anchor = anchor,
+                        Type = type,
+                        // keep full snippet for parsing lists/matches, but render sanitized by default
+                        MarkdownSnippet = fullSnippet,
+                        SanitizedSnippet = sanitized
+                    };
+                }
+            }
+        }
+
+        captures = dict.Values.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private IEnumerable<CaptureEntry> FilteredCaptures
+    {
+        get
+        {
+            var q = string.IsNullOrWhiteSpace(SearchTerm)
+                ? captures
+                : captures.Where(c => c.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || c.Anchor.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+            return q.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
+    private void SelectCapture(CaptureEntry c)
+    {
+        SelectedCapture = c;
+    }
+
+    // Details are now shown inline for every capture; toggle removed.
+
+    private string GetPreview(string md)
+    {
+        if (string.IsNullOrWhiteSpace(md)) return string.Empty;
+        var s = md.Replace("\r", "").Replace("\n", " ").Trim();
+        // Replace markdown links [text](url) with just text
+        s = System.Text.RegularExpressions.Regex.Replace(s, "\\[([^\\]]+)\\]\\([^\\)]+\\)", "$1");
+        // Collapse whitespace
+        s = System.Text.RegularExpressions.Regex.Replace(s, "\\s{2,}", " ");
+        if (s.Length > 240) s = s.Substring(0, 240) + "…";
+        return s;
+    }
+
+    private DotNetObjectReference<TalonCaptures>? _dotNetRef;
+    private bool _handlerRegistered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_handlerRegistered)
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            var attempts = 0;
+            while (!_handlerRegistered && attempts < 10)
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("talonCapturesInterop.registerHandler", _dotNetRef);
+                    _handlerRegistered = true;
+                    break;
+                }
+                catch
+                {
+                    // retry a few times if the interop hasn't loaded yet
+                    attempts++;
+                    await Task.Delay(200);
+                }
+            }
+        }
+        if (firstRender)
+        {
+            try
+            {
+                // Use the global helper loaded in the layout to set focus by id.
+                await JS.InvokeVoidAsync("setFocus", "talon-captures-search");
+            }
+            catch { }
+        }
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public async Task OnAnchorClick(string anchor)
+    {
+        if (string.IsNullOrWhiteSpace(anchor)) return;
+        var match = captures.FirstOrDefault(c => string.Equals(c.Anchor, anchor, StringComparison.OrdinalIgnoreCase));
+        if (match != null)
+        {
+            SelectedCapture = match;
+            var id = GetDetailsContainerId(match.Anchor);
+            try { await JS.InvokeVoidAsync("talonCapturesInterop.scrollTo", id); } catch { }
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetDetailsContainerId(string anchor)
+    {
+        if (string.IsNullOrWhiteSpace(anchor)) return "talon-captures-markdown-container";
+        var safe = System.Text.RegularExpressions.Regex.Replace(anchor, "[^A-Za-z0-9\\-_]", "-");
+        return "talon-captures-markdown-" + safe;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_handlerRegistered)
+            {
+                await JS.InvokeVoidAsync("talonCapturesInterop.unregisterHandler");
+            }
+        }
+        catch { }
+        _dotNetRef?.Dispose();
+    }
+
+    private class CaptureEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Anchor { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        // Full original markdown snippet (used for parsing lists/matches)
+        public string MarkdownSnippet { get; set; } = string.Empty;
+        // Sanitized snippet for display (Actions: blocks removed)
+        public string SanitizedSnippet { get; set; } = string.Empty;
+        public Dictionary<string, List<string>> ReferencedLists { get; set; } = new();
+        public List<string> InlineMatches { get; set; } = new();
+    }
+}

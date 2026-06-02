@@ -317,6 +317,13 @@ input:disabled {
 	color: red;
 }
 
+/* Visual highlight used when scrolling to the selected capture details */
+.talon-captures-highlight {
+	box-shadow: 0 0 0 6px rgba(21,156,228,0.18) !important;
+	transition: box-shadow 0.25s ease-in-out, background-color 0.25s ease-in-out;
+	border-radius: 6px;
+}
+
 #blazor-error-ui {
 	background: #fff4b8;
 	color: #000;

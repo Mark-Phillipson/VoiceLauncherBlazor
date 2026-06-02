@@ -1,0 +1,160 @@
+# Talon Capture Cheat Sheet
+
+Generated: 2026-05-28 17:36 UTC
+
+This document is generated from .talon, .py, and .talon-list files. It includes clickable links back to definition and usage lines.
+
+## Focus: core/text/text.talon
+
+Source file: [core/text/text.talon](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon)
+
+Symbols used in this file:
+
+- [user.text](#usertext) (capture)
+  - Definition: [core/text/text_and_dictation.py:151](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text_and_dictation.py#L151)
+  - Used here: [core/text/text.talon:2](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L2), [core/text/text.talon:5](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L5)
+  - Rule: `({user.vocabulary} | <user.prose_contact> | <user.prose_spell> | <user.prose_clipboard> | <phrase>)+`
+  - Matches: clip clip | (hi | high) {user.contact_names} [name] | {user.contact_emails} email [address] | {user.contact_full_names} first name | {user.contact_full_names} first names | {user.contact_full_names} full name | {user.contact_full_names} full names | {user.contact_full_names} last name | {user.contact_full_names} last names | {user.contact_names} name | {user.contact_names} names | {user.contact_emails} (username | L dap) | list | air | bat ...
+- [user.add_phrase_to_history](#useradd_phrase_to_history) (action)
+  - Definition: [core/text/phrase_history.py:55](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L55)
+  - Used here: [core/text/text.talon:3](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L3), [core/text/text.talon:6](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L6), [core/text/text.talon:23](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L23)
+- [user.phrase_ender](#userphrase_ender) (list)
+  - Definition: [core/text/phrase_ender.talon-list:1](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_ender.talon-list#L1)
+  - Used here: [core/text/text.talon:5](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L5), [core/text/text.talon:9](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L9), [core/text/text.talon:13](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L13)
+  - Options: list -> user.phrase_ender, -, over -> ""
+- [user.insert_formatted](#userinsert_formatted) (action)
+  - Definition: [core/formatters/formatters.py:408](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L408)
+  - Used here: [core/text/text.talon:8](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L8), [core/text/text.talon:10](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L10), [core/text/text.talon:17](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L17), [core/text/text.talon:18](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L18), [core/text/text.talon:32](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L32)
+- [user.prose](#userprose) (capture)
+  - Definition: [core/text/text_and_dictation.py:176](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text_and_dictation.py#L176)
+  - Used here: [core/text/text.talon:8](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L8), [core/text/text.talon:9](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L9)
+  - Rule: `({user.vocabulary}| {user.punctuation}| {user.prose_snippets}| <user.prose_currency>| <user.prose_time>| <user.number_prose_prefixed>| <user.prose_percent>| <user.prose_modifier>| <user.abbreviation>| <user.prose_contact>| <user.prose_spell>| <user.prose_ship>| <user.prose_clipboard>| <phrase>)+`
+  - Matches: brief {user.abbreviation} | <user.number_string> (colon <user.number_string>)+ | <user.number_string> (comma <user.number_string>)+ | <user.number_string> ((dot | point) <user.number_string>)+ | [negative | minus] <user.number_string> | clip clip | (hi | high) {user.contact_names} [name] | {user.contact_emails} email [address] | {user.contact_full_names} first name | {user.contact_full_names} first names | {user.contact_full_names} full name | {user.contact_full_names} full names | {user.contact_full_names} last name | {user.contact_full_names} last names | {user.contact_names} name ...
+- [user.prose_formatter](#userprose_formatter) (list)
+  - Definition: [core/formatters/formatters.py:253](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L253)
+  - Used here: [core/text/text.talon:8](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L8), [core/text/text.talon:9](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L9)
+  - Options: list -> user.prose_formatter, -, say -> NOOP, speak -> NOOP, sentence -> CAPITALIZE_FIRST_WORD ...
+- [user.format_code](#userformat_code) (capture)
+  - Definition: [core/formatters/formatters.py:347](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L347)
+  - Used here: [core/text/text.talon:12](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L12), [core/text/text.talon:13](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L13)
+  - Rule: `<user.code_formatters> <user.text>`
+  - Matches: list | all cap | all down | camel | dotted | dub string | dunder | hammer | kebab | packed | padded | slasher | conga | smash | snake ...
+- [user.insert_many](#userinsert_many) (action)
+  - Definition: [core/formatters/formatters.py:479](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L479)
+  - Used here: [core/text/text.talon:12](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L12), [core/text/text.talon:14](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L14)
+- [user.formatters](#userformatters) (capture)
+  - Definition: [core/formatters/formatters.py:320](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L320)
+  - Used here: [core/text/text.talon:16](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L16), [core/text/text.talon:18](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L18), [core/text/text.talon:29](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L29), [core/text/text.talon:31](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L31)
+  - Rule: `({user.code_formatter} | {user.prose_formatter} | {user.reformatter})+`
+  - Matches: list | all cap | all down | camel | dotted | dub string | dunder | hammer | kebab | packed | padded | slasher | conga | smash | snake ...
+- [user.formatters_reformat_selection](#userformatters_reformat_selection) (action)
+  - Definition: [core/formatters/formatters.py:436](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L436)
+  - Used here: [core/text/text.talon:16](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L16)
+- [user.word](#userword) (capture)
+  - Definition: [core/text/text_and_dictation.py:136](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text_and_dictation.py#L136)
+  - Used here: [core/text/text.talon:17](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L17)
+  - Rule: `({user.vocabulary} | <user.abbreviation> | <word>)`
+  - Matches: brief {user.abbreviation} | list | N map | under documented | nmap | admin | Cisco | Citrix | VPN | DNS | Minecraft | HTML | Radzen | blazer | Talon ...
+- [user.word_formatter](#userword_formatter) (list)
+  - Definition: [core/formatters/formatters.py:256](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L256)
+  - Used here: [core/text/text.talon:17](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L17)
+  - Options: list -> user.word_formatter, -, word -> NOOP, trot -> TRAILING_SPACE, proud -> CAPITALIZE_FIRST_WORD ...
+- [clip.text](#cliptext) (unknown)
+  - Used here: [core/text/text.talon:18](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L18)
+- [user.toggle_phrase_history](#usertoggle_phrase_history) (action)
+  - Definition: [core/text/phrase_history.py:61](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L61)
+  - Used here: [core/text/text.talon:19](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L19)
+- [user.phrase_history_hide](#userphrase_history_hide) (action)
+  - Definition: [core/text/phrase_history.py:68](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L68)
+  - Used here: [core/text/text.talon:20](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L20)
+- [user.number_small](#usernumber_small) (capture, list)
+  - Definition: [core/numbers/numbers.py:218](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/numbers/numbers.py#L218)
+  - Used here: [core/text/text.talon:21](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L21), [core/text/text.talon:25](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L25)
+  - Rule: `{user.number_small}`
+  - Matches: {user.number_small}
+  - Dynamic: Values populated dynamically at runtime
+- [user.get_recent_phrase](#userget_recent_phrase) (action)
+  - Definition: [core/text/phrase_history.py:19](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L19)
+  - Used here: [core/text/text.talon:22](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L22), [core/text/text.talon:25](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L25)
+- [clip.set_text](#clipset_text) (unknown)
+  - Used here: [core/text/text.talon:25](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L25)
+- [user.select_last_phrase](#userselect_last_phrase) (action)
+  - Definition: [core/text/phrase_history.py:39](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L39)
+  - Used here: [core/text/text.talon:26](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L26)
+- [user.before_last_phrase](#userbefore_last_phrase) (action)
+  - Definition: [core/text/phrase_history.py:47](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L47)
+  - Used here: [core/text/text.talon:27](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L27)
+- [user.clear_last_phrase](#userclear_last_phrase) (action)
+  - Definition: [core/text/phrase_history.py:26](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/phrase_history.py#L26)
+  - Used here: [core/text/text.talon:28](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L28)
+- [user.formatters_reformat_last](#userformatters_reformat_last) (action)
+  - Definition: [core/formatters/formatters.py:419](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/formatters/formatters.py#L419)
+  - Used here: [core/text/text.talon:29](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L29)
+- [user.abbreviation](#userabbreviation) (capture, list)
+  - Definition: [core/abbreviate/abbreviate.py:9](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/abbreviate/abbreviate.py#L9)
+  - Used here: [core/text/text.talon:30](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L30), [core/text/text.talon:31](file:///C:/Users/MPhil/AppData/Roaming/talon/user/community/core/text/text.talon#L31)
+  - Rule: `brief {user.abbreviation}`
+  - Matches: brief {user.abbreviation}
+  - Dynamic: Values populated dynamically at runtime
+
+## Symbol Index
+
+- [user.abbreviation](#userabbreviation) (capture, list)
+- [user.address](#useraddress) (action, capture)
+- [user.all_candidate_windows](#userall_candidate_windows) (capture)
+- [user.any_alphanumeric_key](#userany_alphanumeric_key) (capture)
+- [user.application_windows](#userapplication_windows) (capture)
+- [user.arrow_key](#userarrow_key) (capture, list)
+- [user.arrow_keys](#userarrow_keys) (capture)
+- [user.c_cast](#userc_cast) (capture)
+- [user.c_fixed_integer](#userc_fixed_integer) (capture)
+- [user.c_pointers](#userc_pointers) (capture, list)
+- [user.c_signed](#userc_signed) (capture, list)
+- [user.c_types](#userc_types) (capture, list)
+- [user.c_variable](#userc_variable) (capture)
+- [user.code_common_function](#usercode_common_function) (capture, list)
+- [user.code_formatters](#usercode_formatters) (capture)
+- [user.code_keyword](#usercode_keyword) (action, capture, list)
+- [user.code_libraries](#usercode_libraries) (capture, list)
+- [user.code_type](#usercode_type) (capture, list)
+- [user.code_type_raw](#usercode_type_raw) (capture)
+- [user.common_generic_type_connector](#usercommon_generic_type_connector) (capture)
+- [user.cpp_namespace_list](#usercpp_namespace_list) (capture)
+- [user.cpp_standard_constant](#usercpp_standard_constant) (capture, list)
+- [user.cpp_standard_function](#usercpp_standard_function) (capture, list)
+- [user.cpp_standard_type](#usercpp_standard_type) (capture, list)
+- [user.delimiter_pair](#userdelimiter_pair) (capture, list)
+- [user.digit_string](#userdigit_string) (capture)
+- [user.digits](#userdigits) (capture)
+- [user.draft_anchor](#userdraft_anchor) (capture)
+- [user.draft_window_position](#userdraft_window_position) (capture)
+- [user.edit_action](#useredit_action) (capture, list)
+- [user.edit_format_action](#useredit_format_action) (capture)
+- [user.edit_modifier](#useredit_modifier) (capture, list)
+- [user.edit_simple_action](#useredit_simple_action) (capture)
+- [user.edit_wrap_action](#useredit_wrap_action) (capture)
+- [user.format_code](#userformat_code) (capture)
+- [user.format_text](#userformat_text) (capture)
+- [user.formatter_immune](#userformatter_immune) (capture)
+- [user.formatters](#userformatters) (capture)
+- [user.function_key](#userfunction_key) (capture, list)
+- [user.generic_data_structure](#usergeneric_data_structure) (capture)
+- [user.generic_type_additional_type_parameters](#usergeneric_type_additional_type_parameters) (capture)
+- [user.generic_type_connector](#usergeneric_type_connector) (capture)
+- [user.generic_type_connector_done](#usergeneric_type_connector_done) (capture)
+- [user.generic_type_continuation](#usergeneric_type_continuation) (capture)
+- [user.generic_type_parameter_argument](#usergeneric_type_parameter_argument) (capture)
+- [user.generic_type_parameter_arguments](#usergeneric_type_parameter_arguments) (capture)
+- [user.git_arguments](#usergit_arguments) (capture)
+- [user.go_complex_type](#usergo_complex_type) (capture)
+- [user.go_float_type](#usergo_float_type) (capture)
+- [user.go_int_type](#usergo_int_type) (capture)
+- [user.homophones_canonical](#userhomophones_canonical) (capture)
+- [user.i3wm_resize_dirs](#useri3wm_resize_dirs) (capture)
+- [user.java_generic_type](#userjava_generic_type) (capture)
+- [user.key](#userkey) (capture)
+- [user.keypad_key](#userkeypad_key) (capture, list)
+- [user.keys](#userkeys) (capture)
+- [user.launch_applications](#userlaunch_applications) (capture)
+- [user.layout_item](#userlayout_item) (capture)
+- [user.letter](#userletter) (capture, list)
