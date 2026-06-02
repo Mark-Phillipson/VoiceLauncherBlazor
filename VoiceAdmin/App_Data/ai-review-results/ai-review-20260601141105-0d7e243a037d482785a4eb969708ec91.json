@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.window_snap_positions\u0027 corresponds to \u0027center\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.window_snap_positions\u0027, what value matches spoken form \u0027center\u0027?"
+  },
+  {
+    "Index": 1,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.model\u0027 corresponds to \u0027four o\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.model\u0027, what value matches spoken form \u0027four o\u0027?"
+  },
+  {
+    "Index": 2,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.emoji\u0027 corresponds to \u0027writing\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.emoji\u0027, what value matches spoken form \u0027writing\u0027?"
+  },
+  {
+    "Index": 3,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.edit_modifier\u0027 corresponds to \u0027all\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.edit_modifier\u0027, what value matches spoken form \u0027all\u0027?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.delimiter_pair\u0027 corresponds to \u0027twin\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.delimiter_pair\u0027, what value matches spoken form \u0027twin\u0027?"
+  },
+  {
+    "Index": 5,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.special_key\u0027 corresponds to \u0027delete\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.special_key\u0027, what value matches spoken form \u0027delete\u0027?"
+  },
+  {
+    "Index": 6,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.emoji\u0027 corresponds to \u0027broken heart\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.emoji\u0027, what value matches spoken form \u0027broken heart\u0027?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.prose_formatter\u0027 corresponds to \u0027speak\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.prose_formatter\u0027, what value matches spoken form \u0027speak\u0027?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.letter\u0027 corresponds to \u0027sit\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.letter\u0027, what value matches spoken form \u0027sit\u0027?"
+  },
+  {
+    "Index": 9,
+    "Ok": true,
+    "SuggestedPrompt": "What value in \u0027user.code_operators_assignment\u0027 corresponds to \u0027right shift equals\u0027?",
+    "Notes": "",
+    "OriginalPrompt": "In list \u0027user.code_operators_assignment\u0027, what value matches spoken form \u0027right shift equals\u0027?"
+  }
+]

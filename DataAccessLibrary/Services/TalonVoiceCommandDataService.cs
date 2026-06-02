@@ -177,12 +177,17 @@ namespace DataAccessLibrary.Services
 
         public async Task<int> ImportFromTalonFilesAsync(string rootFolder)
         {
+            // Preserve any existing descriptions so they can be re-applied after refresh
+            var existingDescMap = await GetExistingDescriptionMapAsync();
+
             // Remove all existing records before importing new ones
             _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
             await _context.SaveChangesAsync();
             var talonFiles = Directory.GetFiles(rootFolder, "*.talon", SearchOption.AllDirectories);
-            var commands = new List<TalonVoiceCommand>(); foreach (var file in talonFiles)
-            {                var lines = await File.ReadAllLinesAsync(file);
+            var commands = new List<TalonVoiceCommand>();
+            foreach (var file in talonFiles)
+            {
+                var lines = await File.ReadAllLinesAsync(file);
                 List<string> applications = new();
                 List<string> modes = new();
                 List<string> tags = new();
@@ -302,6 +307,19 @@ namespace DataAccessLibrary.Services
                         }
                         i = j - 1;
                         var appStr = applications.Count > 0 ? string.Join(", ", applications) : "global";
+                        var derivedDesc = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, file);
+                        var key = ComputeMergeKey(command, appStr);
+                        string? finalDesc = null;
+                        if (existingDescMap != null && existingDescMap.TryGetValue(key, out var prevDesc) && !string.IsNullOrWhiteSpace(prevDesc))
+                        {
+                            finalDesc = prevDesc;
+                        }
+                        else
+                        {
+                            finalDesc = derivedDesc;
+                        }
+                        if (finalDesc != null && finalDesc.Length > 2000) finalDesc = finalDesc.Substring(0, 2000);
+
                         commands.Add(new TalonVoiceCommand
                         {
                             Command = command.Length > 200 ? command.Substring(0, 200) : command,
@@ -316,7 +334,7 @@ namespace DataAccessLibrary.Services
                             CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                             Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                             Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
-                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, file),
+                            Description = finalDesc,
                             CreatedAt = File.GetCreationTimeUtc(file)
                         });
                     }
@@ -426,12 +444,16 @@ namespace DataAccessLibrary.Services
         }
         public async Task<DataAccessLibrary.DTO.QuizPackDTO> GenerateQuizPackAsync(string? applicationFilter = null, int questionCount = 10, int distractors = 3)
         {
-            var all = await _context.TalonVoiceCommands
+            // Perform database-side filtering for simple predicates, then apply
+            // the more complex IsRawHardwareTrigger check in-memory to avoid
+            // EF Core translation errors for custom methods.
+            var preFiltered = await _context.TalonVoiceCommands
                 .Where(c => !string.IsNullOrWhiteSpace(c.Description))
                 .Where(c => c.Command != null && !c.Command.Contains("<") && !c.Command.Contains("{"))
                 .Where(c => c.Description != null && !c.Description.Contains("list+not+found"))
-                .Where(c => !IsRawHardwareTrigger(c.Command, c.Script, c.FilePath))
                 .ToListAsync();
+
+            var all = preFiltered.Where(c => !IsRawHardwareTrigger(c.Command, c.Script, c.FilePath)).ToList();
 
             if (!string.IsNullOrWhiteSpace(applicationFilter) && !applicationFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
             {
@@ -753,7 +775,7 @@ namespace DataAccessLibrary.Services
                 return t;
             }
         }
-        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName)
+        public async Task<int> ImportTalonFileContentAsync(string fileContent, string fileName, System.Collections.Generic.Dictionary<string, string>? preservedDescriptions = null)
         {
             // Do NOT clear the table here; only add new commands
             var commands = new List<TalonVoiceCommand>();            var lines = fileContent.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None); 
@@ -866,6 +888,19 @@ namespace DataAccessLibrary.Services
                     }
                     i = j - 1;
                     var appStr = applications.Count > 0 ? string.Join(", ", applications) : "global";
+                    var derivedDesc = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, fileName);
+                    var key = ComputeMergeKey(command, appStr);
+                    string? finalDesc = null;
+                    if (preservedDescriptions != null && preservedDescriptions.TryGetValue(key, out var prevDesc) && !string.IsNullOrWhiteSpace(prevDesc))
+                    {
+                        finalDesc = prevDesc;
+                    }
+                    else
+                    {
+                        finalDesc = derivedDesc;
+                    }
+                    if (finalDesc != null && finalDesc.Length > 2000) finalDesc = finalDesc.Substring(0, 2000);
+
                     commands.Add(new TalonVoiceCommand
                     {
                         Command = command.Length > 200 ? command.Substring(0, 200) : command,
@@ -880,7 +915,7 @@ namespace DataAccessLibrary.Services
                         CodeLanguage = codeLanguages.Count > 0 ? string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Substring(0, Math.Min(300, string.Join(", ", codeLanguages.Select(cl => cl.Length > 100 ? cl.Substring(0, 100) : cl)).Length)) : null,
                         Language = languages.Count > 0 ? string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Substring(0, Math.Min(300, string.Join(", ", languages.Select(l => l.Length > 100 ? l.Substring(0, 100) : l)).Length)) : null,
                         Hostname = hostnames.Count > 0 ? string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Substring(0, Math.Min(300, string.Join(", ", hostnames.Select(h => h.Length > 100 ? h.Substring(0, 100) : h)).Length)) : null,
-                            Description = await DerivePlainLanguageDescriptionAsync(script, title, command, appStr, fileName),
+                        Description = finalDesc,
                         CreatedAt = DateTime.UtcNow
                     });
                 }
@@ -892,6 +927,9 @@ namespace DataAccessLibrary.Services
 
         public async Task<int> ImportAllTalonFilesFromDirectoryAsync(string rootFolder)
         {
+            // Preserve existing descriptions
+            var existingDescMap = await GetExistingDescriptionMapAsync();
+
             // Remove all existing records before importing new ones
             _context.TalonVoiceCommands.RemoveRange(_context.TalonVoiceCommands);
             await _context.SaveChangesAsync();
@@ -900,7 +938,7 @@ namespace DataAccessLibrary.Services
             foreach (var file in talonFiles)
             {
                 var content = await File.ReadAllTextAsync(file);
-                totalImported += await ImportTalonFileContentAsync(content, file);
+                totalImported += await ImportTalonFileContentAsync(content, file, existingDescMap);
             }
             return totalImported;
         }
@@ -916,6 +954,9 @@ namespace DataAccessLibrary.Services
 
         public async Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null)
         {
+            // Preserve existing descriptions
+            var existingDescMap = await GetExistingDescriptionMapAsync();
+
             // Clear all existing records first
             await ClearAllCommandsAsync();
 
@@ -926,7 +967,7 @@ namespace DataAccessLibrary.Services
             foreach (var file in talonFiles)
             {
                 var content = await File.ReadAllTextAsync(file);
-                var commandsFromThisFile = await ImportTalonFileContentAsync(content, file);
+                var commandsFromThisFile = await ImportTalonFileContentAsync(content, file, existingDescMap);
                 totalImported += commandsFromThisFile;
                 filesProcessed++;
                 // Report progress: (filesProcessed, totalFiles, totalCommandsSoFar)
@@ -2619,6 +2660,52 @@ namespace DataAccessLibrary.Services
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Computes a stable merge key for a command + application pair.
+        /// This is used to match existing rows to newly-imported rows across refreshes.
+        /// </summary>
+        private static string ComputeMergeKey(string? command, string? application)
+        {
+            var cmd = (command ?? string.Empty).Trim();
+            // remove leading anchors and trailing anchors
+            cmd = System.Text.RegularExpressions.Regex.Replace(cmd, "^[\\^]+|[\\$]+$", "");
+            // collapse whitespace
+            cmd = System.Text.RegularExpressions.Regex.Replace(cmd, "\\s+", " ");
+            cmd = cmd.Trim().Trim('"', '\'');
+            cmd = cmd.ToLowerInvariant();
+
+            var app = string.IsNullOrWhiteSpace(application) ? "global" : application.Trim();
+            app = System.Text.RegularExpressions.Regex.Replace(app, "\\s+", " ");
+            app = app.ToLowerInvariant();
+
+            return cmd + "|" + app;
+        }
+
+        /// <summary>
+        /// Reads existing commands and builds a map from merge-key -> Description
+        /// Only includes non-empty descriptions and uses AsNoTracking to reduce tracking overhead.
+        /// </summary>
+        private async Task<Dictionary<string, string>> GetExistingDescriptionMapAsync()
+        {
+            var rows = await _context.TalonVoiceCommands
+                .AsNoTracking()
+                .Where(c => !string.IsNullOrWhiteSpace(c.Command) && !string.IsNullOrWhiteSpace(c.Description))
+                .Select(c => new { c.Command, c.Application, c.Description })
+                .ToListAsync();
+
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var r in rows)
+            {
+                var key = ComputeMergeKey(r.Command, r.Application);
+                if (!dict.ContainsKey(key) && !string.IsNullOrWhiteSpace(r.Description))
+                {
+                    dict[key] = r.Description!;
+                }
+            }
+
+            return dict;
         }
 
         /// <summary>

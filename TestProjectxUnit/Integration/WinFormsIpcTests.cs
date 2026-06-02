@@ -48,7 +48,33 @@ namespace TestProjectxUnit.Integration
                     throw new FileNotFoundException($"Could not find WinFormsApp executable or dll at '{exePath}' or '{dllPath}'");
                 }
 
+                // Allow tests to start isolated instances even if a user instance is running
+                try
+                {
+                    // Prefer ProcessStartInfo.Environment (available on .NET Core / .NET 5+)
+                    try
+                    {
+                        psi.Environment["VOICE_LAUNCHER_ALLOW_MULTIPLE_INSTANCES"] = "1";
+                    }
+                    catch
+                    {
+                        // Fallback for older API surface
+                        psi.EnvironmentVariables["VOICE_LAUNCHER_ALLOW_MULTIPLE_INSTANCES"] = "1";
+                    }
+                }
+                catch { }
+
+                // Redirect output so we can capture crashes / exception messages from the child process
+                try { psi.RedirectStandardOutput = true; psi.RedirectStandardError = true; } catch { }
                 process = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start WinFormsApp process");
+                Task<string> stdoutTask = Task.FromResult(string.Empty);
+                Task<string> stderrTask = Task.FromResult(string.Empty);
+                try
+                {
+                    stdoutTask = process.StandardOutput.ReadToEndAsync();
+                    stderrTask = process.StandardError.ReadToEndAsync();
+                }
+                catch { }
 
                 var pipeName = "VoiceLauncherBlazor_LaunchArgs";
 
@@ -94,7 +120,15 @@ namespace TestProjectxUnit.Integration
                 await Task.Delay(1500);
 
                 // Verify the process is still running (no crash)
-                Assert.False(process.HasExited, "WinFormsApp exited after rapid IPC messages (possible crash)");
+                if (process.HasExited)
+                {
+                    var outText = string.Empty;
+                    var errText = string.Empty;
+                    try { outText = await stdoutTask; } catch { }
+                    try { errText = await stderrTask; } catch { }
+                    var combined = $"WinFormsApp exited after rapid IPC messages (possible crash)\nExitCode={process.ExitCode}\nStdout:\n{outText}\nStderr:\n{errText}";
+                    Assert.False(process.HasExited, combined);
+                }
             }
             finally
             {

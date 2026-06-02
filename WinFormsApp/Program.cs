@@ -33,14 +33,35 @@ namespace WinFormsApp
 		{
 			// Try to acquire a named mutex; if another instance exists, bring it to foreground and exit
 			bool createdNew = false;
+			// Allow tests or special runs to bypass the single-instance guard by setting this env var to '1'
+			var allowMultiple = Environment.GetEnvironmentVariable("VOICE_LAUNCHER_ALLOW_MULTIPLE_INSTANCES");
+			bool enforceSingleInstance = !string.Equals(allowMultiple, "1", StringComparison.OrdinalIgnoreCase);
 			try
 			{
-				_singleInstanceMutex = new Mutex(true, "Global\\VoiceLauncherBlazor_SingleInstance", out createdNew);
+				if (enforceSingleInstance)
+				{
+					_singleInstanceMutex = new Mutex(true, "Global\\VoiceLauncherBlazor_SingleInstance", out createdNew);
+				}
+				else
+				{
+					// Tests may request multiple instances; treat as if mutex created
+					createdNew = true;
+				}
 			}
 			catch
 			{
 				createdNew = true; // fall back to allowing start if mutex cannot be created
 			}
+
+			// Write a small startup debug record so tests can see whether the env var was detected
+			try
+			{
+				var startupLogDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs");
+				Directory.CreateDirectory(startupLogDir);
+				var startupLogPath = Path.Combine(startupLogDir, "startup.log");
+				File.AppendAllText(startupLogPath, $"{DateTime.Now:o} allowMultiple={allowMultiple ?? "<null>"} enforceSingleInstance={enforceSingleInstance} createdNew={createdNew}\n");
+			}
+			catch { }
 
 			if (!createdNew)
 			{

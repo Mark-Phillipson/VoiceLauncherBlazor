@@ -735,3 +735,43 @@ body[data-bs-theme="light"] .layout-as-cards .card,
 	-webkit-text-fill-color: var(--text) !important;
 	color: var(--text) !important;
 }
+
+/* Theme-aware overrides for Bootstrap form-switch to ensure good contrast
+   across light and dark themes. Uses CSS variables defined earlier in
+   site.css so colors follow the active theme. */
+:root {
+	--toggle-handle-color: rgba(0,0,0,0.25);
+}
+
+[data-bs-theme="dark"], .page.theme-dark {
+	--toggle-handle-color: #ffffff;
+}
+
+.form-switch .form-check-input {
+	/* Track */
+	background-color: var(--toggle-bg) !important;
+	border: 1px solid var(--toggle-border) !important;
+
+	/* Handle (drawn with a radial gradient so we can color it via CSS vars) */
+	background-image: radial-gradient(circle at left center, var(--toggle-handle-color) 55%, transparent 56%) !important;
+	background-position: left center !important;
+	background-repeat: no-repeat !important;
+	background-size: 40% 80% !important;
+	transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out !important;
+}
+
+.form-switch .form-check-input:focus {
+	box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--nav-active-text) 18%, transparent) !important;
+}
+
+.form-switch .form-check-input:checked {
+	/* Move the handle to the right and tint the track to the active/nav color */
+	background-position: right center !important;
+	background-image: radial-gradient(circle at right center, var(--toggle-handle-color) 55%, transparent 56%) !important;
+	background-color: var(--nav-active-bg) !important;
+	border-color: color-mix(in srgb, var(--nav-active-text) 40%, transparent) !important;
+}
+
+.form-switch .form-check-input:disabled {
+	opacity: 0.6 !important;
+}

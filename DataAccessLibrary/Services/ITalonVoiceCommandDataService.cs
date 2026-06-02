@@ -14,7 +14,8 @@ namespace DataAccessLibrary.Services
     Task<List<DataAccessLibrary.Models.TalonVoiceCommand>> SearchScriptOnlyAsync(string searchTerm);
     Task<List<DataAccessLibrary.Models.TalonVoiceCommand>> SearchAllAsync(string searchTerm);
     Task<List<DataAccessLibrary.Models.TalonList>> GetListContentsAsync(string listName);
-    Task<int> ImportTalonFileContentAsync(string fileContent, string fileName);
+    // Optional preservedDescriptions map: merge-key -> existing description.
+    Task<int> ImportTalonFileContentAsync(string fileContent, string fileName, System.Collections.Generic.Dictionary<string, string>? preservedDescriptions = null);
     Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null);
     Task<int> ImportTalonListsFromFileAsync(string filePath);
     Task<List<DataAccessLibrary.DTO.CommandsBreakdown>> GetTalonCommandsBreakdownAsync();

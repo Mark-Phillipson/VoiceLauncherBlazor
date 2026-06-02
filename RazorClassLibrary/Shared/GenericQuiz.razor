@@ -156,15 +156,28 @@
         }
         else if (_showingResults)
         {
-            <div class="quiz-panel quiz-results-panel">
-                <h2>Quiz complete</h2>
-                <p class="quiz-results-score">@_correctAnswers / @_questions.Count correct</p>
-                <p>Your score has been saved for later review.</p>
-                <div class="quiz-actions">
-                    <button type="button" class="btn btn-primary" accesskey="p" @onclick="StartQuizAsync"><kbd class="quiz-kbd">P</kbd> Play again</button>
-                    <button type="button" class="btn btn-outline-secondary" @onclick="ResetToStartAsync">Back to start</button>
+            if (_questions.Count == 0)
+            {
+                <div class="quiz-panel quiz-results-panel">
+                    <h2>No questions available</h2>
+                    <p class="text-muted">No questions were generated for the selected pack. Try selecting a different pack or adjust filters.</p>
+                    <div class="quiz-actions">
+                        <button type="button" class="btn btn-outline-secondary" @onclick="ResetToStartAsync">Back to start</button>
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="quiz-panel quiz-results-panel">
+                    <h2>Quiz complete</h2>
+                    <p class="quiz-results-score">@_correctAnswers / @_questions.Count correct</p>
+                    <p>Your score has been saved for later review.</p>
+                    <div class="quiz-actions">
+                        <button type="button" class="btn btn-primary" accesskey="p" @onclick="StartQuizAsync"><kbd class="quiz-kbd">P</kbd> Play again</button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="ResetToStartAsync">Back to start</button>
+                    </div>
+                </div>
+            }
         }
 
         @if (_showExcludedManager)

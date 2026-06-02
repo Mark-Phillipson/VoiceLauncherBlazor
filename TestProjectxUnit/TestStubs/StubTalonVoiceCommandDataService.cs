@@ -110,7 +110,7 @@ namespace TestProjectxUnit.TestStubs
             return Task.FromResult(new List<TalonList>());
         }
 
-        public Task<int> ImportTalonFileContentAsync(string fileContent, string fileName) => Task.FromResult(0);
+        public Task<int> ImportTalonFileContentAsync(string fileContent, string fileName, System.Collections.Generic.Dictionary<string, string>? preservedDescriptions = null) => Task.FromResult(0);
 
         public Task<int> ImportAllTalonFilesWithProgressAsync(string rootFolder, Action<int, int, int>? progressCallback = null) => Task.FromResult(0);
 

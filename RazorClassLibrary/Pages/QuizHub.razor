@@ -4,6 +4,7 @@
 @using RazorClassLibrary.Models
 @using DataAccessLibrary.Models
 @using RazorClassLibrary.Services
+@using Microsoft.Extensions.Logging
 
 <PageTitle>Quiz Hub</PageTitle>
 
@@ -143,6 +144,9 @@
     private RazorClassLibrary.Services.ITalonListDataService TalonListDataService { get; set; } = default!;
     [Inject]
     private DataAccessLibrary.Services.ITalonVoiceCommandDataService TalonVoiceCommandDataService { get; set; } = default!;
+
+    [Inject]
+    private Microsoft.Extensions.Logging.ILogger<QuizHub> Logger { get; set; } = default!;
 
     private List<PackInfo>? _packs;
     private string? _importMessage;
@@ -296,6 +300,12 @@
                 .Where(x => !string.IsNullOrWhiteSpace(x.Command))
                 .ToList();
 
+            try
+            {
+                Logger?.LogDebug("EnsureVoiceCommandsLoadedAsync: loaded {Count} commands from DB", _allVoiceCommands.Count);
+            }
+            catch {}
+
             var repositories = _allVoiceCommands
                 .Select(x => (x.Repository ?? string.Empty).Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -315,12 +325,49 @@
 
     private Task<IReadOnlyList<QuizQuestion>> GenerateTalonVoiceCommandQuestionsAsync(int count, string? packName)
     {
-        var selectedScope = string.IsNullOrWhiteSpace(packName) ? "global" : packName.Trim();
-        var pool = string.Equals(selectedScope, "global", StringComparison.OrdinalIgnoreCase)
-            ? _allVoiceCommands.Where(x => string.Equals((x.Application ?? "global").Trim(), "global", StringComparison.OrdinalIgnoreCase)).ToList()
-            : _allVoiceCommands.Where(x => string.Equals((x.Repository ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
+        // Treat an empty packName as "no filter" (use all commands).
+        var selectedScope = string.IsNullOrWhiteSpace(packName) ? null : packName.Trim();
+        try
+        {
+            Logger?.LogDebug("GenerateTalonVoiceCommandQuestionsAsync: requested count={Count}, packName='{PackName}', totalLoaded={Total}", count, packName, _allVoiceCommands.Count);
+        }
+        catch { }
 
-        var usable = pool.Where(x => !string.IsNullOrWhiteSpace(x.Command) && (!string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Script))).ToList();
+        List<TalonVoiceCommand> pool;
+        if (string.IsNullOrWhiteSpace(selectedScope))
+        {
+            // No specific pack selected: use the full set of loaded voice commands
+            pool = _allVoiceCommands.ToList();
+            try { Logger?.LogDebug("No pack selected, using full pool: {PoolCount}", pool.Count); } catch { }
+        }
+        else if (string.Equals(selectedScope, "global", StringComparison.OrdinalIgnoreCase))
+        {
+            // Explicitly requested the 'global' pack: only include commands marked as global
+            pool = _allVoiceCommands.Where(x => string.Equals((x.Application ?? "global").Trim(), "global", StringComparison.OrdinalIgnoreCase)).ToList();
+            try { Logger?.LogDebug("Explicit 'global' pack selected, pool size: {PoolCount}", pool.Count); } catch { }
+        }
+        else
+        {
+            // Relax matching: consider Repository OR Application to avoid mismatches from import metadata
+            pool = _allVoiceCommands.Where(x => string.Equals((x.Repository ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)
+                || string.Equals((x.Application ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
+            try { Logger?.LogDebug("Filtered pool by pack '{Pack}': {PoolCount}", selectedScope, pool.Count); } catch { }
+        }
+
+        try
+        {
+            Logger?.LogDebug("Pool size after scope filter: {PoolCount}", pool.Count);
+        }
+        catch { }
+
+        // include Description as a usable clue (many rows only have description)
+        var usable = pool.Where(x => !string.IsNullOrWhiteSpace(x.Command) && (!string.IsNullOrWhiteSpace(x.Title) || !string.IsNullOrWhiteSpace(x.Script) || !string.IsNullOrWhiteSpace(x.Description))).ToList();
+
+        try
+        {
+            Logger?.LogDebug("Usable after Title/Script/Description filter: {UsableCount}", usable.Count);
+        }
+        catch { }
 
         if (usable.Count == 0)
         {
@@ -333,14 +380,37 @@
             .Select(g => g.First())
             .ToList();
 
+        try
+        {
+            Logger?.LogDebug("Unique keys after dedupe: {UniqueCount}", unique.Count);
+        }
+        catch { }
+
         var chosen = unique.OrderBy(_ => Random.Shared.Next()).Take(Math.Min(count, unique.Count)).ToList();
+
+        try
+        {
+            Logger?.LogDebug("Chosen random sample size: {ChosenCount}", chosen.Count);
+        }
+        catch { }
+
         var questions = new List<QuizQuestion>();
         foreach (var cmd in chosen)
         {
             var q = BuildQuestionFromVoiceCommand(cmd, unique);
             if (q != null)
                 questions.Add(q);
+            else
+            {
+                try { Logger?.LogDebug("BuildQuestionFromVoiceCommand returned null for command id {Id}", cmd.Id); } catch { }
+            }
         }
+
+        try
+        {
+            Logger?.LogDebug("Total questions built: {Questions}", questions.Count);
+        }
+        catch { }
 
         return Task.FromResult((IReadOnlyList<QuizQuestion>)questions);
     }
@@ -368,7 +438,14 @@
         {
             var derived = DeriveIntentFromScript(cmd.Script);
             if (string.IsNullOrWhiteSpace(derived))
+            {
+                try
+                {
+                    Logger?.LogDebug("Skipping command Id {Id} because no description/title/derived intent available. Command='{Command}' Title='{Title}' Description='{Description}'", cmd.Id, cmd.Command, cmd.Title, cmd.Description);
+                }
+                catch { }
                 return null; // skip poor rows
+            }
             plain = derived;
         }
 
