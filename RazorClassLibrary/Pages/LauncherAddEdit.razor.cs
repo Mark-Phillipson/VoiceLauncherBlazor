@@ -60,6 +60,10 @@ public partial class LauncherAddEdit : ComponentBase
     }
     private async Task LoadImages()
     {
+        var allowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico"
+        };
         string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
         Console.WriteLine($"[LauncherAddEdit] Images directory path: {directoryPath}");
         Console.WriteLine($"[LauncherAddEdit] Images directory path: {directoryPath}");
@@ -68,6 +72,7 @@ public partial class LauncherAddEdit : ComponentBase
             // Order files by last write time (newest first) so recently-generated thumbnails appear at the top
             var files = Directory.GetFiles(directoryPath)
                 .Select(f => new FileInfo(f))
+                .Where(fi => allowedImageExtensions.Contains(fi.Extension))
                 .OrderByDescending(fi => fi.LastWriteTimeUtc)
                 .ToList();
 

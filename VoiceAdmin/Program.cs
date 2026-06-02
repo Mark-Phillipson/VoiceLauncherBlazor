@@ -737,6 +737,29 @@ app.MapPost("/api/launchers/generate-image", async (DataAccessLibrary.DTO.Launch
     return Results.Ok(result);
 });
 
+var allowedImageExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico" };
+bool IsAllowedImageFile(string filename) =>
+    allowedImageExtensions.Contains(Path.GetExtension(filename), StringComparer.OrdinalIgnoreCase);
+string NormalizeCompressedSuffix(string filename)
+{
+    var name = Path.GetFileName(filename);
+    if (name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".br", StringComparison.OrdinalIgnoreCase))
+    {
+        name = Path.GetFileNameWithoutExtension(name);
+    }
+    return name;
+}
+string NormalizeImageBaseName(string filename)
+{
+    var name = NormalizeCompressedSuffix(filename);
+    var baseName = Path.GetFileNameWithoutExtension(name);
+    if (baseName.EndsWith("-thumb", StringComparison.OrdinalIgnoreCase))
+    {
+        baseName = baseName[..^6];
+    }
+    return baseName;
+}
+
 // List images that are not referenced by any launcher
 app.MapGet("/api/images/unlinked", async (DataAccessLibrary.Services.ILauncherDataService launchers) =>
 {
@@ -749,6 +772,7 @@ app.MapGet("/api/images/unlinked", async (DataAccessLibrary.Services.ILauncherDa
     var files = Directory.GetFiles(imagesDir)
         .Select(f => Path.GetFileName(f) ?? string.Empty)
         .Where(n => !string.IsNullOrWhiteSpace(n))
+        .Where(IsAllowedImageFile)
         .ToList();
 
     // Consider only non-thumb files as primary images
@@ -803,13 +827,8 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
             return;
         }
 
-        var targetPath = Path.Combine(imagesDir, filename);
-        if (!File.Exists(targetPath))
-        {
-            http.Response.StatusCode = 404;
-            await http.Response.WriteAsync("File not found");
-            return;
-        }
+        var normalizedFilename = NormalizeCompressedSuffix(filename);
+        var baseName = NormalizeImageBaseName(filename);
 
         // Check references
         var launchers = http.RequestServices.GetRequiredService<DataAccessLibrary.Services.ILauncherDataService>();
@@ -823,21 +842,37 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
             }
         }
 
-        if (!force && referenced.Contains(filename))
+        var candidateFilenames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            Path.GetFileName(filename) ?? string.Empty,
+            normalizedFilename
+        };
+        foreach (var ext in allowedImageExtensions)
+        {
+            candidateFilenames.Add(baseName + ext);
+            candidateFilenames.Add(baseName + "-thumb" + ext);
+            candidateFilenames.Add(baseName + ext + ".gz");
+            candidateFilenames.Add(baseName + ext + ".br");
+            candidateFilenames.Add(baseName + "-thumb" + ext + ".gz");
+            candidateFilenames.Add(baseName + "-thumb" + ext + ".br");
+        }
+
+        if (!force && candidateFilenames.Any(referenced.Contains))
         {
             http.Response.StatusCode = 400;
             await http.Response.WriteAsync("Image is referenced by at least one launcher; set force=true to override");
             return;
         }
 
-        // Delete both primary and thumbnail variants for common extensions
-        var baseName = Path.GetFileNameWithoutExtension(filename).Replace("-thumb", string.Empty);
-        var exts = new[] { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
         var deleted = new List<string>();
-        foreach (var ext in exts)
+        foreach (var ext in allowedImageExtensions)
         {
             var full = Path.Combine(imagesDir, baseName + ext);
             var thumb = Path.Combine(imagesDir, baseName + "-thumb" + ext);
+            var fullGzip = full + ".gz";
+            var thumbGzip = thumb + ".gz";
+            var fullBrotli = full + ".br";
+            var thumbBrotli = thumb + ".br";
             if (File.Exists(full))
             {
                 try { File.Delete(full); deleted.Add(Path.GetFileName(full)); } catch { }
@@ -846,6 +881,29 @@ app.MapPost("/api/images/delete", async (HttpContext http) =>
             {
                 try { File.Delete(thumb); deleted.Add(Path.GetFileName(thumb)); } catch { }
             }
+            if (File.Exists(fullGzip))
+            {
+                try { File.Delete(fullGzip); deleted.Add(Path.GetFileName(fullGzip)); } catch { }
+            }
+            if (File.Exists(thumbGzip))
+            {
+                try { File.Delete(thumbGzip); deleted.Add(Path.GetFileName(thumbGzip)); } catch { }
+            }
+            if (File.Exists(fullBrotli))
+            {
+                try { File.Delete(fullBrotli); deleted.Add(Path.GetFileName(fullBrotli)); } catch { }
+            }
+            if (File.Exists(thumbBrotli))
+            {
+                try { File.Delete(thumbBrotli); deleted.Add(Path.GetFileName(thumbBrotli)); } catch { }
+            }
+        }
+
+        if (deleted.Count == 0)
+        {
+            http.Response.StatusCode = 404;
+            await http.Response.WriteAsync("File not found");
+            return;
         }
 
         await http.Response.WriteAsJsonAsync(new { deleted = deleted.ToArray() });
