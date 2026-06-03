@@ -14,7 +14,7 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="d-flex gap-2">
-                        <input id="selectionFilterInput" type="text" class="form-control selection-filter" placeholder="Filter..." aria-label="Filter items" value="@FilterText" @oninput="OnFilterInput" />
+                        <DebounceInput Id="selectionFilterInput" Value="@FilterText" ValueChanged="@(v => FilterText = v)" DebounceMilliseconds="300" OnDebounced="OnFilterDebounced" Placeholder="Filter..." AriaLabel="Filter items" CssClass="form-control selection-filter" />
                         <button type="button" class="btn btn-outline-secondary" title="Clear filter" @onclick="ClearFilter">Clear</button>
                     </div>
                 </div>
@@ -86,9 +86,9 @@
         }
     }
 
-    private async Task OnFilterInput(ChangeEventArgs e)
+    private async Task OnFilterDebounced(string value)
     {
-        FilterText = e?.Value?.ToString() ?? string.Empty;
+        FilterText = value ?? string.Empty;
         UpdateFilteredItems();
         // If only one item remains, auto-select it (capture the item first to avoid races)
         if (FilteredItems.Count == 1)

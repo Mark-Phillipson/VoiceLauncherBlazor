@@ -66,9 +66,7 @@
     {
         <div class="col-md-5 me-4">
             <div class="input-group w-100">
-                <input @ref="SearchInput" accesskey="3" type="text" class="form-control"
-                       @bind="SearchTerm" @bind:event="oninput"
-                       id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+3)" />
+                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="300" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                     <span class="ms-1">Reset Filter <span class="shortcut">(Alt+R)</span></span>

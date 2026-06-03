@@ -7,10 +7,7 @@
 
 	<div class="col-md-6">
 		<div class="input-group my-1">
-			<input @ref="SearchInput" accesskey="i" type="text" class="form-control"
-				@bind="SearchTerm" @bind:event="oninput"
-				id="SearchInput" name="SearchTerm"
-				placeholder="Filter by Name/Command Line (Alt+I)" />
+			<DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="300" Placeholder="Filter by Name/Command Line (Alt+I)" AriaLabel="Filter by Name or Command Line" CssClass="form-control" />
 			<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Clear Filter (Alt+R)" @onclick="ResetFilter">
 				<i class="bi bi-x-circle text-danger" aria-hidden="true"></i>
 				<span class="ms-1 d-none d-sm-inline">Clear Filter</span>
