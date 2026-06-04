@@ -3,6 +3,13 @@
     Sync image files from the Blazor webapp to local project targets (WinForms/VoiceAdmin).
 
 .DESCRIPTION
+    if ($Dest.Count -eq 0) {
+        # Default destinations are the WinForms host and VoiceAdmin image folders.
+        $Dest = @(
+            Join-Path $RepoRoot "WinFormsApp\wwwroot\images",
+            Join-Path $RepoRoot "VoiceAdmin\wwwroot\images"
+        )
+    }
     Copies image files from a local `wwwroot/images` folder (default)
     into one or more destination folders. Supports a dry-run mode, a
     force-overwrite switch, and an HTTP download mode when a list of
@@ -15,8 +22,7 @@
     # Real copy from a local folder to two destinations
     .\sync-www-images.ps1 -Source "C:\dev\VoiceAdmin\wwwroot\images" -Dest "C:\dev\WinFormsApp\wwwroot\images","C:\dev\VoiceAdmin\wwwroot\images"
 
-    # Download named images from a running site and copy into destination
-    .\sync-www-images.ps1 -Source "http://localhost:5008" -ImageNamesFile .\scripts\images-to-sync.txt -Dest .\WinFormsApp\wwwroot\images
+    
 
 #>
 
@@ -37,6 +43,25 @@ param(
 
 function Write-Info($m){ Write-Host $m }
 function Write-ErrorLog($m){ Write-Host $m -ForegroundColor Red }
+
+# Resolve a path to an absolute filesystem path (expands ~, resolves relative to repo root)
+function Resolve-FullPath([string]$p){
+    if ([string]::IsNullOrWhiteSpace($p)) { return $p }
+    $p = $p.Trim()
+    if ($p -match '^https?://') { return $p.TrimEnd('/') }
+    if ($p.StartsWith('~')) { $p = $p -replace '^~', $env:USERPROFILE }
+    try {
+        if ([System.IO.Path]::IsPathRooted($p)) { $abs = [System.IO.Path]::GetFullPath($p) }
+        else { $abs = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot $p)) }
+    } catch {
+        $abs = Join-Path $RepoRoot $p
+    }
+    try {
+        $rp = Resolve-Path -Path $abs -ErrorAction Stop
+        if ($rp) { return $rp.ProviderPath }
+    } catch { }
+    return $abs
+}
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $RepoRoot = (Get-Item (Join-Path $ScriptDir "..")).FullName
@@ -130,15 +155,17 @@ if ($Published) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Source)) {
-    $Source = Join-Path $RepoRoot "VoiceAdmin\wwwroot\images"
+    # Default to the Release publish images folder for VoiceAdmin (published output)
+    $Source = Join-Path $RepoRoot "VoiceAdmin\bin\Release\net10.0\win-x64\publish\wwwroot\images"
 }
 
-    if ($Dest.Count -eq 0) {
-        # Default destination is the WinForms host image folder.
-        $Dest = @(
-            Join-Path $RepoRoot "WinFormsApp\wwwroot\images"
-        )
-    }
+if ($Dest.Count -eq 0) {
+    # Default destinations are the WinForms host and VoiceAdmin image folders.
+    $Dest = @(
+        "C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceAdmin\wwwroot\images",
+        "C:\Users\MPhil\source\repos\VoiceLauncherBlazor\WinFormsApp\wwwroot\images"
+    )
+}
 
     # Deduplicate any supplied destinations
     $Dest = $Dest | Select-Object -Unique
@@ -216,7 +243,38 @@ if ([string]::IsNullOrWhiteSpace($Source)) {
     }
     $Dest = $normalized | Select-Object -Unique
 
-$stats = [PSCustomObject]@{Copied=0;Skipped=0;Errors=0;WouldCopy=0}
+    # Resolve Source and Dest to full absolute paths (unless Source is HTTP)
+    if ($Source -notmatch '^https?://') {
+        $Source = Resolve-FullPath $Source
+    }
+
+    $Dest = $Dest | ForEach-Object {
+        if ($_ -match '^https?://') { $_ } else { Resolve-FullPath $_ }
+    } | Select-Object -Unique
+
+    # Show resolved paths and existence checks, ask for confirmation before proceeding
+    Write-Host "`nSync summary:"
+    if ($Source -match '^https?://') {
+        Write-Host "  Source (HTTP): $Source"
+    } else {
+        Write-Host "  Source: $Source"
+        Write-Host ("    Exists: {0}" -f (Test-Path $Source))
+    }
+    # Ensure $Dest is enumerated as an array and print each entry clearly
+    $Dest = @($Dest)
+    foreach ($d in $Dest) {
+        $existsText = if ($d -match '^https?://') { 'HTTP' } elseif (Test-Path $d) { 'Exists' } else { 'Missing' }
+        Write-Host "  Destination: $d  - $existsText"
+    }
+    if ($DryRun) { Write-Host "  Mode: Dry-run (no files will be written)" }
+
+    $resp = Read-Host "Proceed with sync? (Y/N)"
+    if ($resp -notin @('Y','y','Yes','yes')) {
+        Write-Host "Aborted by user."
+        exit 0
+    }
+
+    $stats = [PSCustomObject]@{Copied=0;Skipped=0;Errors=0;WouldCopy=0}
 
 try {
     if ($Source -match '^https?://') {
