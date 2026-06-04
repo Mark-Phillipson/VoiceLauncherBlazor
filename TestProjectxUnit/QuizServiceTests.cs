@@ -43,6 +43,47 @@ public sealed class QuizServiceTests
     }
 
     [Fact]
+    public async Task GenerateQuestionsAsync_FilterByCSharpPack_ReturnsOnlyCSharpQuestions()
+    {
+        var docsDirectory = CreateTempDocsDirectory();
+        // ensure docs file exists (empty)
+        await File.WriteAllTextAsync(Path.Combine(docsDirectory, "CursorlessDocsQuizData.json"), JsonSerializer.Serialize(new CursorlessCheatsheetItemDTO[0], new JsonSerializerOptions { WriteIndented = true }));
+
+        var manualQuestions = new List<QuizQuestion>
+        {
+            new QuizQuestion
+            {
+                Prompt = "In C#, which keyword declares a namespace?",
+                Choices = new List<string>{ "namespace", "using", "package", "module" },
+                CorrectAnswer = "namespace",
+                CorrectIndex = 0,
+                Category = "CSharp",
+                Source = "manual"
+            },
+            new QuizQuestion
+            {
+                Prompt = "Which keyword marks an async method in C#?",
+                Choices = new List<string>{ "async", "await", "task", "thread" },
+                CorrectAnswer = "async",
+                CorrectIndex = 0,
+                Category = "CSharp",
+                Source = "manual"
+            }
+        };
+
+        await File.WriteAllTextAsync(Path.Combine(docsDirectory, "CursorlessManualQuestions.json"), JsonSerializer.Serialize(manualQuestions, new JsonSerializerOptions { WriteIndented = true }));
+
+        var service = CreateService(docsDirectory);
+
+        var questions = await service.GenerateQuestionsAsync(2, "CSharp");
+
+        Assert.Equal(2, questions.Count);
+        Assert.All(questions, q => Assert.Equal("CSharp", q.Category));
+
+        DeleteTempDirectory(docsDirectory);
+    }
+
+    [Fact]
     public void ScoreSerialization_RoundTrips()
     {
         var service = CreateService(CreateTempDocsDirectory());

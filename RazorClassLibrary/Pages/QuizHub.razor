@@ -5,6 +5,8 @@
 @using DataAccessLibrary.Models
 @using RazorClassLibrary.Services
 @using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.DependencyInjection
+@using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>Quiz Hub</PageTitle>
 
@@ -93,10 +95,22 @@
                             <button type="button" class="btn btn-primary" accesskey="3" aria-keyshortcuts="Alt+3" title="Alt+3: Launch 'What would you say' quiz" @onclick="LaunchWhatWouldYouSayAsync"><kbd class="quiz-kbd quiz-kbd-launch" style="background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end)); color: var(--text-color); border: 1px solid var(--border-color); box-shadow: none;">3</kbd> Launch "What would you say"</button>
                         </div>
                     </div>
-                            </section>
+                </section>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <section class="card h-100 shadow-sm" aria-label="C# quiz mode">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">C# Quiz</h2>
+                        <p class="card-text text-muted">Multiple-choice C# language questions sourced from Microsoft Docs keywords.</p>
+                        <div class="mt-auto d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary" accesskey="4" aria-keyshortcuts="Alt+4" title="Alt+4: Launch C# Quiz" @onclick="LaunchCSharpAsync"><kbd class="quiz-kbd quiz-kbd-launch" style="background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end)); color: var(--text-color); border: 1px solid var(--border-color); box-shadow: none;">4</kbd> Launch C# Quiz</button>
                         </div>
                     </div>
-                }
+                </section>
+            </div>
+        </div>
+    }
     else
     {
         <div class="mb-3">
@@ -130,6 +144,24 @@
                          InitialPackName=""
                          DefaultQuestionCount="10" />
         }
+        else if (_activeQuiz == "csharp")
+        {
+                <GenericQuiz Title="C# Quiz"
+                             Subtitle="C# language quiz sourced from Microsoft Docs keywords."
+                             ScoreStorageKey="csharpQuizScores"
+                             GenerateQuestions="GenerateForCSharp"
+                             DefaultQuestionCount="10">
+                    <AdditionalStartOptions>
+                        <label class="quiz-label">Question type</label>
+                        <InputSelect class="form-select quiz-select" @bind-Value="_csharpSelectedQuestionType">
+                            <option value="All">All</option>
+                            <option value="Identification">Keyword identification</option>
+                            <option value="Usage">Usage (what would you use this keyword for)</option>
+                            <option value="Collections">Collections-focused</option>
+                        </InputSelect>
+                    </AdditionalStartOptions>
+                </GenericQuiz>
+        }
     }
 </div>
 
@@ -147,6 +179,12 @@
 
     [Inject]
     private Microsoft.Extensions.Logging.ILogger<QuizHub> Logger { get; set; } = default!;
+    [Inject]
+    private IServiceProvider ServiceProvider { get; set; } = default!;
+
+    private RazorClassLibrary.Services.ICSharpQuestionService? CSharpQuestionService => ServiceProvider.GetService<RazorClassLibrary.Services.ICSharpQuestionService>();
+
+    private CSharpQuestionType _csharpSelectedQuestionType = CSharpQuestionType.All;
 
     private List<PackInfo>? _packs;
     private string? _importMessage;
@@ -221,6 +259,13 @@
         StateHasChanged();
     }
 
+    private Task LaunchCSharpAsync()
+    {
+        _activeQuiz = "csharp";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
     private void ResetHub()
     {
         _activeQuiz = null;
@@ -256,7 +301,22 @@
     }
 
     private Task<IReadOnlyList<QuizQuestion>> GenerateForCursorless(int count, string? pack)
-        => QuizService.GenerateQuestionsAsync(count);
+        => QuizService.GenerateQuestionsAsync(count, pack);
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateForCSharp(int count, string? pack)
+    {
+        var svc = CSharpQuestionService;
+        if (svc == null)
+            return Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+
+        IEnumerable<CSharpQuestionType>? allowed = null;
+        if (_csharpSelectedQuestionType != CSharpQuestionType.All)
+        {
+            allowed = new[] { _csharpSelectedQuestionType };
+        }
+
+        return svc.GetQuestionsAsync(count, allowed);
+    }
 
     private Task<IReadOnlyList<QuizQuestion>> GenerateTalonQuestionsAsync(int count, string? packName)
     {
@@ -313,8 +373,18 @@
                 .OrderBy(x => x)
                 .ToList();
 
+            var languages = _allVoiceCommands
+                .Select(x => (x.CodeLanguage ?? string.Empty).Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+
             _voiceSources = new List<string> { "global" };
+            // Add repositories (repositories first), then any code languages that aren't duplicates
             _voiceSources.AddRange(repositories.Where(x => !string.Equals(x, "global", StringComparison.OrdinalIgnoreCase)));
+            _voiceSources.AddRange(languages.Where(lang => !string.Equals(lang, "global", StringComparison.OrdinalIgnoreCase)
+                                                            && !repositories.Contains(lang, StringComparer.OrdinalIgnoreCase)));
         }
         catch
         {
@@ -348,10 +418,19 @@
         }
         else
         {
-            // Relax matching: consider Repository OR Application to avoid mismatches from import metadata
-            pool = _allVoiceCommands.Where(x => string.Equals((x.Repository ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)
-                || string.Equals((x.Application ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
-            try { Logger?.LogDebug("Filtered pool by pack '{Pack}': {PoolCount}", selectedScope, pool.Count); } catch { }
+            // If the selected scope matches a known CodeLanguage, prefer filtering by language
+            if (_allVoiceCommands.Any(x => string.Equals((x.CodeLanguage ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)))
+            {
+                pool = _allVoiceCommands.Where(x => string.Equals((x.CodeLanguage ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
+                try { Logger?.LogDebug("Filtered pool by code language '{Pack}': {PoolCount}", selectedScope, pool.Count); } catch { }
+            }
+            else
+            {
+                // Relax matching: consider Repository OR Application to avoid mismatches from import metadata
+                pool = _allVoiceCommands.Where(x => string.Equals((x.Repository ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals((x.Application ?? string.Empty).Trim(), selectedScope, StringComparison.OrdinalIgnoreCase)).ToList();
+                try { Logger?.LogDebug("Filtered pool by pack '{Pack}': {PoolCount}", selectedScope, pool.Count); } catch { }
+            }
         }
 
         try
@@ -516,6 +595,7 @@
 
         var category = "global";
         if (!string.IsNullOrWhiteSpace(primaryTag)) category = primaryTag!;
+        else if (!string.IsNullOrWhiteSpace(cmd.CodeLanguage)) category = cmd.CodeLanguage.Trim();
         else if (!string.IsNullOrWhiteSpace(application) && !application.Equals("global", StringComparison.OrdinalIgnoreCase)) category = application;
 
         return new QuizQuestion

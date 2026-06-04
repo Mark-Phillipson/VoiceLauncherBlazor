@@ -350,4 +350,483 @@
     "Category": "Action",
     "Source": "manual"
   }
+  ,
+  {
+    "Prompt": "In C#, which keyword declares a namespace?",
+    "Choices": ["namespace", "using", "package", "module"],
+    "CorrectAnswer": "namespace",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword marks an asynchronous method in C#?",
+    "Choices": ["async", "await", "task", "thread"],
+    "CorrectAnswer": "async",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which symbol prefixes an interpolated string literal in C#?",
+    "Choices": ["$", "@", "#", "%"],
+    "CorrectAnswer": "$",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  }
+  ,
+  {
+    "Prompt": "Which of the following is a C# keyword?",
+    "Choices": ["foreach", "loop", "iterate", "collection"],
+    "CorrectAnswer": "foreach",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=foreach%20c%23"
+  },
+  {
+    "Prompt": "Which of the following is a C# keyword?",
+    "Choices": ["yield", "returning", "produce", "emit"],
+    "CorrectAnswer": "yield",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=yield%20c%23"
+  },
+  {
+    "Prompt": "Which of the following is a C# keyword?",
+    "Choices": ["ref", "reference", "byref", "alias"],
+    "CorrectAnswer": "ref",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=ref%20c%23"
+  },
+  {
+    "Prompt": "Which of the following is a C# keyword?",
+    "Choices": ["params", "paramlist", "args", "variants"],
+    "CorrectAnswer": "params",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=params%20c%23"
+  },
+  {
+    "Prompt": "Which of the following is a C# keyword?",
+    "Choices": ["sealed", "final", "closed", "constant"],
+    "CorrectAnswer": "sealed",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=sealed%20c%23"
+  },
+
+  {
+    "Prompt": "What would you use the C# keyword 'async' for?",
+    "Choices": [
+      "Mark a method as asynchronous to allow await inside it",
+      "Declare a compile-time constant",
+      "Define a value type",
+      "Ensure exclusive access across threads"
+    ],
+    "CorrectAnswer": "Mark a method as asynchronous to allow await inside it",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=async%20c%23"
+  },
+  {
+    "Prompt": "What would you use the C# keyword 'foreach' for?",
+    "Choices": [
+      "Iterate over each element in a collection",
+      "Declare a new class",
+      "Return elements one at a time",
+      "Specify memory layout"
+    ],
+    "CorrectAnswer": "Iterate over each element in a collection",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=foreach%20c%23"
+  },
+  {
+    "Prompt": "What would you use the C# keyword 'yield' for?",
+    "Choices": [
+      "Return elements one at a time from an iterator method",
+      "Throw an exception",
+      "Declare a variable",
+      "Mark a method as asynchronous"
+    ],
+    "CorrectAnswer": "Return elements one at a time from an iterator method",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=yield%20c%23"
+  },
+  {
+    "Prompt": "What would you use the C# keyword 'ref' for?",
+    "Choices": [
+      "Pass an argument by reference so the callee can modify it",
+      "Create a reference type",
+      "Return by value",
+      "Declare a method"
+    ],
+    "CorrectAnswer": "Pass an argument by reference so the callee can modify it",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=ref%20c%23"
+  },
+  {
+    "Prompt": "What would you use the C# keyword 'params' for?",
+    "Choices": [
+      "Allow a method to accept a variable number of arguments",
+      "Declare parameters as readonly",
+      "Define a parameter type alias",
+      "Specify parameter metadata"
+    ],
+    "CorrectAnswer": "Allow a method to accept a variable number of arguments",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=params%20c%23"
+  },
+
+  {
+    "Prompt": "Which keyword is typically used to iterate over each element in a collection?",
+    "Choices": ["foreach", "iterate", "enumerate", "loop"],
+    "CorrectAnswer": "foreach",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=foreach%20c%23"
+  },
+  {
+    "Prompt": "Which keyword is used inside an iterator method to return elements lazily?",
+    "Choices": ["yield", "lazyReturn", "defer", "stream"],
+    "CorrectAnswer": "yield",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=yield%20c%23"
+  },
+  {
+    "Prompt": "Which keyword starts a traditional counted loop in C#?",
+    "Choices": ["for", "each", "iterate", "loopX"],
+    "CorrectAnswer": "for",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=for%20c%23"
+  },
+  {
+    "Prompt": "Which keyword begins a loop that repeats while a condition is true?",
+    "Choices": ["while", "until", "repeat", "when"],
+    "CorrectAnswer": "while",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=while%20c%23"
+  },
+  {
+    "Prompt": "Which keyword exits the nearest enclosing loop immediately?",
+    "Choices": ["break", "stoploop", "exit", "quit"],
+    "CorrectAnswer": "break",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=break%20c%23"
+  },
+
+  {
+    "Prompt": "Which keyword completes the snippet: int[] arr = {1,2,3}; ___ (var x in arr) { Console.WriteLine(x); }",
+    "Choices": ["foreach", "for", "in", "loop"],
+    "CorrectAnswer": "foreach",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Complete the snippet: async Task DoWork() { ___ Task.Delay(1000); } Which keyword belongs in the blank?",
+    "Choices": ["await", "yield", "return", "delay"],
+    "CorrectAnswer": "await",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword declares a compile-time constant in the snippet: public ___ int X = 5;",
+    "Choices": ["const", "readonly", "static", "sealed"],
+    "CorrectAnswer": "const",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword completes: public class MyClass { ___ int Counter; } (declare a type-level member)",
+    "Choices": ["static", "const", "virtual", "sealed"],
+    "CorrectAnswer": "static",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Given 'object obj = 123; var s = obj ___ string;' which keyword completes this expression to attempt a safe cast?",
+    "Choices": ["as", "is", "cast", "to"],
+    "CorrectAnswer": "as",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "What is the output of: int x = 0; for(int i=0;i<3;i++){ x += i; } Console.WriteLine(x);",
+    "Choices": ["3", "6", "0", "1"],
+    "CorrectAnswer": "3",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "What does this print? string s = \"Hello\"; Console.WriteLine($\"{s} World\");",
+    "Choices": ["Hello World", "{s} World", "Hello", "World"],
+    "CorrectAnswer": "Hello World",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "What is the output? int[] arr = {1}; Console.WriteLine(arr.Length);",
+    "Choices": ["1", "0", "undefined", "error"],
+    "CorrectAnswer": "1",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "What does this print? List<int> a = new List<int>{1,2}; foreach(var n in a){ if(n==2) break; Console.Write(n); }",
+    "Choices": ["1", "12", "2", ""],
+    "CorrectAnswer": "1",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "What is printed? int x = 1; int y = x++; Console.WriteLine(y);",
+    "Choices": ["1", "2", "0", "Compilation error"],
+    "CorrectAnswer": "1",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "To declare a method that doesn't return a value, use the keyword ___ .",
+    "Choices": ["void", "null", "var", "function"],
+    "CorrectAnswer": "void",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "To indicate a method can be overridden by derived classes, use ___ .",
+    "Choices": ["virtual", "override", "sealed", "static"],
+    "CorrectAnswer": "virtual",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword begins a block that catches exceptions thrown by a preceding try block?",
+    "Choices": ["catch", "try", "finally", "throw"],
+    "CorrectAnswer": "catch",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "To create a new instance of a type you use the ___ operator.",
+    "Choices": ["new", "create", "make", "construct"],
+    "CorrectAnswer": "new",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "To make an extension method, the first parameter must be preceded by ___ in its declaration.",
+    "Choices": ["this", "ref", "out", "static"],
+    "CorrectAnswer": "this",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "Which keyword completes the async method signature: public ___ Task DoWork() { await Task.Delay(1); }",
+    "Choices": ["async", "await", "static", "sealed"],
+    "CorrectAnswer": "async",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword is required to override a virtual base method in a derived class?",
+    "Choices": ["override", "virtual", "sealed", "new"],
+    "CorrectAnswer": "override",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword prevents a class from being inherited further?",
+    "Choices": ["sealed", "static", "abstract", "partial"],
+    "CorrectAnswer": "sealed",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which access modifier makes a member available only to the declaring class and its derived classes?",
+    "Choices": ["protected", "private", "internal", "public"],
+    "CorrectAnswer": "protected",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword makes a field assignable only during initialization or in a constructor (helps fix accidental modification)?",
+    "Choices": ["readonly", "const", "volatile", "static"],
+    "CorrectAnswer": "readonly",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "Which keyword ensures exclusive access to a code block across threads?",
+    "Choices": ["lock", "mutex", "sync", "guard"],
+    "CorrectAnswer": "lock",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "To make a method usable with await, you must add which keyword to its declaration?",
+    "Choices": ["async", "await", "task", "yield"],
+    "CorrectAnswer": "async",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword declares an event field intended for multi-cast notification?",
+    "Choices": ["event", "delegate", "notify", "signal"],
+    "CorrectAnswer": "event",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which keyword allows a method to accept a variable number of arguments?",
+    "Choices": ["params", "args", "varargs", "list"],
+    "CorrectAnswer": "params",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "Which pairing is correct? (async, yield) -> (mark method asynchronous, return elements lazily) — choose the matching pair",
+    "Choices": [
+      "async -> mark method asynchronous; yield -> return elements lazily",
+      "async -> create new instance; yield -> declare const",
+      "async -> handle exceptions; yield -> iterate synchronously",
+      "async -> mark value readonly; yield -> convert type"
+    ],
+    "CorrectAnswer": "async -> mark method asynchronous; yield -> return elements lazily",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which set correctly matches? (ref, out) -> (pass by reference, return a value via parameter)",
+    "Choices": [
+      "ref -> pass by reference; out -> return a value via parameter",
+      "ref -> create copy; out -> copy back",
+      "ref -> compile-time constant; out -> runtime value",
+      "ref -> declare readonly; out -> declare const"
+    ],
+    "CorrectAnswer": "ref -> pass by reference; out -> return a value via parameter",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which mapping is correct? (const, readonly) -> (compile-time constant, assignable at construction)",
+    "Choices": [
+      "const -> compile-time constant; readonly -> assignable at construction",
+      "const -> runtime constant; readonly -> compile-time constant",
+      "const -> assignable; readonly -> immutable",
+      "const -> protected; readonly -> private"
+    ],
+    "CorrectAnswer": "const -> compile-time constant; readonly -> assignable at construction",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "Which grouping is correct? (for, foreach) -> (counted loop, enumerate collection)",
+    "Choices": [
+      "for -> counted loop; foreach -> enumerate collection",
+      "for -> enumerate collection; foreach -> counted loop",
+      "for -> conditional branch; foreach -> exception handler",
+      "for -> declare type; foreach -> define method"
+    ],
+    "CorrectAnswer": "for -> counted loop; foreach -> enumerate collection",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+
+  {
+    "Prompt": "True or False: 'const values can be assigned in a constructor'.",
+    "Choices": ["True", "False"],
+    "CorrectAnswer": "False",
+    "CorrectIndex": 1,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "True or False: 'sealed' prevents a class from being inherited further'.",
+    "Choices": ["True", "False"],
+    "CorrectAnswer": "True",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "True or False: 'foreach' allows modifying the collection while iterating without exceptions'.",
+    "Choices": ["True", "False"],
+    "CorrectAnswer": "False",
+    "CorrectIndex": 1,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "True or False: 'An async method can contain await expressions'.",
+    "Choices": ["True", "False"],
+    "CorrectAnswer": "True",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  },
+  {
+    "Prompt": "True or False: 'params allows passing a variable number of arguments to a method'.",
+    "Choices": ["True", "False"],
+    "CorrectAnswer": "True",
+    "CorrectIndex": 0,
+    "Category": "CSharp",
+    "Source": "manual"
+  }
 ]

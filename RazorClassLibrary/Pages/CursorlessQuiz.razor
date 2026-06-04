@@ -10,5 +10,5 @@
 
 @code {
     private Task<IReadOnlyList<QuizQuestion>> GenerateForCursorless(int count, string? pack)
-        => QuizService.GenerateQuestionsAsync(count);
+        => QuizService.GenerateQuestionsAsync(count, pack);
 }

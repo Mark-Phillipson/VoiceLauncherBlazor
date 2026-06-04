@@ -172,7 +172,7 @@ namespace WinFormsApp
 	var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
 	
 	Configuration = new ConfigurationBuilder()
-		.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+		.SetBasePath(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory)
 		.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 		.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
 		.AddEnvironmentVariables()

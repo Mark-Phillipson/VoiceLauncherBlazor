@@ -223,6 +223,7 @@ if (enableLocalEmbeddings && smartComponentsBuilder != null)
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<ICSharpQuestionService, CSharpKeywordQuestionService>();
 // Increase resilience for transient disconnects: extend SignalR and circuit retention timeouts
 builder.Services.AddSignalR(options =>
 {

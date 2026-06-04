@@ -4,7 +4,7 @@ namespace RazorClassLibrary.Services;
 
 public interface IQuizService
 {
-    Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count);
+    Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count, string? pack = null);
 
     List<QuizScore> DeserializeScores(string? json);
 

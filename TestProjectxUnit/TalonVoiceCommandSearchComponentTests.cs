@@ -14,7 +14,9 @@ using Xunit;
 
 namespace TestProjectxUnit
 {
+    #pragma warning disable CS0618 // TestContext is obsolete in current bUnit version
     public class TalonVoiceCommandSearchComponentTests : TestContext
+    #pragma warning restore CS0618
     {
         public TalonVoiceCommandSearchComponentTests()
         {

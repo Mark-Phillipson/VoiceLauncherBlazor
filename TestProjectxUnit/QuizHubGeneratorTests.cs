@@ -14,7 +14,9 @@ using Xunit;
 
 namespace TestProjectxUnit
 {
+    #pragma warning disable CS0618 // TestContext is obsolete in current bUnit version
     public class QuizHubGeneratorTests : TestContext
+    #pragma warning restore CS0618
     {
         public QuizHubGeneratorTests()
         {
@@ -36,7 +38,7 @@ namespace TestProjectxUnit
                 Id = id,
                 Command = command,
                 Title = title,
-                Script = script ?? "user.noop()",
+                Script = script,
                 Application = application ?? "global",
                 Description = description,
                 FilePath = $"file{id}.talon",
@@ -61,13 +63,18 @@ namespace TestProjectxUnit
 
             // Inject the prepared command list into the component's private field
             var field = comp.Instance.GetType().GetField("_allVoiceCommands", BindingFlags.NonPublic | BindingFlags.Instance);
-            field.SetValue(comp.Instance, commands.ToList());
+            Assert.NotNull(field);
+            field!.SetValue(comp.Instance, commands.ToList());
 
             var method = comp.Instance.GetType().GetMethod("GenerateTalonVoiceCommandQuestionsAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var invoked = method.Invoke(comp.Instance, new object[] { 3, "" });
+            Assert.NotNull(method);
+            var invoked = method!.Invoke(comp.Instance, new object[] { 3, "" });
+            Assert.NotNull(invoked);
             var task = (Task)invoked!;
             await task;
-            var result = (IReadOnlyList<QuizQuestion>)invoked.GetType().GetProperty("Result")!.GetValue(invoked)!;
+            var resultProp = invoked.GetType().GetProperty("Result");
+            Assert.NotNull(resultProp);
+            var result = (IReadOnlyList<QuizQuestion>)resultProp!.GetValue(invoked)!;
 
             Assert.NotNull(result);
             Assert.True(result.Count > 0);
@@ -86,13 +93,18 @@ namespace TestProjectxUnit
 
             var comp = Render<QuizHub>();
             var field = comp.Instance.GetType().GetField("_allVoiceCommands", BindingFlags.NonPublic | BindingFlags.Instance);
-            field.SetValue(comp.Instance, commands.ToList());
+            Assert.NotNull(field);
+            field!.SetValue(comp.Instance, commands.ToList());
 
             var method = comp.Instance.GetType().GetMethod("GenerateTalonVoiceCommandQuestionsAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var invoked = method.Invoke(comp.Instance, new object[] { 5, null });
+            Assert.NotNull(method);
+            var invoked = method!.Invoke(comp.Instance, new object[] { 5, (object?)null });
+            Assert.NotNull(invoked);
             var task = (Task)invoked!;
             await task;
-            var result = (IReadOnlyList<QuizQuestion>)invoked.GetType().GetProperty("Result")!.GetValue(invoked)!;
+            var resultProp = invoked.GetType().GetProperty("Result");
+            Assert.NotNull(resultProp);
+            var result = (IReadOnlyList<QuizQuestion>)resultProp!.GetValue(invoked)!;
 
             // ensure no question's RelatedCommandId equals bad.Id
             Assert.DoesNotContain(result, q => q.RelatedCommandId == bad.Id);
@@ -111,13 +123,18 @@ namespace TestProjectxUnit
 
             var comp = Render<QuizHub>();
             var field = comp.Instance.GetType().GetField("_allVoiceCommands", BindingFlags.NonPublic | BindingFlags.Instance);
-            field.SetValue(comp.Instance, commands.ToList());
+            Assert.NotNull(field);
+            field!.SetValue(comp.Instance, commands.ToList());
 
             var method = comp.Instance.GetType().GetMethod("GenerateTalonVoiceCommandQuestionsAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-            var invoked = method.Invoke(comp.Instance, new object[] { 10, null });
+            Assert.NotNull(method);
+            var invoked = method!.Invoke(comp.Instance, new object[] { 10, (object?)null });
+            Assert.NotNull(invoked);
             var task = (Task)invoked!;
             await task;
-            var result = (IReadOnlyList<QuizQuestion>)invoked.GetType().GetProperty("Result")!.GetValue(invoked)!;
+            var resultProp = invoked.GetType().GetProperty("Result");
+            Assert.NotNull(resultProp);
+            var result = (IReadOnlyList<QuizQuestion>)resultProp!.GetValue(invoked)!;
 
             // since Open File and "open file" normalize to the same key, only one should be represented
             var relatedIds = result.Select(q => q.RelatedCommandId).ToList();
@@ -147,7 +164,7 @@ namespace TestProjectxUnit
 
     internal sealed class TestQuizServiceStub : RazorClassLibrary.Services.IQuizService
     {
-        public Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count) => Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+        public Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count, string? pack = null) => Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
         public List<RazorClassLibrary.Models.QuizScore> DeserializeScores(string? json) => new List<RazorClassLibrary.Models.QuizScore>();
         public string SerializeScores(IEnumerable<RazorClassLibrary.Models.QuizScore> scores) => string.Empty;
     }

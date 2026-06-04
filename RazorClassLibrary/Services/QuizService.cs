@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Linq;
+using System.Text.RegularExpressions;
 using DataAccessLibrary.DTOs;
 using DataAccessLibrary.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -26,7 +27,7 @@ public sealed class QuizService : IQuizService
         _environment = environment;
     }
 
-    public async Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count)
+    public async Task<IReadOnlyList<QuizQuestion>> GenerateQuestionsAsync(int count, string? pack = null)
     {
         if (count <= 0)
         {
@@ -35,6 +36,14 @@ public sealed class QuizService : IQuizService
 
         var facts = await LoadFactsAsync();
         var manualQuestions = await LoadManualQuestionsAsync();
+
+        // If a pack filter was provided, restrict both facts and manual questions
+        if (!string.IsNullOrWhiteSpace(pack))
+        {
+            var pk = NormalizePackKey(pack);
+            facts = facts.Where(f => NormalizePackKey(f.Category) == pk).ToList();
+            manualQuestions = manualQuestions.Where(q => NormalizePackKey(q.Category) == pk).ToList();
+        }
 
         if ((facts.Count + manualQuestions.Count) == 0)
         {
@@ -363,5 +372,16 @@ public sealed class QuizService : IQuizService
                 && string.Equals(Category, other.Category, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(Source, other.Source, StringComparison.OrdinalIgnoreCase);
         }
+    }
+
+    private static string NormalizePackKey(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+        var t = s.Trim().ToLowerInvariant();
+        // Treat '#' as 'sharp' so C# and CSharp match
+        t = t.Replace("#", "sharp");
+        // Remove any non-alphanumeric characters
+        t = Regex.Replace(t, "[^a-z0-9]", string.Empty);
+        return t;
     }
 }

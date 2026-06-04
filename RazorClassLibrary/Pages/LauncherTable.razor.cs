@@ -43,7 +43,6 @@ namespace RazorClassLibrary.Pages
 		public List<LauncherDTO>? LauncherDTO { get; set; }
 		public List<LauncherDTO>? FilteredLauncherDTO { get; set; }
 		protected LauncherAddEdit? LauncherAddEdit { get; set; }
-		ElementReference SearchInput;
 #pragma warning disable 414, 649
 		private bool _loadFailed = false;
 		private string? searchTerm = null;

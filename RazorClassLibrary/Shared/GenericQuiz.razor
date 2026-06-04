@@ -71,6 +71,10 @@
                     {
                         <div class="small text-warning mt-1" role="status">@_aiFilterNotice</div>
                     }
+                                    @if (AdditionalStartOptions != null)
+                                    {
+                                        @AdditionalStartOptions
+                                    }
                     <div class="small text-muted mt-1">
                         AI-corrected available: <strong>@_aiCorrectedAvailableCount</strong>
                     </div>
@@ -105,6 +109,10 @@
                 <div class="quiz-meta-row">
                     <span>Score: @_correctAnswers / @_currentQuestionIndex</span>
                     <span>Source: @CurrentQuestion.Source</span>
+                    @if (!string.IsNullOrWhiteSpace(CurrentQuestion?.DocLink))
+                    {
+                        <span><a href="@CurrentQuestion!.DocLink" target="_blank" rel="noopener noreferrer">Learn more</a></span>
+                    }
                     <span>Category: @CurrentQuestion.Category</span>
                 </div>
 
@@ -234,6 +242,9 @@
 
     [Parameter]
     public string? PackLabel { get; set; }
+
+    [Parameter]
+    public RenderFragment? AdditionalStartOptions { get; set; }
 
     private readonly List<QuizQuestion> _questions = new();
     private List<QuizScore> _scoreHistory = new();

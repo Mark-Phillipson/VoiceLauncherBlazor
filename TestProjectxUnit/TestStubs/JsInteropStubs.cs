@@ -9,7 +9,9 @@ namespace TestProjectxUnit.TestStubs
         /// - Stubs the module import for selectionModalInterop.js and its showModal method.
         /// - Stubs the global bootstrapInterop.showModal fallback.
         /// </summary>
+        #pragma warning disable CS0618 // TestContext obsolete in current bUnit
         public static void ConfigureSelectionModalInterop(TestContext ctx)
+        #pragma warning restore CS0618
         {
             if (ctx == null) return;
 
