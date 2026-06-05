@@ -1,0 +1,72 @@
+[
+  {
+    "Index": 0,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027zero\u0027 corresponds to the value \u00270\u0027.",
+    "OriginalPrompt": "In list \u0027user.number_key\u0027, what value matches spoken form \u0027zero\u0027?"
+  },
+  {
+    "Index": 1,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027shine ui\u0027 corresponds to the value \u0027shinyUI\u0027.",
+    "OriginalPrompt": "In list \u0027user.code_common_function\u0027, what value matches spoken form \u0027shine ui\u0027?"
+  },
+  {
+    "Index": 2,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027type deaf\u0027 corresponds to the value \u0027typedef \u0027.",
+    "OriginalPrompt": "In list \u0027user.code_keyword\u0027, what value matches spoken form \u0027type deaf\u0027?"
+  },
+  {
+    "Index": 3,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027is not NA\u0027 corresponds to the value \u0027!is.na\u0027.",
+    "OriginalPrompt": "In list \u0027user.code_common_function\u0027, what value matches spoken form \u0027is not NA\u0027?"
+  },
+  {
+    "Index": 4,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027shared pointer\u0027 corresponds to the value \u0027shared_ptr\u0027.",
+    "OriginalPrompt": "In list \u0027user.cpp_standard_type\u0027, what value matches spoken form \u0027shared pointer\u0027?"
+  },
+  {
+    "Index": 5,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027one drive\u0027 corresponds to the value \u0027C:\\Users\\MPhil\\OneDrive\u0027.",
+    "OriginalPrompt": "In list \u0027user.system_paths\u0027, what value matches spoken form \u0027one drive\u0027?"
+  },
+  {
+    "Index": 6,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027slasher\u0027 corresponds to the value \u0027ALL_SLASHES\u0027.",
+    "OriginalPrompt": "In list \u0027user.code_formatter\u0027, what value matches spoken form \u0027slasher\u0027?"
+  },
+  {
+    "Index": 7,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027conga\u0027 corresponds to the value \u0027SLASH_SEPARATED\u0027.",
+    "OriginalPrompt": "In list \u0027user.code_formatter\u0027, what value matches spoken form \u0027conga\u0027?"
+  },
+  {
+    "Index": 8,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027key pad three\u0027 corresponds to the value \u0027keypad_3\u0027.",
+    "OriginalPrompt": "In list \u0027user.keypad_key\u0027, what value matches spoken form \u0027key pad three\u0027?"
+  },
+  {
+    "Index": 9,
+    "Ok": true,
+    "SuggestedPrompt": null,
+    "Notes": "The spoken form \u0027static assert\u0027 corresponds to the value \u0027static_assert\u0027.",
+    "OriginalPrompt": "In list \u0027user.code_keyword\u0027, what value matches spoken form \u0027static assert\u0027?"
+  }
+]

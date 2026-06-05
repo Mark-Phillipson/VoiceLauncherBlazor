@@ -12,6 +12,7 @@ public sealed class QuizService : IQuizService
 {
     private const string DocsFileName = "CursorlessDocsQuizData.json";
     private const string ManualFileName = "CursorlessManualQuestions.json";
+    private const string CSharpPackKey = "csharp"; // Normalized key for C# quizzes
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -36,6 +37,13 @@ public sealed class QuizService : IQuizService
 
         var facts = await LoadFactsAsync();
         var manualQuestions = await LoadManualQuestionsAsync();
+
+        // Filter manual questions to exclude C# if not specifically requesting C# quiz
+        var normalizedPack = NormalizePackKey(pack);
+        if (string.IsNullOrWhiteSpace(pack) || normalizedPack != CSharpPackKey)
+        {
+            manualQuestions = manualQuestions.Where(q => NormalizePackKey(q.Category) != CSharpPackKey).ToList();
+        }
 
         // If a pack filter was provided, restrict both facts and manual questions
         if (!string.IsNullOrWhiteSpace(pack))
