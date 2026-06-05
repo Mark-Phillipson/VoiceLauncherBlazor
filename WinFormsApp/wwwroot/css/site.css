@@ -79,6 +79,17 @@ input:disabled {
 	padding-top: 1.1rem;
 }
 
+/* Match VoiceAdmin content shell spacing so shared components render consistently in Hybrid. */
+.host-content-shell {
+	padding: 1.25rem 2rem;
+}
+
+@media (max-width: 640.98px) {
+	.host-content-shell {
+		padding: 0.75rem 1rem;
+	}
+}
+
 .valid.modified:not([type=checkbox]) {
 	outline: 1px solid #26b050;
 }

@@ -13,7 +13,19 @@ A Blazor Server application designed for voice-controlled development and access
 
 ## Install guide
 
-git tag -a v0.0.10 -m "v0.0.10"; git push origin main; git push origin v0.0.10
+To see what the current versions are:
+```powershell
+git tag 
+```
+
+To deploy a version:
+```powershell
+git tag -a v1.0.5 -m "v1.0.5" 
+
+git push origin main 
+git tag 
+git push origin v1.0.5
+```
 
 - Full installation and startup instructions are in [docs/root-markdown/INSTALL.md](docs/root-markdown/INSTALL.md) (recommended for end users).
 
