@@ -19,6 +19,10 @@
         <NavLink class="btn btn-outline-secondary" href="/cursorless-quiz">Quick Start</NavLink>
     </div>
 
+    <div class="alert alert-warning" role="alert" aria-live="polite">
+        Some quiz questions are AI-generated and this feature is experimental. Please verify answers against source links.
+    </div>
+
     <div class="mt-4">
         <h2 class="h6">Exported Quiz Packs</h2>
         @if (_packs == null)
@@ -109,6 +113,18 @@
                     </div>
                 </section>
             </div>
+
+            <div class="col-12 col-lg-4">
+                <section class="card h-100 shadow-sm" aria-label="Blazor quiz mode">
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5 card-title">Blazor Quiz</h2>
+                        <p class="card-text text-muted">Multiple-choice Blazor framework questions sourced from Microsoft Learn.</p>
+                        <div class="mt-auto d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary" accesskey="5" aria-keyshortcuts="Alt+5" title="Alt+5: Launch Blazor Quiz" @onclick="LaunchBlazorAsync"><kbd class="quiz-kbd quiz-kbd-launch" style="background: linear-gradient(180deg, var(--sidebar-start), var(--sidebar-end)); color: var(--text-color); border: 1px solid var(--border-color); box-shadow: none;">5</kbd> Launch Blazor Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     }
     else
@@ -162,6 +178,28 @@
                     </AdditionalStartOptions>
                 </GenericQuiz>
         }
+        else if (_activeQuiz == "blazor")
+        {
+            <GenericQuiz Title="Blazor Quiz"
+                         Subtitle="Blazor framework quiz sourced from Microsoft Learn."
+                         ScoreStorageKey="blazorQuizScores"
+                         GenerateQuestions="GenerateForBlazor"
+                         DefaultQuestionCount="10">
+                <AdditionalStartOptions>
+                    <label class="quiz-label">Question type</label>
+                    <InputSelect class="form-select quiz-select" @bind-Value="_blazorSelectedQuestionType">
+                        <option value="All">All</option>
+                        <option value="Identification">Blazor concept identification</option>
+                        <option value="Usage">Usage (what would you use this for)</option>
+                        <option value="Components">Components</option>
+                        <option value="Routing">Routing</option>
+                        <option value="FormsDataBinding">Forms and data binding</option>
+                        <option value="Lifecycle">Lifecycle and rendering</option>
+                        <option value="JsInterop">JavaScript interop</option>
+                    </InputSelect>
+                </AdditionalStartOptions>
+            </GenericQuiz>
+        }
     }
 </div>
 
@@ -183,8 +221,10 @@
     private IServiceProvider ServiceProvider { get; set; } = default!;
 
     private RazorClassLibrary.Services.ICSharpQuestionService? CSharpQuestionService => ServiceProvider.GetService<RazorClassLibrary.Services.ICSharpQuestionService>();
+    private RazorClassLibrary.Services.IBlazorQuestionService? BlazorQuestionService => ServiceProvider.GetService<RazorClassLibrary.Services.IBlazorQuestionService>();
 
     private CSharpQuestionType _csharpSelectedQuestionType = CSharpQuestionType.All;
+    private BlazorQuestionType _blazorSelectedQuestionType = BlazorQuestionType.All;
 
     private List<PackInfo>? _packs;
     private string? _importMessage;
@@ -266,6 +306,13 @@
         return Task.CompletedTask;
     }
 
+    private Task LaunchBlazorAsync()
+    {
+        _activeQuiz = "blazor";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
     private void ResetHub()
     {
         _activeQuiz = null;
@@ -313,6 +360,21 @@
         if (_csharpSelectedQuestionType != CSharpQuestionType.All)
         {
             allowed = new[] { _csharpSelectedQuestionType };
+        }
+
+        return svc.GetQuestionsAsync(count, allowed);
+    }
+
+    private Task<IReadOnlyList<QuizQuestion>> GenerateForBlazor(int count, string? pack)
+    {
+        var svc = BlazorQuestionService;
+        if (svc == null)
+            return Task.FromResult((IReadOnlyList<QuizQuestion>)Array.Empty<QuizQuestion>());
+
+        IEnumerable<BlazorQuestionType>? allowed = null;
+        if (_blazorSelectedQuestionType != BlazorQuestionType.All)
+        {
+            allowed = new[] { _blazorSelectedQuestionType };
         }
 
         return svc.GetQuestionsAsync(count, allowed);

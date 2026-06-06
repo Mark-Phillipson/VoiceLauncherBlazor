@@ -29,7 +29,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["round", "puff", "bolt", "blue"],
+    "Choices": [
+      "round",
+      "puff",
+      "bolt",
+      "blue"
+    ],
     "CorrectAnswer": "bolt",
     "CorrectIndex": 2,
     "Category": "Hat shape",
@@ -38,7 +43,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["pour", "curve", "green", "curly"],
+    "Choices": [
+      "pour",
+      "curve",
+      "green",
+      "curly"
+    ],
     "CorrectAnswer": "curve",
     "CorrectIndex": 1,
     "Category": "Hat shape",
@@ -47,7 +57,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["red", "box", "chuck", "fox"],
+    "Choices": [
+      "red",
+      "box",
+      "chuck",
+      "fox"
+    ],
     "CorrectAnswer": "fox",
     "CorrectIndex": 3,
     "Category": "Hat shape",
@@ -56,7 +71,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["quad", "copy", "frame", "pink"],
+    "Choices": [
+      "quad",
+      "copy",
+      "frame",
+      "pink"
+    ],
     "CorrectAnswer": "frame",
     "CorrectIndex": 2,
     "Category": "Hat shape",
@@ -65,7 +85,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["puff", "play", "yellow", "token"],
+    "Choices": [
+      "puff",
+      "play",
+      "yellow",
+      "token"
+    ],
     "CorrectAnswer": "play",
     "CorrectIndex": 1,
     "Category": "Hat shape",
@@ -74,7 +99,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["blue", "line", "pour", "wing"],
+    "Choices": [
+      "blue",
+      "line",
+      "pour",
+      "wing"
+    ],
     "CorrectAnswer": "wing",
     "CorrectIndex": 3,
     "Category": "Hat shape",
@@ -83,7 +113,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["box", "chuck", "hole", "green"],
+    "Choices": [
+      "box",
+      "chuck",
+      "hole",
+      "green"
+    ],
     "CorrectAnswer": "hole",
     "CorrectIndex": 2,
     "Category": "Hat shape",
@@ -92,7 +127,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["copy", "ex", "red", "curly"],
+    "Choices": [
+      "copy",
+      "ex",
+      "red",
+      "curly"
+    ],
     "CorrectAnswer": "ex",
     "CorrectIndex": 1,
     "Category": "Hat shape",
@@ -101,7 +141,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["pink", "round", "puff", "cross"],
+    "Choices": [
+      "pink",
+      "round",
+      "puff",
+      "cross"
+    ],
     "CorrectAnswer": "cross",
     "CorrectIndex": 3,
     "Category": "Hat shape",
@@ -110,7 +155,12 @@
   {
     "Prompt": "Which of the following is a Cursorless hat shape? (Hat shapes are spoken aliases that select a selection shape used to pick targets — examples: bolt, curve, fox)",
     "DocLink": "https://www.cursorless.org/docs/#shapes",
-    "Choices": ["token", "pour", "eye", "yellow"],
+    "Choices": [
+      "token",
+      "pour",
+      "eye",
+      "yellow"
+    ],
     "CorrectAnswer": "eye",
     "CorrectIndex": 2,
     "Category": "Hat shape",
@@ -349,36 +399,57 @@
     "CorrectIndex": 0,
     "Category": "Action",
     "Source": "manual"
-  }
-  ,
+  },
   {
     "Prompt": "In C#, which keyword declares a namespace?",
-    "Choices": ["namespace", "using", "package", "module"],
+    "Choices": [
+      "namespace",
+      "using",
+      "package",
+      "module"
+    ],
     "CorrectAnswer": "namespace",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=namespace%20c%23"
   },
   {
     "Prompt": "Which keyword marks an asynchronous method in C#?",
-    "Choices": ["async", "await", "task", "thread"],
+    "Choices": [
+      "async",
+      "await",
+      "task",
+      "thread"
+    ],
     "CorrectAnswer": "async",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=async%20c%23"
   },
   {
     "Prompt": "Which symbol prefixes an interpolated string literal in C#?",
-    "Choices": ["$", "@", "#", "%"],
+    "Choices": [
+      "$",
+      "@",
+      "#",
+      "%"
+    ],
     "CorrectAnswer": "$",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
-  }
-  ,
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=%24%20c%23"
+  },
   {
     "Prompt": "Which of the following is a C# keyword?",
-    "Choices": ["foreach", "loop", "iterate", "collection"],
+    "Choices": [
+      "foreach",
+      "loop",
+      "iterate",
+      "collection"
+    ],
     "CorrectAnswer": "foreach",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -387,7 +458,12 @@
   },
   {
     "Prompt": "Which of the following is a C# keyword?",
-    "Choices": ["yield", "returning", "produce", "emit"],
+    "Choices": [
+      "yield",
+      "returning",
+      "produce",
+      "emit"
+    ],
     "CorrectAnswer": "yield",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -396,7 +472,12 @@
   },
   {
     "Prompt": "Which of the following is a C# keyword?",
-    "Choices": ["ref", "reference", "byref", "alias"],
+    "Choices": [
+      "ref",
+      "reference",
+      "byref",
+      "alias"
+    ],
     "CorrectAnswer": "ref",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -405,7 +486,12 @@
   },
   {
     "Prompt": "Which of the following is a C# keyword?",
-    "Choices": ["params", "paramlist", "args", "variants"],
+    "Choices": [
+      "params",
+      "paramlist",
+      "args",
+      "variants"
+    ],
     "CorrectAnswer": "params",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -414,14 +500,18 @@
   },
   {
     "Prompt": "Which of the following is a C# keyword?",
-    "Choices": ["sealed", "final", "closed", "constant"],
+    "Choices": [
+      "sealed",
+      "final",
+      "closed",
+      "constant"
+    ],
     "CorrectAnswer": "sealed",
     "CorrectIndex": 0,
     "Category": "CSharp",
     "Source": "manual",
     "DocLink": "https://learn.microsoft.com/en-us/search/?terms=sealed%20c%23"
   },
-
   {
     "Prompt": "What would you use the C# keyword 'async' for?",
     "Choices": [
@@ -492,10 +582,14 @@
     "Source": "manual",
     "DocLink": "https://learn.microsoft.com/en-us/search/?terms=params%20c%23"
   },
-
   {
     "Prompt": "Which keyword is typically used to iterate over each element in a collection?",
-    "Choices": ["foreach", "iterate", "enumerate", "loop"],
+    "Choices": [
+      "foreach",
+      "iterate",
+      "enumerate",
+      "loop"
+    ],
     "CorrectAnswer": "foreach",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -504,7 +598,12 @@
   },
   {
     "Prompt": "Which keyword is used inside an iterator method to return elements lazily?",
-    "Choices": ["yield", "lazyReturn", "defer", "stream"],
+    "Choices": [
+      "yield",
+      "lazyReturn",
+      "defer",
+      "stream"
+    ],
     "CorrectAnswer": "yield",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -513,7 +612,12 @@
   },
   {
     "Prompt": "Which keyword starts a traditional counted loop in C#?",
-    "Choices": ["for", "each", "iterate", "loopX"],
+    "Choices": [
+      "for",
+      "each",
+      "iterate",
+      "loopX"
+    ],
     "CorrectAnswer": "for",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -522,7 +626,12 @@
   },
   {
     "Prompt": "Which keyword begins a loop that repeats while a condition is true?",
-    "Choices": ["while", "until", "repeat", "when"],
+    "Choices": [
+      "while",
+      "until",
+      "repeat",
+      "when"
+    ],
     "CorrectAnswer": "while",
     "CorrectIndex": 0,
     "Category": "CSharp",
@@ -531,211 +640,354 @@
   },
   {
     "Prompt": "Which keyword exits the nearest enclosing loop immediately?",
-    "Choices": ["break", "stoploop", "exit", "quit"],
+    "Choices": [
+      "break",
+      "stoploop",
+      "exit",
+      "quit"
+    ],
     "CorrectAnswer": "break",
     "CorrectIndex": 0,
     "Category": "CSharp",
     "Source": "manual",
     "DocLink": "https://learn.microsoft.com/en-us/search/?terms=break%20c%23"
   },
-
   {
     "Prompt": "Which keyword completes the snippet: int[] arr = {1,2,3}; ___ (var x in arr) { Console.WriteLine(x); }",
-    "Choices": ["foreach", "for", "in", "loop"],
+    "Choices": [
+      "foreach",
+      "for",
+      "in",
+      "loop"
+    ],
     "CorrectAnswer": "foreach",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=foreach%20c%23"
   },
   {
     "Prompt": "Complete the snippet: async Task DoWork() { ___ Task.Delay(1000); } Which keyword belongs in the blank?",
-    "Choices": ["await", "yield", "return", "delay"],
+    "Choices": [
+      "await",
+      "yield",
+      "return",
+      "delay"
+    ],
     "CorrectAnswer": "await",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=await%20c%23"
   },
   {
     "Prompt": "Which keyword declares a compile-time constant in the snippet: public ___ int X = 5;",
-    "Choices": ["const", "readonly", "static", "sealed"],
+    "Choices": [
+      "const",
+      "readonly",
+      "static",
+      "sealed"
+    ],
     "CorrectAnswer": "const",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=const%20c%23"
   },
   {
     "Prompt": "Which keyword completes: public class MyClass { ___ int Counter; } (declare a type-level member)",
-    "Choices": ["static", "const", "virtual", "sealed"],
+    "Choices": [
+      "static",
+      "const",
+      "virtual",
+      "sealed"
+    ],
     "CorrectAnswer": "static",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=static%20c%23"
   },
   {
     "Prompt": "Given 'object obj = 123; var s = obj ___ string;' which keyword completes this expression to attempt a safe cast?",
-    "Choices": ["as", "is", "cast", "to"],
+    "Choices": [
+      "as",
+      "is",
+      "cast",
+      "to"
+    ],
     "CorrectAnswer": "as",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=as%20c%23"
   },
-
   {
     "Prompt": "What is the output of: int x = 0; for(int i=0;i<3;i++){ x += i; } Console.WriteLine(x);",
-    "Choices": ["3", "6", "0", "1"],
+    "Choices": [
+      "3",
+      "6",
+      "0",
+      "1"
+    ],
     "CorrectAnswer": "3",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=3%20c%23"
   },
   {
     "Prompt": "What does this print? string s = \"Hello\"; Console.WriteLine($\"{s} World\");",
-    "Choices": ["Hello World", "{s} World", "Hello", "World"],
+    "Choices": [
+      "Hello World",
+      "{s} World",
+      "Hello",
+      "World"
+    ],
     "CorrectAnswer": "Hello World",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=Hello%20World%20c%23"
   },
   {
     "Prompt": "What is the output? int[] arr = {1}; Console.WriteLine(arr.Length);",
-    "Choices": ["1", "0", "undefined", "error"],
+    "Choices": [
+      "1",
+      "0",
+      "undefined",
+      "error"
+    ],
     "CorrectAnswer": "1",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=1%20c%23"
   },
   {
     "Prompt": "What does this print? List<int> a = new List<int>{1,2}; foreach(var n in a){ if(n==2) break; Console.Write(n); }",
-    "Choices": ["1", "12", "2", ""],
+    "Choices": [
+      "1",
+      "12",
+      "2",
+      ""
+    ],
     "CorrectAnswer": "1",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=1%20c%23"
   },
   {
     "Prompt": "What is printed? int x = 1; int y = x++; Console.WriteLine(y);",
-    "Choices": ["1", "2", "0", "Compilation error"],
+    "Choices": [
+      "1",
+      "2",
+      "0",
+      "Compilation error"
+    ],
     "CorrectAnswer": "1",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=1%20c%23"
   },
-
   {
     "Prompt": "To declare a method that doesn't return a value, use the keyword ___ .",
-    "Choices": ["void", "null", "var", "function"],
+    "Choices": [
+      "void",
+      "null",
+      "var",
+      "function"
+    ],
     "CorrectAnswer": "void",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=void%20c%23"
   },
   {
     "Prompt": "To indicate a method can be overridden by derived classes, use ___ .",
-    "Choices": ["virtual", "override", "sealed", "static"],
+    "Choices": [
+      "virtual",
+      "override",
+      "sealed",
+      "static"
+    ],
     "CorrectAnswer": "virtual",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=virtual%20c%23"
   },
   {
     "Prompt": "Which keyword begins a block that catches exceptions thrown by a preceding try block?",
-    "Choices": ["catch", "try", "finally", "throw"],
+    "Choices": [
+      "catch",
+      "try",
+      "finally",
+      "throw"
+    ],
     "CorrectAnswer": "catch",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=catch%20c%23"
   },
   {
     "Prompt": "To create a new instance of a type you use the ___ operator.",
-    "Choices": ["new", "create", "make", "construct"],
+    "Choices": [
+      "new",
+      "create",
+      "make",
+      "construct"
+    ],
     "CorrectAnswer": "new",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=new%20c%23"
   },
   {
     "Prompt": "To make an extension method, the first parameter must be preceded by ___ in its declaration.",
-    "Choices": ["this", "ref", "out", "static"],
+    "Choices": [
+      "this",
+      "ref",
+      "out",
+      "static"
+    ],
     "CorrectAnswer": "this",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=this%20c%23"
   },
-
   {
     "Prompt": "Which keyword completes the async method signature: public ___ Task DoWork() { await Task.Delay(1); }",
-    "Choices": ["async", "await", "static", "sealed"],
+    "Choices": [
+      "async",
+      "await",
+      "static",
+      "sealed"
+    ],
     "CorrectAnswer": "async",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=async%20c%23"
   },
   {
     "Prompt": "Which keyword is required to override a virtual base method in a derived class?",
-    "Choices": ["override", "virtual", "sealed", "new"],
+    "Choices": [
+      "override",
+      "virtual",
+      "sealed",
+      "new"
+    ],
     "CorrectAnswer": "override",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=override%20c%23"
   },
   {
     "Prompt": "Which keyword prevents a class from being inherited further?",
-    "Choices": ["sealed", "static", "abstract", "partial"],
+    "Choices": [
+      "sealed",
+      "static",
+      "abstract",
+      "partial"
+    ],
     "CorrectAnswer": "sealed",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=sealed%20c%23"
   },
   {
     "Prompt": "Which access modifier makes a member available only to the declaring class and its derived classes?",
-    "Choices": ["protected", "private", "internal", "public"],
+    "Choices": [
+      "protected",
+      "private",
+      "internal",
+      "public"
+    ],
     "CorrectAnswer": "protected",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=protected%20c%23"
   },
   {
     "Prompt": "Which keyword makes a field assignable only during initialization or in a constructor (helps fix accidental modification)?",
-    "Choices": ["readonly", "const", "volatile", "static"],
+    "Choices": [
+      "readonly",
+      "const",
+      "volatile",
+      "static"
+    ],
     "CorrectAnswer": "readonly",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=readonly%20c%23"
   },
-
   {
     "Prompt": "Which keyword ensures exclusive access to a code block across threads?",
-    "Choices": ["lock", "mutex", "sync", "guard"],
+    "Choices": [
+      "lock",
+      "mutex",
+      "sync",
+      "guard"
+    ],
     "CorrectAnswer": "lock",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=lock%20c%23"
   },
   {
     "Prompt": "To make a method usable with await, you must add which keyword to its declaration?",
-    "Choices": ["async", "await", "task", "yield"],
+    "Choices": [
+      "async",
+      "await",
+      "task",
+      "yield"
+    ],
     "CorrectAnswer": "async",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=async%20c%23"
   },
   {
     "Prompt": "Which keyword declares an event field intended for multi-cast notification?",
-    "Choices": ["event", "delegate", "notify", "signal"],
+    "Choices": [
+      "event",
+      "delegate",
+      "notify",
+      "signal"
+    ],
     "CorrectAnswer": "event",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=event%20c%23"
   },
   {
     "Prompt": "Which keyword allows a method to accept a variable number of arguments?",
-    "Choices": ["params", "args", "varargs", "list"],
+    "Choices": [
+      "params",
+      "args",
+      "varargs",
+      "list"
+    ],
     "CorrectAnswer": "params",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=params%20c%23"
   },
-
   {
     "Prompt": "Which pairing is correct? (async, yield) -> (mark method asynchronous, return elements lazily) — choose the matching pair",
     "Choices": [
@@ -747,7 +999,8 @@
     "CorrectAnswer": "async -> mark method asynchronous; yield -> return elements lazily",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=async%20-%3E%20mark%20method%20asynchronous%3B%20yield%20-%3E%20return%20elements%20lazily%20c%23"
   },
   {
     "Prompt": "Which set correctly matches? (ref, out) -> (pass by reference, return a value via parameter)",
@@ -760,7 +1013,8 @@
     "CorrectAnswer": "ref -> pass by reference; out -> return a value via parameter",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=ref%20-%3E%20pass%20by%20reference%3B%20out%20-%3E%20return%20a%20value%20via%20parameter%20c%23"
   },
   {
     "Prompt": "Which mapping is correct? (const, readonly) -> (compile-time constant, assignable at construction)",
@@ -773,7 +1027,8 @@
     "CorrectAnswer": "const -> compile-time constant; readonly -> assignable at construction",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=const%20-%3E%20compile-time%20constant%3B%20readonly%20-%3E%20assignable%20at%20construction%20c%23"
   },
   {
     "Prompt": "Which grouping is correct? (for, foreach) -> (counted loop, enumerate collection)",
@@ -786,47 +1041,67 @@
     "CorrectAnswer": "for -> counted loop; foreach -> enumerate collection",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=for%20-%3E%20counted%20loop%3B%20foreach%20-%3E%20enumerate%20collection%20c%23"
   },
-
   {
     "Prompt": "True or False: 'const values can be assigned in a constructor'.",
-    "Choices": ["True", "False"],
+    "Choices": [
+      "True",
+      "False"
+    ],
     "CorrectAnswer": "False",
     "CorrectIndex": 1,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=False%20c%23"
   },
   {
     "Prompt": "True or False: 'sealed' prevents a class from being inherited further'.",
-    "Choices": ["True", "False"],
+    "Choices": [
+      "True",
+      "False"
+    ],
     "CorrectAnswer": "True",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=True%20c%23"
   },
   {
     "Prompt": "True or False: 'foreach' allows modifying the collection while iterating without exceptions'.",
-    "Choices": ["True", "False"],
+    "Choices": [
+      "True",
+      "False"
+    ],
     "CorrectAnswer": "False",
     "CorrectIndex": 1,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=False%20c%23"
   },
   {
     "Prompt": "True or False: 'An async method can contain await expressions'.",
-    "Choices": ["True", "False"],
+    "Choices": [
+      "True",
+      "False"
+    ],
     "CorrectAnswer": "True",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=True%20c%23"
   },
   {
     "Prompt": "True or False: 'params allows passing a variable number of arguments to a method'.",
-    "Choices": ["True", "False"],
+    "Choices": [
+      "True",
+      "False"
+    ],
     "CorrectAnswer": "True",
     "CorrectIndex": 0,
     "Category": "CSharp",
-    "Source": "manual"
+    "Source": "manual",
+    "DocLink": "https://learn.microsoft.com/en-us/search/?terms=True%20c%23"
   }
 ]

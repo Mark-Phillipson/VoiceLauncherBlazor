@@ -70,6 +70,7 @@ public sealed class CSharpKeywordQuestionService : ICSharpQuestionService
             // fallback to local manual questions if remote fetch fails
             var local = await LoadLocalManualQuestionsAsync();
             return local.Where(q => string.Equals(q.Category, "CSharp", StringComparison.OrdinalIgnoreCase))
+                        .Select(EnsureCSharpDocLink)
                         .Take(count)
                         .ToList();
         }
@@ -361,6 +362,26 @@ public sealed class CSharpKeywordQuestionService : ICSharpQuestionService
             _docLinkCache[keyword] = search;
             return search;
         }
+    }
+
+    private static QuizQuestion EnsureCSharpDocLink(QuizQuestion question)
+    {
+        if (question == null)
+        {
+            return new QuizQuestion();
+        }
+
+        if (!string.IsNullOrWhiteSpace(question.DocLink))
+        {
+            return question;
+        }
+
+        var seed = !string.IsNullOrWhiteSpace(question.CorrectAnswer)
+            ? question.CorrectAnswer
+            : question.Prompt;
+
+        question.DocLink = $"https://learn.microsoft.com/en-us/search/?terms={Uri.EscapeDataString((seed ?? "csharp keyword") + " c#")}";
+        return question;
     }
 
     private static List<string> GenerateNonKeywordDistractors(IReadOnlyList<string> keywords, string correct, int count)

@@ -224,6 +224,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<ICSharpQuestionService, CSharpKeywordQuestionService>();
+builder.Services.AddScoped<IBlazorQuestionService, BlazorLearnQuestionService>();
 // Increase resilience for transient disconnects: extend SignalR and circuit retention timeouts
 builder.Services.AddSignalR(options =>
 {
@@ -1291,6 +1292,73 @@ app.MapPost("/admin/query-commands", async (HttpContext http) =>
         http.Response.StatusCode = 500;
         await http.Response.WriteAsJsonAsync(new { error = ex.Message });
     }
+});
+
+// Redirect helper for docs links: when given a Microsoft Learn search URL,
+// resolve and redirect to the top documentation result for faster navigation.
+app.MapGet("/api/docs/learn-top", async (HttpContext http, IHttpClientFactory httpClientFactory) =>
+{
+    var rawUrl = http.Request.Query["url"].FirstOrDefault();
+    if (string.IsNullOrWhiteSpace(rawUrl))
+    {
+        return Results.BadRequest(new { error = "Missing url query parameter" });
+    }
+
+    if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out var inputUri))
+    {
+        return Results.BadRequest(new { error = "Invalid url" });
+    }
+
+    if (!string.Equals(inputUri.Host, "learn.microsoft.com", StringComparison.OrdinalIgnoreCase)
+        && !inputUri.Host.EndsWith(".learn.microsoft.com", StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.BadRequest(new { error = "Only learn.microsoft.com URLs are allowed" });
+    }
+
+    var path = inputUri.AbsolutePath ?? string.Empty;
+    var looksLikeSearch = path.Contains("/search", StringComparison.OrdinalIgnoreCase)
+                          || inputUri.Query.Contains("terms=", StringComparison.OrdinalIgnoreCase);
+
+    if (!looksLikeSearch)
+    {
+        return Results.Redirect(inputUri.ToString(), permanent: false);
+    }
+
+    try
+    {
+        var client = httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("VoiceLauncherBlazor/1.0");
+        var html = await client.GetStringAsync(inputUri);
+
+        // Find first docs result anchor under /en-us/ that isn't another search URL.
+        var matches = System.Text.RegularExpressions.Regex.Matches(
+            html,
+            "<a[^>]+href=\"(?<href>/en-us/[^\"#?][^\"]*)\"",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            var href = match.Groups["href"].Value;
+            if (string.IsNullOrWhiteSpace(href))
+            {
+                continue;
+            }
+
+            if (href.Contains("/search", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var target = new Uri(new Uri("https://learn.microsoft.com"), href).ToString();
+            return Results.Redirect(target, permanent: false);
+        }
+    }
+    catch
+    {
+        // fall back to the original link
+    }
+
+    return Results.Redirect(inputUri.ToString(), permanent: false);
 });
 
 

@@ -107,11 +107,11 @@
         {
             <div class="quiz-panel quiz-play-panel">
                 <div class="quiz-meta-row">
-                    <span>Score: @_correctAnswers / @_currentQuestionIndex</span>
+                    <span>Score: @_correctAnswers / @AnsweredCount</span>
                     <span>Source: @CurrentQuestion.Source</span>
                     @if (!string.IsNullOrWhiteSpace(CurrentQuestion?.DocLink))
                     {
-                        <span><a href="@CurrentQuestion!.DocLink" target="_blank" rel="noopener noreferrer">Learn more</a></span>
+                        <span><a href="@BuildDocLink(CurrentQuestion!.DocLink)" target="_blank" rel="noopener noreferrer">Learn more</a></span>
                     }
                     <span>Category: @CurrentQuestion.Category</span>
                 </div>
@@ -147,9 +147,10 @@
                 </div>
 
                 <div class="quiz-actions quiz-actions-spread quiz-actions-compact">
+                    <button type="button" class="btn btn-outline-secondary" accesskey="b" @onclick="PreviousQuestionAsync" disabled="@(_currentQuestionIndex <= 0 || _processingAnswer)"><kbd class="quiz-kbd">B</kbd> Previous</button>
                     <button type="button" class="btn btn-outline-danger" accesskey="q" @onclick="QuitQuizAsync"><kbd class="quiz-kbd">Q</kbd> Quit</button>
                     <button type="button" class="btn btn-outline-secondary" @onclick="ExcludeCurrentQuestionAsync">Never use again</button>
-                    <div class="quiz-shortcuts">1-4 answer</div>
+                    <div class="quiz-shortcuts">1-4 answer, B previous</div>
                 </div>
 
                 @if (!string.IsNullOrWhiteSpace(_feedback))
@@ -255,6 +256,7 @@
     private bool _isLoading = true;
     private int _currentQuestionIndex;
     private int _correctAnswers;
+    private List<int?> _selectedAnswers = new();
     private int QuestionCount { get; set; }
     private string? SelectedPackName { get; set; }
     private bool _onlyAICorrected;
@@ -268,6 +270,7 @@
     private string _quizStartStatus = string.Empty;
 
     private string ExcludedStorageKey => $"{ScoreStorageKey}:excluded";
+    private int AnsweredCount => _selectedAnswers.Count(x => x.HasValue);
 
     private QuizQuestion? CurrentQuestion => _quizActive && _currentQuestionIndex < _questions.Count
         ? _questions[_currentQuestionIndex]
@@ -368,6 +371,7 @@
             _lastAnswerCorrect = false;
             _processingAnswer = false;
             _questions.Clear();
+            _selectedAnswers.Clear();
 
             if (GenerateQuestions == null)
             {
@@ -436,6 +440,7 @@
 
             _currentQuestionIndex = 0;
             _correctAnswers = 0;
+            _selectedAnswers = Enumerable.Repeat<int?>(null, _questions.Count).ToList();
             _quizActive = _questions.Count > 0;
             _showingResults = !_quizActive;
 
@@ -552,9 +557,28 @@
             }
 
             var selected = choices[choiceIndex];
+
+            var priorIndex = (_currentQuestionIndex >= 0 && _currentQuestionIndex < _selectedAnswers.Count)
+                ? _selectedAnswers[_currentQuestionIndex]
+                : null;
+
+            var wasCorrect = priorIndex.HasValue
+                && priorIndex.Value >= 0
+                && priorIndex.Value < choices.Count
+                && string.Equals(choices[priorIndex.Value], question.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+
+            if (_currentQuestionIndex >= 0 && _currentQuestionIndex < _selectedAnswers.Count)
+            {
+                _selectedAnswers[_currentQuestionIndex] = choiceIndex;
+            }
+
             _lastAnswerCorrect = string.Equals(selected, question.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
 
-            if (_lastAnswerCorrect)
+            if (wasCorrect && !_lastAnswerCorrect)
+            {
+                _correctAnswers = Math.Max(0, _correctAnswers - 1);
+            }
+            else if (!wasCorrect && _lastAnswerCorrect)
             {
                 _correctAnswers++;
             }
@@ -587,6 +611,23 @@
             return;
         }
 
+        _feedback = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PreviousQuestionAsync()
+    {
+        if (!_quizActive || _processingAnswer)
+        {
+            return;
+        }
+
+        if (_currentQuestionIndex <= 0)
+        {
+            return;
+        }
+
+        _currentQuestionIndex--;
         _feedback = null;
         await InvokeAsync(StateHasChanged);
     }
@@ -658,7 +699,27 @@
 
         await SaveExcludedAsync();
 
+        var choices = question.Choices ?? new List<string>();
+        var priorIndex = (_currentQuestionIndex >= 0 && _currentQuestionIndex < _selectedAnswers.Count)
+            ? _selectedAnswers[_currentQuestionIndex]
+            : null;
+
+        var wasCorrect = priorIndex.HasValue
+            && priorIndex.Value >= 0
+            && priorIndex.Value < choices.Count
+            && string.Equals(choices[priorIndex.Value], question.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+
+        if (wasCorrect)
+        {
+            _correctAnswers = Math.Max(0, _correctAnswers - 1);
+        }
+
         _questions.RemoveAt(_currentQuestionIndex);
+
+        if (_currentQuestionIndex >= 0 && _currentQuestionIndex < _selectedAnswers.Count)
+        {
+            _selectedAnswers.RemoveAt(_currentQuestionIndex);
+        }
 
         if (_currentQuestionIndex >= _questions.Count)
         {
@@ -682,6 +743,7 @@
         _quizActive = false;
         _showingResults = false;
         _questions.Clear();
+        _selectedAnswers.Clear();
         _currentQuestionIndex = 0;
         _correctAnswers = 0;
         _feedback = null;
@@ -734,9 +796,16 @@
             "3" or "NUMPAD3" => 2,
             "DIGIT4" => 3,
             "4" or "NUMPAD4" => 3,
+            "B" => -3,
             "Q" or "ESCAPE" => -2,
             _ => -1
         };
+
+        if (answerIndex == -3)
+        {
+            await PreviousQuestionAsync();
+            return;
+        }
 
         if (answerIndex == -2)
         {
@@ -767,6 +836,27 @@
         return key.Equals("Enter", StringComparison.OrdinalIgnoreCase)
             || key.Equals(" ", StringComparison.OrdinalIgnoreCase)
             || key.Equals("Spacebar", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildDocLink(string? docLink)
+    {
+        if (string.IsNullOrWhiteSpace(docLink))
+        {
+            return string.Empty;
+        }
+
+        if (Uri.TryCreate(docLink, UriKind.Absolute, out var uri)
+            && uri.Host.Contains("learn.microsoft.com", StringComparison.OrdinalIgnoreCase))
+        {
+            var looksLikeSearch = uri.AbsolutePath.Contains("/search", StringComparison.OrdinalIgnoreCase)
+                                  || uri.Query.Contains("terms=", StringComparison.OrdinalIgnoreCase);
+            if (looksLikeSearch)
+            {
+                return $"/api/docs/learn-top?url={Uri.EscapeDataString(docLink)}";
+            }
+        }
+
+        return docLink;
     }
 
     private sealed class ExcludedEntry
