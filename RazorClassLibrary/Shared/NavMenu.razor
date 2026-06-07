@@ -33,9 +33,9 @@
 						<span>Dark</span>
 					}
 				</button>
-				<button type="button" class="btn btn-sm theme-toggle-button header-action-button"
-						title="Toggle Sidebar" aria-label="Toggle sidebar" @onclick="OnToggleSidebarCollapse">
-						🪟
+				<button type="button" class="btn btn-sm theme-toggle-button header-action-button" title="Toggle Sidebar"
+						aria-label="Toggle sidebar" @onclick="OnToggleSidebarCollapse">
+					🪟
 				</button>
 			</div>
 		</li>
@@ -58,7 +58,7 @@
 				</span> <span>&nbsp; Home 🏠</span>
 			</NavLink>
 		</li>
-		
+
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("?")" class="nav-link" href="globalsearch" title="Search"
 					 @onclick="MenuItemSelected">
@@ -96,7 +96,7 @@
 							d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1z" />
 						</svg>
 					}
-				</span> <span>&nbsp; Launch Categories ️</span>
+				</span> <span>&nbsp; Launch Categories 🏷️</span>
 			</NavLink>
 		</li>
 		<li class="nav-item px-3">
@@ -192,7 +192,8 @@
 								d="M2.114 8.063V7.9c1.005-.102 1.497-.615 1.497-1.6V4.503c0-1.094.39-1.538 1.354-1.538h.273V2h-.376C3.25 2 2.49 2.759 2.49 4.352v1.524c0 1.094-.376 1.456-1.49 1.456v1.299c1.114 0 1.49.362 1.49 1.456v1.524c0 1.593.759 2.352 2.372 2.352h.376v-.964h-.273c-.964 0-1.354-.444-1.354-1.538V9.663c0-.984-.492-1.497-1.497-1.6M13.886 7.9v.163c-1.005.103-1.497.616-1.497 1.6v1.798c0 1.094-.39 1.538-1.354 1.538h-.273v.964h.376c1.613 0 2.372-.759 2.372-2.352v-1.524c0-1.094.376-1.456 1.49-1.456V7.332c-1.114 0-1.49-.362-1.49-1.456V4.352C13.51 2.759 12.75 2 11.138 2h-.376v.964h.273c.964 0 1.354.444 1.354 1.538V6.3c0 .984.492 1.497 1.497 1.6" />
 							</svg>
 						}
-					</span> <span>&nbsp; Snippets {} </span>
+					</span>
+					<span>&nbsp; Snippets</span>
 				</NavLink>
 				<button class="btn btn-sm btn-success" accesskey="y" aria-keyshortcuts="Alt+Y"
 						@onclick="StartNewCustomIntelliSense" title="Create a new custom IntelliSense (Alt+Y)"
@@ -227,14 +228,14 @@
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("z")" href="/quiz-hub" title="Quiz Hub (all packs)"
-				 @onclick="MenuItemSelected">
+					 @onclick="MenuItemSelected">
 				<span aria-hidden="true">
 					<kbd class='mr-1'>Z</kbd>
 				</span>
-				<span>&nbsp; Quiz Hub</span>
+				<span>&nbsp; Quiz Hub 🤔</span>
 			</NavLink>
 		</li>
-		
+
 		@if (IsTalonSearchEnabled())
 		{
 			<li class="nav-item px-3">
@@ -324,7 +325,7 @@
 		}
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("£")" class="nav-link" href="chat" title="AI Chatbot"
-				 @onclick="MenuItemSelected">
+					 @onclick="MenuItemSelected">
 				<span aria-hidden="true">
 					@if (ShowAccessKeys)
 					{
@@ -372,8 +373,10 @@
 
 	private bool ShowClipboardNav()
 	{
-		var env = Configuration?["ASPNETCORE_ENVIRONMENT"] ?? System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-		if (!string.IsNullOrEmpty(env) && (env.Equals("Local", System.StringComparison.OrdinalIgnoreCase) || env.Equals("Development", System.StringComparison.OrdinalIgnoreCase)))
+		var env = Configuration?["ASPNETCORE_ENVIRONMENT"] ??
+System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+		if (!string.IsNullOrEmpty(env) && (env.Equals("Local", System.StringComparison.OrdinalIgnoreCase) ||
+env.Equals("Development", System.StringComparison.OrdinalIgnoreCase)))
 		{
 			return true;
 		}
