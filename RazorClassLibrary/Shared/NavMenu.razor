@@ -4,7 +4,6 @@
 			<div class="nav-header-brand">
 				<div class="nav-title-wrap">
 					<span class="fw-bold nav-title">Voice Admin</span>
-					<span class="nav-title-icon" aria-hidden="true">🔑</span>
 				</div>
 				<span class="nav-subtitle">Voice-first control center</span>
 			</div>
@@ -20,7 +19,6 @@
 						d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5" />
 						<path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
 					</svg>
-					<span>Keys</span>
 				</button>
 				<button type="button" class="btn btn-sm theme-toggle-button header-action-button"
 						title="@ThemeToggleLabel" aria-label="@ThemeToggleLabel" @onclick="OnToggleTheme">
@@ -35,13 +33,9 @@
 						<span>Dark</span>
 					}
 				</button>
-				<button type="button"
-						class="btn btn-sm btn-outline-secondary header-action-button collapse-toggle-button"
-						title="@(IsSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar")"
-						aria-label="@(IsSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar")"
-						@onclick="OnToggleSidebarCollapse">
-					<span aria-hidden="true">@(IsSidebarCollapsed ? "»" : "«")</span>
-					<span>@(IsSidebarCollapsed ? "Expand" : "Collapse")</span>
+				<button type="button" class="btn btn-sm theme-toggle-button header-action-button"
+						title="Toggle Sidebar" aria-label="Toggle sidebar" @onclick="OnToggleSidebarCollapse">
+						🪟
 				</button>
 			</div>
 		</li>
@@ -139,25 +133,6 @@
 				</button>
 			</div>
 		</li>
-		<li class="nav-item px-3">
-			<NavLink class="nav-link" href="/launchersfavourites/" accesskey="@GetAccessKey("%")" title="Favorites"
-					 @onclick="MenuItemSelected">
-				<span aria-hidden="true">
-					@if (ShowAccessKeys)
-					{
-						<kbd class='mr-1'>%</kbd>
-					}
-					else
-					{
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-							 class="bi bi-star" viewBox="0 0 16 16">
-							<path
-							d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z" />
-						</svg>
-					}
-				</span> <span>&nbsp; Favorites ⭐</span>
-			</NavLink>
-		</li>
 
 		<li class="nav-item px-3">
 			<NavLink accesskey="@GetAccessKey("*")" class="nav-link" href="languages" title="Languages"
@@ -219,17 +194,36 @@
 						}
 					</span> <span>&nbsp; Snippets {} </span>
 				</NavLink>
-				<button class="btn btn-sm btn-success" accesskey="j" aria-keyshortcuts="Alt+J"
-						@onclick="StartNewCustomIntelliSense" title="Create a new custom IntelliSense (Alt+J)"
-						aria-label="Create a new custom IntelliSense (Alt+J)">
+				<button class="btn btn-sm btn-success" accesskey="y" aria-keyshortcuts="Alt+Y"
+						@onclick="StartNewCustomIntelliSense" title="Create a new custom IntelliSense (Alt+Y)"
+						aria-label="Create a new custom IntelliSense (Alt+Y)">
 					@if (ShowAccessKeys)
 					{
-						<kbd class='mr-1'>J</kbd>
+						<kbd class='mr-1'>Y</kbd>
 					}
 					<span class="bi bi-plus-circle me-1" aria-hidden="true"></span>
 					<span>New</span>
 				</button>
 			</div>
+		</li>
+		<li class="nav-item px-3">
+			<NavLink class="nav-link" href="/launchersfavourites/" accesskey="@GetAccessKey("%")" title="Favorites"
+					 @onclick="MenuItemSelected">
+				<span aria-hidden="true">
+					@if (ShowAccessKeys)
+					{
+						<kbd class='mr-1'>%</kbd>
+					}
+					else
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+							 class="bi bi-star" viewBox="0 0 16 16">
+							<path
+							d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z" />
+						</svg>
+					}
+				</span> <span>&nbsp; Favorites ⭐</span>
+			</NavLink>
 		</li>
 		<li class="nav-item px-3">
 			<NavLink class="nav-link" accesskey="@GetAccessKey("z")" href="/quiz-hub" title="Quiz Hub (all packs)"
