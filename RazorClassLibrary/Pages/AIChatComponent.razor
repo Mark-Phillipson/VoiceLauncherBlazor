@@ -9,362 +9,387 @@
 }
 
 <div class='row'>
-    <div class='col-md-5 bg-dark text-light p-2 rounded'>        
+    <div class='col-md-5 bg-dark text-light p-2 rounded'>
         @if (prompts != null)
         {
-            <label for='selectedPromptId' class="form-label text-light"><i class="bi bi-list-ul"></i> Select a <u>P</u>redefined
+            <label for='selectedPromptId' class="form-label text-light"><i class="bi bi-list-ul"></i> Select a
+                <u>P</u>redefined
                 Prompt</label>
-            @if (!RunningInBlazorHybrid)
-            {
-                <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-3'
-                    href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
-                    <i class="bi bi-pencil-fill"></i> Manage
-                </a>
-            }
-            <InputSelect accesskey="p" id='selectedPromptId' ValueExpression="@(() => selectedPromptId)" Value="@selectedPromptId"
-                ValueChanged="@((int value) => OnValueChangedMethodName(value))"
-                class="form-select bg-success text-light m-1">
-                @foreach (var item in prompts)
-                {
-                    if (item.Id == selectedPrompt?.Id)
-                    {
-                        <option selected value="@item.Id">@item.Description</option>
-                    }
-                    else
-                    {
-                        <option value="@item.Id">@item.Description</option>
-                    }
-                }
-            </InputSelect>
-        }
-        @* Model selection (dynamic + custom) *@
-        <div class="mb-2">
-            <label class="form-label text-light me-2 d-block" for="modelSelect"><i class="bi bi-gear-fill"></i> <u>M</u>odel <small class="text-muted">(Alt+M)</small></label>
-            <div class="input-group" style="max-width: 520px;">
-                <InputSelect id="modelSelect" accesskey="m" aria-keyshortcuts="Alt+M" title="Alt+M: Focus Model" class="form-select bg-dark text-light border-success" style="min-width: 260px;"
-                             @bind-Value="SelectedModel" @onchange="ModelChanged">
-                    @foreach (var m in DisplayedModels)
-                    {
-                        <option value="@m">@m</option>
-                    }
-                </InputSelect>
-                <button class="btn btn-outline-secondary" type="button" @onclick="RefreshModels" disabled="@(isFetchingModels ? "disabled" : null)" title="Refresh models from OpenAI">
-                    <i class="bi @(isFetchingModels ? "bi-arrow-repeat" : "bi-arrow-clockwise")"></i>
-                </button>
-                <button class="btn btn-outline-info" type="button" @onclick="ToggleShowAllModels" title="Toggle showing all raw models">
-                    <i class="bi @(showAllModels ? "bi-eye-slash" : "bi-eye")"></i>
-                </button>
-            </div>
-            <div class="mt-1">
-                <small class="text-muted">Selected: <strong>@SelectedModel</strong> &nbsp; • &nbsp; @ModelFetchMessage</small>
-            </div>
-        </div>
-        <div class="mb-2 d-flex gap-2 align-items-center">
-            <input id="customModel" class="form-control bg-dark text-light border-success" placeholder="Add custom model id (e.g., gpt-4o-mini)" @bind="customModelInput" />
-            <button class="btn btn-outline-success" @onclick="AddCustomModel" disabled="@(string.IsNullOrWhiteSpace(customModelInput) ? "disabled" : null)">Add</button>
-        </div>
-        <label class='sr-only m-1' for='inputElement'>Chat Message</label>
-        <textarea rows='4' id='inputElement' @ref="inputElement"
-            class='form-control m-1 text-light border border-success ai-input-bg'
-            placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
-            @bind-value='PromptInput' @bind-value:event='oninput'
-            @onkeydown="OnInputKeyDown"></textarea>
-        <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
-            <input accesskey="d" id="debounceToggle" type="checkbox" class="form-check-input align-middle" style="margin-bottom: 0; margin-right: 4px;"
-                @bind="DebounceEnabled" />
-            <label for="debounceToggle" class="form-label text-light mb-0 me-2 align-middle"><u>D</u>ebounce</label>
-            <div class="d-none d-md-flex align-items-center ms-2">
-                <label for="debounceBox" class="form-label text-light mb-0 align-middle" style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
-                <input id="debounceBox" type="number" min="100" max="10000" step="100"
-                    class="form-control bg-dark text-light border-success text-end align-middle"
-                    style="display: inline-block; margin-bottom: 0;width: 100px;@(RunningInBlazorHybrid ? "display:none;" : null)" @bind="DebounceMillisecondsInput"
-                    disabled="@(DebounceEnabled ? null : "disabled")" />
-            </div>
-            @if (DebounceEnabled && debounceCountdown > 0)
-            {
-                <div class="ms-2 debounce-progress-container">
-                    <div class="d-flex align-items-center debounce-progress-text">
-                        <small class="text-light me-2">Sending in @debounceCountdown ms</small>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" 
-                             role="progressbar" 
-                             style="width: @(debounceProgressPercentage)%"
-                             aria-valuenow="@debounceProgressPercentage" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                        </div>
-                    </div>
-                </div>
-            }
-            else if (DebounceEnabled)
-            {
-                <span class="debounce-ready-badge ms-2">Type to Start</span>
-            }
-        </div>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-            <button accesskey='z' aria-keyshortcuts="Alt+Z" title="Chat (Alt+Z)" class="btn btn-outline-success btn-sm" type="button"
-                disabled="@(processing ? "disabled" : null)" @onclick="@(() => ProcessChat())"><i
-                    class="bi bi-send"></i> Chat (<u>Z</u>)</button>
-            <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
-                disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
-                    class="bi bi-eraser-fill"></i> C<u>l</u>ear</button>
-            <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
-                disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
-                    class="bi bi-trash-fill"></i> Forge<u>t</u></button>
-            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
-            {
-                <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
-                    @onclick="@(() => FocusResponseElement())">
-                    <i class="bi bi-crosshair"></i> Focus <u>R</u>esponse
-                </button> @if (responseHistory?.Count > 1)
-                {
-            <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertPrevious())'><i
-                class="bi bi-arrow-left"></i> Previous</button>
-            <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertNext())'><i
-                class="bi bi-arrow-right"></i> Next</button>
-                }
-            }
-            @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) ||
-                        !string.IsNullOrWhiteSpace(TextBlock)))
-            {
-                @* <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
-                    @onclick="@(() => CopyChatResultsAsync())">
-                    <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste (Paste Not Currently Working)
-                </button> *@
-            }
-        </div>
-          <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
-        @if (chatHistory?.Count> 0 || !string.IsNullOrWhiteSpace(AIComments) || !string.IsNullOrWhiteSpace(TextBlock)) { 
-        <div class="mt-3">
-            <label class="form-label text-light">
-                <i class="bi bi-lightning-fill"></i> <u>Q</u>uick Prompts
-                <button type="button" class="btn btn-outline-info btn-sm ms-2" @onclick="ToggleQuickPromptPanel">
-                    <i class="bi @(showQuickPrompts ? "bi-eye-slash" : "bi-eye")"></i>
-                    @(showQuickPrompts ? "Hide" : "Show")
-                </button>
                 @if (!RunningInBlazorHybrid)
                 {
-                    <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-1'
-                        href="/quickpromptstable">
+                    <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-3'
+                       href="@(selectedPrompt != null ? $"/prompt/{selectedPrompt.Id}" : "/prompts")">
                         <i class="bi bi-pencil-fill"></i> Manage
                     </a>
                 }
-            </label>
-            
-            <div class="input-group">
-                <input accesskey="q" type="text" 
-                       class="form-control bg-dark text-light border-success quick-prompt-search" 
-                       style="background-color: #2a2a2a !important;"
-                       placeholder="Search quick prompts (command, type, description)..."
-                       @bind="quickPromptSearchTerm"
-                       @oninput="OnQuickPromptSearchInput" />
-                <button class="btn btn-outline-secondary" type="button" @onclick="() => { quickPromptSearchTerm = string.Empty; FilterQuickPrompts(); }">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            
-            @if (showQuickPrompts && filteredQuickPrompts.Count > 0)
-            {
-                <div class="mt-2 border border-success rounded p-2" style="max-height: 300px; overflow-y: auto; background-color: #1a1a1a;">
-                    @foreach (var quickPrompt in filteredQuickPrompts)
+                <InputSelect accesskey="p" id='selectedPromptId' ValueExpression="@(() => selectedPromptId)"
+                             Value="@selectedPromptId" ValueChanged="@((int value) => OnValueChangedMethodName(value))"
+                             class="form-select bg-success text-light m-1">
+                    @foreach (var item in prompts)
                     {
-                        <div class="d-flex justify-content-between align-items-start mb-2 p-2 border border-secondary rounded bg-dark quick-prompt-item">
-                            <div class="flex-grow-1">
-                                <div class="d-flex align-items-center mb-1">
-                                    <span class="badge @GetQuickPromptTypeColorClass(quickPrompt.Type) me-2">@quickPrompt.Type</span>
-                                    <strong class="text-light">@quickPrompt.Command</strong>
-                                </div>
-                                <small class="text-muted d-block">@quickPrompt.Description</small>
-                                <small class="text-secondary" style="font-size: 0.75rem;">
-                                    @(quickPrompt.PromptText.Length > 100 
-                                        ? quickPrompt.PromptText.Substring(0, 100) + "..." 
-                                        : quickPrompt.PromptText)
-                                </small>
-                            </div>
-                            <button class="btn btn-success btn-sm ms-2" 
-                                    type="button" 
-                                    @onclick="() => ApplyQuickPrompt(quickPrompt)"
-                                    title="Apply this quick prompt to current content">
-                                <i class="bi bi-play-fill"></i> Apply
+                        if (item.Id == selectedPrompt?.Id)
+                        {
+                            <option selected value="@item.Id">@item.Description</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id">@item.Description</option>
+                        }
+                    }
+                </InputSelect>
+            }
+            @* Model selection (dynamic + custom) *@
+            <div class="mb-2">
+                <label class="form-label text-light me-2 d-block" for="modelSelect"><i class="bi bi-gear-fill"></i>
+                    <u>M</u>odel <small class="text-muted">(Alt+M)</small></label>
+                    <div class="input-group" style="max-width: 520px;">
+                        <InputSelect id="modelSelect" accesskey="m" aria-keyshortcuts="Alt+M" title="Alt+M: Focus Model"
+                                     class="form-select bg-dark text-light border-success" style="min-width: 260px;"
+                                     @bind-Value="SelectedModel" @onchange="ModelChanged">
+                            @foreach (var m in DisplayedModels)
+                            {
+                                <option value="@m">@m</option>
+                            }
+                        </InputSelect>
+                        <button class="btn btn-outline-secondary" type="button" @onclick="RefreshModels"
+                                disabled="@(isFetchingModels ? "disabled" : null)" title="Refresh models from OpenAI">
+                            <i class="bi @(isFetchingModels ? "bi-arrow-repeat" : "bi-arrow-clockwise")"></i>
+                        </button>
+                        @if (!RunningInBlazorHybrid)
+                        {
+                            <button class="btn btn-outline-info" type="button" @onclick="ToggleShowAllModels"
+                                    title="Toggle showing all raw models">
+                                <i class="bi @(showAllModels ? "bi-eye-slash" : "bi-eye")"></i>
                             </button>
+                        }
+                    </div>
+                    @if (!RunningInBlazorHybrid)
+                    {
+                        <div class="mt-1">
+                            <small class="text-muted">Selected: <strong>@SelectedModel</strong> &nbsp; • &nbsp;
+                                @ModelFetchMessage</small>
+                            </div>
+                        }
+                    </div>
+                    @if (!RunningInBlazorHybrid)
+                    {
+                        <div class="mb-2 d-flex gap-2 align-items-center">
+                            <input id="customModel" class="form-control bg-dark text-light border-success" placeholder="Add custom model id
+                            (e.g., gpt-4o-mini)" @bind="customModelInput" />
+                            <button class="btn btn-outline-success" @onclick="AddCustomModel"
+                                    disabled="@(string.IsNullOrWhiteSpace(customModelInput) ? "disabled" : null)">Add</button>
                         </div>
                     }
-                </div>
-            }
-            
-            @if (showQuickPrompts && !string.IsNullOrWhiteSpace(quickPromptSearchTerm) && filteredQuickPrompts.Count == 0)
-            {
-                <div class="alert alert-info mt-2">
-                    <i class="bi bi-info-circle-fill"></i> No quick prompts found matching "@quickPromptSearchTerm"
-                </div>
-            }
-        </div>
-        }
-        @if (processing)
-        {
-            <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" role="status"
-                aria-live="polite" aria-label="AI is processing your request">
-                <div class="spinner-border text-primary me-3" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <div>
-                    <strong class="text-info">
-                        <i class="bi bi-cpu-fill me-2" aria-hidden="true"></i>AI is processing your request...
-                    </strong>
-                    <div class="small text-muted mt-1">
-                        Please wait while the AI generates a response.
-                    </div>
-                </div>
-            </div>
-            @if (processing)
-            {
-        <button accesskey='x' class="btn btn-warning btn-lg" type="button" @onclick="@(() => CancelChat())"><i
-            class="bi bi-stop-fill"></i>Cancel (x)</button>
-            }
-
-        }
-        <br />
-        @if (selectedPrompt != null)
-        {
-            <label class='m-1 text-light'><i class="bi bi-info-circle-fill"></i> Current Prompt:</label>
-        }        @if (chatHistory != null)
-        {
-            foreach (var item in chatHistory)
-            {
-                if (item == null) // Add this check to skip null items
-                {
-                    continue;
-                }
-
-            @if (item.Role == Microsoft.SemanticKernel.ChatCompletion.AuthorRole.System)
-            {
-                <div class="chat-bubble system-bubble mb-3">
-                    <div class="bubble-content @(expandedMessages.Contains(item) ? "expanded" : "")"
-                        @onclick="@(() => ToggleMessageExpansion(item))">
-                        <div class="bubble-header">
-                            <i class="bi bi-robot"></i> System
-                            @if (item.Content != null && item.Content.Length > 300) // Explicit null check for item.Content
-                            {
-                <small><i
-                    class="bi @(expandedMessages.Contains(item) ? "bi-chevron-up" : "bi-chevron-down")"></i></small>
-                            }
+                    <label class='sr-only m-1' for='inputElement'>Chat Message</label>
+                    <textarea rows='6' id='inputElement' @ref="inputElement"
+                              class='form-control m-1 text-light border border-success ai-input-bg'
+                              placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
+                              @bind-value='PromptInput' @bind-value:event='oninput' @onkeydown="OnInputKeyDown"></textarea>
+                    <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
+                        <input accesskey="d" id="debounceToggle" type="checkbox" class="form-check-input align-middle"
+                               style="margin-bottom: 0; margin-right: 4px;" @bind="DebounceEnabled" />
+                        <label for="debounceToggle" class="form-label text-light mb-0 me-2 align-middle"><u>D</u>ebounce</label>
+                        <div class="d-none d-md-flex align-items-center ms-2">
+                            <label for="debounceBox" class="form-label text-light mb-0 align-middle"
+                                   style="@(RunningInBlazorHybrid ? "display:none;" : null)">Wait (ms):</label>
+                            <input id="debounceBox" type="number" min="100" max="10000" step="100"
+                                   class="form-control bg-dark text-light border-success text-end align-middle"
+                                   style="display: inline-block; margin-bottom: 0;width: 100px;@(RunningInBlazorHybrid ? "display:none;" : null)"
+                                   @bind="DebounceMillisecondsInput" disabled="@(DebounceEnabled ? null : "disabled")" />
                         </div>
-                        <div class="bubble-text">                            @if (item.Content != null && item.Content.Length > 300 && !expandedMessages.Contains(item)) // Explicit null check
+                        @if (DebounceEnabled && debounceCountdown > 0)
+                        {
+                            <div class="ms-2 debounce-progress-container">
+                                <div class="d-flex align-items-center debounce-progress-text">
+                                    <small class="text-light me-2">Sending in @debounceCountdown ms</small>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar"
+                                         style="width: @(debounceProgressPercentage)%" aria-valuenow="@debounceProgressPercentage"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else if (DebounceEnabled)
+                        {
+                            <span class="debounce-ready-badge ms-2">Type to Start</span>
+                        }
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button accesskey='z' aria-keyshortcuts="Alt+Z" title="Chat (Alt+Z)" class="btn btn-outline-success btn-sm"
+                                type="button" disabled="@(processing ? "disabled" : null)" @onclick="@(() => ProcessChat())"><i
+                            class="bi bi-send"></i> Chat (<u>Z</u>)</button>
+                            <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
+                                    disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
+                                class="bi bi-eraser-fill"></i> C<u>l</u>ear</button>
+                                <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
+                                        disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
+                                    class="bi bi-trash-fill"></i> Forge<u>t</u></button>
+                                    @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
+                                    {
+                                        <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
+                                                @onclick="@(() => FocusResponseElement())">
+                                            <i class="bi bi-crosshair"></i> Focus <u>R</u>esponse
+                                        </button> @if (responseHistory?.Count > 1)
+                                        {
+                                            <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertPrevious())'><i
+                                                class="bi bi-arrow-left"></i> Previous</button>
+                                                <button class='btn btn-outline-danger btn-sm' @onclick='@(() => RevertNext())'><i
+                                                    class="bi bi-arrow-right"></i> Next</button>
+                                                }
+                                            }
+                                            @if (RunningInBlazorHybrid && (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) ||
+                                                        !string.IsNullOrWhiteSpace(TextBlock)))
+                                            {
+                                                @* <button accesskey='p' class="btn btn-outline-info btn-sm" type="button"
+                    @onclick="@(() => CopyChatResultsAsync())">
+                    <i class="fa-solid fa-clipboard"></i> Copy & <u>P</u>aste (Paste Not Currently Working)
+                </button> *@
+                                            }
+                                        </div>
+                                        <!-- QuickPrompts Section - Positioned below the Chat/Clear/Forget buttons -->
+                                        @if (chatHistory?.Count > 0 || !string.IsNullOrWhiteSpace(AIComments) || !string.IsNullOrWhiteSpace(TextBlock))
+                                        {
+                                            <div class="mt-3">
+                                                <label class="form-label text-light">
+                                                    <i class="bi bi-lightning-fill"></i> <u>Q</u>uick Prompts
+                                                    <button type="button" class="btn btn-outline-info btn-sm ms-2" @onclick="ToggleQuickPromptPanel">
+                                                        <i class="bi @(showQuickPrompts ? "bi-eye-slash" : "bi-eye")"></i>
+                                                        @(showQuickPrompts ? "Hide" : "Show")
+                                                    </button>
+                                                    @if (!RunningInBlazorHybrid)
+                                                    {
+                                                        <a target="_blank" class='btn btn-outline-primary btn-sm text-light ms-1' href="/quickpromptstable">
+                                                            <i class="bi bi-pencil-fill"></i> Manage
+                                                        </a>
+                                                    }
+                                                </label>
+
+                                                <div class="input-group">
+                                                    <input accesskey="q" type="text"
+                                                           class="form-control bg-dark text-light border-success quick-prompt-search"
+                                                           style="background-color: #2a2a2a !important;"
+                                                           placeholder="Search quick prompts (command, type, description)..." @bind="quickPromptSearchTerm"
+                                                           @oninput="OnQuickPromptSearchInput" />
+                                                    <button class="btn btn-outline-secondary" type="button"
+                                                            @onclick="() => { quickPromptSearchTerm = string.Empty; FilterQuickPrompts(); }">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </div>
+
+                                                @if (showQuickPrompts && filteredQuickPrompts.Count > 0)
+                                                {
+                                                    <div class="mt-2 border border-success rounded p-2"
+                                                         style="max-height: 300px; overflow-y: auto; background-color: #1a1a1a;">
+                                                        @foreach (var quickPrompt in filteredQuickPrompts)
+                                                        {
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-start mb-2 p-2 border border-secondary rounded bg-dark quick-prompt-item">
+                                                                <div class="flex-grow-1">
+                                                                    <div class="d-flex align-items-center mb-1">
+                                                                        <span
+                                                                        class="badge @GetQuickPromptTypeColorClass(quickPrompt.Type) me-2">@quickPrompt.Type</span>
+                                                                        <strong class="text-light">@quickPrompt.Command</strong>
+                                                                    </div>
+                                                                    <small class="text-muted d-block">@quickPrompt.Description</small>
+                                                                    <small class="text-secondary" style="font-size: 0.75rem;">
+                                                                        @(quickPrompt.PromptText.Length > 100
+                                                                            ? quickPrompt.PromptText.Substring(0, 100) + "..."
+                                                                            : quickPrompt.PromptText)
+                                                                    </small>
+                                                                </div>
+                                                                <button class="btn btn-success btn-sm ms-2" type="button"
+                                                                        @onclick="() => ApplyQuickPrompt(quickPrompt)"
+                                                                        title="Apply this quick prompt to current content">
+                                                                    <i class="bi bi-play-fill"></i> Apply
+                                                                </button>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+
+                                                @if (showQuickPrompts && !string.IsNullOrWhiteSpace(quickPromptSearchTerm) && filteredQuickPrompts.Count ==
+                                                            0)
+                                                {
+                                                    <div class="alert alert-info mt-2">
+                                                        <i class="bi bi-info-circle-fill"></i> No quick prompts found matching "@quickPromptSearchTerm"
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        @if (processing)
+                                        {
+                                            <div class="d-flex align-items-center m-2 p-3 bg-info bg-opacity-10 rounded border border-info" role="status"
+                                                 aria-live="polite" aria-label="AI is processing your request">
+                                                <div class="spinner-border text-primary me-3" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-info">
+                                                        <i class="bi bi-cpu-fill me-2" aria-hidden="true"></i>AI is processing your request...
+                                                    </strong>
+                                                    <div class="small text-muted mt-1">
+                                                        Please wait while the AI generates a response.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if (processing)
+                                            {
+                                                <button accesskey='x' class="btn btn-warning btn-lg" type="button" @onclick="@(() => CancelChat())"><i
+                                                    class="bi bi-stop-fill"></i>Cancel (x)</button>
+                                                }
+
+                                            }
+                                            <br />
+                                            @if (selectedPrompt != null)
+                                            {
+                                                <label class='m-1 text-light'><i class="bi bi-info-circle-fill"></i> Current Prompt:</label>
+                                            }
+                                            @if (chatHistory != null)
+                                            {
+                                                foreach (var item in chatHistory)
+                                                {
+                                                    if (item == null) // Add this check to skip null items
+                                                    {
+                                                        continue;
+                                                    }
+
+                                                    @if (item.Role == Microsoft.SemanticKernel.ChatCompletion.AuthorRole.System)
+                                                    {
+                                                        <div class="chat-bubble system-bubble mb-3">
+                                                            <div class="bubble-content @(expandedMessages.Contains(item) ? "expanded" : "")"
+                                                                 @onclick="@(() => ToggleMessageExpansion(item))">
+                                                                <div class="bubble-header">
+                                                                    <i class="bi bi-robot"></i> System
+                                                                    @if (item.Content != null && item.Content.Length > 300) // Explicit null check for item.Content
+                                                                    {
+                                                                        <small><i
+                                                                            class="bi @(expandedMessages.Contains(item) ? "bi-chevron-up" : "bi-chevron-down")"></i></small>
+                                                                        }
+                                                                    </div>
+                                                                    <div class="bubble-text"> @if (item.Content != null && item.Content.Length > 300 &&
+                                                                        !expandedMessages.Contains(item)) // Explicit null check
                             {
-                                @($"{item.Content.Substring(0, 300)}...") // item.Content is now guaranteed non-null here
-                            }
+                                                                            @($"{item.Content.Substring(0, 300)}...")
+                                                                            // item.Content is now guaranteed non-null here
+                                                                        }
                             else
-                            {
-                                @item.Content // item.Content can be null, Razor handles rendering it as empty
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
+                                                                        {
+                                                                            @item.Content
+                                                                            // item.Content can be null, Razor handles rendering it as empty
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
             else // User role or other
-            {
-                <div class="chat-bubble user-bubble mb-3">
-                    <div class="bubble-content">
-                        <div class="bubble-header">
-                            <i class="bi bi-person-fill me-1"></i> You
-                        </div>                        <div class="bubble-text">
-                            @(item.Content ?? string.Empty) // item is non-null here, item.Content can be null
-                        </div>                    </div>
-                </div>
-            }
-            }
-        }
+                                                        {
+                                                            <div class="chat-bubble user-bubble mb-3">
+                                                                <div class="bubble-content">
+                                                                    <div class="bubble-header">
+                                                                        <i class="bi bi-person-fill me-1"></i> You
+                                                                    </div>
+                                                                    <div class="bubble-text">
+                                                                        @(item.Content ?? string.Empty) // item is non-null here, item.Content can be null
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+                                                }
 
-        <hr class="text-light">
-    <button class="btn btn-outline-success m-1" @onclick="@(() => ToggleHistory())"><i
-        class="bi bi-clock-history"></i> Response History <span
-        class='badge bg-success'>@responseHistory?.Count</span></button>
-        @if (showHistory)
-        {
-            @if (responseHistory != null && responseHistory.Count > 0)
-            {
-                historyCount = 0;
-                @foreach (var item in responseHistory)
-                {
-                    historyCount++;
-                    <ul>
-                        <li class='text-danger'>Response # @historyCount</li>
-                        <ul>
-                            <li>
-                                <MarkdownConverter MarkdownContent="@(item.Content ?? string.Empty)" />
-                            </li>
-                        </ul>
-                    </ul>
-                }
-            }
-        }
-    </div>
-    <div class='col-md-7 bg-dark text-light p-2 rounded'>
-        @if (responseHistory?.Count > 0 )
-        {
-            @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
-            {
-                <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
-                    <i class="bi bi-type"></i>
-                    @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
-                </button>
-                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
-                    @onclick="@(() => CopyItemAsync(TextBlock))">
-                    <i class="bi bi-clipboard"></i> Cop<u>y</u>
-                </button>
-                <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
-                    aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)"
-                    @onclick="@(() => EditInVsCode(TextBlock))">
-                    <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
-                </button>
-            }
-            @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
-            {
-                @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content)) { 
-                    <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
-                        @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
-                        <i class="bi bi-clipboard"></i> Cop<u>y</u>
-                    </button>
-                    <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
-                        @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
-                        <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
-                    </button>
-                }
-                <MarkdownConverter MarkdownContent="@(responseHistory?.LastOrDefault()?.Content ?? string.Empty)" />
-            }
-            else
-            {
-                <textarea @ref='responseElement' class='form-control text-light border-0 ai-response-bg'
-                    style="font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
-                    rows="30">@TextBlock </textarea>
-                <div class="mt-2">
-                    <button accesskey='e' class='btn btn-outline-primary' aria-keyshortcuts="Alt+E" 
-                        @onclick='@(() => EditInVsCode(TextBlock))'>
-                        <i class="bi bi-pencil-square"></i> Ed<u>i</u>t in VS Code
-                    </button>
-                </div>
-                @if (!string.IsNullOrWhiteSpace(AIComments))
-                {
-                    <div class="alert alert-success" role="alert">@AIComments</div>
-                }
-            }
-        }
-        else {
-            <div class="d-flex justify-content-center align-items-center border border-light" style="width:100%;height:300px;">
-                <span class="text-muted">The Results Will Appear Here.. 🙂</span>
-            </div>
-        }
-    </div>
-</div>
-<div class='row'>
-    <div class='col-12 text-secondary'>
-        <p>
-            Talon Command Reminder: Draft All (VSCode should be open), Draft This, Draft Submit, Voice Typing in Code,
-            Voice Typing
-        </p>
-    </div>
-</div>
+                                                <hr class="text-light">
+                                                <button class="btn btn-outline-success m-1" @onclick="@(() => ToggleHistory())"><i
+                                                    class="bi bi-clock-history"></i> Response History <span
+                                                    class='badge bg-success'>@responseHistory?.Count</span></button>
+                                                    @if (showHistory)
+                                                    {
+                                                        @if (responseHistory != null && responseHistory.Count > 0)
+                                                        {
+                                                            historyCount = 0;
+                                                            @foreach (var item in responseHistory)
+                                                            {
+                                                                historyCount++;
+                                                                <ul>
+                                                                    <li class='text-danger'>Response # @historyCount</li>
+                                                                    <ul>
+                                                                        <li>
+                                                                            <MarkdownConverter MarkdownContent="@(item.Content ?? string.Empty)" />
+                                                                        </li>
+                                                                    </ul>
+                                                                </ul>
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                                <div class='col-md-7 bg-dark text-light p-2 rounded'>
+                                                    @if (responseHistory?.Count > 0)
+                                                    {
+                                                        @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
+                                                        {
+                                                            <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
+                                                                <i class="bi bi-type"></i>
+                                                                @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
+                                                            </button>
+                                                            <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                                                                    @onclick="@(() => CopyItemAsync(TextBlock))">
+                                                                <i class="bi bi-clipboard"></i> Cop<u>y</u>
+                                                            </button>
+                                                            <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
+                                                                    aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)" @onclick="@(() => EditInVsCode(TextBlock))">
+                                                                <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
+                                                            </button>
+                                                        }
+                                                        @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
+                                                        {
+                                                            @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content))
+                                                            {
+                                                                <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                                                                        @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
+                                                                    <i class="bi bi-clipboard"></i> Cop<u>y</u>
+                                                                </button>
+                                                                <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
+                                                                        @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
+                                                                    <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
+                                                                </button>
+                                                            }
+                                                            <MarkdownConverter MarkdownContent="@(responseHistory?.LastOrDefault()?.Content ?? string.Empty)" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <textarea @ref='responseElement' class='form-control text-light border-0 ai-response-bg'
+                                                                      style="font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
+                                                                      rows="30">@TextBlock </textarea>
+                                                            <div class="mt-2">
+                                                                <button accesskey='e' class='btn btn-outline-primary' aria-keyshortcuts="Alt+E"
+                                                                        @onclick='@(() => EditInVsCode(TextBlock))'>
+                                                                    <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
+                                                                </button>
+                                                            </div>
+                                                            @if (!string.IsNullOrWhiteSpace(AIComments))
+                                                            {
+                                                                <div class="alert alert-success" role="alert">@AIComments</div>
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="d-flex justify-content-center align-items-center border border-light"
+                                                             style="width:100%;height:300px;">
+                                                            <span class="text-muted">The Results Will Appear Here.. 🙂</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class='row'>
+                                                <div class='col-12 text-secondary'>
+                                                    <p>
+                                                        Talon Command Reminder: Draft All (VSCode should be open), Draft This, Draft Submit, Voice Typing in Code,
+                                                        Voice Typing
+                                                    </p>
+                                                </div>
+                                            </div>
 
 
 
