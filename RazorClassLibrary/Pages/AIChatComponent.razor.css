@@ -26,7 +26,6 @@ textarea.ai-input-bg,
 textarea.ai-response-bg {
   background-color: var(--ai-input-bg) !important;
   color: var(--ai-input-color) !important;
-  border-color: var(--bs-border-color, #dee2e6) !important;
 }
 
 /* Progress and badges that relied on dark backgrounds can be tuned via variables if needed */
