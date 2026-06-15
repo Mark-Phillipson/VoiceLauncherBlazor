@@ -136,7 +136,7 @@
 		};
 		window.blazorHelpers.focusElement = function (element) {
 			if (!element) return false;
-			try { element.focus(); return true; } catch (e) { return false; }
+			try { element.focus(); return true; } catch (e) { console.log(e); return false; }
 		};
 	</script>
 

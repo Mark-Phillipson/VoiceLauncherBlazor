@@ -38,7 +38,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             if (DebounceEnabled)
             {
                 StartDebounceTimer();
-            }            else
+            }
+            else
             {
                 // If debounce is off, stop any running timers and countdown
                 debounceTimer?.Stop();
@@ -60,9 +61,10 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             await ProcessChat();
         }
-    }    private int debounceCountdown = 0;
+    }
+    private int debounceCountdown = 0;
     private int debounceProgressPercentage = 0;
-    private System.Timers.Timer? countdownTimer;[Inject] public required IPromptDataService PromptDataService { get; set; }
+    private System.Timers.Timer? countdownTimer; [Inject] public required IPromptDataService PromptDataService { get; set; }
     [Inject] public required IQuickPromptDataService QuickPromptDataService { get; set; }
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
@@ -90,8 +92,9 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private string SelectedModel = "o3-mini";
     private string TextBlock { get; set; } = "";
     private string AIComments { get; set; } = "";
-    private int revertTo = 0;    ChatHistory responseHistory = new();
-    private List<PromptDTO> prompts = new List<PromptDTO>();    private List<QuickPromptDTO> quickPrompts = new List<QuickPromptDTO>();
+    private int revertTo = 0; ChatHistory responseHistory = new();
+    private List<PromptDTO> prompts = new List<PromptDTO>(); 
+    private List<QuickPromptDTO> quickPrompts = new List<QuickPromptDTO>();
     private List<QuickPromptDTO> filteredQuickPrompts = new List<QuickPromptDTO>();
     private string quickPromptSearchTerm = "";
     private bool showQuickPrompts = true;
@@ -121,7 +124,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 StartDebounceTimer();
             }
         }
-    }    private void StartDebounceTimer()
+    }
+    private void StartDebounceTimer()
     {
         debounceTimer?.Stop();
         debounceTimer?.Dispose();
@@ -138,16 +142,16 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             debounceCountdown -= 50;
             if (debounceCountdown < 0) debounceCountdown = 0;
-            
+
             // Calculate progress percentage (0-100)
             debounceProgressPercentage = Math.Max(0, 100 - (int)((double)debounceCountdown / debounceMilliseconds * 100));
-            
+
             InvokeAsync(StateHasChanged);
         };
         countdownTimer.AutoReset = true;
         countdownTimer.Start();
 
-        debounceTimer = new System.Timers.Timer(debounceMilliseconds);        debounceTimer.Elapsed += async (_, __) =>
+        debounceTimer = new System.Timers.Timer(debounceMilliseconds); debounceTimer.Elapsed += async (_, __) =>
         {
             debounceTimer?.Stop();
             debounceTimer?.Dispose();
@@ -170,12 +174,13 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     // string? history = "";
     int historyCount = 0;
     bool addedPredefinedPrompt = false;
-    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent();    Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel(); 
+    Microsoft.SemanticKernel.ChatMessageContent response = new Microsoft.SemanticKernel.ChatMessageContent(); Microsoft.SemanticKernel.Kernel kernel = new Microsoft.SemanticKernel.Kernel();
     IChatCompletionService? chatService;
     private ElementReference inputElement;
     private ElementReference responseElement;
     string predefinedPrompt = "";
-    private CancellationTokenSource? cancellationTokenSource; protected override async Task OnInitializedAsync()
+    private CancellationTokenSource? cancellationTokenSource;
+    protected override async Task OnInitializedAsync()
     {
         // Try multiple configuration paths for the OpenAI API key
         OpenAIAPIKEY = Configuration["SmartComponents:ApiKey"] ??
@@ -237,17 +242,6 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         }
 
         await LoadData();
-        if (inputElement.Id != null)
-        {
-            try
-            {
-                await inputElement.FocusAsync();
-            }
-            catch (System.Exception exception)
-            {
-                System.Console.WriteLine(exception.Message);
-            }
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -256,6 +250,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             await FocusInputElementAsync();
         }
+
     }
 
     private async Task LoadData()
@@ -800,7 +795,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private void ToggleFont()
     {
         useCascadiaCodeFont = !useCascadiaCodeFont;
-    }    public void Dispose()
+    }
+    public void Dispose()
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
@@ -815,24 +811,24 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         if (quickPrompt?.PromptText == null) return;
 
         // Get current content from TextBlock or latest response
-        var currentContent = !string.IsNullOrWhiteSpace(TextBlock) 
-            ? TextBlock 
+        var currentContent = !string.IsNullOrWhiteSpace(TextBlock)
+            ? TextBlock
             : responseHistory?.LastOrDefault()?.Content ?? "";
 
         // Apply the quick prompt to the current content
         var promptToSend = $"{quickPrompt.PromptText}\n\nCurrent content:\n{currentContent}";
-        
+
         // Set the prompt and process it
         prompt = promptToSend;
-        
+
         // Clear the quick prompt search
         quickPromptSearchTerm = "";
         filteredQuickPrompts.Clear();
         showQuickPrompts = false;
-        
+
         // Process the chat with the applied quick prompt
         await ProcessChat();
-        
+
         StateHasChanged();
     }
 
@@ -852,7 +848,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         return type?.ToUpper().Replace(" ", "-") switch
         {
             "FIXES" => "text-danger fw-bold",
-            "FORMATTING" => "text-purple fw-bold", 
+            "FORMATTING" => "text-purple fw-bold",
             "TEXT-GENERATION" => "text-success fw-bold",
             "FILE-CONVERSIONS" => "text-warning fw-bold",
             "CHECKERS" => "text-info fw-bold",
@@ -885,7 +881,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         }
 
         var searchTerm = quickPromptSearchTerm.ToLower().Trim();
-        
+
         filteredQuickPrompts = quickPrompts
             .Where(q => q.IsActive && (
                 (q.Command != null && q.Command.ToLower().Contains(searchTerm)) ||

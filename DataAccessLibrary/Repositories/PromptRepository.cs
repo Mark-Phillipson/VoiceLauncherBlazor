@@ -27,7 +27,7 @@ namespace SampleApplication.Repositories
             using var context = _contextFactory.CreateDbContext();
             var Prompts = await context.Prompts
 
-                //.OrderBy(v => v.?)
+                .OrderBy(v => v.Description)
                 .Take(maxRows)
                 .ToListAsync();
             IEnumerable<PromptDTO> PromptsDTO = _mapper.Map<List<Prompt>, IEnumerable<PromptDTO>>(Prompts);
@@ -40,7 +40,7 @@ namespace SampleApplication.Repositories
                 //.Where(v => v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //||v.Property!= null  && v.Property.ToLower().Contains(serverSearchTerm.ToLower())
                 //)
-                //.OrderBy(v => v.?)
+                .OrderBy(v => v.Description)
                 .Take(1000)
                 .ToListAsync();
             IEnumerable<PromptDTO> PromptsDTO = _mapper.Map<List<Prompt>, IEnumerable<PromptDTO>>(Prompts);

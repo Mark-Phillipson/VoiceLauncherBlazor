@@ -339,7 +339,7 @@
                                                             </button>
                                                             <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
                                                                     aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)" @onclick="@(() => EditInVsCode(TextBlock))">
-                                                                <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code 1
+                                                                <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
                                                             </button>
                                                         }
                                                         @if (string.IsNullOrWhiteSpace(TextBlock) && string.IsNullOrWhiteSpace(AIComments))
@@ -352,14 +352,14 @@
                                                                 </button>
                                                                 <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
                                                                         @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
-                                                                    <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code 2
+                                                                    <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
                                                                 </button>
                                                             }
                                                             <MarkdownConverter MarkdownContent="@(responseHistory?.LastOrDefault()?.Content ?? string.Empty)" />
                                                         }
                                                         else
                                                         {
-                                                            <textarea @ref='responseElement' class='form-control text-light border border-danger ai-response-bg'
+                                                            <textarea id='responseElement' @ref='responseElement' class='form-control text-light border border-danger ai-response-bg'
                                                                       style="font-family:@(useCascadiaCodeFont ? "Cascadia Code, Consolas, monospace" : "inherit");"
                                                                       rows="30">@TextBlock </textarea>
                                                             @if (!string.IsNullOrWhiteSpace(AIComments))

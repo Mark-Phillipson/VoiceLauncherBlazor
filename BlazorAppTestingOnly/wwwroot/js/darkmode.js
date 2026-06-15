@@ -9,4 +9,5 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
         document.body.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
     });
+    
 })();
