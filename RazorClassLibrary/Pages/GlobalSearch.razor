@@ -3,13 +3,15 @@
 <heading>
     <h1>Global Search</h1>
 </heading>
-<main class='row'>    <div class='col-12'>
+<main class='row'>
+    <div class='col-12'>
         <label for="searchTerm" accesskey="s">Search <kbd>Alt</kbd>+<kbd>S</kbd></label>
-            <div class="input-group mb-2">
+        <div class="input-group mb-2">
             <input id="searchTerm" type="text" @bind-value="InputValue"
                    placeholder="Enter a Search Value Here and Search Relevant Tables :)" class="form-control"
                    @bind-value:event="oninput" />
-            <button id="btnResetFilterGlobalSearch" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Search (Alt+R)" aria-label="Reset Search (Alt+R)" @onclick="ResetFilter">
+            <button id="btnResetFilterGlobalSearch" class="btn btn-outline-secondary" type="button" accesskey="r"
+                    title="Reset Search (Alt+R)" aria-label="Reset Search (Alt+R)" @onclick="ResetFilter">
                 <i class="fas fa-redo" aria-hidden="true"></i>
                 <span class="ms-1">Reset Filter <span class="shortcut">(Alt+R)</span></span>
             </button>
@@ -19,13 +21,11 @@
         {
             <div class="mt-2">
                 <div class="d-flex align-items-center">
-                    <small class="text-muted me-2">Searching in:</small>                    <div class="progress flex-grow-1" style="height: 4px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
-                             role="progressbar" 
-                             style="width: @(((double)_remainingMs / DebounceDelayMs) * 100)%"
-                             aria-valuenow="@_remainingMs" 
-                             aria-valuemin="0" 
-                             aria-valuemax="@DebounceDelayMs">
+                    <small class="text-muted me-2">Searching in:</small>
+                    <div class="progress flex-grow-1" style="height: 4px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar"
+                             style="width: @(((double)_remainingMs / DebounceDelayMs) * 100)%" aria-valuenow="@_remainingMs"
+                             aria-valuemin="0" aria-valuemax="@DebounceDelayMs">
                         </div>
                     </div>
                     <small class="text-muted ms-2">@(Math.Ceiling(_remainingMs / 100.0) / 10)s</small>

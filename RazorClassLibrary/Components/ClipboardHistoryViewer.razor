@@ -1,12 +1,14 @@
-@using RazorClassLibrary.Models
-@using RazorClassLibrary.Services
 @using System.Linq
-@using Microsoft.Data.Sqlite
+@using Blazored.Toast.Services
 @using DataAccessLibrary
 @using DataAccessLibrary.Configuration
-@using Microsoft.Extensions.Configuration
 @using Microsoft.AspNetCore.Components.Web
-@using Blazored.Toast.Services
+@using Microsoft.Data.Sqlite
+@using Microsoft.Extensions.Configuration
+@using RazorClassLibrary.Models
+@using RazorClassLibrary.Services
+@using WindowsInput
+@using WindowsInput.Native
 @inject IClipboardHistoryService ClipboardService
 @inject ISqlDataAccess SqlDataAccess
 @inject IConfiguration Configuration
@@ -14,10 +16,13 @@
 @inject IToastService ToastService
 
 <div class="clipboard-history">
-    <div class="mb-2 d-flex align-items-center">
-    <input class="form-control me-2" placeholder="Search... (K)" @bind="Search" @onkeydown="HandleSearchKeyDown" title="Press Enter to search" accesskey="k" aria-keyshortcuts="K" @ref="searchInputRef" />
-    <button class="btn btn-primary me-2" @onclick="SearchAsync" accesskey="s" aria-keyshortcuts="S" title="Search (accesskey: S)">Search <kbd class="ms-1">S</kbd></button>
-    <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R" title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
+  <div class="mb-2 d-flex align-items-center">
+    <input class="form-control me-2" placeholder="Search... (K)" @bind="Search" @onkeydown="HandleSearchKeyDown"
+           title="Press Enter to search" accesskey="k" aria-keyshortcuts="K" @ref="searchInputRef" />
+    <button class="btn btn-primary me-2" @onclick="SearchAsync" accesskey="s" aria-keyshortcuts="S"
+            title="Search (accesskey: S)">Search <kbd class="ms-1">S</kbd></button>
+    <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R"
+            title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
   </div>
 
   @if (IsLoading)
@@ -28,7 +33,7 @@
     </div>
   }
 
-    <table class="table table-striped">
+  <table class="table table-striped">
     <thead>
       <tr>
         <th>Preview</th>
@@ -39,7 +44,9 @@
     <tbody>
       @if (Items?.Any() != true)
       {
-        <tr><td colspan="3">No entries</td></tr>
+        <tr>
+          <td colspan="3">No entries</td>
+        </tr>
       }
       else
       {
@@ -47,7 +54,8 @@
         {
           var item = Items[i];
           var accessKey = AccessKeyMapper.GetKeyForIndex(i);
-          var ariaShortcut = !string.IsNullOrEmpty(accessKey) ? AccessKeyMapper.GetAriaKeyShortcuts(accessKey) : string.Empty;
+          var ariaShortcut = !string.IsNullOrEmpty(accessKey) ? AccessKeyMapper.GetAriaKeyShortcuts(accessKey) :
+      string.Empty;
           <tr>
             <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
             <td class="created-col">@TimeFormatter.FormatTimestamp(item.CreatedAt)</td>
@@ -55,14 +63,17 @@
               <div class="d-flex gap-1 flex-nowrap align-items-center">
                 @if (!string.IsNullOrEmpty(accessKey))
                 {
-                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" accesskey="@accessKey" aria-keyshortcuts="@ariaShortcut" title="Copy to clipboard (access key: @accessKey)" aria-label="Copy to clipboard. Access key: @accessKey">
+                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" accesskey="@accessKey"
+                          aria-keyshortcuts="@ariaShortcut" title="Copy to clipboard (access key: @accessKey)"
+                          aria-label="Copy to clipboard. Access key: @accessKey">
                     Copy
                     <span class="ms-1 copy-kbd"><kbd>@accessKey</kbd></span>
                   </button>
                 }
                 else
                 {
-                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)" title="Copy to clipboard" aria-label="Copy to clipboard">Copy</button>
+                  <button class="btn btn-sm btn-outline-secondary" @onclick="() => CopyContent(item)"
+                          title="Copy to clipboard" aria-label="Copy to clipboard">Copy</button>
                 }
                 <button class="btn btn-sm btn-outline-primary" @onclick="() => Edit(item.Id)">Edit</button>
                 <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
@@ -118,199 +129,205 @@
 </div>
 
 @code {
-    private List<ClipboardEntry> Items = new();
-    private int Page = 1;
-    private int PageSize = 25;
-    private int TotalCount = 0;
-    private string Search = string.Empty;
-    private bool Editing = false;
-    private long? EditingId;
-    private string EditingContent = string.Empty;
-    private bool IsLoading = false;
-    private string DiagnosticsMessage = string.Empty;
-    private string EffectiveConnectionString = string.Empty;
-    private string SchemaInfo = string.Empty;
-    private ElementReference searchInputRef;
-    private bool _searchFocused = false;
+  private List<ClipboardEntry> Items = new();
+  private int Page = 1;
+  private int PageSize = 25;
+  private int TotalCount = 0;
+  private string Search = string.Empty;
+  private bool Editing = false;
+  private long? EditingId;
+  private string EditingContent = string.Empty;
+  private bool IsLoading = false;
+  private string DiagnosticsMessage = string.Empty;
+  private string EffectiveConnectionString = string.Empty;
+  private string SchemaInfo = string.Empty;
+  private ElementReference searchInputRef;
+  private bool _searchFocused = false;
     
-    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+  private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+  {
+    if (e?.Key == "Enter")
     {
-      if (e?.Key == "Enter")
-      {
-        Page = 1;
-        await LoadPage();
-      }
-    }
-
-    private async Task CopyContent(ClipboardEntry item)
-    {
-      try
-      {
-        var txt = item?.Content ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(txt))
-        {
-          ToastService?.ShowWarning("Nothing to copy");
-          return;
-        }
-        await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
-        ToastService?.ShowSuccess("Copied to clipboard");
-      }
-      catch (Exception ex)
-      {
-        ToastService?.ShowError("Copy failed: " + ex.Message);
-      }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadPage();
-    }
-
-    private async Task LoadPage()
-    {
-      IsLoading = true;
-      DiagnosticsMessage = string.Empty;
-      try
-      {
-        // Use the clipboard-specific connection string if configured
-        var clipboardConn = Configuration.GetConnectionString("ClipboardHistory");
-        EffectiveConnectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(clipboardConn);
-
-        // Attempt to read the table schema directly for diagnostics
-        try
-        {
-          SchemaInfo = string.Empty;
-          using var conn = new SqliteConnection(EffectiveConnectionString);
-          await conn.OpenAsync();
-          using var cmd = conn.CreateCommand();
-          cmd.CommandText = "PRAGMA table_info('ClipboardHistory');";
-          using var reader = await cmd.ExecuteReaderAsync();
-          var cols = new List<string>();
-          while (await reader.ReadAsync())
-          {
-            // PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
-            var colName = reader.IsDBNull(1) ? "" : reader.GetString(1);
-            var colType = reader.IsDBNull(2) ? "" : reader.GetString(2);
-            cols.Add(colName + "(" + colType + ")");
-          }
-          if (cols.Any()) SchemaInfo = string.Join(", ", cols);
-        }
-        catch (Exception exSchema)
-        {
-          SchemaInfo = "(schema read error: " + exSchema.Message + ")";
-        }
-
-        var res = await ClipboardService.QueryAsync(Page, PageSize, Search, null, null);
-        Items = res.Items.ToList();
-        TotalCount = res.TotalCount;
-
-        if (TotalCount == 0)
-        {
-          DiagnosticsMessage = $"Table 'ClipboardHistory' present but contains no rows. Connection: {EffectiveConnectionString}";
-        }
-        else
-        {
-          DiagnosticsMessage = $"Loaded {TotalCount} rows from ClipboardHistory. Connection: {EffectiveConnectionString}";
-        }
-      }
-      catch (Exception ex)
-      {
-        DiagnosticsMessage = "Error loading clipboard entries (table missing or DB error): " + ex.Message + $". Connection: {EffectiveConnectionString}";
-        Items = new List<ClipboardEntry>();
-        TotalCount = 0;
-      }
-      finally
-      {
-        IsLoading = false;
-        StateHasChanged();
-      }
-    }
-
-    private async Task SearchAsync()
-    {
-        Page = 1;
-        await LoadPage();
-    }
-
-    private async Task Refresh()
-    {
-      // Clear any active search filter and reload the first page
-      Search = string.Empty;
       Page = 1;
       await LoadPage();
-      // Ensure keyboard focus returns to the search box
+    }
+  }
+
+  private async Task CopyContent(ClipboardEntry item)
+  {
+    try
+    {
+      var txt = item?.Content ?? string.Empty;
+      if (string.IsNullOrWhiteSpace(txt))
+      {
+        ToastService?.ShowWarning("Nothing to copy");
+        return;
+      }
+      await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
+      InputSimulator simulator = new InputSimulator();
+      simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
+      simulator.Keyboard.Sleep(300);
+      simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+
+
+      ToastService?.ShowSuccess("Copied to clipboard");
+    }
+    catch (Exception ex)
+    {
+      ToastService?.ShowError("Copy failed: " + ex.Message);
+    }
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadPage();
+  }
+
+  private async Task LoadPage()
+  {
+    IsLoading = true;
+    DiagnosticsMessage = string.Empty;
+    try
+    {
+      // Use the clipboard-specific connection string if configured
+      var clipboardConn = Configuration.GetConnectionString("ClipboardHistory");
+      EffectiveConnectionString = DataAccessLibrary.Configuration.DatabaseConfiguration.GetConnectionString(clipboardConn);
+
+      // Attempt to read the table schema directly for diagnostics
+      try
+      {
+        SchemaInfo = string.Empty;
+        using var conn = new SqliteConnection(EffectiveConnectionString);
+        await conn.OpenAsync();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "PRAGMA table_info('ClipboardHistory');";
+        using var reader = await cmd.ExecuteReaderAsync();
+        var cols = new List<string>();
+        while (await reader.ReadAsync())
+        {
+          // PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk
+          var colName = reader.IsDBNull(1) ? "" : reader.GetString(1);
+          var colType = reader.IsDBNull(2) ? "" : reader.GetString(2);
+          cols.Add(colName + "(" + colType + ")");
+        }
+        if (cols.Any()) SchemaInfo = string.Join(", ", cols);
+      }
+      catch (Exception exSchema)
+      {
+        SchemaInfo = "(schema read error: " + exSchema.Message + ")";
+      }
+
+      var res = await ClipboardService.QueryAsync(Page, PageSize, Search, null, null);
+      Items = res.Items.ToList();
+      TotalCount = res.TotalCount;
+
+      if (TotalCount == 0)
+      {
+        DiagnosticsMessage = $"Table 'ClipboardHistory' present but contains no rows. Connection: {EffectiveConnectionString}";
+      }
+      else
+      {
+        DiagnosticsMessage = $"Loaded {TotalCount} rows from ClipboardHistory. Connection: {EffectiveConnectionString}";
+      }
+    }
+    catch (Exception ex)
+    {
+      DiagnosticsMessage = "Error loading clipboard entries (table missing or DB error): " + ex.Message + $". Connection: {EffectiveConnectionString}";
+      Items = new List<ClipboardEntry>();
+      TotalCount = 0;
+    }
+    finally
+    {
+      IsLoading = false;
+      StateHasChanged();
+    }
+  }
+
+  private async Task SearchAsync()
+  {
+    Page = 1;
+    await LoadPage();
+  }
+
+  private async Task Refresh()
+  {
+    // Clear any active search filter and reload the first page
+    Search = string.Empty;
+    Page = 1;
+    await LoadPage();
+    // Ensure keyboard focus returns to the search box
+    try
+    {
+      await searchInputRef.FocusAsync();
+    }
+    catch
+    {
+      // ignore focus errors (prerender or unsupported)
+    }
+  }
+
+    
+
+  private async Task Edit(long id)
+  {
+    var item = await ClipboardService.GetAsync(id);
+    if (item != null)
+    {
+      EditingId = id;
+      EditingContent = item.Content ?? string.Empty;
+      Editing = true;
+    }
+  }
+
+  private async Task SaveEdit()
+  {
+    if (EditingId.HasValue)
+    {
+      await ClipboardService.UpdateAsync(new ClipboardEntry { Id = EditingId.Value, Content = EditingContent });
+      Editing = false;
+      EditingId = null;
+      await LoadPage();
+    }
+  }
+
+  private void CancelEdit()
+  {
+    Editing = false;
+    EditingId = null;
+  }
+
+  private async Task Delete(long id)
+  {
+    await ClipboardService.DeleteAsync(id);
+    await LoadPage();
+  }
+
+  private bool CanPrev => Page > 1;
+  private bool CanNext => Page * PageSize < TotalCount;
+
+  private async Task PrevPage()
+  {
+    if (CanPrev) { Page--; await LoadPage(); }
+  }
+
+  private async Task NextPage()
+  {
+    if (CanNext) { Page++; await LoadPage(); }
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender && !_searchFocused)
+    {
       try
       {
         await searchInputRef.FocusAsync();
+        _searchFocused = true;
       }
       catch
       {
-        // ignore focus errors (prerender or unsupported)
+        // ignore focus errors (server prerender or unsupported)
       }
     }
-
-    
-
-    private async Task Edit(long id)
-    {
-        var item = await ClipboardService.GetAsync(id);
-        if (item != null)
-        {
-            EditingId = id;
-            EditingContent = item.Content ?? string.Empty;
-            Editing = true;
-        }
-    }
-
-    private async Task SaveEdit()
-    {
-        if (EditingId.HasValue)
-        {
-            await ClipboardService.UpdateAsync(new ClipboardEntry { Id = EditingId.Value, Content = EditingContent });
-            Editing = false;
-            EditingId = null;
-            await LoadPage();
-        }
-    }
-
-    private void CancelEdit()
-    {
-        Editing = false;
-        EditingId = null;
-    }
-
-    private async Task Delete(long id)
-    {
-        await ClipboardService.DeleteAsync(id);
-        await LoadPage();
-    }
-
-    private bool CanPrev => Page > 1;
-    private bool CanNext => Page * PageSize < TotalCount;
-
-    private async Task PrevPage()
-    {
-        if (CanPrev) { Page--; await LoadPage(); }
-    }
-
-    private async Task NextPage()
-    {
-        if (CanNext) { Page++; await LoadPage(); }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-      if (firstRender && !_searchFocused)
-      {
-        try
-        {
-          await searchInputRef.FocusAsync();
-          _searchFocused = true;
-        }
-        catch
-        {
-          // ignore focus errors (server prerender or unsupported)
-        }
-      }
-    }
+  }
 }
