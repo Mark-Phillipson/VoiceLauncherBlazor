@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin", "VoiceAdmin\Vo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSanitizer", "DatabaseSanitizer\DatabaseSanitizer.csproj", "{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin.ServiceDefaults", "VoiceAdmin.ServiceDefaults\VoiceAdmin.ServiceDefaults.csproj", "{04DAA469-6EA1-4330-B921-B114FDC5AE41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,18 @@ Global
 		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x64.Build.0 = Release|Any CPU
 		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x86.ActiveCfg = Release|Any CPU
 		{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}.Release|x86.Build.0 = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|x64.Build.0 = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Debug|x86.Build.0 = Debug|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x64.ActiveCfg = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x64.Build.0 = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x86.ActiveCfg = Release|Any CPU
+		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
