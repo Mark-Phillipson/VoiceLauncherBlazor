@@ -210,8 +210,51 @@ namespace RazorClassLibrary.Pages
 					_loadFailed = true;
 				}
 				await PopulateFilters();
+				UpdateSelectedIntellisense();
 				Title = $"Snippets ({intellisenses?.Count})";
 				await SafeStateHasChangedAsync();
+			}
+		}
+
+		private void UpdateSelectedIntellisense(int? preferredIntellisenseId = null)
+		{
+			if (intellisenses == null || intellisenses.Count == 0)
+			{
+				customIntelliSenseCurrent = null;
+				return;
+			}
+
+			CustomIntelliSense? selected = null;
+			if (preferredIntellisenseId.HasValue)
+			{
+				selected = intellisenses.FirstOrDefault(i => i.Id == preferredIntellisenseId.Value);
+			}
+
+			selected ??= intellisenses.LastOrDefault();
+			if (selected == null)
+			{
+				customIntelliSenseCurrent = null;
+				return;
+			}
+
+			customIntelliSenseCurrent = selected;
+			if (!string.IsNullOrWhiteSpace(customIntelliSenseCurrent.Category?.CategoryName) &&
+				customIntelliSenseCurrent.Category.CategoryName.Contains("password", StringComparison.OrdinalIgnoreCase))
+			{
+				customIntelliSenseCurrent.SendKeysValue = "********";
+				return;
+			}
+
+			if (!string.IsNullOrWhiteSpace(customIntelliSenseCurrent.DisplayValue) &&
+				customIntelliSenseCurrent.DisplayValue.Contains("password", StringComparison.OrdinalIgnoreCase))
+			{
+				customIntelliSenseCurrent.SendKeysValue = "********";
+				return;
+			}
+
+			if (!string.IsNullOrWhiteSpace(customIntelliSenseCurrent.SendKeysValue))
+			{
+				customIntelliSenseCurrent.SendKeysValue = FillInVariables(customIntelliSenseCurrent.SendKeysValue, customIntelliSenseCurrent);
 			}
 		}
 		async Task PopulateFilters()
@@ -427,7 +470,7 @@ namespace RazorClassLibrary.Pages
 		private async Task CopyItemAsync(string itemToCopy, int customIntellisenseId)
 		{
 			if (_disposed) return;
-			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+			UpdateSelectedIntellisense(customIntellisenseId);
 			if (customIntelliSenseCurrent != null)
 			{
 				itemToCopy = FillInVariables(itemToCopy, customIntelliSenseCurrent);
@@ -443,7 +486,7 @@ namespace RazorClassLibrary.Pages
 		private async Task CopyAndPasteAsync(string itemToCopyAndPaste, int customIntellisenseId)
 		{
 			if (_disposed) return;
-			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customIntellisenseId).FirstOrDefault();
+			UpdateSelectedIntellisense(customIntellisenseId);
 			if (customIntelliSenseCurrent != null)
 			{
 				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
@@ -489,8 +532,8 @@ namespace RazorClassLibrary.Pages
 		}
 		private void ShowValue(int customInTeleSenseId)
 		{
-			customIntelliSenseCurrent = intellisenses!.Where(i => i.Id == customInTeleSenseId).FirstOrDefault();
-			if (customIntelliSenseCurrent != null && !customIntelliSenseCurrent!.Category!.CategoryName.ToLower().Contains("password") && !customIntelliSenseCurrent!.DisplayValue!.ToLower().Contains("password"))
+			UpdateSelectedIntellisense(customInTeleSenseId);
+			if (customIntelliSenseCurrent != null && !customIntelliSenseCurrent.Category?.CategoryName?.Contains("password", StringComparison.OrdinalIgnoreCase) == true && !customIntelliSenseCurrent.DisplayValue?.Contains("password", StringComparison.OrdinalIgnoreCase) == true)
 			{
 				if (customIntelliSenseCurrent.SendKeysValue != null)
 				{

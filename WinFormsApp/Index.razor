@@ -23,6 +23,11 @@
 						    @onclick="SwitchToSnippetsFromChild">
 						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
 					</button>
+					    <button id="btnDisplayValueSearch" class="btn btn-sm btn-outline-secondary me-1"
+						    title="Display Value Search"
+						    @onclick="ShowDisplayValueSearch">
+						<i class="bi bi-search-heart me-1" aria-hidden="true"></i> Display Search
+					</button>
 					    <button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1"
 						    accesskey="&" aria-keyshortcuts="Alt+&"
 						    @onclick="SwitchToLauncherFromChild">
@@ -65,12 +70,18 @@
 			<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId"
 									 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
 		}
+		else if (displayValueSearch)
+		{
+			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
+									 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
+									 MaximizeApplication="MaximizeWindow" />
+		}
 		else if (launcher)
 		{
 			<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow"
 						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
 		}
-		else // filtering by display value mostly
+		else
 		{
 			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
 								 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
