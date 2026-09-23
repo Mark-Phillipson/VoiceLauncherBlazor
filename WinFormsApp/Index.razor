@@ -9,26 +9,26 @@
 			<div class="btn-toolbar justify-content-center" role="toolbar" aria-label="Top controls">
 				<div class="btn-group" role="group" aria-label="Main actions">
 
-					    <button id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1"
+					    <button type="button" id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1"
 						    accesskey="£" aria-keyshortcuts="Alt+£"
 						    @onclick="@(() => ShowClipboardHistory())">
 						<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
 					</button>
 
-					<button id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" accesskey="$" aria-keyshortcuts="Alt+$" @onclick="@(() => ShowAIChat())">
+					<button type="button" id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" accesskey="$" aria-keyshortcuts="Alt+$" @onclick="@(() => ShowAIChat())">
 						<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI Chat
 					</button>
-					    <button id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1"
+					    <button type="button" id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1"
 						    accesskey="%" aria-keyshortcuts="Alt+%"
 						    @onclick="SwitchToSnippetsFromChild">
 						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
 					</button>
-					    <button id="btnDisplayValueSearch" class="btn btn-sm btn-outline-secondary me-1"
+					    <button type="button" id="btnDisplayValueSearch" class="btn btn-sm btn-outline-secondary me-1"
 						    title="Display Value Search"
 						    @onclick="ShowDisplayValueSearch">
 						<i class="bi bi-search-heart me-1" aria-hidden="true"></i> Display Search
 					</button>
-					    <button id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1"
+					    <button type="button" id="btnLauncher" class="btn btn-sm btn-outline-secondary me-1"
 						    accesskey="&" aria-keyshortcuts="Alt+&"
 						    @onclick="SwitchToLauncherFromChild">
 						<i class="bi bi-grid me-1" aria-hidden="true"></i> Launcher

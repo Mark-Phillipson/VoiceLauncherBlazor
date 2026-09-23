@@ -229,7 +229,7 @@ namespace WinFormsApp
 							lastLauncherCategoryId = categoryId;
 							SetTitle($"Launch from category: {matchedCategory.CategoryName}");
 							launcher = true;
-							languageAndCategoryListing = false;
+										displayValueSearch = false;
 							showTalonSearch = false;
 							showAIChat = false;
 							await InvokeAsync(StateHasChanged);
@@ -743,8 +743,9 @@ namespace WinFormsApp
 		{
 			if (displayValueSearch)
 			{
-				displayValueSearch = false;
+				displayValueSearch = true;
 				languageAndCategoryListing = false;
+				launcher = false;
 				if (arguments != null && arguments.Length > 1)
 				{
 					if (arguments[1].Contains("Launcher"))
@@ -757,13 +758,14 @@ namespace WinFormsApp
 						showAIChat = true;
 						SetTitle("AI Chat Assistant");
 					}
-					else if (arguments[1].Contains("Talon") || arguments[1].Contains("search"))
+					else if (arguments[1].Contains("Talon"))
 					{
 						showTalonSearch = true;
 						SetTitle("Talon Voice Command Search");
 					}
 					else
 					{
+						displayValueSearch = true;
 						SetTitle("Filtering Snippets by Display Value");
 					}
 				}
@@ -901,6 +903,7 @@ namespace WinFormsApp
 
 			// Switch to launcher view
 			launcher = true;
+			displayValueSearch = false;
 			languageAndCategoryListing = false;
 			showAIChat = false;
 			showTalonSearch = false;
