@@ -105,18 +105,29 @@ namespace WinFormsApp
 			return normalized.Equals(expected, StringComparison.OrdinalIgnoreCase);
 		}
 
+		private static bool IsDisplaySearchIntent(string[] args)
+		{
+			if (args.Length < 3)
+				return false;
+
+			if (IsExactArgument(args[1], "search"))
+				return true;
+
+			if (args.Length >= 4 && IsExactArgument(args[2], "search") && !IsExactArgument(args[1], "SearchIntelliSense"))
+				return true;
+
+			return false;
+		}
+
 		private static bool IsSnippetSearchIntent(string[] args)
 		{
-			if (args.Length < 2)
+			if (args.Length < 4)
 				return false;
 
 			if (IsExactArgument(args[1], "SearchIntelliSense"))
 				return true;
 
-			if (IsExactArgument(args[1], "search"))
-				return args.Length >= 3;
-
-			if (args.Length >= 3 && IsExactArgument(args[2], "search"))
+			if (args.Length >= 4 && IsExactArgument(args[2], "SearchIntelliSense"))
 				return true;
 
 			return false;
@@ -248,13 +259,33 @@ namespace WinFormsApp
 						}
 					}
 
+					// Handle a direct display-value snippet search before the language/category SearchIntelliSense route.
+					else if (IsDisplaySearchIntent(arguments))
+					{
+						string rawSearch = arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase)
+							? string.Join(" ", arguments.Skip(2))
+							: string.Join(" ", arguments.Skip(3));
+
+						searchTerm = rawSearch.Replace("/", "").Trim();
+						SetTitle("Filtering Snippets by Display Value");
+						displayValueSearch = true;
+						languageAndCategoryListing = false;
+						launcher = false;
+						showAIChat = false;
+						showTalonSearch = false;
+						showClipboardHistory = false;
+						categoryId = 0;
+						languageId = 0;
+						await InvokeAsync(StateHasChanged);
+					}
+
 					// Handle SearchIntelliSense invocation (language + category) before generic search detection.
 					else if (IsSnippetSearchIntent(arguments))
 					{
 						SetTitle("Search Snippets");
 						string languageName = "";
 						string categoryName = "";
-						var searchIndex = arguments.Length >= 3 && arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) ? 2 : 2;
+						int searchIndex = 2;
 						languageName = arguments[searchIndex].Replace("/", "").Trim();
 						categoryName = arguments[searchIndex + 1].Replace("/", "").Trim();
 						var language = await LanguageService.GetLanguageAsync(languageName);
