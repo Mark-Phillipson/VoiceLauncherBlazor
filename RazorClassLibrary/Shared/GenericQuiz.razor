@@ -105,26 +105,28 @@
         }
         else if (_quizActive && CurrentQuestion is not null)
         {
+            var currentQuestion = CurrentQuestion;
             <div class="quiz-panel quiz-play-panel">
                 <div class="quiz-meta-row">
                     <span>Score: @_correctAnswers / @AnsweredCount</span>
-                    <span>Source: @CurrentQuestion.Source</span>
-                    @if (!string.IsNullOrWhiteSpace(CurrentQuestion?.DocLink))
+                    <span>Source: @currentQuestion.Source</span>
+                    @{ var currentDocLink = currentQuestion.DocLink; }
+                    @if (!string.IsNullOrWhiteSpace(currentDocLink))
                     {
-                        <span><a href="@BuildDocLink(CurrentQuestion!.DocLink)" target="_blank" rel="noopener noreferrer">Learn more</a></span>
+                        <span><a href="@BuildDocLink(currentDocLink)" target="_blank" rel="noopener noreferrer">Learn more</a></span>
                     }
-                    <span>Category: @CurrentQuestion.Category</span>
+                    <span>Category: @currentQuestion.Category</span>
                 </div>
 
                 <div class="quiz-prompt-row d-flex align-items-start gap-2">
-                    <h2 class="quiz-prompt mb-0">@CurrentQuestion.Prompt</h2>
-                    @if (CurrentQuestion.CorrectedByAI)
+                    <h2 class="quiz-prompt mb-0">@currentQuestion.Prompt</h2>
+                    @if (currentQuestion.CorrectedByAI)
                     {
                         <span class="badge bg-warning text-dark align-self-start mt-1">Corrected by AI</span>
                     }
-                    @if (CurrentQuestion?.RelatedCommandId != null)
+                    @if (currentQuestion.RelatedCommandId != null)
                     {
-                        <a class="btn btn-outline-secondary btn-sm mt-1" href="/talon-voice-command-search?focusCommandId=@CurrentQuestion.RelatedCommandId" target="_blank" rel="noopener noreferrer">@((string.IsNullOrWhiteSpace(CurrentQuestion.RelatedFileName) ? "Open command" : CurrentQuestion.RelatedFileName))</a>
+                        <a class="btn btn-outline-secondary btn-sm mt-1" href="/talon-voice-command-search?focusCommandId=@currentQuestion.RelatedCommandId" target="_blank" rel="noopener noreferrer">@((string.IsNullOrWhiteSpace(currentQuestion.RelatedFileName) ? "Open command" : currentQuestion.RelatedFileName))</a>
                     }
                 </div>
 
@@ -132,7 +134,6 @@
                     <div class="quiz-choices-header">
                         <div class="quiz-badge quiz-badge--panel">@($"Question {_currentQuestionIndex + 1} / {_questions.Count}")</div>
                     </div>
-                    @{ var currentQuestion = CurrentQuestion; }
                     @for (var index = 0; index < (currentQuestion?.Choices.Count ?? 0); index++)
                     {
                         var choiceIndex = index;

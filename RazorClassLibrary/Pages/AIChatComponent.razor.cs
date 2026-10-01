@@ -583,6 +583,32 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     //         await ProcessChat();
     //     }
     // }
+    private string GetCurrentResultText()
+    {
+        if (!string.IsNullOrWhiteSpace(TextBlock))
+        {
+            return TextBlock;
+        }
+
+        if (!string.IsNullOrWhiteSpace(AIComments))
+        {
+            return AIComments;
+        }
+
+        return responseHistory?.LastOrDefault()?.Content ?? string.Empty;
+    }
+
+    private async Task CopyCurrentResultAsync()
+    {
+        var textToCopy = GetCurrentResultText();
+        if (string.IsNullOrWhiteSpace(textToCopy))
+        {
+            return;
+        }
+
+        await CopyItemAsync(textToCopy);
+    }
+
     private async Task CopyItemAsync(string? itemToCopy)
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }

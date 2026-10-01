@@ -37,10 +37,10 @@ namespace TestProjectxUnit
             {
                 Id = id,
                 Command = command,
-                Title = title,
-                Script = script,
+                Title = title ?? string.Empty,
+                Script = script ?? string.Empty,
                 Application = application ?? "global",
-                Description = description,
+                Description = description ?? string.Empty,
                 FilePath = $"file{id}.talon",
                 CreatedAt = DateTime.UtcNow
             };
@@ -98,7 +98,7 @@ namespace TestProjectxUnit
 
             var method = comp.Instance.GetType().GetMethod("GenerateTalonVoiceCommandQuestionsAsync", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.NotNull(method);
-            var invoked = method!.Invoke(comp.Instance, new object[] { 5, (object?)null });
+            var invoked = method!.Invoke(comp.Instance, new object[] { 5, "" });
             Assert.NotNull(invoked);
             var task = (Task)invoked!;
             await task;
@@ -128,7 +128,7 @@ namespace TestProjectxUnit
 
             var method = comp.Instance.GetType().GetMethod("GenerateTalonVoiceCommandQuestionsAsync", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.NotNull(method);
-            var invoked = method!.Invoke(comp.Instance, new object[] { 10, (object?)null });
+            var invoked = method!.Invoke(comp.Instance, new object[] { 10, "" });
             Assert.NotNull(invoked);
             var task = (Task)invoked!;
             await task;

@@ -47,6 +47,8 @@
 		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
