@@ -48,12 +48,9 @@ namespace RazorClassLibrary.Pages
       public string? SearchTerm
       {
          get => searchTerm;
-         set
-         {
-            searchTerm = value;
-            _ = InvokeAsync(() => ApplyFilter());
-         }
+         set => searchTerm = value;
       }
+      public string? SearchInputText { get; set; }
       // Lookup lists and selection state for header typeahead controls
       public List<LanguageDTO> Languages { get; set; } = new List<LanguageDTO>();
       public List<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
@@ -96,30 +93,80 @@ namespace RazorClassLibrary.Pages
          }
 
       
-      private async Task OnLanguageInput(ChangeEventArgs e)
+      public static string NormalizeSpeechInput(string? value)
       {
-         LanguageQuery = e?.Value?.ToString() ?? "";
-         if (string.IsNullOrWhiteSpace(LanguageQuery))
+         if (string.IsNullOrWhiteSpace(value))
          {
-            LanguageSuggestions.Clear();
-            ShowLanguageSuggestions = false;
-            // If no language query, load all categories
-            Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
+            return string.Empty;
          }
-         else
-         {
-            LanguageSuggestions = Languages.Where(l => (!string.IsNullOrEmpty(l.LanguageName) && l.LanguageName.Contains(LanguageQuery, StringComparison.OrdinalIgnoreCase))).Take(20).ToList();
-            ShowLanguageSuggestions = LanguageSuggestions.Any();
 
-            // If the query exactly matches a language, proactively load categories for that language
-            var exactMatch = Languages.FirstOrDefault(l => string.Equals(l.LanguageName?.Trim(), LanguageQuery.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (exactMatch != null)
+         var cleaned = value.Trim();
+         var collapsed = System.Text.RegularExpressions.Regex.Replace(cleaned, @"\s+", " ");
+         var split = collapsed.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+         if (split.Length <= 1)
+         {
+            return cleaned;
+         }
+
+         var normalizedParts = new List<string>();
+         var currentLetters = new List<char>();
+
+         foreach (var part in split)
+         {
+            if (part.Length == 1 && char.IsLetter(part[0]))
             {
-               SelectedLanguageId = exactMatch.Id;
-               // Load categories filtered to this language
-                  await LoadCategoriesForLanguage(SelectedLanguageId);
+               currentLetters.Add(part[0]);
+               continue;
+            }
+
+            if (currentLetters.Count > 0)
+            {
+               normalizedParts.Add(new string(currentLetters.ToArray()));
+               currentLetters.Clear();
+            }
+
+            normalizedParts.Add(part);
+         }
+
+         if (currentLetters.Count > 0)
+         {
+            normalizedParts.Add(new string(currentLetters.ToArray()));
+         }
+
+         return string.Join(" ", normalizedParts).Trim();
+      }
+
+      public static (int LanguageId, int CategoryId) ResolveSelectedIds(IEnumerable<LanguageDTO> languages, IEnumerable<CategoryDTO> categories, string? languageText, string? categoryText)
+      {
+         var normalizedLanguage = NormalizeSpeechInput(languageText);
+         var normalizedCategory = NormalizeSpeechInput(categoryText);
+
+         var languageId = 0;
+         if (!string.IsNullOrWhiteSpace(normalizedLanguage))
+         {
+            var match = languages.FirstOrDefault(l =>
+                !string.IsNullOrWhiteSpace(l.LanguageName) &&
+                l.LanguageName.Contains(normalizedLanguage, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+               languageId = match.Id;
             }
          }
+
+         var categoryId = 0;
+         if (!string.IsNullOrWhiteSpace(normalizedCategory))
+         {
+            var match = categories.FirstOrDefault(c =>
+                !string.IsNullOrWhiteSpace(c.CategoryName) &&
+                c.CategoryName.Contains(normalizedCategory, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+               categoryId = match.Id;
+            }
+         }
+
+         return (languageId, categoryId);
       }
 
          private async Task OnLanguageKeyDown(KeyboardEventArgs e)
@@ -161,18 +208,13 @@ namespace RazorClassLibrary.Pages
             }
          }
 
-      private void OnCategoryInput(ChangeEventArgs e)
+      private async Task OnCategoryInput(ChangeEventArgs e)
       {
          CategoryQuery = e?.Value?.ToString() ?? "";
          if (string.IsNullOrWhiteSpace(CategoryQuery))
          {
             CategorySuggestions.Clear();
             ShowCategorySuggestions = false;
-         }
-         else
-         {
-            CategorySuggestions = Categories.Where(c => (!string.IsNullOrEmpty(c.CategoryName) && c.CategoryName.Contains(CategoryQuery, StringComparison.OrdinalIgnoreCase))).Take(20).ToList();
-            ShowCategorySuggestions = CategorySuggestions.Any();
          }
       }
 
@@ -475,7 +517,6 @@ namespace RazorClassLibrary.Pages
       private int pageSize = 10;
       private int counter = 0;
       private int shortcutValue = 0;
-      private CancellationTokenSource? _searchCancellation;
       private bool _isLoading = false;
       private bool _disposed = false;
       private Task? _prefetchTask;
@@ -605,49 +646,142 @@ namespace RazorClassLibrary.Pages
          }
          CustomIntelliSenseId = 0;
       }
+      private async Task ApplyFilterButton()
+      {
+         SearchTerm = NormalizeSpeechInput(SearchInputText);
+         LanguageQuery = NormalizeSpeechInput(LanguageQuery);
+         CategoryQuery = NormalizeSpeechInput(CategoryQuery);
+         await ApplyWholeTableFilterAsync();
+      }
+
       private async Task ApplyFilter()
       {
-         // Cancel any previous search operation
-         _searchCancellation?.Cancel();
-         _searchCancellation?.Dispose();
-         _searchCancellation = new CancellationTokenSource();
+         await ApplyFilterButton();
+      }
 
-         try
+      private async Task ApplyWholeTableFilterAsync()
+      {
+         var normalizedSearch = NormalizeSpeechInput(SearchTerm);
+         var normalizedLanguageFilter = NormalizeSpeechInput(LanguageQuery);
+         var normalizedCategoryFilter = NormalizeSpeechInput(CategoryQuery);
+
+         SelectedLanguageId = ResolveSelectedIds(Languages, Categories, normalizedLanguageFilter, string.Empty).LanguageId;
+         SelectedCategoryId = ResolveSelectedIds(Languages, Categories, string.Empty, normalizedCategoryFilter).CategoryId;
+         LanguageId = SelectedLanguageId;
+         CategoryId = SelectedCategoryId;
+
+         var filtered = await CustomIntelliSenseDataService.SearchCustomIntelliSensesAsync(
+             normalizedSearch,
+             string.IsNullOrWhiteSpace(normalizedLanguageFilter) ? null : normalizedLanguageFilter,
+             string.IsNullOrWhiteSpace(normalizedCategoryFilter) ? null : normalizedCategoryFilter);
+
+         CustomIntelliSenseDTO = filtered;
+         FilteredCustomIntelliSenseDTO = filtered;
+         SearchTerm = normalizedSearch;
+         Title = $"({filtered.Count}) of {filtered.Count}";
+         await SafeStateHasChangedAsync();
+      }
+
+      public static bool MatchesSearchTextFilter(CustomIntelliSenseDTO item, string? searchText)
+      {
+         if (item == null)
          {
-            // Debounce the search
-            await Task.Delay(SEARCH_DEBOUNCE_MS, _searchCancellation.Token);
-
-            if (FilteredCustomIntelliSenseDTO == null || CustomIntelliSenseDTO == null)
-            {
-               return;
-            }
-
-            if (string.IsNullOrEmpty(SearchTerm))
-            {
-               return;
-            }
-            else
-            {
-               var temporary = SearchTerm.ToLower().Trim();
-               CustomIntelliSenseDTO =  await CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(LanguageId, CategoryId, 1, 2000);
-               var filtered = CustomIntelliSenseDTO
-                   .Where(v =>
-                       v.DisplayValue != null && v.DisplayValue.ToLower().Contains(temporary) ||
-                       v.SendKeysValue != null && v.SendKeysValue.ToLower().Contains(temporary) ||
-                       v.CommandType != null && v.CommandType.ToLower().Contains(temporary) ||
-                       v.DeliveryType != null && v.DeliveryType.ToLower().Contains(temporary)
-                   )
-                   .ToList();
-               FilteredCustomIntelliSenseDTO = filtered;
-               await SafeStateHasChangedAsync();
-               return;
-            }
-
+            return false;
          }
-         catch (OperationCanceledException)
+
+         if (string.IsNullOrWhiteSpace(searchText))
          {
-            // Search was cancelled, ignore
+            return true;
          }
+
+         var term = searchText.Trim();
+         var normalizedValues = new[]
+         {
+            item.DisplayValue,
+            item.SendKeysValue,
+            item.CommandType,
+            item.DeliveryType
+         };
+
+         return normalizedValues.Any(value =>
+             !string.IsNullOrWhiteSpace(value) &&
+             value.Contains(term, StringComparison.OrdinalIgnoreCase));
+      }
+
+      public static bool MatchesLanguageFilter(CustomIntelliSenseDTO item, string? languageText)
+      {
+         if (item == null)
+         {
+            return false;
+         }
+
+         if (string.IsNullOrWhiteSpace(languageText))
+         {
+            return true;
+         }
+
+         var terms = SplitFilterTerms(languageText);
+         if (terms.Count == 0)
+         {
+            return true;
+         }
+
+         return !string.IsNullOrWhiteSpace(item.LanguageName) &&
+                terms.Any(term => item.LanguageName.Contains(term, StringComparison.OrdinalIgnoreCase));
+      }
+
+      public static bool MatchesCategoryFilter(CustomIntelliSenseDTO item, string? categoryText)
+      {
+         if (item == null)
+         {
+            return false;
+         }
+
+         if (string.IsNullOrWhiteSpace(categoryText))
+         {
+            return true;
+         }
+
+         var terms = SplitFilterTerms(categoryText);
+         if (terms.Count == 0)
+         {
+            return true;
+         }
+
+         return !string.IsNullOrWhiteSpace(item.CategoryName) &&
+                terms.Any(term => item.CategoryName.Contains(term, StringComparison.OrdinalIgnoreCase));
+      }
+
+      private static List<string> SplitFilterTerms(string? filterText)
+      {
+         if (string.IsNullOrWhiteSpace(filterText))
+         {
+            return new List<string>();
+         }
+
+         return filterText
+             .Split(new[] { ',', ';', '|', '/', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+             .Select(t => NormalizeSpeechInput(t))
+             .Where(t => !string.IsNullOrWhiteSpace(t))
+             .Distinct(StringComparer.OrdinalIgnoreCase)
+             .ToList();
+      }
+
+      private async Task ApplyLiveTextFilterAsync()
+      {
+         if (CustomIntelliSenseDTO == null)
+         {
+            return;
+         }
+
+         var filtered = CustomIntelliSenseDTO
+             .Where(item => MatchesSearchTextFilter(item, SearchTerm))
+             .Where(item => MatchesLanguageFilter(item, LanguageQuery))
+             .Where(item => MatchesCategoryFilter(item, CategoryQuery))
+             .ToList();
+
+         FilteredCustomIntelliSenseDTO = filtered;
+         await SafeStateHasChangedAsync();
       }
       protected void SortCustomIntelliSense(string sortColumn)
       {
@@ -977,8 +1111,6 @@ namespace RazorClassLibrary.Pages
       {
          if (_disposed) return;
          _disposed = true;
-         try { _searchCancellation?.Cancel(); } catch { }
-         try { _searchCancellation?.Dispose(); } catch { }
       }
    }
 }
