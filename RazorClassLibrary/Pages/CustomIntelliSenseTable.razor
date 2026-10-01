@@ -24,17 +24,16 @@
         <div class="col-md-5">
             <div class="my-1">
                 <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted">(Alt+I)</small></label>
-                <div class="input-group w-100" style="flex-wrap:nowrap; white-space:nowrap;">
+                <div class="input-group w-100" style="display:flex; width:100%; flex-wrap:nowrap; white-space:nowrap; gap:8px;">
                     <input @ref="SearchInput" accesskey="i" type="text" class="form-control form-control-sm"
                             @bind="SearchInputText"
-                            id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" style="min-width:0; flex:1 1 auto;" />
+                            id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" style="min-width:0; flex:1 1 auto; width:100%;" />
                         <button id="btnApplyFilterCustomIntelliSense" class="btn btn-outline-primary" type="button" title="Apply Filter" aria-label="Apply Filter" @onclick="ApplyFilterButton" style="flex:0 0 auto;">
                             <i class="fas fa-filter" aria-hidden="true"></i>
                             <span class="ms-1">Apply</span>
                         </button>
-                        <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter" style="flex:0 0 auto;">
+                        <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)" @onclick="ResetFilter" style="flex:0 0 auto; min-width:38px; padding-left:0.5rem; padding-right:0.5rem;">
                             <i class="fas fa-redo" aria-hidden="true"></i>
-                            <span class="ms-1">Reset Filter <span class="shortcut">(Alt+R)</span></span>
                         </button>
                 </div>
             </div>
