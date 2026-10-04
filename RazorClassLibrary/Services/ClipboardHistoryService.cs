@@ -131,7 +131,10 @@ namespace RazorClassLibrary.Services
                 selectList.Add($"\"{_dateCol}\" AS CreatedAt");
             else
                 selectList.Add("NULL AS CreatedAt");
-            selectList.Add(!string.IsNullOrEmpty(_typeCol) ? $"\"{_typeCol}\" AS Type" : "NULL AS Type");
+            if (!string.IsNullOrEmpty(_typeCol) && _columnsFound.Contains(_typeCol))
+                selectList.Add($"\"{_typeCol}\" AS Type");
+            else
+                selectList.Add("NULL AS Type");
 
             var orderBy = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol)) ? $"\"{_dateCol}\" DESC" : $"\"{_idCol}\" DESC";
 
@@ -149,7 +152,13 @@ namespace RazorClassLibrary.Services
             try
             {
                 await EnsureSchemaAsync();
-                var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, \"{_dateCol}\" AS CreatedAt, \"{_typeCol}\" AS Type FROM \"{TableName}\" WHERE \"{_idCol}\" = @id";
+                var dateExpr = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol))
+                    ? $"\"{_dateCol}\" AS CreatedAt"
+                    : "NULL AS CreatedAt";
+                var typeExpr = (!string.IsNullOrEmpty(_typeCol) && _columnsFound.Contains(_typeCol))
+                    ? $"\"{_typeCol}\" AS Type"
+                    : "NULL AS Type";
+                var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" = @id";
                 var item = await _db.LoadSingleData<ClipboardEntry, object>(sql, new { id });
                 return item;
             }
@@ -185,7 +194,16 @@ namespace RazorClassLibrary.Services
         {
             var arr = ids.ToArray();
             await EnsureSchemaAsync();
-            var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, \"{_dateCol}\" AS CreatedAt, \"{_typeCol}\" AS Type FROM \"{TableName}\" WHERE \"{_idCol}\" IN @ids ORDER BY \"{_dateCol}\" DESC";
+            var dateExpr = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol))
+                ? $"\"{_dateCol}\" AS CreatedAt"
+                : "NULL AS CreatedAt";
+            var typeExpr = (!string.IsNullOrEmpty(_typeCol) && _columnsFound.Contains(_typeCol))
+                ? $"\"{_typeCol}\" AS Type"
+                : "NULL AS Type";
+            var orderBy = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol))
+                ? $"\"{_dateCol}\" DESC"
+                : $"\"{_idCol}\" DESC";
+            var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" IN @ids ORDER BY {orderBy}";
             var items = await _db.LoadData<ClipboardEntry, object>(sql, new { ids = arr });
             return items;
         }
