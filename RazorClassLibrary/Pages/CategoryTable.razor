@@ -14,21 +14,21 @@
 					</div>
 					<div class="col-2">
 						<input id='show-cards' title="Show Cards" class="form-checkbox" type="checkbox"
-							@bind="@_ShowCards" />
+							   @bind="@_ShowCards" />
 					</div>
 					<div class="col-2">
 						<label for='group-by-language'>Group by Language</label>
 					</div>
 					<div class="col-2">
 						<input id='group-by-language' title="Group by Language" class="form-checkbox" type="checkbox"
-							checked="@_groupByLanguage" @onchange="OnGroupingChanged" />
+							   checked="@_groupByLanguage" @onchange="OnGroupingChanged" />
 					</div>
 					<div class="col-2">
 						<label for='useSemanticMatching'>Semantic?</label>
 					</div>
 					<div class="col-2">
 						<input id='useSemanticMatching' title="Use Semantic Matching" class="form-checkbox" type="checkbox"
-							@bind="@useSemanticMatching" />
+							   @bind="@useSemanticMatching" />
 					</div>
 				</div>
 				@if (useSemanticMatching)
@@ -39,7 +39,7 @@
 						</div>
 						<div class="col-2">
 							<input id='maxResults' title="Number of Results to Return" class="form-control" type="number"
-								@bind="@maxResults" />
+								   @bind="@maxResults" />
 						</div>
 					</div>
 				}
@@ -49,12 +49,12 @@
 			@if (useSemanticMatching)
 			{
 				<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-					id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+					   id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
 			}
 			else
 			{
 				<input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-					@bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
+					   @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)" />
 			}
 		</div>
 	}
@@ -111,10 +111,10 @@ else
 								counter = null;
 							}
 							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
-								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id" style='@BorderStyleFor(category)'>
+								<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id"
+								   style='@BorderStyleFor(category)'>
 
-									<div accesskey="@counter" class="card-body"
-										Style='height:100px;align-content:center;'>
+									<div accesskey="@counter" class="card-body" Style='height:100px;align-content:center;'>
 										@if (@category.Icon != null)
 										{
 											<h2> @((MarkupString)category.Icon) </h2>
@@ -126,13 +126,14 @@ else
 										else
 										{
 											<h6><u>@counter</u></h6>
-											<h6 class="card-title"> @category.CategoryName 
+											<h6 class="card-title"> @category.CategoryName
 											</h6>
 										}
 										<div class="card-text">
 											@if (category.Sensitive)
 											{
-												<i class="fas fa-shield-alt text-danger" title="Sensitive" aria-label="Sensitive" role="img"></i>
+												<i class="fas fa-shield-alt text-danger" title="Sensitive" aria-label="Sensitive"
+												   role="img"></i>
 											}
 										</div>
 									</div>
@@ -159,13 +160,15 @@ else
 									<td style='font-size:30px'>@category.CategoryName</td>
 									<td>@category.CategoryType</td>
 									<td>@category.Sensitive</td>
-									<td class="btn-group-vertical">
-										<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
-											<i class="bi bi-pencil"></i>
-										</button>
-										<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
-											<i class="bi bi-trash"></i>
-										</button>
+									<td>
+										<div class="btn-group-vertical">
+											<button class="btn btn-warning" @onclick="@(() => EditCategoryAsync(category.Id))">
+												<i class="bi bi-pencil"></i>
+											</button>
+											<button class="btn btn-danger" @onclick="@(() => DeleteCategoryAsync(category.Id))">
+												<i class="bi bi-trash"></i>
+											</button>
+										</div>
 									</td>
 								</tr>
 							}
@@ -184,7 +187,7 @@ else
 				@{
 					counter = -1;
 				}
-						@foreach (var category in FilteredCategoryDTO)
+				@foreach (var category in FilteredCategoryDTO)
 				{
 					@if (counter < 9)
 					{
@@ -194,10 +197,9 @@ else
 					{
 						counter = null;
 					}
-							<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
-							<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id" style='@BorderStyleFor(category)'>
-								<div accesskey="@counter" class="card-body"
-									Style='height:100px;align-content:center;'>
+					<div class='btn @(category.Sensitive ? "btn-outline-danger" : "btn-outline-secondary")'>
+						<a class="card btn btn-lg btn-outline-dark" href="@drillDownUrl/@category.Id" style='@BorderStyleFor(category)'>
+							<div accesskey="@counter" class="card-body" Style='height:100px;align-content:center;'>
 								@if (@category.Icon != null)
 								{
 									<h2> @((MarkupString)category.Icon) </h2>

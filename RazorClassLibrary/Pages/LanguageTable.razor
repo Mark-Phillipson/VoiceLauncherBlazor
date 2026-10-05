@@ -9,7 +9,7 @@
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
             <input @ref="SearchInput" accesskey="i" class="form-control my-1" style="float:right" @bind="@SearchTerm"
-                @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Language (Alt+I)" />
+                   @bind:event="oninput" id="SearchInput" name="SearchTerm" placeholder="Filter by Language (Alt+I)" />
         }
     </div>
 </div>
@@ -17,7 +17,7 @@
 @if (FilteredLanguageDTO == null && _loadFailed == true)
 {
     <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+    <button class="btn btn-danger" type="button" @onclick="@( () => LoadData())">Reload</button>
     <h6 class="text-danger">@ExceptionMessage</h6>
 }
 else if (FilteredLanguageDTO == null)
@@ -43,7 +43,7 @@ else
                         <i class="fas fa-sort-alpha-up"></i>
                     </button>
                     <button aria-label="Sort Descending" class="btn btn-sm"
-                        @onclick="@(() => SortLanguage("Language Desc"))">
+                            @onclick="@(() => SortLanguage("Language Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
                     Language
@@ -55,9 +55,13 @@ else
                     @if (string.IsNullOrEmpty(GlobalSearchTerm))
                     {
                         <button title='Add New Language' accesskey="+" @onclick="AddNewLanguage"
-                            class="btn btn-outline-success btn-sm">
+                                class="btn btn-outline-success btn-sm">
                             <i class="bi bi-plus"></i>
                         </button>
+                    }
+                    else
+                    {
+                        <span>Tasks</span>
                     }
                 </th>
             </tr>
@@ -68,7 +72,7 @@ else
                 <tr>
                     <td>
                         <button aria-label='Edit Language' class="btn btn-sm btn-link bg-light"
-                            @onclick="@(() => EditLanguage(language.Id))">
+                                @onclick="@(() => EditLanguage(language.Id))">
                             @language.Id
                         </button>
                     </td>
@@ -78,18 +82,21 @@ else
                     <td>
                         @if (!string.IsNullOrWhiteSpace(language.ImageLink))
                         {
-                            <img src="/images/@language.ImageLink" alt="@language.LanguageName image" style="max-width:40px;max-height:40px;" />
+                            <img src="/images/@language.ImageLink" alt="@language.LanguageName image"
+                                 style="max-width:40px;max-height:40px;" />
                         }
                     </td>
-                    <td class="btn-group-vertical">
-                        <button aria-label='Edit Language' class="btn btn-sm btn-outline-warning"
-                            @onclick="@(() => EditLanguage(language.Id))">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button aria-label='Delete Language' class="btn btn-sm btn-outline-danger"
-                            @onclick="@(() => DeleteLanguage(language.Id))">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                    <td>
+                        <div class="btn-group">
+                            <button aria-label='Edit Language' class="btn btn-sm btn-outline-warning"
+                                    @onclick="@(() => EditLanguage(language.Id))">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button aria-label='Delete Language' class="btn btn-sm btn-outline-danger"
+                                    @onclick="@(() => DeleteLanguage(language.Id))">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             }

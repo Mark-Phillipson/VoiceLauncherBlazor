@@ -39,7 +39,7 @@
                                     accesskey="a" title="Apply Filter (Alt+A)" aria-label="Apply Filter (Alt+A)"
                                     @onclick="ApplyFilterButton" style="flex:0 0 auto;">
                                 <i class="fas fa-filter" aria-hidden="true"></i>
-                                <span class="ms-1">Apply</span>
+                                <span class="ms-1"><u>A</u>pply</span>
                             </button>
                             <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button"
                                     accesskey="r" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)" @onclick="ResetFilter"
@@ -52,8 +52,7 @@
             }
     else
             {
-                <div class='ml-1'>Custom IntelliSense (Snippets) @Title </div>
-                ;
+                <div class='ml-1 fs-5'><strong>Custom IntelliSense (Snippets) </strong></div>
             }
         </div>
 
@@ -172,8 +171,9 @@ else
                                         </div>
                                     }
                                 </td>
-                                <td class="btn-group">
-                                    <button title="Copy and switch and paste" style='min-width:80px' class="btn btn-outline-info btn-sm"
+                                <td class="" style='min-width:80px'>
+                                    <div class="btn-group"> 
+                                    <button title="Copy and switch and paste"  class="btn btn-outline-info btn-sm"
                                             @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
@@ -185,6 +185,7 @@ else
                                             @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
                                         <i class="bi bi-trash"></i>
                                     </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
