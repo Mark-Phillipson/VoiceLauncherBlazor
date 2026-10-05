@@ -41,7 +41,7 @@
     }
     else
     {
-        <div class='ml-1'>@Title </div>;
+        <div class='ml-1'>Custom IntelliSense (Snippets) @Title </div>;
     }
 </div>
 
@@ -72,13 +72,15 @@ else
                     <button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
                         <i class="fas fa-sort-alpha-up-alt"></i>
                     </button>
-                    Display Value
+                    Display Value (Copy)
                 </th>
                 <th>
-                    <button accesskey="0" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success " title="Add new (Alt+0)">
+                    <button accesskey="0" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success " title="Add new (Alt+0)">
                         <i class="bi bi-plus"></i>
                     </button>
+                    Snippet
                 </th>
+                <th>Paste / Edit / Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -130,17 +132,10 @@ else
 
                         @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
                         {
-                            <div class="small text-info">
-                                @customIntelliSense.LanguageName / @customIntelliSense.CategoryName
-                                @if (!string.IsNullOrWhiteSpace(customIntelliSense.CommandType))
-                                {
-                                    <br /><strong>Type:</strong> @customIntelliSense.CommandType
+                            <div class="">
+                                    <strong>Language / Category:</strong> @customIntelliSense.LanguageName / @customIntelliSense.CategoryName
                                 }
-                                @if (!string.IsNullOrWhiteSpace(customIntelliSense.DeliveryType))
-                                {
-                                    <br /><strong>Delivery:</strong> @customIntelliSense.DeliveryType
-                                }
-                                <br /><strong>Match in:</strong>
+                                <br /><strong>Match in: </strong>
                                 @if (customIntelliSense.DisplayValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
                                 {
                                     <span class="badge bg-success">Display</span>
@@ -161,13 +156,13 @@ else
                         }
                     </td>
                     <td class="btn-group">
-                        <button title="Copy and switch and paste" style='min-width:80px' class="btn btn-info" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
+                        <button title="Copy and switch and paste" style='min-width:80px' class="btn btn-outline-info btn-sm" @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
                             <i class="bi bi-clipboard"></i>
                         </button>
-                        <button class="btn  btn-outline-warning" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+                        <button class="btn btn-outline-warning btn-sm" @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button class="btn  btn-outline-danger" @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+                        <button class="btn btn-outline-danger btn-sm" @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>

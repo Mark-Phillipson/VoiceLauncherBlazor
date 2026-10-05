@@ -74,11 +74,11 @@ else
                     </td>
                     <td>@language.LanguageName</td>
                     <td>@language.Active</td>
-                    <td>@language.Colour</td>
+                    <td style="color:@language.Colour">@language.Colour</td>
                     <td>
                         @if (!string.IsNullOrWhiteSpace(language.ImageLink))
                         {
-                            <img src="@language.ImageLink" alt="@language.LanguageName image" style="max-width:40px;max-height:40px;" />
+                            <img src="/images/@language.ImageLink" alt="@language.LanguageName image" style="max-width:40px;max-height:40px;" />
                         }
                     </td>
                     <td class="btn-group-vertical">

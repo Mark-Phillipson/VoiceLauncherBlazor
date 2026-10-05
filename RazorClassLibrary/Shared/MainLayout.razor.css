@@ -204,14 +204,6 @@
 	border-color: var(--border-color) !important;
 }
 
-.page ::deep .btn-outline-secondary,
-.page ::deep .btn-outline-primary,
-.page ::deep .btn-outline-success,
-.page ::deep .btn-outline-danger {
-	color: var(--text-color);
-	border-color: var(--border-color);
-}
-
 .page ::deep .btn-outline-secondary:hover,
 .page ::deep .btn-outline-primary:hover,
 .page ::deep .btn-outline-success:hover,
