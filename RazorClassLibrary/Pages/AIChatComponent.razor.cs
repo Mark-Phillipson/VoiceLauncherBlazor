@@ -83,6 +83,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private string customModelInput = "";
     // Filtering: only show chat/text models by default; user may toggle to show all
     private bool showAllModels = false;
+    private bool showModelControls = false;
     private List<string> RawFetchedModels = new List<string>();
     // Models that we will show to user (filtered based on heuristics)
     private List<string> DisplayedModels => (showAllModels ? RawFetchedModels : AvailableModels);
@@ -229,10 +230,10 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         }
         else
         {
-            // prefer 'gpt-4o-mini' if available
-            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
-                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
-                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("o3", StringComparison.OrdinalIgnoreCase))
+            // prefer 'gpt-5.4-mini' if available
+            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-5.4-mini", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt", StringComparison.OrdinalIgnoreCase))
                             ?? AvailableModels.FirstOrDefault();
 
             if (!string.IsNullOrWhiteSpace(preferred))
@@ -498,11 +499,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                             ModelFetchMessage = $"Fetched {filtered.Count} text-capable models (raw: {list.Count})";
                         }
 
-                        // If preferred model (gpt-4o-mini) exists and nothing selected, prefer it
+                        // If preferred model (gpt-5.4-mini) exists and nothing selected, prefer it
                         if ((string.IsNullOrWhiteSpace(SelectedModel) || !DisplayedModels.Contains(SelectedModel)) && AvailableModels.Count > 0)
                         {
-                            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
-                                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
+                            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-5.4-mini", StringComparison.OrdinalIgnoreCase))
+                                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase))
                                             ?? AvailableModels.FirstOrDefault();
                             if (!string.IsNullOrWhiteSpace(preferred)) SelectedModel = preferred;
                         }
@@ -537,11 +538,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         await FetchAvailableModelsAsync(forceRefresh: true);
 
-        // If the preferred model (gpt-4o-mini) is available after refresh, prefer it when nothing selected
+        // If the preferred model (gpt-5.4-mini) is available after refresh, prefer it when nothing selected
         if (string.IsNullOrWhiteSpace(SelectedModel) || !DisplayedModels.Contains(SelectedModel))
         {
-            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-4o-mini", StringComparison.OrdinalIgnoreCase))
-                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-4o", StringComparison.OrdinalIgnoreCase))
+            var preferred = AvailableModels.FirstOrDefault(s => s.Equals("gpt-5.4-mini", StringComparison.OrdinalIgnoreCase))
+                            ?? AvailableModels.FirstOrDefault(s => s.StartsWith("gpt-5", StringComparison.OrdinalIgnoreCase))
                             ?? AvailableModels.FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(preferred)) SelectedModel = preferred;
         }
@@ -564,6 +565,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         showAllModels = !showAllModels;
         ModelFetchMessage = showAllModels ? "Showing all raw models" : "Showing filtered text-capable models";
+    }
+
+    private void ToggleModelControls()
+    {
+        showModelControls = !showModelControls;
     }
     bool showHistory = false;
     bool processing = false;
