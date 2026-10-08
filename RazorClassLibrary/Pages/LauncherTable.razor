@@ -5,7 +5,7 @@
     @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-auto d-flex align-items-center gap-1">
-            <h2 class="mb-0">@Title</h2>
+            <h6 class="mb-0">@Title</h6>
             <div class="d-flex gap-1">
                 <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
                     <i class="bi bi-sort-alpha-up"></i>
@@ -53,19 +53,10 @@
             </InputSelect>
         }
     </div>
-    @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
-    {
-        <div class="col-auto me-4">
-            <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-md btn-outline-success">
-                Add (<i class="bi bi-plus"></i>)
-            </button>
-        </div>
-    }
-
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        <div class="col-md-5 me-4">
-            <div class="input-group w-100">
+        <div class="col-md-4 me-4">
+            <div class="input-group w-40">
                 <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
@@ -73,8 +64,18 @@
                 </button>
             </div>
         </div>
+            @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
+    {
+        <div class="col-1 me-4">
+            <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-md btn-outline-success">
+                Add (<i class="bi bi-plus"></i>)
+            </button>
+        </div>
+    }
+
     }
 </div>
+
 <hr class="my-2" />
 @if (Message.Length > 0)
 {
@@ -83,6 +84,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+
+
 
 @if (FilteredLauncherDTO == null && _loadFailed == true)
 {
@@ -98,7 +101,11 @@ else if (FilteredLauncherDTO.Count == 0)
 {
     @if (CategoryId == 0 && string.IsNullOrWhiteSpace(GlobalSearchTerm) && string.IsNullOrWhiteSpace(SearchTerm))
     {
-        <p>No launchers to display. Please select a category or enter a search term.</p>
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <p class="fs-3 text-center">
+            No launchers to display. Please select a category or enter a search term.
+        </p>
+    </div>
     }
     else if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {

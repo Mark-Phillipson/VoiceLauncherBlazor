@@ -3,29 +3,13 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"command": "dotnet build --configuration Release",
-			"group": "build",
-			"problemMatcher": [
-				"error",
-				"warning"
-			],
-			"label": "Run dotnet build Release"
-		},
-		{
-			"type": "shell",
 			"command": "dotnet watch --project VoiceAdmin/VoiceAdmin.csproj --urls http://localhost:5008",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "dotnet: watch VoiceAdmin"
+			"label": "dotnet: watch VoiceAdmin (http://localhost:5008)"
 		},
 		{
-			"label": "Run dotnet publish",
-			"type": "shell",
-			"command": "dotnet publish \"${workspaceFolder}/VoiceAdmin/VoiceAdmin.csproj\" --configuration Release --output \"${workspaceFolder}/publish/VoiceAdmin\"",
-			"problemMatcher": []
-		},
-		{
-			"label": "checkAppRunningOnPort7264",
+			"label": "Check App Running On Port 7264",
 			"type": "shell",
 			"command": "powershell.exe -ExecutionPolicy Bypass -File \"${workspaceFolder}/.vscode/check-port.ps1\" -PortNumber 7264",
 			"problemMatcher": [],
@@ -42,6 +26,14 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
-		}
+		},
+		{
+			"label": "Build WinFormsApp (Release)",
+			"type": "shell",
+			"command": "dotnet build --configuration Release",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
 	]
 }
