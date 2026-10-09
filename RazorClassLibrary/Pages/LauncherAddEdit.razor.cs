@@ -211,44 +211,7 @@ public partial class LauncherAddEdit : ComponentBase
         }
     }
 
-    protected async Task UsePromptToGenerateAsync()
-    {
-        if (string.IsNullOrWhiteSpace(PromptBuilderText))
-        {
-            ToastService?.ShowError("Prompt is empty");
-            return;
-        }
-
-        try
-        {
-            using var http = CreateImageClient();
-            var baseUri = new Uri(NavigationManager.BaseUri);
-            var apiUri = new Uri(baseUri, "api/images/generate");
-            var response = await http.PostAsJsonAsync(apiUri, new { prompt = PromptBuilderText });
-            if (!response.IsSuccessStatusCode)
-            {
-                var body = await response.Content.ReadAsStringAsync();
-                ToastService?.ShowError($"Image generation failed: {response.ReasonPhrase} - {body}");
-                return;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<ImageGenerationResult>();
-            if (result != null)
-            {
-                LauncherDTO.Icon = result.Filename;
-                LastImagePrompt = result.Prompt ?? string.Empty;
-                LastImageProviderResponse = result.ProviderResponse ?? string.Empty;
-                LastImageModel = result.Model ?? string.Empty;
-                PromptBuilderVisible = false;
-                await LoadImages();
-                ToastService?.ShowSuccess("Generated image is ready - select it or save the launcher.");
-            }
-        }
-        catch (Exception ex)
-        {
-            ToastService?.ShowError($"Error generating image: {ex.Message}");
-        }
-    }
+    
 
     protected async Task UploadImageAsync(InputFileChangeEventArgs e)
     {

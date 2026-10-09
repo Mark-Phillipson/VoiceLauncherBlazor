@@ -55,24 +55,15 @@
     </div>
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        <div class="col-md-4 me-4">
-            <div class="input-group w-40">
-                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control" />
+        <div class="col-md-4 me-1">
+            <div class="input-group">
+                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                    <span class="ms-1">Reset Filter <span class="shortcut">(Alt+R)</span></span>
+                    <span class="ms-1"><span class="shortcut">(Alt+R)</span></span>
                 </button>
             </div>
         </div>
-            @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
-    {
-        <div class="col-1 me-4">
-            <button accesskey="+" @onclick="AddNewLauncherAsync" class="btn btn-md btn-outline-success">
-                Add (<i class="bi bi-plus"></i>)
-            </button>
-        </div>
-    }
-
     }
 </div>
 

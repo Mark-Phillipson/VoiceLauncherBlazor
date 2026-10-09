@@ -80,4 +80,8 @@
   <ItemGroup>
     <Folder Include="Screenshots\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="wwwroot\images\**\*" />
+  </ItemGroup>
 </Project>

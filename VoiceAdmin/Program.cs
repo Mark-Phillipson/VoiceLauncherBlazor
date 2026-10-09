@@ -1033,6 +1033,13 @@ app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment en
 {
     try
     {
+        const string mirroredMachineName = "J40L4V3";
+        var mirrorDirectories = new[]
+        {
+            @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceAdmin\wwwroot\images",
+            @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\WinFormsApp\wwwroot\images"
+        };
+
         var form = await req.ReadFormAsync();
         var file = form.Files.FirstOrDefault();
         if (file == null)
@@ -1051,10 +1058,29 @@ app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment en
         var filename = $"launcher-{id}{ext}";
         var thumbFilename = $"launcher-{id}-thumb.png";
         var filePath = Path.Combine(imagesDir, filename);
+        static bool IsSamePath(string pathA, string pathB)
+        {
+            var fullA = Path.GetFullPath(pathA).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullB = Path.GetFullPath(pathB).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return string.Equals(fullA, fullB, StringComparison.OrdinalIgnoreCase);
+        }
 
         using (var fs = File.Create(filePath))
         {
             await file.CopyToAsync(fs);
+        }
+
+        if (string.Equals(Environment.MachineName, mirroredMachineName, StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var mirrorDirectory in mirrorDirectories)
+            {
+                Directory.CreateDirectory(mirrorDirectory);
+                var mirrorPath = Path.Combine(mirrorDirectory, filename);
+                if (!IsSamePath(filePath, mirrorPath))
+                {
+                    File.Copy(filePath, mirrorPath, overwrite: true);
+                }
+            }
         }
 
         try
@@ -1063,6 +1089,20 @@ app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment en
             {
                 image.Mutate(x => x.Resize(new ResizeOptions { Size = new SixLabors.ImageSharp.Size(256, 256), Mode = ResizeMode.Crop }));
                 await image.SaveAsPngAsync(Path.Combine(imagesDir, thumbFilename));
+            }
+
+            if (string.Equals(Environment.MachineName, mirroredMachineName, StringComparison.OrdinalIgnoreCase))
+            {
+                var thumbnailPath = Path.Combine(imagesDir, thumbFilename);
+                foreach (var mirrorDirectory in mirrorDirectories)
+                {
+                    Directory.CreateDirectory(mirrorDirectory);
+                    var mirrorThumbnailPath = Path.Combine(mirrorDirectory, thumbFilename);
+                    if (!IsSamePath(thumbnailPath, mirrorThumbnailPath))
+                    {
+                        File.Copy(thumbnailPath, mirrorThumbnailPath, overwrite: true);
+                    }
+                }
             }
         }
         catch (Exception ex)
