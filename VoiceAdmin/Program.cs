@@ -1403,7 +1403,6 @@ app.MapGet("/api/docs/learn-top", async (HttpContext http, IHttpClientFactory ht
     return Results.Redirect(inputUri.ToString(), permanent: false);
 });
 
-
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host"); // Ensure _Host exists from Server template
 
