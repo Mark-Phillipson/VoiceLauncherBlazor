@@ -19,8 +19,6 @@ using VoiceLauncher.Services;
 using RazorClassLibrary.Services;
 using VoiceAdmin;
 using VoiceAdmin.Services;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using Microsoft.AspNetCore.Http;
 
 
@@ -512,19 +510,7 @@ builder.Services.AddScoped<RazorClassLibrary.Services.ITalonListDataService, Raz
 builder.Services.AddScoped<ICursorlessCheatsheetItemJsonRepository, VoiceAdmin.CursorlessCheatsheetItemJsonRepository>();
 builder.Services.AddScoped<IFaceImageRepository, FaceImageRepository>();
 builder.Services.AddScoped<IFaceTagRepository, FaceTagRepository>();
-// Image generation services: always register the placeholder concrete type so we can
-// fall back if the primary provider fails at runtime. Register OpenAI-backed
-// implementation as the primary IImageGenerationService when an API key is present.
-builder.Services.AddScoped<PlaceholderImageGenerationService>();
 var openAiApiKey = config["OpenAI:ApiKey"] ?? config["SmartComponents:ApiKey"] ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-if (!string.IsNullOrWhiteSpace(openAiApiKey))
-{
-    builder.Services.AddScoped<IImageGenerationService, OpenAIImageGenerationService>();
-}
-else
-{
-    builder.Services.AddScoped<IImageGenerationService, PlaceholderImageGenerationService>();
-}
 // ANCM out-of-process sets ASPNETCORE_URLS automatically; do not override with UseUrls
 // (overriding with PORT ?? "80" would try to bind port 80 already owned by IIS → SocketException → 502.5)
 Console.Error.WriteLine($"[{DateTime.UtcNow:O}] ASPNETCORE_URLS={Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "(not set)"}");
@@ -686,61 +672,6 @@ app.MapPost("/admin/initialize-local-embeddings", async context =>
         await context.Response.WriteAsync($"Failed to initialize local embeddings: {ex.Message}");
     }
 });
-// Image generation endpoints for launchers
-app.MapPost("/api/launchers/{id}/generate-image", async (int id, DataAccessLibrary.Services.ILauncherDataService launchers, IImageGenerationService imageService, HttpContext http) =>
-{
-    var launcher = await launchers.GetLauncherById(id);
-    if (launcher == null)
-    {
-        return Results.NotFound();
-    }
-
-    var prompt = $"Create a simple launcher thumbnail for: {launcher.Name}. Context: {launcher.CommandLine}.";
-    ImageGenerationResult result;
-    try
-    {
-        result = await imageService.GenerateImageAsync(prompt);
-    }
-    catch (Exception ex)
-    {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("ImageGeneration");
-        logger.LogError(ex, "Primary image provider failed; falling back to placeholder generator.");
-        var placeholder = http.RequestServices.GetRequiredService<PlaceholderImageGenerationService>();
-        result = await placeholder.GenerateImageAsync(prompt);
-        // annotate that primary provider failed so UI can show the error
-        result.ProviderResponse = $"Primary provider failed: {ex.Message}";
-        result.Prompt = prompt;
-    }
-
-    // Persist the assigned filename to the launcher (reuse Icon field)
-    launcher.Icon = result.Filename;
-    var username = http.User?.Identity?.Name ?? string.Empty;
-    await launchers.UpdateLauncher(launcher, username);
-
-    return Results.Ok(result);
-});
-
-app.MapPost("/api/launchers/generate-image", async (DataAccessLibrary.DTO.LauncherDTO launcherDto, IImageGenerationService imageService, HttpContext http) =>
-{
-    var prompt = $"Create a simple launcher thumbnail for: {launcherDto.Name}. Context: {launcherDto.CommandLine}.";
-    ImageGenerationResult result;
-    try
-    {
-        result = await imageService.GenerateImageAsync(prompt);
-    }
-    catch (Exception ex)
-    {
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("ImageGeneration");
-        logger.LogError(ex, "Primary image provider failed; falling back to placeholder generator.");
-        var placeholder = http.RequestServices.GetRequiredService<PlaceholderImageGenerationService>();
-        result = await placeholder.GenerateImageAsync(prompt);
-        result.ProviderResponse = $"Primary provider failed: {ex.Message}";
-        result.Prompt = prompt;
-    }
-
-    return Results.Ok(result);
-});
-
 // List images that are not referenced by any launcher
 app.MapGet("/api/images/unlinked", async (DataAccessLibrary.Services.ILauncherDataService launchers) =>
 {
@@ -771,6 +702,87 @@ app.MapGet("/api/images/unlinked", async (DataAccessLibrary.Services.ILauncherDa
 
     var unlinked = primaryFiles.Where(fn => !referenced.Contains(fn)).ToArray();
     return Results.Ok(unlinked);
+});
+
+// Upload an existing image file for launcher icons.
+// This endpoint only imports the provided file; it does not generate images.
+app.MapPost("/api/images/upload", async (HttpContext http) =>
+{
+    try
+    {
+        if (!http.Request.HasFormContentType)
+        {
+            http.Response.StatusCode = 400;
+            await http.Response.WriteAsync("Expected multipart/form-data request.");
+            return;
+        }
+
+        var form = await http.Request.ReadFormAsync();
+        var file = form.Files.GetFile("file") ?? form.Files.FirstOrDefault();
+        if (file == null || file.Length == 0)
+        {
+            http.Response.StatusCode = 400;
+            await http.Response.WriteAsync("No file was uploaded.");
+            return;
+        }
+
+        const long maxSizeBytes = 10 * 1024 * 1024;
+        if (file.Length > maxSizeBytes)
+        {
+            http.Response.StatusCode = 400;
+            await http.Response.WriteAsync("File is too large. Maximum size is 10 MB.");
+            return;
+        }
+
+        var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico"
+        };
+
+        var originalName = Path.GetFileName(file.FileName ?? string.Empty);
+        var extension = Path.GetExtension(originalName);
+        if (string.IsNullOrWhiteSpace(extension) || !allowed.Contains(extension))
+        {
+            http.Response.StatusCode = 400;
+            await http.Response.WriteAsync("Unsupported image type.");
+            return;
+        }
+
+        var baseName = Path.GetFileNameWithoutExtension(originalName);
+        var safeBaseName = string.IsNullOrWhiteSpace(baseName)
+            ? "uploaded-image"
+            : string.Concat(baseName.Where(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_'));
+        if (string.IsNullOrWhiteSpace(safeBaseName))
+        {
+            safeBaseName = "uploaded-image";
+        }
+
+        var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+        Directory.CreateDirectory(imagesDir);
+
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+        var storedFileName = $"{safeBaseName}-{timestamp}{extension.ToLowerInvariant()}";
+        var destinationPath = Path.Combine(imagesDir, storedFileName);
+
+        await using (var stream = File.Create(destinationPath))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        await http.Response.WriteAsJsonAsync(new
+        {
+            filename = storedFileName,
+            thumbnail = storedFileName,
+            prompt = "",
+            providerResponse = "",
+            model = "upload"
+        });
+    }
+    catch (Exception ex)
+    {
+        http.Response.StatusCode = 500;
+        await http.Response.WriteAsync($"Error uploading image: {ex.Message}");
+    }
 });
 
 // Delete an image (and its thumbnail). Body: { "filename": "launcher-...png", "force": false }
@@ -1028,136 +1040,6 @@ app.MapPost("/api/quizpacks/export", async (HttpContext http, RazorClassLibrary.
         }
     });
 
-// Upload an image file (multipart/form-data). Field name: "file"
-app.MapPost("/api/images/upload", async (HttpRequest req, IWebHostEnvironment env, HttpContext http) =>
-{
-    try
-    {
-        const string mirroredMachineName = "J40L4V3";
-        var mirrorDirectories = new[]
-        {
-            @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\VoiceAdmin\wwwroot\images",
-            @"C:\Users\MPhil\source\repos\VoiceLauncherBlazor\WinFormsApp\wwwroot\images"
-        };
-
-        var form = await req.ReadFormAsync();
-        var file = form.Files.FirstOrDefault();
-        if (file == null)
-            return Results.BadRequest("No file uploaded");
-
-        var allowed = new[] { ".png", ".jpg", ".jpeg", ".webp", ".gif" };
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (!allowed.Contains(ext))
-            return Results.BadRequest("Unsupported file type");
-
-        var webRoot = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
-        var imagesDir = Path.Combine(webRoot, "images");
-        Directory.CreateDirectory(imagesDir);
-
-        var id = Guid.NewGuid().ToString("N");
-        var filename = $"launcher-{id}{ext}";
-        var thumbFilename = $"launcher-{id}-thumb.png";
-        var filePath = Path.Combine(imagesDir, filename);
-        static bool IsSamePath(string pathA, string pathB)
-        {
-            var fullA = Path.GetFullPath(pathA).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            var fullB = Path.GetFullPath(pathB).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            return string.Equals(fullA, fullB, StringComparison.OrdinalIgnoreCase);
-        }
-
-        using (var fs = File.Create(filePath))
-        {
-            await file.CopyToAsync(fs);
-        }
-
-        if (string.Equals(Environment.MachineName, mirroredMachineName, StringComparison.OrdinalIgnoreCase))
-        {
-            foreach (var mirrorDirectory in mirrorDirectories)
-            {
-                Directory.CreateDirectory(mirrorDirectory);
-                var mirrorPath = Path.Combine(mirrorDirectory, filename);
-                if (!IsSamePath(filePath, mirrorPath))
-                {
-                    File.Copy(filePath, mirrorPath, overwrite: true);
-                }
-            }
-        }
-
-        try
-        {
-            using (var image = Image.Load(filePath))
-            {
-                image.Mutate(x => x.Resize(new ResizeOptions { Size = new SixLabors.ImageSharp.Size(256, 256), Mode = ResizeMode.Crop }));
-                await image.SaveAsPngAsync(Path.Combine(imagesDir, thumbFilename));
-            }
-
-            if (string.Equals(Environment.MachineName, mirroredMachineName, StringComparison.OrdinalIgnoreCase))
-            {
-                var thumbnailPath = Path.Combine(imagesDir, thumbFilename);
-                foreach (var mirrorDirectory in mirrorDirectories)
-                {
-                    Directory.CreateDirectory(mirrorDirectory);
-                    var mirrorThumbnailPath = Path.Combine(mirrorDirectory, thumbFilename);
-                    if (!IsSamePath(thumbnailPath, mirrorThumbnailPath))
-                    {
-                        File.Copy(thumbnailPath, mirrorThumbnailPath, overwrite: true);
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            var logger = http.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("ImageUpload");
-            logger.LogWarning(ex, "Failed to create thumbnail for uploaded image");
-        }
-
-        var result = new ImageGenerationResult { Filename = filename, Thumbnail = thumbFilename, Prompt = string.Empty, ProviderResponse = "uploaded", Model = "upload" };
-        return Results.Ok(result);
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
-
-// Generate an image from a provided prompt (body: { "prompt": "..." })
-app.MapPost("/api/images/generate", async (HttpContext http) =>
-{
-    try
-    {
-        var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
-        if (body == null || !body.TryGetValue("prompt", out var prompt) || string.IsNullOrWhiteSpace(prompt))
-        {
-            http.Response.StatusCode = 400;
-            await http.Response.WriteAsync("Missing prompt");
-            return;
-        }
-
-        var imageService = http.RequestServices.GetRequiredService<IImageGenerationService>();
-        ImageGenerationResult result;
-        try
-        {
-            result = await imageService.GenerateImageAsync(prompt);
-        }
-        catch (Exception ex)
-        {
-            var logger = http.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("ImageGeneration");
-            logger.LogError(ex, "Primary image provider failed; falling back to placeholder generator.");
-            var placeholder = http.RequestServices.GetRequiredService<PlaceholderImageGenerationService>();
-            result = await placeholder.GenerateImageAsync(prompt);
-            result.ProviderResponse = $"Primary provider failed: {ex.Message}";
-            result.Prompt = prompt;
-        }
-
-        await http.Response.WriteAsJsonAsync(result);
-    }
-    catch (Exception ex)
-    {
-        http.Response.StatusCode = 500;
-        await http.Response.WriteAsync($"Error generating image: {ex.Message}");
-    }
-});
- 
 // Admin endpoint to run BackfillDescriptionsAsync and populate Description values
 app.MapPost("/admin/backfill-descriptions", async (HttpContext http) =>
 {

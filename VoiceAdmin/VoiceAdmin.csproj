@@ -53,7 +53,7 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
     <PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.5" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="4.1.2" />
+    <!-- <PackageReference Include="SixLabors.ImageSharp" Version="4.1.2" /> -->
 </ItemGroup>
 
   <ItemGroup>
