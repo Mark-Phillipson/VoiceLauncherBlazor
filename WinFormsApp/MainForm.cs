@@ -388,9 +388,18 @@ namespace WinFormsApp
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 Content TEXT NOT NULL,
                                 CreatedAt TEXT NOT NULL,
-                                Type TEXT
+                                Type TEXT,
+                                IsPinned INTEGER NOT NULL DEFAULT 0
                             );";
                             cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = @"SELECT COUNT(1) FROM pragma_table_info('ClipboardHistory') WHERE name = 'IsPinned';";
+                            var hasPinned = Convert.ToInt32(cmd.ExecuteScalar() ?? 0) > 0;
+                            if (!hasPinned)
+                            {
+                                cmd.CommandText = @"ALTER TABLE ClipboardHistory ADD COLUMN IsPinned INTEGER NOT NULL DEFAULT 0;";
+                                cmd.ExecuteNonQuery();
+                            }
                             Debug.WriteLine("Ensured ClipboardHistory table exists.");
                         }
                         catch (Exception exCreate)
@@ -828,4 +837,3 @@ namespace WinFormsApp
         public string? Arguments { get; set; }
     }
 }
-

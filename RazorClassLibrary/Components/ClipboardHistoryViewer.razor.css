@@ -1,20 +1,3 @@
-.clipboard-history table th.created-col,
-.clipboard-history table td.created-col {
-  width: 90px;
-  max-width: 90px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 800px) {
-  .clipboard-history table th.created-col,
-  .clipboard-history table td.created-col {
-    width: 72px;
-    max-width: 72px;
-  }
-}
-
 .clipboard-history .copy-kbd kbd {
   background: #f8f9fa;
   border: 1px solid #bbb;
@@ -33,16 +16,27 @@
   table-layout: fixed;
 }
 
-/* Reserve a fixed-ish column for action buttons so they don't get pushed off-screen */
-.clipboard-history thead th:nth-child(3),
-.clipboard-history tbody td:nth-child(3) {
-  width: 200px;
+/* Keep Created wide enough to show full timestamp text */
+.clipboard-history table th.created-col,
+.clipboard-history table td.created-col {
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
   white-space: nowrap;
 }
 
-/* Make the preview column truncate with an ellipsis when space is limited */
-.clipboard-history thead th:nth-child(1),
-.clipboard-history tbody td:nth-child(1) {
+/* Keep Actions wide enough to fit all row buttons */
+.clipboard-history table th.actions-col,
+.clipboard-history table td.actions-col {
+  width: 310px;
+  min-width: 310px;
+  max-width: 310px;
+  white-space: nowrap;
+}
+
+/* Let Preview use remaining width and truncate long text */
+.clipboard-history table th.preview-col,
+.clipboard-history table td.preview-col {
   min-width: 0; /* allows the cell to shrink inside a fixed table layout */
   overflow: hidden;
   text-overflow: ellipsis;
@@ -50,24 +44,43 @@
 }
 
 /* Ensure the action buttons container doesn't wrap and buttons don't shrink */
-.clipboard-history tbody td:nth-child(3) .d-flex {
+.clipboard-history table td.actions-col .d-flex {
   display: flex;
   flex-wrap: nowrap;
   gap: 0.25rem;
   align-items: center;
 }
-.clipboard-history tbody td:nth-child(3) .d-flex > button {
+.clipboard-history table td.actions-col .d-flex > button {
   flex: 0 0 auto;
 }
 
-/* Slightly reduce button padding on very narrow screens so labels remain readable */
-@media (max-width: 480px) {
-  .clipboard-history thead th:nth-child(3),
-  .clipboard-history tbody td:nth-child(3) {
-    width: 160px;
+@media (max-width: 1200px) {
+  .clipboard-history table th.created-col,
+  .clipboard-history table td.created-col {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
   }
+
+  .clipboard-history table th.actions-col,
+  .clipboard-history table td.actions-col {
+    width: 270px;
+    min-width: 270px;
+    max-width: 270px;
+  }
+}
+
+/* Keep buttons usable on very narrow screens */
+@media (max-width: 900px) {
+  .clipboard-history table th.actions-col,
+  .clipboard-history table td.actions-col {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+  }
+
   .clipboard-history .btn-sm {
-    padding: .18rem .4rem;
-    font-size: .78rem;
+    padding: .18rem .38rem;
+    font-size: .76rem;
   }
 }

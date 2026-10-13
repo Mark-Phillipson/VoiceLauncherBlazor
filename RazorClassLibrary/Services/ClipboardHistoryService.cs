@@ -19,6 +19,7 @@ namespace RazorClassLibrary.Services
         private string _contentCol = "Content";
         private string _dateCol = "CreatedAt";
         private string _typeCol = "Type";
+        private string _isPinnedCol = "IsPinned";
 
         public ClipboardHistoryService(ISqlDataAccess db, IConfiguration config)
         {
@@ -73,6 +74,24 @@ namespace RazorClassLibrary.Services
 
                 var cType = Choose("Type", "type", "Kind", "kind", "Format", "format");
                 if (!string.IsNullOrEmpty(cType)) _typeCol = cType;
+
+                var cIsPinned = Choose("IsPinned", "isPinned", "is_pinned", "Pinned", "pinned");
+                if (!string.IsNullOrEmpty(cIsPinned))
+                {
+                    _isPinnedCol = cIsPinned;
+                }
+                else
+                {
+                    try
+                    {
+                        await _db.SaveData($"ALTER TABLE \"{TableName}\" ADD COLUMN \"{_isPinnedCol}\" INTEGER NOT NULL DEFAULT 0;", new { });
+                        _columnsFound.Add(_isPinnedCol);
+                    }
+                    catch
+                    {
+                        // Keep compatibility with existing DBs where ALTER TABLE cannot be applied.
+                    }
+                }
             }
             catch
             {
@@ -84,7 +103,7 @@ namespace RazorClassLibrary.Services
             }
         }
 
-        public async Task<(IEnumerable<ClipboardEntry> Items, int TotalCount)> QueryAsync(int page, int pageSize, string? search, DateTime? from, DateTime? to)
+        public async Task<(IEnumerable<ClipboardEntry> Items, int TotalCount)> QueryAsync(int page, int pageSize, string? search, DateTime? from, DateTime? to, ClipboardHistorySortOrder sortOrder = ClipboardHistorySortOrder.NewestFirst)
         {
             await EnsureSchemaAsync();
 
@@ -135,8 +154,18 @@ namespace RazorClassLibrary.Services
                 selectList.Add($"\"{_typeCol}\" AS Type");
             else
                 selectList.Add("NULL AS Type");
+            if (!string.IsNullOrEmpty(_isPinnedCol) && _columnsFound.Contains(_isPinnedCol))
+                selectList.Add($"\"{_isPinnedCol}\" AS IsPinned");
+            else
+                selectList.Add("0 AS IsPinned");
 
-            var orderBy = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol)) ? $"\"{_dateCol}\" DESC" : $"\"{_idCol}\" DESC";
+            var hasDate = !string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol);
+            var baseOrderBy = sortOrder == ClipboardHistorySortOrder.OldestFirst
+                ? (hasDate ? $"\"{_dateCol}\" ASC" : $"\"{_idCol}\" ASC")
+                : (hasDate ? $"\"{_dateCol}\" DESC" : $"\"{_idCol}\" DESC");
+            var orderBy = (!string.IsNullOrEmpty(_isPinnedCol) && _columnsFound.Contains(_isPinnedCol))
+                ? $"\"{_isPinnedCol}\" DESC, {baseOrderBy}"
+                : baseOrderBy;
 
             var sql = $"SELECT {string.Join(", ", selectList)} FROM \"{TableName}\" {where} ORDER BY {orderBy} LIMIT @pageSize OFFSET @offset";
             parameters.Add("pageSize", pageSize);
@@ -158,7 +187,10 @@ namespace RazorClassLibrary.Services
                 var typeExpr = (!string.IsNullOrEmpty(_typeCol) && _columnsFound.Contains(_typeCol))
                     ? $"\"{_typeCol}\" AS Type"
                     : "NULL AS Type";
-                var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" = @id";
+                var pinnedExpr = (!string.IsNullOrEmpty(_isPinnedCol) && _columnsFound.Contains(_isPinnedCol))
+                    ? $"\"{_isPinnedCol}\" AS IsPinned"
+                    : "0 AS IsPinned";
+                var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr}, {pinnedExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" = @id";
                 var item = await _db.LoadSingleData<ClipboardEntry, object>(sql, new { id });
                 return item;
             }
@@ -173,6 +205,18 @@ namespace RazorClassLibrary.Services
             await EnsureSchemaAsync();
             var sql = $"UPDATE \"{TableName}\" SET \"{_contentCol}\" = @Content WHERE \"{_idCol}\" = @Id";
             await _db.SaveData(sql, new { entry.Content, entry.Id });
+        }
+
+        public async Task SetPinnedAsync(long id, bool isPinned)
+        {
+            await EnsureSchemaAsync();
+            if (string.IsNullOrEmpty(_isPinnedCol) || !_columnsFound.Contains(_isPinnedCol))
+            {
+                throw new InvalidOperationException("ClipboardHistory schema does not include an IsPinned column.");
+            }
+
+            var sql = $"UPDATE \"{TableName}\" SET \"{_isPinnedCol}\" = @IsPinned WHERE \"{_idCol}\" = @Id";
+            await _db.SaveData(sql, new { Id = id, IsPinned = isPinned ? 1 : 0 });
         }
 
         public async Task DeleteAsync(long id)
@@ -190,7 +234,7 @@ namespace RazorClassLibrary.Services
             await _db.SaveData(sql, new { ids = arr });
         }
 
-        public async Task<IEnumerable<ClipboardEntry>> ExportAsync(IEnumerable<long> ids)
+        public async Task<IEnumerable<ClipboardEntry>> ExportAsync(IEnumerable<long> ids, ClipboardHistorySortOrder sortOrder = ClipboardHistorySortOrder.NewestFirst)
         {
             var arr = ids.ToArray();
             await EnsureSchemaAsync();
@@ -200,10 +244,17 @@ namespace RazorClassLibrary.Services
             var typeExpr = (!string.IsNullOrEmpty(_typeCol) && _columnsFound.Contains(_typeCol))
                 ? $"\"{_typeCol}\" AS Type"
                 : "NULL AS Type";
-            var orderBy = (!string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol))
-                ? $"\"{_dateCol}\" DESC"
-                : $"\"{_idCol}\" DESC";
-            var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" IN @ids ORDER BY {orderBy}";
+            var pinnedExpr = (!string.IsNullOrEmpty(_isPinnedCol) && _columnsFound.Contains(_isPinnedCol))
+                ? $"\"{_isPinnedCol}\" AS IsPinned"
+                : "0 AS IsPinned";
+            var hasDate = !string.IsNullOrEmpty(_dateCol) && _columnsFound.Contains(_dateCol);
+            var baseOrderBy = sortOrder == ClipboardHistorySortOrder.OldestFirst
+                ? (hasDate ? $"\"{_dateCol}\" ASC" : $"\"{_idCol}\" ASC")
+                : (hasDate ? $"\"{_dateCol}\" DESC" : $"\"{_idCol}\" DESC");
+            var orderBy = (!string.IsNullOrEmpty(_isPinnedCol) && _columnsFound.Contains(_isPinnedCol))
+                ? $"\"{_isPinnedCol}\" DESC, {baseOrderBy}"
+                : baseOrderBy;
+            var sql = $"SELECT \"{_idCol}\" AS Id, \"{_contentCol}\" AS Content, {dateExpr}, {typeExpr}, {pinnedExpr} FROM \"{TableName}\" WHERE \"{_idCol}\" IN @ids ORDER BY {orderBy}";
             var items = await _db.LoadData<ClipboardEntry, object>(sql, new { ids = arr });
             return items;
         }

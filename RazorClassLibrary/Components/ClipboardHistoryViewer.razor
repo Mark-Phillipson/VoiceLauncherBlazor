@@ -23,6 +23,11 @@
             title="Search (accesskey: S)">Search <kbd class="ms-1">S</kbd></button>
     <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R"
             title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
+    <select class="form-select ms-2" style="max-width: 220px;" @bind="SortOrder" @bind:after="SortOrderChanged"
+            aria-label="Sort clipboard history">
+      <option value="@ClipboardHistorySortOrder.NewestFirst">Sort: Newest first</option>
+      <option value="@ClipboardHistorySortOrder.OldestFirst">Sort: Oldest first</option>
+    </select>
   </div>
 
   @if (IsLoading)
@@ -36,9 +41,9 @@
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>Preview</th>
+        <th class="preview-col">Preview</th>
         <th class="created-col">Created</th>
-        <th>Actions</th>
+        <th class="actions-col">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -57,9 +62,15 @@
           var ariaShortcut = !string.IsNullOrEmpty(accessKey) ? AccessKeyMapper.GetAriaKeyShortcuts(accessKey) :
       string.Empty;
           <tr>
-            <td>@(item.Content?.Length > 200 ? item.Content.Substring(0, 200) + "..." : item.Content)</td>
+            <td class="preview-col">
+              @if (item.IsPinned)
+              {
+                <span class="badge bg-warning text-dark me-1">Pinned</span>
+              }
+              @(item.Content?.Length > 150 ? item.Content.Substring(0, 150) + "..." : item.Content)
+            </td>
             <td class="created-col">@TimeFormatter.FormatTimestamp(item.CreatedAt)</td>
-            <td>
+            <td class="actions-col">
               <div class="d-flex gap-1 flex-nowrap align-items-center">
                 @if (!string.IsNullOrEmpty(accessKey))
                 {
@@ -76,6 +87,9 @@
                           title="Copy to clipboard" aria-label="Copy to clipboard">Copy</button>
                 }
                 <button class="btn btn-sm btn-outline-primary" @onclick="() => Edit(item.Id)">Edit</button>
+                <button class="btn btn-sm btn-outline-warning" @onclick="() => TogglePinned(item)">
+                  @(item.IsPinned ? "Unpin" : "Pin")
+                </button>
                 <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(item.Id)">Delete</button>
               </div>
             </td>
@@ -138,6 +152,7 @@
   private long? EditingId;
   private string EditingContent = string.Empty;
   private bool IsLoading = false;
+  private ClipboardHistorySortOrder SortOrder = ClipboardHistorySortOrder.NewestFirst;
   private string DiagnosticsMessage = string.Empty;
   private string EffectiveConnectionString = string.Empty;
   private string SchemaInfo = string.Empty;
@@ -217,7 +232,7 @@
         SchemaInfo = "(schema read error: " + exSchema.Message + ")";
       }
 
-      var res = await ClipboardService.QueryAsync(Page, PageSize, Search, null, null);
+      var res = await ClipboardService.QueryAsync(Page, PageSize, Search, null, null, SortOrder);
       Items = res.Items.ToList();
       TotalCount = res.TotalCount;
 
@@ -266,7 +281,17 @@
     }
   }
 
-    
+  private async Task SortOrderChanged()
+  {
+    Page = 1;
+    await LoadPage();
+  }
+
+  private async Task TogglePinned(ClipboardEntry item)
+  {
+    await ClipboardService.SetPinnedAsync(item.Id, !item.IsPinned);
+    await LoadPage();
+  }
 
   private async Task Edit(long id)
   {
