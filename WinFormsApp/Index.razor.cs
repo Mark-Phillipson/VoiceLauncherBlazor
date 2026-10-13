@@ -25,7 +25,8 @@ namespace WinFormsApp
 		private int categoryId;
 		// Component references to read child selection state when toggling views
 		private RazorClassLibrary.Pages.CustomIntelliSenseTable? customIntelliSenseTableRef;
-		private RazorClassLibrary.Pages.CustomIntelliSenses? customIntelliSensesRef;
+		private RazorClassLibrary.Pages.CustomIntelliSenses? customIntelliSensesDisplayRef;
+		private RazorClassLibrary.Pages.CustomIntelliSenses? customIntelliSensesDefaultRef;
 		private RazorClassLibrary.Pages.LauncherTable? launcherTableRef;
 		// Remember last seen snippet and launcher selections so toggling preserves them
 		private int lastSnippetLanguageId = 0;
@@ -41,6 +42,84 @@ namespace WinFormsApp
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
 		private bool showClipboardHistory = false;
+		private bool keepTalonSearchAlive = false;
+		private bool keepClipboardHistoryAlive = false;
+		private bool keepSnippetsAlive = false;
+		private bool keepDisplaySearchAlive = false;
+		private bool keepLauncherAlive = false;
+		private bool keepDefaultSnippetsAlive = false;
+		private bool keepAIChatAlive = false;
+
+		private bool IsDefaultSnippetsViewActive =>
+			!showAIChat &&
+			!showTalonSearch &&
+			!showClipboardHistory &&
+			!languageAndCategoryListing &&
+			!displayValueSearch &&
+			!launcher;
+
+		private bool ShouldRenderAIChat
+		{
+			get
+			{
+				keepAIChatAlive |= showAIChat;
+				return showAIChat || keepAIChatAlive;
+			}
+		}
+
+		private bool ShouldRenderTalonSearch
+		{
+			get
+			{
+				keepTalonSearchAlive |= showTalonSearch;
+				return showTalonSearch || keepTalonSearchAlive;
+			}
+		}
+
+		private bool ShouldRenderClipboardHistory
+		{
+			get
+			{
+				keepClipboardHistoryAlive |= showClipboardHistory;
+				return showClipboardHistory || keepClipboardHistoryAlive;
+			}
+		}
+
+		private bool ShouldRenderSnippets
+		{
+			get
+			{
+				keepSnippetsAlive |= languageAndCategoryListing;
+				return languageAndCategoryListing || keepSnippetsAlive;
+			}
+		}
+
+		private bool ShouldRenderDisplaySearch
+		{
+			get
+			{
+				keepDisplaySearchAlive |= displayValueSearch;
+				return displayValueSearch || keepDisplaySearchAlive;
+			}
+		}
+
+		private bool ShouldRenderLauncher
+		{
+			get
+			{
+				keepLauncherAlive |= launcher;
+				return launcher || keepLauncherAlive;
+			}
+		}
+
+		private bool ShouldRenderDefaultSnippets
+		{
+			get
+			{
+				keepDefaultSnippetsAlive |= IsDefaultSnippetsViewActive;
+				return IsDefaultSnippetsViewActive || keepDefaultSnippetsAlive;
+			}
+		}
 
 		[Parameter]
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -335,6 +414,7 @@ namespace WinFormsApp
 						SetTitle("AI Chat");
 						// Enable AI Chat exclusively
 						showAIChat = true;
+						keepAIChatAlive = true;
 						languageAndCategoryListing = false;
 						launcher = false;
 						showTalonSearch = false;
@@ -477,6 +557,7 @@ namespace WinFormsApp
 				SetTitle("AI Chat");
 				// Enable AI Chat exclusively
 				showAIChat = true;
+				keepAIChatAlive = true;
 				languageAndCategoryListing = false;
 				launcher = false;
 				showTalonSearch = false;
@@ -486,6 +567,7 @@ namespace WinFormsApp
 				SetTitle("AI Chat");
 				// Enable AI Chat exclusively
 				showAIChat = true;
+				keepAIChatAlive = true;
 				languageAndCategoryListing = false;
 				launcher = false;
 				showTalonSearch = false;
@@ -714,6 +796,7 @@ namespace WinFormsApp
 			{
 				// Turning on AI Chat
 				showAIChat = true;
+				keepAIChatAlive = true;
 				// Reset other views when showing AI Chat
 				languageAndCategoryListing = false;
 				displayValueSearch = false;
@@ -924,10 +1007,15 @@ namespace WinFormsApp
 					lastSnippetLanguageId = customIntelliSenseTableRef.SelectedLanguageId;
 					lastSnippetCategoryId = customIntelliSenseTableRef.SelectedCategoryId;
 				}
-				else if (customIntelliSensesRef != null)
+				else if (customIntelliSensesDisplayRef != null)
 				{
-					lastSnippetLanguageId = customIntelliSensesRef.LanguageIdFilter ?? 0;
-					lastSnippetCategoryId = customIntelliSensesRef.CategoryIdFilter ?? 0;
+					lastSnippetLanguageId = customIntelliSensesDisplayRef.LanguageIdFilter ?? 0;
+					lastSnippetCategoryId = customIntelliSensesDisplayRef.CategoryIdFilter ?? 0;
+				}
+				else if (customIntelliSensesDefaultRef != null)
+				{
+					lastSnippetLanguageId = customIntelliSensesDefaultRef.LanguageIdFilter ?? 0;
+					lastSnippetCategoryId = customIntelliSensesDefaultRef.CategoryIdFilter ?? 0;
 				}
 			}
 			catch { }
@@ -1005,6 +1093,7 @@ namespace WinFormsApp
 			}
 
 			languageAndCategoryListing = true;
+			displayValueSearch = false;
 			launcher = false;
 			showAIChat = false;
 			showTalonSearch = false;

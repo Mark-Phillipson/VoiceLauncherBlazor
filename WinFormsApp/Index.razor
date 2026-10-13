@@ -53,39 +53,53 @@
 		</div>
 	}
 	<div class="host-content-shell">
-		@if (showAIChat)
+		@if (ShouldRenderAIChat)
 		{
-			<AIChatComponent RunningInBlazorHybrid="true" />
+			<div class="@(showAIChat ? string.Empty : "d-none")" aria-hidden="@(!showAIChat)">
+				<AIChatComponent RunningInBlazorHybrid="true" />
+			</div>
 		}
-		else if (showTalonSearch)
+		@if (ShouldRenderTalonSearch)
 		{
-			<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" />
+			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
+				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" />
+			</div>
 		}
-		else if (showClipboardHistory)
+		@if (ShouldRenderClipboardHistory)
 		{
-			<ClipboardHistory />
+			<div class="@(showClipboardHistory ? string.Empty : "d-none")" aria-hidden="@(!showClipboardHistory)">
+				<ClipboardHistory />
+			</div>
 		}
-		else if (languageAndCategoryListing)
+		@if (ShouldRenderSnippets)
 		{
-			<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId"
-									 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+			<div class="@(languageAndCategoryListing ? string.Empty : "d-none")" aria-hidden="@(!languageAndCategoryListing)">
+				<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId"
+								 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+			</div>
 		}
-		else if (displayValueSearch)
+		@if (ShouldRenderDisplaySearch)
 		{
-			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
-									 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
-									 MaximizeApplication="MaximizeWindow" />
-		}
-		else if (launcher)
-		{
-			<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow"
-						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
-		}
-		else
-		{
-			<CustomIntelliSenses @ref="customIntelliSensesRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
+			<div class="@(displayValueSearch ? string.Empty : "d-none")" aria-hidden="@(!displayValueSearch)">
+				<CustomIntelliSenses @ref="customIntelliSensesDisplayRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
 								 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
 								 MaximizeApplication="MaximizeWindow" />
+			</div>
+		}
+		@if (ShouldRenderLauncher)
+		{
+			<div class="@(launcher ? string.Empty : "d-none")" aria-hidden="@(!launcher)">
+				<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow"
+						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
+			</div>
+		}
+		@if (ShouldRenderDefaultSnippets)
+		{
+			<div class="@(IsDefaultSnippetsViewActive ? string.Empty : "d-none")" aria-hidden="@(!IsDefaultSnippetsViewActive)">
+				<CustomIntelliSenses @ref="customIntelliSensesDefaultRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
+							 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
+							 MaximizeApplication="MaximizeWindow" />
+			</div>
 		}
 	</div>
 </CascadingBlazoredModal>
