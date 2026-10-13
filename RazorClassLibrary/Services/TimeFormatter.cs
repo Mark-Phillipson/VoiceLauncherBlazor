@@ -27,7 +27,7 @@ namespace RazorClassLibrary.Services
             }
             else
             {
-                return createdUtc.ToLocalTime().ToString("MMM d, yyyy h:mm tt", CultureInfo.InvariantCulture);
+                return createdUtc.ToLocalTime().ToString("MMM d, h:mm tt", CultureInfo.InvariantCulture);
             }
         }
     }
