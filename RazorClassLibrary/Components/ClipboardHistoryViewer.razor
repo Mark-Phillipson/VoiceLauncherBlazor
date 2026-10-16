@@ -21,7 +21,7 @@
            title="Press Enter to search" accesskey="k" aria-keyshortcuts="K" @ref="searchInputRef" />
     <button class="btn btn-primary me-2" @onclick="SearchAsync" accesskey="s" aria-keyshortcuts="S"
             title="Search (accesskey: S)">Search <kbd class="ms-1">S</kbd></button>
-    <button class="btn btn-secondary" @onclick="Refresh" accesskey="r" aria-keyshortcuts="R"
+    <button class="btn btn-secondary" @onclick="Refresh" accesskey="R" 
             title="Refresh (accesskey: R)">Refresh <kbd class="ms-1">R</kbd></button>
     <select class="form-select ms-2" style="max-width: 220px;" @bind="SortOrder" @bind:after="SortOrderChanged"
             aria-label="Sort clipboard history">

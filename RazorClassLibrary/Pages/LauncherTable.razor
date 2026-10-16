@@ -6,7 +6,7 @@
     {
         <div class="col-auto d-flex align-items-center gap-1">
             <h6 class="mb-0">@Title</h6>
-            <div class="d-flex gap-1">
+            <div class="d-flex gap-2">
                 <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
                     <i class="bi bi-sort-alpha-up"></i>
                 </button>
@@ -57,7 +57,7 @@
     {
         <div class="col-md-4 me-1">
             <div class="input-group">
-                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
+                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1000" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                     <span class="ms-1"><span class="shortcut">(Alt+R)</span></span>
@@ -131,26 +131,32 @@ else
                             var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
                             ? launcher.Icon
                             : $"/images/{launcher.Icon}";
-                            <img alt='Icon' src='@iconSrc' class="mb-2" />
+                            <img alt='Icon' src='@iconSrc' class="mb-2" style="width: 100%; height: 100%;" />
                         }
                         else
                         {
                             <i class="fa-solid fa-rocket mb-2"></i>
                         }
-                        <span><u>@currentLetter</u> @launcher.Name</span>
                     </a>
                     @if (!RunningInBlazorHybrid)
                     {
-                        <div class="btn-group">
+                        <div class="d-flex justify-content-end gap-4">
+                            <span><u>@currentLetter</u> @launcher.Name</span>
+                                
+                            
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <span>@editAccessKeyNum</span> }
+                                <i class="bi bi-pencil"> </i> @if (hasEditAccessKey) { <span> @editAccessKeyNum </span> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
+                    }
+                    else
+                    {
+                        <span><u>@currentLetter</u> @launcher.Name</span>
                     }
                 </div>
             }
