@@ -144,7 +144,7 @@ else
 					}
 					<div class="card p-2">
 						<button accesskey="@temporaryAccessKey" class="btn"
-							style="color:black;background-color:@intellisense.Language.Colour"
+							style="color:black;background-color:@intellisense.Language.Colour;width:100%;"
 							@onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
 							@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
 							@if (temporaryAccessKey != "")
@@ -161,18 +161,18 @@ else
 					alphabetCounter++;
 					currentLetter = Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter;
 					<div class="card p-2" title="@intellisense.SendKeysValue">
-						<div class="d-flex flex-row align-items-center justify-content-center gap-2">
-							<button class="btn btn-outline-warning px-3 py-1" style="width:auto;min-width:unset;" @onclick="@(() => EditAsync(intellisense.Id))"
+						<div class="d-flex flex-row align-items-left justify-content-left gap-3">
+							<button class="btn btn-outline-warning px-3 py-1" style="width:170px;" @onclick="@(() => EditAsync(intellisense.Id))"
 								@onfocus="@(()=> ShowValue(intellisense.Id))">
 								@intellisense.DisplayValue
 								<i class="fa-regular fa-edit ms-1"></i>
 							</button>
 							@if (!string.IsNullOrWhiteSpace(currentLetter))
 							{
-								<button accesskey="@currentLetter" class="btn btn-outline-danger px-2 py-1"
-									style="width:auto;min-width:unset;"
-									@onclick="@(() => CopyAndPasteAsync(intellisense!.SendKeysValue ?? "",intellisense.Id))">
-									<u>@currentLetter</u> <i class="fa-solid fa-paste ms-1"></i>
+								<button accesskey="@currentLetter" class="btn btn-outline-primary px-2 py-1"
+									style="width:70px;height:38px;"
+									@onclick="@(() => CopyItemAsync(intellisense!.SendKeysValue ?? "",intellisense.Id))">
+									<u>@currentLetter</u> <i class="bi bi-clipboard ms-1"></i>
 								</button>
 							}
 						</div>
