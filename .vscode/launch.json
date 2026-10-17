@@ -1,6 +1,12 @@
 {
     "version": "0.2.0",
     "configurations": [
+        {
+            "name": "C#: Voice Admin Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/VoiceAdmin/VoiceAdmin.csproj"
+        },
                 {
             "name": ".NET Launch (Port 7264 Check)",
             "type": "coreclr",

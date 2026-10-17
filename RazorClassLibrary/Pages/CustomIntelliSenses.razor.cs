@@ -130,6 +130,8 @@ namespace RazorClassLibrary.Pages
 			language = null;
 			_languageFilter = null;
 			_categoryFilter = null;
+			intellisenses = null;
+			customIntelliSenseCurrent = null;
 
 			// Reload data
 			await LoadData();
@@ -184,7 +186,9 @@ namespace RazorClassLibrary.Pages
 				try
 				{
 					_loadFailed = false;
-					//intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(maximumRows: MaximumRows);
+					intellisenses=null;
+					customIntelliSenseCurrent = null;
+					// intellisenses = await CustomIntellisenseService.GetCustomIntelliSensesAsync(maximumRows: MaximumRows);
 				}
 				catch (Exception exception)
 				{
@@ -212,6 +216,13 @@ namespace RazorClassLibrary.Pages
 				await PopulateFilters();
 				UpdateSelectedIntellisense();
 				Title = $"Snippets ({intellisenses?.Count})";
+				await SafeStateHasChangedAsync();
+			}
+			else
+			{
+				intellisenses = null;
+				customIntelliSenseCurrent = null;
+				UpdateSelectedIntellisense();
 				await SafeStateHasChangedAsync();
 			}
 		}
