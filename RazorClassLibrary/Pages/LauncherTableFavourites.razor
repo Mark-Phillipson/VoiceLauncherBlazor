@@ -82,8 +82,13 @@ else
 							{
 								<i style='font-size:45px'>🚀</i>
 							}
-							<span class='p-3 d-flex align-items-center justify-content-between w-100' style="color:var(--text) !important; -webkit-text-fill-color:var(--text) !important;">
-								<span><u>@counter</u> @launcher.Name</span>
+							<span class='p-3 d-flex align-items-center justify-content-between w-100' style="color:white !important; -webkit-text-fill-color:white !important;">
+									@if (counter<=9) {
+									<span style="color:white"><kbd class="launcher-counter">@counter</kbd> @launcher.Name</span>
+									}
+									else {
+										<span>@launcher.Name</span>
+									}
 								<span class="d-flex align-items-center">
 											    <button type="button" class="btn btn-link p-0 me-2 heart-toggle" title="Toggle Favorite"
 												    aria-pressed="@launcher.Favourite" @onclick:stopPropagation="true" @onclick:preventDefault="true" @onclick="async () => { launcher.Favourite = !launcher.Favourite; await UpdateFavorite(launcher); }">
@@ -191,6 +196,20 @@ else
 		font-size: 0.85rem;
 		margin-left: 0.35rem;
 		color: var(--bs-muted, #6c757d);
+	}
+
+	/* Make the counter chip readable on light and dark card surfaces */
+	.launcher-counter {
+		display: inline-block;
+		color: #ffffff !important;
+		-webkit-text-fill-color: #ffffff !important;
+		background-color: #000000 !important;
+		border: 1px solid rgba(255, 255, 255, 0.25) !important;
+		border-radius: 0.25rem;
+		padding: 0.1rem 0.35rem;
+		font-weight: 700;
+		line-height: 1;
+		vertical-align: middle;
 	}
 
 	/* Toggle button active state */

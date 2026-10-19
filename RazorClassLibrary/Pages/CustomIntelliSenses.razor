@@ -8,64 +8,68 @@
 	<header class="form-inline mx-1">
 		<h4 style="display:inline-block">
 			<i class="bi bi-code-slash"></i>
-			@Title
+			@Title (Custom IntelliSenses)
 		</h4>
 	</header>
 }
 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-	<button title='Add New Snippet (Alt+0)' class="btn btn-sm btn-outline-success" accesskey="0"
-			@onclick="CreateNew">Add (0)</button>
+	<button title='Add New Snippet (Alt+0)' class="btn btn-outline-success" accesskey="0"
+			@onclick="CreateNew">Add (<kbd>0</kbd>)</button>
 	@if (!RunningInBlazorHybrid)
 	{
-		<input title='Filter by Language (Alt+1)' accesskey="1" style="width: 200px;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter (1)"
-			   class="form-control form-control-sm" />
-		<input title='Filter by Category (Alt+2)' accesskey="2" style="width: 200px;" id="categoryFilter"
-			   @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryfilter"))" placeholder="Category Filter (2)"
-			   class="form-control form-control-sm" />
+		<kbd>1</kbd>
+		<input title='Filter by Language' accesskey="1" style="width: 200px;" id="languageFilter"
+			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter"
+			   class="form-control" />
+		<kbd>2</kbd>
+		<input title='Filter by Category' accesskey="2" style="width: 200px;" id="categoryFilter"
+			   @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryfilter"))" placeholder="Category Filter"
+			   class="form-control" />
+		<kbd>3</kbd>
 		<div class="input-group" style="width: 350px;">
 			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
 				   @onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text"
-				   class="form-control form-control-sm" accesskey="3" placeholder="Blur to Filter (3)" />
-			<button class="btn btn-sm btn-outline-secondary" type="button" title="Remove Filter" aria-label="Remove Filter"
+				   class="form-control" accesskey="3" placeholder="Blur to Filter" />
+			<button class="btn btn-outline-secondary" type="button" title="Remove Filter (Alt+8)" accesskey="8" aria-label="Remove Filter"
 					@onclick="RemoveFilter">
 				<i class="bi bi-funnel text-danger"></i>
-				<span class="ms-1 d-none d-sm-inline">Remove</span>
+				<span class="ms-1 d-none d-sm-inline"><kbd>8</kbd> Remove</span>
 			</button>
 		</div>
 		@if (!RunningInBlazorHybrid)
 		{
-			<div class="d-flex align-items-center">
+			@* <div class="d-flex align-items-center">
 				<label for='useSemanticMatching' class="me-2">Semantic?</label>
 				<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
 					   class='form-checkbox' />
-			</div>
+			</div> *@
 		}
 		@if (!string.IsNullOrWhiteSpace(SearchTerm) || !string.IsNullOrWhiteSpace(language?.LanguageName) ||
 				!string.IsNullOrWhiteSpace(category?.CategoryName) || _languageFilter != null || _categoryFilter != null)
 		{
-			<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary" type="button"
-					@onclick="@( ( ) => RemoveFilter(  ) )">
-				<i class="bi bi-funnel text-danger"></i>
-				<span class="ms-1 d-none d-sm-inline">Remove All Filters</span>
-				<span class="shortcut">(Alt+4)</span>
-			</button>
+			@if (RunningInBlazorHybrid)
+			{
+				<button title='Remove Filter (Alt+4)' accesskey="4" class="btn btn-sm btn-outline-primary" type="button"
+						@onclick="@( ( ) => RemoveFilter(  ) )">
+					<i class="bi bi-funnel text-danger"></i>
+					<span class="ms-1 d-none d-sm-inline">Remove All Filters</span>
+					<span class="shortcut">(Alt+4)</span>
+				</button>
+			}
 		}
-		<button class="btn btn-sm btn-outline-secondary" type="button" title="Refresh" @onclick="@( ( ) => LoadData(  ) )">
+		<button class="btn btn-outline-secondary" type="button" title="Refresh" accesskey="9" @onclick="@( ( ) => LoadData(  ) )">
 			<i class="bi bi-arrow-clockwise"></i>
-			<span class="ms-1 d-none d-sm-inline">Refresh</span>
+			<span class="ms-1 d-none d-sm-inline"><kbd>9</kbd> Refresh</span>
 		</button>
 	}
 	else
 	{
-		<input accesskey="1" style="max-width:25%;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter (1)"
-			   class="form-control" />
+		<input accesskey="1" style="max-width:25%;" id="languageFilter" @oninput="@(e => CallChangeAsync("languageFilter"))"
+			   @bind="_languageFilter" placeholder="Language Filter (1)" class="form-control" />
 		<input accesskey="2" style="max-width:25%;" id="categoryFilter" @bind="_categoryFilter"
 			   @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)" class="form-control" />
 		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
-			   id="SearchInput" class="form-control" style="max-width:25%;" accesskey="3"
-			   placeholder="Blur to Filter (3)" />
+			   id="SearchInput" class="form-control" style="max-width:25%;" accesskey="3" placeholder="Blur to Filter (3)" />
 		<div class="d-flex align-items-center">
 			@* <label for='useSemanticMatching' class="me-2">Semantic?</label>
 			<input id='useSemanticMatching' title='Use Semantic Matching' type='checkbox' @bind='useSemanticMatching'
@@ -84,18 +88,18 @@
 			@if (showExtras)
 			{
 				<div class="d-flex align-items-center">
-					<label class="control-label me-2" for="_showTiles">Show <u>T</u>iles</label>
-					<input accesskey="t" id="_showTiles" @bind="_showTiles" type="checkbox" class="form-checkbox" />
+					<label class="control-label me-2" for="_showTiles"><kbd>5</kbd> Show Cards & Hide Table</label>
+					<input accesskey="5" id="_showTiles" @bind="_showTiles" type="checkbox" class="form-checkbox" />
 				</div>
 				<div class="d-flex align-items-center">
-					<label for="_showOnlyLanguageAndCategory" class="control-label me-2"><u>H</u>ide</label>
-					<input accesskey="h" id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox"
+					<label for="_showOnlyLanguageAndCategory" class="control-label me-2"><kbd>6</kbd> Hide Details</label>
+					<input accesskey="6" id="_showOnlyLanguageAndCategory" @bind="_showOnlyLanguageAndCategory" type="checkbox"
 						   class="form-checkbox" title='Hide Snippets' />
 				</div>
 			}
 			<div class="d-flex align-items-center">
-				<label class="control-label me-2" for="showExtras">Show E<u>x</u>tras</label>
-				<input accesskey="x" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox" />
+				<label class="control-label me-2" for="showExtras"><kbd>7</kbd> <i class="bi bi-gear"></i> Show Settings?</label>
+				<input accesskey="7" id="showExtras" @bind="showExtras" type="checkbox" class="form-checkbox" />
 			</div>
 		}
 	</div>

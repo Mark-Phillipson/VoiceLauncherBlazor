@@ -1,10 +1,8 @@
 ---
 name: component-dark-light-fix
-description: |
-  Make the Talon UI component `TalonVoiceCommandSearch` (or another specified component) fully support both light and dark themes.
-  Use this prompt when you want an automated, repeatable agent to inspect a Blazor component, find hard-coded dark/light styles, add CSS variables, and produce small targeted code patches to ensure theme compatibility.
+description: "Make the Talon UI component `TalonVoiceCommandSearch` (or another specified component) fully support both light and dark themes.\nUse this prompt when you want an automated, repeatable agent to inspect a Blazor component, find hard-coded dark/light styles, add CSS variables, and produce small targeted code patches to ensure theme compatibility."
+disable-model-invocation: true
 ---
-
 Task:
 - Inspect the specified Blazor component and its scoped CSS.
 - Find hard-coded color values (hex, rgb, inline styles, `btn-dark`, `table-dark`, `.bg-dark`, etc.) that force dark or light coloring.
