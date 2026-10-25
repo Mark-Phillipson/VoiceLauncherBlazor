@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Components.Web;
 using System.Text.Json;
 using System.IO;
 using System.Diagnostics;
+using Blazored.Toast.Services;
 namespace RazorClassLibrary.Pages;
 
 public partial class AIChatComponent : ComponentBase, IDisposable
@@ -69,6 +70,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     [Inject] public required IJSRuntime JSRuntime { get; set; }
     [Inject] public required IConfiguration Configuration { get; set; } // Added
     [Inject] public required HttpClient Http { get; set; }
+    [Inject] public IToastService? ToastService { get; set; }
 
     ChatHistory chatHistory = new();
     private bool isPluginImported = false;
@@ -102,6 +104,12 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private PromptDTO? selectedPrompt = null;
     private int selectedPromptId = 0;
     private string prompt = "";
+    private bool showCopyConfirmation;
+    private const int CopyConfirmationDurationMs = 2000;
+    private CancellationTokenSource? copyConfirmationCts;
+    private MarkupString CopyButtonCaption => showCopyConfirmation
+        ? (MarkupString)"Copied!"
+        : (MarkupString)"Cop<u>y</u>";
     private string PromptWithDebounce
     {
         get => prompt;
@@ -619,6 +627,36 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
         await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
+        ToastService?.ShowSuccess("Copied to clipboard.");
+        await ShowCopyConfirmationAsync();
+    }
+
+    private async Task ShowCopyConfirmationAsync()
+    {
+        copyConfirmationCts?.Cancel();
+        copyConfirmationCts?.Dispose();
+        copyConfirmationCts = new CancellationTokenSource();
+        var token = copyConfirmationCts.Token;
+
+        showCopyConfirmation = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            await Task.Delay(CopyConfirmationDurationMs, token);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
+
+        if (token.IsCancellationRequested)
+        {
+            return;
+        }
+
+        showCopyConfirmation = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task EditInVsCode(string? content)
@@ -832,6 +870,8 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
+        copyConfirmationCts?.Cancel();
+        copyConfirmationCts?.Dispose();
         debounceTimer?.Stop();
         debounceTimer?.Dispose();
         countdownTimer?.Stop();

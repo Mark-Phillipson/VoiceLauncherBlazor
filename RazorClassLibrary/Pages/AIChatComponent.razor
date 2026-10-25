@@ -354,7 +354,7 @@
                                                         </button>
                                                         <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                                                                 @onclick="@(() => CopyCurrentResultAsync())">
-                                                            <i class="bi bi-clipboard"></i> Cop<u>y</u>
+                                                            <i class="bi bi-clipboard"></i> @CopyButtonCaption
                                                         </button>
                                                         <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
                                                                 aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)"
@@ -368,7 +368,7 @@
                                                         {
                                                             <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                                                                     @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
-                                                                <i class="bi bi-clipboard"></i> Cop<u>y</u>
+                                                                <i class="bi bi-clipboard"></i> @CopyButtonCaption
                                                             </button>
                                                             <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
                                                                     @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
@@ -406,6 +406,5 @@
                                                 </p>
                                             </div>
                                         </div>
-
 
 

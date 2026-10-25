@@ -57,7 +57,7 @@
     {
         <div class="col-md-4 me-1">
             <div class="input-group">
-                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1000" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
+                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                     <span class="ms-1"><span class="shortcut">(Alt+R)</span></span>
@@ -135,7 +135,7 @@ else
                         }
                         else
                         {
-                            <i class="fa-solid fa-rocket mb-2"></i>
+                            <span style="font-size: 8rem;" title="Rocket">🚀</span>
                         }
                     </a>
                     @if (!RunningInBlazorHybrid)
@@ -163,7 +163,7 @@ else
             else
             {
                 // VS Code launcher: command starts with 'code '
-                var isVSCode = launcher.CommandLine.Trim().ToLower().StartsWith("code ");
+                var isVSCode = launcher.CommandLine.Trim().ToLower().Contains("code.exe");
                 // File Explorer launcher: command starts with 'explorer '
                 var isExplorer = launcher.CommandLine.Trim().ToLower().StartsWith("explorer ");
                 <div class="card m-1" style="@(isVSCode ? "border: 2px solid #0078d7;" : isExplorer ? "border: 2px solid #28a745;" : "")">
@@ -186,9 +186,8 @@ else
                         }
                         else
                         {
-                            <i class="fa-solid fa-rocket mb-2"></i>
+                            <i style="font-size: 70px; display: block; text-align: center;">🚀</i>
                         }
-                        <span><u>@currentLetter</u> @launcher.Name
                             @if (isVSCode)
                             {
                                 <span class="badge bg-primary ms-2">VS Code</span>
@@ -197,11 +196,11 @@ else
                             {
                                 <span class="badge bg-success ms-2">Explorer</span>
                             }
-                        </span>
                     </button>
                     @if (!RunningInBlazorHybrid)
                     {
-                        <div class="btn-group">
+                        <div class="d-flex justify-content-end gap-4 w-100">
+                            <span><u>@currentLetter</u> @launcher.Name</span>
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
                                 <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <span>@editAccessKeyNum</span> }
@@ -211,6 +210,10 @@ else
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
+                    }
+                    else
+                    {
+                        <span><u>@currentLetter</u> @launcher.Name</span>
                     }
                 </div>
             }
