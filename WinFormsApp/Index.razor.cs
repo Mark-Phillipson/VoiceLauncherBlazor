@@ -42,6 +42,7 @@ namespace WinFormsApp
 		private bool showAIChat = false;
 		private bool showTalonSearch = false;
 		private bool showClipboardHistory = false;
+		private bool showCalculator = false;
 		private bool keepTalonSearchAlive = false;
 		private bool keepClipboardHistoryAlive = false;
 		private bool keepSnippetsAlive = false;
@@ -49,6 +50,7 @@ namespace WinFormsApp
 		private bool keepLauncherAlive = false;
 		private bool keepDefaultSnippetsAlive = false;
 		private bool keepAIChatAlive = false;
+		private bool keepCalculatorAlive = false;
 
 		private bool IsDefaultSnippetsViewActive =>
 			!showAIChat &&
@@ -56,7 +58,8 @@ namespace WinFormsApp
 			!showClipboardHistory &&
 			!languageAndCategoryListing &&
 			!displayValueSearch &&
-			!launcher;
+			!launcher &&
+			!showCalculator;
 
 		private bool ShouldRenderAIChat
 		{
@@ -111,6 +114,15 @@ namespace WinFormsApp
 				return launcher || keepLauncherAlive;
 			}
 		}
+
+		private bool ShouldRenderCalculator
+		{
+			get
+			{
+				keepCalculatorAlive |= showCalculator;
+				return showCalculator || keepCalculatorAlive;
+			}
+		}	
 
 		private bool ShouldRenderDefaultSnippets
 		{
@@ -319,7 +331,7 @@ namespace WinFormsApp
 							lastLauncherCategoryId = categoryId;
 							SetTitle($"Launch from category: {matchedCategory.CategoryName}");
 							launcher = true;
-										displayValueSearch = false;
+							displayValueSearch = false;
 							showTalonSearch = false;
 							showAIChat = false;
 							await InvokeAsync(StateHasChanged);
@@ -798,6 +810,7 @@ namespace WinFormsApp
 				showAIChat = true;
 				keepAIChatAlive = true;
 				// Reset other views when showing AI Chat
+				showCalculator = false;
 				languageAndCategoryListing = false;
 				displayValueSearch = false;
 				launcher = false;
@@ -887,6 +900,7 @@ namespace WinFormsApp
 			else
 			{
 				displayValueSearch = true;
+				showCalculator = false;
 				languageAndCategoryListing = false;
 				showAIChat = false;
 				launcher = false;
@@ -941,6 +955,7 @@ namespace WinFormsApp
 				// Turning on Talon Search
 				showTalonSearch = true;
 				// Reset other views when showing Talon Search
+				showCalculator = false;
 				languageAndCategoryListing = false;
 				displayValueSearch = false;
 				launcher = false;
@@ -987,6 +1002,7 @@ namespace WinFormsApp
 				// Turning on Clipboard History
 				showClipboardHistory = true;
 				// Reset other views when showing clipboard history
+				showCalculator = false;
 				languageAndCategoryListing = false;
 				displayValueSearch = false;
 				launcher = false;
@@ -996,6 +1012,18 @@ namespace WinFormsApp
 			}
 			StateHasChanged();
 		}
+		private void ShowCalculator()
+		{
+			showCalculator = true;
+			showClipboardHistory = false;
+			languageAndCategoryListing = false;
+			displayValueSearch = false;
+			launcher = false;
+			showAIChat = false;
+			showTalonSearch = false;
+			SetTitle("Calculator");
+		}
+
 
 		private async Task SwitchToLauncherFromChild()
 		{
@@ -1022,6 +1050,7 @@ namespace WinFormsApp
 
 			// Switch to launcher view
 			launcher = true;
+			showCalculator = false;
 			displayValueSearch = false;
 			languageAndCategoryListing = false;
 			showAIChat = false;
@@ -1093,6 +1122,7 @@ namespace WinFormsApp
 			}
 
 			languageAndCategoryListing = true;
+			showCalculator = false;
 			displayValueSearch = false;
 			launcher = false;
 			showAIChat = false;

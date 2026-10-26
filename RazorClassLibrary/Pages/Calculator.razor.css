@@ -1,0 +1,4 @@
+/* Scoped styles for Calculator.razor */
+.result-container {
+    padding-top: 2px;
+}
