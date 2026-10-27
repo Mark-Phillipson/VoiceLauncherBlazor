@@ -5,26 +5,28 @@
 		<h5 class="page-title m-1">@Title</h5>
 	</div>
 
-	<div class="col-md-6">
+<div class="col-md-6">
 		<div class="input-group my-1">
-			<DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="300" Placeholder="Filter by Name/Command Line (Alt+I)" AriaLabel="Filter by Name or Command Line" CssClass="form-control" />
-			<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Clear Filter (Alt+R)" @onclick="ResetFilter">
+			<kbd class="shortcut m-1">I</kbd>
+			<DebounceInput accesskey="i" Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="300" Placeholder="Filter by Name/Command Line" AriaLabel="Filter by Name or Command Line" CssClass="form-control" />
+			<kbd class="shortcut m-1" ">R</kbd>
+			<button id="btnResetFilter" class="btn btn-outline-secondary" type="button" accesskey="r" title="Clear Filter" @onclick="ResetFilter">
 				<i class="bi bi-x-circle text-danger" aria-hidden="true"></i>
 				<span class="ms-1 d-none d-sm-inline">Clear Filter</span>
-				<span class="shortcut">(Alt+R)</span>
 			</button>
-			<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Refresh Page (clear cache) (Alt+S)" @onclick="RefreshFromDatabaseAsync">
+			<kbd class="shortcut m-1">S</kbd>
+			<button id="btnRefresh" class="btn btn-outline-primary" type="button" accesskey="s" title="Refresh Page (clear cache)" @onclick="RefreshFromDatabaseAsync">
 				<i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
 				<span class="ms-1 d-none d-sm-inline">Refresh Page</span>
-				<span class="shortcut">(Alt+S)</span>
 			</button>
 		</div>
 	</div>
 
 	<div class="col-md-auto d-flex align-items-center">
+		<kbd class="shortcut m-1">Q</kbd>
 		<button id="btnToggleCompact" accesskey="q" class="btn btn-outline-secondary btn-sm ms-2" type="button" title="Toggle Compact View (Alt+Q)" onclick="toggleCompactView()" aria-pressed="false">
 			<i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
-			<span class="ms-1">Compact <span class="shortcut">(Alt+Q)</span></span>
+			<span class="ms-1">Compact </span>
 		</button>
 	</div>
 </div>
@@ -48,7 +50,7 @@ else if (FilteredLauncherDTO == null)
 else if (FilteredLauncherDTO.Count == 0)
 {
 	<p>No Launcher match the criteria</p>
-		<button id="btnAddRecord" accesskey="n" title="Add New Record (Alt+N)" @onclick="AddNewLauncherAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i> <span class="shortcut">(Alt+N)</span></button>
+		<button id="btnAddRecord" accesskey="n" title="Add New Record (Take pat)" @onclick="AddNewLauncherAsync" class="btn btn-success">Add Record <i class="bi bi-plus"></i> <kbd class="shortcut">N</kbd></button>
 }
 else
 {
@@ -70,7 +72,7 @@ else
 				<div class="card-inner-fixed">
 					@if (launcher.CommandLine.ToLower().StartsWith("http"))
 					{
-						<a accesskey="@counter" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center" target="_blank" href="@launcher.CommandLine">
+						<a And star wait up="@counter" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center" target="_blank" href="@launcher.CommandLine">
 							@if (launcher.Icon != null && launcher.Icon.Length > 0)
 							{
 								var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
@@ -125,7 +127,13 @@ else
 								<i style='font-size:45px'>🚀</i>
 							}
 							<span class='p-3 d-flex align-items-center justify-content-between w-100' style="color:var(--text) !important; -webkit-text-fill-color:var(--text) !important;">
-								<span><u>@counter</u> @launcher.Name</span>
+								<span>
+									@if (counter != null)
+									{
+										<kbd style="color:white;background-color:black" class="launcher-counter m-1">@counter</kbd>
+									}
+									 @launcher.Name
+								</span>
 								<span class="d-flex align-items-center">
 									    <button type="button" class="btn btn-link p-0 me-2 heart-toggle" title="Toggle Favorite"
 										    aria-pressed="@launcher.Favourite" @onclick:stopPropagation="true" @onclick="async () => { launcher.Favourite = !launcher.Favourite; await UpdateFavorite(launcher); }">
