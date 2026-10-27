@@ -35,8 +35,9 @@ namespace RazorClassLibrary.Pages
                 .ThenBy(c => c.Mode ?? string.Empty, StringComparer.OrdinalIgnoreCase);
         }
 
-    // Shared modal state (used to populate the reusable modal)
+        // Shared modal state (used to populate the reusable modal)
         public List<SelectionItem> SelectionModalItems { get; set; } = new();
+        [Parameter] public bool IsActive { get; set; } = true;
         public string SelectionModalTitle { get; set; } = "Select";
         private string _openFilterTarget = string.Empty;
 
@@ -91,11 +92,11 @@ namespace RazorClassLibrary.Pages
             }
         }
 
-    protected SelectionModal? _selectionModal;
-    private IJSObjectReference? _selectionModule;
-    private bool _selectionModuleLoaded = false;
+        protected SelectionModal? _selectionModal;
+        private IJSObjectReference? _selectionModule;
+        private bool _selectionModuleLoaded = false;
 
-    // Helper to convert string lists to SelectionItem
+        // Helper to convert string lists to SelectionItem
         private List<SelectionItem> ToSelectionItems(List<string>? items, string? defaultColor = "")
         {
             if (items == null) return new List<SelectionItem>();
@@ -136,7 +137,7 @@ namespace RazorClassLibrary.Pages
             await InvokeAsync(StateHasChanged);
             if (_selectionModal != null)
             {
-                    await _selectionModal.ShowAsync();
+                await _selectionModal.ShowAsync();
                 return;
             }
             if (_selectionModule != null)
@@ -316,13 +317,13 @@ namespace RazorClassLibrary.Pages
             await InvokeAsync(StateHasChanged);
         }
         private ElementReference searchInput;
-        
+
         [Parameter] public string InitialSearchTerm { get; set; } = string.Empty;
         [Parameter]
         [SupplyParameterFromQuery(Name = "focusCommandId")]
         public int? FocusCommandId { get; set; }
         [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
-        
+
         public string SearchTerm { get; set; } = string.Empty;
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
@@ -330,8 +331,8 @@ namespace RazorClassLibrary.Pages
         public bool IsRandomResult { get; set; } = false;
         public bool UseSemanticMatching { get; set; } = false;
         public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
-        
-        
+
+
         // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
         public string SelectedMode { get; set; } = string.Empty;
@@ -349,26 +350,26 @@ namespace RazorClassLibrary.Pages
         public List<string> AvailableCodeLanguages { get; set; } = new();
         private int maxResults = 100;
 
-    [Inject]
-    public DataAccessLibrary.Services.ITalonVoiceCommandDataService? TalonService { get; set; }
-    [Inject]
-    public ApplicationMappingService? ApplicationMappingService { get; set; }
-    [Inject]
+        [Inject]
+        public DataAccessLibrary.Services.ITalonVoiceCommandDataService? TalonService { get; set; }
+        [Inject]
+        public ApplicationMappingService? ApplicationMappingService { get; set; }
+        [Inject]
         public IJSRuntime? JSRuntime { get; set; }
         [Inject]
         public IWindowsService? WindowsService { get; set; }
 
         public string CurrentApplication { get; set; } = string.Empty;
-        
+
         private List<TalonVoiceCommand>? _allCommandsCache;
-    // System statistics
-    public int TotalCommands { get; set; } = 0;
-    public int TotalLists { get; set; } = 0;
-    public Dictionary<string, int> RepositoryCounts { get; set; } = new();
-        private bool _isLoadingFilters = false;        private CancellationTokenSource? _searchCancellationTokenSource;
+        // System statistics
+        public int TotalCommands { get; set; } = 0;
+        public int TotalLists { get; set; } = 0;
+        public Dictionary<string, int> RepositoryCounts { get; set; } = new();
+        private bool _isLoadingFilters = false; private CancellationTokenSource? _searchCancellationTokenSource;
         private Timer? _refreshTimer;
 
-    public bool AutoFilterByCurrentApp { get; set; } = false;
+        public bool AutoFilterByCurrentApp { get; set; } = false;
         /// <summary>
         /// Toggles displaying full card body or just header
         /// </summary>
@@ -380,7 +381,7 @@ namespace RazorClassLibrary.Pages
         private string? MapProcessToApplication(string processName)
         {
             if (string.IsNullOrWhiteSpace(processName) || AvailableApplications == null) return null;
-            
+
             // Try to use the mapping service first
             if (ApplicationMappingService != null)
             {
@@ -405,13 +406,13 @@ namespace RazorClassLibrary.Pages
         // For focused card functionality
         private TalonVoiceCommand? _focusedCommand = null;
         private bool _isFocusMode = false;
-        private static bool _staticFiltersLoaded = false;        private static List<string> _staticAvailableApplications = new();
+        private static bool _staticFiltersLoaded = false; private static List<string> _staticAvailableApplications = new();
         private static List<string> _staticAvailableModes = new();
         private static List<string> _staticAvailableOperatingSystems = new();
         private static List<string> _staticAvailableRepositories = new();
         private static List<string> _staticAvailableTags = new();
         private static List<string> _staticAvailableTitles = new();
-        private static List<string> _staticAvailableCodeLanguages = new();private static readonly object _filterLock = new object();
+        private static List<string> _staticAvailableCodeLanguages = new(); private static readonly object _filterLock = new object();
 
         /// <summary>
         /// Clears the static filter cache to force reload after data changes
@@ -429,8 +430,8 @@ namespace RazorClassLibrary.Pages
                 _staticAvailableTitles.Clear();
             }
         }        /// <summary>
-        /// Forces a refresh of filter options from the database
-        /// </summary>
+                 /// Forces a refresh of filter options from the database
+                 /// </summary>
         public async Task RefreshFiltersAsync()
         {
             lock (_filterLock)
@@ -443,15 +444,16 @@ namespace RazorClassLibrary.Pages
                 _staticAvailableTags.Clear();
                 _staticAvailableTitles.Clear();
             }
-            
+
             await LoadFilterOptions();
-        }        protected override async Task OnInitializedAsync()
+        }
+        protected override async Task OnInitializedAsync()
         {
             Results = new List<TalonVoiceCommand>();
-            
+
             // Debug: Log the initial search term
             // System.Diagnostics.Debug.WriteLine($"TalonVoiceCommandSearch - InitialSearchTerm: '{InitialSearchTerm}'");
-            
+
             // Always load filter options to ensure fresh data
             await LoadFilterOptions();
 
@@ -493,7 +495,7 @@ namespace RazorClassLibrary.Pages
         protected override async Task OnParametersSetAsync()
         {
             // System.Diagnostics.Debug.WriteLine($"OnParametersSetAsync - InitialSearchTerm: '{InitialSearchTerm}'");
-            
+
             // Set the initial search term if provided and not already set
             if (!string.IsNullOrWhiteSpace(InitialSearchTerm) && string.IsNullOrWhiteSpace(SearchTerm))
             {
@@ -547,7 +549,7 @@ namespace RazorClassLibrary.Pages
                 if (_isLoadingFilters) return;
                 _isLoadingFilters = true;
             }
-            
+
             try
             {
                 // Ensure we have the command cache available even if static filter
@@ -574,7 +576,7 @@ namespace RazorClassLibrary.Pages
                     .SelectMany(c => c.Application!.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()))
                     .Distinct();
 
-                var applications = ApplicationMappingService != null 
+                var applications = ApplicationMappingService != null
                     ? ApplicationMappingService.GetNormalizedList(rawApplications)
                     : rawApplications.OrderBy(a => a).ToList();
 
@@ -621,11 +623,11 @@ namespace RazorClassLibrary.Pages
                     .Distinct()
                     .OrderBy(cl => cl)
                     .ToList();
-                
+
                 // Debug output
                 Console.WriteLine($"LoadFilterOptions: Found {repositories.Count} repositories: {string.Join(", ", repositories)}");
                 Console.WriteLine($"LoadFilterOptions: Found {tags.Count} tags: {string.Join(", ", tags)}");
-                  // Update both instance and static collections
+                // Update both instance and static collections
                 lock (_filterLock)
                 {
                     AvailableApplications = _staticAvailableApplications = applications;
@@ -662,10 +664,11 @@ namespace RazorClassLibrary.Pages
             {
                 _isLoadingFilters = false;
             }
-        }        protected override async Task OnAfterRenderAsync(bool firstRender)
+        }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             // System.Diagnostics.Debug.WriteLine($"OnAfterRenderAsync - firstRender: {firstRender}, SearchTerm: '{SearchTerm}', HasSearched: {HasSearched}");
-            
+
             if (firstRender)
             {
                 // Load the selection modal JS module from static web assets first so focus helper is available
@@ -815,11 +818,11 @@ namespace RazorClassLibrary.Pages
 
                     if (hasApplicationFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c => 
-                            c.Application != null && 
+                        filteredCommands = filteredCommands.Where(c =>
+                            c.Application != null &&
                             c.Application.Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Select(a => a.Trim())
-                            .Any(app => 
+                            .Any(app =>
                                 string.Equals(app, SelectedApplication, StringComparison.OrdinalIgnoreCase) ||
                                 (ApplicationMappingService != null && string.Equals(ApplicationMappingService.GetDisplayName(app), SelectedApplication, StringComparison.OrdinalIgnoreCase))
                             )
@@ -1068,15 +1071,16 @@ namespace RazorClassLibrary.Pages
                 IsLoading = false;
                 StateHasChanged();
             }
-        }        public async Task ClearFilters()
-    {
+        }
+        public async Task ClearFilters()
+        {
             // Clear the list contents cache when clearing filters
             _listContentsCache.Clear();
             _expandedLists.Clear();
-            
+
             // Clear focus mode when clearing filters
             _focusedCommand = null;
-            _isFocusMode = false;            SelectedApplication = string.Empty;
+            _isFocusMode = false; SelectedApplication = string.Empty;
             SelectedMode = string.Empty;
             SelectedOperatingSystem = string.Empty;
             SelectedRepository = string.Empty;
@@ -1151,7 +1155,7 @@ namespace RazorClassLibrary.Pages
             }
         }
 
-        
+
 
         private string GetSearchPlaceholder()
         {
@@ -1225,31 +1229,32 @@ namespace RazorClassLibrary.Pages
         {
             if (string.IsNullOrWhiteSpace(script))
                 return string.Empty;
-            
+
             // Split into lines, remove leading and trailing empty lines
             var lines = script.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
-            
+
             // Find first non-empty line
             int firstNonEmptyLine = 0;
             while (firstNonEmptyLine < lines.Length && string.IsNullOrWhiteSpace(lines[firstNonEmptyLine]))
             {
                 firstNonEmptyLine++;
             }
-            
+
             // Find last non-empty line
             int lastNonEmptyLine = lines.Length - 1;
             while (lastNonEmptyLine >= 0 && string.IsNullOrWhiteSpace(lines[lastNonEmptyLine]))
             {
                 lastNonEmptyLine--;
             }
-            
+
             // If all lines are empty, return empty string
             if (firstNonEmptyLine > lastNonEmptyLine)
                 return string.Empty;
-              // Extract non-empty lines and rejoin
+            // Extract non-empty lines and rejoin
             var trimmedLines = lines.Skip(firstNonEmptyLine).Take(lastNonEmptyLine - firstNonEmptyLine + 1);
             return string.Join(Environment.NewLine, trimmedLines);
-        }        public List<string> GetListsUsedInScript(string script)
+        }
+        public List<string> GetListsUsedInScript(string script)
         {
             // This method name is misleading - we should actually parse the voice command, not the script
             // But keeping the same name to avoid breaking changes
@@ -1405,7 +1410,7 @@ namespace RazorClassLibrary.Pages
             else
             {
                 _expandedLists.Add(listName);
-                
+
                 // Load list contents if not already cached
                 if (!_listContentsCache.ContainsKey(listName) && TalonService != null)
                 {
@@ -1432,7 +1437,8 @@ namespace RazorClassLibrary.Pages
         public List<TalonList> GetListContents(string listName)
         {
             return _listContentsCache.TryGetValue(listName, out var contents) ? contents : new List<TalonList>();
-        }        public bool CommandContainsLists(string command)
+        }
+        public bool CommandContainsLists(string command)
         {
             return GetListsUsedInCommand(command).Any();
         }
@@ -1452,8 +1458,8 @@ namespace RazorClassLibrary.Pages
         {
             return false; // Scripts don't contain list references, commands do
         }        /// <summary>
-        /// Highlights captures in a command string by wrapping them with HTML span tags
-        /// </summary>
+                 /// Highlights captures in a command string by wrapping them with HTML span tags
+                 /// </summary>
         public string HighlightCapturesInCommand(string command)
         {
             if (string.IsNullOrEmpty(command))
@@ -1485,17 +1491,17 @@ namespace RazorClassLibrary.Pages
         /// </summary>
         public async Task FocusOnCommand(TalonVoiceCommand command)
         {
-            AutoFilterByCurrentApp= false; // Disable auto-filtering when focusing on a command
+            AutoFilterByCurrentApp = false; // Disable auto-filtering when focusing on a command
             _focusedCommand = command;
             _isFocusMode = true;
             ShowFullCards = true; // Show details
             FilterPanelExpanded = true; // Ensure filters are not collapsed
             StateHasChanged();
-           // scroll focused card into view
-           if (JSRuntime != null)
-           {
-               await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
-           }
+            // scroll focused card into view
+            if (JSRuntime != null)
+            {
+                await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
+            }
         }
 
         /// <summary>

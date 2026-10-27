@@ -40,27 +40,40 @@
                 }
             };
         </script>
-    <div class="col-auto me-4">
+    <div class="col-auto me-1 d-flex align-items-center">
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <InputSelect accesskey='1' ValueExpression="@(() => CategoryId)" id='CategoryId' Value="@CategoryId"
-                ValueChanged="@((int value) => OnCategorySelectedAsync(value))" class="form-select">
-                <option value="">Select Category (Alt+1)</option>
+            <label for="CategoryId" class="form-label me-2 mb-0">
+                <kbd>1</kbd>
+            </label>
+
+            <InputSelect accesskey="@(IsActive ? "1" : "")"
+                        ValueExpression="@(() => CategoryId)"
+                        id="CategoryId"
+                        Value="@CategoryId"
+                        ValueChanged="@((int value) => OnCategorySelectedAsync(value))"
+                        class="form-select">
+                <option value="">Choose Category</option>
                 @foreach (var item in _categories)
                 {
-                    <option style="font-size:xx-large" value="@item.Id">@item.CategoryName </option>
+                    <option style="font-size:xx-large" value="@item.Id">
+                        @item.CategoryName
+                    </option>
                 }
             </InputSelect>
         }
     </div>
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
-        <div class="col-md-4 me-1">
+        <div class="col-auto me-1">
             <div class="input-group">
-                <DebounceInput Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1500" Placeholder="Filter (Alt+3)" AriaLabel="Filter (Alt+3)" CssClass="form-control w-80" />
-                <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="r" title="Reset Filter (Alt+R)" aria-label="Reset Filter (Alt+R)" @onclick="ResetFilter">
+                <label for="SearchInput" class="form-label me-2 mt-2">
+                    <kbd>2</kbd>
+                </label>
+                <DebounceInput accesskey='@(IsActive ? "2" : "")' Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1500" Placeholder="Filter by Name" AriaLabel="Filter (Alt+2)" CssClass="form-control w-80" />
+                <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="@((IsActive ? "3" : ""))" title="Reset Filter (Alt+3)" aria-label="Reset Filter (Alt+3)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                    <span class="ms-1"><span class="shortcut">(Alt+R)</span></span>
+                    <span class="ms-1"><span class="shortcut"><kbd>3</kbd></span></span>
                 </button>
             </div>
         </div>
@@ -106,7 +119,10 @@ else if (FilteredLauncherDTO.Count == 0)
     else
     {
         <p>No Launcher match the criteria @GlobalSearchTerm</p>
-        <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
+        @if (!RunningInBlazorHybrid)
+        {
+            <button @onclick="AddNewLauncherAsync" class="btn btn-md btn-success">Add Record <i class="bi bi-plus"></i></button>
+        }
     }
 }
 else
@@ -118,7 +134,7 @@ else
         @foreach (var launcher in FilteredLauncherDTO)
         {
             alphabetCounter++;
-            currentLetter = Alphabet.GetLetterByIndex(alphabetCounter);
+            currentLetter = (IsActive ? Alphabet.GetLetterByIndex(alphabetCounter) : null);
             var hasEditAccessKey = alphabetCounter <= 6;
             var editAccessKeyNum = 3 + alphabetCounter;
             @if (launcher.CommandLine.ToLower().StartsWith("http"))
@@ -141,12 +157,12 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="d-flex justify-content-end gap-4">
-                            <span><u>@currentLetter</u> @launcher.Name</span>
+                            <span><kbd>@currentLetter</kbd> @launcher.Name</span>
                                 
                             
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"> </i> @if (hasEditAccessKey) { <span> @editAccessKeyNum </span> }
+                                <i class="bi bi-pencil"> </i> @if (hasEditAccessKey) { <kbd> @editAccessKeyNum </kbd> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
@@ -156,7 +172,7 @@ else
                     }
                     else
                     {
-                        <span><u>@currentLetter</u> @launcher.Name</span>
+                        <span><kbd>@currentLetter</kbd> @launcher.Name</span>
                     }
                 </div>
             }
@@ -200,10 +216,10 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="d-flex justify-content-end gap-4 w-100">
-                            <span><u>@currentLetter</u> @launcher.Name</span>
+                            <span><kbd>@currentLetter</kbd> @launcher.Name</span>
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <span>@editAccessKeyNum</span> }
+                                <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <kbd>@editAccessKeyNum</kbd> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
@@ -213,7 +229,7 @@ else
                     }
                     else
                     {
-                        <span><u>@currentLetter</u> @launcher.Name</span>
+                        <span><kbd>@currentLetter</kbd> @launcher.Name</span>
                     }
                 </div>
             }

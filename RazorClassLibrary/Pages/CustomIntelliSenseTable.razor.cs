@@ -18,6 +18,8 @@ namespace RazorClassLibrary.Pages
 {
    public partial class CustomIntelliSenseTable : ComponentBase, IDisposable
    {
+      [Parameter]
+      public bool IsActive { get; set; } = true;
       [Inject] public required ICustomIntelliSenseDataService CustomIntelliSenseDataService { get; set; }
       [Inject] public required NavigationManager NavigationManager { get; set; }
       [Inject] public ILogger<CustomIntelliSenseTable>? Logger { get; set; }
@@ -34,7 +36,7 @@ namespace RazorClassLibrary.Pages
       [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
       [Parameter] public EventCallback CloseApplication { get; set; }
       [Parameter] public EventCallback MaximizeApplication { get; set; }
-      
+
       private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
       public List<CustomIntelliSenseDTO>? CustomIntelliSenseDTO { get; set; }
@@ -78,7 +80,7 @@ namespace RazorClassLibrary.Pages
             {
                Categories = await CategoryDataService.GetAllCategoriesAsync("IntelliSense Command", SelectedLanguageId);
             }
-               else
+            else
             {
                Categories = await CategoryDataService.GetAllCategoriesByTypeAsync("IntelliSense Command");
             }
@@ -90,9 +92,9 @@ namespace RazorClassLibrary.Pages
          {
             Console.WriteLine(ex.Message);
          }
-         }
+      }
 
-      
+
       public static string NormalizeSpeechInput(string? value)
       {
          if (string.IsNullOrWhiteSpace(value))
@@ -169,44 +171,44 @@ namespace RazorClassLibrary.Pages
          return (languageId, categoryId);
       }
 
-         private async Task OnLanguageKeyDown(KeyboardEventArgs e)
+      private async Task OnLanguageKeyDown(KeyboardEventArgs e)
+      {
+         if ((e.Key == "ArrowDown" || e.Code == "ArrowDown") && ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
          {
-            if ((e.Key == "ArrowDown" || e.Code == "ArrowDown") && ShowLanguageSuggestions && LanguageSuggestions?.Count > 0)
-            {
-               LanguageSuggestionIndex = 0;
-               await FocusLanguageSuggestion(LanguageSuggestionIndex);
-            }
-            else if (e.Key == "Enter")
-            {
-               // If a suggestion is highlighted, activate it.
-               if (LanguageSuggestionIndex >= 0 && LanguageSuggestions != null && LanguageSuggestionIndex < LanguageSuggestions.Count)
-               {
-                  var lang = LanguageSuggestions[LanguageSuggestionIndex];
-                  await SelectLanguageById(lang.Id, lang.LanguageName);
-               }
-               // If nothing is highlighted but suggestions exist, activate the first suggestion.
-               else if (LanguageSuggestions != null && LanguageSuggestions.Count > 0)
-               {
-                  var lang = LanguageSuggestions[0];
-                  await SelectLanguageById(lang.Id, lang.LanguageName);
-               }
-               // Fallback: if no suggestions but the input exactly matches a language, activate it.
-               else
-               {
-                  var exact = Languages.FirstOrDefault(l => string.Equals(l.LanguageName?.Trim(), LanguageQuery.Trim(), StringComparison.OrdinalIgnoreCase));
-                  if (exact != null)
-                  {
-                     await SelectLanguageById(exact.Id, exact.LanguageName);
-                  }
-               }
-               // Prevent default browser behavior when possible (handled on client side if needed)
-            }
-            else if (e.Key == "Escape")
-            {
-               ShowLanguageSuggestions = false;
-               LanguageSuggestionIndex = -1;
-            }
+            LanguageSuggestionIndex = 0;
+            await FocusLanguageSuggestion(LanguageSuggestionIndex);
          }
+         else if (e.Key == "Enter")
+         {
+            // If a suggestion is highlighted, activate it.
+            if (LanguageSuggestionIndex >= 0 && LanguageSuggestions != null && LanguageSuggestionIndex < LanguageSuggestions.Count)
+            {
+               var lang = LanguageSuggestions[LanguageSuggestionIndex];
+               await SelectLanguageById(lang.Id, lang.LanguageName);
+            }
+            // If nothing is highlighted but suggestions exist, activate the first suggestion.
+            else if (LanguageSuggestions != null && LanguageSuggestions.Count > 0)
+            {
+               var lang = LanguageSuggestions[0];
+               await SelectLanguageById(lang.Id, lang.LanguageName);
+            }
+            // Fallback: if no suggestions but the input exactly matches a language, activate it.
+            else
+            {
+               var exact = Languages.FirstOrDefault(l => string.Equals(l.LanguageName?.Trim(), LanguageQuery.Trim(), StringComparison.OrdinalIgnoreCase));
+               if (exact != null)
+               {
+                  await SelectLanguageById(exact.Id, exact.LanguageName);
+               }
+            }
+            // Prevent default browser behavior when possible (handled on client side if needed)
+         }
+         else if (e.Key == "Escape")
+         {
+            ShowLanguageSuggestions = false;
+            LanguageSuggestionIndex = -1;
+         }
+      }
 
       private async Task OnCategoryInput(ChangeEventArgs e)
       {
@@ -528,7 +530,7 @@ namespace RazorClassLibrary.Pages
          await LoadData();
          await LoadLookups();
       }
-      
+
       protected override async Task OnParametersSetAsync()
       {
          Console.WriteLine($"CustomIntelliSenseTable OnParametersSetAsync - GlobalSearchTerm: '{GlobalSearchTerm}', LanguageId: {LanguageId}, CategoryId: {CategoryId}");
@@ -557,6 +559,7 @@ namespace RazorClassLibrary.Pages
       {
          // Clear local search term
          searchTerm = null;
+         SearchInputText = null;
 
          // Invalidate cache and reload data
          await InvalidateCache();
@@ -575,39 +578,39 @@ namespace RazorClassLibrary.Pages
          catch { }
       }
 
-        private void PrefetchNextPage()
-        {
-            try
-            {
-                // Cancel any existing prefetch
-                if (_prefetchTask != null && !_prefetchTask.IsCompleted)
-                {
-                    return;
-                }
-
-                var nextPageKey = GetCacheKey("", pageNumber + 1);
-                if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
-                {
-                    return; // Don't prefetch during global search
-                }
-
-                _prefetchTask = Cache.GetOrSetAsync(nextPageKey, async () =>
-                {
-                    var data = await CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(
-                   LanguageId, CategoryId, pageNumber + 1, pageSize);
-                    return new { Data = data, Language = currentLanguage, Category = currentCategory };
-                });
-            }
-            catch
-            {
-                // Ignore prefetch errors
-            }
-        }
-
-            protected override async Task OnAfterRenderAsync(bool firstRender)
+      private void PrefetchNextPage()
+      {
+         try
          {
-             if (firstRender && !_disposed)
-             {
+            // Cancel any existing prefetch
+            if (_prefetchTask != null && !_prefetchTask.IsCompleted)
+            {
+               return;
+            }
+
+            var nextPageKey = GetCacheKey("", pageNumber + 1);
+            if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
+            {
+               return; // Don't prefetch during global search
+            }
+
+            _prefetchTask = Cache.GetOrSetAsync(nextPageKey, async () =>
+            {
+               var data = await CustomIntelliSenseDataService.GetAllCustomIntelliSensesAsync(
+                  LanguageId, CategoryId, pageNumber + 1, pageSize);
+               return new { Data = data, Language = currentLanguage, Category = currentCategory };
+            });
+         }
+         catch
+         {
+            // Ignore prefetch errors
+         }
+      }
+
+      protected override async Task OnAfterRenderAsync(bool firstRender)
+      {
+         if (firstRender && !_disposed)
+         {
             try
             {
                if (JSRuntime != null)
@@ -943,7 +946,7 @@ namespace RazorClassLibrary.Pages
       {
          if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(searchTerm))
             return text ?? "";
-            
+
          var index = text.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase);
          if (index >= 0)
          {
@@ -953,7 +956,8 @@ namespace RazorClassLibrary.Pages
             return $"{before}<mark class='bg-warning'>{match}</mark>{after}";
          }
          return text;
-      }      private async Task LoadData()
+      }
+      private async Task LoadData()
       {
          Console.WriteLine($"=== LoadData called with GlobalSearchTerm: '{GlobalSearchTerm}' ===");
          try

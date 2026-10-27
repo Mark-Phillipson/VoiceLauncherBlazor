@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Talon REPL Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5efe4;--card:#fffdf8;--ink:#2a2118;--mute:#6d5f50;--line:#decfb9;--accent:#a3195b;--onacc:#fff;--term:#1a1713;--termink:#e9e2d4;--prompt:#f0a63a;--ok:#7fd99b;--good:#17794a;--bad:#b42a3c;--goodbg:#e0f3e6;--badbg:#fde6e9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171310;--card:#221c17;--ink:#efe7da;--mute:#b3a592;--line:#3d332a;--accent:#ff7ab6;--onacc:#171310;--term:#0d0b09;--good:#6fd9a1;--bad:#ff8a9a;--goodbg:#14332a;--badbg:#3d1a22;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#171310;--card:#221c17;--ink:#efe7da;--mute:#b3a592;--line:#3d332a;--accent:#ff7ab6;--onacc:#171310;--term:#0d0b09;--good:#6fd9a1;--bad:#ff8a9a;--goodbg:#14332a;--badbg:#3d1a22;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.7rem;font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mute);margin-bottom:8px}
+.dots{display:flex;gap:4px;margin-bottom:16px}
+.dots i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.dots i.ok{background:var(--good)}.dots i.no{background:var(--bad)}.dots i.cur{background:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card h2{font-size:1.1rem;margin:0 0 4px}
+.card p{margin:0 0 12px;color:var(--mute)}
+.opts{display:grid;gap:8px}
+button.opt{font:500 .92rem "IBM Plex Mono",ui-monospace,monospace;text-align:left;background:var(--term);color:var(--termink);border:1px solid transparent;border-radius:8px;padding:12px 14px;cursor:pointer;overflow-x:auto}
+button.opt:hover:not(:disabled){border-color:var(--prompt)}
+button.opt:focus-visible,button.go:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.opt .pr{color:var(--prompt)}
+button.opt.right{outline:3px solid var(--good)}
+button.opt.wrong{outline:3px solid var(--bad);opacity:.8}
+button.opt:disabled{cursor:default}
+.term{margin-top:14px;background:var(--term);color:var(--termink);border-radius:8px;padding:12px 14px;font:.9rem/1.7 "IBM Plex Mono",ui-monospace,monospace;overflow-x:auto}
+.term div{white-space:pre}.term .pr{color:var(--prompt)}.term .o{color:var(--ok)}.term .x{color:#ff9aa8}
+.fb{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--goodbg)}.fb.no{background:var(--badbg)}
+.fb b{display:block;margin-bottom:2px}
+button.go{font:inherit;font-weight:700;margin-top:14px;background:var(--accent);color:var(--onacc);border:0;border-radius:8px;padding:11px 20px;cursor:pointer}
+.big{font-size:3rem;font-weight:800;letter-spacing:-.03em;margin:4px 0}
+.rev{margin:12px 0 0;padding:0;list-style:none;font-size:.92rem;color:var(--mute)}
+.rev li{padding:6px 0;border-top:1px solid var(--line)}
+.note{margin-top:16px;font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<h1>Talon REPL Lab</h1>
+<p class="sub">Pick the line to type at the REPL prompt. Correct answers show what Talon would do.</p>
+<div class="bar"><span id="pos"></span><span id="sc"></span></div>
+<div class="dots" id="dots"></div>
+<div id="stage"></div>
+<p class="note">Talon’s API evolves between versions. When unsure, check talonvoice.com/docs.</p>
+</main>
+<script>
+var Q=[
+{t:"Find the app name",d:"You’re writing an app.name: header in a .talon file and need the exact name. Which call lists the running apps?",
+o:["ui.apps()","app.list()","actions.apps()","talon.apps()"],a:0,out:"# a list of running apps, including their names",
+e:"The Talon docs themselves suggest running ui.apps() in the REPL to find the app name for a context header."},
+{t:"The focused app",d:"You only want the app that currently has focus.",
+o:["ui.active_app()","ui.focus_app()","ui.current_app()","app.active()"],a:0,out:"# the focused App object",
+e:"ui.active_app() returns the frontmost app, and it is the call used in Talon’s own examples."},
+{t:"Window title",d:"You want to match a window with title: in a .talon header. How do you read the focused window’s title?",
+o:["ui.active_window().title","ui.active_window().name","ui.window_title()","ui.active_app().title"],a:0,out:"# the title of the focused window",
+e:"Windows are separate from apps. ui.active_window() gives the window object and its .title is what title: matches against."},
+{t:"Type some text",d:"Make Talon type hello world into whatever window is focused.",
+o:["actions.insert(\"hello world\")","actions.type(\"hello world\")","actions.text(\"hello world\")","ctrl.insert(\"hello world\")"],a:0,out:"# hello world is typed into the focused window",
+e:"insert is the action behind the quoted-text commands in .talon files. Remember to focus another window first, since the REPL takes the keystrokes otherwise."},
+{t:"Press a shortcut",d:"Press Ctrl+S in the focused app.",
+o:["actions.key(\"ctrl-s\")","actions.insert(\"ctrl-s\")","actions.press(\"ctrl+s\")","actions.key(\"ctrl+s\")"],a:0,out:"# Ctrl+S is pressed in the focused app",
+e:"Use key for shortcuts, with dashes joining the modifiers. insert would type the characters c-t-r-l instead."},
+{t:"Where’s the pointer?",d:"Print the current mouse position.",
+o:["ctrl.mouse_pos()","ctrl.get_mouse()","ui.mouse_pos()","ctrl.cursor_pos()"],a:0,out:"# (x, y) such as (640.0, 360.0)",
+e:"ctrl.mouse_pos() returns the cursor position as an (x, y) tuple, per the ctrl module reference."},
+{t:"Move the pointer",d:"Send the pointer to x=100, y=200.",
+o:["ctrl.mouse_move(100, 200)","ctrl.mouse_to(100, 200)","ctrl.mouse_set((100, 200))","ctrl.move_mouse(100, 200)"],a:0,out:"# the pointer jumps to x=100, y=200",
+e:"mouse_move takes absolute x and y. It also accepts dx and dy keywords for relative movement."},
+{t:"Right click",d:"Right-click at the current pointer position.",
+o:["ctrl.mouse_click(button=1)","ctrl.mouse_click(button=0)","ctrl.mouse_click(button=2)","ctrl.mouse_click(button=-1)"],a:0,out:"# a right click happens at the pointer",
+e:"mouse_click takes a button number: 0 is the left button, 1 the right and 2 the middle."},
+{t:"Quick notification",d:"Show a desktop notification that says Hello world.",
+o:["app.notify(body=\"Hello world\")","app.alert(body=\"Hello world\")","app.popup(text=\"Hello world\")","actions.notify(\"Hello world\")"],a:0,out:"# a desktop notification appears",
+e:"app.notify can also take title, subtitle and sound, which makes it handy for confirming your scripts ran."},
+{t:"Call your own action",d:"Your Python file defines an action called my_action in the user namespace. Run it from the REPL.",
+o:["actions.user.my_action()","actions.my_action()","user.actions.my_action()","talon.user.my_action()"],a:0,out:"# your action runs",
+e:"Actions declared on a Module are called through actions, and user-defined ones live under actions.user."},
+{t:"Read a setting",d:"Read the current value of a user setting named user.spaces_per_tab.",
+o:["settings.get(\"user.spaces_per_tab\")","settings[\"user.spaces_per_tab\"]","settings.read(\"user.spaces_per_tab\")","actions.settings(\"user.spaces_per_tab\")"],a:0,out:"# the setting's current value, e.g. 4",
+e:"settings.get takes the full setting name. This is how Talon’s own examples read user settings."},
+{t:"After editing",d:"You just edited a .talon file in your editor. What gets Talon to use your changes?",raw:1,
+o:["Just save the file; Talon reloads changes on its own","Quit and relaunch Talon after every single edit","Call reload_files() in the REPL after every save","Toggle the microphone off and on to refresh files"],a:0,
+e:"Talon watches your user folder and reloads .talon and Python files when they change, so the REPL is for inspecting and testing rather than reloading."}
+];
+var cp=0,i=0,s=0,log=[],st=document.getElementById("stage"),dots=document.getElementById("dots");
+function bar(){document.getElementById("pos").textContent="Prompt "+Math.min(i+1,Q.length)+" of "+Q.length;document.getElementById("sc").textContent="Correct: "+s;
+dots.innerHTML="";Q.forEach(function(_,k){var d=document.createElement("i");if(k<log.length)d.className=log[k].ok?"ok":"no";else if(k===i)d.className="cur";dots.appendChild(d)})}
+function show(){
+bar();var q=Q[i];
+st.innerHTML='<div class="card"><h2></h2><p></p><div class="opts" id="o"></div><div id="f"></div></div>';
+st.querySelector("h2").textContent=q.t;st.querySelector("p").textContent=q.d;
+var o=document.getElementById("o");
+var ix=q.o.map(function(_,k){return k});for(var j=ix.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=ix[j];ix[j]=ix[r];ix[r]=t}cp=ix.indexOf(q.a);
+ix.forEach(function(orig,k){var b=document.createElement("button");b.className="opt";
+if(!q.raw){var p=document.createElement("span");p.className="pr";p.textContent=">>> ";b.appendChild(p)}
+b.appendChild(document.createTextNode(q.o[orig]));b.onclick=function(){pick(k,orig)};o.appendChild(b)});
+}
+function pick(k,orig){
+var q=Q[i],ok=k===cp;
+document.querySelectorAll(".opt").forEach(function(b,n){b.disabled=true;if(n===cp)b.classList.add("right");else if(n===k)b.classList.add("wrong")});
+if(ok)s++;log.push({t:q.t,ok:ok});bar();
+var f=document.getElementById("f");
+f.innerHTML=(q.raw?"":'<div class="term"><div><span class="pr">&gt;&gt;&gt; </span><span id="tc"></span></div><div id="to"></div></div>')+'<div class="fb '+(ok?"ok":"no")+'"><b>'+(ok?"Evaluated.":"Not what you wanted.")+'</b><span id="ex"></span></div><button class="go" id="n"></button>';
+if(!q.raw){document.getElementById("tc").textContent=q.o[orig];var to=document.getElementById("to");to.className=ok?"o":"x";to.textContent=ok?q.out:"# this won\u2019t do what the task asked"}
+document.getElementById("ex").textContent=q.e;
+var n=document.getElementById("n");n.textContent=i<Q.length-1?"Next prompt":"See results";n.focus();
+n.onclick=function(){i++;if(i<Q.length)show();else end()};
+}
+function end(){
+i=Q.length;bar();
+var r=s>=11?"REPL fluent.":s>=8?"Solid. Re-run the ones you missed in a real REPL.":s>=5?"Good start. Open the REPL and try each call.":"Run it again, then try each call in a live REPL.";
+st.innerHTML='<div class="card"><h2>Session closed</h2><div class="big">'+s+' / '+Q.length+'</div><p>'+r+'</p><ul class="rev" id="rv"></ul><button class="go" id="again">Play again</button></div>';
+var u=document.getElementById("rv");
+log.forEach(function(l){var li=document.createElement("li");li.textContent=(l.ok?"Correct: ":"Missed: ")+l.t;u.appendChild(li)});
+document.getElementById("again").onclick=function(){i=0;s=0;log=[];show()};
+}
+show();
+</script>
+</body>
+</html>

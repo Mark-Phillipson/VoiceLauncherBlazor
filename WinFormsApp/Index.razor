@@ -61,32 +61,32 @@
 		@if (ShouldRenderAIChat)
 		{
 			<div class="@(showAIChat ? string.Empty : "d-none")" aria-hidden="@(!showAIChat)">
-				<AIChatComponent RunningInBlazorHybrid="true" />
+				<AIChatComponent RunningInBlazorHybrid="true" IsActive="@showAIChat" />
 			</div>
 		}
 		@if (ShouldRenderTalonSearch)
 		{
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
-				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" />
+				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm" IsActive="@showTalonSearch" />
 			</div>
 		}
 		@if (ShouldRenderClipboardHistory)
 		{
 			<div class="@(showClipboardHistory ? string.Empty : "d-none")" aria-hidden="@(!showClipboardHistory)">
-				<ClipboardHistory />
+				<ClipboardHistory IsActive="@showClipboardHistory" />
 			</div>
 		}
 		@if (ShouldRenderCalculator)
 		{
 			<div class="@(showCalculator ? string.Empty : "d-none")" aria-hidden="@(!showCalculator)">
-				<Calculator  />
+				<Calculator IsActive="@showCalculator" />
 			</div>
 		}
 		@if (ShouldRenderSnippets)
 		{
 			<div class="@(languageAndCategoryListing ? string.Empty : "d-none")" aria-hidden="@(!languageAndCategoryListing)">
-				<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId"
-								 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" />
+				<CustomIntelliSenseTable @ref="customIntelliSenseTableRef" CategoryId="@categoryId" LanguageId="@languageId" 
+								 RunningInBlazorHybrid="true" CloseApplication="CloseWindow" MaximizeApplication="MaximizeWindow" IsActive="@languageAndCategoryListing" />
 			</div>
 		}
 		@if (ShouldRenderDisplaySearch)
@@ -94,14 +94,14 @@
 			<div class="@(displayValueSearch ? string.Empty : "d-none")" aria-hidden="@(!displayValueSearch)">
 				<CustomIntelliSenses @ref="customIntelliSensesDisplayRef" CategoryIdFilter="@categoryId" LanguageIdFilter="@languageId"
 								 RunningInBlazorHybrid="true" SearchTermParameter="@searchTerm" CloseApplication="CloseWindow"
-								 MaximizeApplication="MaximizeWindow" />
+								 MaximizeApplication="MaximizeWindow" IsActive="@displayValueSearch" />
 			</div>
 		}
 		@if (ShouldRenderLauncher)
 		{
 			<div class="@(launcher ? string.Empty : "d-none")" aria-hidden="@(!launcher)">
 				<LauncherTable @ref="launcherTableRef" CategoryId="@categoryId" CloseApplication="CloseWindow"
-						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" />
+						   RunningInBlazorHybrid="true" RefreshData="@refreshRequested" IsActive="@launcher" />
 			</div>
 		}
 		@if (ShouldRenderDefaultSnippets)

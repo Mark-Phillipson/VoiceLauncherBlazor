@@ -27,7 +27,7 @@
                     </a>
                 }
 
-                <InputSelect id="selectedPromptId" accesskey="p" ValueExpression="@(() => selectedPromptId)"
+                <InputSelect id="selectedPromptId" accesskey="@(IsActive ? "p" : null)" ValueExpression="@(() => selectedPromptId)"
                              Value="@selectedPromptId" ValueChanged="@((int value) => OnValueChangedMethodName(value))"
                              class="form-select bg-success text-light" style="max-width: 420px; min-width: 220px; flex: 1 1 260px;">
                     @foreach (var item in prompts)
@@ -48,7 +48,7 @@
         <div class="mb-2">
             <button type="button"
                     class="btn btn-link text-light p-0 text-decoration-none d-inline-flex align-items-center gap-1"
-                    @onclick="ToggleModelControls" accesskey="m" aria-keyshortcuts="Alt+M"
+                    @onclick="ToggleModelControls" accesskey="@(IsActive ? "m" : null)" aria-keyshortcuts="Alt+M"
                     aria-expanded="@showModelControls" aria-controls="modelControls"
                     title="Alt+M: Show or hide model controls">
                 <i class="bi bi-gear-fill"></i>
@@ -103,7 +103,7 @@
                       placeholder='Type or dictate your message. If debounce is enabled, it will send after a pause. Otherwise, press Ctrl+Enter or click Chat.'
                       @bind-value='PromptInput' @bind-value:event='oninput' @onkeydown="OnInputKeyDown"></textarea>
             <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
-                <input accesskey="d" id="debounceToggle" type="checkbox" class="form-check-input align-middle"
+                <input accesskey="@(IsActive ? "d" : null)" id="debounceToggle" type="checkbox" class="form-check-input align-middle"
                        style="margin-bottom: 0; margin-right: 4px;" @bind="DebounceEnabled" />
                 <label for="debounceToggle" class="form-label text-light mb-0 me-2 align-middle">Auto
                     Send/<u>D</u>ebounce</label>
@@ -135,18 +135,18 @@
                     }
                 </div>
                 <div class="d-flex flex-wrap gap-2 mt-2">
-                    <button accesskey='z' aria-keyshortcuts="Alt+Z" title="Chat (Alt+Z)" class="btn btn-outline-success btn-sm"
+                    <button accesskey='@(IsActive ? "z" : null)' aria-keyshortcuts="Alt+Z" title="Chat (Alt+Z)" class="btn btn-outline-success btn-sm"
                             type="button" disabled="@(processing ? "disabled" : null)" @onclick="@(() => ProcessChat())"><i
                         class="bi bi-send"></i> Chat (<u>Z</u>)</button>
-                        <button accesskey='l' class="btn btn-outline-success btn-sm" type="button"
+                        <button accesskey='@(IsActive ? "l" : null)' class="btn btn-outline-success btn-sm" type="button"
                                 disabled="@(processing ? "disabled" : null)" @onclick="@(() => Clear())"><i
                             class="bi bi-eraser-fill"></i> C<u>l</u>ear</button>
-                            <button accesskey='t' class="btn btn-outline-danger btn-sm" type="button"
+                            <button accesskey='@(IsActive ? "t" : null)' class="btn btn-outline-danger btn-sm" type="button"
                                     disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
                                 class="bi bi-trash-fill"></i> Forge<u>t</u></button>
                                 @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
                                 {
-                                    <button accesskey='r' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
+                                    <button accesskey='@(IsActive ? "r" : null)' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
                                             @onclick="@(() => FocusResponseElement())">
                                         <i class="bi bi-crosshair"></i> Focus <u>R</u>esponse
                                     </button> @if (responseHistory?.Count > 1)
@@ -185,7 +185,7 @@
                                             </label>
 
                                             <div class="input-group">
-                                                <input accesskey="q" type="text"
+                                                <input accesskey="@(IsActive ? "q" : null)" type="text"
                                                        class="form-control bg-dark text-light border-success quick-prompt-search"
                                                        style="background-color: #2a2a2a !important;"
                                                        placeholder="Search quick prompts (command, type, description)..." @bind="quickPromptSearchTerm"
@@ -337,7 +337,7 @@
                                                 </div>
                                                 @if (processing)
                                                 {
-                                                    <button accesskey='x' class="btn btn-warning btn-lg" type="button" @onclick="@(() => CancelChat())"><i
+                                                    <button accesskey='@(IsActive ? "x" : null)' class="btn btn-warning btn-lg" type="button" @onclick="@(() => CancelChat())"><i
                                                         class="bi bi-stop-fill"></i>Cancel (x)</button>
                                                     }
 
@@ -352,11 +352,11 @@
                                                             <i class="bi bi-type"></i>
                                                             @(useCascadiaCodeFont ? "Use Default Font" : "Use Cascadia Code Font")
                                                         </button>
-                                                        <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                                                        <button accesskey='@(IsActive ? "y" : null)' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                                                                 @onclick="@(() => CopyCurrentResultAsync())">
                                                             <i class="bi bi-clipboard"></i> @CopyButtonCaption
                                                         </button>
-                                                        <button accesskey='e' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
+                                                        <button accesskey='@(IsActive ? "e" : null)' id="EditInVSCodeButton" type="button" class="btn btn-outline-primary mb-2"
                                                                 aria-keyshortcuts="Alt+E" title="Edit in VS Code (Alt+E)"
                                                                 @onclick="@(() => EditInVsCode(GetCurrentResultText()))">
                                                             <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
@@ -366,11 +366,11 @@
                                                     {
                                                         @if (!string.IsNullOrWhiteSpace(responseHistory?.LastOrDefault()?.Content))
                                                         {
-                                                            <button accesskey='y' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
+                                                            <button accesskey='@(IsActive ? "y" : null)' id="CopyButton" type="button" class="btn btn-outline-success mb-2"
                                                                     @onclick="@(() => CopyItemAsync(responseHistory?.LastOrDefault()?.Content ?? string.Empty))">
                                                                 <i class="bi bi-clipboard"></i> @CopyButtonCaption
                                                             </button>
-                                                            <button accesskey='e' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
+                                                            <button accesskey='@(IsActive ? "e" : null)' class='btn btn-outline-primary mb-2' aria-keyshortcuts="Alt+E"
                                                                     @onclick='@(() => EditInVsCode(responseHistory?.LastOrDefault()?.Content ?? string.Empty))'>
                                                                 <i class="bi bi-pencil-square"></i> <u>E</u>dit in VS Code
                                                             </button>

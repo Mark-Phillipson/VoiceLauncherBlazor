@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Talon Python Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f3ee;--card:#fff;--ink:#1d2430;--mute:#5d6674;--line:#d6d9d0;--accent:#2b5b84;--onacc:#fff;--yel:#ffd43b;--ed:#1b212b;--edink:#e4e9f0;--gut:#66748a;--good:#17794a;--bad:#b42a3c;--goodbg:#dff3e8;--badbg:#fde6e9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151b;--card:#1b2029;--ink:#e8edf4;--mute:#9ea9b9;--line:#2c3441;--accent:#7fb5e6;--onacc:#12151b;--ed:#0c0f14;--good:#6fd9a1;--bad:#ff8a9a;--goodbg:#14332a;--badbg:#3d1a22;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12151b;--card:#1b2029;--ink:#e8edf4;--mute:#9ea9b9;--line:#2c3441;--accent:#7fb5e6;--onacc:#12151b;--ed:#0c0f14;--good:#6fd9a1;--bad:#ff8a9a;--goodbg:#14332a;--badbg:#3d1a22;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Sora",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 4px;letter-spacing:-.02em;display:inline-block;box-shadow:inset 0 -.35em 0 var(--yel)}
+@media (prefers-color-scheme:dark){h1{box-shadow:inset 0 -.35em 0 #8a6d0a}}
+.sub{color:var(--mute);margin:8px 0 16px}
+.bar{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mute);margin-bottom:8px}
+.dots{display:flex;gap:4px;margin-bottom:16px}
+.dots i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.dots i.ok{background:var(--good)}.dots i.no{background:var(--bad)}.dots i.cur{background:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card h2{font-size:1.1rem;margin:0 0 4px}
+.card p{margin:0 0 12px;color:var(--mute)}
+.ed{margin:0 0 14px;background:var(--ed);color:var(--edink);border-radius:8px;overflow:hidden}
+.ed .tab{font:500 .78rem "JetBrains Mono",monospace;color:var(--gut);padding:6px 14px;border-bottom:1px solid #ffffff14}
+.ed .body{padding:8px 0;overflow-x:auto;font:.88rem/1.7 "JetBrains Mono",ui-monospace,monospace}
+.ed .ln{display:block;white-space:pre;padding:0 14px;min-width:max-content}
+.ed .ln b{display:inline-block;width:2ch;margin-right:12px;text-align:right;color:var(--gut);font-weight:400}
+.ed .ln.gap{background:#ffd43b1f}.ed .ln.add{background:#7fd99b24}.ed .ln.del{background:#ff9aa826}
+.opts{display:grid;gap:8px}
+button.opt{font:500 .88rem/1.5 "JetBrains Mono",ui-monospace,monospace;white-space:pre;text-align:left;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:11px 14px;cursor:pointer;overflow-x:auto}
+button.opt:hover:not(:disabled){border-color:var(--accent)}
+button.opt:focus-visible,button.go:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.opt.right{background:var(--goodbg);border-color:var(--good)}
+button.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+button.opt:disabled{cursor:default}
+.fb{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:.95rem}
+.fb.ok{background:var(--goodbg)}.fb.no{background:var(--badbg)}
+.fb b{display:block;margin-bottom:2px}
+button.go{font:inherit;font-weight:700;margin-top:14px;background:var(--accent);color:var(--onacc);border:0;border-radius:8px;padding:11px 20px;cursor:pointer}
+.big{font-size:3rem;font-weight:800;letter-spacing:-.03em;margin:4px 0}
+.rev{margin:12px 0 0;padding:0;list-style:none;font-size:.92rem;color:var(--mute)}
+.rev li{padding:6px 0;border-top:1px solid var(--line)}
+.note{margin-top:16px;font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<h1>Talon Python Builder</h1>
+<p class="sub">Fill the highlighted gap in each file. Wrong lines show red, right lines show green.</p>
+<div class="bar"><span id="pos"></span><span id="sc"></span></div>
+<div class="dots" id="dots"></div>
+<div id="stage"></div>
+<p class="note">Based on the Talon docs. APIs can change, so check talonvoice.com/docs for your version.</p>
+</main>
+<script>
+var Q=[
+{t:"Start with a Module",d:"You want to declare new actions, lists, tags and settings. Which object do you create?",n:"my_commands.py",
+c:["from talon import Module, Context, actions","","mod = ___"],
+o:["Module()","Context()","Registry()","Actions()"],a:0,
+e:"A Module declares new things. A Context, by contrast, decides which implementations apply when."},
+{t:"Declare an action",d:"Which decorator turns this class into a set of new user actions?",n:"my_commands.py",
+c:["mod = Module()","","___","class Actions:","    def greet(name: str):","        \"\"\"Type a greeting\"\"\"","        actions.insert(\"Hello \" + name)"],
+o:["@mod.action_class","@mod.action","@ctx.action_class","@actions.define"],a:0,
+e:"@mod.action_class registers each method in the class as an action in the user namespace. Note the methods take no self."},
+{t:"Describe it",d:"Talon won’t load this action because something required is missing. What is it?",n:"my_commands.py",
+c:["@mod.action_class","class Actions:","    def greet(name: str):","        ___","        actions.insert(\"Hello \" + name)"],
+o:["\"\"\"Type a greeting\"\"\"","# Type a greeting","print(\"Type a greeting\")","desc = \"Type a greeting\""],a:0,
+e:"Actions declared on a Module need a docstring, because Talon uses it as the action’s description. A comment doesn’t count."},
+{t:"Call it from a .talon file",d:"Make “say hello to ada” run the greet action you just declared.",n:"greet.talon",
+c:["say hello to ada: ___"],
+o:["user.greet(\"Ada\")","actions.user.greet(\"Ada\")","greet(\"Ada\")","talon.greet(\"Ada\")"],a:0,
+e:"Inside a .talon file you write the action name directly, with its namespace: user.greet. Only Python code needs the actions. prefix."},
+{t:"Scope it to an app",d:"These implementations should apply only while Chrome is focused.",n:"chrome_overrides.py",
+c:["ctx = Context()","___"],
+o:["ctx.matches = \"app.name: Chrome\"","ctx.match = \"app.name: Chrome\"","ctx.matches(\"app.name: Chrome\")","ctx.context = \"app.name: Chrome\""],a:0,
+e:"Assign a match string to ctx.matches, using the same syntax as a .talon context header."},
+{t:"Override a built-in",d:"Replace the app.tab_next action with your own version for that context.",n:"chrome_overrides.py",
+c:["ctx = Context()","ctx.matches = \"app.name: Chrome\"","","___","class AppActions:","    def tab_next():","        actions.key(\"ctrl-tab\")"],
+o:["@ctx.action_class(\"app\")","@mod.action_class(\"app\")","@ctx.override(\"app\")","@actions.override(\"app\")"],a:0,
+e:"@ctx.action_class(\"app\") gives your methods priority over the defaults for any context that matches."},
+{t:"Keep the default",d:"Inside your override, run the original behaviour first, then press Ctrl+Tab.",n:"chrome_overrides.py",
+c:["@ctx.action_class(\"app\")","class AppActions:","    def tab_next():","        ___","        actions.key(\"ctrl-tab\")"],
+o:["actions.next()","actions.super()","actions.default()","actions.original()"],a:0,
+e:"actions.next() calls the next implementation down the stack, which is the one your override replaced."},
+{t:"Fill a list",d:"A list named fruit is declared. Give it a spoken form and its written value, for each item.",n:"fruit.py",
+c:["mod.list(\"fruit\", desc=\"Fruit names\")","ctx = Context()","___"],
+o:["ctx.lists[\"user.fruit\"] = {\"apple\": \"Apple\", \"pear\": \"Pear\"}","ctx.lists[\"fruit\"] = {\"apple\": \"Apple\", \"pear\": \"Pear\"}","ctx.list[\"user.fruit\"] = {\"apple\": \"Apple\", \"pear\": \"Pear\"}","mod.lists[\"user.fruit\"] = {\"apple\": \"Apple\", \"pear\": \"Pear\"}"],a:0,
+e:"Contexts fill lists through ctx.lists, keyed by the full name including the user namespace. The dictionary maps what you say to what is returned."},
+{t:"Use the list",d:"Say “eat apple” to type Apple, using the list you filled.",n:"fruit.talon",
+c:["___"],
+o:["eat {user.fruit}: insert(fruit)","eat <user.fruit>: insert(fruit)","eat [user.fruit]: insert(fruit)","eat {fruit}: insert(fruit)"],a:0,
+e:"Lists use curly braces with their full name, and the matched value is available under the last part of the name."},
+{t:"Use a capture",d:"Your Python defines a capture named fruits in the user namespace. Reference it in a command.",n:"fruit.talon",
+c:["___"],
+o:["eat <user.fruits>: insert(fruits)","eat {user.fruits}: insert(fruits)","eat [user.fruits]: insert(fruits)","eat $user.fruits: insert(fruits)"],a:0,
+e:"Captures use angle brackets, while lists use curly braces. The captured value is named after the capture."},
+{t:"Add a setting",d:"Declare a string setting called greeting, defaulting to Hello.",n:"my_commands.py",
+c:["mod = Module()","___"],
+o:["mod.setting(\"greeting\", type=str, default=\"Hello\", desc=\"Greeting\")","mod.settings(\"greeting\", type=str, default=\"Hello\", desc=\"Greeting\")","ctx.setting(\"greeting\", type=str, default=\"Hello\", desc=\"Greeting\")","settings.add(\"greeting\", type=str, default=\"Hello\", desc=\"Greeting\")"],a:0,
+e:"Settings are declared on a Module. Read the value later with settings.get(\"user.greeting\")."},
+{t:"Turn on a tag",d:"This context should switch on the tabs tag declared above.",n:"chrome_overrides.py",
+c:["mod = Module()","mod.tag(\"tabs\", desc=\"Tab commands\")","","ctx = Context()","___"],
+o:["ctx.tags = [\"user.tabs\"]","ctx.tag = [\"user.tabs\"]","ctx.tags = [\"tabs\"]","mod.tags = [\"user.tabs\"]"],a:0,
+e:"Contexts enable tags through ctx.tags, using the full user.-prefixed name, and the commands that require the tag then become active."}
+];
+var cp=0,i=0,s=0,log=[],st=document.getElementById("stage"),dots=document.getElementById("dots");
+function bar(){document.getElementById("pos").textContent="Task "+Math.min(i+1,Q.length)+" of "+Q.length;document.getElementById("sc").textContent="Correct: "+s;
+dots.innerHTML="";Q.forEach(function(_,k){var d=document.createElement("i");if(k<log.length)d.className=log[k].ok?"ok":"no";else if(k===i)d.className="cur";dots.appendChild(d)})}
+function file(q,add,cls){
+var wrap=document.createElement("div");wrap.className="ed";
+var tab=document.createElement("div");tab.className="tab";tab.textContent=q.n;wrap.appendChild(tab);
+var body=document.createElement("div");body.className="body";
+q.c.forEach(function(x,k){var sp=document.createElement("span");var has=x.indexOf("___")>-1;
+sp.className="ln"+(has?" "+(add?cls:"gap"):"");
+var b=document.createElement("b");b.textContent=k+1;sp.appendChild(b);
+sp.appendChild(document.createTextNode(has?x.replace("___",add||"\u2581\u2581\u2581"):x||" "));body.appendChild(sp)});
+wrap.appendChild(body);return wrap}
+function show(){
+bar();var q=Q[i];
+st.innerHTML='<div class="card"><h2></h2><p></p><div id="fw"></div><div class="opts" id="o"></div><div id="f"></div></div>';
+st.querySelector("h2").textContent=q.t;st.querySelector("p").textContent=q.d;
+document.getElementById("fw").appendChild(file(q,"",""));
+var o=document.getElementById("o");
+var ix=q.o.map(function(_,k){return k});for(var j=ix.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=ix[j];ix[j]=ix[r];ix[r]=t}cp=ix.indexOf(q.a);
+ix.forEach(function(orig,k){var b=document.createElement("button");b.className="opt";b.textContent=q.o[orig];b.onclick=function(){pick(k,orig)};o.appendChild(b)});
+}
+function pick(k,orig){
+var q=Q[i],ok=k===cp;
+document.querySelectorAll(".opt").forEach(function(b,n){b.disabled=true;if(n===cp)b.classList.add("right");else if(n===k)b.classList.add("wrong")});
+var fw=document.getElementById("fw");fw.innerHTML="";fw.appendChild(file(q,q.o[orig],ok?"add":"del"));
+if(ok)s++;log.push({t:q.t,ok:ok});bar();
+var f=document.getElementById("f");
+f.innerHTML='<div class="fb '+(ok?"ok":"no")+'"><b>'+(ok?"Loaded without errors.":"Talon won\u2019t accept that.")+'</b><span id="ex"></span></div><button class="go" id="n"></button>';
+document.getElementById("ex").textContent=q.e;
+var n=document.getElementById("n");n.textContent=i<Q.length-1?"Next task":"See results";n.focus();
+n.onclick=function(){i++;if(i<Q.length)show();else end()};
+}
+function end(){
+i=Q.length;bar();
+var r=s>=11?"Ready to build Talon commands in Python.":s>=8?"Solid. Revisit the ones you missed.":s>=5?"Good start. Try these in a real user folder.":"Run it again, then try each pattern in a real file.";
+st.innerHTML='<div class="card"><h2>Build complete</h2><div class="big">'+s+' / '+Q.length+'</div><p>'+r+'</p><ul class="rev" id="rv"></ul><button class="go" id="again">Play again</button></div>';
+var u=document.getElementById("rv");
+log.forEach(function(l){var li=document.createElement("li");li.textContent=(l.ok?"Correct: ":"Missed: ")+l.t;u.appendChild(li)});
+document.getElementById("again").onclick=function(){i=0;s=0;log=[];show()};
+}
+show();
+</script>
+</body>
+</html>

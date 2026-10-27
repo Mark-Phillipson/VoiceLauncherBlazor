@@ -17,6 +17,7 @@ namespace RazorClassLibrary.Pages
 {
 	public partial class CustomIntelliSenses : ComponentBase, IDisposable
 	{
+		[Parameter]  public bool IsActive { get; set; } = true;
 		[Parameter] public int? CategoryIdFilter { get; set; } = 0;
 		[Parameter] public int? LanguageIdFilter { get; set; } = 0;
 		[Parameter] public string SearchTermParameter { get; set; } = string.Empty;

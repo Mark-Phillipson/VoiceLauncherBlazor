@@ -18,6 +18,7 @@ namespace RazorClassLibrary.Pages;
 public partial class AIChatComponent : ComponentBase, IDisposable
 {
     [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
+    [Parameter] public bool IsActive { get; set; } = true;
     private bool useCascadiaCodeFont = true;
     public bool DebounceEnabled
     {

@@ -22,6 +22,8 @@ namespace RazorClassLibrary.Pages
 {
 	public partial class LauncherTable : ComponentBase, IDisposable
 	{
+		[Parameter]
+		public bool IsActive { get; set; }=true;
 		[Inject] public ILauncherDataService? LauncherDataService { get; set; }
 		[Inject] public ICategoryDataService? CategoryDataService { get; set; }
 		[Inject] public LauncherMultipleLauncherBridgeDataService? LauncherMultipleLauncherBridgeDataService { get; set; }

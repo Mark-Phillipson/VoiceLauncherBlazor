@@ -3,4 +3,8 @@
 
 <h3>Clipboard History</h3>
 
-<ClipboardHistoryViewer />
+<ClipboardHistoryViewer IsActive="@IsActive" />
+@code {
+    [Parameter]
+    public bool IsActive { get; set; }=true;
+}

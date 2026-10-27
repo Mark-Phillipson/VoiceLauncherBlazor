@@ -7,28 +7,28 @@
 <div class="row mb-3 g-3">
     <div class="col-12 col-md-4">
         <label class="form-label" for="firstNumber">First number <kbd>1</kbd></label>
-        <input id="firstNumber" class="form-control" type="number" step="any" @bind="Left" aria-label="First number" @ref="firstNumberInput" accesskey="1" />
+        <input id="firstNumber" class="form-control" type="number" step="any" @bind="Left" aria-label="First number" @ref="firstNumberInput" accesskey="@(IsActive ? "1" : null)" />
     </div>
     <div class="col-12 col-md-4">
         <label class="form-label" for="secondNumber">Second number <kbd>2</kbd></label>
-        <input id="secondNumber" class="form-control" type="number" step="any" @bind="Right" aria-label="Second number" accesskey="2" />
+        <input id="secondNumber" class="form-control" type="number" step="any" @bind="Right" aria-label="Second number" accesskey="@(IsActive ? "2" : null)" />
     </div>
     <div  class="col-12 col-md-4">
         <label class="form-label" for="resultText">Result <kbd>3</kbd></label>
-     <input id="resultText" class="form-control" accesskey="3" type="number" step="any" @bind="ResultText" aria-label="Result" />
+     <input id="resultText" class="form-control" accesskey="@(IsActive ? "3" : null)" type="number" step="any" @bind="ResultText" aria-label="Result" />
     <span> @CopyStatus</span>
 </div>
 </div>
 
 <div class="mb-3 calculator-buttons">
-    <button class="btn btn-primary me-2" @onclick="Add" accesskey="A" aria-label="Add (Alt+A)">➕ Add <kbd>A</kbd></button>
-    <button class="btn btn-light me-2" @onclick="Subtract" accesskey="S" aria-label="Subtract (Alt+S)">➖ Subtract <kbd>S</kbd></button>
-    <button class="btn btn-success me-2" @onclick="Multiply" accesskey="M" aria-label="Multiply (Alt+M)">✖️ Multiply <kbd>M</kbd></button>
-    <button class="btn btn-danger me-2" @onclick="Divide" accesskey="V" aria-label="Divide (Alt+V)">➗ Divide <kbd>V</kbd></button>
+    <button class="btn btn-primary me-2" @onclick="Add" accesskey="@(IsActive ? "A" : null)" aria-label="Add (Alt+A)">➕ Add <kbd>A</kbd></button>
+    <button class="btn btn-light me-2" @onclick="Subtract" accesskey="@(IsActive ? "S" : null)" aria-label="Subtract (Alt+S)">➖ Subtract <kbd>S</kbd></button>
+    <button class="btn btn-success me-2" @onclick="Multiply" accesskey="@(IsActive ? "M" : null)" aria-label="Multiply (Alt+M)">✖️ Multiply <kbd>M</kbd></button>
+    <button class="btn btn-danger me-2" @onclick="Divide" accesskey="@(IsActive ? "V" : null)" aria-label="Divide (Alt+V)">➗ Divide <kbd>V</kbd></button>
     @if (!string.IsNullOrEmpty(ResultText))
     {
-        <button class="btn btn-outline-info btn-sm me-2 mt-2" @onclick="CopyResult" accesskey="R" aria-label="Copy result (Alt+R)" >📋 Copy <kbd>R</kbd></button>
-        <button class="btn btn-outline-warning btn-sm me-2 mt-2" @onclick="ClearAll" accesskey="L" aria-label="Clear numbers (Alt+L)">🧹 Clear <kbd>L</kbd></button>
+        <button class="btn btn-outline-info btn-sm me-2 mt-2" @onclick="CopyResult" accesskey="@(IsActive ? "R" : null)" aria-label="Copy result (Alt+R)" >📋 Copy <kbd>R</kbd></button>
+        <button class="btn btn-outline-warning btn-sm me-2 mt-2" @onclick="ClearAll" accesskey="@(IsActive ? "L" : null)" aria-label="Clear numbers (Alt+L)">🧹 Clear <kbd>L</kbd></button>
     }
 </div>
 <br /><br />
@@ -44,6 +44,11 @@
 
 
 @code {
+    [Parameter]
+    public  bool  IsActive { get; set; }=true;
+    private string ? firstNumberInputAccessKey => IsActive ? "1" : null;
+    private string ? secondNumberInputAccessKey => IsActive ? "2" : null;
+    private string ? resultTextInputAccessKey => IsActive ? "3" : null;
     private double Left { get; set; }
     private double Right { get; set; }
     private string ResultText { get; set; } = string.Empty;

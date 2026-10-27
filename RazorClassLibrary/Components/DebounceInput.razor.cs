@@ -12,6 +12,7 @@ namespace RazorClassLibrary.Components
         private string CurrentValue { get; set; } = string.Empty;
 
         [Parameter] public string? Id { get; set; }
+        [Parameter] public string? accesskey { get; set; }
         [Parameter] public string CssClass { get; set; } = "form-control selection-filter";
         [Parameter] public string Placeholder { get; set; } = string.Empty;
         [Parameter] public string AriaLabel { get; set; } = "Filter items";

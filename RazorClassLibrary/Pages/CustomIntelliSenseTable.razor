@@ -9,16 +9,16 @@
                     <div class="d-flex" style="gap:12px; align-items:flex-start;">
                         <div style="min-width:160px; max-width:45%; position:relative;">
                             <label for="LanguageInput" class="form-label mb-1">Language <small
-                                class="text-muted">(Alt+L)</small></label>
-                                <input id="LanguageInput" accesskey="l" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language"
+                                class="text-muted"><kbd>L</kbd></small></label>
+                                <input id="LanguageInput" accesskey="@(IsActive ? "l" : null)" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language"
                                        class="form-control form-control-sm" placeholder="Type language name"
                                        @bind="LanguageQuery" />
                             </div>
 
                             <div style="min-width:160px; max-width:45%; position:relative;">
                                 <label for="CategoryInput" class="form-label mb-1">Category <small
-                                    class="text-muted">(Alt+G)</small></label>
-                                    <input id="CategoryInput" accesskey="g" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category"
+                                    class="text-muted"><kbd>G</kbd></small></label>
+                                    <input id="CategoryInput" accesskey="@(IsActive ? "g" : null)" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category"
                                            class="form-control form-control-sm" placeholder="Type category name"
                                            @bind="CategoryQuery" />
                                 </div>
@@ -29,20 +29,20 @@
                 <!-- Page number moved to below the table for more header space -->
                 <div class="col-md-5">
                     <div class="my-1">
-                        <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted">(Alt+I)</small></label>
+                        <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted"><kbd>I</kbd></small></label>
                         <div class="input-group w-100"
                              style="display:flex; width:100%; flex-wrap:nowrap; white-space:nowrap; gap:8px;">
-                            <input @ref="SearchInput" accesskey="i" type="text" class="form-control form-control-sm"
-                                   @bind="SearchInputText" id="SearchInput" name="SearchTerm" placeholder="Filter (Alt+I)"
+                            <input @ref="SearchInput" accesskey="@(IsActive ? "i" : null)" type="text" class="form-control form-control-sm"
+                                   @bind="SearchInputText" id="SearchInput" name="SearchTerm" placeholder="Filter"
                                    style="min-width:0; flex:1 1 auto; width:100%;" />
                             <button id="btnApplyFilterCustomIntelliSense" class="btn btn-outline-primary" type="button"
-                                    accesskey="a" title="Apply Filter (Alt+A)" aria-label="Apply Filter (Alt+A)"
+                                    accesskey="@(IsActive ? "a" : null)" title="Apply Filter (Alt+A)" aria-label="Apply Filter (Alt+A)"
                                     @onclick="ApplyFilterButton" style="flex:0 0 auto;">
                                 <i class="fas fa-filter" aria-hidden="true"></i>
-                                <span class="ms-1"><u>A</u>pply</span>
+                                <span class="ms-1"><kbd>A</kbd>pply</span>
                             </button>
                             <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button"
-                                    accesskey="r" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)" @onclick="ResetFilter"
+                                    accesskey="@(IsActive ? "r" : null)" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)" @onclick="ResetFilter"
                                     style="flex:0 0 auto; min-width:38px; padding-left:0.5rem; padding-right:0.5rem;">
                                 <i class="fas fa-redo" aria-hidden="true"></i>
                             </button>
@@ -87,7 +87,7 @@ else
                                 Display Value (Copy)
                             </th>
                             <th>
-                                <button accesskey="0" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success "
+                                <button accesskey="@(IsActive ? "0" : null)" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success "
                                         title="Add new (Alt+0)">
                                     <i class="bi bi-plus"></i>
                                 </button>
@@ -113,7 +113,7 @@ else
                             }
                             <tr>
                                 <td>
-                                    <button accesskey="@shortcutValue" title='@customIntelliSense.SendKeysValue'
+                                    <button accesskey="@(IsActive ? shortcutValue.ToString() : null)" title='@customIntelliSense.SendKeysValue'
                                             style='width:100%; display:flex; justify-content:space-between; align-items:center;'
                                             class="btn btn-outline-primary" type="button"
                                             @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
@@ -197,21 +197,21 @@ else
                 {
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <div>
-                            <button accesskey="p" class="btn btn-outline-success" type="button" disabled="@_isLoading"
+                            <button accesskey="@(IsActive ? "p" : null)" class="btn btn-outline-success" type="button" disabled="@_isLoading"
                                     @onclick="@( ( ) => PreviousPageAsync(  ) )">
                                 @if (_isLoading)
                                 {
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                 }
-                                <u>P</u>revious Page
+                                <kbd>P</kbd>revious Page
                             </button>
-                            <button accesskey="n" class="btn btn-outline-success ms-2" type="button" disabled="@_isLoading"
+                            <button accesskey="@(IsActive ? "n" : null)" class="btn btn-outline-success ms-2" type="button" disabled="@_isLoading"
                                     @onclick="@( ( ) => NextPageAsync(  ) )">
                                 @if (_isLoading)
                                 {
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                 }
-                                <u>N</u>ext Page
+                                <kbd>N</kbd>ext Page
                             </button>
                         </div>
                         <div class="text-muted small">

@@ -1,7 +1,6 @@
 @page "/talon-voice-command-search"
 
 @using RazorClassLibrary.Components
-@* @using directives moved to TalonVoiceCommandSearch.razor.cs *@
 
 <div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -43,19 +42,19 @@
                 <form @onsubmit="OnSearch" @onsubmit:preventDefault="true" class="flex-grow-1" style="min-width: 400px;">
                     <div class="d-flex w-100 gap-2 align-items-start search-input-row">
                         <div class="flex-grow-1 d-flex flex-column">
-                            <input id="tvcs-search-input" @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="s" autofocus />
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+S</small>
+                            <input id="tvcs-search-input" @ref="searchInput" class="form-control" type="text" placeholder="@GetSearchPlaceholder()" @bind="SearchTerm" @bind:event="oninput" @onblur="OnSearchInputBlur" @onkeyup="OnSearchInputKeyUp" aria-label="Search" disabled="@IsLoading" accesskey="@(IsActive ? "s" : null)" autofocus />
+                            <small class="form-text text-muted mt-1 w-100 text-center"><kbd>S</kbd></small>
                         </div>
                         <div class="d-flex flex-column" style="min-width:160px;">
-                                                    <select class="form-select search-scope-select" style="border:1px solid #ced4da;" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="p" aria-label="Search scope" title="Select what to search in">
+                                                    <select class="form-select search-scope-select" style="border:1px solid #ced4da;" @onchange="OnSearchScopeChange" disabled="@IsLoading" value="@SelectedSearchScope" accesskey="@(IsActive ? "p" : null)" aria-label="Search scope" title="Select what to search in">
                                 <option value="@SearchScope.CommandNamesOnly">Names Only</option>
                                 <option value="@SearchScope.Script">Search Script</option>
                                 <option value="@SearchScope.All">Search All</option>
                             </select>
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+P</small>
+                            <small class="form-text text-muted mt-1 w-100 text-center"><kbd>P</kbd></small>
                         </div>
                         <div class="d-flex flex-column">
-                            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="h" title="Search">
+                            <button class="btn btn-primary" type="submit" aria-label="Search" disabled="@IsLoading" accesskey="@(IsActive ? "h" : null)" title="Search">
                                 @if (IsLoading)
                                 {
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -67,26 +66,26 @@
                                     </svg>
                                 }
                             </button>
-                            <small class="form-text text-muted mt-1 w-100 text-center">Alt+H</small>
+                            <small class="form-text text-muted mt-1 w-100 text-center"><kbd>H</kbd></small>
                         </div>
                     </div>
                 </form>
                 
                 <div class="d-flex gap-3 align-items-start flex-shrink-0">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="n" />
+                        <input class="form-check-input" type="checkbox" id="semanticToggle" @onchange="OnSemanticToggleChange" disabled="@IsLoading" checked="@UseSemanticMatching" accesskey="@(IsActive ? "n" : null)" />
                         <label class="form-check-label" for="semanticToggle">
                             <span>@((MarkupString)"Sema<u>n</u>tic")</span>
                         </label>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="u" />
+                        <input class="form-check-input" type="checkbox" id="autoFilterToggle" @bind="AutoFilterByCurrentApp" disabled="@IsLoading" accesskey="@(IsActive ? "u" : null)" />
                         <label class="form-check-label" for="autoFilterToggle">
                             <span >A<u>u</u>to</span>
                         </label>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="l" />
+                        <input class="form-check-input" type="checkbox" id="showFullCardsToggle" @bind="ShowFullCards" disabled="@IsLoading" accesskey="@(IsActive ? "l" : null)" />
                         <label class="form-check-label" for="showFullCardsToggle">
                             <span>Detai<u>l</u>s</span>
                         </label>
@@ -108,13 +107,14 @@
             <strong>Focus Mode:</strong> Showing only the selected command. Click "Exit Focus" or search again to see all results.
         </div>
     }
-
+    
     <!-- Repository Breakdown (Collapsible) -->
     <div class="tvcs-panel mb-3">
         <div class="d-flex align-items-center">
             <h6 class="mb-0 me-2">Repository breakdown (click to filter):</h6>
-            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent" title="@(RepositoryPanelExpanded ? "Collapse (Alt+1)" : "Expand (Alt+1)")" accesskey="1">
-                @((RepositoryPanelExpanded ? "◀ Collapse (Alt+1)" : "▶ Expand (Alt+1)"))
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleRepositoryPanel" aria-expanded="@RepositoryPanelExpanded" aria-controls="repositoryPanelContent" title="@(RepositoryPanelExpanded ? "Collapse" : "Expand")" accesskey="@(IsActive ? "1" : null)">
+                @((RepositoryPanelExpanded ? "◀ Collapse" : "▶ Expand"))
+                <kbd class="bg-danger">1</kbd>
             </button>
         </div>
         @if (RepositoryPanelExpanded && RepositoryCounts != null && RepositoryCounts.Any())
@@ -141,8 +141,9 @@
     <div class="tvcs-panel mb-3">
         <div class="d-flex align-items-center">
             <strong class="me-2">Filters</strong>
-            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent" title="@(FilterPanelExpanded ? "Collapse (Alt+2)" : "Expand (Alt+2)")" accesskey="2">
-                @((FilterPanelExpanded ? "◀ Collapse (Alt+2)" : "▶ Expand (Alt+2)"))
+            <button class="btn btn-sm btn-outline-secondary" @onclick="ToggleFilterPanel" aria-expanded="@FilterPanelExpanded" aria-controls="filterPanelContent" title="@(FilterPanelExpanded ? "Collapse" : "Expand")" accesskey="@(IsActive ? "2" : null)">
+                @((FilterPanelExpanded ? "◀ Collapse" : "▶ Expand"))
+                <kbd class="bg-light">2</kbd>
             </button>
             @if (!FilterPanelExpanded && !string.IsNullOrWhiteSpace(AppliedFiltersSummary))
             {
@@ -156,7 +157,7 @@
                 <div class="col-md-3">
                     <label class="form-label small label-application">Filter by <span class="underline-application">A</span>pplication:</label>
                     <div class="d-flex">
-                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="a" title="Filter by Application">
+                        <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-application" @onclick="ShowApplicationModal" disabled="@IsLoading" accesskey="@(IsActive ? "a" : null)" title="Filter by Application">
                             <span class="filter-btn-icon me-2" aria-hidden="true">🖥️</span>
                             @if (string.IsNullOrWhiteSpace(SelectedApplication))
                             {
@@ -173,7 +174,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-mode">Filter by <span class="underline-mode">M</span>ode:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-mode" @onclick="ShowModeModal" disabled="@IsLoading" accesskey="m" title="Filter by Mode">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-mode" @onclick="ShowModeModal" disabled="@IsLoading" accesskey="@(IsActive ? "m" : null)" title="Filter by Mode">
                         <span class="filter-btn-icon me-2" aria-hidden="true">⚙️</span>
                         @if (string.IsNullOrWhiteSpace(SelectedMode))
                         {
@@ -190,7 +191,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-tags">Filter by <span class="underline-tags">T</span>ags:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-tags" @onclick="ShowTagsModal" disabled="@IsLoading" accesskey="t" title="Filter by Tags">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-tags" @onclick="ShowTagsModal" disabled="@IsLoading" accesskey="@(IsActive ? "t" : null)" title="Filter by Tags">
                         <span class="filter-btn-icon me-2" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
                                 <path d="M2 2a1 1 0 0 0-1 1v3.586a1 1 0 0 0 .293.707l6 6a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-6-6A1 1 0 0 0 2 2z"/>
@@ -212,7 +213,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-os">Filter by <span class="underline-os">O</span>S:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-os" @onclick="ShowOSModal" disabled="@IsLoading" accesskey="o" title="Filter by Operating System">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-os" @onclick="ShowOSModal" disabled="@IsLoading" accesskey="@(IsActive ? "o" : null)" title="Filter by Operating System">
                         <span class="filter-btn-icon me-2" aria-hidden="true">💽</span>
                         @if (string.IsNullOrWhiteSpace(SelectedOperatingSystem))
                         {
@@ -231,7 +232,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-repository">Filter by <span class="underline-repository">R</span>epository:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-repository" @onclick="ShowRepositoryModal" disabled="@IsLoading" accesskey="r" title="Filter by Repository">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-repository" @onclick="ShowRepositoryModal" disabled="@IsLoading" accesskey="@(IsActive ? "r" : null)" title="Filter by Repository">
                         <span class="filter-btn-icon me-2" aria-hidden="true">📁</span>
                         @if (string.IsNullOrWhiteSpace(SelectedRepository))
                         {
@@ -248,7 +249,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-title">Filter by T<span class="underline-title">i</span>tle:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-title" @onclick="ShowTitleModal" disabled="@IsLoading" accesskey="i" title="Filter by Title">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-title" @onclick="ShowTitleModal" disabled="@IsLoading" accesskey="@(IsActive ? "i" : null)" title="Filter by Title">
                         <span class="filter-btn-icon me-2" aria-hidden="true">🔖</span>
                         @if (string.IsNullOrWhiteSpace(SelectedTitle))
                         {
@@ -260,7 +261,7 @@
                         }
                     </button>
                     <!-- Backwards-compatible hidden select used by tests and some tools -->
-                    <select class="form-select form-select-sm filter-title visually-hidden" @onchange="OnTitleFilterChange" aria-label="Filter by Title" accesskey="i">
+                    <select class="form-select form-select-sm filter-title visually-hidden" @onchange="OnTitleFilterChange" aria-label="Filter by Title" accesskey="@(IsActive ? "i" : null)">
                         <option value="">All Titles</option>
                         @foreach (var t in AvailableTitles ?? new List<string>())
                         {
@@ -273,7 +274,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="c" title="Filter by Code Language">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)" title="Filter by Code Language">
                         <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
                         @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                         {
@@ -289,7 +290,7 @@
 
             <div class="col-md-3 d-flex align-items-end">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="c">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -304,7 +305,7 @@
                             <span><u>C</u>lear Filters</span>
                         }
                     </button>
-                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="f">
+                    <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "f" : null)">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -340,7 +341,7 @@
                         </span>
                         @if (IsInFocusMode())
                         {
-                            <button class="btn btn-outline-secondary btn-sm" @onclick="ExitFocusMode" title="Show all results again" accesskey="x">
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="ExitFocusMode" title="Show all results again" accesskey="@(IsActive ? "x" : null)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                                 </svg>
