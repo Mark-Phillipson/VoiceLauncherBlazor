@@ -29,7 +29,7 @@ public class AIChatComponentCopyTests : BunitContext
         var cut = Render<RazorClassLibrary.Pages.AIChatComponent>();
 
         SetPrivateValue(cut.Instance, "TextBlock", "Original response");
-        SetPrivateValue(cut.Instance, "selectedPrompt", new PromptDTO { Description = "Do Dictation" });
+        SetPrivateValue(cut.Instance, "selectedPrompt", new PromptDTO { Description = "Do Drafting" });
 
         var history = new ChatHistory();
         history.AddAssistantMessage("Original response");

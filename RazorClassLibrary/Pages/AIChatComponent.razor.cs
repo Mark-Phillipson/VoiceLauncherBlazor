@@ -93,7 +93,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     // Models available for selection (can be configured via configuration key "OpenAI:Models" as comma-separated list)
     private List<string> AvailableModels = new List<string>();
     // Currently selected model
-    private string SelectedModel = "o3-mini";
+    private string SelectedModel = "gpt-5.4-mini";
     private string TextBlock { get; set; } = "";
     private string AIComments { get; set; } = "";
     private int revertTo = 0; ChatHistory responseHistory = new();
@@ -337,19 +337,19 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 isPluginImported = true;
             }
         }
-        if (selectedPrompt?.Description == "Do Dictation")
+        if (selectedPrompt?.Description == "Do Drafting")
         {
             chatHistory = new ChatHistory();
             chatHistory.AddSystemMessage($"{predefinedPrompt}\n The current value of the TextBlock is: {TextBlock}.\n" +
                 $"The current value of the AIComments is: {AIComments}.\n" +
-                $"The user has asked to do dictation. Please provide a response.\n");
+                $"The user has asked to do drafting. Please provide a response.\n");
         }
         chatHistory.AddUserMessage(prompt);
         // response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel);
         try
         {
             response = await chatService.GetChatMessageContentAsync(chatHistory, settings, kernel, cancellationTokenSource.Token);
-            if (selectedPrompt?.Description == "Do Dictation")
+            if (selectedPrompt?.Description == "Do Drafting")
             {
                 // Deserialize the JSON response
                 var jsonResponse = response.Content ?? "";

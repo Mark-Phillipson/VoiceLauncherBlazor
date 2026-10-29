@@ -52,7 +52,7 @@
                     aria-expanded="@showModelControls" aria-controls="modelControls"
                     title="Alt+M: Show or hide model controls">
                 <i class="bi bi-gear-fill"></i>
-                <span><u>M</u>odel</span>
+                <span><u>M</u>odel (@SelectedModel)</span>
                 <i class="bi @(showModelControls ? "bi-chevron-up" : "bi-chevron-down")"></i>
             </button>
 
@@ -90,7 +90,7 @@
                             </div>
                             <div class="mt-2 d-flex gap-2 align-items-center">
                                 <input id="customModel" class="form-control bg-dark text-light border-success" placeholder="Add custom model id
-                                (e.g., gpt-4o-mini)" @bind="customModelInput" />
+                                (e.g., gpt-5.4-mini)" @bind="customModelInput" />
                                 <button class="btn btn-outline-success" @onclick="AddCustomModel"
                                         disabled="@(string.IsNullOrWhiteSpace(customModelInput) ? "disabled" : null)">Add</button>
                             </div>
@@ -144,7 +144,7 @@
                             <button accesskey='@(IsActive ? "t" : null)' class="btn btn-outline-danger btn-sm" type="button"
                                     disabled="@(processing ? "disabled" : null)" @onclick="@(() => Forget())"><i
                                 class="bi bi-trash-fill"></i> Forge<u>t</u></button>
-                                @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(AIComments))
+                                @if (selectedPrompt?.Description == "Do Drafting" && !string.IsNullOrWhiteSpace(AIComments))
                                 {
                                     <button accesskey='@(IsActive ? "r" : null)' id="FocusResponseElement" type="button" class="btn btn-outline-success btn-sm"
                                             @onclick="@(() => FocusResponseElement())">
@@ -346,7 +346,7 @@
 
                                                 @if (responseHistory?.Count > 0)
                                                 {
-                                                    @if (selectedPrompt?.Description == "Do Dictation" && !string.IsNullOrWhiteSpace(TextBlock))
+                                                    @if (selectedPrompt?.Description == "Do Drafting" && !string.IsNullOrWhiteSpace(TextBlock))
                                                     {
                                                         <button class="btn btn-outline-info mb-2" @onclick="ToggleFont">
                                                             <i class="bi bi-type"></i>

@@ -334,6 +334,8 @@ namespace WinFormsApp
 							displayValueSearch = false;
 							showTalonSearch = false;
 							showAIChat = false;
+							showClipboardHistory = false;
+							showCalculator = false;
 							await InvokeAsync(StateHasChanged);
 
 							// Persist the view change so tests can verify the visible view
@@ -365,6 +367,7 @@ namespace WinFormsApp
 						showAIChat = false;
 						showTalonSearch = false;
 						showClipboardHistory = false;
+						showCalculator = false;
 						categoryId = 0;
 						languageId = 0;
 						await InvokeAsync(StateHasChanged);
@@ -393,6 +396,8 @@ namespace WinFormsApp
 						launcher = false;
 						showAIChat = false;
 						showTalonSearch = false;
+						showClipboardHistory = false;
+						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 
@@ -404,6 +409,8 @@ namespace WinFormsApp
 						languageAndCategoryListing = false;
 						launcher = false;
 						showAIChat = false;
+						showClipboardHistory = false;
+						showCalculator = false;
 						SetTitle("Talon Voice Command Search");
 						if (arguments.Length >= 3)
 						{
@@ -430,6 +437,8 @@ namespace WinFormsApp
 						languageAndCategoryListing = false;
 						launcher = false;
 						showTalonSearch = false;
+						showClipboardHistory = false;
+						showCalculator = false;
 						// Ensure clipboard history is cleared when switching to AI Chat
 						showClipboardHistory = false;
 						try { AppendIpcLog("Index.ViewChanged: AIChat"); } catch { }
@@ -451,6 +460,7 @@ namespace WinFormsApp
 						launcher = false;
 						showAIChat = false;
 						showTalonSearch = false;
+						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 
@@ -477,6 +487,8 @@ namespace WinFormsApp
 						launcher = false;
 						showAIChat = false;
 						showTalonSearch = false;
+						showClipboardHistory = false;
+						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 				}
