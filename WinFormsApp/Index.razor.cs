@@ -241,6 +241,20 @@ namespace WinFormsApp
 			return false;
 		}
 
+		private static bool IsCalculatorIntent(string[] args)
+		{
+			if (args.Length < 2)
+				return false;
+
+			if (IsExactArgument(args[1], "Calculator"))
+				return true;
+
+			if (args.Length >= 3 && IsExactArgument(args[2], "Calculator"))
+				return true;
+
+			return false;
+		}
+
 		private async void OnLaunchArgumentsReceived(object? sender, LaunchArgumentsEventArgs e)
 		{
 			if (_disposed) return;
@@ -463,7 +477,18 @@ namespace WinFormsApp
 						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
-
+					else if (IsCalculatorIntent(arguments))
+					{
+						SetTitle("Calculator");
+						// Enable Calculator exclusively
+						showCalculator = true;
+						languageAndCategoryListing = false;
+						launcher = false;
+						showAIChat = false;
+						showTalonSearch = false;
+						showClipboardHistory = false;
+						await InvokeAsync(StateHasChanged);
+					}
 					// Handle SearchIntelliSense invocation (language + category)
 					else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
 					{
@@ -613,6 +638,18 @@ namespace WinFormsApp
 				showTalonSearch = false;
 				return;
 			}
+			else if (IsCalculatorIntent(arguments))
+			{
+				SetTitle("Calculator");
+				showCalculator = true;
+				showClipboardHistory = false;
+				languageAndCategoryListing = false;
+				displayValueSearch = false;
+				launcher = false;
+				showAIChat = false;
+				showTalonSearch = false;
+				return;
+			}
 			else if (arguments.Count() >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
 			{
 				SetTitle("Talon Voice Command Search");
@@ -727,9 +764,12 @@ namespace WinFormsApp
 				}
 				catch { }
 			}
-			else if (arguments.Length == 3)
+			else if (IsDisplaySearchIntent(arguments))
 			{
-				searchTerm = arguments[2].Replace("/", "");
+				string rawSearch = arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase)
+					? string.Join(" ", arguments.Skip(2))
+					: string.Join(" ", arguments.Skip(3));
+				searchTerm = rawSearch.Replace("/", "").Trim();
 				displayValueSearch = true;
 				languageAndCategoryListing = false;
 				launcher = false;
