@@ -34,6 +34,8 @@ namespace RazorClassLibrary.Pages
         public TransactionDTO TransactionDTO { get; set; } = new TransactionDTO();//{ };
         [Inject] public ITransactionDataService? TransactionDataService { get; set; }
         [Parameter] public int ParentId { get; set; }
+        public List<string> MyTransactionTypes { get; set; } =
+    new List<string> { "Business Expense", "Household", "Income", "Personal Expense", "Refund" };
         ElementReference FirstInput;
 #pragma warning disable 414, 649
         bool TaskRunning = false;

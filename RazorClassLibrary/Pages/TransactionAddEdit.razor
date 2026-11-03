@@ -11,7 +11,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group">
-                    <label @ref="FirstInput" for="Description">Description: </label>
+                    <label for="Description">Description: </label>
                     <InputText id="Description" class="form-control" @bind-Value="@TransactionDTO.Description"
                         placeholder="Enter Description"></InputText>
                     <ValidationMessage For="@(() => TransactionDTO.Description)" />
@@ -41,10 +41,14 @@
                     <ValidationMessage For="@(() => TransactionDTO.Balance)" />
                 </div>
                 <div class="form-group">
-                    <label for="MyTransactionType">My Transaction Type: </label>
-                    <InputText id="MyTransactionType" class="form-control"
-                        @bind-Value="@TransactionDTO.MyTransactionType" placeholder="Enter My Transaction Type">
-                    </InputText>
+                    <label @ref="FirstInput" for="MyTransactionType">My Transaction Type: </label>
+                    <InputSelect id="MyTransactionType" class="form-control" @bind-Value="@TransactionDTO.MyTransactionType">
+                        <option value="">Select My Transaction Type</option>
+                        @foreach (var type in MyTransactionTypes)
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
                     <ValidationMessage For="@(() => TransactionDTO.MyTransactionType)" />
                 </div>
             </div>
