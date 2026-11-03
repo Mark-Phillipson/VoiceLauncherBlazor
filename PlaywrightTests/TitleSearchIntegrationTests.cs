@@ -143,7 +143,7 @@ public class TitleSearchIntegrationTests : PageTest
                     break;
                 }
             }
-            Assert.That(hasMatchingResult, Is.True, "Should find at least one result containing 'file'");
+            NUnit.Framework.Assert.That(hasMatchingResult, Is.True, "Should find at least one result containing 'file'");
         }
     }
 
@@ -160,7 +160,7 @@ public class TitleSearchIntegrationTests : PageTest
         // Skip test if no title options are available (beyond "All Titles")
         if (optionCount <= 1)
         {
-            Assert.Ignore("No title options available for filtering test");
+            NUnit.Framework.Assert.Ignore("No title options available for filtering test");
             return;
         }
         
@@ -263,7 +263,7 @@ public class TitleSearchIntegrationTests : PageTest
         // Skip test if no title options are available
         if (optionCount <= 1)
         {
-            Assert.Ignore("No title options available for clear filters test");
+            NUnit.Framework.Assert.Ignore("No title options available for clear filters test");
             return;
         }
         
@@ -361,6 +361,6 @@ public class TitleSearchIntegrationTests : PageTest
         
         // Check for high contrast compatibility (basic check)
         var computedStyle = await titleFilter.EvaluateAsync<string>("window.getComputedStyle(this).borderColor");
-        Assert.That(computedStyle, Is.Not.Null, "Border color should be defined for high contrast mode");
+        NUnit.Framework.Assert.That(computedStyle, Is.Not.Null, "Border color should be defined for high contrast mode");
     }
 }

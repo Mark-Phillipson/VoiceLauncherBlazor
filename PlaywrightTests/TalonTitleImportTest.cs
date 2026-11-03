@@ -87,7 +87,7 @@ save file:
         var successAlert = Page.Locator(".alert-success");
         await Expect(successAlert).ToBeVisibleAsync(new() { Timeout = 10000 });        // Verify success message contains information about imported commands
         var successText = await successAlert.TextContentAsync();
-        Assert.That(successText, Does.Contain("command(s)"));
+        NUnit.Framework.Assert.That(successText, Does.Contain("command(s)"));
 
         // Navigate to search page to verify commands were imported
         await Page.GotoAsync("http://localhost:5000/talon-voice-command-search");        // Search for commands from the file with title
@@ -214,7 +214,7 @@ save file:
 
         // Verify error message is displayed
         var errorText = await errorAlert.TextContentAsync();
-        Assert.That(errorText, Is.Not.Empty);
+        NUnit.Framework.Assert.That(errorText, Is.Not.Empty);
     }
 
     [Test]
@@ -241,7 +241,7 @@ save file:
 
         await Expect(successAlert).ToBeVisibleAsync(new() { Timeout = 10000 });        // Should show the same number of commands imported
         var secondImportText = await successAlert.TextContentAsync();
-        Assert.That(secondImportText, Does.Contain("command(s)"));
+        NUnit.Framework.Assert.That(secondImportText, Does.Contain("command(s)"));
 
         // Verify data is still searchable
         await Page.GotoAsync("http://localhost:5000/talon-voice-command-search");

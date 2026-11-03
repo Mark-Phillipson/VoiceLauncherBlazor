@@ -94,7 +94,7 @@ reopen tab:
         
         // Verify success message
         var successText = await successAlert.TextContentAsync();
-        Assert.That(successText, Does.Contain("command(s)"));
+        NUnit.Framework.Assert.That(successText, Does.Contain("command(s)"));
         Console.WriteLine($"Import completed: {successText}");
 
         // Step 2: Navigate to search page and perform initial search

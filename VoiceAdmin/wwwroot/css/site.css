@@ -653,6 +653,10 @@ header>h3 {
 	margin: 1.75rem;
 }
 
+.transaction-add-edit-modal {
+	width: min(600px, calc(100vw - 2rem));
+}
+
 .big-checkbox {
 	width: 30px;
 	height: 30px;

@@ -325,6 +325,9 @@ header > h3 {
 	border-radius: 4px;
 	border: 1px solid #fff;
 }
+.transaction-add-edit-modal {
+	width: min(600px, calc(100vw - 2rem));
+}
 
 .bm-title {
 	font-size: 20px;

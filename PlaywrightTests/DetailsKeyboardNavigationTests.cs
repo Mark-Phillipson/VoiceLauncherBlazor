@@ -29,17 +29,17 @@ public class DetailsKeyboardNavigationTests : PageTest
         // Press ArrowDown -> first item
         await Page.Keyboard.PressAsync("ArrowDown");
         var isFocused1 = await Page.Locator("#item1").EvaluateAsync<bool>("el => el === document.activeElement");
-        Assert.IsTrue(isFocused1, "item1 should be focused after ArrowDown from summary");
+        NUnit.Framework.Assert.IsTrue(isFocused1, "item1 should be focused after ArrowDown from summary");
 
         // Press ArrowDown -> second item
         await Page.Keyboard.PressAsync("ArrowDown");
         var isFocused2 = await Page.Locator("#item2").EvaluateAsync<bool>("el => el === document.activeElement");
-        Assert.IsTrue(isFocused2, "item2 should be focused after second ArrowDown");
+        NUnit.Framework.Assert.IsTrue(isFocused2, "item2 should be focused after second ArrowDown");
 
         // ArrowUp returns to first
         await Page.Keyboard.PressAsync("ArrowUp");
         var isFocused3 = await Page.Locator("#item1").EvaluateAsync<bool>("el => el === document.activeElement");
-        Assert.IsTrue(isFocused3, "item1 should be focused after ArrowUp");
+        NUnit.Framework.Assert.IsTrue(isFocused3, "item1 should be focused after ArrowUp");
     }
 
     [Test]
@@ -53,9 +53,9 @@ public class DetailsKeyboardNavigationTests : PageTest
         await Page.Keyboard.PressAsync("Escape");
 
         var isOpen = await Page.EvaluateAsync<bool>("() => document.querySelector('#test-details').hasAttribute('open')");
-        Assert.IsFalse(isOpen, "Details should be closed after Escape");
+        NUnit.Framework.Assert.IsFalse(isOpen, "Details should be closed after Escape");
 
         var isSummaryFocused = await Page.EvaluateAsync<bool>("() => document.activeElement && document.activeElement.id === 'test-summary'");
-        Assert.IsTrue(isSummaryFocused, "Summary should have focus after Escape");
+        NUnit.Framework.Assert.IsTrue(isSummaryFocused, "Summary should have focus after Escape");
     }
 }

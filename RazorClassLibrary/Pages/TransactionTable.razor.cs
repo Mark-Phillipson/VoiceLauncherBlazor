@@ -205,7 +205,7 @@ namespace RazorClassLibrary.Pages
         private async Task AddNewTransaction()
         {
             var parameters = new ModalParameters();
-            var formModal = Modal?.Show<TransactionAddEdit>("Add Transaction", parameters);
+            var formModal = Modal?.Show<TransactionAddEdit>("Add Transaction", parameters, BuildTransactionAddEditModalOptions());
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -333,7 +333,7 @@ namespace RazorClassLibrary.Pages
         {
             var parameters = new ModalParameters();
             parameters.Add("Id", Id);
-            var formModal = Modal?.Show<TransactionAddEdit>("Edit Transaction", parameters);
+            var formModal = Modal?.Show<TransactionAddEdit>("Edit Transaction", parameters, BuildTransactionAddEditModalOptions());
             if (formModal != null)
             {
                 var result = await formModal.Result;
@@ -348,6 +348,12 @@ namespace RazorClassLibrary.Pages
             }
             TransactionId = Id;
         }
+
+        private static ModalOptions BuildTransactionAddEditModalOptions() => new()
+        {
+            Class = "blazored-modal-custom transaction-add-edit-modal",
+            Size = ModalSize.Automatic
+        };
 
         private async Task OnValueChangedPageSize(int value)
         {

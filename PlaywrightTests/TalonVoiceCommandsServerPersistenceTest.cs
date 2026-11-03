@@ -165,7 +165,7 @@ duplicate line:
 
         // Verify the search found our "open file" command
         var commandText = await Page.TextContentAsync(".card");
-        Assert.That(commandText, Does.Contain("open file"), 
+        NUnit.Framework.Assert.That(commandText, Does.Contain("open file"), 
             "[STANDALONE SERVER TEST] Should find 'open file' command before refresh");
 
         // Step 4: Refresh the page to test localStorage persistence
@@ -203,12 +203,13 @@ duplicate line:
         Console.WriteLine("[STANDALONE SERVER TEST] Screenshot: Search results after refresh - PROVING PERSISTENCE WORKS");
 
         // Critical assertion: Search should still work after page refresh
-        Assert.That(resultsAfterRefresh.Count, Is.GreaterThan(0), 
+        NUnit.Framework.Assert.That(resultsAfterRefresh.Count, Is.GreaterThan(0), 
             "[STANDALONE SERVER TEST] CRITICAL: Search results should persist after page refresh in standalone server!");
 
         // Verify the search still finds our "open file" command after refresh
         var commandTextAfterRefresh = await Page.TextContentAsync(".card");
-        Assert.That(commandTextAfterRefresh, Does.Contain("open file"), 
+        
+        NUnit.Framework.Assert.That(commandTextAfterRefresh, Does.Contain("open file"), 
             "[STANDALONE SERVER TEST] CRITICAL: Should still find 'open file' command after refresh!");
 
         // Additional verification: Test a different search term
@@ -223,11 +224,11 @@ duplicate line:
             FullPage = true 
         });
         
-        Assert.That(saveResults.Count, Is.GreaterThan(0), 
+        NUnit.Framework.Assert.That(saveResults.Count, Is.GreaterThan(0), 
             "[STANDALONE SERVER TEST] Should find 'save file' command");
         
         var saveCommandText = await Page.TextContentAsync(".card");
-        Assert.That(saveCommandText, Does.Contain("save file"), 
+        NUnit.Framework.Assert.That(saveCommandText, Does.Contain("save file"), 
             "[STANDALONE SERVER TEST] Should find 'save file' command text");
 
         Console.WriteLine("[STANDALONE SERVER TEST] ✅ STANDALONE SERVER PERSISTENCE TEST PASSED!");
@@ -325,7 +326,7 @@ The standalone TalonVoiceCommandsServer localStorage persistence is working corr
         Console.WriteLine($"[STANDALONE SERVER TEST] Commands data length: {commandsData?.Length ?? 0}");
         Console.WriteLine($"[STANDALONE SERVER TEST] Lists data length: {listsData?.Length ?? 0}");
 
-        Assert.That(commandsData, Is.Not.Null.And.Not.Empty, 
+        NUnit.Framework.Assert.That(commandsData, Is.Not.Null.And.Not.Empty, 
             "[STANDALONE SERVER TEST] Commands should be saved to localStorage");
 
         // Navigate to search page and verify data is loaded from localStorage
@@ -339,7 +340,7 @@ The standalone TalonVoiceCommandsServer localStorage persistence is working corr
         await Page.WaitForTimeoutAsync(2000);
 
         var searchResults = await Page.QuerySelectorAllAsync(".card");
-        Assert.That(searchResults.Count, Is.GreaterThan(0), 
+        NUnit.Framework.Assert.That(searchResults.Count, Is.GreaterThan(0), 
             "[STANDALONE SERVER TEST] Search should work when data is loaded from localStorage");
 
         Console.WriteLine("[STANDALONE SERVER TEST] ✅ localStorage validation passed for standalone server");

@@ -40,7 +40,7 @@ public class LauncherDebounceTests : PageTest
         await Task.Delay(900);
 
         var after = Page.Context.Pages.Count;
-        Assert.LessOrEqual(after - before, 1, $"More than one new page opened while filtering favorites (opened {after - before}).");
+        NUnit.Framework.Assert.LessOrEqual(after - before, 1, $"More than one new page opened while filtering favorites (opened {after - before}).");
     }
 
     [Test]
@@ -55,6 +55,6 @@ public class LauncherDebounceTests : PageTest
         await Task.Delay(900);
 
         var after = Page.Context.Pages.Count;
-        Assert.LessOrEqual(after - before, 1, $"More than one new page opened while filtering launcher (opened {after - before}).");
+        NUnit.Framework.Assert.LessOrEqual(after - before, 1, $"More than one new page opened while filtering launcher (opened {after - before}).");
     }
 }
