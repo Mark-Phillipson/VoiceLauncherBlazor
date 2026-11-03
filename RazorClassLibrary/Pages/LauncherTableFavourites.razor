@@ -72,7 +72,7 @@ else
 				<div class="card-inner-fixed">
 					@if (launcher.CommandLine.ToLower().StartsWith("http"))
 					{
-						<a And star wait up="@counter" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center" target="_blank" href="@launcher.CommandLine">
+						<a accesskey="@counter" class="btn btn-lg btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center" target="_blank" href="@launcher.CommandLine">
 							@if (launcher.Icon != null && launcher.Icon.Length > 0)
 							{
 								var iconSrc = launcher.Icon.StartsWith("http", StringComparison.OrdinalIgnoreCase)
