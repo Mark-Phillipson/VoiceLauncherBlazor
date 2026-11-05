@@ -301,6 +301,8 @@ namespace WinFormsApp
             services.AddScoped<CustomIntellisenseService>();
             services.AddScoped<LauncherMultipleLauncherBridgeDataService>();
             services.AddScoped<LauncherService>();
+            services.AddScoped<DataAccessLibrary.Services.IValueToInsertDataService, ValueToInsertDataService>();
+            services.AddScoped<IValueToInsertRepository, ValueToInsertRepository>();
             services.AddScoped<DataAccessLibrary.Services.ITalonVoiceCommandDataService, TalonVoiceCommandDataService>();
             // Register generic SQL data access and clipboard history service used by Razor components
             services.AddScoped<DataAccessLibrary.ISqlDataAccess, DataAccessLibrary.SqlDataAccess>();

@@ -51,6 +51,8 @@ namespace WinFormsApp
 		private bool keepDefaultSnippetsAlive = false;
 		private bool keepAIChatAlive = false;
 		private bool keepCalculatorAlive = false;
+		private bool showGlobalSearch = false;
+		private bool keepGlobalSearchAlive = false;
 
 		private bool IsDefaultSnippetsViewActive =>
 			!showAIChat &&
@@ -59,7 +61,8 @@ namespace WinFormsApp
 			!languageAndCategoryListing &&
 			!displayValueSearch &&
 			!launcher &&
-			!showCalculator;
+			!showCalculator &&
+			!showGlobalSearch;
 
 		private bool ShouldRenderAIChat
 		{
@@ -122,7 +125,7 @@ namespace WinFormsApp
 				keepCalculatorAlive |= showCalculator;
 				return showCalculator || keepCalculatorAlive;
 			}
-		}	
+		}
 
 		private bool ShouldRenderDefaultSnippets
 		{
@@ -130,6 +133,14 @@ namespace WinFormsApp
 			{
 				keepDefaultSnippetsAlive |= IsDefaultSnippetsViewActive;
 				return IsDefaultSnippetsViewActive || keepDefaultSnippetsAlive;
+			}
+		}
+		private bool ShouldRenderGlobalSearch
+		{
+			get
+			{
+				keepGlobalSearchAlive |= showGlobalSearch;
+				return showGlobalSearch || keepGlobalSearchAlive;
 			}
 		}
 
@@ -205,6 +216,19 @@ namespace WinFormsApp
 				return true;
 
 			if (args.Length >= 4 && IsExactArgument(args[2], "search") && !IsExactArgument(args[1], "SearchIntelliSense"))
+				return true;
+
+			return false;
+		}
+		private static bool IsDisplayGlobalSearchIntent(string[] args)
+		{
+			if (args.Length < 3)
+				return false;
+
+			if (IsExactArgument(args[1], "Global"))
+				return true;
+
+			if (args.Length >= 4 && IsExactArgument(args[2], "Global"))
 				return true;
 
 			return false;
@@ -344,12 +368,8 @@ namespace WinFormsApp
 							categoryId = matchedCategory.Id;
 							lastLauncherCategoryId = categoryId;
 							SetTitle($"Launch from category: {matchedCategory.CategoryName}");
+							ToggleShowVariablesToFalse();
 							launcher = true;
-							displayValueSearch = false;
-							showTalonSearch = false;
-							showAIChat = false;
-							showClipboardHistory = false;
-							showCalculator = false;
 							await InvokeAsync(StateHasChanged);
 
 							// Persist the view change so tests can verify the visible view
@@ -375,13 +395,8 @@ namespace WinFormsApp
 
 						searchTerm = rawSearch.Replace("/", "").Trim();
 						SetTitle("Filtering Snippets by Display Value");
+						ToggleShowVariablesToFalse();
 						displayValueSearch = true;
-						languageAndCategoryListing = false;
-						launcher = false;
-						showAIChat = false;
-						showTalonSearch = false;
-						showClipboardHistory = false;
-						showCalculator = false;
 						categoryId = 0;
 						languageId = 0;
 						await InvokeAsync(StateHasChanged);
@@ -405,13 +420,8 @@ namespace WinFormsApp
 							lastSnippetLanguageId = languageId;
 							lastSnippetCategoryId = categoryId;
 						}
+						ToggleShowVariablesToFalse();
 						languageAndCategoryListing = true;
-						displayValueSearch = false;
-						launcher = false;
-						showAIChat = false;
-						showTalonSearch = false;
-						showClipboardHistory = false;
-						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 
@@ -419,12 +429,8 @@ namespace WinFormsApp
 					else if (IsTalonSearchIntent(arguments))
 					{
 						System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
+						ToggleShowVariablesToFalse();
 						showTalonSearch = true;
-						languageAndCategoryListing = false;
-						launcher = false;
-						showAIChat = false;
-						showClipboardHistory = false;
-						showCalculator = false;
 						SetTitle("Talon Voice Command Search");
 						if (arguments.Length >= 3)
 						{
@@ -445,16 +451,10 @@ namespace WinFormsApp
 					{
 						System.Diagnostics.Debug.WriteLine("Handling AIChat IPC invocation");
 						SetTitle("AI Chat");
+						ToggleShowVariablesToFalse();
 						// Enable AI Chat exclusively
 						showAIChat = true;
 						keepAIChatAlive = true;
-						languageAndCategoryListing = false;
-						launcher = false;
-						showTalonSearch = false;
-						showClipboardHistory = false;
-						showCalculator = false;
-						// Ensure clipboard history is cleared when switching to AI Chat
-						showClipboardHistory = false;
 						try { AppendIpcLog("Index.ViewChanged: AIChat"); } catch { }
 						await InvokeAsync(StateHasChanged);
 					}
@@ -468,25 +468,17 @@ namespace WinFormsApp
 							  arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 					{
 						SetTitle("Clipboard History");
+						ToggleShowVariablesToFalse();
 						// Enable Clipboard History exclusively
 						showClipboardHistory = true;
-						languageAndCategoryListing = false;
-						launcher = false;
-						showAIChat = false;
-						showTalonSearch = false;
-						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 					else if (IsCalculatorIntent(arguments))
 					{
 						SetTitle("Calculator");
+						ToggleShowVariablesToFalse();
 						// Enable Calculator exclusively
 						showCalculator = true;
-						languageAndCategoryListing = false;
-						launcher = false;
-						showAIChat = false;
-						showTalonSearch = false;
-						showClipboardHistory = false;
 						await InvokeAsync(StateHasChanged);
 					}
 					// Handle SearchIntelliSense invocation (language + category)
@@ -507,13 +499,9 @@ namespace WinFormsApp
 							lastSnippetLanguageId = languageId;
 							lastSnippetCategoryId = categoryId;
 						}
+						ToggleShowVariablesToFalse();
 						// Enable Snippets listing exclusively
 						languageAndCategoryListing = true;
-						launcher = false;
-						showAIChat = false;
-						showTalonSearch = false;
-						showClipboardHistory = false;
-						showCalculator = false;
 						await InvokeAsync(StateHasChanged);
 					}
 				}
@@ -554,10 +542,8 @@ namespace WinFormsApp
 			}       // Check for search/Talon command line arguments
 			if (arguments.Length >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
 			{
+				ToggleShowVariablesToFalse();
 				showTalonSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
 				if (arguments.Length >= 3)
 				{
 					searchTerm = string.Join(" ", arguments.Skip(2));
@@ -577,11 +563,8 @@ namespace WinFormsApp
 			{
 				SetTitle("Filtering Snippets by Display Value");
 				searchTerm = string.Join(" ", arguments.Skip(2)).Replace("/", "").Trim();
+				ToggleShowVariablesToFalse();
 				displayValueSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
 				categoryId = 0;
 				languageId = 0;
 				var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
@@ -591,13 +574,15 @@ namespace WinFormsApp
 
 			if (arguments.Count() < 2)
 			{
+				Console.WriteLine("No command line arguments supplied, using default arguments.");
 				// Change values here to debug a particular launch scenario  when no arguments are supplied
 				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
-				arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Files" };
+				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Files" };
 				// arguments = new string[] { arguments[0], "Launcher", "AIChat" };
 				//  arguments = new string[] { arguments[0], "search" };
 				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
 				// arguments = new string[] { arguments[0], "Talon", "" };
+				 arguments = new string[] { arguments[0], "Global", "" };
 
 			}
 			string categoryName = "";
@@ -605,21 +590,17 @@ namespace WinFormsApp
 			{
 				SetTitle("AI Chat");
 				// Enable AI Chat exclusively
+				ToggleShowVariablesToFalse();
 				showAIChat = true;
 				keepAIChatAlive = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showTalonSearch = false;
 			}
 			else if (arguments.Count() >= 3 && arguments[2].Contains("AIChat"))
 			{
 				SetTitle("AI Chat");
+				ToggleShowVariablesToFalse();
 				// Enable AI Chat exclusively
 				showAIChat = true;
 				keepAIChatAlive = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showTalonSearch = false;
 			}
 			// Handle Clipboard cold-start invocation (e.g., Clipboard or Clippy)
 			else if ((arguments.Count() >= 2 &&
@@ -630,33 +611,23 @@ namespace WinFormsApp
 					   arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 			{
 				SetTitle("Clipboard History");
+				ToggleShowVariablesToFalse();
 				// Enable Clipboard History exclusively
 				showClipboardHistory = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
 				return;
 			}
 			else if (IsCalculatorIntent(arguments))
 			{
 				SetTitle("Calculator");
+				ToggleShowVariablesToFalse();
 				showCalculator = true;
-				showClipboardHistory = false;
-				languageAndCategoryListing = false;
-				displayValueSearch = false;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
 				return;
 			}
 			else if (arguments.Count() >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
 			{
 				SetTitle("Talon Voice Command Search");
+				ToggleShowVariablesToFalse();
 				showTalonSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
 
 				if (arguments.Length >= 3)
 				{
@@ -669,11 +640,8 @@ namespace WinFormsApp
 			else if (arguments.Count() >= 3 && arguments[2].Equals("Talon", StringComparison.OrdinalIgnoreCase))
 			{
 				SetTitle("Talon Voice Command Search");
+				ToggleShowVariablesToFalse();
 				showTalonSearch = true;
-				languageAndCategoryListing = false;
-				displayValueSearch = false;
-				launcher = false;
-				showAIChat = false;
 
 				if (arguments.Length >= 4)
 				{
@@ -699,11 +667,9 @@ namespace WinFormsApp
 					lastSnippetLanguageId = languageId;
 					lastSnippetCategoryId = categoryId;
 				}
+				ToggleShowVariablesToFalse();
 				// Enable Snippets listing exclusively
 				languageAndCategoryListing = true;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
 			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
@@ -748,12 +714,9 @@ namespace WinFormsApp
 					// Keep launcher mode even when category lookup fails.
 					SetTitle("Launch Applications");
 				}
-
+				ToggleShowVariablesToFalse();
 				// Enable launcher view exclusively
 				launcher = true;
-				languageAndCategoryListing = false;
-				showAIChat = false;
-				showTalonSearch = false;
 
 				// Persist the view change so external tests can detect the visible view at startup
 				try
@@ -764,20 +727,25 @@ namespace WinFormsApp
 				}
 				catch { }
 			}
-			else if (IsDisplaySearchIntent(arguments))
+			else if (IsDisplaySearchIntent(arguments) && !showGlobalSearch)
 			{
 				string rawSearch = arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase)
 					? string.Join(" ", arguments.Skip(2))
 					: string.Join(" ", arguments.Skip(3));
 				searchTerm = rawSearch.Replace("/", "").Trim();
+				ToggleShowVariablesToFalse();
 				displayValueSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
 				categoryId = 0;
 				languageId = 0;
 				SetTitle("Filtering Snippets by Display Value");
+			}
+			else if (IsDisplayGlobalSearchIntent(arguments))
+			{
+				ToggleShowVariablesToFalse();
+				showGlobalSearch = true;
+				categoryId = 0;
+				languageId = 0;
+				SetTitle("Global Search");
 			}
 
 			// Persist a startup-parsed args trace so external tests can detect cold-start args processing
@@ -788,6 +756,19 @@ namespace WinFormsApp
 				File.AppendAllText(logPath, $"{DateTime.Now:O} Index.StartupParsedIPC: {string.Join('|', arguments ?? new string[0])}{Environment.NewLine}");
 			}
 			catch { }
+		}
+
+		private void ToggleShowVariablesToFalse()
+		{
+			showAIChat = false;
+			showCalculator = false;
+			languageAndCategoryListing = false;
+			displayValueSearch = false;
+			launcher = false;
+			showTalonSearch = false;
+			showGlobalSearch = false;
+			showClipboardHistory = false;
+
 		}
 
 		private void AppendIpcLog(string text)
@@ -822,258 +803,51 @@ namespace WinFormsApp
 		}
 		private void ShowAIChat()
 		{
-			if (showAIChat)
-			{
-				// Turning off AI Chat - restore previous view based on arguments
-				showAIChat = false;
-				if (arguments != null && arguments.Length > 1)
-				{
-					if ((arguments.Length >= 2 && arguments[1].Contains("AIChat")) ||
-						(arguments.Length >= 3 && arguments[2].Contains("AIChat")))
-					{
-						// If we launched directly into AI chat, close the application when going back
-						CloseWindow();
-						return;
-					}
-					else if (arguments[1].Contains("SearchIntelliSense"))
-					{
-						languageAndCategoryListing = true;
-						SetTitle("Search Snippets");
-					}
-					else if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle($"Launch Applications");
-					}
-					else if (arguments[1].Contains("Talon") || arguments[1].Contains("search"))
-					{
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-					}
-					else
-					{
-						SetTitle("Filtering Snippets by Display Value");
-					}
-				}
-			}
-			else
-			{
-				// Turning on AI Chat
-				showAIChat = true;
-				keepAIChatAlive = true;
-				// Reset other views when showing AI Chat
-				showCalculator = false;
-				languageAndCategoryListing = false;
-				displayValueSearch = false;
-				launcher = false;
-				showTalonSearch = false;
-				// Ensure clipboard history is cleared when switching to AI Chat
-				showClipboardHistory = false;
-				SetTitle("AI Chat Assistant");
-			}
+			ToggleShowVariablesToFalse();
+			// Turning on AI Chat
+			showAIChat = true;
+			keepAIChatAlive = true;
+			// Reset other views when showing AI Chat
+			showAIChat = true; // Keep AI Chat on after toggling off others
+			SetTitle("AI Chat Assistant");
 			StateHasChanged();
 		}
 
-		private void ShowTeleSense()
-		{
-			if (languageAndCategoryListing)
-			{
-				// Turning off Snippets - restore previous view based on arguments if present
-				languageAndCategoryListing = false;
-				if (arguments != null && arguments.Length > 1)
-				{
-					if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle($"Launch Applications");
-					}
-					else if (arguments[1].Contains("AIChat"))
-					{
-						showAIChat = true;
-						SetTitle("AI Chat Assistant");
-					}
-					else if (arguments[1].Contains("Talon") || arguments[1].Contains("search"))
-					{
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-					}
-					else
-					{
-						SetTitle("Filtering Snippets by Display Value");
-					}
-				}
-			}
-			else
-			{
-				// Turning on Snippets view
-				languageAndCategoryListing = true;
-				displayValueSearch = false;
-				showAIChat = false;
-				launcher = false;
-				showTalonSearch = false;
-				// Ensure clipboard history is cleared when switching to Snippets
-				showClipboardHistory = false;
-				SetTitle("Snippets");
-			}
-			StateHasChanged();
-		}
+
 
 		private void ShowDisplayValueSearch()
 		{
-			if (displayValueSearch)
-			{
-				displayValueSearch = true;
-				languageAndCategoryListing = false;
-				launcher = false;
-				if (arguments != null && arguments.Length > 1)
-				{
-					if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle("Launch Applications");
-					}
-					else if (arguments[1].Contains("AIChat"))
-					{
-						showAIChat = true;
-						SetTitle("AI Chat Assistant");
-					}
-					else if (arguments[1].Contains("Talon"))
-					{
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-					}
-					else
-					{
-						displayValueSearch = true;
-						SetTitle("Filtering Snippets by Display Value");
-					}
-				}
-			}
-			else
-			{
-				displayValueSearch = true;
-				showCalculator = false;
-				languageAndCategoryListing = false;
-				showAIChat = false;
-				launcher = false;
-				showTalonSearch = false;
-				showClipboardHistory = false;
-				categoryId = 0;
-				languageId = 0;
-				searchTerm = searchTerm ?? string.Empty;
-				SetTitle("Filtering Snippets by Display Value");
-			}
+			ToggleShowVariablesToFalse();
+			displayValueSearch = true;
+			categoryId = 0;
+			languageId = 0;
+			searchTerm = searchTerm ?? string.Empty;
+			SetTitle("Filtering Snippets by Display Value");
 			StateHasChanged();
 		}
 
 		private void ShowTalonSearch()
 		{
-			if (showTalonSearch)
-			{
-				// Turning off Talon Search - restore previous view based on arguments
-				showTalonSearch = false;
-				if (arguments != null && arguments.Length > 1)
-				{
-					if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
-						(arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search"))))
-					{
-						// If we launched directly into Talon search, close the application when going back
-						CloseWindow();
-						return;
-					}
-					else if (arguments[1].Contains("SearchIntelliSense"))
-					{
-						languageAndCategoryListing = true;
-						SetTitle("Search Snippets");
-					}
-					else if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle($"Launch Applications");
-					}
-					else if (arguments[1].Contains("AIChat"))
-					{
-						showAIChat = true;
-						SetTitle("AI Chat Assistant");
-					}
-					else
-					{
-						SetTitle("Filtering Snippets by Display Value");
-					}
-				}
-			}
-			else
-			{
-				// Turning on Talon Search
-				showTalonSearch = true;
-				// Reset other views when showing Talon Search
-				showCalculator = false;
-				languageAndCategoryListing = false;
-				displayValueSearch = false;
-				launcher = false;
-				showAIChat = false;
-				// Ensure clipboard history is cleared when switching to Talon Search
-				showClipboardHistory = false;
-				SetTitle("Talon Voice Command Search");
-			}
+			// Turning on Talon Search
+			ToggleShowVariablesToFalse();
+			showTalonSearch = true;
+			SetTitle("Talon Voice Command Search");
 			StateHasChanged();
 		}
 		private void ShowClipboardHistory()
 		{
-			if (showClipboardHistory)
-			{
-				// Turning off clipboard history - restore previous view based on arguments if present
-				showClipboardHistory = false;
-				if (arguments != null && arguments.Length > 1)
-				{
-					if ((arguments.Length >= 2 && (arguments[1].Contains("Talon") || arguments[1].Contains("search"))) ||
-						(arguments.Length >= 3 && (arguments[2].Contains("Talon") || arguments[2].Contains("search"))))
-					{
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-					}
-					else if (arguments[1].Contains("Launcher"))
-					{
-						launcher = true;
-						SetTitle("Launch Applications");
-					}
-					else if (arguments[1].Contains("AIChat"))
-					{
-						showAIChat = true;
-						SetTitle("AI Chat Assistant");
-					}
-					else
-					{
-						languageAndCategoryListing = true;
-						SetTitle("Snippets");
-					}
-				}
-			}
-			else
-			{
-				// Turning on Clipboard History
-				showClipboardHistory = true;
-				// Reset other views when showing clipboard history
-				showCalculator = false;
-				languageAndCategoryListing = false;
-				displayValueSearch = false;
-				launcher = false;
-				showAIChat = false;
-				showTalonSearch = false;
-				SetTitle("Clipboard History");
-			}
+			// Turning on Clipboard History
+			ToggleShowVariablesToFalse();
+			showClipboardHistory = true;
+			SetTitle("Clipboard History");
 			StateHasChanged();
 		}
 		private void ShowCalculator()
 		{
+			ToggleShowVariablesToFalse();
 			showCalculator = true;
-			showClipboardHistory = false;
-			languageAndCategoryListing = false;
-			displayValueSearch = false;
-			launcher = false;
-			showAIChat = false;
-			showTalonSearch = false;
 			SetTitle("Calculator");
+			StateHasChanged();
 		}
 
 
@@ -1099,16 +873,9 @@ namespace WinFormsApp
 				}
 			}
 			catch { }
-
+			ToggleShowVariablesToFalse();
 			// Switch to launcher view
 			launcher = true;
-			showCalculator = false;
-			displayValueSearch = false;
-			languageAndCategoryListing = false;
-			showAIChat = false;
-			showTalonSearch = false;
-			// Ensure clipboard history is cleared when switching to Launcher
-			showClipboardHistory = false;
 
 			// Restore last used launcher category if available, otherwise default to Code Projects
 			try
@@ -1172,15 +939,8 @@ namespace WinFormsApp
 				languageId = lastSnippetLanguageId;
 				categoryId = lastSnippetCategoryId;
 			}
-
+			ToggleShowVariablesToFalse();
 			languageAndCategoryListing = true;
-			showCalculator = false;
-			displayValueSearch = false;
-			launcher = false;
-			showAIChat = false;
-			showTalonSearch = false;
-			// Ensure clipboard history is cleared when switching to Snippets
-			showClipboardHistory = false;
 			await SetTitleCallback.InvokeAsync("Snippets");
 			StateHasChanged();
 		}
@@ -1224,6 +984,14 @@ namespace WinFormsApp
 			catch { }
 
 			try { _viewToggleLock?.Dispose(); } catch { }
+		}
+		private void ShowGlobalSearch()
+		{
+			ToggleShowVariablesToFalse();
+			// Turning on Global Search
+			showGlobalSearch = true;
+			SetTitle("Global Search");
+			StateHasChanged();
 		}
 	}
 }

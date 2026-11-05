@@ -149,8 +149,12 @@ else
                                     @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
                                     {
                                         <div class="">
-                                            <strong>Language / Category:</strong> @customIntelliSense.LanguageName /
-                                            @customIntelliSense.CategoryName
+                                            <div class="text-info">
+                                                <strong>Language:</strong> @customIntelliSense.LanguageName
+                                            </div>
+                                            <div class="text-warning">
+                                                <strong> Category:</strong> @customIntelliSense.CategoryName
+                                            </div>
                                             <br /><strong>Match in: </strong>
                                             @if (customIntelliSense.DisplayValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
                                             {
