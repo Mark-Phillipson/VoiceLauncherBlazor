@@ -92,10 +92,14 @@
 	display: block;
 	font-size: 1.0rem;
 	min-height: 0;
+	margin: 0;
+	width: 100%;
+	padding: 0 ;
+
 }
 
 /* Explicit grid wrapper for items with inline action buttons to avoid bootstrapped .d-flex utilities */
-.nav-item > .menu-item-inner {
+.nav-item>.menu-item-inner {
 	display: grid !important;
 	grid-template-columns: 1fr auto;
 	gap: 0.5rem;
@@ -104,8 +108,8 @@
 	height: auto;
 }
 
-.nav-item > .menu-item-inner ::deep a,
-.nav-item > .menu-item-inner ::deep .nav-link {
+.nav-item>.menu-item-inner ::deep a,
+.nav-item>.menu-item-inner ::deep .nav-link {
 	grid-column: 1 / 2;
 	display: flex !important;
 	align-items: center;
@@ -114,70 +118,73 @@
 	height: 100%;
 }
 
-.nav-item > .menu-item-inner button {
+.nav-item>.menu-item-inner button {
 	position: relative;
 	align-self: center;
 	z-index: 2;
 	margin: 0;
 }
 
-	.nav-item ::deep a,
-	.nav-item ::deep .nav-link {
-		/* increase specificity and include the .nav-link class directly */
-		color: var(--text-color);
-		border-radius: 4px;
-		/* Keep spacing consistent and readable across all menu items. */
-		display: flex !important;
-		align-items: center;
-		padding: 0.7rem 0.85rem;
-		white-space: nowrap;
-		box-sizing: border-box;
-		flex: 1 1 auto;
-		min-width: 0; /* Avoid overflow when parent is constrained */
-		height: 100%;
-		align-self: stretch;
-	}
+.nav-item ::deep a,
+.nav-item ::deep .nav-link {
+	/* increase specificity and include the .nav-link class directly */
+	color: var(--text-color);
+	border-radius: 4px;
+	/* Keep spacing consistent and readable across all menu items. */
+	display: flex !important;
+	align-items: center;
+	padding: 0.7rem 0.85rem;
+	white-space: nowrap;
+	box-sizing: border-box;
+	flex: 1 1 auto;
+	min-width: 0;
+	/* Avoid overflow when parent is constrained */
+	height: 100%;
+	align-self: stretch;
+}
 
-	/* Hovering the list item should visibly highlight the anchor so small
+/* Hovering the list item should visibly highlight the anchor so small
 	   pointer misses still produce the expected visual feedback. */
-	.nav-item:hover ::deep a,
-	.nav-item:hover ::deep .nav-link {
-		background-color: var(--nav-hover-bg) !important;
-		color: var(--text-color) !important;
-		border-radius: 4px;
-	}
-		.nav-item ::deep a.active {
-			background-color: var(--nav-active-bg);
-			color: var(--nav-active-text);
-		}
-		.nav-item ::deep a:hover {
-			/* Keep anchor hover consistent with list-item hover */
-			background-color: var(--nav-hover-bg) !important;
-			color: var(--text-color);
-			border-radius: 4px;
-		}
+.nav-item:hover ::deep a,
+.nav-item:hover ::deep .nav-link {
+	background-color: var(--nav-hover-bg) !important;
+	color: var(--text-color) !important;
+	border-radius: 4px;
+}
+
+.nav-item ::deep a.active {
+	background-color: var(--nav-active-bg);
+	color: var(--nav-active-text);
+}
+
+.nav-item ::deep a:hover {
+	/* Keep anchor hover consistent with list-item hover */
+	background-color: var(--nav-hover-bg) !important;
+	color: var(--text-color);
+	border-radius: 4px;
+}
 
 /* Light alternating menu item background colors */
 .nav-item:nth-child(odd) {
-    background-color: var(--nav-stripe-odd);
+	background-color: var(--nav-stripe-odd);
 }
 
 .nav-item:nth-child(even) {
-    background-color: var(--nav-stripe-even);
+	background-color: var(--nav-stripe-even);
 }
 
 /* Arrange .letter-label (voice) left, <kbd> (keyboard) right */
 .nav-item ::deep .menu-label-container {
-    display: flex;
-    align-items: center;
-    /* Remove gap so we control spacing with margin on kbd */
-    gap: 0;
+	display: flex;
+	align-items: center;
+	/* Remove gap so we control spacing with margin on kbd */
+	gap: 0;
 }
 
 .nav-item ::deep .letter-label {
-    order: 1;
-    margin: 0;
-    padding: 0;
+	order: 1;
+	margin: 0;
+	padding: 0;
 }
 
 .nav-item ::deep kbd {
@@ -190,7 +197,7 @@
 	border-radius: 3px;
 	padding-right: 0.3em;
 	font-size: 0.95em;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* Removed hard-coded min-widths to allow anchor to flex and fill its parent.
@@ -199,35 +206,37 @@
 /* Make Favourites and Snippets menu items as bold as possible */
 .nav-link[href*="launchersfavourites"],
 .nav-link[href*="intellisenses"] {
-    font-weight: 900;
-    font-size: 1.15em;
-    color: #fff !important;
-    text-shadow: 0 1px 4px #000, 0 0 2px #2a3b5c;
-    letter-spacing: 0.5px;
+	font-weight: 900;
+	font-size: 1.15em;
+	color: #fff !important;
+	text-shadow: 0 1px 4px #000, 0 0 2px #2a3b5c;
+	letter-spacing: 0.5px;
 }
 
 /* Favourites: pink, Snippets: yellow */
 .nav-link[href*="launchersfavourites"] {
-    color: #ff69b4 !important; /* hot pink */
-    font-weight: bold;
-    text-shadow: none;
+	color: #ff69b4 !important;
+	/* hot pink */
+	font-weight: bold;
+	text-shadow: none;
 }
 
 .nav-link[href*="intellisenses"] {
-    color: #ffd700 !important; /* gold/yellow */
-    font-weight: bold;
-    text-shadow: none;
+	color: #ffd700 !important;
+	/* gold/yellow */
+	font-weight: bold;
+	text-shadow: none;
 }
 
 /* Force Favourites: pink, Snippets: yellow, using high specificity */
 .nav-link[href*="launchersfavourites"] span {
-    color: #ff69b4 !important;
-    font-weight: bold;
+	color: #ff69b4 !important;
+	font-weight: bold;
 }
 
 .nav-link[href*="intellisenses"] span {
-    color: #ffd700 !important;
-    font-weight: bold;
+	color: #ffd700 !important;
+	font-weight: bold;
 }
 
 .nav-menu-header:nth-child(odd),
@@ -273,8 +282,8 @@
 
 /* Ensure the NavMenu root element (the component root renders a div with class 'collapsed')
    occupies the collapsed sidebar width and doesn't keep its original min-width. */
-.sidebar.sidebar-collapsed > .collapsed,
-.sidebar.sidebar-collapsed > div.collapsed {
+.sidebar.sidebar-collapsed>.collapsed,
+.sidebar.sidebar-collapsed>div.collapsed {
 	width: 48px !important;
 	min-width: 48px !important;
 	max-width: 48px !important;
@@ -321,7 +330,7 @@
 }
 
 /* Strong override for any leftover Bootstrap padding utilities on the content article */
-.sidebar.sidebar-collapsed + .main .content {
+.sidebar.sidebar-collapsed+.main .content {
 	padding-left: 2px !important;
 }
 
@@ -348,7 +357,7 @@
 
 .collapsed .nav-subtitle,
 .collapsed .nav-title,
-.collapsed .nav-item ::deep .nav-link > span + span,
+.collapsed .nav-item ::deep .nav-link>span+span,
 .collapsed .menu-item-inner button span:last-child,
 .collapsed .header-action-button span:last-child {
 	display: none;
@@ -400,4 +409,11 @@
 	.header-action-button {
 		flex: 1 1 0;
 	}
+}
+
+.ul {
+	margin: 0;
+	padding: 0;
+	width: 95%;
+	list-style: none;
 }

@@ -728,7 +728,7 @@ header>h3 {
     width: 250px !important;
     position: sticky !important;
     top: 0 !important;
-    height: 100vh !important;
+    height: 90vh !important;
 }
 
 /* Last-resort overrides: ensure card container background uses theme variable
