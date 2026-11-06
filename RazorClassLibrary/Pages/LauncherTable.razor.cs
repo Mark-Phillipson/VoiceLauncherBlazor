@@ -52,6 +52,8 @@ namespace RazorClassLibrary.Pages
 		string Message = "";
         private bool _disposed = false;
 #pragma warning restore 414, 649
+		private ElementReference searchInputLabel;
+		private int SearchResetVersion;
 		public string? SearchTerm {
 			get => searchTerm;
 			set {
@@ -418,6 +420,8 @@ namespace RazorClassLibrary.Pages
 		}
         protected async Task ResetFilter()
         {
+			SearchTerm=string.Empty;
+			SearchResetVersion++; // Increment the reset version to trigger DebounceInput reset
             // Clear the local search term and message
             searchTerm = null;
             Message = string.Empty;

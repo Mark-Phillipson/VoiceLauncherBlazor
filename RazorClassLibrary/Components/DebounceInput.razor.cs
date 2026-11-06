@@ -10,9 +10,12 @@ namespace RazorClassLibrary.Components
     {
         private CancellationTokenSource? _cts;
         private string CurrentValue { get; set; } = string.Empty;
-
+        private string? _lastParentValue;
+        private int _lastResetVersion;
+        [Parameter] public int ResetVersion { get; set; }
         [Parameter] public string? Id { get; set; }
-        [Parameter] public string? accesskey { get; set; }
+        [Parameter] public string? Accesskey { get; set; }
+        [Parameter] public string Autocomplete { get; set; } = "off";
         [Parameter] public string CssClass { get; set; } = "form-control selection-filter";
         [Parameter] public string Placeholder { get; set; } = string.Empty;
         [Parameter] public string AriaLabel { get; set; } = "Filter items";
@@ -24,29 +27,46 @@ namespace RazorClassLibrary.Components
 
         protected override void OnParametersSet()
         {
-            CurrentValue = Value ?? string.Empty;
+            var incomingValue = Value ?? string.Empty;
+
+            var valueChanged = !string.Equals(
+                incomingValue,
+                _lastParentValue,
+                StringComparison.Ordinal);
+
+            var resetRequested = ResetVersion != _lastResetVersion;
+
+            if (valueChanged || resetRequested)
+            {
+                CurrentValue = incomingValue;
+            }
+
+            _lastParentValue = incomingValue;
+            _lastResetVersion = ResetVersion;
         }
 
         private async Task OnInput(ChangeEventArgs e)
         {
             CurrentValue = e?.Value?.ToString() ?? string.Empty;
+            var inputValue = CurrentValue;
+
             _cts?.Cancel();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+
             var token = _cts.Token;
+
             try
             {
                 await Task.Delay(DebounceMilliseconds, token);
+
                 if (!token.IsCancellationRequested)
                 {
                     if (ValueChanged.HasDelegate)
-                    {
-                        await ValueChanged.InvokeAsync(CurrentValue);
-                    }
+                        await ValueChanged.InvokeAsync(inputValue);
+
                     if (OnDebounced.HasDelegate)
-                    {
-                        await OnDebounced.InvokeAsync(CurrentValue);
-                    }
+                        await OnDebounced.InvokeAsync(inputValue);
                 }
             }
             catch (TaskCanceledException) { }

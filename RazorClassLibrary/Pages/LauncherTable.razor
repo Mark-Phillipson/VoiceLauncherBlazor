@@ -67,10 +67,19 @@
     {
         <div class="col-auto me-1">
             <div class="input-group">
-                <label for="SearchInput" class="form-label me-2 mt-2">
+                <label @ref="searchInputLabel" for="SearchInput" class="form-label me-2 mt-2">
                     <kbd>2</kbd>
                 </label>
-                <DebounceInput accesskey='@(IsActive ? "2" : "")' Id="SearchInput" Value="@SearchTerm" ValueChanged="@(v => SearchTerm = v)" DebounceMilliseconds="1500" Placeholder="Filter by Name" AriaLabel="Filter (Alt+2)" CssClass="form-control w-80" />
+                <DebounceInput
+                    accesskey='@(IsActive ? "2" : "")'
+                    Id="SearchInput"
+                    Value="@SearchTerm"
+                    ValueChanged="@(v => SearchTerm = v)"
+                    ResetVersion="@SearchResetVersion"
+                    DebounceMilliseconds="2000"
+                    Placeholder="Filter by Name"
+                    AriaLabel="Filter (Alt+2)"
+                    CssClass="form-control w-80" />
                 <button id="btnResetFilterLauncherTable" class="btn btn-outline-secondary" type="button" accesskey="@((IsActive ? "3" : ""))" title="Reset Filter (Alt+3)" aria-label="Reset Filter (Alt+3)" @onclick="ResetFilter">
                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                     <span class="ms-1"><span class="shortcut"><kbd>3</kbd></span></span>
