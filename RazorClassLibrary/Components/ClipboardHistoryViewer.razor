@@ -7,8 +7,6 @@
 @using Microsoft.Extensions.Configuration
 @using RazorClassLibrary.Models
 @using RazorClassLibrary.Services
-@using WindowsInput
-@using WindowsInput.Native
 @inject IClipboardHistoryService ClipboardService
 @inject ISqlDataAccess SqlDataAccess
 @inject IConfiguration Configuration
@@ -220,12 +218,10 @@
         ToastService?.ShowWarning("Nothing to copy");
         return;
       }
+      // Copying an entry must not change the foreground application. In particular,
+      // do not synthesize Alt+Tab/Enter here: the user may still be working in
+      // Clipboard History and should decide when to switch to another window.
       await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
-      InputSimulator simulator = new InputSimulator();
-      simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-      simulator.Keyboard.Sleep(300);
-      simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-
 
       ToastService?.ShowSuccess("Copied to clipboard");
     }
