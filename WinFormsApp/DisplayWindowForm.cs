@@ -35,8 +35,7 @@ internal sealed class DisplayWindowForm : Form
         Text = "Display Value Search";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1250, 850);
-        Padding = new Padding(3);
-        MinimumSize = new Size(850, 600);
+MinimumSize = new Size(850, 600);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
@@ -116,7 +115,14 @@ internal sealed class DisplayWindowForm : Form
                 { "MaximizeWindowCallback", new EventCallback(null, () => WindowState = FormWindowState.Maximized) }
             });
 
-        Controls.Add(_blazorWebView);
+        // Host the WebView in a padded panel so the inset is applied consistently.
+        var webViewHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(3)
+        };
+        webViewHost.Controls.Add(_blazorWebView);
+        Controls.Add(webViewHost);
     }
 
     protected override void OnHandleCreated(EventArgs e)
