@@ -19,6 +19,7 @@ internal sealed class ClipboardWindowForm : Form
 {
     private readonly ServiceProvider _serviceProvider;
     private readonly BlazorWebView _blazorWebView;
+    private readonly ClipboardWindowActivationService _activationService;
 
     public ClipboardWindowForm()
     {
@@ -59,7 +60,10 @@ MinimumSize = new Size(760, 480);
         services.AddBlazorWebViewDeveloperTools();
 #endif
 
+        services.AddSingleton<ClipboardWindowActivationService>();
         _serviceProvider = services.BuildServiceProvider();
+        _activationService = _serviceProvider.GetRequiredService<ClipboardWindowActivationService>();
+        Activated += (_, _) => _activationService.NotifyActivated();
 
         _blazorWebView = new BlazorWebView
         {
