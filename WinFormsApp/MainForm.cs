@@ -76,6 +76,18 @@ namespace WinFormsApp
         private bool launchSearchMode;
         private CancellationTokenSource _pipeServerCts = new();
         private string? _lastLaunchArgs;
+        private ClipboardWindowForm? _clipboardWindow;
+        private CalculatorWindowForm? _calculatorWindow;
+        private AIChatWindowForm? _aiChatWindow;
+        private SnippetsWindowForm? _snippetsWindow;
+        private DisplayWindowForm? _displayWindow;
+        private string? _displaySearchTerm;
+        private TalonWindowForm? _talonWindow;
+        private string? _talonSearchTerm;
+        private LauncherWindowForm? _launcherWindow;
+        private GlobalWindowForm? _globalWindow;
+        private string? _launcherLaunchArguments;
+        private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
 
@@ -236,6 +248,55 @@ namespace WinFormsApp
             InitializeServices();
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            if (_startupClipboardLaunchHandled)
+                return;
+
+            var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
+            var launchClipboard = IsClipboardLaunchRequest(startupArguments);
+            var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
+            var launchAIChat = IsAIChatLaunchRequest(startupArguments);
+            var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
+            var launchTalon = IsTalonLaunchRequest(startupArguments);
+            var launchLauncher = IsLauncherLaunchRequest(startupArguments);
+            // The previous default view was Global Search, so preserve that startup behaviour
+            // while hosting it in its own top-level window.
+            var launchGlobal = string.IsNullOrWhiteSpace(startupArguments) || IsGlobalSearchLaunchRequest(startupArguments);
+            var launchDisplay = !launchTalon && !launchLauncher && !launchGlobal && IsDisplaySearchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher && !launchGlobal)
+                return;
+
+            _startupClipboardLaunchHandled = true;
+            BeginInvoke(new Action(() =>
+            {
+                if (IsDisposed || Disposing)
+                    return;
+
+                // Hide the launcher before activating a tool window so the
+                // launching application remains behind it in the Alt+Tab order.
+                Hide();
+                if (launchClipboard)
+                    ShowClipboardWindow();
+                else if (launchCalculator)
+                    ShowCalculatorWindow();
+                else if (launchAIChat)
+                    ShowAIChatWindow();
+                else if (launchTalon)
+                    ShowTalonWindow(startupArguments);
+                else if (launchLauncher)
+                    ShowLauncherWindow(startupArguments);
+                else if (launchGlobal)
+                    ShowGlobalWindow();
+                else if (launchDisplay)
+                    ShowDisplayWindow(startupArguments);
+                else
+                    ShowSnippetsWindow(startupArguments);
+            }));
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -250,6 +311,510 @@ namespace WinFormsApp
 
             // Start listening for launch arguments from other instances
             StartNamedPipeServer();
+        }
+
+        /// <summary>
+        /// Opens the independent Clipboard History window, reusing it when already open.
+        /// </summary>
+        private static bool IsClipboardLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Clipboard", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("Clippy", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsAIChatLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("AIChat", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsCalculatorLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Calculator", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsSnippetsLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Snippets", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsTalonLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string GetTalonSearchTerm(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return string.Empty;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            var talonIndex = Array.FindIndex(arguments,
+                argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+
+            return talonIndex >= 0 && talonIndex < arguments.Length - 1
+                ? string.Join(" ", arguments.Skip(talonIndex + 1)).Replace("/", "").Trim()
+                : string.Empty;
+        }
+
+        private static bool IsLauncherLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Launcher", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsGlobalSearchLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Global", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("GlobalSearch", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsDisplaySearchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            if (arguments.Any(argument =>
+                argument.Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+                return false;
+
+            if (arguments.Any(argument =>
+                argument.Equals("Display", StringComparison.OrdinalIgnoreCase) ||
+                argument.Equals("DisplayValueSearch", StringComparison.OrdinalIgnoreCase)))
+                return true;
+
+            if (arguments.Length >= 2 &&
+                arguments[0].Equals("search", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return arguments.Length >= 3 &&
+                arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) &&
+                !arguments[0].Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string GetDisplaySearchTerm(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return string.Empty;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            var searchIndex = arguments.Length >= 2 &&
+                arguments[0].Equals("search", StringComparison.OrdinalIgnoreCase)
+                    ? 0
+                    : arguments.Length >= 3 &&
+                      arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) &&
+                      !arguments[0].Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase)
+                        ? 1
+                        : -1;
+
+            return searchIndex >= 0
+                ? string.Join(" ", arguments.Skip(searchIndex + 1))
+                : string.Empty;
+        }
+
+        private static bool IsSnippetSearchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void ShowClipboardWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
+            {
+                if (_clipboardWindow.WindowState == FormWindowState.Minimized)
+                    _clipboardWindow.WindowState = FormWindowState.Normal;
+
+                if (!_clipboardWindow.Visible)
+                    _clipboardWindow.Show();
+
+                _clipboardWindow.BringToFront();
+                _clipboardWindow.Activate();
+                return;
+            }
+
+            var window = new ClipboardWindowForm();
+            _clipboardWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_clipboardWindow, window))
+                    _clipboardWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Clipboard window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent Calculator window, reusing it when already open.
+        /// </summary>
+        public void ShowCalculatorWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_calculatorWindow != null && !_calculatorWindow.IsDisposed)
+            {
+                if (_calculatorWindow.WindowState == FormWindowState.Minimized)
+                    _calculatorWindow.WindowState = FormWindowState.Normal;
+
+                if (!_calculatorWindow.Visible)
+                    _calculatorWindow.Show();
+
+                _calculatorWindow.BringToFront();
+                _calculatorWindow.Activate();
+                return;
+            }
+
+            var window = new CalculatorWindowForm();
+            _calculatorWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_calculatorWindow, window))
+                    _calculatorWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Calculator window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent AI Chat window, reusing it when already open.
+        /// </summary>
+        public void ShowAIChatWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_aiChatWindow != null && !_aiChatWindow.IsDisposed)
+            {
+                if (_aiChatWindow.WindowState == FormWindowState.Minimized)
+                    _aiChatWindow.WindowState = FormWindowState.Normal;
+
+                if (!_aiChatWindow.Visible)
+                    _aiChatWindow.Show();
+
+                _aiChatWindow.BringToFront();
+                _aiChatWindow.Activate();
+                return;
+            }
+
+            var window = new AIChatWindowForm();
+            _aiChatWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_aiChatWindow, window))
+                    _aiChatWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("AI Chat window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent Snippets window, reusing it when already open.
+        /// </summary>
+        public void ShowSnippetsWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_snippetsWindow != null && !_snippetsWindow.IsDisposed)
+            {
+                // A new voice search should replace the current snippet filter.
+                // A plain Snippets launch simply reuses the existing window.
+                if (IsSnippetSearchRequest(launchArguments))
+                {
+                    _snippetsWindow.Close();
+                    _snippetsWindow = null;
+                }
+                else
+                {
+                    if (_snippetsWindow.WindowState == FormWindowState.Minimized)
+                        _snippetsWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_snippetsWindow.Visible)
+                        _snippetsWindow.Show();
+
+                    _snippetsWindow.BringToFront();
+                    _snippetsWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new SnippetsWindowForm(launchArguments);
+            _snippetsWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_snippetsWindow, window))
+                    _snippetsWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Snippets window opened");
+        }
+
+        /// <summary>
+        /// Opens Display Value Search in its own window, reusing it for ordinary launches.
+        /// A new voice search replaces the existing filter.
+        /// </summary>
+        public void ShowDisplayWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var isSearchRequest = IsDisplaySearchRequest(launchArguments);
+            var searchTerm = isSearchRequest ? GetDisplaySearchTerm(launchArguments) : string.Empty;
+
+            if (_displayWindow != null && !_displayWindow.IsDisposed)
+            {
+                // Reuse the current window for the same search, but replace it
+                // when a new voice search supplies a different term.
+                if (isSearchRequest &&
+                    !string.Equals(_displaySearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    _displayWindow.Close();
+                    _displayWindow = null;
+                }
+                else
+                {
+                    if (_displayWindow.WindowState == FormWindowState.Minimized)
+                        _displayWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_displayWindow.Visible)
+                        _displayWindow.Show();
+
+                    _displayWindow.BringToFront();
+                    _displayWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new DisplayWindowForm(searchTerm);
+            _displayWindow = window;
+            _displaySearchTerm = searchTerm;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_displayWindow, window))
+                {
+                    _displayWindow = null;
+                    _displaySearchTerm = null;
+                }
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Display Value Search window opened");
+        }
+
+        /// <summary>
+        /// Opens Talon Voice Command Search in its own window, reusing it for repeated searches.
+        /// </summary>
+        public void ShowTalonWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var searchTerm = GetTalonSearchTerm(launchArguments);
+
+            if (_talonWindow != null && !_talonWindow.IsDisposed)
+            {
+                if (!string.IsNullOrWhiteSpace(searchTerm) &&
+                    !string.Equals(_talonSearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    _talonWindow.Close();
+                    _talonWindow = null;
+                }
+                else
+                {
+                    if (_talonWindow.WindowState == FormWindowState.Minimized)
+                        _talonWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_talonWindow.Visible)
+                        _talonWindow.Show();
+
+                    _talonWindow.BringToFront();
+                    _talonWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new TalonWindowForm(searchTerm);
+            _talonWindow = window;
+            _talonSearchTerm = searchTerm;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_talonWindow, window))
+                {
+                    _talonWindow = null;
+                    _talonSearchTerm = null;
+                }
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Talon Voice Command Search window opened");
+        }
+
+
+        /// <summary>
+        /// Opens the Launcher in its own window, reusing it for the same category request.
+        /// </summary>
+        public void ShowLauncherWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var normalizedArguments = launchArguments?.Trim() ?? string.Empty;
+
+            if (_launcherWindow != null && !_launcherWindow.IsDisposed)
+            {
+                if (!string.IsNullOrWhiteSpace(normalizedArguments) &&
+                    !string.Equals(_launcherLaunchArguments, normalizedArguments, StringComparison.OrdinalIgnoreCase))
+                {
+                    _launcherWindow.Close();
+                    _launcherWindow = null;
+                }
+                else
+                {
+                    if (_launcherWindow.WindowState == FormWindowState.Minimized)
+                        _launcherWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_launcherWindow.Visible)
+                        _launcherWindow.Show();
+
+                    _launcherWindow.BringToFront();
+                    _launcherWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new LauncherWindowForm(normalizedArguments);
+            _launcherWindow = window;
+            _launcherLaunchArguments = normalizedArguments;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_launcherWindow, window))
+                {
+                    _launcherWindow = null;
+                    _launcherLaunchArguments = null;
+                }
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Launcher window opened");
+        }
+
+        /// <summary>
+        /// Opens Global Search in its own window, reusing the existing window when available.
+        /// </summary>
+        public void ShowGlobalWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_globalWindow != null && !_globalWindow.IsDisposed)
+            {
+                if (_globalWindow.WindowState == FormWindowState.Minimized)
+                    _globalWindow.WindowState = FormWindowState.Normal;
+
+                if (!_globalWindow.Visible)
+                    _globalWindow.Show();
+
+                _globalWindow.BringToFront();
+                _globalWindow.Activate();
+                return;
+            }
+
+            var window = new GlobalWindowForm();
+            _globalWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_globalWindow, window))
+                    _globalWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Global Search window opened");
         }
 
         private void InitializeServices()
@@ -429,7 +994,15 @@ namespace WinFormsApp
                   {"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
                   {"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
                   {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
-                  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
+                  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })},
+                  {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)},
+                  {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)},
+                  {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)},
+                  {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())},
+                  {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))},
+                  {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))},
+                  {"OpenLauncherWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowLauncherWindow(launchArguments))},
+                  {"OpenGlobalWindowCallback", new EventCallback(null, ShowGlobalWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -712,6 +1285,48 @@ namespace WinFormsApp
         {
             try
             {
+                if (IsClipboardLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowClipboardWindow();
+                    return;
+                }
+
+                if (IsCalculatorLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowCalculatorWindow();
+                    return;
+                }
+
+                if (IsAIChatLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowAIChatWindow();
+                    return;
+                }
+
+                if (IsSnippetsLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowSnippetsWindow(_lastLaunchArgs);
+                    return;
+                }
+
+                if (IsTalonLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowTalonWindow(_lastLaunchArgs);
+                    return;
+                }
+
+                if (IsGlobalSearchLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowGlobalWindow();
+                    return;
+                }
+
+                if (IsDisplaySearchRequest(_lastLaunchArgs))
+                {
+                    ShowDisplayWindow(_lastLaunchArgs);
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
@@ -777,6 +1392,58 @@ namespace WinFormsApp
 
                             Invoke(() =>
                             {
+                                    // Clipboard is a separate top-level window. Do not activate the
+                                    // main form first: doing so would make Alt+Tab from Copy return
+                                    // to this application instead of the app the user came from.
+                                    if (IsClipboardLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Clipboard window without activating MainForm");
+                                        ShowClipboardWindow();
+                                        return;
+                                    }
+
+                                    if (IsCalculatorLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Calculator window without activating MainForm");
+                                        ShowCalculatorWindow();
+                                        return;
+                                    }
+
+                                    if (IsAIChatLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
+                                        ShowAIChatWindow();
+                                        return;
+                                    }
+
+                                    if (IsTalonLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
+                                        ShowTalonWindow(message);
+                                        return;
+                                    }
+
+                                    if (IsGlobalSearchLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Global Search window without activating MainForm");
+                                        ShowGlobalWindow();
+                                        return;
+                                    }
+
+                                    if (IsDisplaySearchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Display Value Search window without activating MainForm");
+                                        ShowDisplayWindow(message);
+                                        return;
+                                    }
+
+                                    if (IsSnippetsLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Snippets window without activating MainForm");
+                                        ShowSnippetsWindow(message);
+                                        return;
+                                    }
+
                                     try
                                     {
                                         AppendLog($"IPC: pre-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");

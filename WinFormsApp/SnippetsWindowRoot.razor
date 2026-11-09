@@ -1,0 +1,57 @@
+@using Blazored.Modal
+@using Blazored.Toast.Configuration
+@using RazorClassLibrary.Pages
+@using DataAccessLibrary.Services
+@using Microsoft.AspNetCore.Components
+@using System
+@using System.Linq
+<div style="padding: 3px;">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<CascadingBlazoredModal>
+    <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" ShowProgressBar="true" />
+    <CustomIntelliSenseTable
+        CategoryId="@CategoryId"
+        LanguageId="@LanguageId"
+        RunningInBlazorHybrid="true"
+        CloseApplication="CloseWindowCallback"
+        MaximizeApplication="MaximizeWindowCallback"
+        IsActive="true" />
+</CascadingBlazoredModal>
+
+</div>
+
+@code {
+    [Parameter] public string LaunchArguments { get; set; } = string.Empty;
+    [Parameter] public EventCallback CloseWindowCallback { get; set; }
+    [Parameter] public EventCallback MaximizeWindowCallback { get; set; }
+
+    [Inject] public required LanguageService LanguageService { get; set; }
+    [Inject] public required CategoryService CategoryService { get; set; }
+
+    private int LanguageId { get; set; }
+    private int CategoryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var arguments = LaunchArguments
+            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+            .ToArray();
+
+        var searchIndex = Array.FindIndex(arguments, argument =>
+            argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+
+        if (searchIndex < 0 || searchIndex + 2 >= arguments.Length)
+            return;
+
+        var languageName = arguments[searchIndex + 1];
+        var categoryName = arguments[searchIndex + 2];
+
+        var language = await LanguageService.GetLanguageAsync(languageName);
+        var category = await CategoryService.GetCategoryAsync(categoryName, "IntelliSense Command");
+
+        LanguageId = language?.Id ?? 0;
+        CategoryId = category?.Id ?? 0;
+    }
+}

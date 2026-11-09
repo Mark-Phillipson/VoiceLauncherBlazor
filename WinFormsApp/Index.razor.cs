@@ -212,6 +212,10 @@ namespace WinFormsApp
 			if (args.Length < 3)
 				return false;
 
+			if (IsExactArgument(args[1], "Talon") ||
+				(args.Length >= 3 && IsExactArgument(args[2], "Talon")))
+				return false;
+
 			if (IsExactArgument(args[1], "search"))
 				return true;
 
@@ -222,13 +226,16 @@ namespace WinFormsApp
 		}
 		private static bool IsDisplayGlobalSearchIntent(string[] args)
 		{
-			if (args.Length < 3)
+			if (args.Length < 2)
 				return false;
 
-			if (IsExactArgument(args[1], "Global"))
+			if (IsExactArgument(args[1], "Global") ||
+				IsExactArgument(args[1], "GlobalSearch"))
 				return true;
 
-			if (args.Length >= 4 && IsExactArgument(args[2], "Global"))
+			if (args.Length >= 3 &&
+				(IsExactArgument(args[2], "Global") ||
+				 IsExactArgument(args[2], "GlobalSearch")))
 				return true;
 
 			return false;
@@ -337,54 +344,20 @@ namespace WinFormsApp
 						System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
 					}
 
-					// Handle Launcher category launch (e.g., /Launcher /Code Projects)
-					if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
+					// Route Global Search launches to its independent window.
+					if (IsDisplayGlobalSearchIntent(arguments))
 					{
-						// Tokens after the 'Launcher' token (may be split into multiple args)
-						var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
-						System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
-
-						int matchedCount = 0;
-						Category? matchedCategory = null;
-						// Try longest-prefix matching of tokens to find a category
-						for (int len = tokens.Length; len >= 1; len--)
-						{
-							var candidate = string.Join(" ", tokens.Take(len)).Trim();
-							try
-							{
-								matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
-							}
-							catch { matchedCategory = null; }
-							if (matchedCategory != null)
-							{
-								matchedCount = len;
-								System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
-								break;
-							}
-						}
-
-						if (matchedCategory != null)
-						{
-							categoryId = matchedCategory.Id;
-							lastLauncherCategoryId = categoryId;
-							SetTitle($"Launch from category: {matchedCategory.CategoryName}");
-							ToggleShowVariablesToFalse();
-							launcher = true;
-							await InvokeAsync(StateHasChanged);
-
-							// Persist the view change so tests can verify the visible view
-							try
-							{
-								AppendIpcLog("Index.ViewChanged: Launcher");
-							}
-							catch { }
-						}
-						else
-						{
-							System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
-							return;
-						}
+						AppendIpcLog("Index.IPC.Route: Global Search window");
+						await InvokeAsync(() => OpenGlobalWindowCallback.InvokeAsync());
 					}
+
+					// Route Launcher category launches to the independent Launcher window.
+					else if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
+					{
+						AppendIpcLog("Index.IPC.Route: Launcher window");
+						await InvokeAsync(() => OpenLauncherWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
+					}
+
 
 					// Handle a direct display-value snippet search before the language/category SearchIntelliSense route.
 					else if (IsDisplaySearchIntent(arguments))
@@ -394,12 +367,8 @@ namespace WinFormsApp
 							: string.Join(" ", arguments.Skip(3));
 
 						searchTerm = rawSearch.Replace("/", "").Trim();
-						SetTitle("Filtering Snippets by Display Value");
-						ToggleShowVariablesToFalse();
-						displayValueSearch = true;
-						categoryId = 0;
-						languageId = 0;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Display Value Search window");
+						await InvokeAsync(() => OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
 					}
 
 					// Handle SearchIntelliSense invocation (language + category) before generic search detection.
@@ -425,22 +394,11 @@ namespace WinFormsApp
 						await InvokeAsync(StateHasChanged);
 					}
 
-					// Handle Talon / search invocation (e.g., Talon|launch code projects)
+					// Route Talon search launches to their independent window.
 					else if (IsTalonSearchIntent(arguments))
 					{
-						System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
-						ToggleShowVariablesToFalse();
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-						if (arguments.Length >= 3)
-						{
-							searchTerm = string.Join(" ", arguments.Skip(2));
-							searchTerm = searchTerm.Replace("/", "").Trim();
-							System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
-							var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-							arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
-						}
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Talon Search window");
+						await InvokeAsync(() => OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
 					}
 
 					// Handle AI Chat invocation (hot IPC) (e.g., AIChat)
@@ -450,13 +408,8 @@ namespace WinFormsApp
 							  arguments[2].IndexOf("AIChat", System.StringComparison.OrdinalIgnoreCase) >= 0))
 					{
 						System.Diagnostics.Debug.WriteLine("Handling AIChat IPC invocation");
-						SetTitle("AI Chat");
-						ToggleShowVariablesToFalse();
-						// Enable AI Chat exclusively
-						showAIChat = true;
-						keepAIChatAlive = true;
-						try { AppendIpcLog("Index.ViewChanged: AIChat"); } catch { }
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: AI Chat window");
+						await InvokeAsync(() => OpenAIChatWindowCallback.InvokeAsync());
 					}
 
 					// Handle Clipboard invocation (e.g., Clipboard or Clippy)
@@ -467,19 +420,13 @@ namespace WinFormsApp
 							 (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
 							  arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 					{
-						SetTitle("Clipboard History");
-						ToggleShowVariablesToFalse();
-						// Enable Clipboard History exclusively
-						showClipboardHistory = true;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Clipboard window");
+						await InvokeAsync(() => OpenClipboardWindowCallback.InvokeAsync());
 					}
 					else if (IsCalculatorIntent(arguments))
 					{
-						SetTitle("Calculator");
-						ToggleShowVariablesToFalse();
-						// Enable Calculator exclusively
-						showCalculator = true;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Calculator window");
+						await InvokeAsync(() => OpenCalculatorWindowCallback.InvokeAsync());
 					}
 					// Handle SearchIntelliSense invocation (language + category)
 					else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
@@ -540,67 +487,32 @@ namespace WinFormsApp
 			{
 				return;
 			}       // Check for search/Talon command line arguments
-			if (arguments.Length >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
+			if (IsTalonSearchIntent(arguments))
 			{
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-				if (arguments.Length >= 3)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(2));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					System.Diagnostics.Debug.WriteLine($"Search term set to: '{searchTerm}'");
-				}
-				else
-				{
-					System.Diagnostics.Debug.WriteLine("No additional arguments for search term");
-				}
-
-				var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-				arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
+				AppendIpcLog("Index.Startup.Route: Talon Search window");
+				await OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
 				return;
 			}
 			if (arguments.Length >= 2 && arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) && arguments.Length >= 3)
 			{
-				SetTitle("Filtering Snippets by Display Value");
 				searchTerm = string.Join(" ", arguments.Skip(2)).Replace("/", "").Trim();
-				ToggleShowVariablesToFalse();
-				displayValueSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-				arguments = new[] { exeName, "SearchIntelliSense", searchTerm ?? string.Empty, "Files" };
+				AppendIpcLog("Index.Startup.Route: Display Value Search window");
+				await OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
 				return;
 			}
 
 			if (arguments.Count() < 2)
 			{
-				Console.WriteLine("No command line arguments supplied, using default arguments.");
-				// Change values here to debug a particular launch scenario  when no arguments are supplied
-				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
-				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Files" };
-				// arguments = new string[] { arguments[0], "Launcher", "AIChat" };
-				//  arguments = new string[] { arguments[0], "search" };
-				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
-				// arguments = new string[] { arguments[0], "Talon", "" };
-				 arguments = new string[] { arguments[0], "Global", "" };
-
+				// MainForm now opens the default Global Search window directly.
+				return;
 			}
 			string categoryName = "";
-			if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
+			if ((arguments.Count() >= 2 && arguments[1].IndexOf("AIChat", StringComparison.OrdinalIgnoreCase) >= 0)
+				|| (arguments.Count() >= 3 && arguments[2].IndexOf("AIChat", StringComparison.OrdinalIgnoreCase) >= 0))
 			{
-				SetTitle("AI Chat");
-				// Enable AI Chat exclusively
-				ToggleShowVariablesToFalse();
-				showAIChat = true;
-				keepAIChatAlive = true;
-			}
-			else if (arguments.Count() >= 3 && arguments[2].Contains("AIChat"))
-			{
-				SetTitle("AI Chat");
-				ToggleShowVariablesToFalse();
-				// Enable AI Chat exclusively
-				showAIChat = true;
-				keepAIChatAlive = true;
+				AppendIpcLog("Index.Startup.Route: AI Chat window");
+				await OpenAIChatWindowCallback.InvokeAsync();
+				return;
 			}
 			// Handle Clipboard cold-start invocation (e.g., Clipboard or Clippy)
 			else if ((arguments.Count() >= 2 &&
@@ -610,46 +522,21 @@ namespace WinFormsApp
 					  (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
 					   arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 			{
-				SetTitle("Clipboard History");
-				ToggleShowVariablesToFalse();
-				// Enable Clipboard History exclusively
-				showClipboardHistory = true;
+				AppendIpcLog("Index.Startup.Route: Clipboard window");
+				await OpenClipboardWindowCallback.InvokeAsync();
 				return;
 			}
 			else if (IsCalculatorIntent(arguments))
 			{
-				SetTitle("Calculator");
-				ToggleShowVariablesToFalse();
-				showCalculator = true;
+				AppendIpcLog("Index.Startup.Route: Calculator window");
+				await OpenCalculatorWindowCallback.InvokeAsync();
 				return;
 			}
-			else if (arguments.Count() >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
+			else if (IsTalonSearchIntent(arguments))
 			{
-				SetTitle("Talon Voice Command Search");
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-
-				if (arguments.Length >= 3)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(2));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
-				}
-			}
-			else if (arguments.Count() >= 3 && arguments[2].Equals("Talon", StringComparison.OrdinalIgnoreCase))
-			{
-				SetTitle("Talon Voice Command Search");
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-
-				if (arguments.Length >= 4)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(3));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					var exeName2 = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-					arguments = new[] { exeName2, "Talon", searchTerm ?? string.Empty };
-				}
+				AppendIpcLog("Index.Startup.Route: Talon Search window");
+				await OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
 			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense", StringComparison.OrdinalIgnoreCase))
 			{
@@ -672,80 +559,24 @@ namespace WinFormsApp
 				languageAndCategoryListing = true;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
-			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
+			else if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
 			{
-				// Cold-start can arrive as either:
-				//   Launcher|Access Projects
-				// or split words:
-				//   Launcher|access|projects|...
-				var tokens = arguments.Skip(2)
-					.Select(a => (a ?? string.Empty).Replace("/", "").Trim())
-					.Where(s => !string.IsNullOrEmpty(s))
-					.ToArray();
-
-				Category? matchedCategory = null;
-				for (int len = tokens.Length; len >= 1; len--)
-				{
-					var candidate = string.Join(" ", tokens.Take(len)).Trim();
-					try
-					{
-						matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
-					}
-					catch
-					{
-						matchedCategory = null;
-					}
-
-					if (matchedCategory != null)
-					{
-						categoryName = matchedCategory.CategoryName;
-						break;
-					}
-				}
-
-				if (matchedCategory != null)
-				{
-					categoryId = matchedCategory.Id;
-					lastLauncherCategoryId = categoryId;
-					SetTitle($"Launch from category: {matchedCategory.CategoryName}");
-				}
-				else
-				{
-					// Keep launcher mode even when category lookup fails.
-					SetTitle("Launch Applications");
-				}
-				ToggleShowVariablesToFalse();
-				// Enable launcher view exclusively
-				launcher = true;
-
-				// Persist the view change so external tests can detect the visible view at startup
-				try
-				{
-					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
-				}
-				catch { }
+				AppendIpcLog("Index.Startup.Route: Launcher window");
+				await OpenLauncherWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
+
 			else if (IsDisplaySearchIntent(arguments) && !showGlobalSearch)
 			{
-				string rawSearch = arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase)
-					? string.Join(" ", arguments.Skip(2))
-					: string.Join(" ", arguments.Skip(3));
-				searchTerm = rawSearch.Replace("/", "").Trim();
-				ToggleShowVariablesToFalse();
-				displayValueSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				SetTitle("Filtering Snippets by Display Value");
+				AppendIpcLog("Index.Startup.Route: Display Value Search window");
+				await OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
 			else if (IsDisplayGlobalSearchIntent(arguments))
 			{
-				ToggleShowVariablesToFalse();
-				showGlobalSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				SetTitle("Global Search");
+				AppendIpcLog("Index.Startup.Route: Global Search window");
+				await OpenGlobalWindowCallback.InvokeAsync();
+				return;
 			}
 
 			// Persist a startup-parsed args trace so external tests can detect cold-start args processing
@@ -801,120 +632,40 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-		private void ShowAIChat()
+		private Task ShowAIChat()
 		{
-			ToggleShowVariablesToFalse();
-			// Turning on AI Chat
-			showAIChat = true;
-			keepAIChatAlive = true;
-			// Reset other views when showing AI Chat
-			showAIChat = true; // Keep AI Chat on after toggling off others
-			SetTitle("AI Chat Assistant");
-			StateHasChanged();
+			return OpenAIChatWindowCallback.InvokeAsync();
+		}
+
+		private Task ShowSnippets()
+		{
+			return OpenSnippetsWindowCallback.InvokeAsync();
 		}
 
 
 
-		private void ShowDisplayValueSearch()
+		private Task ShowDisplayValueSearch()
 		{
-			ToggleShowVariablesToFalse();
-			displayValueSearch = true;
-			categoryId = 0;
-			languageId = 0;
-			searchTerm = searchTerm ?? string.Empty;
-			SetTitle("Filtering Snippets by Display Value");
-			StateHasChanged();
+			return OpenDisplayWindowCallback.InvokeAsync(string.Empty);
 		}
 
-		private void ShowTalonSearch()
+		private Task ShowTalonSearch()
 		{
-			// Turning on Talon Search
-			ToggleShowVariablesToFalse();
-			showTalonSearch = true;
-			SetTitle("Talon Voice Command Search");
-			StateHasChanged();
+			return OpenTalonWindowCallback.InvokeAsync(string.Empty);
 		}
-		private void ShowClipboardHistory()
+		private Task ShowClipboardHistory()
 		{
-			// Turning on Clipboard History
-			ToggleShowVariablesToFalse();
-			showClipboardHistory = true;
-			SetTitle("Clipboard History");
-			StateHasChanged();
+			return OpenClipboardWindowCallback.InvokeAsync();
 		}
-		private void ShowCalculator()
+		private Task ShowCalculator()
 		{
-			ToggleShowVariablesToFalse();
-			showCalculator = true;
-			SetTitle("Calculator");
-			StateHasChanged();
+			return OpenCalculatorWindowCallback.InvokeAsync();
 		}
 
 
-		private async Task SwitchToLauncherFromChild()
+		private Task SwitchToLauncherFromChild()
 		{
-			// Save current snippet selection so we can restore it when toggling back
-			try
-			{
-				if (customIntelliSenseTableRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSenseTableRef.SelectedLanguageId;
-					lastSnippetCategoryId = customIntelliSenseTableRef.SelectedCategoryId;
-				}
-				else if (customIntelliSensesDisplayRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSensesDisplayRef.LanguageIdFilter ?? 0;
-					lastSnippetCategoryId = customIntelliSensesDisplayRef.CategoryIdFilter ?? 0;
-				}
-				else if (customIntelliSensesDefaultRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSensesDefaultRef.LanguageIdFilter ?? 0;
-					lastSnippetCategoryId = customIntelliSensesDefaultRef.CategoryIdFilter ?? 0;
-				}
-			}
-			catch { }
-			ToggleShowVariablesToFalse();
-			// Switch to launcher view
-			launcher = true;
-
-			// Restore last used launcher category if available, otherwise default to Code Projects
-			try
-			{
-				if (lastLauncherCategoryId != 0)
-				{
-					categoryId = lastLauncherCategoryId;
-					var cat = await CategoryService.GetCategoryAsync(categoryId);
-					if (cat != null)
-					{
-						await SetTitleCallback.InvokeAsync($"Launch Applications — {cat.CategoryName}");
-					}
-					else
-					{
-						await SetTitleCallback.InvokeAsync("Launch Applications");
-					}
-				}
-				else
-				{
-					var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
-					if (defaultCategory != null)
-					{
-						categoryId = defaultCategory.Id;
-						lastLauncherCategoryId = categoryId;
-						await SetTitleCallback.InvokeAsync($"Launch Applications — {defaultCategory.CategoryName}");
-					}
-					else
-					{
-						await SetTitleCallback.InvokeAsync("Launch Applications");
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Error setting launcher category: {ex.Message}");
-				await SetTitleCallback.InvokeAsync("Launch Applications");
-			}
-
-			StateHasChanged();
+			return OpenLauncherWindowCallback.InvokeAsync(string.Empty);
 		}
 
 		private async Task SwitchToSnippetsFromChild()
@@ -961,6 +712,14 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MinimizeWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback RestoreWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenClipboardWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenCalculatorWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenAIChatWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenSnippetsWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenDisplayWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenTalonWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenLauncherWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenGlobalWindowCallback { get; set; }
 
 		public void Dispose()
 		{
@@ -987,8 +746,15 @@ namespace WinFormsApp
 		}
 		private void ShowGlobalSearch()
 		{
+			// In the main WinForms host the callback opens or focuses the independent window.
+			// Standalone/web hosting has no callback and keeps the in-page Global Search view.
+			if (OpenGlobalWindowCallback.HasDelegate)
+			{
+				_ = OpenGlobalWindowCallback.InvokeAsync();
+				return;
+			}
+
 			ToggleShowVariablesToFalse();
-			// Turning on Global Search
 			showGlobalSearch = true;
 			SetTitle("Global Search");
 			StateHasChanged();

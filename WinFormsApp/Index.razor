@@ -10,20 +10,20 @@
 				<div class="btn-group" role="group" aria-label="Main actions">
 
 					<button type="button" id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1" accesskey="£"
-							aria-keyshortcuts="Alt+£" @onclick="@(() => ShowClipboardHistory())">
+							aria-keyshortcuts="Alt+£" @onclick="ShowClipboardHistory">
 						<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
 					</button>
 					<button type="button" id="btnCalculator" class="btn btn-sm btn-outline-secondary me-1" accesskey="£"
-							aria-keyshortcuts="Alt+£" @onclick="@(() => ShowCalculator())">
+							aria-keyshortcuts="Alt+£" @onclick="ShowCalculator">
 						<i class="bi bi-calculator me-1" aria-hidden="true"></i> Calculator
 					</button>
 
 					<button type="button" id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" accesskey="$"
-							aria-keyshortcuts="Alt+$" @onclick="@(() => ShowAIChat())">
+							aria-keyshortcuts="Alt+$" @onclick="ShowAIChat">
 						<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI Chat
 					</button>
 					<button type="button" id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" accesskey="%"
-							aria-keyshortcuts="Alt+%" @onclick="SwitchToSnippetsFromChild">
+							aria-keyshortcuts="Alt+%" @onclick="ShowSnippets">
 						<i class="bi bi-file-earmark-code me-1" aria-hidden="true"></i> Snippets
 					</button>
 					<button type="button" id="btnDisplayValueSearch" class="btn btn-sm btn-outline-secondary me-1"
@@ -36,10 +36,10 @@
 					</button>
 
 					<button title="Talon Search" id="btnTalonSearch" class="btn btn-sm btn-outline-secondary me-1"
-							accesskey="*" aria-keyshortcuts="Alt+*" @onclick="@(() => ShowTalonSearch())">
+							accesskey="*" aria-keyshortcuts="Alt+*" @onclick="ShowTalonSearch">
 						<i class="bi bi-search me-1" aria-hidden="true"></i> Talon
 					</button>
-					<button title="Talon Search" id="btnTalonSearch" class="btn btn-sm btn-outline-secondary me-1"
+					<button title="Talon Search" id="btnGlobalSearch" class="btn btn-sm btn-outline-secondary me-1"
 							accesskey="!" aria-keyshortcuts="Alt+!" @onclick="@(() => ShowGlobalSearch())">
 						<i class="bi bi-search me-1" aria-hidden="true"></i> Global
 					</button>
@@ -53,33 +53,15 @@
 	{
 		<div class="mx-2 mb-2 alert alert-secondary py-2 text-truncate" role="note" aria-label="Voice command hint">
 			Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat,
-			snippets, launcher, and talon search.
+			snippets, launcher, talon search, and global search.
 		</div>
 	}
 	<div class="host-content-shell">
-		@if (ShouldRenderAIChat)
-		{
-			<div class="@(showAIChat ? string.Empty : "d-none")" aria-hidden="@(!showAIChat)">
-				<AIChatComponent RunningInBlazorHybrid="true" IsActive="@showAIChat" />
-			</div>
-		}
 		@if (ShouldRenderTalonSearch)
 		{
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
 				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm"
 										 IsActive="@showTalonSearch" />
-			</div>
-		}
-		@if (ShouldRenderClipboardHistory)
-		{
-			<div class="@(showClipboardHistory ? string.Empty : "d-none")" aria-hidden="@(!showClipboardHistory)">
-				<ClipboardHistory IsActive="@showClipboardHistory" />
-			</div>
-		}
-		@if (ShouldRenderCalculator)
-		{
-			<div class="@(showCalculator ? string.Empty : "d-none")" aria-hidden="@(!showCalculator)">
-				<Calculator IsActive="@showCalculator" />
 			</div>
 		}
 		@if (ShouldRenderSnippets)
