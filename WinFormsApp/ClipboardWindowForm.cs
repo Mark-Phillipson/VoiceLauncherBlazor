@@ -25,6 +25,7 @@ internal sealed class ClipboardWindowForm : Form
         Text = "Clipboard History";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1100, 750);
+        Padding = new Padding(3);
         MinimumSize = new Size(760, 480);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
