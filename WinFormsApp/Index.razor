@@ -19,7 +19,7 @@
 					</button>
 
 					<button type="button" id="btnAIChat" class="btn btn-sm btn-outline-secondary me-1" accesskey="$"
-							aria-keyshortcuts="Alt+$" @onclick="@(() => ShowAIChat())">
+							aria-keyshortcuts="Alt+$" @onclick="ShowAIChat">
 						<i class="bi bi-chat-dots me-1" aria-hidden="true"></i> AI Chat
 					</button>
 					<button type="button" id="btnSnippets" class="btn btn-sm btn-outline-secondary me-1" accesskey="%"
@@ -57,12 +57,6 @@
 		</div>
 	}
 	<div class="host-content-shell">
-		@if (ShouldRenderAIChat)
-		{
-			<div class="@(showAIChat ? string.Empty : "d-none")" aria-hidden="@(!showAIChat)">
-				<AIChatComponent RunningInBlazorHybrid="true" IsActive="@showAIChat" />
-			</div>
-		}
 		@if (ShouldRenderTalonSearch)
 		{
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
