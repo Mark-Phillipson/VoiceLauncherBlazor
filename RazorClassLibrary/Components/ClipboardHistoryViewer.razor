@@ -212,9 +212,15 @@
 
   private async Task CopyContent(ClipboardEntry item)
   {
+    if (item is null)
+    {
+      ToastService?.ShowWarning("Nothing to copy");
+      return;
+    }
+
     try
     {
-      var txt = item?.Content ?? string.Empty;
+      var txt = item.Content ?? string.Empty;
       if (string.IsNullOrWhiteSpace(txt))
       {
         ToastService?.ShowWarning("Nothing to copy");
