@@ -30,7 +30,7 @@
     {
         var arguments = LaunchArguments
             .Split('|', StringSplitOptions.RemoveEmptyEntries)
-            .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+            .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
             .ToArray();
 
         var searchIndex = Array.FindIndex(arguments, argument =>
