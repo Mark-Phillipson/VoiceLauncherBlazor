@@ -85,6 +85,7 @@ namespace WinFormsApp
         private TalonWindowForm? _talonWindow;
         private string? _talonSearchTerm;
         private LauncherWindowForm? _launcherWindow;
+        private GlobalWindowForm? _globalWindow;
         private string? _launcherLaunchArguments;
         private bool _startupClipboardLaunchHandled;
 
@@ -261,8 +262,9 @@ namespace WinFormsApp
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
             var launchTalon = IsTalonLaunchRequest(startupArguments);
             var launchLauncher = IsLauncherLaunchRequest(startupArguments);
-            var launchDisplay = !launchTalon && !launchLauncher && IsDisplaySearchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher)
+            var launchGlobal = IsGlobalSearchLaunchRequest(startupArguments);
+            var launchDisplay = !launchTalon && !launchLauncher && !launchGlobal && IsDisplaySearchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher && !launchGlobal)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -284,6 +286,8 @@ namespace WinFormsApp
                     ShowTalonWindow(startupArguments);
                 else if (launchLauncher)
                     ShowLauncherWindow(startupArguments);
+                else if (launchGlobal)
+                    ShowGlobalWindow();
                 else if (launchDisplay)
                     ShowDisplayWindow(startupArguments);
                 else
@@ -396,6 +400,19 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("Launcher", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsGlobalSearchLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Global", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("GlobalSearch", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsDisplaySearchRequest(string? launchArguments)
@@ -763,6 +780,41 @@ namespace WinFormsApp
             AppendLog("Launcher window opened");
         }
 
+        /// <summary>
+        /// Opens Global Search in its own window, reusing the existing window when available.
+        /// </summary>
+        public void ShowGlobalWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_globalWindow != null && !_globalWindow.IsDisposed)
+            {
+                if (_globalWindow.WindowState == FormWindowState.Minimized)
+                    _globalWindow.WindowState = FormWindowState.Normal;
+
+                if (!_globalWindow.Visible)
+                    _globalWindow.Show();
+
+                _globalWindow.BringToFront();
+                _globalWindow.Activate();
+                return;
+            }
+
+            var window = new GlobalWindowForm();
+            _globalWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_globalWindow, window))
+                    _globalWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Global Search window opened");
+        }
+
         private void InitializeServices()
         {
             var services = new ServiceCollection();
@@ -947,7 +999,8 @@ namespace WinFormsApp
                   {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())},
                   {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))},
                   {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))},
-                  {"OpenLauncherWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowLauncherWindow(launchArguments))}
+                  {"OpenLauncherWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowLauncherWindow(launchArguments))},
+                  {"OpenGlobalWindowCallback", new EventCallback(null, ShowGlobalWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -1260,6 +1313,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsGlobalSearchLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowGlobalWindow();
+                    return;
+                }
+
                 if (IsDisplaySearchRequest(_lastLaunchArgs))
                 {
                     ShowDisplayWindow(_lastLaunchArgs);
@@ -1359,6 +1418,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
                                         ShowTalonWindow(message);
+                                        return;
+                                    }
+
+                                    if (IsGlobalSearchLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Global Search window without activating MainForm");
+                                        ShowGlobalWindow();
                                         return;
                                     }
 
