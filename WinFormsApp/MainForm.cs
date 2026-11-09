@@ -78,6 +78,7 @@ namespace WinFormsApp
         private string? _lastLaunchArgs;
         private ClipboardWindowForm? _clipboardWindow;
         private CalculatorWindowForm? _calculatorWindow;
+        private AIChatWindowForm? _aiChatWindow;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -249,7 +250,8 @@ namespace WinFormsApp
             var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
             var launchClipboard = IsClipboardLaunchRequest(startupArguments);
             var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator)
+            var launchAIChat = IsAIChatLaunchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -263,8 +265,10 @@ namespace WinFormsApp
                 Hide();
                 if (launchClipboard)
                     ShowClipboardWindow();
-                else
+                else if (launchCalculator)
                     ShowCalculatorWindow();
+                else
+                    ShowAIChatWindow();
             }));
         }
 
@@ -298,6 +302,17 @@ namespace WinFormsApp
                 .Any(argument =>
                     argument.Equals("Clipboard", StringComparison.OrdinalIgnoreCase) ||
                     argument.Equals("Clippy", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsAIChatLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("AIChat", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsCalculatorLaunchRequest(string? launchArguments)
@@ -376,6 +391,41 @@ namespace WinFormsApp
             window.BringToFront();
             window.Activate();
             AppendLog("Calculator window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent AI Chat window, reusing it when already open.
+        /// </summary>
+        public void ShowAIChatWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_aiChatWindow != null && !_aiChatWindow.IsDisposed)
+            {
+                if (_aiChatWindow.WindowState == FormWindowState.Minimized)
+                    _aiChatWindow.WindowState = FormWindowState.Normal;
+
+                if (!_aiChatWindow.Visible)
+                    _aiChatWindow.Show();
+
+                _aiChatWindow.BringToFront();
+                _aiChatWindow.Activate();
+                return;
+            }
+
+            var window = new AIChatWindowForm();
+            _aiChatWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_aiChatWindow, window))
+                    _aiChatWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("AI Chat window opened");
         }
 
         private void InitializeServices()
@@ -557,7 +607,8 @@ namespace WinFormsApp
                   {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
                   {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })},
                   {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)},
-                  {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)}
+                  {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)},
+                  {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -852,6 +903,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsAIChatLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowAIChatWindow();
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
@@ -931,6 +988,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Calculator window without activating MainForm");
                                         ShowCalculatorWindow();
+                                        return;
+                                    }
+
+                                    if (IsAIChatLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
+                                        ShowAIChatWindow();
                                         return;
                                     }
 
