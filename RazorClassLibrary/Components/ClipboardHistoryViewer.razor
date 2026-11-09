@@ -226,6 +226,7 @@
       try
       {
         await ClipboardService.TouchAsync(item.Id);
+        Page = 1;
         await LoadPage();
       }
       catch (Exception ex)
