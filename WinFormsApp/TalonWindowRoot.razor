@@ -1,0 +1,11 @@
+@using RazorClassLibrary.Pages
+@using Microsoft.AspNetCore.Components
+
+<TalonVoiceCommandSearch
+    IsBlazorHybrid="true"
+    InitialSearchTerm="@SearchTerm"
+    IsActive="true" />
+
+@code {
+    [Parameter] public string SearchTerm { get; set; } = string.Empty;
+}
