@@ -503,16 +503,8 @@ namespace WinFormsApp
 
 			if (arguments.Count() < 2)
 			{
-				Console.WriteLine("No command line arguments supplied, using default arguments.");
-				// Change values here to debug a particular launch scenario  when no arguments are supplied
-				//  arguments = new string[] { arguments[0], "SearchIntelliSense", "Blazor", "Snippet" };
-				// arguments = new string[] { arguments[0], "SearchIntelliSense", "Not Applicable", "Files" };
-				// arguments = new string[] { arguments[0], "Launcher", "AIChat" };
-				//  arguments = new string[] { arguments[0], "search" };
-				//  arguments = new string[] { arguments[0], "Launcher", "Code Projects" };
-				// arguments = new string[] { arguments[0], "Talon", "" };
-				 arguments = new string[] { arguments[0], "Global", "" };
-
+				// MainForm now opens the default Global Search window directly.
+				return;
 			}
 			string categoryName = "";
 			if ((arguments.Count() >= 2 && arguments[1].IndexOf("AIChat", StringComparison.OrdinalIgnoreCase) >= 0)
