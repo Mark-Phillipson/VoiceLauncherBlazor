@@ -762,6 +762,12 @@ namespace WinFormsApp
         {
             try
             {
+                if (IsClipboardLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowClipboardWindow();
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
