@@ -32,6 +32,7 @@ internal sealed class LauncherWindowForm : Form
         Text = "Launch Applications";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1450, 950);
+        Padding = new Padding(3);
         MinimumSize = new Size(950, 650);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
