@@ -21,6 +21,7 @@ internal sealed class CalculatorWindowForm : Form
         Text = "Calculator";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(760, 600);
+        Padding = new Padding(3);
         MinimumSize = new Size(560, 440);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
