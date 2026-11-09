@@ -76,6 +76,7 @@ namespace WinFormsApp
         private bool launchSearchMode;
         private CancellationTokenSource _pipeServerCts = new();
         private string? _lastLaunchArgs;
+        private ClipboardWindowForm? _clipboardWindow;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
 
@@ -250,6 +251,41 @@ namespace WinFormsApp
 
             // Start listening for launch arguments from other instances
             StartNamedPipeServer();
+        }
+
+        /// <summary>
+        /// Opens the independent Clipboard History window, reusing it when already open.
+        /// </summary>
+        public void ShowClipboardWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
+            {
+                if (_clipboardWindow.WindowState == FormWindowState.Minimized)
+                    _clipboardWindow.WindowState = FormWindowState.Normal;
+
+                if (!_clipboardWindow.Visible)
+                    _clipboardWindow.Show();
+
+                _clipboardWindow.BringToFront();
+                _clipboardWindow.Activate();
+                return;
+            }
+
+            var window = new ClipboardWindowForm();
+            _clipboardWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_clipboardWindow, window))
+                    _clipboardWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Clipboard window opened");
         }
 
         private void InitializeServices()
@@ -429,7 +465,8 @@ namespace WinFormsApp
                   {"MaximizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Maximized; }) },
                   {"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
                   {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
-                  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })}
+                  {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })},
+                  {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
