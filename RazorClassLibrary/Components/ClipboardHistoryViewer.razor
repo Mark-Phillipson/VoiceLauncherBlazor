@@ -1,4 +1,5 @@
 @using System.Linq
+@implements IAsyncDisposable
 @using Blazored.Toast.Services
 @using DataAccessLibrary
 @using DataAccessLibrary.Configuration
@@ -200,6 +201,9 @@
   private string SchemaInfo = string.Empty;
   private ElementReference searchInputRef;
   private bool _searchFocused = false;
+  private IJSObjectReference? _focusModule;
+  private DotNetObjectReference<ClipboardHistoryViewer>? _dotNetReference;
+  private bool _focusRefreshInProgress;
     
   private async Task HandleSearchKeyDown(KeyboardEventArgs e)
   {
@@ -384,8 +388,42 @@
     if (CanNext) { Page++; await LoadPage(); }
   }
 
+  [JSInvokable]
+  public async Task RefreshWhenWindowFocused()
+  {
+    if (_focusRefreshInProgress)
+      return;
+
+    _focusRefreshInProgress = true;
+    try
+    {
+      // Keep the current search and page; just reload the data from the database.
+      await InvokeAsync(LoadPage);
+    }
+    finally
+    {
+      _focusRefreshInProgress = false;
+    }
+  }
+
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
+    if (firstRender)
+    {
+      try
+      {
+        _focusModule = await JS.InvokeAsync<IJSObjectReference>(
+          "import",
+          "./_content/RazorClassLibrary/clipboardHistoryFocus.js");
+        _dotNetReference = DotNetObjectReference.Create(this);
+        await _focusModule.InvokeVoidAsync("register", _dotNetReference);
+      }
+      catch
+      {
+        // Automatic focus refresh is optional; manual refresh remains available.
+      }
+    }
+
     if (firstRender && !_searchFocused)
     {
       try
@@ -398,5 +436,23 @@
         // ignore focus errors (server prerender or unsupported)
       }
     }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_focusModule != null)
+    {
+      try
+      {
+        await _focusModule.InvokeVoidAsync("unregister");
+        await _focusModule.DisposeAsync();
+      }
+      catch
+      {
+        // The browser may already be shutting down.
+      }
+    }
+
+    _dotNetReference?.Dispose();
   }
 }
