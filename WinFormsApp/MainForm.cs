@@ -80,6 +80,7 @@ namespace WinFormsApp
         private CalculatorWindowForm? _calculatorWindow;
         private AIChatWindowForm? _aiChatWindow;
         private SnippetsWindowForm? _snippetsWindow;
+        private DisplayWindowForm? _displayWindow;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -253,7 +254,8 @@ namespace WinFormsApp
             var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets)
+            var launchDisplay = IsDisplaySearchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -271,6 +273,8 @@ namespace WinFormsApp
                     ShowCalculatorWindow();
                 else if (launchAIChat)
                     ShowAIChatWindow();
+                else if (launchDisplay)
+                    ShowDisplayWindow(startupArguments);
                 else
                     ShowSnippetsWindow(startupArguments);
             }));
@@ -341,6 +345,40 @@ namespace WinFormsApp
                 .Any(argument =>
                     argument.Equals("Snippets", StringComparison.OrdinalIgnoreCase) ||
                     argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsDisplaySearchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            var searchIndex = Array.FindIndex(arguments,
+                argument => argument.Equals("search", StringComparison.OrdinalIgnoreCase));
+
+            return searchIndex >= 0 && searchIndex < arguments.Length - 1;
+        }
+
+        private static string GetDisplaySearchTerm(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return string.Empty;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            var searchIndex = Array.FindIndex(arguments,
+                argument => argument.Equals("search", StringComparison.OrdinalIgnoreCase));
+
+            return searchIndex >= 0 && searchIndex < arguments.Length - 1
+                ? string.Join(" ", arguments.Skip(searchIndex + 1))
+                : string.Empty;
         }
 
         private static bool IsSnippetSearchRequest(string? launchArguments)
@@ -499,6 +537,53 @@ namespace WinFormsApp
             window.BringToFront();
             window.Activate();
             AppendLog("Snippets window opened");
+        }
+
+        /// <summary>
+        /// Opens Display Value Search in its own window, reusing it for ordinary launches.
+        /// A new voice search replaces the existing filter.
+        /// </summary>
+        public void ShowDisplayWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var isSearchRequest = IsDisplaySearchRequest(launchArguments);
+
+            if (_displayWindow != null && !_displayWindow.IsDisposed)
+            {
+                if (isSearchRequest)
+                {
+                    _displayWindow.Close();
+                    _displayWindow = null;
+                }
+                else
+                {
+                    if (_displayWindow.WindowState == FormWindowState.Minimized)
+                        _displayWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_displayWindow.Visible)
+                        _displayWindow.Show();
+
+                    _displayWindow.BringToFront();
+                    _displayWindow.Activate();
+                    return;
+                }
+            }
+
+            var searchTerm = isSearchRequest ? GetDisplaySearchTerm(launchArguments) : string.Empty;
+            var window = new DisplayWindowForm(searchTerm);
+            _displayWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_displayWindow, window))
+                    _displayWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Display Value Search window opened");
         }
 
         private void InitializeServices()
@@ -682,7 +767,8 @@ namespace WinFormsApp
                   {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)},
                   {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)},
                   {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)},
-                  {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())}
+                  {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())},
+                  {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -989,6 +1075,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsDisplaySearchRequest(_lastLaunchArgs))
+                {
+                    ShowDisplayWindow(_lastLaunchArgs);
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
@@ -1075,6 +1167,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
                                         ShowAIChatWindow();
+                                        return;
+                                    }
+
+                                    if (IsDisplaySearchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Display Value Search window without activating MainForm");
+                                        ShowDisplayWindow(message);
                                         return;
                                     }
 
