@@ -343,6 +343,17 @@ namespace WinFormsApp
                     argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
         }
 
+        private static bool IsSnippetSearchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ShowClipboardWindow()
         {
             if (IsDisposed || Disposing)
@@ -455,15 +466,25 @@ namespace WinFormsApp
 
             if (_snippetsWindow != null && !_snippetsWindow.IsDisposed)
             {
-                if (_snippetsWindow.WindowState == FormWindowState.Minimized)
-                    _snippetsWindow.WindowState = FormWindowState.Normal;
+                // A new voice search should replace the current snippet filter.
+                // A plain Snippets launch simply reuses the existing window.
+                if (IsSnippetSearchRequest(launchArguments))
+                {
+                    _snippetsWindow.Close();
+                    _snippetsWindow = null;
+                }
+                else
+                {
+                    if (_snippetsWindow.WindowState == FormWindowState.Minimized)
+                        _snippetsWindow.WindowState = FormWindowState.Normal;
 
-                if (!_snippetsWindow.Visible)
-                    _snippetsWindow.Show();
+                    if (!_snippetsWindow.Visible)
+                        _snippetsWindow.Show();
 
-                _snippetsWindow.BringToFront();
-                _snippetsWindow.Activate();
-                return;
+                    _snippetsWindow.BringToFront();
+                    _snippetsWindow.Activate();
+                    return;
+                }
             }
 
             var window = new SnippetsWindowForm(launchArguments);
