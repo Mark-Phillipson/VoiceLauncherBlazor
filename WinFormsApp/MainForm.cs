@@ -660,7 +660,8 @@ namespace WinFormsApp
                   {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })},
                   {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)},
                   {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)},
-                  {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)}
+                  {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)},
+                  {"OpenSnippetsWindowCallback", new EventCallback(null, ShowSnippetsWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
