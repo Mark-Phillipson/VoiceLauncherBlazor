@@ -55,6 +55,15 @@ internal static class WindowIconFactory
         g.DrawLine(p, 13, 9, 13, 17);
     });
 
+    public static Icon CreateTalon() => Create(Color.FromArgb(65, 115, 190), (g, p) =>
+    {
+        g.DrawArc(p, 5, 7, 12, 18, 225, 270);
+        g.DrawArc(p, 15, 7, 12, 18, 45, 270);
+        g.DrawLine(p, 13, 10, 13, 22);
+        g.DrawLine(p, 19, 10, 19, 22);
+        g.DrawLine(p, 13, 16, 19, 16);
+    });
+
     private static Icon Create(Color accent, Action<Graphics, Pen> draw)
     {
         using var bitmap = new Bitmap(32, 32);
