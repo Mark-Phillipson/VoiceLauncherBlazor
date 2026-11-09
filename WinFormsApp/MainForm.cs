@@ -358,6 +358,11 @@ namespace WinFormsApp
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .ToArray();
 
+            if (arguments.Any(argument =>
+                argument.Equals("Display", StringComparison.OrdinalIgnoreCase) ||
+                argument.Equals("DisplayValueSearch", StringComparison.OrdinalIgnoreCase)))
+                return true;
+
             if (arguments.Length >= 2 &&
                 arguments[0].Equals("search", StringComparison.OrdinalIgnoreCase))
                 return true;
