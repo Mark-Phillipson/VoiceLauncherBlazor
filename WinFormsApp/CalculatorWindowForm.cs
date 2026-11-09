@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.Versioning;
+using System.Diagnostics;
 
 namespace WinFormsApp;
 
@@ -51,6 +52,28 @@ internal sealed class CalculatorWindowForm : Form
         _blazorWebView.RootComponents.Add<CalculatorWindowRoot>("#app");
 
         Controls.Add(_blazorWebView);
+    }
+
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+
+        try
+        {
+            if (Icon != null)
+            {
+                TaskbarIdentity.SetWindowAppUserModelId(
+                    Handle,
+                    "MarkPhillipson.VoiceLauncherBlazor.Calculator",
+                    Icon,
+                    "Calculator.ico");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Could not assign Calculator taskbar identity: {ex}");
+        }
     }
 
     protected override void Dispose(bool disposing)
