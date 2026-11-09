@@ -47,6 +47,14 @@ internal static class WindowIconFactory
         g.DrawLine(p, 12, 24, 19, 24);
     });
 
+    public static Icon CreateDisplay() => Create(Color.FromArgb(35, 155, 165), (g, p) =>
+    {
+        g.DrawEllipse(p, 4, 4, 18, 18);
+        g.DrawLine(p, 19, 19, 29, 29);
+        g.DrawLine(p, 9, 13, 17, 13);
+        g.DrawLine(p, 13, 9, 13, 17);
+    });
+
     private static Icon Create(Color accent, Action<Graphics, Pen> draw)
     {
         using var bitmap = new Bitmap(32, 32);
