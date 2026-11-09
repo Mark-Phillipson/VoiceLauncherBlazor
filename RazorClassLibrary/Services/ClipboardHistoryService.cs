@@ -207,19 +207,6 @@ namespace RazorClassLibrary.Services
             await _db.SaveData(sql, new { entry.Content, entry.Id });
         }
 
-        public async Task TouchAsync(long id)
-        {
-            await EnsureSchemaAsync();
-
-            if (string.IsNullOrEmpty(_dateCol) || !_columnsFound.Contains(_dateCol))
-            {
-                return;
-            }
-
-            var sql = $"UPDATE \"{TableName}\" SET \"{_dateCol}\" = @AccessedAt WHERE \"{_idCol}\" = @Id";
-            await _db.SaveData(sql, new { Id = id, AccessedAt = DateTime.UtcNow.ToString("O") });
-        }
-
         public async Task SetPinnedAsync(long id, bool isPinned)
         {
             await EnsureSchemaAsync();
