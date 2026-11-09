@@ -14,6 +14,7 @@ using SampleApplication.Repositories;
 using SampleApplication.Services;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 
@@ -22,6 +23,7 @@ namespace WinFormsApp;
 /// <summary>
 /// Hosts the Snippets table in an independent Windows Form and Blazor WebView.
 /// </summary>
+[SupportedOSPlatform("windows")]
 internal sealed class SnippetsWindowForm : Form
 {
     private readonly ServiceProvider _serviceProvider;
@@ -39,7 +41,7 @@ internal sealed class SnippetsWindowForm : Form
 
         try
         {
-            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            Icon = WindowIconFactory.CreateSnippets();
         }
         catch
         {
