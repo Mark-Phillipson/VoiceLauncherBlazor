@@ -394,7 +394,7 @@ namespace WinFormsApp
 
             return launchArguments
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
-                .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+                .Select(argument => argument.Trim().Trim('"').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("Launcher", StringComparison.OrdinalIgnoreCase));
         }
 
