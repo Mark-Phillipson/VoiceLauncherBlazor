@@ -658,7 +658,8 @@ namespace WinFormsApp
 
             if (_talonWindow != null && !_talonWindow.IsDisposed)
             {
-                if (!string.Equals(_talonSearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(searchTerm) &&
+                    !string.Equals(_talonSearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
                 {
                     _talonWindow.Close();
                     _talonWindow = null;
