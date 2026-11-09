@@ -341,54 +341,13 @@ namespace WinFormsApp
 						System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
 					}
 
-					// Handle Launcher category launch (e.g., /Launcher /Code Projects)
-					if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
+					// Route Launcher category launches to the independent Launcher window.
+					if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
 					{
-						// Tokens after the 'Launcher' token (may be split into multiple args)
-						var tokens = arguments.Skip(2).Select(a => (a ?? string.Empty).Replace("/", "").Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
-						System.Diagnostics.Debug.WriteLine($"Handling Launcher with tokens: {string.Join('|', tokens)}");
-
-						int matchedCount = 0;
-						Category? matchedCategory = null;
-						// Try longest-prefix matching of tokens to find a category
-						for (int len = tokens.Length; len >= 1; len--)
-						{
-							var candidate = string.Join(" ", tokens.Take(len)).Trim();
-							try
-							{
-								matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
-							}
-							catch { matchedCategory = null; }
-							if (matchedCategory != null)
-							{
-								matchedCount = len;
-								System.Diagnostics.Debug.WriteLine($"Matched category candidate: {candidate}");
-								break;
-							}
-						}
-
-						if (matchedCategory != null)
-						{
-							categoryId = matchedCategory.Id;
-							lastLauncherCategoryId = categoryId;
-							SetTitle($"Launch from category: {matchedCategory.CategoryName}");
-							ToggleShowVariablesToFalse();
-							launcher = true;
-							await InvokeAsync(StateHasChanged);
-
-							// Persist the view change so tests can verify the visible view
-							try
-							{
-								AppendIpcLog("Index.ViewChanged: Launcher");
-							}
-							catch { }
-						}
-						else
-						{
-							System.Diagnostics.Debug.WriteLine($"Category not found for tokens: {string.Join(' ', tokens)} - no view change");
-							return;
-						}
+						AppendIpcLog("Index.IPC.Route: Launcher window");
+						await InvokeAsync(() => OpenLauncherWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
 					}
+
 
 					// Handle a direct display-value snippet search before the language/category SearchIntelliSense route.
 					else if (IsDisplaySearchIntent(arguments))
@@ -598,61 +557,13 @@ namespace WinFormsApp
 				languageAndCategoryListing = true;
 				message = $"Got here line 38 With argument1 {arguments[1]} second argument {arguments[2]}";
 			}
-			else if (arguments.Length >= 3 && arguments[1].IndexOf("Launcher", System.StringComparison.OrdinalIgnoreCase) >= 0)
+			else if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
 			{
-				// Cold-start can arrive as either:
-				//   Launcher|Access Projects
-				// or split words:
-				//   Launcher|access|projects|...
-				var tokens = arguments.Skip(2)
-					.Select(a => (a ?? string.Empty).Replace("/", "").Trim())
-					.Where(s => !string.IsNullOrEmpty(s))
-					.ToArray();
-
-				Category? matchedCategory = null;
-				for (int len = tokens.Length; len >= 1; len--)
-				{
-					var candidate = string.Join(" ", tokens.Take(len)).Trim();
-					try
-					{
-						matchedCategory = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
-					}
-					catch
-					{
-						matchedCategory = null;
-					}
-
-					if (matchedCategory != null)
-					{
-						categoryName = matchedCategory.CategoryName;
-						break;
-					}
-				}
-
-				if (matchedCategory != null)
-				{
-					categoryId = matchedCategory.Id;
-					lastLauncherCategoryId = categoryId;
-					SetTitle($"Launch from category: {matchedCategory.CategoryName}");
-				}
-				else
-				{
-					// Keep launcher mode even when category lookup fails.
-					SetTitle("Launch Applications");
-				}
-				ToggleShowVariablesToFalse();
-				// Enable launcher view exclusively
-				launcher = true;
-
-				// Persist the view change so external tests can detect the visible view at startup
-				try
-				{
-					var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
-					Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-					File.AppendAllText(logPath, $"{DateTime.Now:O} Index.ViewChanged: Launcher{Environment.NewLine}");
-				}
-				catch { }
+				AppendIpcLog("Index.Startup.Route: Launcher window");
+				await OpenLauncherWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
+
 			else if (IsDisplaySearchIntent(arguments) && !showGlobalSearch)
 			{
 				AppendIpcLog("Index.Startup.Route: Display Value Search window");
@@ -752,70 +663,9 @@ namespace WinFormsApp
 		}
 
 
-		private async Task SwitchToLauncherFromChild()
+		private Task SwitchToLauncherFromChild()
 		{
-			// Save current snippet selection so we can restore it when toggling back
-			try
-			{
-				if (customIntelliSenseTableRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSenseTableRef.SelectedLanguageId;
-					lastSnippetCategoryId = customIntelliSenseTableRef.SelectedCategoryId;
-				}
-				else if (customIntelliSensesDisplayRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSensesDisplayRef.LanguageIdFilter ?? 0;
-					lastSnippetCategoryId = customIntelliSensesDisplayRef.CategoryIdFilter ?? 0;
-				}
-				else if (customIntelliSensesDefaultRef != null)
-				{
-					lastSnippetLanguageId = customIntelliSensesDefaultRef.LanguageIdFilter ?? 0;
-					lastSnippetCategoryId = customIntelliSensesDefaultRef.CategoryIdFilter ?? 0;
-				}
-			}
-			catch { }
-			ToggleShowVariablesToFalse();
-			// Switch to launcher view
-			launcher = true;
-
-			// Restore last used launcher category if available, otherwise default to Code Projects
-			try
-			{
-				if (lastLauncherCategoryId != 0)
-				{
-					categoryId = lastLauncherCategoryId;
-					var cat = await CategoryService.GetCategoryAsync(categoryId);
-					if (cat != null)
-					{
-						await SetTitleCallback.InvokeAsync($"Launch Applications — {cat.CategoryName}");
-					}
-					else
-					{
-						await SetTitleCallback.InvokeAsync("Launch Applications");
-					}
-				}
-				else
-				{
-					var defaultCategory = await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
-					if (defaultCategory != null)
-					{
-						categoryId = defaultCategory.Id;
-						lastLauncherCategoryId = categoryId;
-						await SetTitleCallback.InvokeAsync($"Launch Applications — {defaultCategory.CategoryName}");
-					}
-					else
-					{
-						await SetTitleCallback.InvokeAsync("Launch Applications");
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Error setting launcher category: {ex.Message}");
-				await SetTitleCallback.InvokeAsync("Launch Applications");
-			}
-
-			StateHasChanged();
+			return OpenLauncherWindowCallback.InvokeAsync(string.Empty);
 		}
 
 		private async Task SwitchToSnippetsFromChild()
@@ -868,6 +718,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenSnippetsWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenDisplayWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenTalonWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenLauncherWindowCallback { get; set; }
 
 		public void Dispose()
 		{
