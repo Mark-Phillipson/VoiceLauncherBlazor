@@ -78,9 +78,14 @@ internal sealed class ClipboardWindowForm : Form
 
         try
         {
-            TaskbarIdentity.SetWindowAppUserModelId(
-                Handle,
-                "MarkPhillipson.VoiceLauncherBlazor.Clipboard");
+            if (Icon != null)
+            {
+                TaskbarIdentity.SetWindowAppUserModelId(
+                    Handle,
+                    "MarkPhillipson.VoiceLauncherBlazor.Clipboard",
+                    Icon,
+                    "Clipboard.ico");
+            }
         }
         catch (Exception ex)
         {
