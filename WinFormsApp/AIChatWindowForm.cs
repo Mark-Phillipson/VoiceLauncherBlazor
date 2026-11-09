@@ -31,6 +31,7 @@ internal sealed class AIChatWindowForm : Form
         Text = "AI Chat";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1150, 850);
+        Padding = new Padding(3);
         MinimumSize = new Size(760, 560);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
