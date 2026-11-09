@@ -238,6 +238,30 @@ namespace WinFormsApp
             InitializeServices();
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            if (_startupClipboardLaunchHandled)
+                return;
+
+            var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
+            if (!IsClipboardLaunchRequest(startupArguments))
+                return;
+
+            _startupClipboardLaunchHandled = true;
+            BeginInvoke(new Action(() =>
+            {
+                if (IsDisposed || Disposing)
+                    return;
+
+                // Hide the launcher before activating Clipboard so Alt+Tab
+                // returns to the application that launched the command.
+                Hide();
+                ShowClipboardWindow();
+            }));
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -274,16 +298,6 @@ namespace WinFormsApp
         {
             if (IsDisposed || Disposing)
                 return;
-
-            // On a cold start, keep the main form from becoming the previous
-            // Alt+Tab target when Clipboard was the requested launch destination.
-            if (!_startupClipboardLaunchHandled)
-            {
-                _startupClipboardLaunchHandled = true;
-                var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
-                if (IsClipboardLaunchRequest(startupArguments) && Visible)
-                    Hide();
-            }
 
             if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
             {
