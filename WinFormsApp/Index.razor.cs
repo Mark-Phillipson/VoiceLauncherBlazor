@@ -472,11 +472,8 @@ namespace WinFormsApp
 					}
 					else if (IsCalculatorIntent(arguments))
 					{
-						SetTitle("Calculator");
-						ToggleShowVariablesToFalse();
-						// Enable Calculator exclusively
-						showCalculator = true;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Calculator window");
+						await InvokeAsync(() => OpenCalculatorWindowCallback.InvokeAsync());
 					}
 					// Handle SearchIntelliSense invocation (language + category)
 					else if (arguments.Count() > 3 && arguments[1].IndexOf("SearchIntelliSense", System.StringComparison.OrdinalIgnoreCase) >= 0)
@@ -613,9 +610,8 @@ namespace WinFormsApp
 			}
 			else if (IsCalculatorIntent(arguments))
 			{
-				SetTitle("Calculator");
-				ToggleShowVariablesToFalse();
-				showCalculator = true;
+				AppendIpcLog("Index.Startup.Route: Calculator window");
+				await OpenCalculatorWindowCallback.InvokeAsync();
 				return;
 			}
 			else if (arguments.Count() >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
@@ -833,12 +829,9 @@ namespace WinFormsApp
 		{
 			return OpenClipboardWindowCallback.InvokeAsync();
 		}
-		private void ShowCalculator()
+		private Task ShowCalculator()
 		{
-			ToggleShowVariablesToFalse();
-			showCalculator = true;
-			SetTitle("Calculator");
-			StateHasChanged();
+			return OpenCalculatorWindowCallback.InvokeAsync();
 		}
 
 
@@ -953,6 +946,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback RestoreWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenClipboardWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenCalculatorWindowCallback { get; set; }
 
 		public void Dispose()
 		{
