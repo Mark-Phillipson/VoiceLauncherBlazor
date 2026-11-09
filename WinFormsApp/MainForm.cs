@@ -262,7 +262,9 @@ namespace WinFormsApp
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
             var launchTalon = IsTalonLaunchRequest(startupArguments);
             var launchLauncher = IsLauncherLaunchRequest(startupArguments);
-            var launchGlobal = IsGlobalSearchLaunchRequest(startupArguments);
+            // The previous default view was Global Search, so preserve that startup behaviour
+            // while hosting it in its own top-level window.
+            var launchGlobal = string.IsNullOrWhiteSpace(startupArguments) || IsGlobalSearchLaunchRequest(startupArguments);
             var launchDisplay = !launchTalon && !launchLauncher && !launchGlobal && IsDisplaySearchRequest(startupArguments);
             if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher && !launchGlobal)
                 return;
