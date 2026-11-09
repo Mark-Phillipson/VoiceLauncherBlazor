@@ -15,6 +15,7 @@ using SampleApplication.Services;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.Versioning;
+using System.Diagnostics;
 using VoiceLauncher.Repositories;
 using VoiceLauncher.Services;
 
@@ -113,6 +114,28 @@ internal sealed class SnippetsWindowForm : Form
             });
 
         Controls.Add(_blazorWebView);
+    }
+
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+
+        try
+        {
+            if (Icon != null)
+            {
+                TaskbarIdentity.SetWindowAppUserModelId(
+                    Handle,
+                    "MarkPhillipson.VoiceLauncherBlazor.Snippets",
+                    Icon,
+                    "Snippets.ico");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Could not assign Snippets taskbar identity: {ex}");
+        }
     }
 
     protected override void Dispose(bool disposing)
