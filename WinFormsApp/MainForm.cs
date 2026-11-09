@@ -84,6 +84,8 @@ namespace WinFormsApp
         private string? _displaySearchTerm;
         private TalonWindowForm? _talonWindow;
         private string? _talonSearchTerm;
+        private LauncherWindowForm? _launcherWindow;
+        private string? _launcherLaunchArguments;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -258,8 +260,9 @@ namespace WinFormsApp
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
             var launchTalon = IsTalonLaunchRequest(startupArguments);
-            var launchDisplay = !launchTalon && IsDisplaySearchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon)
+            var launchLauncher = IsLauncherLaunchRequest(startupArguments);
+            var launchDisplay = !launchTalon && !launchLauncher && IsDisplaySearchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -279,6 +282,8 @@ namespace WinFormsApp
                     ShowAIChatWindow();
                 else if (launchTalon)
                     ShowTalonWindow(startupArguments);
+                else if (launchLauncher)
+                    ShowLauncherWindow(startupArguments);
                 else if (launchDisplay)
                     ShowDisplayWindow(startupArguments);
                 else
@@ -380,6 +385,17 @@ namespace WinFormsApp
             return talonIndex >= 0 && talonIndex < arguments.Length - 1
                 ? string.Join(" ", arguments.Skip(talonIndex + 1)).Replace("/", "").Trim()
                 : string.Empty;
+        }
+
+        private static bool IsLauncherLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Launcher", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsDisplaySearchRequest(string? launchArguments)
@@ -696,6 +712,57 @@ namespace WinFormsApp
             AppendLog("Talon Voice Command Search window opened");
         }
 
+
+        /// <summary>
+        /// Opens the Launcher in its own window, reusing it for the same category request.
+        /// </summary>
+        public void ShowLauncherWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var normalizedArguments = launchArguments?.Trim() ?? string.Empty;
+
+            if (_launcherWindow != null && !_launcherWindow.IsDisposed)
+            {
+                if (!string.IsNullOrWhiteSpace(normalizedArguments) &&
+                    !string.Equals(_launcherLaunchArguments, normalizedArguments, StringComparison.OrdinalIgnoreCase))
+                {
+                    _launcherWindow.Close();
+                    _launcherWindow = null;
+                }
+                else
+                {
+                    if (_launcherWindow.WindowState == FormWindowState.Minimized)
+                        _launcherWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_launcherWindow.Visible)
+                        _launcherWindow.Show();
+
+                    _launcherWindow.BringToFront();
+                    _launcherWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new LauncherWindowForm(normalizedArguments);
+            _launcherWindow = window;
+            _launcherLaunchArguments = normalizedArguments;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_launcherWindow, window))
+                {
+                    _launcherWindow = null;
+                    _launcherLaunchArguments = null;
+                }
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Launcher window opened");
+        }
+
         private void InitializeServices()
         {
             var services = new ServiceCollection();
@@ -879,7 +946,8 @@ namespace WinFormsApp
                   {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)},
                   {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())},
                   {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))},
-                  {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))}
+                  {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))},
+                  {"OpenLauncherWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowLauncherWindow(launchArguments))}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
