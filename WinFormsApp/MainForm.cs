@@ -256,6 +256,19 @@ namespace WinFormsApp
         /// <summary>
         /// Opens the independent Clipboard History window, reusing it when already open.
         /// </summary>
+        private static bool IsClipboardLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Clipboard", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("Clippy", StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ShowClipboardWindow()
         {
             if (IsDisposed || Disposing)
@@ -814,6 +827,16 @@ namespace WinFormsApp
 
                             Invoke(() =>
                             {
+                                    // Clipboard is a separate top-level window. Do not activate the
+                                    // main form first: doing so would make Alt+Tab from Copy return
+                                    // to this application instead of the app the user came from.
+                                    if (IsClipboardLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Clipboard window without activating MainForm");
+                                        ShowClipboardWindow();
+                                        return;
+                                    }
+
                                     try
                                     {
                                         AppendLog($"IPC: pre-ShowMainForm Visible={this.Visible} WindowState={this.WindowState} Handle={this.Handle}");
