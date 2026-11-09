@@ -72,6 +72,13 @@ internal static class WindowIconFactory
         g.DrawRectangle(p, 18, 18, 9, 9);
     });
 
+    public static Icon CreateGlobal() => Create(Color.FromArgb(125, 95, 175), (g, p) =>
+    {
+        g.DrawEllipse(p, 4, 4, 18, 18);
+        g.DrawLine(p, 19, 19, 29, 29);
+        g.DrawLine(p, 9, 13, 17, 13);
+    });
+
     private static Icon Create(Color accent, Action<Graphics, Pen> draw)
     {
         using var bitmap = new Bitmap(32, 32);
