@@ -746,7 +746,9 @@ namespace WinFormsApp
 		}
 		private void ShowGlobalSearch()
 		{
-			if (RunningInWinForms)
+			// In the main WinForms host the callback opens or focuses the independent window.
+			// Standalone/web hosting has no callback and keeps the in-page Global Search view.
+			if (OpenGlobalWindowCallback.HasDelegate)
 			{
 				_ = OpenGlobalWindowCallback.InvokeAsync();
 				return;
