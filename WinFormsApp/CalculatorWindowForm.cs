@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.DependencyInjection;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace WinFormsApp;
 
 /// <summary>
 /// Hosts the Calculator component in an independent Windows Form and Blazor WebView.
 /// </summary>
+[SupportedOSPlatform("windows")]
 internal sealed class CalculatorWindowForm : Form
 {
     private readonly ServiceProvider _serviceProvider;
@@ -25,7 +27,7 @@ internal sealed class CalculatorWindowForm : Form
 
         try
         {
-            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            Icon = WindowIconFactory.CreateCalculator();
         }
         catch
         {
