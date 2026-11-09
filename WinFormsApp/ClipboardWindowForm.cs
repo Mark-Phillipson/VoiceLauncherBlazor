@@ -7,6 +7,7 @@ using RazorClassLibrary.Services;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.Versioning;
+using System.Diagnostics;
 
 namespace WinFormsApp;
 
@@ -28,6 +29,8 @@ internal sealed class ClipboardWindowForm : Form
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
+        ShowInTaskbar = true;
+        ShowIcon = true;
 
         try
         {
@@ -67,6 +70,22 @@ internal sealed class ClipboardWindowForm : Form
         _blazorWebView.RootComponents.Add<ClipboardWindowRoot>("#app");
 
         Controls.Add(_blazorWebView);
+    }
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+
+        try
+        {
+            TaskbarIdentity.SetWindowAppUserModelId(
+                Handle,
+                "MarkPhillipson.VoiceLauncherBlazor.Clipboard");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Could not assign Clipboard taskbar identity: {ex}");
+        }
     }
 
     protected override void Dispose(bool disposing)
