@@ -25,8 +25,7 @@ internal sealed class ClipboardWindowForm : Form
         Text = "Clipboard History";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1100, 750);
-        Padding = new Padding(3);
-        MinimumSize = new Size(760, 480);
+MinimumSize = new Size(760, 480);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
@@ -70,7 +69,14 @@ internal sealed class ClipboardWindowForm : Form
         _blazorWebView.Services = _serviceProvider;
         _blazorWebView.RootComponents.Add<ClipboardWindowRoot>("#app");
 
-        Controls.Add(_blazorWebView);
+        // Host the WebView in a padded panel so the inset is applied consistently.
+        var webViewHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(3)
+        };
+        webViewHost.Controls.Add(_blazorWebView);
+        Controls.Add(webViewHost);
     }
 
     protected override void OnHandleCreated(EventArgs e)
