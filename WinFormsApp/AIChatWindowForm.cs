@@ -12,12 +12,14 @@ using SampleApplication.Repositories;
 using SampleApplication.Services;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace WinFormsApp;
 
 /// <summary>
 /// Hosts AI Chat in an independent Windows Form and Blazor WebView.
 /// </summary>
+[SupportedOSPlatform("windows")]
 internal sealed class AIChatWindowForm : Form
 {
     private readonly ServiceProvider _serviceProvider;
@@ -35,7 +37,7 @@ internal sealed class AIChatWindowForm : Form
 
         try
         {
-            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            Icon = WindowIconFactory.CreateChat();
         }
         catch
         {
