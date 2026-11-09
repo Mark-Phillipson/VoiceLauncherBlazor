@@ -13,6 +13,7 @@ using SampleApplication.Services;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.Versioning;
+using System.Diagnostics;
 
 namespace WinFormsApp;
 
@@ -80,6 +81,28 @@ internal sealed class AIChatWindowForm : Form
         _blazorWebView.RootComponents.Add<AIChatWindowRoot>("#app");
 
         Controls.Add(_blazorWebView);
+    }
+
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+
+        try
+        {
+            if (Icon != null)
+            {
+                TaskbarIdentity.SetWindowAppUserModelId(
+                    Handle,
+                    "MarkPhillipson.VoiceLauncherBlazor.AIChat",
+                    Icon,
+                    "AIChat.ico");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Could not assign AIChat taskbar identity: {ex}");
+        }
     }
 
     protected override void Dispose(bool disposing)
