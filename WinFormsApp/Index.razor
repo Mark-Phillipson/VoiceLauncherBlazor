@@ -10,7 +10,7 @@
 				<div class="btn-group" role="group" aria-label="Main actions">
 
 					<button type="button" id="btnClipboard" class="btn btn-sm btn-outline-secondary me-1" accesskey="£"
-							aria-keyshortcuts="Alt+£" @onclick="@(() => ShowClipboardHistory())">
+							aria-keyshortcuts="Alt+£" @onclick="ShowClipboardHistory">
 						<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
 					</button>
 					<button type="button" id="btnCalculator" class="btn btn-sm btn-outline-secondary me-1" accesskey="£"
@@ -68,12 +68,6 @@
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
 				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm"
 										 IsActive="@showTalonSearch" />
-			</div>
-		}
-		@if (ShouldRenderClipboardHistory)
-		{
-			<div class="@(showClipboardHistory ? string.Empty : "d-none")" aria-hidden="@(!showClipboardHistory)">
-				<ClipboardHistory IsActive="@showClipboardHistory" />
 			</div>
 		}
 		@if (ShouldRenderCalculator)
