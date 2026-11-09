@@ -10,7 +10,6 @@ namespace RazorClassLibrary.Services
         Task<(IEnumerable<ClipboardEntry> Items, int TotalCount)> QueryAsync(int page, int pageSize, string? search, DateTime? from, DateTime? to, ClipboardHistorySortOrder sortOrder = ClipboardHistorySortOrder.NewestFirst);
         Task<ClipboardEntry?> GetAsync(long id);
         Task UpdateAsync(ClipboardEntry entry);
-        Task TouchAsync(long id);
         Task SetPinnedAsync(long id, bool isPinned);
         Task DeleteAsync(long id);
         Task DeleteBulkAsync(IEnumerable<long> ids);
