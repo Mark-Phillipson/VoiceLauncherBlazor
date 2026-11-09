@@ -31,8 +31,7 @@ internal sealed class AIChatWindowForm : Form
         Text = "AI Chat";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1150, 850);
-        Padding = new Padding(3);
-        MinimumSize = new Size(760, 560);
+MinimumSize = new Size(760, 560);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
@@ -81,7 +80,14 @@ internal sealed class AIChatWindowForm : Form
         _blazorWebView.Services = _serviceProvider;
         _blazorWebView.RootComponents.Add<AIChatWindowRoot>("#app");
 
-        Controls.Add(_blazorWebView);
+        // Host the WebView in a padded panel so the inset is applied consistently.
+        var webViewHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(3)
+        };
+        webViewHost.Controls.Add(_blazorWebView);
+        Controls.Add(webViewHost);
     }
 
 
