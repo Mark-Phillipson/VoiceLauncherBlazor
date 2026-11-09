@@ -82,6 +82,8 @@ namespace WinFormsApp
         private SnippetsWindowForm? _snippetsWindow;
         private DisplayWindowForm? _displayWindow;
         private string? _displaySearchTerm;
+        private TalonWindowForm? _talonWindow;
+        private string? _talonSearchTerm;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -255,8 +257,9 @@ namespace WinFormsApp
             var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
-            var launchDisplay = IsDisplaySearchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay)
+            var launchTalon = IsTalonLaunchRequest(startupArguments);
+            var launchDisplay = !launchTalon && IsDisplaySearchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -274,6 +277,8 @@ namespace WinFormsApp
                     ShowCalculatorWindow();
                 else if (launchAIChat)
                     ShowAIChatWindow();
+                else if (launchTalon)
+                    ShowTalonWindow(startupArguments);
                 else if (launchDisplay)
                     ShowDisplayWindow(startupArguments);
                 else
@@ -348,6 +353,35 @@ namespace WinFormsApp
                     argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
         }
 
+        private static bool IsTalonLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string GetTalonSearchTerm(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return string.Empty;
+
+            var arguments = launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .ToArray();
+
+            var talonIndex = Array.FindIndex(arguments,
+                argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+
+            return talonIndex >= 0 && talonIndex < arguments.Length - 1
+                ? string.Join(" ", arguments.Skip(talonIndex + 1)).Replace("/", "").Trim()
+                : string.Empty;
+        }
+
         private static bool IsDisplaySearchRequest(string? launchArguments)
         {
             if (string.IsNullOrWhiteSpace(launchArguments))
@@ -357,6 +391,10 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .ToArray();
+
+            if (arguments.Any(argument =>
+                argument.Equals("Talon", StringComparison.OrdinalIgnoreCase)))
+                return false;
 
             if (arguments.Any(argument =>
                 argument.Equals("Display", StringComparison.OrdinalIgnoreCase) ||
@@ -608,6 +646,55 @@ namespace WinFormsApp
             AppendLog("Display Value Search window opened");
         }
 
+        /// <summary>
+        /// Opens Talon Voice Command Search in its own window, reusing it for repeated searches.
+        /// </summary>
+        public void ShowTalonWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            var searchTerm = GetTalonSearchTerm(launchArguments);
+
+            if (_talonWindow != null && !_talonWindow.IsDisposed)
+            {
+                if (!string.Equals(_talonSearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    _talonWindow.Close();
+                    _talonWindow = null;
+                }
+                else
+                {
+                    if (_talonWindow.WindowState == FormWindowState.Minimized)
+                        _talonWindow.WindowState = FormWindowState.Normal;
+
+                    if (!_talonWindow.Visible)
+                        _talonWindow.Show();
+
+                    _talonWindow.BringToFront();
+                    _talonWindow.Activate();
+                    return;
+                }
+            }
+
+            var window = new TalonWindowForm(searchTerm);
+            _talonWindow = window;
+            _talonSearchTerm = searchTerm;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_talonWindow, window))
+                {
+                    _talonWindow = null;
+                    _talonSearchTerm = null;
+                }
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Talon Voice Command Search window opened");
+        }
+
         private void InitializeServices()
         {
             var services = new ServiceCollection();
@@ -790,7 +877,8 @@ namespace WinFormsApp
                   {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)},
                   {"OpenAIChatWindowCallback", new EventCallback(null, ShowAIChatWindow)},
                   {"OpenSnippetsWindowCallback", new EventCallback(null, () => ShowSnippetsWindow())},
-                  {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))}
+                  {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))},
+                  {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -1097,6 +1185,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsTalonLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowTalonWindow(_lastLaunchArgs);
+                    return;
+                }
+
                 if (IsDisplaySearchRequest(_lastLaunchArgs))
                 {
                     ShowDisplayWindow(_lastLaunchArgs);
@@ -1189,6 +1283,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
                                         ShowAIChatWindow();
+                                        return;
+                                    }
+
+                                    if (IsTalonLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
+                                        ShowTalonWindow(message);
                                         return;
                                     }
 
