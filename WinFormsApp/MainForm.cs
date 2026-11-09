@@ -1002,7 +1002,6 @@ namespace WinFormsApp
                   {"OpenDisplayWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowDisplayWindow(launchArguments))},
                   {"OpenTalonWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowTalonWindow(launchArguments))},
                   {"OpenLauncherWindowCallback", new EventCallback<string>(null, (string launchArguments) => ShowLauncherWindow(launchArguments))},
-                  {"RunningInWinForms", true},
                   {"OpenGlobalWindowCallback", new EventCallback(null, ShowGlobalWindow)}
              });
 
