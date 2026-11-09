@@ -79,6 +79,7 @@ namespace WinFormsApp
         private ClipboardWindowForm? _clipboardWindow;
         private CalculatorWindowForm? _calculatorWindow;
         private AIChatWindowForm? _aiChatWindow;
+        private SnippetsWindowForm? _snippetsWindow;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -251,7 +252,8 @@ namespace WinFormsApp
             var launchClipboard = IsClipboardLaunchRequest(startupArguments);
             var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat)
+            var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -267,8 +269,10 @@ namespace WinFormsApp
                     ShowClipboardWindow();
                 else if (launchCalculator)
                     ShowCalculatorWindow();
-                else
+                else if (launchAIChat)
                     ShowAIChatWindow();
+                else
+                    ShowSnippetsWindow(startupArguments);
             }));
         }
 
@@ -324,6 +328,19 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("Calculator", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsSnippetsLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("Snippets", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
         }
 
         public void ShowClipboardWindow()
@@ -426,6 +443,41 @@ namespace WinFormsApp
             window.BringToFront();
             window.Activate();
             AppendLog("AI Chat window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent Snippets window, reusing it when already open.
+        /// </summary>
+        public void ShowSnippetsWindow(string? launchArguments = null)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_snippetsWindow != null && !_snippetsWindow.IsDisposed)
+            {
+                if (_snippetsWindow.WindowState == FormWindowState.Minimized)
+                    _snippetsWindow.WindowState = FormWindowState.Normal;
+
+                if (!_snippetsWindow.Visible)
+                    _snippetsWindow.Show();
+
+                _snippetsWindow.BringToFront();
+                _snippetsWindow.Activate();
+                return;
+            }
+
+            var window = new SnippetsWindowForm(launchArguments);
+            _snippetsWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_snippetsWindow, window))
+                    _snippetsWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Snippets window opened");
         }
 
         private void InitializeServices()
@@ -909,6 +961,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsSnippetsLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowSnippetsWindow(_lastLaunchArgs);
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
@@ -995,6 +1053,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
                                         ShowAIChatWindow();
+                                        return;
+                                    }
+
+                                    if (IsSnippetsLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Snippets window without activating MainForm");
+                                        ShowSnippetsWindow(message);
                                         return;
                                     }
 
