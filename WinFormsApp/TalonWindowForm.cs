@@ -27,8 +27,7 @@ internal sealed class TalonWindowForm : Form
         Text = "Talon Voice Command Search";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1450, 950);
-        Padding = new Padding(3);
-        MinimumSize = new Size(950, 650);
+MinimumSize = new Size(950, 650);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
@@ -75,7 +74,14 @@ internal sealed class TalonWindowForm : Form
                 { "SearchTerm", searchTerm ?? string.Empty }
             });
 
-        Controls.Add(_blazorWebView);
+        // Host the WebView in a padded panel so the inset is applied consistently.
+        var webViewHost = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(3)
+        };
+        webViewHost.Controls.Add(_blazorWebView);
+        Controls.Add(webViewHost);
     }
 
     protected override void OnHandleCreated(EventArgs e)
