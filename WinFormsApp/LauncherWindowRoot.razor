@@ -1,0 +1,56 @@
+@using Blazored.Modal
+@using Blazored.Toast.Configuration
+@using RazorClassLibrary.Pages
+@using Microsoft.AspNetCore.Components
+@using DataAccessLibrary.Services
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<CascadingBlazoredModal>
+    <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" ShowProgressBar="true" />
+    <LauncherTable
+        CategoryId="@CategoryId"
+        RunningInBlazorHybrid="true"
+        CloseApplication="CloseWindowCallback"
+        IsActive="true" />
+</CascadingBlazoredModal>
+
+@code {
+    [Parameter] public string LaunchArguments { get; set; } = string.Empty;
+    [Parameter] public EventCallback CloseWindowCallback { get; set; }
+    [Parameter] public EventCallback MaximizeWindowCallback { get; set; }
+
+    [Inject] public required CategoryService CategoryService { get; set; }
+
+    private int CategoryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var arguments = LaunchArguments
+            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+            .ToArray();
+
+        var launcherIndex = Array.FindIndex(arguments, argument =>
+            argument.Equals("Launcher", StringComparison.OrdinalIgnoreCase));
+
+        DataAccessLibrary.Models.Category? category = null;
+        if (launcherIndex >= 0 && launcherIndex < arguments.Length - 1)
+        {
+            var tokens = arguments.Skip(launcherIndex + 1)
+                .Where(argument => !string.IsNullOrWhiteSpace(argument))
+                .ToArray();
+
+            for (var length = tokens.Length; length >= 1; length--)
+            {
+                var candidate = string.Join(" ", tokens.Take(length)).Trim();
+                category = await CategoryService.GetCategoryAsync(candidate, "Launch Applications");
+                if (category != null)
+                    break;
+            }
+        }
+
+        category ??= await CategoryService.GetCategoryAsync("Code Projects", "Launch Applications");
+        CategoryId = category?.Id ?? 0;
+    }
+}
