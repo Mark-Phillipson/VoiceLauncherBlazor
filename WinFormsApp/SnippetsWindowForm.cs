@@ -35,6 +35,7 @@ internal sealed class SnippetsWindowForm : Form
         Text = "Snippets";
         StartPosition = FormStartPosition.CenterScreen;
         ClientSize = new Size(1250, 850);
+        Padding = new Padding(3);
         MinimumSize = new Size(850, 600);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
