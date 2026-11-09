@@ -229,7 +229,6 @@
 
       await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
 
-<<<<<<< HEAD
       // Treat copying an existing entry as a recent access so it returns to the top.
       try
       {
@@ -243,13 +242,7 @@
       }
 
       InputSimulator simulator = new InputSimulator();
-=======
-      // Switch back to the application that was active before Clipboard History.
-      // Do not press Enter: that can activate a control in the destination application.
-      var simulator = new InputSimulator();
->>>>>>> main
       simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-      simulator.Keyboard.Sleep(300);
 
       ToastService?.ShowSuccess("Copied to clipboard");
     }
