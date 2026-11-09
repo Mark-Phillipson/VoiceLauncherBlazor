@@ -467,11 +467,8 @@ namespace WinFormsApp
 							 (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
 							  arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 					{
-						SetTitle("Clipboard History");
-						ToggleShowVariablesToFalse();
-						// Enable Clipboard History exclusively
-						showClipboardHistory = true;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Clipboard window");
+						await InvokeAsync(() => OpenClipboardWindowCallback.InvokeAsync());
 					}
 					else if (IsCalculatorIntent(arguments))
 					{
@@ -610,10 +607,8 @@ namespace WinFormsApp
 					  (arguments[2].IndexOf("Clipboard", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
 					   arguments[2].IndexOf("Clippy", System.StringComparison.OrdinalIgnoreCase) >= 0)))
 			{
-				SetTitle("Clipboard History");
-				ToggleShowVariablesToFalse();
-				// Enable Clipboard History exclusively
-				showClipboardHistory = true;
+				AppendIpcLog("Index.Startup.Route: Clipboard window");
+				await OpenClipboardWindowCallback.InvokeAsync();
 				return;
 			}
 			else if (IsCalculatorIntent(arguments))
@@ -834,13 +829,9 @@ namespace WinFormsApp
 			SetTitle("Talon Voice Command Search");
 			StateHasChanged();
 		}
-		private void ShowClipboardHistory()
+		private Task ShowClipboardHistory()
 		{
-			// Turning on Clipboard History
-			ToggleShowVariablesToFalse();
-			showClipboardHistory = true;
-			SetTitle("Clipboard History");
-			StateHasChanged();
+			return OpenClipboardWindowCallback.InvokeAsync();
 		}
 		private void ShowCalculator()
 		{
@@ -961,6 +952,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback MinimizeWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback RestoreWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenClipboardWindowCallback { get; set; }
 
 		public void Dispose()
 		{
