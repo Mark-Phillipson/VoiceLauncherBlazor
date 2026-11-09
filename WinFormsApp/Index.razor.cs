@@ -783,6 +783,11 @@ namespace WinFormsApp
 			return OpenAIChatWindowCallback.InvokeAsync();
 		}
 
+		private Task ShowSnippets()
+		{
+			return OpenSnippetsWindowCallback.InvokeAsync();
+		}
+
 
 
 		private void ShowDisplayValueSearch()
@@ -927,6 +932,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenClipboardWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenCalculatorWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenAIChatWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenSnippetsWindowCallback { get; set; }
 
 		public void Dispose()
 		{
