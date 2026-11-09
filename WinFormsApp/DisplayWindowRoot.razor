@@ -3,6 +3,7 @@
 @using RazorClassLibrary.Pages
 @using Microsoft.AspNetCore.Components
 
+<div style="padding: 3px;">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
 <CascadingBlazoredModal>
@@ -16,6 +17,8 @@
         MaximizeApplication="MaximizeWindowCallback"
         IsActive="true" />
 </CascadingBlazoredModal>
+
+</div>
 
 @code {
     [Parameter] public string SearchTerm { get; set; } = string.Empty;
