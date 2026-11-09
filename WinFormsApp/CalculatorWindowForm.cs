@@ -53,12 +53,13 @@ internal sealed class CalculatorWindowForm : Form
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
-        {
-            _blazorWebView.Dispose();
-            _serviceProvider.Dispose();
-        }
-
+        // Form.Dispose disposes child controls, including the BlazorWebView.
+        // Dispose the provider afterwards so the WebView can still resolve services
+        // while it is shutting down. Do not dispose the WebView separately here,
+        // otherwise the base Form disposal can dispose it a second time.
         base.Dispose(disposing);
+
+        if (disposing)
+            _serviceProvider.Dispose();
     }
 }
