@@ -81,6 +81,7 @@ namespace WinFormsApp
         private AIChatWindowForm? _aiChatWindow;
         private SnippetsWindowForm? _snippetsWindow;
         private DisplayWindowForm? _displayWindow;
+        private string? _displaySearchTerm;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -558,10 +559,14 @@ namespace WinFormsApp
                 return;
 
             var isSearchRequest = IsDisplaySearchRequest(launchArguments);
+            var searchTerm = isSearchRequest ? GetDisplaySearchTerm(launchArguments) : string.Empty;
 
             if (_displayWindow != null && !_displayWindow.IsDisposed)
             {
-                if (isSearchRequest)
+                // Reuse the current window for the same search, but replace it
+                // when a new voice search supplies a different term.
+                if (isSearchRequest &&
+                    !string.Equals(_displaySearchTerm, searchTerm, StringComparison.OrdinalIgnoreCase))
                 {
                     _displayWindow.Close();
                     _displayWindow = null;
@@ -580,13 +585,16 @@ namespace WinFormsApp
                 }
             }
 
-            var searchTerm = isSearchRequest ? GetDisplaySearchTerm(launchArguments) : string.Empty;
             var window = new DisplayWindowForm(searchTerm);
             _displayWindow = window;
+            _displaySearchTerm = searchTerm;
             window.FormClosed += (_, _) =>
             {
                 if (ReferenceEquals(_displayWindow, window))
+                {
                     _displayWindow = null;
+                    _displaySearchTerm = null;
+                }
             };
 
             window.Show();
