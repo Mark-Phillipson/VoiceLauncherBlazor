@@ -77,6 +77,7 @@ namespace WinFormsApp
         private CancellationTokenSource _pipeServerCts = new();
         private string? _lastLaunchArgs;
         private ClipboardWindowForm? _clipboardWindow;
+        private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
 
@@ -273,6 +274,16 @@ namespace WinFormsApp
         {
             if (IsDisposed || Disposing)
                 return;
+
+            // On a cold start, keep the main form from becoming the previous
+            // Alt+Tab target when Clipboard was the requested launch destination.
+            if (!_startupClipboardLaunchHandled)
+            {
+                _startupClipboardLaunchHandled = true;
+                var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
+                if (IsClipboardLaunchRequest(startupArguments) && Visible)
+                    Hide();
+            }
 
             if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
             {
