@@ -450,13 +450,8 @@ namespace WinFormsApp
 							  arguments[2].IndexOf("AIChat", System.StringComparison.OrdinalIgnoreCase) >= 0))
 					{
 						System.Diagnostics.Debug.WriteLine("Handling AIChat IPC invocation");
-						SetTitle("AI Chat");
-						ToggleShowVariablesToFalse();
-						// Enable AI Chat exclusively
-						showAIChat = true;
-						keepAIChatAlive = true;
-						try { AppendIpcLog("Index.ViewChanged: AIChat"); } catch { }
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: AI Chat window");
+						await InvokeAsync(() => OpenAIChatWindowCallback.InvokeAsync());
 					}
 
 					// Handle Clipboard invocation (e.g., Clipboard or Clippy)
@@ -580,21 +575,12 @@ namespace WinFormsApp
 
 			}
 			string categoryName = "";
-			if (arguments.Count() >= 2 && arguments[1].Contains("AIChat"))
+			if ((arguments.Count() >= 2 && arguments[1].IndexOf("AIChat", StringComparison.OrdinalIgnoreCase) >= 0)
+				|| (arguments.Count() >= 3 && arguments[2].IndexOf("AIChat", StringComparison.OrdinalIgnoreCase) >= 0))
 			{
-				SetTitle("AI Chat");
-				// Enable AI Chat exclusively
-				ToggleShowVariablesToFalse();
-				showAIChat = true;
-				keepAIChatAlive = true;
-			}
-			else if (arguments.Count() >= 3 && arguments[2].Contains("AIChat"))
-			{
-				SetTitle("AI Chat");
-				ToggleShowVariablesToFalse();
-				// Enable AI Chat exclusively
-				showAIChat = true;
-				keepAIChatAlive = true;
+				AppendIpcLog("Index.Startup.Route: AI Chat window");
+				await OpenAIChatWindowCallback.InvokeAsync();
+				return;
 			}
 			// Handle Clipboard cold-start invocation (e.g., Clipboard or Clippy)
 			else if ((arguments.Count() >= 2 &&
@@ -792,16 +778,9 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-		private void ShowAIChat()
+		private Task ShowAIChat()
 		{
-			ToggleShowVariablesToFalse();
-			// Turning on AI Chat
-			showAIChat = true;
-			keepAIChatAlive = true;
-			// Reset other views when showing AI Chat
-			showAIChat = true; // Keep AI Chat on after toggling off others
-			SetTitle("AI Chat Assistant");
-			StateHasChanged();
+			return OpenAIChatWindowCallback.InvokeAsync();
 		}
 
 
@@ -947,6 +926,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> SetTitleCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenClipboardWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenCalculatorWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenAIChatWindowCallback { get; set; }
 
 		public void Dispose()
 		{
