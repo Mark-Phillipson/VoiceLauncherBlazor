@@ -75,6 +75,7 @@ internal static class WindowIconFactory
     private static extern bool DestroyIcon(IntPtr handle);
 }
 
+[SupportedOSPlatform("windows")]
 internal static class GraphicsExtensions
 {
     public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int radius)
