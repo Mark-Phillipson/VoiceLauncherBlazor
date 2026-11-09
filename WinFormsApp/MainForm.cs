@@ -77,6 +77,7 @@ namespace WinFormsApp
         private CancellationTokenSource _pipeServerCts = new();
         private string? _lastLaunchArgs;
         private ClipboardWindowForm? _clipboardWindow;
+        private CalculatorWindowForm? _calculatorWindow;
         private bool _startupClipboardLaunchHandled;
 
         public static event EventHandler<LaunchArgumentsEventArgs>? LaunchArgumentsReceived;
@@ -246,7 +247,9 @@ namespace WinFormsApp
                 return;
 
             var startupArguments = string.Join("|", Environment.GetCommandLineArgs().Skip(1));
-            if (!IsClipboardLaunchRequest(startupArguments))
+            var launchClipboard = IsClipboardLaunchRequest(startupArguments);
+            var launchCalculator = IsCalculatorLaunchRequest(startupArguments);
+            if (!launchClipboard && !launchCalculator)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -255,10 +258,13 @@ namespace WinFormsApp
                 if (IsDisposed || Disposing)
                     return;
 
-                // Hide the launcher before activating Clipboard so Alt+Tab
-                // returns to the application that launched the command.
+                // Hide the launcher before activating a tool window so the
+                // launching application remains behind it in the Alt+Tab order.
                 Hide();
-                ShowClipboardWindow();
+                if (launchClipboard)
+                    ShowClipboardWindow();
+                else
+                    ShowCalculatorWindow();
             }));
         }
 
@@ -294,6 +300,17 @@ namespace WinFormsApp
                     argument.Equals("Clippy", StringComparison.OrdinalIgnoreCase));
         }
 
+        private static bool IsCalculatorLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\\'').TrimStart('/').Trim())
+                .Any(argument => argument.Equals("Calculator", StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ShowClipboardWindow()
         {
             if (IsDisposed || Disposing)
@@ -324,6 +341,41 @@ namespace WinFormsApp
             window.BringToFront();
             window.Activate();
             AppendLog("Clipboard window opened");
+        }
+
+        /// <summary>
+        /// Opens the independent Calculator window, reusing it when already open.
+        /// </summary>
+        public void ShowCalculatorWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_calculatorWindow != null && !_calculatorWindow.IsDisposed)
+            {
+                if (_calculatorWindow.WindowState == FormWindowState.Minimized)
+                    _calculatorWindow.WindowState = FormWindowState.Normal;
+
+                if (!_calculatorWindow.Visible)
+                    _calculatorWindow.Show();
+
+                _calculatorWindow.BringToFront();
+                _calculatorWindow.Activate();
+                return;
+            }
+
+            var window = new CalculatorWindowForm();
+            _calculatorWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_calculatorWindow, window))
+                    _calculatorWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Calculator window opened");
         }
 
         private void InitializeServices()
@@ -504,7 +556,8 @@ namespace WinFormsApp
                   {"MinimizeWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Minimized; }) },
                   {"RestoreWindowCallback", new EventCallback(null, ()=>{ WindowState = FormWindowState.Normal; }) },
                   {"SetTitleCallback", new EventCallback<string>(null, ( string title)=>{ Text = title; })},
-                  {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)}
+                  {"OpenClipboardWindowCallback", new EventCallback(null, ShowClipboardWindow)},
+                  {"OpenCalculatorWindowCallback", new EventCallback(null, ShowCalculatorWindow)}
              });
 
             // Setup WebView2 logging, DevTools and console forwarding
@@ -793,6 +846,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsCalculatorLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowCalculatorWindow();
+                    return;
+                }
+
                 ShowMainForm();
                 // If there are stored args, re-raise them so UI can navigate
                 if (!string.IsNullOrEmpty(_lastLaunchArgs))
@@ -865,6 +924,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Clipboard window without activating MainForm");
                                         ShowClipboardWindow();
+                                        return;
+                                    }
+
+                                    if (IsCalculatorLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Calculator window without activating MainForm");
+                                        ShowCalculatorWindow();
                                         return;
                                     }
 
