@@ -357,10 +357,13 @@ namespace WinFormsApp
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .ToArray();
 
-            var searchIndex = Array.FindIndex(arguments,
-                argument => argument.Equals("search", StringComparison.OrdinalIgnoreCase));
+            if (arguments.Length >= 2 &&
+                arguments[0].Equals("search", StringComparison.OrdinalIgnoreCase))
+                return true;
 
-            return searchIndex >= 0 && searchIndex < arguments.Length - 1;
+            return arguments.Length >= 3 &&
+                arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) &&
+                !arguments[0].Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetDisplaySearchTerm(string? launchArguments)
@@ -373,10 +376,16 @@ namespace WinFormsApp
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .ToArray();
 
-            var searchIndex = Array.FindIndex(arguments,
-                argument => argument.Equals("search", StringComparison.OrdinalIgnoreCase));
+            var searchIndex = arguments.Length >= 2 &&
+                arguments[0].Equals("search", StringComparison.OrdinalIgnoreCase)
+                    ? 0
+                    : arguments.Length >= 3 &&
+                      arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) &&
+                      !arguments[0].Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase)
+                        ? 1
+                        : -1;
 
-            return searchIndex >= 0 && searchIndex < arguments.Length - 1
+            return searchIndex >= 0
                 ? string.Join(" ", arguments.Skip(searchIndex + 1))
                 : string.Empty;
         }
