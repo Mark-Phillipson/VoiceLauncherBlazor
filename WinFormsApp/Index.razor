@@ -14,7 +14,7 @@
 						<i class="bi bi-clipboard me-1" aria-hidden="true"></i> Clipboard
 					</button>
 					<button type="button" id="btnCalculator" class="btn btn-sm btn-outline-secondary me-1" accesskey="£"
-							aria-keyshortcuts="Alt+£" @onclick="@(() => ShowCalculator())">
+							aria-keyshortcuts="Alt+£" @onclick="ShowCalculator">
 						<i class="bi bi-calculator me-1" aria-hidden="true"></i> Calculator
 					</button>
 
@@ -68,12 +68,6 @@
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
 				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm"
 										 IsActive="@showTalonSearch" />
-			</div>
-		}
-		@if (ShouldRenderCalculator)
-		{
-			<div class="@(showCalculator ? string.Empty : "d-none")" aria-hidden="@(!showCalculator)">
-				<Calculator IsActive="@showCalculator" />
 			</div>
 		}
 		@if (ShouldRenderSnippets)
