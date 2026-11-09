@@ -212,6 +212,10 @@ namespace WinFormsApp
 			if (args.Length < 3)
 				return false;
 
+			if (IsExactArgument(args[1], "Talon") ||
+				(args.Length >= 3 && IsExactArgument(args[2], "Talon")))
+				return false;
+
 			if (IsExactArgument(args[1], "search"))
 				return true;
 
@@ -421,22 +425,11 @@ namespace WinFormsApp
 						await InvokeAsync(StateHasChanged);
 					}
 
-					// Handle Talon / search invocation (e.g., Talon|launch code projects)
+					// Route Talon search launches to their independent window.
 					else if (IsTalonSearchIntent(arguments))
 					{
-						System.Diagnostics.Debug.WriteLine("Handling Talon/Search IPC invocation");
-						ToggleShowVariablesToFalse();
-						showTalonSearch = true;
-						SetTitle("Talon Voice Command Search");
-						if (arguments.Length >= 3)
-						{
-							searchTerm = string.Join(" ", arguments.Skip(2));
-							searchTerm = searchTerm.Replace("/", "").Trim();
-							System.Diagnostics.Debug.WriteLine($"IPC searchTerm set to: '{searchTerm}'");
-							var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-							arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
-						}
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Talon Search window");
+						await InvokeAsync(() => OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
 					}
 
 					// Handle AI Chat invocation (hot IPC) (e.g., AIChat)
@@ -525,23 +518,10 @@ namespace WinFormsApp
 			{
 				return;
 			}       // Check for search/Talon command line arguments
-			if (arguments.Length >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
+			if (IsTalonSearchIntent(arguments))
 			{
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-				if (arguments.Length >= 3)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(2));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					System.Diagnostics.Debug.WriteLine($"Search term set to: '{searchTerm}'");
-				}
-				else
-				{
-					System.Diagnostics.Debug.WriteLine("No additional arguments for search term");
-				}
-
-				var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-				arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
+				AppendIpcLog("Index.Startup.Route: Talon Search window");
+				await OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
 				return;
 			}
 			if (arguments.Length >= 2 && arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) && arguments.Length >= 3)
@@ -591,33 +571,11 @@ namespace WinFormsApp
 				await OpenCalculatorWindowCallback.InvokeAsync();
 				return;
 			}
-			else if (arguments.Count() >= 2 && arguments[1].Equals("Talon", StringComparison.OrdinalIgnoreCase))
+			else if (IsTalonSearchIntent(arguments))
 			{
-				SetTitle("Talon Voice Command Search");
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-
-				if (arguments.Length >= 3)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(2));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-					arguments = new[] { exeName, "Talon", searchTerm ?? string.Empty };
-				}
-			}
-			else if (arguments.Count() >= 3 && arguments[2].Equals("Talon", StringComparison.OrdinalIgnoreCase))
-			{
-				SetTitle("Talon Voice Command Search");
-				ToggleShowVariablesToFalse();
-				showTalonSearch = true;
-
-				if (arguments.Length >= 4)
-				{
-					searchTerm = string.Join(" ", arguments.Skip(3));
-					searchTerm = searchTerm.Replace("/", "").Trim();
-					var exeName2 = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-					arguments = new[] { exeName2, "Talon", searchTerm ?? string.Empty };
-				}
+				AppendIpcLog("Index.Startup.Route: Talon Search window");
+				await OpenTalonWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
 			else if (arguments.Count() > 3 && arguments[1].Contains("SearchIntelliSense", StringComparison.OrdinalIgnoreCase))
 			{
@@ -780,13 +738,9 @@ namespace WinFormsApp
 			return OpenDisplayWindowCallback.InvokeAsync(string.Empty);
 		}
 
-		private void ShowTalonSearch()
+		private Task ShowTalonSearch()
 		{
-			// Turning on Talon Search
-			ToggleShowVariablesToFalse();
-			showTalonSearch = true;
-			SetTitle("Talon Voice Command Search");
-			StateHasChanged();
+			return OpenTalonWindowCallback.InvokeAsync(string.Empty);
 		}
 		private Task ShowClipboardHistory()
 		{
@@ -913,6 +867,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenAIChatWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenSnippetsWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenDisplayWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenTalonWindowCallback { get; set; }
 
 		public void Dispose()
 		{
