@@ -221,6 +221,18 @@
         return;
       }
       await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
+
+      // Treat copying an existing entry as a recent access so it returns to the top.
+      try
+      {
+        await ClipboardService.TouchAsync(item.Id);
+        await LoadPage();
+      }
+      catch (Exception ex)
+      {
+        ToastService?.ShowWarning("Copied, but couldn't update its history date: " + ex.Message);
+      }
+
       InputSimulator simulator = new InputSimulator();
       simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
       simulator.Keyboard.Sleep(300);
@@ -235,9 +247,18 @@
     }
   }
 
-  protected override async Task OnInitializedAsync()
+  private bool _wasActive;
+
+  protected override async Task OnParametersSetAsync()
   {
-    await LoadPage();
+    // The viewer stays mounted while hidden in the hybrid host. Reload whenever
+    // it becomes active again so entries captured elsewhere are immediately visible.
+    if (IsActive && !_wasActive)
+    {
+      await LoadPage();
+    }
+
+    _wasActive = IsActive;
   }
 
   private async Task LoadPage()
