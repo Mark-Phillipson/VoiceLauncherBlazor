@@ -394,12 +394,8 @@ namespace WinFormsApp
 							: string.Join(" ", arguments.Skip(3));
 
 						searchTerm = rawSearch.Replace("/", "").Trim();
-						SetTitle("Filtering Snippets by Display Value");
-						ToggleShowVariablesToFalse();
-						displayValueSearch = true;
-						categoryId = 0;
-						languageId = 0;
-						await InvokeAsync(StateHasChanged);
+						AppendIpcLog("Index.IPC.Route: Display Value Search window");
+						await InvokeAsync(() => OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
 					}
 
 					// Handle SearchIntelliSense invocation (language + category) before generic search detection.
@@ -550,14 +546,9 @@ namespace WinFormsApp
 			}
 			if (arguments.Length >= 2 && arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase) && arguments.Length >= 3)
 			{
-				SetTitle("Filtering Snippets by Display Value");
 				searchTerm = string.Join(" ", arguments.Skip(2)).Replace("/", "").Trim();
-				ToggleShowVariablesToFalse();
-				displayValueSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				var exeName = (arguments != null && arguments.Length > 0) ? arguments[0] : Environment.GetCommandLineArgs().FirstOrDefault() ?? string.Empty;
-				arguments = new[] { exeName, "SearchIntelliSense", searchTerm ?? string.Empty, "Files" };
+				AppendIpcLog("Index.Startup.Route: Display Value Search window");
+				await OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
 				return;
 			}
 
@@ -706,15 +697,9 @@ namespace WinFormsApp
 			}
 			else if (IsDisplaySearchIntent(arguments) && !showGlobalSearch)
 			{
-				string rawSearch = arguments[1].Equals("search", StringComparison.OrdinalIgnoreCase)
-					? string.Join(" ", arguments.Skip(2))
-					: string.Join(" ", arguments.Skip(3));
-				searchTerm = rawSearch.Replace("/", "").Trim();
-				ToggleShowVariablesToFalse();
-				displayValueSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				SetTitle("Filtering Snippets by Display Value");
+				AppendIpcLog("Index.Startup.Route: Display Value Search window");
+				await OpenDisplayWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1)));
+				return;
 			}
 			else if (IsDisplayGlobalSearchIntent(arguments))
 			{
@@ -790,15 +775,9 @@ namespace WinFormsApp
 
 
 
-		private void ShowDisplayValueSearch()
+		private Task ShowDisplayValueSearch()
 		{
-			ToggleShowVariablesToFalse();
-			displayValueSearch = true;
-			categoryId = 0;
-			languageId = 0;
-			searchTerm = searchTerm ?? string.Empty;
-			SetTitle("Filtering Snippets by Display Value");
-			StateHasChanged();
+			return OpenDisplayWindowCallback.InvokeAsync(string.Empty);
 		}
 
 		private void ShowTalonSearch()
@@ -933,6 +912,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenCalculatorWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenAIChatWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenSnippetsWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenDisplayWindowCallback { get; set; }
 
 		public void Dispose()
 		{
