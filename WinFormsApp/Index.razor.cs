@@ -226,13 +226,16 @@ namespace WinFormsApp
 		}
 		private static bool IsDisplayGlobalSearchIntent(string[] args)
 		{
-			if (args.Length < 3)
+			if (args.Length < 2)
 				return false;
 
-			if (IsExactArgument(args[1], "Global"))
+			if (IsExactArgument(args[1], "Global") ||
+				IsExactArgument(args[1], "GlobalSearch"))
 				return true;
 
-			if (args.Length >= 4 && IsExactArgument(args[2], "Global"))
+			if (args.Length >= 3 &&
+				(IsExactArgument(args[2], "Global") ||
+				 IsExactArgument(args[2], "GlobalSearch")))
 				return true;
 
 			return false;
@@ -341,8 +344,15 @@ namespace WinFormsApp
 						System.Diagnostics.Debug.WriteLine($"IPC Argument {i}: '{arguments[i]}'");
 					}
 
+					// Route Global Search launches to its independent window.
+					if (IsDisplayGlobalSearchIntent(arguments))
+					{
+						AppendIpcLog("Index.IPC.Route: Global Search window");
+						await InvokeAsync(() => OpenGlobalWindowCallback.InvokeAsync());
+					}
+
 					// Route Launcher category launches to the independent Launcher window.
-					if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
+					else if (arguments.Length >= 2 && IsExactArgument(arguments[1], "Launcher"))
 					{
 						AppendIpcLog("Index.IPC.Route: Launcher window");
 						await InvokeAsync(() => OpenLauncherWindowCallback.InvokeAsync(string.Join("|", arguments.Skip(1))));
@@ -572,11 +582,9 @@ namespace WinFormsApp
 			}
 			else if (IsDisplayGlobalSearchIntent(arguments))
 			{
-				ToggleShowVariablesToFalse();
-				showGlobalSearch = true;
-				categoryId = 0;
-				languageId = 0;
-				SetTitle("Global Search");
+				AppendIpcLog("Index.Startup.Route: Global Search window");
+				await OpenGlobalWindowCallback.InvokeAsync();
+				return;
 			}
 
 			// Persist a startup-parsed args trace so external tests can detect cold-start args processing
@@ -719,6 +727,7 @@ namespace WinFormsApp
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenDisplayWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenTalonWindowCallback { get; set; }
 		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback<string> OpenLauncherWindowCallback { get; set; }
+		[Parameter][DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] public EventCallback OpenGlobalWindowCallback { get; set; }
 
 		public void Dispose()
 		{
@@ -745,8 +754,13 @@ namespace WinFormsApp
 		}
 		private void ShowGlobalSearch()
 		{
+			if (RunningInWinForms)
+			{
+				_ = OpenGlobalWindowCallback.InvokeAsync();
+				return;
+			}
+
 			ToggleShowVariablesToFalse();
-			// Turning on Global Search
 			showGlobalSearch = true;
 			SetTitle("Global Search");
 			StateHasChanged();
