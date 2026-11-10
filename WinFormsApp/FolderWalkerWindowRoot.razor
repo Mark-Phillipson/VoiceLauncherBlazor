@@ -46,12 +46,21 @@
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4">
                     <label class="form-label fw-semibold" for="drive-select">Drive</label>
-                    <select id="drive-select" class="form-select" value="@_selectedRoot" @onchange="OnDriveChanged">
-                        @foreach (var drive in _drives)
-                        {
-                            <option value="@drive.RootPath" disabled="@(!drive.IsReady)">@drive.DisplayName</option>
-                        }
-                    </select>
+                    <div class="input-group">
+                        <select id="drive-select" class="form-select" value="@_selectedRoot" @onchange="OnDriveChanged">
+                            @foreach (var drive in _drives)
+                            {
+                                <option value="@drive.RootPath" disabled="@(!drive.IsReady)">@drive.DisplayName</option>
+                            }
+                        </select>
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                title="Refresh available drives"
+                                aria-label="Refresh available drives"
+                                @onclick="RefreshDrives">
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-semibold" for="folder-search">Folder name contains</label>
@@ -264,8 +273,13 @@
             await _searchInput.FocusAsync();
     }
 
-    protected override void OnInitialized()
+    protected override void OnInitialized() => RefreshDrives();
+
+    private void RefreshDrives()
     {
+        var previousRoot = _selectedRoot;
+        var discoveredDrives = new List<DriveOption>();
+
         try
         {
             foreach (var drive in DriveInfo.GetDrives())
@@ -278,17 +292,17 @@
                         : string.IsNullOrWhiteSpace(drive.VolumeLabel)
                             ? drive.Name
                             : $"{drive.Name} ({drive.VolumeLabel})";
-                    _drives.Add(new DriveOption(drive.Name, label, isReady));
+                    discoveredDrives.Add(new DriveOption(drive.Name, label, isReady));
                 }
                 catch (IOException)
                 {
                     // Keep a drive visible if it disappears while the list is being populated.
-                    _drives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
+                    discoveredDrives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
                 }
                 catch (UnauthorizedAccessException)
                 {
                     // Keep other drives available when one drive cannot be inspected.
-                    _drives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
+                    discoveredDrives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
                 }
             }
         }
@@ -297,10 +311,24 @@
             _errorMessage = "The available drives could not be read.";
         }
 
+        _drives.Clear();
+        _drives.AddRange(discoveredDrives);
         _drives.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.RootPath, right.RootPath));
-        _selectedRoot = _drives.FirstOrDefault(drive => drive.IsReady)?.RootPath;
-        if (_selectedRoot is not null)
-            _ = EnsureDriveIndexAsync(_selectedRoot);
+
+        _selectedRoot = _drives.FirstOrDefault(drive =>
+            drive.IsReady && string.Equals(drive.RootPath, previousRoot, StringComparison.OrdinalIgnoreCase))?.RootPath
+            ?? _drives.FirstOrDefault(drive => drive.IsReady)?.RootPath;
+
+        if (!string.Equals(previousRoot, _selectedRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            _searchResults = null;
+            _selectedFolder = null;
+            _selectionConfirmed = false;
+            _currentPage = 0;
+
+            if (_selectedRoot is not null)
+                _ = EnsureDriveIndexAsync(_selectedRoot);
+        }
     }
 
     private Task OnSearchTextChanged(ChangeEventArgs args)
