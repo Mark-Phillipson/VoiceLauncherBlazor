@@ -110,7 +110,7 @@ namespace RazorClassLibrary.Pages
 			{
 				LauncherDTO = new List<LauncherDTO>();
 				FilteredLauncherDTO = new List<LauncherDTO>();
-				Title = "No launchers to display (no filter applied)";
+				Title = "Apply a Filter to View";
 				await SafeStateHasChangedAsync();
 				return;
 			}

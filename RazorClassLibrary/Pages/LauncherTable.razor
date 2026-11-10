@@ -1,16 +1,19 @@
 ﻿@page "/launcherstable/{CategoryID:int}"
 <PageTitle>Launchers</PageTitle>
-
+@if (!RunningInBlazorHybrid)
+{
+    <h1>Launchers</h1>
+}
 <div class="row align-items-center">
     @if (!RunningInBlazorHybrid && string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-auto d-flex align-items-center gap-1">
             <h6 class="mb-0">@Title</h6>
             <div class="d-flex gap-2">
-                <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
+                <button aria-label="Sort by Name" class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name"))">
                     <i class="bi bi-sort-alpha-up"></i>
                 </button>
-                <button class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
+                <button aria-label="Sort by Name Descending" class="btn btn-md btn-outline-warning" @onclick="@(() => SortLauncher("Name Desc"))">
                     <i class="bi bi-sort-alpha-down"></i>
                 </button>
             </div>
@@ -43,7 +46,11 @@
     <div class="col-auto me-1 d-flex align-items-center">
         @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
         {
-            <label for="CategoryId" class="form-label me-2 mb-0">
+            <label for="CategoryId" class="form-label me-2 mb-0 text-nowrap d-inline-flex align-items-center">
+                @if (!RunningInBlazorHybrid)
+                {
+                    <text>Category&nbsp;</text>
+                }
                 <kbd>1</kbd>
             </label>
 
@@ -53,7 +60,7 @@
                         Value="@CategoryId"
                         ValueChanged="@((int value) => OnCategorySelectedAsync(value))"
                         class="form-select">
-                <option value="">Choose Category</option>
+                <option selected="selected" value="">Choose Category</option>
                 @foreach (var item in _categories)
                 {
                     <option style="font-size:xx-large" value="@item.Id">
@@ -68,6 +75,10 @@
         <div class="col-auto me-1">
             <div class="input-group">
                 <label @ref="searchInputLabel" for="SearchInput" class="form-label me-2 mt-2">
+                    @if (!RunningInBlazorHybrid)
+                    {
+                        <text>Search </text>
+                    }
                     <kbd>2</kbd>
                 </label>
                 <DebounceInput
