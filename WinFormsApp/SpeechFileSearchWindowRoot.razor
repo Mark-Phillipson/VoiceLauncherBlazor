@@ -111,7 +111,7 @@
                         var match = _results.Files[index];
                         <div class="col-auto">
                             <button type="button" class="btn btn-outline-primary" @onclick="() => OpenFile(match)">
-                                Select @(index + 1)
+                                Select @OrdinalLabels[index]
                             </button>
                         </div>
                     }
@@ -135,6 +135,8 @@
 
 @code {
     [Parameter] public Func<Task<string?>>? RequestFolderAsync { get; set; }
+
+    private static readonly string[] OrdinalLabels = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
 
     private string _searchRoot = string.Empty;
     private string _searchText = string.Empty;
