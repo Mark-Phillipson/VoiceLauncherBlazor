@@ -31,7 +31,7 @@
                 <div class="col-12 col-md-2 d-grid">
                     @if (_isSearching)
                     {
-                        <button class="btn btn-outline-secondary" @onclick="CancelSearch">Cancel</button>
+                        <button class="btn btn-outline-secondary" @onclick="() => CancelSearch()">Cancel</button>
                     }
                     else
                     {
