@@ -67,7 +67,7 @@ namespace WinFormsApp
                         DrawLine(6, 12, 18, 12);
                         break;
                     case "talon":
-                        graphics.DrawRoundedRectangle(pen, 9, 2, 10, 15, 5);
+                        graphics.DrawEllipse(pen, 10, 2, 8, 15);
                         graphics.DrawArc(pen, 5, 6, 18, 16, 0, 180);
                         DrawLine(14, 22, 14, 25);
                         DrawLine(10, 25, 18, 25);
@@ -84,7 +84,7 @@ namespace WinFormsApp
                         break;
                     case "clipboard":
                         graphics.DrawRectangle(pen, 5, 5, 18, 20);
-                        graphics.DrawRoundedRectangle(pen, 10, 2, 8, 6, 2);
+                        graphics.DrawRectangle(pen, 10, 2, 8, 6);
                         DrawLine(9, 11, 19, 11);
                         DrawLine(9, 15, 19, 15);
                         DrawLine(9, 19, 16, 19);
@@ -167,37 +167,14 @@ namespace WinFormsApp
             launchToolbar.WrapContents = true;
             launchToolbar.Controls.AddRange(new Control[]
             {
-                CreateToolButton("&Folder Walker", "Search and select folders on a drive", "\uE8B7", "F", ShowFolderWalkerWindow),
-                CreateToolButton("&Speech File Search", "Search files by voice or text", "\uE721", "S", ShowSpeechFileSearchWindow),
-                CreateToolButton("&Global Search", "Open Global Search", "\uE721", "G", ShowGlobalWindow),
-                CreateToolButton("&Display Search", "Open Display Value Search", "\uE721", "D", () => ShowDisplayWindow()),
-                CreateToolButton("&Talon Search", "Search Talon voice commands", "\uE721", "T", () => ShowTalonWindow()),
-                CreateToolButton("S&nippets", "Open Snippets", "\uE943", "N", () => ShowSnippetsWindow()),
-                CreateToolButton("&Launcher", "Open the application launcher", "\uE80A", "L", () => ShowLauncherWindow()),
-                CreateToolButton("&Clipboard", "Open Clipboard History", "\uE8C8", "C", ShowClipboardWindow),
-                CreateToolButton("C&alculator", "Open Calculator", "\uE8EF", "A", ShowCalculatorWindow),
-                CreateToolButton("AI C&hat", "Open AI Chat", "\uE8BD", "H", ShowAIChatWindow)
+                CreateToolButton("&Folder Walker", "Search and select folders on a drive", "folder", "F", ShowFolderWalkerWindow),
+                CreateToolButton("&Speech File Search", "Search files by voice or text", "speech-search", "S", ShowSpeechFileSearchWindow),
+                CreateToolButton("&Global Search", "Open Global Search", "global-search", "G", ShowGlobalWindow),
+                CreateToolButton("&Display Search", "Open Display Value Search", "display", "D", () => ShowDisplayWindow()),
+                CreateToolButton("&Talon Search", "Search Talon voice commands", "talon", "T", () => ShowTalonWindow()),
+                CreateToolButton("S&nippets", "Open Snippets", "snippets", "N", () => ShowSnippetsWindow()),
+                CreateToolButton("&Launcher", "Open the application launcher", "launcher", "L", () => ShowLauncherWindow()),
+                CreateToolButton("&Clipboard", "Open Clipboard History", "clipboard", "C", ShowClipboardWindow),
+                CreateToolButton("C&alculator", "Open Calculator", "calculator", "A", ShowCalculatorWindow),
+                CreateToolButton("AI C&hat", "Open AI Chat", "ai-chat", "H", ShowAIChatWindow)
             });
-
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(33, 37, 41);
-            ClientSize = new Size(1200, 58);
-            Controls.Add(launchToolbar);
-            FormBorderStyle = FormBorderStyle.Sizable;
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            MaximizeBox = false;
-            MinimizeBox = true;
-            Name = "MainForm";
-            Text = "Voice Admin";
-            launchToolbar.ResumeLayout(false);
-            ResumeLayout(false);
-            PerformLayout();
-        }
-
-        #endregion
-
-        private Microsoft.AspNetCore.Components.WebView.WindowsForms.BlazorWebView blazorWebView1;
-        private FlowLayoutPanel launchToolbar;
-    }
-}
