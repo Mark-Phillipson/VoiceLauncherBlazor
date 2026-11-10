@@ -251,8 +251,10 @@
             return;
 
         _searchCancellation?.Cancel();
-        _searchCancellation?.Dispose();
-        _searchCancellation = new CancellationTokenSource();
+        var cancellation = new CancellationTokenSource();
+        _searchCancellation = cancellation;
+        var rootPath = _selectedRoot!;
+        var searchText = _searchText;
         _isSearching = true;
         _errorMessage = null;
         _selectedFolder = null;
@@ -263,16 +265,16 @@
         try
         {
             if (debounce)
-                await Task.Delay(300, _searchCancellation.Token);
+                await Task.Delay(300, cancellation.Token);
 
             _searchResults = await FolderWalker.SearchAsync(
-                _selectedRoot!,
-                _searchText,
-                _searchCancellation.Token);
+                rootPath,
+                searchText,
+                cancellation.Token);
         }
         catch (OperationCanceledException)
         {
-            _errorMessage = "The folder search was cancelled.";
+            // A new query or a user cancellation stopped this search.
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
         {
@@ -280,13 +282,21 @@
         }
         finally
         {
-            _isSearching = false;
-            _searchCancellation?.Dispose();
-            _searchCancellation = null;
+            if (ReferenceEquals(_searchCancellation, cancellation))
+            {
+                _isSearching = false;
+                _searchCancellation = null;
+            }
+
+            cancellation.Dispose();
         }
     }
 
-    private void CancelSearch() => _searchCancellation?.Cancel();
+    private void CancelSearch()
+    {
+        _errorMessage = "Search cancelled.";
+        _searchCancellation?.Cancel();
+    }
 
     private void ChangePage(int pageDelta)
     {
