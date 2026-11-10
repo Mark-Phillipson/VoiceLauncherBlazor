@@ -49,13 +49,14 @@
                     <select id="drive-select" class="form-select" value="@_selectedRoot" @onchange="OnDriveChanged">
                         @foreach (var drive in _drives)
                         {
-                            <option value="@drive.RootPath">@drive.DisplayName</option>
+                            <option value="@drive.RootPath" disabled="@(!drive.IsReady)">@drive.DisplayName</option>
                         }
                     </select>
                 </div>
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-semibold" for="folder-search">Folder name contains</label>
                     <input id="folder-search"
+                           @ref="_searchInput"
                            class="form-control"
                            placeholder="For example, Documents"
                            value="@_searchText"
@@ -98,7 +99,7 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
                 </div>
             }
-            @if (_drives.Count == 0)
+            @if (!_drives.Any(drive => drive.IsReady))
             {
                 <div class="alert alert-warning mt-3 mb-0">No ready drives were found.</div>
             }
@@ -201,6 +202,12 @@
                                     <span class="flex-shrink-0 folder-result-shortcut-placeholder" aria-hidden="true"></span>
                                 }
                                 <button type="button"
+                                        class="btn btn-outline-secondary flex-shrink-0 folder-result-copy"
+                                        aria-label="@($"Copy folder path: {folder}")"
+                                        @onclick="() => CopyFolderPath(folder)">
+                                    @(string.Equals(_copiedFolderPath, folder, StringComparison.OrdinalIgnoreCase) ? "Copied" : "Copy")
+                                </button>
+                                <button type="button"
                                         class="list-group-item list-group-item-action text-start py-3 flex-grow-1 folder-result-item @(string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)"
                                         aria-pressed="@string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase)"
                                         aria-label="@($"Select folder {folderName}")"
@@ -221,11 +228,13 @@
     [Parameter] public EventCallback<string> FolderSelected { get; set; }
 
     private readonly CancellationTokenSource _lifetimeCancellation = new();
+    private ElementReference _searchInput;
     private const int PageSize = 100;
     private readonly List<DriveOption> _drives = [];
     private string? _selectedRoot;
     private string _searchText = string.Empty;
     private string? _selectedFolder;
+    private string? _copiedFolderPath;
     private FolderSearchResult? _searchResults;
     private CancellationTokenSource? _searchCancellation;
     private string? _errorMessage;
@@ -249,6 +258,12 @@
         !string.IsNullOrWhiteSpace(_selectedRoot) &&
         !string.IsNullOrWhiteSpace(_searchText);
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await _searchInput.FocusAsync();
+    }
+
     protected override void OnInitialized()
     {
         try
@@ -257,21 +272,23 @@
             {
                 try
                 {
-                    if (!drive.IsReady)
-                        continue;
-
-                    var label = string.IsNullOrWhiteSpace(drive.VolumeLabel)
-                        ? drive.Name
-                        : $"{drive.Name} ({drive.VolumeLabel})";
-                    _drives.Add(new DriveOption(drive.Name, label));
+                    var isReady = drive.IsReady;
+                    var label = !isReady
+                        ? $"{drive.Name} (not ready)"
+                        : string.IsNullOrWhiteSpace(drive.VolumeLabel)
+                            ? drive.Name
+                            : $"{drive.Name} ({drive.VolumeLabel})";
+                    _drives.Add(new DriveOption(drive.Name, label, isReady));
                 }
                 catch (IOException)
                 {
-                    // A removable drive can disappear while the list is being populated.
+                    // Keep a drive visible if it disappears while the list is being populated.
+                    _drives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
                 }
                 catch (UnauthorizedAccessException)
                 {
                     // Keep other drives available when one drive cannot be inspected.
+                    _drives.Add(new DriveOption(drive.Name, $"{drive.Name} (not ready)", false));
                 }
             }
         }
@@ -281,7 +298,7 @@
         }
 
         _drives.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.RootPath, right.RootPath));
-        _selectedRoot = _drives.FirstOrDefault()?.RootPath;
+        _selectedRoot = _drives.FirstOrDefault(drive => drive.IsReady)?.RootPath;
         if (_selectedRoot is not null)
             _ = EnsureDriveIndexAsync(_selectedRoot);
     }
@@ -467,5 +484,19 @@
         _lifetimeCancellation.Dispose();
     }
 
-    private sealed record DriveOption(string RootPath, string DisplayName);
+    private void CopyFolderPath(string folderPath)
+    {
+        try
+        {
+            System.Windows.Forms.Clipboard.SetText(folderPath);
+            _copiedFolderPath = folderPath;
+            _errorMessage = null;
+        }
+        catch (Exception exception) when (exception is System.Runtime.InteropServices.ExternalException or System.Threading.ThreadStateException or InvalidOperationException)
+        {
+            _errorMessage = $"The folder path could not be copied: {exception.Message}";
+        }
+    }
+
+    private sealed record DriveOption(string RootPath, string DisplayName, bool IsReady);
 }
