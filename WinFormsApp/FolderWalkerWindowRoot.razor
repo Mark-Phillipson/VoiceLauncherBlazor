@@ -94,6 +94,22 @@
                 </div>
             </div>
             <div class="card-body px-4 pt-2">
+                @if (_searchResults.Folders.Count > 0)
+                {
+                    <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Quick folder selection">
+                        @for (var i = 0; i < Math.Min(_searchResults.Folders.Count, 9); i++)
+                        {
+                            var index = i;
+                            var folder = _searchResults.Folders[index];
+                            <button type="button"
+                                    class="btn btn-outline-primary"
+                                    @onclick="() => SelectAndUseFolderAsync(folder)">
+                                Select @OrdinalLabels[index]
+                            </button>
+                        }
+                    </div>
+                }
+
                 @if (_searchResults.Folders.Count == 0)
                 {
                     <p class="text-secondary py-3 mb-0">No folders matched “@_searchText”.</p>
@@ -122,6 +138,7 @@
 @code {
     [Parameter] public EventCallback<string> FolderSelected { get; set; }
 
+    private static readonly string[] OrdinalLabels = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
     private readonly List<DriveOption> _drives = [];
     private string? _selectedRoot;
     private string _searchText = string.Empty;
@@ -220,6 +237,12 @@
     {
         _selectedFolder = folderPath;
         _selectionConfirmed = false;
+    }
+
+    private async Task SelectAndUseFolderAsync(string folderPath)
+    {
+        SelectFolder(folderPath);
+        await UseSelectedFolderAsync();
     }
 
     private async Task UseSelectedFolderAsync()
