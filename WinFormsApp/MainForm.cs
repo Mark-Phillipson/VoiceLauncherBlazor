@@ -84,6 +84,7 @@ namespace WinFormsApp
         private string? _displaySearchTerm;
         private TalonWindowForm? _talonWindow;
         private FolderWalkerWindowForm? _folderWalkerWindow;
+        private SpeechFileSearchWindowForm? _speechFileSearchWindow;
         private string? _talonSearchTerm;
         private LauncherWindowForm? _launcherWindow;
         private GlobalWindowForm? _globalWindow;
@@ -223,7 +224,12 @@ namespace WinFormsApp
             // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
             int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-            int menuWidth = Math.Max(exitWidth, ComputeMenuItemWidth("Folder Walker", contextMenu.Font, imgColumnWidth, defaultPadding));
+            int menuWidth = new[]
+            {
+                "Folder Walker",
+                "Speech File Search",
+                "Exit"
+            }.Max(text => ComputeMenuItemWidth(text, contextMenu.Font, imgColumnWidth, defaultPadding));
 
             // Item height: icon height + vertical padding (ensure a sensible minimum)
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
@@ -248,8 +254,18 @@ namespace WinFormsApp
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
-            // Keep the tray menu focused on the available tool and exit action.
+            var speechFileSearchItem = new ToolStripMenuItem("Speech File Search", null, (s, e) => ShowSpeechFileSearchWindow())
+            {
+                Padding = defaultPadding,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                AutoSize = false,
+                Size = new Size(menuWidth, menuItemHeight),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Keep the tray menu focused on the available tools and exit action.
             contextMenu.Items.Add(folderWalkerItem);
+            contextMenu.Items.Add(speechFileSearchItem);
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
@@ -524,6 +540,38 @@ namespace WinFormsApp
             window.BringToFront();
             window.Activate();
             AppendLog("Folder Walker window opened");
+        }
+
+        public void ShowSpeechFileSearchWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_speechFileSearchWindow != null && !_speechFileSearchWindow.IsDisposed)
+            {
+                if (_speechFileSearchWindow.WindowState == FormWindowState.Minimized)
+                    _speechFileSearchWindow.WindowState = FormWindowState.Normal;
+
+                if (!_speechFileSearchWindow.Visible)
+                    _speechFileSearchWindow.Show();
+
+                _speechFileSearchWindow.BringToFront();
+                _speechFileSearchWindow.Activate();
+                return;
+            }
+
+            var window = new SpeechFileSearchWindowForm();
+            _speechFileSearchWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_speechFileSearchWindow, window))
+                    _speechFileSearchWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Speech File Search window opened");
         }
 
         public void ShowClipboardWindow()
