@@ -288,12 +288,13 @@ namespace WinFormsApp
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
             var launchTalon = IsTalonLaunchRequest(startupArguments);
+            var launchSpeechFileSearch = IsSpeechFileSearchLaunchRequest(startupArguments);
             var launchLauncher = IsLauncherLaunchRequest(startupArguments);
             // The previous default view was Global Search, so preserve that startup behaviour
             // while hosting it in its own top-level window.
             var launchGlobal = string.IsNullOrWhiteSpace(startupArguments) || IsGlobalSearchLaunchRequest(startupArguments);
             var launchDisplay = !launchTalon && !launchLauncher && !launchGlobal && IsDisplaySearchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher && !launchGlobal)
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchSpeechFileSearch && !launchLauncher && !launchGlobal)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -313,6 +314,8 @@ namespace WinFormsApp
                     ShowAIChatWindow();
                 else if (launchTalon)
                     ShowTalonWindow(startupArguments);
+                else if (launchSpeechFileSearch)
+                    ShowSpeechFileSearchWindow();
                 else if (launchLauncher)
                     ShowLauncherWindow(startupArguments);
                 else if (launchGlobal)
@@ -400,6 +403,20 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsSpeechFileSearchLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("SpeechFileSearch", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("SpeechFileManager", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("FileSearch", StringComparison.OrdinalIgnoreCase));
         }
 
         private static string GetTalonSearchTerm(string? launchArguments)
@@ -1409,6 +1426,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsSpeechFileSearchLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowSpeechFileSearchWindow();
+                    return;
+                }
+
                 if (IsGlobalSearchLaunchRequest(_lastLaunchArgs))
                 {
                     ShowGlobalWindow();
@@ -1514,6 +1537,13 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
                                         ShowTalonWindow(message);
+                                        return;
+                                    }
+
+                                    if (IsSpeechFileSearchLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Speech File Search window without activating MainForm");
+                                        ShowSpeechFileSearchWindow();
                                         return;
                                     }
 
