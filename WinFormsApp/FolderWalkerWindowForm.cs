@@ -28,7 +28,7 @@ internal sealed class FolderWalkerWindowForm : Form
         ShowInTaskbar = true;
 
         var services = new ServiceCollection();
-        services.AddSingleton<FolderWalkerService>();
+        services.AddSingleton(FolderWalkerService.Shared);
         services.AddWindowsFormsBlazorWebView();
 #if DEBUG
         services.AddBlazorWebViewDeveloperTools();
