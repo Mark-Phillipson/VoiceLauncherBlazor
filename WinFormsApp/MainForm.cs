@@ -83,6 +83,7 @@ namespace WinFormsApp
         private DisplayWindowForm? _displayWindow;
         private string? _displaySearchTerm;
         private TalonWindowForm? _talonWindow;
+        private FolderWalkerWindowForm? _folderWalkerWindow;
         private string? _talonSearchTerm;
         private LauncherWindowForm? _launcherWindow;
         private GlobalWindowForm? _globalWindow;
@@ -222,7 +223,7 @@ namespace WinFormsApp
             // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
             int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-            int menuWidth = exitWidth;
+            int menuWidth = Math.Max(exitWidth, ComputeMenuItemWidth("Folder Walker", contextMenu.Font, imgColumnWidth, defaultPadding));
 
             // Item height: icon height + vertical padding (ensure a sensible minimum)
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
@@ -238,7 +239,17 @@ namespace WinFormsApp
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
 
-            // Only add the Exit item; the "Open" item was removed as it is redundant
+            var folderWalkerItem = new ToolStripMenuItem("Folder Walker", null, (s, e) => ShowFolderWalkerWindow())
+            {
+                Padding = defaultPadding,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                AutoSize = false,
+                Size = new Size(menuWidth, menuItemHeight),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Keep the tray menu focused on the available tool and exit action.
+            contextMenu.Items.Add(folderWalkerItem);
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
@@ -478,6 +489,41 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Opens the independent Folder Walker window, reusing it while it remains open.
+        /// </summary>
+        public void ShowFolderWalkerWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_folderWalkerWindow != null && !_folderWalkerWindow.IsDisposed)
+            {
+                if (_folderWalkerWindow.WindowState == FormWindowState.Minimized)
+                    _folderWalkerWindow.WindowState = FormWindowState.Normal;
+
+                if (!_folderWalkerWindow.Visible)
+                    _folderWalkerWindow.Show();
+
+                _folderWalkerWindow.BringToFront();
+                _folderWalkerWindow.Activate();
+                return;
+            }
+
+            var window = new FolderWalkerWindowForm();
+            _folderWalkerWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_folderWalkerWindow, window))
+                    _folderWalkerWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Folder Walker window opened");
         }
 
         public void ShowClipboardWindow()
