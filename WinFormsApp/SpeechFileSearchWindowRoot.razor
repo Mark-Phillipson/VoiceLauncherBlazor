@@ -2,13 +2,40 @@
 @using System.Diagnostics
 @inject SpeechFileSearchService SearchService
 
+<style>
+    .speech-search-result-list {
+        --speech-shortcut-width: 112px;
+    }
+
+    .speech-result-shortcut,
+    .speech-result-shortcut-placeholder {
+        width: var(--speech-shortcut-width);
+    }
+
+    .speech-file-result {
+        background-color: #212529;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+
+    .speech-file-result:hover,
+    .speech-file-result:focus-visible {
+        background-color: #343a40;
+        color: #fff;
+    }
+
+    .speech-file-path {
+        color: #adb5bd !important;
+    }
+</style>
+
 <div class="container-fluid p-4">
     <header class="mb-4">
         <h1 class="h3 mb-1">Speech File Search</h1>
         <p class="text-secondary mb-0">Speak or type part of a file name, then choose a result.</p>
     </header>
 
-    <section class="card border-0 shadow-sm mb-4">
+    <section class="card border-secondary shadow-sm mb-4 bg-dark text-light">
         <div class="card-body p-4">
             <label class="form-label fw-semibold" for="search-folder">Search folder</label>
             <div class="input-group mb-3">
@@ -68,8 +95,8 @@
         <div class="alert alert-danger" role="alert">@_errorMessage</div>
     }
 
-    <section class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 px-4 pt-4">
+    <section class="card border-secondary shadow-sm bg-dark text-light speech-search-results-card">
+        <div class="card-header border-secondary px-4 pt-4 bg-dark text-light">
             <div class="d-flex justify-content-between align-items-start gap-3">
                 <div>
                     <h2 class="h5 mb-1">Results</h2>
@@ -111,28 +138,37 @@
             }
             else if (_results is not null)
             {
-                <div class="row g-2 mb-3">
-                    @for (var i = 0; i < Math.Min(_results.Files.Count, 9); i++)
+                <div class="d-grid gap-2 speech-search-result-list">
+                    @for (var i = 0; i < _results.Files.Count; i++)
                     {
                         var index = i;
                         var match = _results.Files[index];
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-outline-primary" @onclick="() => OpenFile(match)">
-                                Select @OrdinalLabels[index]
+                        var fileName = System.IO.Path.GetFileName(match.FullPath);
+                        <div @key="match.FullPath" class="d-flex align-items-stretch gap-2">
+                            @if (index < 9)
+                            {
+                                var shortcutNumber = index + 1;
+                                <button type="button"
+                                        class="btn btn-outline-primary flex-shrink-0 speech-result-shortcut"
+                                        accesskey="@shortcutNumber"
+                                        aria-keyshortcuts="@shortcutNumber"
+                                        aria-label="@($"Select result {shortcutNumber}: {fileName}")"
+                                        @onclick="() => OpenFile(match)">
+                                    Select @shortcutNumber
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="flex-shrink-0 speech-result-shortcut-placeholder" aria-hidden="true"></span>
+                            }
+                            <button type="button"
+                                    class="list-group-item list-group-item-action text-start py-3 flex-grow-1 speech-file-result"
+                                    aria-label="@($"Open {fileName}")"
+                                    @onclick="() => OpenFile(match)">
+                                <span class="d-block fw-semibold text-break">@fileName</span>
+                                <span class="d-block small speech-file-path text-break">@match.FullPath</span>
                             </button>
                         </div>
-                    }
-                </div>
-                <div class="list-group list-group-flush">
-                    @foreach (var match in _results.Files)
-                    {
-                        <button @key="match.FullPath"
-                                type="button"
-                                class="list-group-item list-group-item-action text-start py-3"
-                                @onclick="() => OpenFile(match)">
-                            <span class="d-block fw-semibold text-break">@System.IO.Path.GetFileName(match.FullPath)</span>
-                            <span class="d-block small text-secondary text-break">@match.FullPath</span>
-                        </button>
                     }
                 </div>
             }
@@ -143,7 +179,6 @@
 @code {
     [Parameter] public Func<Task<string?>>? RequestFolderAsync { get; set; }
 
-    private static readonly string[] OrdinalLabels = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
 
     private string _searchRoot = string.Empty;
     private string _searchText = string.Empty;
