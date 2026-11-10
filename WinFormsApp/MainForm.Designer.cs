@@ -178,3 +178,26 @@ namespace WinFormsApp
                 CreateToolButton("C&alculator", "Open Calculator", "calculator", "A", ShowCalculatorWindow),
                 CreateToolButton("AI C&hat", "Open AI Chat", "ai-chat", "H", ShowAIChatWindow)
             });
+            
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(33, 37, 41);
+            ClientSize = new Size(1200, 58);
+            Controls.Add(launchToolbar);
+            FormBorderStyle = FormBorderStyle.Sizable;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MinimizeBox = true;
+            Name = "MainForm";
+            Text = "Voice Admin";
+            launchToolbar.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+
+        private Microsoft.AspNetCore.Components.WebView.WindowsForms.BlazorWebView blazorWebView1;
+        private FlowLayoutPanel launchToolbar;
+    }
+}
