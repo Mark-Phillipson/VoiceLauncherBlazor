@@ -83,6 +83,8 @@ namespace WinFormsApp
         private DisplayWindowForm? _displayWindow;
         private string? _displaySearchTerm;
         private TalonWindowForm? _talonWindow;
+        private FolderWalkerWindowForm? _folderWalkerWindow;
+        private SpeechFileSearchWindowForm? _speechFileSearchWindow;
         private string? _talonSearchTerm;
         private LauncherWindowForm? _launcherWindow;
         private GlobalWindowForm? _globalWindow;
@@ -218,15 +220,43 @@ namespace WinFormsApp
                 return Math.Max(240, textSize.Width + imgWidth + pad.Left + pad.Right + 48);
             }
 
-            // Reduce vertical padding so icons sit closer to the text vertically, and
-            // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
-            int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-            int menuWidth = exitWidth;
-
-            // Item height: icon height + vertical padding (ensure a sensible minimum)
+            int menuWidth = ComputeMenuItemWidth("Speech File Search", contextMenu.Font, imgColumnWidth, defaultPadding);
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
 
+            void AddWindowMenuItem(string text, Action openWindow)
+            {
+                var sourceButton = launchToolbar.Controls
+                    .OfType<Button>()
+                    .First(button => string.Equals(button.AccessibleName, text, StringComparison.Ordinal));
+                var itemIcon = sourceButton.Image is null
+                    ? null
+                    : new Bitmap(sourceButton.Image);
+                var item = new ToolStripMenuItem(text, itemIcon, (_, _) => openWindow())
+                {
+                    Padding = defaultPadding,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    AutoSize = false,
+                    Size = new Size(menuWidth, menuItemHeight),
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
+                item.ImageScaling = ToolStripItemImageScaling.None;
+                item.ImageAlign = ContentAlignment.MiddleCenter;
+                contextMenu.Items.Add(item);
+            }
+
+            AddWindowMenuItem("Folder Walker", ShowFolderWalkerWindow);
+            AddWindowMenuItem("Speech File Search", ShowSpeechFileSearchWindow);
+            AddWindowMenuItem("Global Search", ShowGlobalWindow);
+            AddWindowMenuItem("Display Search", () => ShowDisplayWindow());
+            AddWindowMenuItem("Talon Search", () => ShowTalonWindow());
+            AddWindowMenuItem("Snippets", () => ShowSnippetsWindow());
+            AddWindowMenuItem("Launcher", () => ShowLauncherWindow());
+            AddWindowMenuItem("Clipboard", ShowClipboardWindow);
+            AddWindowMenuItem("Calculator", ShowCalculatorWindow);
+            AddWindowMenuItem("AI Chat", ShowAIChatWindow);
+
+            contextMenu.Items.Add(new ToolStripSeparator());
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
                 Padding = defaultPadding,
@@ -237,8 +267,6 @@ namespace WinFormsApp
             };
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
-
-            // Only add the Exit item; the "Open" item was removed as it is redundant
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
@@ -261,12 +289,14 @@ namespace WinFormsApp
             var launchAIChat = IsAIChatLaunchRequest(startupArguments);
             var launchSnippets = IsSnippetsLaunchRequest(startupArguments);
             var launchTalon = IsTalonLaunchRequest(startupArguments);
+            var launchSpeechFileSearch = IsSpeechFileSearchLaunchRequest(startupArguments);
+            var launchFolderWalker = IsFolderWalkerLaunchRequest(startupArguments);
             var launchLauncher = IsLauncherLaunchRequest(startupArguments);
             // The previous default view was Global Search, so preserve that startup behaviour
             // while hosting it in its own top-level window.
             var launchGlobal = string.IsNullOrWhiteSpace(startupArguments) || IsGlobalSearchLaunchRequest(startupArguments);
             var launchDisplay = !launchTalon && !launchLauncher && !launchGlobal && IsDisplaySearchRequest(startupArguments);
-            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchLauncher && !launchGlobal)
+            if (!launchClipboard && !launchCalculator && !launchAIChat && !launchSnippets && !launchDisplay && !launchTalon && !launchSpeechFileSearch && !launchFolderWalker && !launchLauncher && !launchGlobal)
                 return;
 
             _startupClipboardLaunchHandled = true;
@@ -286,6 +316,10 @@ namespace WinFormsApp
                     ShowAIChatWindow();
                 else if (launchTalon)
                     ShowTalonWindow(startupArguments);
+                else if (launchSpeechFileSearch)
+                    ShowSpeechFileSearchWindow();
+                else if (launchFolderWalker)
+                    ShowFolderWalkerWindow();
                 else if (launchLauncher)
                     ShowLauncherWindow(startupArguments);
                 else if (launchGlobal)
@@ -304,9 +338,13 @@ namespace WinFormsApp
             if (screen != null)
             {
                 var workingArea = screen.WorkingArea;
-                this.Width = workingArea.Width / 2;
-                this.Height = workingArea.Height;
-                this.Location = new Point(workingArea.Right - this.Width, workingArea.Top);
+                var width = Math.Min(1320, workingArea.Width);
+                var toolbarSize = launchToolbar.GetPreferredSize(new Size(width, 0));
+
+                ClientSize = new Size(width, Math.Max(58, toolbarSize.Height));
+                Location = new Point(
+                    workingArea.Left + (workingArea.Width - Width) / 2,
+                    workingArea.Top + (workingArea.Height - Height) / 2);
             }
 
             // Start listening for launch arguments from other instances
@@ -373,6 +411,33 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("Talon", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsFolderWalkerLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("FolderWalker", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("FolderSearch", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsSpeechFileSearchLaunchRequest(string? launchArguments)
+        {
+            if (string.IsNullOrWhiteSpace(launchArguments))
+                return false;
+
+            return launchArguments
+                .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
+                .Any(argument =>
+                    argument.Equals("SpeechFileSearch", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("SpeechFileManager", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("FileSearch", StringComparison.OrdinalIgnoreCase));
         }
 
         private static string GetTalonSearchTerm(string? launchArguments)
@@ -478,6 +543,73 @@ namespace WinFormsApp
                 .Split('|', StringSplitOptions.RemoveEmptyEntries)
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument => argument.Equals("SearchIntelliSense", StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Opens the independent Folder Walker window, reusing it while it remains open.
+        /// </summary>
+        public void ShowFolderWalkerWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_folderWalkerWindow != null && !_folderWalkerWindow.IsDisposed)
+            {
+                if (_folderWalkerWindow.WindowState == FormWindowState.Minimized)
+                    _folderWalkerWindow.WindowState = FormWindowState.Normal;
+
+                if (!_folderWalkerWindow.Visible)
+                    _folderWalkerWindow.Show();
+
+                _folderWalkerWindow.BringToFront();
+                _folderWalkerWindow.Activate();
+                return;
+            }
+
+            var window = new FolderWalkerWindowForm();
+            _folderWalkerWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_folderWalkerWindow, window))
+                    _folderWalkerWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Folder Walker window opened");
+        }
+
+        public void ShowSpeechFileSearchWindow()
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (_speechFileSearchWindow != null && !_speechFileSearchWindow.IsDisposed)
+            {
+                if (_speechFileSearchWindow.WindowState == FormWindowState.Minimized)
+                    _speechFileSearchWindow.WindowState = FormWindowState.Normal;
+
+                if (!_speechFileSearchWindow.Visible)
+                    _speechFileSearchWindow.Show();
+
+                _speechFileSearchWindow.BringToFront();
+                _speechFileSearchWindow.Activate();
+                return;
+            }
+
+            var window = new SpeechFileSearchWindowForm();
+            _speechFileSearchWindow = window;
+            window.FormClosed += (_, _) =>
+            {
+                if (ReferenceEquals(_speechFileSearchWindow, window))
+                    _speechFileSearchWindow = null;
+            };
+
+            window.Show();
+            window.BringToFront();
+            window.Activate();
+            AppendLog("Speech File Search window opened");
         }
 
         public void ShowClipboardWindow()
@@ -1315,6 +1447,18 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsSpeechFileSearchLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowSpeechFileSearchWindow();
+                    return;
+                }
+
+                if (IsFolderWalkerLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowFolderWalkerWindow();
+                    return;
+                }
+
                 if (IsGlobalSearchLaunchRequest(_lastLaunchArgs))
                 {
                     ShowGlobalWindow();
@@ -1420,6 +1564,20 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
                                         ShowTalonWindow(message);
+                                        return;
+                                    }
+
+                                    if (IsSpeechFileSearchLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Speech File Search window without activating MainForm");
+                                        ShowSpeechFileSearchWindow();
+                                        return;
+                                    }
+
+                                    if (IsFolderWalkerLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Folder Walker without activating MainForm");
+                                        ShowFolderWalkerWindow();
                                         return;
                                     }
 
