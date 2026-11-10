@@ -223,43 +223,10 @@ namespace WinFormsApp
             // Reduce vertical padding so icons sit closer to the text vertically, and
             // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
-            var menuEntries = new (string Text, Action OpenWindow)[]
-            {
-                ("Folder Walker", ShowFolderWalkerWindow),
-                ("Speech File Search", ShowSpeechFileSearchWindow),
-                ("Global Search", ShowGlobalWindow),
-                ("Display Value Search", () => ShowDisplayWindow()),
-                ("Talon Voice Search", () => ShowTalonWindow()),
-                ("Snippets", () => ShowSnippetsWindow()),
-                ("Launcher", () => ShowLauncherWindow()),
-                ("Clipboard History", ShowClipboardWindow),
-                ("Calculator", ShowCalculatorWindow),
-                ("AI Chat", ShowAIChatWindow)
-            };
-            int menuWidth = menuEntries
-                .Select(entry => entry.Text)
-                .Append("Exit")
-                .Max(text => ComputeMenuItemWidth(text, contextMenu.Font, imgColumnWidth, defaultPadding));
+            int menuWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
 
             // Item height: icon height + vertical padding (ensure a sensible minimum)
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
-
-            foreach (var entry in menuEntries)
-            {
-                var menuItem = new ToolStripMenuItem(entry.Text, null, (s, e) => entry.OpenWindow())
-                {
-                    Padding = defaultPadding,
-                    TextImageRelation = TextImageRelation.ImageBeforeText,
-                    AutoSize = false,
-                    Size = new Size(menuWidth, menuItemHeight),
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
-
-                contextMenu.Items.Add(menuItem);
-            }
-
-            contextMenu.Items.Add(new ToolStripSeparator());
-
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
                 Padding = defaultPadding,
@@ -270,8 +237,6 @@ namespace WinFormsApp
             };
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
-
-            // Keep the tray menu focused on launching tool windows and exiting.
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
