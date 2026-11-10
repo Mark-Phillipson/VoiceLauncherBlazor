@@ -223,16 +223,42 @@ namespace WinFormsApp
             // Reduce vertical padding so icons sit closer to the text vertically, and
             // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
-            int exitWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-            int menuWidth = new[]
+            var menuEntries = new (string Text, Action OpenWindow)[]
             {
-                "Folder Walker",
-                "Speech File Search",
-                "Exit"
-            }.Max(text => ComputeMenuItemWidth(text, contextMenu.Font, imgColumnWidth, defaultPadding));
+                ("Folder Walker", ShowFolderWalkerWindow),
+                ("Speech File Search", ShowSpeechFileSearchWindow),
+                ("Global Search", ShowGlobalWindow),
+                ("Display Value Search", () => ShowDisplayWindow()),
+                ("Talon Voice Search", () => ShowTalonWindow()),
+                ("Snippets", () => ShowSnippetsWindow()),
+                ("Launcher", () => ShowLauncherWindow()),
+                ("Clipboard History", ShowClipboardWindow),
+                ("Calculator", ShowCalculatorWindow),
+                ("AI Chat", ShowAIChatWindow)
+            };
+            int menuWidth = menuEntries
+                .Select(entry => entry.Text)
+                .Append("Exit")
+                .Max(text => ComputeMenuItemWidth(text, contextMenu.Font, imgColumnWidth, defaultPadding));
 
             // Item height: icon height + vertical padding (ensure a sensible minimum)
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
+
+            foreach (var entry in menuEntries)
+            {
+                var menuItem = new ToolStripMenuItem(entry.Text, null, (s, e) => entry.OpenWindow())
+                {
+                    Padding = defaultPadding,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    AutoSize = false,
+                    Size = new Size(menuWidth, menuItemHeight),
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
+
+                contextMenu.Items.Add(menuItem);
+            }
+
+            contextMenu.Items.Add(new ToolStripSeparator());
 
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
@@ -245,27 +271,7 @@ namespace WinFormsApp
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
 
-            var folderWalkerItem = new ToolStripMenuItem("Folder Walker", null, (s, e) => ShowFolderWalkerWindow())
-            {
-                Padding = defaultPadding,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                AutoSize = false,
-                Size = new Size(menuWidth, menuItemHeight),
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-
-            var speechFileSearchItem = new ToolStripMenuItem("Speech File Search", null, (s, e) => ShowSpeechFileSearchWindow())
-            {
-                Padding = defaultPadding,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                AutoSize = false,
-                Size = new Size(menuWidth, menuItemHeight),
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-
-            // Keep the tray menu focused on the available tools and exit action.
-            contextMenu.Items.Add(folderWalkerItem);
-            contextMenu.Items.Add(speechFileSearchItem);
+            // Keep the tray menu focused on launching tool windows and exiting.
             contextMenu.Items.Add(exitItem);
             notifyIcon.ContextMenuStrip = contextMenu;
 
