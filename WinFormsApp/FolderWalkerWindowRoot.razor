@@ -12,7 +12,7 @@
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4">
                     <label class="form-label fw-semibold" for="drive-select">Drive</label>
-                    <select id="drive-select" class="form-select" @bind="_selectedRoot" disabled="@_isSearching">
+                    <select id="drive-select" class="form-select" value="@_selectedRoot" @onchange="OnDriveChanged">
                         @foreach (var drive in _drives)
                         {
                             <option value="@drive.RootPath">@drive.DisplayName</option>
@@ -24,10 +24,9 @@
                     <input id="folder-search"
                            class="form-control"
                            placeholder="For example, Documents"
-                           @bind="_searchText"
-                           @bind:event="oninput"
-                           @onkeydown="HandleSearchKeyDown"
-                           disabled="@_isSearching" />
+                           value="@_searchText"
+                           @oninput="OnSearchTextChanged"
+                           @onkeydown="HandleSearchKeyDown" />
                 </div>
                 <div class="col-12 col-md-2 d-grid">
                     @if (_isSearching)
@@ -217,13 +216,36 @@
         _selectedRoot = _drives.FirstOrDefault()?.RootPath;
     }
 
+    private Task OnSearchTextChanged(ChangeEventArgs args)
+    {
+        _searchText = args.Value?.ToString() ?? string.Empty;
+        if (!CanSearch)
+        {
+            _searchCancellation?.Cancel();
+            _searchCancellation = null;
+            _isSearching = false;
+            _searchResults = null;
+            _selectedFolder = null;
+            _selectionConfirmed = false;
+            return Task.CompletedTask;
+        }
+
+        return SearchAsync(debounce: true);
+    }
+
+    private Task OnDriveChanged(ChangeEventArgs args)
+    {
+        _selectedRoot = args.Value?.ToString();
+        return CanSearch ? SearchAsync(debounce: true) : Task.CompletedTask;
+    }
+
     private async Task HandleSearchKeyDown(KeyboardEventArgs args)
     {
-        if (args.Key == "Enter" && CanSearch && !_isSearching)
+        if (args.Key == "Enter" && CanSearch)
             await SearchAsync();
     }
 
-    private async Task SearchAsync()
+    private async Task SearchAsync(bool debounce = false)
     {
         if (!CanSearch)
             return;
@@ -240,6 +262,9 @@
 
         try
         {
+            if (debounce)
+                await Task.Delay(300, _searchCancellation.Token);
+
             _searchResults = await FolderWalker.SearchAsync(
                 _selectedRoot!,
                 _searchText,
