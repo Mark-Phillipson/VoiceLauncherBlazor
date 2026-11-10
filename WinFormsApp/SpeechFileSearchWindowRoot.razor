@@ -188,6 +188,10 @@
         _searchCancellation?.Cancel();
         var cancellation = new CancellationTokenSource();
         _searchCancellation = cancellation;
+        var searchRoot = _searchRoot;
+        var searchText = _searchText;
+        var includeSubfolders = _includeSubfolders;
+        var sortAlphabetically = _sortAlphabetically;
         _isSearching = true;
         _errorMessage = null;
 
@@ -197,10 +201,10 @@
                 await Task.Delay(250, cancellation.Token);
 
             _results = await SearchService.SearchAsync(
-                _searchRoot,
-                _searchText,
-                _includeSubfolders,
-                _sortAlphabetically,
+                searchRoot,
+                searchText,
+                includeSubfolders,
+                sortAlphabetically,
                 cancellation.Token);
         }
         catch (OperationCanceledException)
