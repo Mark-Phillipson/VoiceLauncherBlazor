@@ -314,7 +314,7 @@ namespace WinFormsApp
                 ClientSize = new Size(width, Math.Max(58, toolbarSize.Height));
                 Location = new Point(
                     workingArea.Left + (workingArea.Width - Width) / 2,
-                    workingArea.Top);
+                    workingArea.Top + (workingArea.Height - Height) / 2);
             }
 
             // Start listening for launch arguments from other instances
