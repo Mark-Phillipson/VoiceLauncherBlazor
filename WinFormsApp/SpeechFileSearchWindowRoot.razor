@@ -76,7 +76,14 @@
                     @if (_results is not null)
                     {
                         <p class="text-secondary mb-0">
-                            @_results.Files.Count file(s) found
+                            @if (_results.TotalMatchCount > _results.Files.Count)
+                            {
+                                <span>Showing @_results.Files.Count of @_results.TotalMatchCount matching files</span>
+                            }
+                            else
+                            {
+                                <span>@_results.TotalMatchCount file(s) found</span>
+                            }
                             @if (_results.SkippedFolderCount > 0)
                             {
                                 <span> · @_results.SkippedFolderCount folder(s) could not be read</span>
