@@ -266,7 +266,7 @@ internal sealed class FolderWalkerService
                 """;
             command.Parameters.AddWithValue(
                 "$query",
-                $""{searchText.Replace(""", """")}"");
+                "\"" + searchText.Replace("\"", "\"\"") + "\"");
         }
         else
         {
@@ -276,9 +276,9 @@ internal sealed class FolderWalkerService
                 WHERE DriveRoot = $root AND FolderName LIKE $pattern ESCAPE '\'
                 ORDER BY FolderPath COLLATE NOCASE;
                 """;
-            var escapedSearchText = searchText
-                .Replace("\", "\\")
-                .Replace("%", "\%")
+                .Replace("\\", "\\\\")
+                .Replace("%", "\\%")
+                .Replace("_", "\\_");
                 .Replace("_", "\_");
             command.Parameters.AddWithValue("$pattern", $"%{escapedSearchText}%");
         }
