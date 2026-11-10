@@ -25,6 +25,8 @@ internal sealed class SpeechFileSearchService
             cancellationToken);
     }
 
+    private const int MaxResultCount = 100;
+
     private static FileSearchResult Search(
         string rootPath,
         string searchText,
@@ -98,7 +100,10 @@ internal sealed class SpeechFileSearchService
             ? matches.OrderBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase)
             : matches.OrderByDescending(match => match.LastModifiedUtc);
 
-        return new FileSearchResult(orderedMatches.ToArray(), skippedFolderCount);
+        return new FileSearchResult(
+            orderedMatches.Take(MaxResultCount).ToArray(),
+            skippedFolderCount,
+            matches.Count);
     }
 
     private static bool IsFileSystemAccessException(Exception exception) =>
@@ -107,4 +112,7 @@ internal sealed class SpeechFileSearchService
 
 internal sealed record FileSearchMatch(string FullPath, DateTime LastModifiedUtc);
 
-internal sealed record FileSearchResult(IReadOnlyList<FileSearchMatch> Files, int SkippedFolderCount);
+internal sealed record FileSearchResult(
+    IReadOnlyList<FileSearchMatch> Files,
+    int SkippedFolderCount,
+    int TotalMatchCount);
