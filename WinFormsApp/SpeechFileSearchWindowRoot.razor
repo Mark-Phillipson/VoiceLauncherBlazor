@@ -37,31 +37,37 @@
 
     <section class="card border-secondary shadow-sm mb-4 bg-dark text-light">
         <div class="card-body p-4">
-            <label class="form-label fw-semibold" for="search-folder">Search folder</label>
-            <div class="input-group mb-3">
-                <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
-                <button class="btn btn-outline-secondary"
-                        type="button"
-                        @onclick="BrowseFolderAsync"
-                        disabled="@(_isSearching || RequestFolderAsync is null)">
-                    Choose folder…
-                </button>
-            </div>
-
-            <label class="form-label fw-semibold" for="file-search">File name contains</label>
-            <div class="input-group">
-                <input id="file-search"
-                       class="form-control"
-                       placeholder="Speak or type a word"
-                       value="@_searchText"
-                       @oninput="OnSearchTextChanged"
-                       @onkeydown="HandleSearchKeyDown" />
-                <button class="btn btn-primary"
-                        type="button"
-                        @onclick="() => SearchAsync()"
-                        disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
-                    Search
-                </button>
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-6">
+                    <label class="form-label fw-semibold" for="search-folder">Search folder</label>
+                    <div class="input-group">
+                        <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
+                        <button @ref="_chooseFolderButton"
+                                class="btn btn-outline-secondary"
+                                type="button"
+                                @onclick="BrowseFolderAsync"
+                                disabled="@(_isSearching || RequestFolderAsync is null)">
+                            Choose folder…
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <label class="form-label fw-semibold" for="file-search">File name contains</label>
+                    <div class="input-group">
+                        <input id="file-search"
+                               class="form-control"
+                               placeholder="Speak or type a word"
+                               value="@_searchText"
+                               @oninput="OnSearchTextChanged"
+                               @onkeydown="HandleSearchKeyDown" />
+                        <button class="btn btn-primary"
+                                type="button"
+                                @onclick="() => SearchAsync()"
+                                disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
+                            Search
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="d-flex flex-wrap gap-4 mt-3">
@@ -179,7 +185,7 @@
 @code {
     [Parameter] public Func<Task<string?>>? RequestFolderAsync { get; set; }
 
-
+    private ElementReference _chooseFolderButton;
     private string _searchRoot = string.Empty;
     private string _searchText = string.Empty;
     private FileSearchResult? _results;
@@ -189,6 +195,12 @@
     private bool _includeSubfolders;
     private bool _openDirectly = true;
     private bool _sortAlphabetically;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && RequestFolderAsync is not null)
+            await _chooseFolderButton.FocusAsync();
+    }
 
     protected override async Task OnInitializedAsync()
     {
