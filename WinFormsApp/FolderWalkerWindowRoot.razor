@@ -312,7 +312,7 @@
         {
             // The window is closing.
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
         {
             if (string.Equals(_selectedRoot, rootPath, StringComparison.OrdinalIgnoreCase))
                 _errorMessage = $"The drive index could not be built: {exception.Message}";
@@ -369,7 +369,7 @@
         {
             // A new query or a user cancellation stopped this search.
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
         {
             _errorMessage = exception.Message;
         }
