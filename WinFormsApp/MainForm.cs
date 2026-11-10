@@ -220,13 +220,43 @@ namespace WinFormsApp
                 return Math.Max(240, textSize.Width + imgWidth + pad.Left + pad.Right + 48);
             }
 
-            // Reduce vertical padding so icons sit closer to the text vertically, and
-            // compute item height from the icon size for consistent vertical centering.
             var defaultPadding = new Padding(12, 4, 12, 4);
-            int menuWidth = ComputeMenuItemWidth("Exit", contextMenu.Font, imgColumnWidth, defaultPadding);
-
-            // Item height: icon height + vertical padding (ensure a sensible minimum)
+            int menuWidth = ComputeMenuItemWidth("Speech File Search", contextMenu.Font, imgColumnWidth, defaultPadding);
             int menuItemHeight = Math.Max(40, imgSize.Height + defaultPadding.Top + defaultPadding.Bottom);
+
+            void AddWindowMenuItem(string text, Action openWindow)
+            {
+                var sourceButton = launchToolbar.Controls
+                    .OfType<Button>()
+                    .First(button => string.Equals(button.AccessibleName, text, StringComparison.Ordinal));
+                var itemIcon = sourceButton.Image is null
+                    ? null
+                    : new Bitmap(sourceButton.Image);
+                var item = new ToolStripMenuItem(text, itemIcon, (_, _) => openWindow())
+                {
+                    Padding = defaultPadding,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    AutoSize = false,
+                    Size = new Size(menuWidth, menuItemHeight),
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
+                item.ImageScaling = ToolStripItemImageScaling.None;
+                item.ImageAlign = ContentAlignment.MiddleCenter;
+                contextMenu.Items.Add(item);
+            }
+
+            AddWindowMenuItem("Folder Walker", ShowFolderWalkerWindow);
+            AddWindowMenuItem("Speech File Search", ShowSpeechFileSearchWindow);
+            AddWindowMenuItem("Global Search", ShowGlobalWindow);
+            AddWindowMenuItem("Display Search", () => ShowDisplayWindow());
+            AddWindowMenuItem("Talon Search", () => ShowTalonWindow());
+            AddWindowMenuItem("Snippets", () => ShowSnippetsWindow());
+            AddWindowMenuItem("Launcher", () => ShowLauncherWindow());
+            AddWindowMenuItem("Clipboard", ShowClipboardWindow);
+            AddWindowMenuItem("Calculator", ShowCalculatorWindow);
+            AddWindowMenuItem("AI Chat", ShowAIChatWindow);
+
+            contextMenu.Items.Add(new ToolStripSeparator());
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
                 Padding = defaultPadding,
