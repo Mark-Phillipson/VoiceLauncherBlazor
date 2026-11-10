@@ -96,11 +96,30 @@
             <div class="card-body px-4 pt-2">
                 @if (_searchResults.Folders.Count > 0)
                 {
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <span class="small text-secondary">
+                            Showing @(_currentPage * PageSize + 1)–@Math.Min((_currentPage + 1) * PageSize, _searchResults.Folders.Count)
+                            of @_searchResults.Folders.Count
+                        </span>
+                        @if (PageCount > 1)
+                        {
+                            <div class="btn-group" role="group" aria-label="Folder result pages">
+                                <button type="button" class="btn btn-outline-secondary"
+                                        @onclick="() => ChangePage(-1)" disabled="@(_currentPage == 0)">
+                                    Previous
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                        @onclick="() => ChangePage(1)" disabled="@(_currentPage >= PageCount - 1)">
+                                    Next
+                                </button>
+                            </div>
+                        }
+                    </div>
                     <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Quick folder selection">
-                        @for (var i = 0; i < Math.Min(_searchResults.Folders.Count, 9); i++)
+                        @for (var i = 0; i < Math.Min(CurrentPageFolders.Count, 9); i++)
                         {
                             var index = i;
-                            var folder = _searchResults.Folders[index];
+                            var folder = CurrentPageFolders[index];
                             <button type="button"
                                     class="btn btn-outline-primary"
                                     @onclick="() => SelectAndUseFolderAsync(folder)">
@@ -117,7 +136,7 @@
                 else
                 {
                     <div class="list-group list-group-flush">
-                        @foreach (var folder in _searchResults.Folders)
+                        @foreach (var folder in CurrentPageFolders)
                         {
                             <button @key="folder"
                                     type="button"
@@ -138,6 +157,7 @@
 @code {
     [Parameter] public EventCallback<string> FolderSelected { get; set; }
 
+    private const int PageSize = 100;
     private static readonly string[] OrdinalLabels = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
     private readonly List<DriveOption> _drives = [];
     private string? _selectedRoot;
@@ -148,6 +168,15 @@
     private string? _errorMessage;
     private bool _isSearching;
     private bool _selectionConfirmed;
+    private int _currentPage;
+
+    private int PageCount => _searchResults is null
+        ? 0
+        : (int)Math.Ceiling(_searchResults.Folders.Count / (double)PageSize);
+
+    private IReadOnlyList<string> CurrentPageFolders => _searchResults is null
+        ? Array.Empty<string>()
+        : _searchResults.Folders.Skip(_currentPage * PageSize).Take(PageSize).ToArray();
 
     private bool CanSearch =>
         !string.IsNullOrWhiteSpace(_selectedRoot) &&
@@ -206,6 +235,7 @@
         _errorMessage = null;
         _selectedFolder = null;
         _selectionConfirmed = false;
+        _currentPage = 0;
         _searchResults = null;
 
         try
@@ -232,6 +262,13 @@
     }
 
     private void CancelSearch() => _searchCancellation?.Cancel();
+
+    private void ChangePage(int pageDelta)
+    {
+        _currentPage = Math.Clamp(_currentPage + pageDelta, 0, Math.Max(0, PageCount - 1));
+        _selectedFolder = null;
+        _selectionConfirmed = false;
+    }
 
     private void SelectFolder(string folderPath)
     {
