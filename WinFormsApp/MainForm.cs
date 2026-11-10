@@ -308,7 +308,7 @@ namespace WinFormsApp
             if (screen != null)
             {
                 var workingArea = screen.WorkingArea;
-                var width = Math.Min(1200, workingArea.Width);
+                var width = Math.Min(1320, workingArea.Width);
                 var toolbarSize = launchToolbar.GetPreferredSize(new Size(width, 0));
 
                 ClientSize = new Size(width, Math.Max(58, toolbarSize.Height));
