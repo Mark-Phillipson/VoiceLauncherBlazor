@@ -33,19 +33,22 @@ namespace WinFormsApp
                     graphics.DrawString(glyph, font, brush, new PointF(1, 2));
                 }
 
+                var buttonFont = new Font("Segoe UI", 9F, FontStyle.Regular);
+                var buttonText = text.Replace("&", "");
+                var buttonWidth = Math.Max(112, TextRenderer.MeasureText(buttonText, buttonFont).Width + 42);
                 var button = new Button
                 {
-                    AccessibleName = text.Replace("&", ""),
+                    AccessibleName = buttonText,
                     AccessibleDescription = description + ". Keyboard shortcut: Alt+" + accelerator + ".",
                     AutoSize = false,
                     BackColor = Color.FromArgb(33, 37, 41),
                     FlatStyle = FlatStyle.Flat,
-                    Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                    Font = buttonFont,
                     ForeColor = Color.FromArgb(173, 181, 189),
                     Image = icon,
                     ImageAlign = ContentAlignment.MiddleLeft,
                     Margin = new Padding(3),
-                    Size = new Size(112, 42),
+                    Size = new Size(buttonWidth, 42),
                     Text = text,
                     TextAlign = ContentAlignment.MiddleCenter,
                     TextImageRelation = TextImageRelation.ImageBeforeText,
@@ -57,7 +60,11 @@ namespace WinFormsApp
                 button.FlatAppearance.MouseOverBackColor = Color.FromArgb(52, 58, 64);
                 button.FlatAppearance.MouseDownBackColor = Color.FromArgb(73, 80, 87);
                 button.Click += (_, _) => openWindow();
-                button.Disposed += (_, _) => icon.Dispose();
+                button.Disposed += (_, _) =>
+                {
+                    icon.Dispose();
+                    buttonFont.Dispose();
+                };
                 return button;
             }
 
