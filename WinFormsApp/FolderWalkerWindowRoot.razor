@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Components.Web
+@implements IDisposable
 @inject FolderWalkerService FolderWalker
 
 <div class="container-fluid p-4">
@@ -43,6 +44,27 @@
                     }
                 </div>
             </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                <div>
+                    @if (!string.IsNullOrWhiteSpace(_indexStatusMessage))
+                    {
+                        <div class="small fw-semibold" role="status">@_indexStatusMessage</div>
+                    }
+                    <div class="small text-secondary">The drive index is saved locally. Refresh it after folder changes.</div>
+                </div>
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        @onclick="() => RefreshIndexAsync()"
+                        disabled="@(_isIndexing || string.IsNullOrWhiteSpace(_selectedRoot))">
+                    Refresh index
+                </button>
+            </div>
+            @if (_isIndexing)
+            {
+                <div class="progress mt-2" aria-label="Building folder index">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                </div>
+            }
             @if (_drives.Count == 0)
             {
                 <div class="alert alert-warning mt-3 mb-0">No ready drives were found.</div>
@@ -65,7 +87,7 @@
     {
         <div class="d-flex align-items-center gap-2 text-secondary mb-3" role="status">
             <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            <span>Searching folders…</span>
+            <span>@(_isIndexing ? "Building the drive index…" : "Searching the index…")</span>
         </div>
     }
 
@@ -156,6 +178,7 @@
 @code {
     [Parameter] public EventCallback<string> FolderSelected { get; set; }
 
+    private readonly CancellationTokenSource _lifetimeCancellation = new();
     private const int PageSize = 100;
     private static readonly string[] OrdinalLabels = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"];
     private readonly List<DriveOption> _drives = [];
@@ -165,6 +188,10 @@
     private FolderSearchResult? _searchResults;
     private CancellationTokenSource? _searchCancellation;
     private string? _errorMessage;
+    private string? _indexingRoot;
+    private string? _indexStatusMessage;
+    private int _indexedFolderCount;
+    private bool _isIndexing;
     private bool _isSearching;
     private bool _selectionConfirmed;
     private int _currentPage;
@@ -214,6 +241,8 @@
 
         _drives.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.RootPath, right.RootPath));
         _selectedRoot = _drives.FirstOrDefault()?.RootPath;
+        if (_selectedRoot is not null)
+            _ = EnsureDriveIndexAsync(_selectedRoot);
     }
 
     private Task OnSearchTextChanged(ChangeEventArgs args)
@@ -236,7 +265,71 @@
     private Task OnDriveChanged(ChangeEventArgs args)
     {
         _selectedRoot = args.Value?.ToString();
+        _searchResults = null;
+        _selectedFolder = null;
+        _selectionConfirmed = false;
+
+        if (_selectedRoot is not null)
+            _ = EnsureDriveIndexAsync(_selectedRoot);
+
         return CanSearch ? SearchAsync(debounce: true) : Task.CompletedTask;
+    }
+
+    private async Task EnsureDriveIndexAsync(string rootPath, bool forceRefresh = false)
+    {
+        _indexingRoot = rootPath;
+        _isIndexing = true;
+        _indexedFolderCount = 0;
+        _indexStatusMessage = forceRefresh ? "Refreshing the drive index…" : "Checking the saved drive index…";
+        _errorMessage = null;
+
+        var progress = new Progress<FolderWalkerIndexProgress>(update =>
+        {
+            if (_lifetimeCancellation.IsCancellationRequested ||
+                !string.Equals(_selectedRoot, update.RootPath, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            _indexedFolderCount = update.FolderCount;
+            _indexStatusMessage = $"Indexing {update.RootPath}: {_indexedFolderCount:N0} folders found; {update.SkippedFolderCount:N0} inaccessible.";
+            _ = InvokeAsync(StateHasChanged);
+        });
+
+        try
+        {
+            var summary = await FolderWalker.EnsureIndexAsync(
+                rootPath,
+                progress,
+                _lifetimeCancellation.Token,
+                forceRefresh);
+
+            if (string.Equals(_selectedRoot, rootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                _indexedFolderCount = summary.FolderCount;
+                _indexStatusMessage = $"Index ready: {summary.FolderCount:N0} folders · updated {summary.IndexedAtUtc.ToLocalTime():g}";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The window is closing.
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            if (string.Equals(_selectedRoot, rootPath, StringComparison.OrdinalIgnoreCase))
+                _errorMessage = $"The drive index could not be built: {exception.Message}";
+        }
+        finally
+        {
+            if (string.Equals(_indexingRoot, rootPath, StringComparison.OrdinalIgnoreCase))
+                _isIndexing = false;
+        }
+    }
+
+    private Task RefreshIndexAsync()
+    {
+        if (_selectedRoot is null || _isIndexing)
+            return Task.CompletedTask;
+
+        return EnsureDriveIndexAsync(_selectedRoot, forceRefresh: true);
     }
 
     private async Task HandleSearchKeyDown(KeyboardEventArgs args)
@@ -324,6 +417,13 @@
 
         await FolderSelected.InvokeAsync(_selectedFolder);
         _selectionConfirmed = true;
+    }
+
+    public void Dispose()
+    {
+        _lifetimeCancellation.Cancel();
+        _searchCancellation?.Cancel();
+        _lifetimeCancellation.Dispose();
     }
 
     private sealed record DriveOption(string RootPath, string DisplayName);
