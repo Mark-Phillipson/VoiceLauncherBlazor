@@ -9,6 +9,7 @@ namespace WinFormsApp
             if (disposing)
             {
                 components?.Dispose();
+                blazorWebView1?.Dispose();
             }
             base.Dispose(disposing);
         }
