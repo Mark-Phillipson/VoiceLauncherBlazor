@@ -308,9 +308,13 @@ namespace WinFormsApp
             if (screen != null)
             {
                 var workingArea = screen.WorkingArea;
-                this.Width = workingArea.Width / 2;
-                this.Height = workingArea.Height;
-                this.Location = new Point(workingArea.Right - this.Width, workingArea.Top);
+                var width = Math.Min(1200, workingArea.Width);
+                var toolbarSize = launchToolbar.GetPreferredSize(new Size(width, 0));
+
+                ClientSize = new Size(width, Math.Max(58, toolbarSize.Height));
+                Location = new Point(
+                    workingArea.Left + (workingArea.Width - Width) / 2,
+                    workingArea.Top);
             }
 
             // Start listening for launch arguments from other instances
