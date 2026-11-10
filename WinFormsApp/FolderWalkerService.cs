@@ -16,7 +16,7 @@ internal sealed class FolderWalkerService
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _driveLocks =
         new(StringComparer.OrdinalIgnoreCase);
     private readonly object _schemaLock = new();
-    private bool _schemaInitialized;
+    private volatile bool _schemaInitialized;
     private bool _supportsTrigramSearch;
 
     private FolderWalkerService()
@@ -27,8 +27,7 @@ internal sealed class FolderWalkerService
         _connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = Path.Combine(indexDirectory, "folder-index.db"),
-            Mode = SqliteOpenMode.ReadWriteCreate,
-            Cache = SqliteCacheMode.Shared
+            Mode = SqliteOpenMode.ReadWriteCreate
         }.ToString();
     }
 
