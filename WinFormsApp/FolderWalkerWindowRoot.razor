@@ -1,0 +1,220 @@
+@using Microsoft.AspNetCore.Components.Web
+@inject FolderWalkerService FolderWalker
+
+<div class="container-fluid p-4">
+    <header class="mb-4">
+        <h1 class="h3 mb-1">Folder Walker</h1>
+        <p class="text-secondary mb-0">Find folders by name on a drive, then choose one to use.</p>
+    </header>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold" for="drive-select">Drive</label>
+                    <select id="drive-select" class="form-select" @bind="_selectedRoot" disabled="@_isSearching">
+                        @foreach (var drive in _drives)
+                        {
+                            <option value="@drive.RootPath">@drive.DisplayName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold" for="folder-search">Folder name contains</label>
+                    <input id="folder-search"
+                           class="form-control"
+                           placeholder="For example, Documents"
+                           @bind="_searchText"
+                           @bind:event="oninput"
+                           @onkeydown="HandleSearchKeyDown"
+                           disabled="@_isSearching" />
+                </div>
+                <div class="col-12 col-md-2 d-grid">
+                    @if (_isSearching)
+                    {
+                        <button class="btn btn-outline-secondary" @onclick="CancelSearch">Cancel</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary"
+                                @onclick="SearchAsync"
+                                disabled="@(!CanSearch)">
+                            Search
+                        </button>
+                    }
+                </div>
+            </div>
+            @if (_drives.Count == 0)
+            {
+                <div class="alert alert-warning mt-3 mb-0">No ready drives were found.</div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@_errorMessage</div>
+    }
+
+    @if (_isSearching)
+    {
+        <div class="d-flex align-items-center gap-2 text-secondary mb-3" role="status">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span>Searching folders…</span>
+        </div>
+    }
+
+    @if (_searchResults is not null)
+    {
+        <section class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 px-4 pt-4">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                        <h2 class="h5 mb-1">Results</h2>
+                        <p class="text-secondary mb-0">
+                            @_searchResults.Folders.Count folder(s) found
+                            @if (_searchResults.SkippedFolderCount > 0)
+                            {
+                                <span> · @_searchResults.SkippedFolderCount folder(s) could not be read</span>
+                            }
+                        </p>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(_selectedFolder))
+                    {
+                        <button class="btn btn-success flex-shrink-0" @onclick="UseSelectedFolderAsync">
+                            Use selected folder
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="card-body px-4 pt-2">
+                @if (_searchResults.Folders.Count == 0)
+                {
+                    <p class="text-secondary py-3 mb-0">No folders matched “@_searchText”.</p>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var folder in _searchResults.Folders)
+                        {
+                            <button @key="folder"
+                                    type="button"
+                                    class="list-group-item list-group-item-action text-start py-3 @(string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)"
+                                    aria-pressed="@string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase)"
+                                    @onclick="() => SelectFolder(folder)">
+                                <span class="d-block fw-semibold">@System.IO.Path.GetFileName(folder)</span>
+                                <span class="d-block small text-secondary text-break">@folder</span>
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback<string> FolderSelected { get; set; }
+
+    private readonly List<DriveOption> _drives = [];
+    private string? _selectedRoot;
+    private string _searchText = string.Empty;
+    private string? _selectedFolder;
+    private FolderSearchResult? _searchResults;
+    private CancellationTokenSource? _searchCancellation;
+    private string? _errorMessage;
+    private bool _isSearching;
+
+    private bool CanSearch =>
+        !string.IsNullOrWhiteSpace(_selectedRoot) &&
+        !string.IsNullOrWhiteSpace(_searchText);
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                try
+                {
+                    if (!drive.IsReady)
+                        continue;
+
+                    var label = string.IsNullOrWhiteSpace(drive.VolumeLabel)
+                        ? drive.Name
+                        : $"{drive.Name} ({drive.VolumeLabel})";
+                    _drives.Add(new DriveOption(drive.Name, label));
+                }
+                catch (IOException)
+                {
+                    // A removable drive can disappear while the list is being populated.
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Keep other drives available when one drive cannot be inspected.
+                }
+            }
+        }
+        catch (IOException)
+        {
+            _errorMessage = "The available drives could not be read.";
+        }
+
+        _drives.Sort((left, right) => StringComparer.OrdinalIgnoreCase.Compare(left.RootPath, right.RootPath));
+        _selectedRoot = _drives.FirstOrDefault()?.RootPath;
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && CanSearch && !_isSearching)
+            await SearchAsync();
+    }
+
+    private async Task SearchAsync()
+    {
+        if (!CanSearch)
+            return;
+
+        _searchCancellation?.Cancel();
+        _searchCancellation?.Dispose();
+        _searchCancellation = new CancellationTokenSource();
+        _isSearching = true;
+        _errorMessage = null;
+        _selectedFolder = null;
+        _searchResults = null;
+
+        try
+        {
+            _searchResults = await FolderWalker.SearchAsync(
+                _selectedRoot!,
+                _searchText,
+                _searchCancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            _errorMessage = "The folder search was cancelled.";
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            _errorMessage = exception.Message;
+        }
+        finally
+        {
+            _isSearching = false;
+            _searchCancellation?.Dispose();
+            _searchCancellation = null;
+        }
+    }
+
+    private void CancelSearch() => _searchCancellation?.Cancel();
+
+    private void SelectFolder(string folderPath) => _selectedFolder = folderPath;
+
+    private async Task UseSelectedFolderAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(_selectedFolder))
+            await FolderSelected.InvokeAsync(_selectedFolder);
+    }
+
+    private sealed record DriveOption(string RootPath, string DisplayName);
+}
