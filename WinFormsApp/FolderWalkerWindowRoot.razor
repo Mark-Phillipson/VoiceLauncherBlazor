@@ -55,6 +55,12 @@
     {
         <div class="alert alert-danger" role="alert">@_errorMessage</div>
     }
+    @if (_selectionConfirmed && !string.IsNullOrWhiteSpace(_selectedFolder))
+    {
+        <div class="alert alert-success" role="status">
+            Selected folder: <span class="fw-semibold text-break">@_selectedFolder</span>
+        </div>
+    }
 
     @if (_isSearching)
     {
@@ -124,6 +130,7 @@
     private CancellationTokenSource? _searchCancellation;
     private string? _errorMessage;
     private bool _isSearching;
+    private bool _selectionConfirmed;
 
     private bool CanSearch =>
         !string.IsNullOrWhiteSpace(_selectedRoot) &&
@@ -181,6 +188,7 @@
         _isSearching = true;
         _errorMessage = null;
         _selectedFolder = null;
+        _selectionConfirmed = false;
         _searchResults = null;
 
         try
@@ -208,12 +216,19 @@
 
     private void CancelSearch() => _searchCancellation?.Cancel();
 
-    private void SelectFolder(string folderPath) => _selectedFolder = folderPath;
+    private void SelectFolder(string folderPath)
+    {
+        _selectedFolder = folderPath;
+        _selectionConfirmed = false;
+    }
 
     private async Task UseSelectedFolderAsync()
     {
-        if (!string.IsNullOrWhiteSpace(_selectedFolder))
-            await FolderSelected.InvokeAsync(_selectedFolder);
+        if (string.IsNullOrWhiteSpace(_selectedFolder))
+            return;
+
+        await FolderSelected.InvokeAsync(_selectedFolder);
+        _selectionConfirmed = true;
     }
 
     private sealed record DriveOption(string RootPath, string DisplayName);
