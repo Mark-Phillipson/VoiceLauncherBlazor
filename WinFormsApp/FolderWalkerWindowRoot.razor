@@ -217,6 +217,13 @@
                                     @(string.Equals(_copiedFolderPath, folder, StringComparison.OrdinalIgnoreCase) ? "Copied" : "Copy")
                                 </button>
                                 <button type="button"
+                                        class="btn btn-outline-secondary flex-shrink-0 folder-result-open"
+                                        aria-label="@($"Open folder in File Explorer: {folder}")"
+                                        title="Open in File Explorer"
+                                        @onclick="() => OpenFolderInExplorer(folder)">
+                                    Open
+                                </button>
+                                <button type="button"
                                         class="list-group-item list-group-item-action text-start py-3 flex-grow-1 folder-result-item @(string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)"
                                         aria-pressed="@string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase)"
                                         aria-label="@($"Select folder {folderName}")"
@@ -510,6 +517,23 @@
         _lifetimeCancellation.Cancel();
         _searchCancellation?.Cancel();
         _lifetimeCancellation.Dispose();
+    }
+
+    private void OpenFolderInExplorer(string folderPath)
+    {
+        try
+        {
+            var startInfo = new System.Diagnostics.ProcessStartInfo("explorer.exe")
+            {
+                UseShellExecute = true
+            };
+            startInfo.ArgumentList.Add(folderPath);
+            System.Diagnostics.Process.Start(startInfo);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            _errorMessage = $"The folder could not be opened in File Explorer: {exception.Message}";
+        }
     }
 
     private void CopyFolderPath(string folderPath)
