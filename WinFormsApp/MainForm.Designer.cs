@@ -49,9 +49,10 @@ namespace WinFormsApp
                     Image = icon,
                     ImageAlign = ContentAlignment.MiddleLeft,
                     Margin = new Padding(3),
+                    Padding = new Padding(4, 0, 8, 0),
                     Size = new Size(buttonWidth, 42),
                     Text = text,
-                    TextAlign = ContentAlignment.MiddleCenter,
+                    TextAlign = ContentAlignment.MiddleRight,
                     TextImageRelation = TextImageRelation.ImageBeforeText,
                     UseMnemonic = true,
                     UseVisualStyleBackColor = false
