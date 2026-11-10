@@ -1,0 +1,269 @@
+@using Microsoft.AspNetCore.Components.Web
+@using System.Diagnostics
+@inject SpeechFileSearchService SearchService
+
+<div class="container-fluid p-4">
+    <header class="mb-4">
+        <h1 class="h3 mb-1">Speech File Search</h1>
+        <p class="text-secondary mb-0">Speak or type part of a file name, then choose a result.</p>
+    </header>
+
+    <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <label class="form-label fw-semibold" for="search-folder">Search folder</label>
+            <div class="input-group mb-3">
+                <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
+                <button class="btn btn-outline-secondary"
+                        type="button"
+                        @onclick="BrowseFolderAsync"
+                        disabled="@(_isSearching || RequestFolderAsync is null)">
+                    Choose folder…
+                </button>
+            </div>
+
+            <label class="form-label fw-semibold" for="file-search">File name contains</label>
+            <div class="input-group">
+                <input id="file-search"
+                       class="form-control"
+                       placeholder="Speak or type a word"
+                       value="@_searchText"
+                       @oninput="OnSearchTextChanged"
+                       @onkeydown="HandleSearchKeyDown" />
+                <button class="btn btn-primary"
+                        type="button"
+                        @onclick="() => SearchAsync()"
+                        disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
+                    Search
+                </button>
+            </div>
+
+            <div class="d-flex flex-wrap gap-4 mt-3">
+                <label class="form-check d-flex align-items-center gap-2 mb-0">
+                    <input class="form-check-input m-0"
+                           type="checkbox"
+                           checked="@_includeSubfolders"
+                           @onchange="OnIncludeSubfoldersChanged" />
+                    <span class="form-check-label">Search subfolders</span>
+                </label>
+                <label class="form-check d-flex align-items-center gap-2 mb-0">
+                    <input class="form-check-input m-0"
+                           type="checkbox"
+                           checked="@_openDirectly"
+                           @onchange="OnOpenDirectlyChanged" />
+                    <span class="form-check-label">Open file directly</span>
+                </label>
+                <label class="form-check d-flex align-items-center gap-2 mb-0">
+                    <input class="form-check-input m-0"
+                           type="checkbox"
+                           checked="@_sortAlphabetically"
+                           @onchange="OnSortChanged" />
+                    <span class="form-check-label">Sort alphabetically</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@_errorMessage</div>
+    }
+
+    <section class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 px-4 pt-4">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                    <h2 class="h5 mb-1">Results</h2>
+                    @if (_results is not null)
+                    {
+                        <p class="text-secondary mb-0">
+                            @_results.Files.Count file(s) found
+                            @if (_results.SkippedFolderCount > 0)
+                            {
+                                <span> · @_results.SkippedFolderCount folder(s) could not be read</span>
+                            }
+                        </p>
+                    }
+                </div>
+                @if (_isSearching)
+                {
+                    <div class="d-flex align-items-center gap-2 text-secondary" role="status">
+                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        <span>Searching…</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-body px-4 pt-2">
+            @if (_results is null && !_isSearching)
+            {
+                <p class="text-secondary py-3 mb-0">Enter a file name to start searching.</p>
+            }
+            else if (_results is { Files.Count: 0 } && !_isSearching)
+            {
+                <p class="text-secondary py-3 mb-0">No files matched “@_searchText”.</p>
+            }
+            else if (_results is not null)
+            {
+                <div class="row g-2 mb-3">
+                    @for (var i = 0; i < Math.Min(_results.Files.Count, 9); i++)
+                    {
+                        var index = i;
+                        var match = _results.Files[index];
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-primary" @onclick="() => OpenFile(match)">
+                                Select @(index + 1)
+                            </button>
+                        </div>
+                    }
+                </div>
+                <div class="list-group list-group-flush">
+                    @foreach (var match in _results.Files)
+                    {
+                        <button @key="match.FullPath"
+                                type="button"
+                                class="list-group-item list-group-item-action text-start py-3"
+                                @onclick="() => OpenFile(match)">
+                            <span class="d-block fw-semibold text-break">@System.IO.Path.GetFileName(match.FullPath)</span>
+                            <span class="d-block small text-secondary text-break">@match.FullPath</span>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+@code {
+    [Parameter] public Func<Task<string?>>? RequestFolderAsync { get; set; }
+
+    private string _searchRoot = string.Empty;
+    private string _searchText = string.Empty;
+    private FileSearchResult? _results;
+    private CancellationTokenSource? _searchCancellation;
+    private string? _errorMessage;
+    private bool _isSearching;
+    private bool _includeSubfolders;
+    private bool _openDirectly = true;
+    private bool _sortAlphabetically;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var downloadsFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "Downloads");
+        _searchRoot = Directory.Exists(downloadsFolder)
+            ? downloadsFolder
+            : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        if (Directory.Exists(_searchRoot))
+            await SearchAsync();
+    }
+
+    private Task OnSearchTextChanged(ChangeEventArgs args)
+    {
+        _searchText = args.Value?.ToString() ?? string.Empty;
+        return SearchAsync(debounce: true);
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !_isSearching)
+            await SearchAsync();
+    }
+
+    private async Task SearchAsync(bool debounce = false)
+    {
+        if (string.IsNullOrWhiteSpace(_searchRoot) || !Directory.Exists(_searchRoot))
+            return;
+
+        _searchCancellation?.Cancel();
+        var cancellation = new CancellationTokenSource();
+        _searchCancellation = cancellation;
+        _isSearching = true;
+        _errorMessage = null;
+
+        try
+        {
+            if (debounce)
+                await Task.Delay(250, cancellation.Token);
+
+            _results = await SearchService.SearchAsync(
+                _searchRoot,
+                _searchText,
+                _includeSubfolders,
+                _sortAlphabetically,
+                cancellation.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer keystroke or option change has started another search.
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            _errorMessage = exception.Message;
+        }
+        finally
+        {
+            if (ReferenceEquals(_searchCancellation, cancellation))
+            {
+                _isSearching = false;
+                _searchCancellation = null;
+            }
+
+            cancellation.Dispose();
+        }
+    }
+
+    private async Task BrowseFolderAsync()
+    {
+        if (RequestFolderAsync is null)
+            return;
+
+        var folder = await RequestFolderAsync();
+        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+            return;
+
+        _searchRoot = folder;
+        await SearchAsync();
+    }
+
+    private Task OnIncludeSubfoldersChanged(ChangeEventArgs args)
+    {
+        _includeSubfolders = args.Value is bool value && value;
+        return SearchAsync();
+    }
+
+    private Task OnOpenDirectlyChanged(ChangeEventArgs args)
+    {
+        _openDirectly = args.Value is bool value && value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSortChanged(ChangeEventArgs args)
+    {
+        _sortAlphabetically = args.Value is bool value && value;
+        return SearchAsync();
+    }
+
+    private void OpenFile(FileSearchMatch match)
+    {
+        try
+        {
+            var startInfo = _openDirectly
+                ? new ProcessStartInfo(match.FullPath) { UseShellExecute = true }
+                : new ProcessStartInfo("explorer.exe")
+                {
+                    UseShellExecute = true
+                };
+
+            if (!_openDirectly)
+                startInfo.ArgumentList.Add($"/select,{match.FullPath}");
+
+            Process.Start(startInfo);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            _errorMessage = $"The file could not be opened: {exception.Message}";
+        }
+    }
+}
