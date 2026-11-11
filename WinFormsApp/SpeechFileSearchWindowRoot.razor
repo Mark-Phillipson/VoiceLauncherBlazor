@@ -24,7 +24,8 @@
         color: #fff;
     }
 
-    .speech-file-path {
+    .speech-file-path,
+    .speech-file-modified {
         color: #adb5bd !important;
     }
 </style>
@@ -92,6 +93,14 @@
                            @onchange="OnSortChanged" />
                     <span class="form-check-label">Sort alphabetically</span>
                 </label>
+                <label class="form-check d-flex align-items-center gap-2 mb-0"
+                       title="When both sort options are selected, newest files appear first and filenames break ties.">
+                    <input class="form-check-input m-0"
+                           type="checkbox"
+                           checked="@_sortByModifiedDate"
+                           @onchange="OnSortByModifiedDateChanged" />
+                    <span class="form-check-label">Sort by modified date (newest first)</span>
+                </label>
             </div>
         </div>
     </section>
@@ -150,6 +159,7 @@
                         var index = i;
                         var match = _results.Files[index];
                         var fileName = System.IO.Path.GetFileName(match.FullPath);
+                        var modifiedDate = match.LastModifiedUtc.ToLocalTime().ToString("g");
                         <div @key="match.FullPath" class="d-flex align-items-stretch gap-2">
                             @if (index < 9)
                             {
@@ -173,6 +183,7 @@
                                     @onclick="() => OpenFile(match)">
                                 <span class="d-block fw-semibold text-break">@fileName</span>
                                 <span class="d-block small speech-file-path text-break">@match.FullPath</span>
+                                <span class="d-block small speech-file-modified">Modified: @modifiedDate</span>
                             </button>
                         </div>
                     }
@@ -195,6 +206,7 @@
     private bool _includeSubfolders;
     private bool _openDirectly = true;
     private bool _sortAlphabetically;
+    private bool _sortByModifiedDate = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -239,6 +251,7 @@
         var searchText = _searchText;
         var includeSubfolders = _includeSubfolders;
         var sortAlphabetically = _sortAlphabetically;
+        var sortByModifiedDate = _sortByModifiedDate;
         _isSearching = true;
         _errorMessage = null;
 
@@ -252,6 +265,7 @@
                 searchText,
                 includeSubfolders,
                 sortAlphabetically,
+                sortByModifiedDate,
                 cancellation.Token);
         }
         catch (OperationCanceledException)
@@ -302,6 +316,12 @@
     private Task OnSortChanged(ChangeEventArgs args)
     {
         _sortAlphabetically = args.Value is bool value && value;
+        return SearchAsync();
+    }
+
+    private Task OnSortByModifiedDateChanged(ChangeEventArgs args)
+    {
+        _sortByModifiedDate = args.Value is bool value && value;
         return SearchAsync();
     }
 
