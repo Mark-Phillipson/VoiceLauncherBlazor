@@ -13,6 +13,7 @@ internal sealed class SpeechFileSearchService
         string searchText,
         bool includeSubfolders,
         bool sortAlphabetically,
+        bool sortByModifiedDate,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(rootPath);
@@ -21,7 +22,7 @@ internal sealed class SpeechFileSearchService
             throw new DirectoryNotFoundException($"The selected folder does not exist: {rootPath}");
 
         return Task.Run(
-            () => Search(rootPath, searchText?.Trim() ?? string.Empty, includeSubfolders, sortAlphabetically, cancellationToken),
+            () => Search(rootPath, searchText?.Trim() ?? string.Empty, includeSubfolders, sortAlphabetically, sortByModifiedDate, cancellationToken),
             cancellationToken);
     }
 
@@ -32,6 +33,7 @@ internal sealed class SpeechFileSearchService
         string searchText,
         bool includeSubfolders,
         bool sortAlphabetically,
+        bool sortByModifiedDate,
         CancellationToken cancellationToken)
     {
         var matches = new List<FileSearchMatch>();
@@ -96,9 +98,17 @@ internal sealed class SpeechFileSearchService
             }
         }
 
-        var orderedMatches = sortAlphabetically
-            ? matches.OrderBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase)
-            : matches.OrderByDescending(match => match.LastModifiedUtc);
+        IEnumerable<FileSearchMatch> orderedMatches = matches;
+        if (sortByModifiedDate)
+        {
+            orderedMatches = orderedMatches.OrderByDescending(match => match.LastModifiedUtc);
+            if (sortAlphabetically)
+                orderedMatches = orderedMatches.ThenBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase);
+        }
+        else if (sortAlphabetically)
+        {
+            orderedMatches = orderedMatches.OrderBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase);
+        }
 
         return new FileSearchResult(
             orderedMatches.Take(MaxResultCount).ToArray(),
