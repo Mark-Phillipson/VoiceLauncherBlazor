@@ -1543,6 +1543,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Clipboard window without activating MainForm");
                                         ShowClipboardWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1550,6 +1551,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Calculator window without activating MainForm");
                                         ShowCalculatorWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1557,6 +1559,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to AI Chat window without activating MainForm");
                                         ShowAIChatWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1564,6 +1567,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Talon Search window without activating MainForm");
                                         ShowTalonWindow(message);
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1571,6 +1575,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Speech File Search window without activating MainForm");
                                         ShowSpeechFileSearchWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1578,6 +1583,15 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Folder Walker without activating MainForm");
                                         ShowFolderWalkerWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
+                                        return;
+                                    }
+
+                                    if (IsLauncherLaunchRequest(message))
+                                    {
+                                        AppendLog("IPC: routing directly to Launcher window with category arguments");
+                                        ShowLauncherWindow(message);
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1585,6 +1599,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Global Search window without activating MainForm");
                                         ShowGlobalWindow();
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1592,6 +1607,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Display Value Search window without activating MainForm");
                                         ShowDisplayWindow(message);
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
@@ -1599,6 +1615,7 @@ namespace WinFormsApp
                                     {
                                         AppendLog("IPC: routing directly to Snippets window without activating MainForm");
                                         ShowSnippetsWindow(message);
+                                        AppendLog($"MainForm.HandledIPC: {message}");
                                         return;
                                     }
 
