@@ -11,6 +11,12 @@ search list {user.text}:
 launch {user.launcher_category}:
     user.run_application_voice_admin_windows_forms_launcher({user.launcher_category})
 
+open folder walker:
+    user.run_application_voice_admin_windows_forms("Folder Walker")
+
+open speech file search:
+    user.run_application_voice_admin_windows_forms("Speech File Search")
+
 what can I say:
     user.run_application_voice_admin_windows_forms_launcher("Talon Search")
 
