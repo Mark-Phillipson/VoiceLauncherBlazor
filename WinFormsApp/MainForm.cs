@@ -256,7 +256,6 @@ namespace WinFormsApp
             AddWindowMenuItem("Calculator", ShowCalculatorWindow);
             AddWindowMenuItem("AI Chat", ShowAIChatWindow);
 
-            contextMenu.Items.Add(new ToolStripSeparator());
             var exitItem = new ToolStripMenuItem("Exit", exitBmp, (s, e) => ExitApplication())
             {
                 Padding = defaultPadding,
@@ -267,7 +266,8 @@ namespace WinFormsApp
             };
             exitItem.ImageScaling = ToolStripItemImageScaling.None;
             exitItem.ImageAlign = ContentAlignment.MiddleCenter;
-            contextMenu.Items.Add(exitItem);
+            contextMenu.Items.Insert(0, exitItem);
+            contextMenu.Items.Insert(1, new ToolStripSeparator());
             notifyIcon.ContextMenuStrip = contextMenu;
 
             // Handle Form events
