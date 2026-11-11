@@ -423,7 +423,9 @@ namespace WinFormsApp
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument =>
                     argument.Equals("FolderWalker", StringComparison.OrdinalIgnoreCase) ||
-                    argument.Equals("FolderSearch", StringComparison.OrdinalIgnoreCase));
+                    argument.Equals("Folder Walker", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("FolderSearch", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("Folder Search", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsSpeechFileSearchLaunchRequest(string? launchArguments)
@@ -436,8 +438,11 @@ namespace WinFormsApp
                 .Select(argument => argument.Trim().Trim('"').Trim('\'').TrimStart('/').Trim())
                 .Any(argument =>
                     argument.Equals("SpeechFileSearch", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("Speech File Search", StringComparison.OrdinalIgnoreCase) ||
                     argument.Equals("SpeechFileManager", StringComparison.OrdinalIgnoreCase) ||
-                    argument.Equals("FileSearch", StringComparison.OrdinalIgnoreCase));
+                    argument.Equals("Speech File Manager", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("FileSearch", StringComparison.OrdinalIgnoreCase) ||
+                    argument.Equals("File Search", StringComparison.OrdinalIgnoreCase));
         }
 
         private static string GetTalonSearchTerm(string? launchArguments)
