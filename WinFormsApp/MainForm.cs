@@ -1459,6 +1459,12 @@ namespace WinFormsApp
                     return;
                 }
 
+                if (IsLauncherLaunchRequest(_lastLaunchArgs))
+                {
+                    ShowLauncherWindow(_lastLaunchArgs);
+                    return;
+                }
+
                 if (IsGlobalSearchLaunchRequest(_lastLaunchArgs))
                 {
                     ShowGlobalWindow();
