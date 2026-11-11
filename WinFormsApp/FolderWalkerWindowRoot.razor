@@ -33,6 +33,22 @@
     .folder-result-path {
         color: #adb5bd !important;
     }
+
+    .folder-walker-shortcut {
+        display: inline-block;
+        min-width: 1.5rem;
+        margin-left: .25rem;
+        padding: .1rem .35rem;
+        color: #f8f9fa;
+        background-color: #343a40;
+        border: 1px solid #6c757d;
+        border-radius: .25rem;
+        font-family: inherit;
+        font-size: .85em;
+        line-height: 1.25;
+        text-align: center;
+        vertical-align: baseline;
+    }
 </style>
 
 <div class="container-fluid p-4">
@@ -45,9 +61,9 @@
         <div class="card-body p-4">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold" for="drive-select">Drive</label>
+                    <label class="form-label fw-semibold" for="drive-select">Drive <kbd class="folder-walker-shortcut">D</kbd></label>
                     <div class="input-group">
-                        <select id="drive-select" class="form-select" value="@_selectedRoot" @onchange="OnDriveChanged">
+                        <select id="drive-select" class="form-select" accesskey="D" aria-keyshortcuts="Alt+Shift+D" value="@_selectedRoot" @onchange="OnDriveChanged">
                             @foreach (var drive in _drives)
                             {
                                 <option value="@drive.RootPath" disabled="@(!drive.IsReady)">@drive.DisplayName</option>
@@ -57,14 +73,18 @@
                                 class="btn btn-outline-secondary"
                                 title="Refresh available drives"
                                 aria-label="Refresh available drives"
+                                accesskey="R"
+                                aria-keyshortcuts="Alt+Shift+R"
                                 @onclick="RefreshDrives">
-                            Refresh
+                            Refresh <kbd class="folder-walker-shortcut">R</kbd>
                         </button>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <label class="form-label fw-semibold" for="folder-search">Folder name contains</label>
+                    <label class="form-label fw-semibold" for="folder-search">Folder name contains <kbd class="folder-walker-shortcut">T</kbd></label>
                     <input id="folder-search"
+                           accesskey="T"
+                           aria-keyshortcuts="Alt+Shift+T"
                            @ref="_searchInput"
                            class="form-control"
                            placeholder="For example, Documents"
@@ -75,14 +95,16 @@
                 <div class="col-12 col-md-2 d-grid">
                     @if (_isSearching)
                     {
-                        <button class="btn btn-outline-secondary" @onclick="() => CancelSearch()">Cancel</button>
+                        <button class="btn btn-outline-secondary" accesskey="X" aria-keyshortcuts="Alt+Shift+X" @onclick="() => CancelSearch()">Cancel <kbd class="folder-walker-shortcut">X</kbd></button>
                     }
                     else
                     {
                         <button class="btn btn-primary"
+                                accesskey="S"
+                                aria-keyshortcuts="Alt+Shift+S"
                                 @onclick="() => SearchAsync()"
                                 disabled="@(!CanSearch)">
-                            Search
+                            Search <kbd class="folder-walker-shortcut">S</kbd>
                         </button>
                     }
                 </div>
@@ -97,9 +119,11 @@
                 </div>
                 <button class="btn btn-outline-secondary"
                         type="button"
+                        accesskey="I"
+                        aria-keyshortcuts="Alt+Shift+I"
                         @onclick="() => RefreshIndexAsync()"
                         disabled="@(_isIndexing || string.IsNullOrWhiteSpace(_selectedRoot))">
-                    Refresh index
+                    Refresh index <kbd class="folder-walker-shortcut">I</kbd>
                 </button>
             </div>
             @if (_isIndexing)
@@ -151,8 +175,8 @@
                     </div>
                     @if (!string.IsNullOrWhiteSpace(_selectedFolder))
                     {
-                        <button class="btn btn-success flex-shrink-0" @onclick="UseSelectedFolderAsync">
-                            Use selected folder
+                        <button class="btn btn-success flex-shrink-0" accesskey="U" aria-keyshortcuts="Alt+Shift+U" @onclick="UseSelectedFolderAsync">
+                            Use selected folder <kbd class="folder-walker-shortcut">U</kbd>
                         </button>
                     }
                 </div>
@@ -168,13 +192,13 @@
                         @if (PageCount > 1)
                         {
                             <div class="btn-group" role="group" aria-label="Folder result pages">
-                                <button type="button" class="btn btn-outline-secondary"
+                                <button type="button" class="btn btn-outline-secondary" accesskey="P" aria-keyshortcuts="Alt+Shift+P"
                                         @onclick="() => ChangePage(-1)" disabled="@(_currentPage == 0)">
-                                    Previous
+                                    Previous <kbd class="folder-walker-shortcut">P</kbd>
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary"
+                                <button type="button" class="btn btn-outline-secondary" accesskey="G" aria-keyshortcuts="Alt+Shift+G"
                                         @onclick="() => ChangePage(1)" disabled="@(_currentPage >= PageCount - 1)">
-                                    Next
+                                    Next <kbd class="folder-walker-shortcut">G</kbd>
                                 </button>
                             </div>
                         }
@@ -200,10 +224,10 @@
                                     <button type="button"
                                             class="btn btn-outline-primary flex-shrink-0 folder-result-shortcut"
                                             accesskey="@shortcutNumber"
-                                            aria-keyshortcuts="@shortcutNumber"
+                                            aria-keyshortcuts="@($"Alt+Shift+{shortcutNumber}")"
                                             aria-label="@($"Select and use folder {shortcutNumber}: {folder}")"
                                             @onclick="() => SelectAndUseFolderAsync(folder)">
-                                        Select <u>@shortcutNumber</u>
+                                        Select <kbd class="folder-walker-shortcut">@shortcutNumber</kbd>
                                     </button>
                                 }
                                 else
