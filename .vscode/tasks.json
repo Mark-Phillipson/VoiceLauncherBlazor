@@ -28,9 +28,22 @@
 			"group": "build"
 		},
 		{
+			"label": "Stop WinFormsApp",
+			"type": "shell",
+			"command": "powershell.exe -ExecutionPolicy Bypass -File \"${workspaceFolder}/stop-winformsapp.ps1\"",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
 			"label": "Build WinFormsApp (Release)",
 			"type": "shell",
 			"command": "dotnet build --configuration Release",
+			"dependsOn": "Stop WinFormsApp",
+			"dependsOrder": "sequence",
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
