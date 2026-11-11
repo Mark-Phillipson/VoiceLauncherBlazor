@@ -340,19 +340,22 @@
 
     private Task OnSearchTextChanged(ChangeEventArgs args)
     {
-        _searchText = args.Value?.ToString() ?? string.Empty;
-        if (!CanSearch)
-        {
-            _searchCancellation?.Cancel();
-            _searchCancellation = null;
-            _isSearching = false;
-            _searchResults = null;
-            _selectedFolder = null;
-            _selectionConfirmed = false;
+        var updatedSearchText = args.Value?.ToString() ?? string.Empty;
+        if (string.Equals(_searchText, updatedSearchText, StringComparison.Ordinal))
             return Task.CompletedTask;
-        }
 
-        return SearchAsync(debounce: true);
+        // Talon can pause while inserting dictated text. Keep input changes lightweight
+        // and wait for Search or Enter before querying and updating the results.
+        _searchText = updatedSearchText;
+        _searchCancellation?.Cancel();
+        _searchCancellation = null;
+        _isSearching = false;
+        _searchResults = null;
+        _selectedFolder = null;
+        _selectionConfirmed = false;
+        _currentPage = 0;
+        _errorMessage = null;
+        return Task.CompletedTask;
     }
 
     private Task OnDriveChanged(ChangeEventArgs args)
