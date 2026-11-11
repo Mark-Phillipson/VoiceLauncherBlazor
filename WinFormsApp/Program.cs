@@ -116,14 +116,14 @@ namespace WinFormsApp
 							writer.Flush();
 							sent = true;
 
-							// Wait for Index to process the IPC and write an ACK into ipc.log
+							// Wait for the running window host to process the IPC and write an ACK into ipc.log
 							try
 							{
 								int ackTimeoutMs = 8000;
 								var ackDeadline = DateTime.Now.AddMilliseconds(ackTimeoutMs);
 								var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? Environment.CurrentDirectory, "logs", "ipc.log");
 								bool ackFound = false;
-								Debug.WriteLine($"Waiting up to {ackTimeoutMs}ms for Index.HandledIPC ack (searching for '{argsMessage}')");
+								Debug.WriteLine($"Waiting up to {ackTimeoutMs}ms for an IPC handled acknowledgement (searching for '{argsMessage}')");
 								while (DateTime.Now < ackDeadline)
 								{
 									try
@@ -131,9 +131,10 @@ namespace WinFormsApp
 										if (File.Exists(logPath))
 										{
 											var content = File.ReadAllText(logPath);
-											if (content.Contains("Index.HandledIPC") && content.Contains(argsMessage))
+											if ((content.Contains("MainForm.HandledIPC") || content.Contains("Index.HandledIPC")) &&
+                                                content.Contains(argsMessage))
 											{
-												Debug.WriteLine($"Received Index.HandledIPC ack for args: '{argsMessage}'");
+												Debug.WriteLine($"Received IPC handled acknowledgement for args: '{argsMessage}'");
 												ackFound = true;
 												break;
 											}
@@ -144,7 +145,7 @@ namespace WinFormsApp
 								}
 								if (!ackFound)
 								{
-									Debug.WriteLine("Did not receive Index.HandledIPC ack within timeout.");
+									Debug.WriteLine("Did not receive an IPC handled acknowledgement within timeout.");
 								}
 							}
 							catch (Exception ex)
