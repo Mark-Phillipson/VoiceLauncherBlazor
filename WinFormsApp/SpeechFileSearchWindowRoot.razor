@@ -3,6 +3,20 @@
 @inject SpeechFileSearchService SearchService
 
 <style>
+    .speech-search-option {
+        min-width: 48px;
+        min-height: 48px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .speech-search-option .form-check-input {
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
     .speech-search-result-list {
         --speech-shortcut-width: 112px;
     }
@@ -72,7 +86,7 @@
             </div>
 
             <div class="d-flex flex-wrap gap-4 mt-3">
-                <label class="form-check d-flex align-items-center gap-2 mb-0">
+                <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
                     <input class="form-check-input m-0"
                            type="checkbox"
                            checked="@_includeSubfolders"
