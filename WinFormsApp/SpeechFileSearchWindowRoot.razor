@@ -85,10 +85,12 @@
                     </div>
                 </div>
                 <div class="col-12 col-lg-6">
-                    <label class="form-label fw-semibold" for="file-search">File name contains</label>
+                    <label class="form-label fw-semibold" for="file-search">File name contains <kbd class="speech-search-shortcut">N</kbd></label>
                     <div class="input-group">
                         <input id="file-search"
                                class="form-control"
+                               accesskey="N"
+                               aria-keyshortcuts="Alt+Shift+N"
                                placeholder="Speak or type a word"
                                value="@_searchText"
                                @oninput="OnSearchTextChanged"
