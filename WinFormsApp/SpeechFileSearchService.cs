@@ -98,16 +98,26 @@ internal sealed class SpeechFileSearchService
             }
         }
 
-        IEnumerable<FileSearchMatch> orderedMatches = matches;
-        if (sortByModifiedDate)
+        IEnumerable<FileSearchMatch> orderedMatches;
+        if (sortByModifiedDate && sortAlphabetically)
         {
-            orderedMatches = orderedMatches.OrderByDescending(match => match.LastModifiedUtc);
-            if (sortAlphabetically)
-                orderedMatches = orderedMatches.ThenBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase);
+            orderedMatches = matches
+                .OrderByDescending(match => match.LastModifiedUtc)
+                .ThenBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase);
+        }
+        else if (sortByModifiedDate)
+        {
+            orderedMatches = matches.OrderByDescending(match => match.LastModifiedUtc);
         }
         else if (sortAlphabetically)
         {
-            orderedMatches = orderedMatches.OrderBy(match => Path.GetFileName(match.FullPath), StringComparer.OrdinalIgnoreCase);
+            orderedMatches = matches.OrderBy(
+                match => Path.GetFileName(match.FullPath),
+                StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            orderedMatches = matches;
         }
 
         return new FileSearchResult(
