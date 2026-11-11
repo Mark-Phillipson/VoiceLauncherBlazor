@@ -3,6 +3,22 @@
 @inject SpeechFileSearchService SearchService
 
 <style>
+    .speech-search-shortcut {
+        display: inline-block;
+        min-width: 1.5rem;
+        margin-left: .25rem;
+        padding: .1rem .35rem;
+        color: #f8f9fa;
+        background-color: #343a40;
+        border: 1px solid #6c757d;
+        border-radius: .25rem;
+        font-family: inherit;
+        font-size: .85em;
+        line-height: 1.25;
+        text-align: center;
+        vertical-align: baseline;
+    }
+
     .speech-search-option {
         min-width: 48px;
         min-height: 48px;
@@ -59,10 +75,12 @@
                         <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
                         <button @ref="_chooseFolderButton"
                                 class="btn btn-outline-secondary"
+                                accesskey="F"
+                                aria-keyshortcuts="Alt+Shift+F"
                                 type="button"
                                 @onclick="BrowseFolderAsync"
                                 disabled="@(_isSearching || RequestFolderAsync is null)">
-                            Choose folder…
+                            Choose folder <kbd class="speech-search-shortcut">F</kbd>
                         </button>
                     </div>
                 </div>
@@ -77,9 +95,11 @@
                                @onkeydown="HandleSearchKeyDown" />
                         <button class="btn btn-primary"
                                 type="button"
+                                accesskey="S"
+                                aria-keyshortcuts="Alt+Shift+S"
                                 @onclick="() => SearchAsync()"
                                 disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
-                            Search
+                            Search <kbd class="speech-search-shortcut">S</kbd>
                         </button>
                     </div>
                 </div>
@@ -90,30 +110,38 @@
                     <input class="form-check-input m-0"
                            type="checkbox"
                            checked="@_includeSubfolders"
+                           accesskey="B"
+                           aria-keyshortcuts="Alt+Shift+B"
                            @onchange="OnIncludeSubfoldersChanged" />
-                    <span class="form-check-label">Search subfolders</span>
+                    <span class="form-check-label">Search subfolders <kbd class="speech-search-shortcut">B</kbd></span>
                 </label>
                 <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
                     <input class="form-check-input m-0"
                            type="checkbox"
                            checked="@_openDirectly"
+                           accesskey="O"
+                           aria-keyshortcuts="Alt+Shift+O"
                            @onchange="OnOpenDirectlyChanged" />
-                    <span class="form-check-label">Open file directly</span>
+                    <span class="form-check-label">Open file directly <kbd class="speech-search-shortcut">O</kbd></span>
                 </label>
                 <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
                     <input class="form-check-input m-0"
                            type="checkbox"
                            checked="@_sortAlphabetically"
+                           accesskey="A"
+                           aria-keyshortcuts="Alt+Shift+A"
                            @onchange="OnSortChanged" />
-                    <span class="form-check-label">Sort alphabetically</span>
+                    <span class="form-check-label">Sort alphabetically <kbd class="speech-search-shortcut">A</kbd></span>
                 </label>
                 <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option"
                        title="When both sort options are selected, newest files appear first and filenames break ties.">
                     <input class="form-check-input m-0"
                            type="checkbox"
                            checked="@_sortByModifiedDate"
+                           accesskey="M"
+                           aria-keyshortcuts="Alt+Shift+M"
                            @onchange="OnSortByModifiedDateChanged" />
-                    <span class="form-check-label">Sort by modified date (newest first)</span>
+                    <span class="form-check-label">Sort by modified date (newest first) <kbd class="speech-search-shortcut">M</kbd></span>
                 </label>
             </div>
         </div>
@@ -181,10 +209,10 @@
                                 <button type="button"
                                         class="btn btn-outline-primary flex-shrink-0 speech-result-shortcut"
                                         accesskey="@shortcutNumber"
-                                        aria-keyshortcuts="@shortcutNumber"
+                                        aria-keyshortcuts="@($"Alt+Shift+{shortcutNumber}")"
                                         aria-label="@($"Select result {shortcutNumber}: {fileName}")"
                                         @onclick="() => OpenFile(match)">
-                                    Select @shortcutNumber
+                                    Select <kbd class="speech-search-shortcut">@shortcutNumber</kbd>
                                 </button>
                             }
                             else
