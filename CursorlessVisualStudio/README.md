@@ -2,6 +2,12 @@
 
 Issue [#71](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/issues/71). An independent, in-process VSIX for **Visual Studio 2026 on Windows**. This milestone draws hats and provides a keyboard-accessible selection dialog; **Talon voice dispatch is not implemented yet**.
 
+## Acknowledgements
+
+- AI-assisted development tools were used to help design and implement parts of this extension.
+- This work was inspired by the Cursorless extension for Visual Studio Code, which provided the conceptual foundation for this Visual Studio prototype.
+- Kudos and thanks to the original Cursorless authors and maintainers for their work.
+
 ## Current behavior
 
 - Hats cover **visible text in all text-document editors**, including CSS, XML/project files, Markdown, and plain text. Horizontal scrolling, wrapping, and outlining determine which characters can receive hats. Designer/binary views are not text editors.
@@ -18,10 +24,11 @@ C# comments, whitespace, preprocessor directives, disabled preprocessor text, an
 
 Prerequisites: the stable **.NET 10 SDK** required by the repository, Visual Studio 2026 with the **Visual Studio SDK**, and .NET Framework 4.8 targeting support. A .NET 10 RC alone does not satisfy the repository SDK pin.
 
-Run from the repository root. The port check is mandatory before each build (including test commands that build).
+Run from the repository root.
+
+> Note: `stop-processes-on-port-5008.ps1` is for the VoiceAdmin web app workflow and is not required for this VSIX project.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\stop-processes-on-port-5008.ps1
 dotnet build .\CursorlessVisualStudio\CursorlessVisualStudio.csproj --configuration Debug
 ```
 
@@ -30,6 +37,16 @@ Output: [bin/Debug/net48/CursorlessVisualStudio.vsix](bin/Debug/net48/Cursorless
 The host targets .NET Framework 4.8, with portable token logic in [CursorlessVisualStudio.Core](../CursorlessVisualStudio.Core). The VSIX is deliberately not added to the application's solution, so application builds do not require Windows VSIX packaging. The existing xUnit project references only the portable library.
 
 The project follows the installed SDK-style VSIX template, using explicit VSSDK targets and pinned 17.14 API/build packages compatible with VS 2026. The 18.12 packages were tried but depend on versions unavailable from the configured NuGet feeds. The VSIX manifest still requires VS 2026; no application framework or SDK pin was changed.
+
+Marketplace package metadata files:
+
+- [source.extension.vsixmanifest](source.extension.vsixmanifest)
+- [Assets/cursorless-icon.png](Assets/cursorless-icon.png)
+- [Assets/cursorless-preview.png](Assets/cursorless-preview.png)
+- [LICENSE.txt](LICENSE.txt)
+- [RELEASE_NOTES.md](RELEASE_NOTES.md)
+
+The current VSIX manifest schema used by this project does not support embedding license/release-notes file references directly, so use these files when filling the Marketplace listing fields.
 
 ## Run safely
 
@@ -137,7 +154,6 @@ toggle hats:
 ## Focused tests
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\stop-processes-on-port-5008.ps1
 dotnet test .\TestProjectxUnit\TestProjectxUnit.csproj --configuration Debug --filter FullyQualifiedName~CursorlessHatTests
 ```
 
