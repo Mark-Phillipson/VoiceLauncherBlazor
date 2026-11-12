@@ -1,0 +1,66 @@
+os: windows
+app: remote_desktop_connection
+app: mstsc.exe
+app: visual_studio
+app: devenv.exe
+-
+
+take <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_color} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_color)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_shape} {user.cursorless_color} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_color)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_shape)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_shape} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab:2)
+    sleep(20ms)
+    insert(cursorless_shape)
+    sleep(20ms)
+    key(enter)
+toggle hats:
+    key(alt-t)
+    sleep(20ms)
+    key(h)
+    sleep(20ms)
+    key(enter)

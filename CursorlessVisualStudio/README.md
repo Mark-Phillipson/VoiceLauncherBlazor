@@ -49,6 +49,91 @@ Tools commands (also available for assignment in **Tools > Options > Environment
 
 The selection dialog captures the current map revision. If the document or viewport changes while it is open, selection is refused rather than targeting stale text. Close and reopen the dialog to use the new hats.
 
+## Talon command examples (full files included)
+
+Talon voice dispatch is not built into this milestone, but you can automate the keyboard-driven dialog with custom Talon commands. This repository now includes a complete sample set you can copy and customize:
+
+- [visual_studio_cursorless.talon](Talon/visual_studio_cursorless.talon)
+- [visual_studio_cursorless.py](Talon/visual_studio_cursorless.py)
+- [cursorless_color.talon-list](Talon/cursorless_color.talon-list)
+- [cursorless_shape.talon-list](Talon/cursorless_shape.talon-list)
+- [letter.talon-list](Talon/letter.talon-list)
+- [symbol_key.talon-list](Talon/symbol_key.talon-list)
+
+Copy these into your Talon user folder (or merge into your existing structure), then reload Talon.
+
+Example commands you can speak after loading:
+
+- `toggle hats`
+- `take air`
+- `take blue air`
+- `take wing blue air`
+- `take wing air`
+
+Actual Talon commands (from the sample file):
+
+```talon
+take <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_color} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_color)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_shape} {user.cursorless_color} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_color)
+    sleep(20ms)
+    key(tab)
+    insert(cursorless_shape)
+    sleep(20ms)
+    key(enter)
+take {user.cursorless_shape} <user.cursorless_take_target_key>:
+    key(alt-t)
+    sleep(20ms)
+    key(s)
+    sleep(20ms)
+    key(enter)
+    sleep(20ms)
+    insert(cursorless_take_target_key)
+    sleep(20ms)
+    key(tab:2)
+    sleep(20ms)
+    insert(cursorless_shape)
+    sleep(20ms)
+    key(enter)
+toggle hats:
+    key(alt-t)
+    sleep(20ms)
+    key(h)
+    sleep(20ms)
+    key(enter)
+```
+
 ## Focused tests
 
 ```powershell

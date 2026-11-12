@@ -1,0 +1,35 @@
+list: user.symbol_key
+-
+
+dot: .
+comma: ,
+colon: :
+semi: ;
+quote: '
+double quote: "
+slash: /
+backslash: \
+dash: -
+under: _
+plus: +
+equal: =
+bang: !
+quest: ?
+at: @
+hash: #
+dollar: $
+percent: %
+caret: ^
+ampersand: &
+star: *
+pipe: |
+tilde: ~
+grave: `
+lparen: (
+rparen: )
+lbrace: {
+rbrace: }
+lbrack: [
+rbrack: ]
+less: <
+greater: >
