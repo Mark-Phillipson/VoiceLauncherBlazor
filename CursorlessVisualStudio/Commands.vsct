@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidCursorlessPackage">
+    <Groups>
+      <Group guid="guidCursorlessCommands" id="CursorlessGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidCursorlessCommands" id="ToggleHats" priority="0x0100" type="Button">
+        <Parent guid="guidCursorlessCommands" id="CursorlessGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings><ButtonText>Cursorless &amp;Hats</ButtonText><CommandName>Cursorless.ToggleHats</CommandName></Strings>
+      </Button>
+      <Button guid="guidCursorlessCommands" id="SelectHat" priority="0x0200" type="Button">
+        <Parent guid="guidCursorlessCommands" id="CursorlessGroup" />
+        <Strings><ButtonText>Cursorless &amp;Select Hat...</ButtonText><CommandName>Cursorless.SelectHat</CommandName></Strings>
+      </Button>
+      <Button guid="guidCursorlessCommands" id="HatStatus" priority="0x0300" type="Button">
+        <Parent guid="guidCursorlessCommands" id="CursorlessGroup" />
+        <Strings><ButtonText>Cursorless Hat &amp;Diagnostics...</ButtonText><CommandName>Cursorless.HatDiagnostics</CommandName></Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidCursorlessPackage" value="{8c659f0b-6f7f-4852-9126-281c01e7cc90}" />
+    <GuidSymbol name="guidCursorlessCommands" value="{77014590-f211-4431-9581-9e7952ec42e2}">
+      <IDSymbol name="CursorlessGroup" value="0x1020" />
+      <IDSymbol name="ToggleHats" value="0x0100" />
+      <IDSymbol name="SelectHat" value="0x0101" />
+      <IDSymbol name="HatStatus" value="0x0102" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

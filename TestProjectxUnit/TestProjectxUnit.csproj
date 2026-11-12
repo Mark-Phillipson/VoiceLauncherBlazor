@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CursorlessVisualStudio.Core\CursorlessVisualStudio.Core.csproj" />
     <ProjectReference Include="..\VoiceAdmin\VoiceAdmin.csproj" />
   </ItemGroup>
 
