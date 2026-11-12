@@ -2,6 +2,10 @@
 
 Issue [#71](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/issues/71). An independent, in-process VSIX for **Visual Studio 2026 on Windows**. This milestone draws hats and provides a keyboard-accessible selection dialog; **Talon voice dispatch is not implemented yet**.
 
+## Demo video
+
+- [Demo video](https://youtu.be/f2gqan0o7HE)
+
 ## Acknowledgements
 
 - AI-assisted development tools were used to help design and implement parts of this extension.
@@ -36,7 +40,7 @@ Output: [bin/Debug/net48/CursorlessVisualStudio.vsix](bin/Debug/net48/Cursorless
 
 The host targets .NET Framework 4.8, with portable token logic in [CursorlessVisualStudio.Core](../CursorlessVisualStudio.Core). The VSIX is deliberately not added to the application's solution, so application builds do not require Windows VSIX packaging. The existing xUnit project references only the portable library.
 
-The project follows the installed SDK-style VSIX template, using explicit VSSDK targets and pinned 17.14 API/build packages compatible with VS 2026. The 18.12 packages were tried but depend on versions unavailable from the configured NuGet feeds. The VSIX manifest still requires VS 2026; no application framework or SDK pin was changed.
+The project follows the installed SDK-style VSIX template, using explicit VSSDK targets and pinned 17.14 SDK/build tools for compatibility with the available public NuGet packages in this repository setup.
 
 Marketplace package metadata files:
 

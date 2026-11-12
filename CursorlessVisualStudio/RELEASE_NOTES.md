@@ -17,5 +17,6 @@ Author: Mark Phillipson
 
 - This release is a rendering and selection milestone.
 - Talon voice dispatch is not built into this extension yet.
+- Demo video: https://youtu.be/f2gqan0o7HE
 - AI-assisted development tools were used during implementation.
 - This extension was inspired by the Cursorless Visual Studio Code extension; thanks to the original Cursorless authors and maintainers.

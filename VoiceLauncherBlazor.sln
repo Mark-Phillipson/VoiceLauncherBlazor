@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34407.89
+# Visual Studio Version 18
+VisualStudioVersion = 18.12.12405.243 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{F24C525E-2A74-48F3-B8A8-AD8EF5ECD1E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D9AC67AB-D70E-46F5-8FB3-2E025A823523}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		README.md = README.md
 		global.json = global.json
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjectxUnit", "TestProjectxUnit\TestProjectxUnit.csproj", "{F71448E1-307B-4C56-BBB5-47D829FDD714}"
@@ -25,6 +25,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSanitizer", "DatabaseSanitizer\DatabaseSanitizer.csproj", "{0FF763A2-38F6-4B15-BCDF-48C7BFAB2B28}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAdmin.ServiceDefaults", "VoiceAdmin.ServiceDefaults\VoiceAdmin.ServiceDefaults.csproj", "{04DAA469-6EA1-4330-B921-B114FDC5AE41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CursorlessVisualStudio.Core", "CursorlessVisualStudio.Core\CursorlessVisualStudio.Core.csproj", "{886E92F3-EDF5-D377-FEB5-25052D4C1E37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,6 +134,18 @@ Global
 		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x64.Build.0 = Release|Any CPU
 		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x86.ActiveCfg = Release|Any CPU
 		{04DAA469-6EA1-4330-B921-B114FDC5AE41}.Release|x86.Build.0 = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|x64.Build.0 = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Debug|x86.Build.0 = Debug|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|x64.ActiveCfg = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|x64.Build.0 = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|x86.ActiveCfg = Release|Any CPU
+		{886E92F3-EDF5-D377-FEB5-25052D4C1E37}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
