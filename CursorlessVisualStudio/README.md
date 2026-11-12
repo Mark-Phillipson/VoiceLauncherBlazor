@@ -4,14 +4,15 @@ Issue [#71](https://github.com/Mark-Phillipson/VoiceLauncherBlazor/issues/71). A
 
 ## Current behavior
 
-- Hats cover **visible C# editor text**, including wrapped lines, rather than only the caret line. Horizontal scrolling and outlining determine which characters can receive hats.
-- A hat refers to the **whole Roslyn lexical token span**, without surrounding trivia. One multiline token gets one hat on a visible character, even when its beginning is offscreen.
+- Hats cover **visible text in all text-document editors**, including CSS, XML/project files, Markdown, and plain text. Horizontal scrolling, wrapping, and outlining determine which characters can receive hats. Designer/binary views are not text editors.
+- C# code uses **Roslyn lexical token spans**, without surrounding trivia. Other file types use language-neutral words and individual punctuation characters; this is not syntax-aware CSS/XML parsing. Letters, digits, underscores, and Unicode combining marks stay together; hyphens and dots are separate targets.
+- **C# strings have individual word hats and an opening-quote hat for the whole string.** Ordinary, verbatim, raw, UTF-8, and interpolated strings are supported. Interpolation expressions retain their C# token targets. Word hats select source spans, not decoded runtime values; escape sequences are not separate words and remain available through the whole-string target. Empty strings still have a quote hat. If the opening quote is offscreen, only visible word hats appear. Whole-string quote targeting is C#-specific; other file types use the generic word/punctuation behavior.
 - Character keys are **case-sensitive**: a hat on `A` is distinct from one on `a`. The selection dialog accepts the actual character. Future Talon integration must preserve the user's `Alpha -> A` / `Act -> a` mappings; this prototype does not alter the user's alphabet.
 - Longer tokens receive priority when marks are scarce. Single-character tokens normally receive hats, but are omitted first when marks run out. A warning reports the omitted count; no duplicate/ambiguous mark is displayed.
 - The prototype palette is gray (Default), blue, green, red, pink, yellow, cyan (UserColor1), and orange (UserColor2). Shapes are dot (Default), wing, curve, and bolt. Light/dark backgrounds use different contrast palettes. This is not yet a synchronized copy of VS Code settings.
 - Hats do not edit the buffer or intercept mouse clicks. A small amount of space above each line keeps hats clear of the code. Assignments are retained for unchanged tokens where possible; scrolling/editing can change the map.
 
-Comments, whitespace, preprocessor directives, disabled preprocessor text, and parser-generated missing tokens do not receive hats. Parsing uses a full-document standalone Roslyn syntax tree, not project-specific preprocessor symbols. Structural Cursorless commands and other languages are out of scope for this milestone.
+C# comments, whitespace, preprocessor directives, disabled preprocessor text, and parser-generated missing tokens do not receive hats. C# parsing uses a full-document standalone Roslyn syntax tree, not project-specific preprocessor symbols. Outside C#, comments are ordinary text and can receive word hats. Structural Cursorless commands are out of scope for this milestone.
 
 ## Build
 
@@ -55,11 +56,17 @@ powershell -ExecutionPolicy Bypass -File .\stop-processes-on-port-5008.ps1
 dotnet test .\TestProjectxUnit\TestProjectxUnit.csproj --configuration Debug --filter FullyQualifiedName~CursorlessHatTests
 ```
 
-Tests cover uppercase/lowercase separation, lexical spans/trivia, multiline and disjoint visibility, assignment stability, priority on exhaustion, empty/incomplete code, Unicode, and invalid/canceled requests. Native rendering and commands must also be checked in the experimental IDE, not a browser.
+Tests cover uppercase/lowercase separation, lexical spans/trivia, CSS/XML/plain-text fallback, string words and opening quotes (including escaped, raw, UTF-8, nested, and interpolated strings), clipped words, multiline/disjoint visibility, assignment stability, priority on exhaustion, empty/incomplete code, Unicode, and invalid/canceled requests. Native rendering and commands must also be checked in the experimental IDE, not a browser.
 
 Manual checks: select `A` versus `a`, scroll vertically/horizontally, toggle wrapping/outlining, edit/undo, switch documents, change zoom/theme, toggle hats, and close/reopen views. Check that document contents and dirty state are unchanged by hats/selection. A 100 ms p95 refresh target is a goal, not a measured guarantee from a single status-bar timing.
 
-### Verified on 2026-11-12
+### Version 0.2.0 verified on 2026-11-12
+
+- Debug VSIX build: zero warnings/errors; all **28** focused xUnit tests passed.
+- Native VS 2026 verification selected words in a CSS stylesheet and a project XML file, selected `Uppercase` independently inside a C# string, and selected the entire string using its opening quote. File contents and dirty state stayed unchanged.
+- The visual hat design is unchanged. Talon dispatch remains pending.
+
+### Initial prototype verification (2026-11-12)
 
 - Debug VSIX build: zero warnings/errors; all 10 focused xUnit tests passed.
 - VS 2026 Community 18.12, isolated `CursorlessDemo` profile: hats rendered, all three Tools commands registered, and blue `A` / blue `a` selected different tokens without changing document contents or dirty state.

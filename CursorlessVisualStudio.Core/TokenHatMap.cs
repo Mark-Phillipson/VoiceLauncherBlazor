@@ -24,7 +24,7 @@ namespace CursorlessVisualStudio.Core
         public HatTarget GetTarget(HatMark mark)
         {
             if (!byMark.TryGetValue(mark, out var target))
-                throw new KeyNotFoundException($"No visible token has the hat '{mark}'. Character case matters.");
+                throw new KeyNotFoundException($"No visible target has the hat '{mark}'. Character case matters.");
             return target;
         }
 
@@ -32,10 +32,27 @@ namespace CursorlessVisualStudio.Core
             IReadOnlyList<HatTarget>? previousTargets = null, CancellationToken cancellationToken = default)
         {
             if (tree == null) throw new ArgumentNullException(nameof(tree));
-            if (visibleSpans == null) throw new ArgumentNullException(nameof(visibleSpans));
             cancellationToken.ThrowIfCancellationRequested();
             var source = tree.GetText(cancellationToken);
             var root = tree.GetRoot(cancellationToken);
+            var spans = ValidateSpans(source, visibleSpans);
+            return Create(source, spans, TextTargetReader.ReadCSharp(root, source, spans, cancellationToken),
+                previousTargets, cancellationToken);
+        }
+
+        public static TokenHatMap CreateText(SourceText source, IReadOnlyList<TextSpan> visibleSpans,
+            IReadOnlyList<HatTarget>? previousTargets = null, CancellationToken cancellationToken = default)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            cancellationToken.ThrowIfCancellationRequested();
+            var spans = ValidateSpans(source, visibleSpans);
+            return Create(source, spans, TextTargetReader.ReadText(source, spans, cancellationToken),
+                previousTargets, cancellationToken);
+        }
+
+        private static TextSpan[] ValidateSpans(SourceText source, IReadOnlyList<TextSpan> visibleSpans)
+        {
+            if (visibleSpans == null) throw new ArgumentNullException(nameof(visibleSpans));
             if (visibleSpans.Any(span => span.End > source.Length))
                 throw new ArgumentException("Visible spans must be inside the document.", nameof(visibleSpans));
             var spans = visibleSpans.Where(span => span.Length > 0).OrderBy(span => span.Start).ToArray();
@@ -44,21 +61,26 @@ namespace CursorlessVisualStudio.Core
                 if (index > 0 && spans[index - 1].End > spans[index].Start)
                     throw new ArgumentException("Visible spans must be non-overlapping and inside the document.", nameof(visibleSpans));
             }
+            return spans;
+        }
 
+        private static TokenHatMap Create(SourceText source, IReadOnlyList<TextSpan> spans,
+            IEnumerable<TargetSpan> targetSpans, IReadOnlyList<HatTarget>? previousTargets, CancellationToken cancellationToken)
+        {
             var candidates = new Dictionary<TextSpan, Dictionary<string, int>>();
-            foreach (var visible in spans)
+            foreach (var target in targetSpans)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                foreach (var token in root.DescendantTokens(visible, descendIntoTrivia: false))
+                foreach (var visible in spans)
                 {
-                    if (token.IsMissing || token.Span.Length == 0 || !token.Span.OverlapsWith(visible)) continue;
-                    if (!candidates.TryGetValue(token.Span, out var characters))
+                    if (!target.Characters.OverlapsWith(visible)) continue;
+                    if (!candidates.TryGetValue(target.Selection, out var characters))
                     {
                         characters = new Dictionary<string, int>(StringComparer.Ordinal);
-                        candidates.Add(token.Span, characters);
+                        candidates.Add(target.Selection, characters);
                     }
-                    var end = Math.Min(token.Span.End, visible.End);
-                    for (var position = Math.Max(token.SpanStart, visible.Start); position < end; position++)
+                    var end = Math.Min(target.Characters.End, visible.End);
+                    for (var position = Math.Max(target.Characters.Start, visible.Start); position < end; position++)
                     {
                         var character = source[position];
                         if (char.IsWhiteSpace(character) || char.IsControl(character) || char.IsLowSurrogate(character)) continue;

@@ -34,6 +34,7 @@ namespace CursorlessVisualStudio
         private readonly JoinableTaskFactory taskFactory;
         private CancellationTokenSource? pending;
         private SyntaxTree? syntaxTree;
+        private SourceText? sourceText;
         private ITextSnapshot? syntaxSnapshot;
         private TokenHatMap? map;
         private ITextSnapshot? mapSnapshot;
@@ -61,6 +62,7 @@ namespace CursorlessVisualStudio
             timer.Tick += OnTick;
             view.LayoutChanged += OnLayoutChanged;
             view.TextBuffer.Changed += OnBufferChanged;
+            view.TextBuffer.ContentTypeChanged += OnContentTypeChanged;
             view.Closed += OnClosed;
             view.GotAggregateFocus += OnFocus;
             view.VisualElement.IsVisibleChanged += OnVisibilityChanged;
@@ -94,6 +96,7 @@ namespace CursorlessVisualStudio
             Schedule();
         }
         private void OnBufferChanged(object sender, TextContentChangedEventArgs args) => QueueRefresh();
+        private void OnContentTypeChanged(object sender, ContentTypeChangedEventArgs args) => QueueRefresh();
         private void OnThemeChanged(ThemeChangedEventArgs args) => QueueRefresh();
         private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs args) => QueueRefresh();
         private void OnFocus(object sender, EventArgs args)
@@ -160,9 +163,11 @@ namespace CursorlessVisualStudio
             var currentRevision = revision;
             var requestedAt = refreshRequestedAt;
             var snapshot = view.TextSnapshot;
+            var isCSharp = snapshot.ContentType.IsOfType("CSharp");
             var visible = GetVisibleSpans(snapshot);
             var retained = TranslatePreviousTargets(snapshot);
             var oldTree = syntaxTree;
+            var oldSource = sourceText;
             var oldSnapshot = syntaxSnapshot;
             using (var cancellation = new CancellationTokenSource())
             {
@@ -171,20 +176,26 @@ namespace CursorlessVisualStudio
                 {
                     var result = await Task.Run(() =>
                     {
+                        var source = snapshot == oldSnapshot && oldSource != null ? oldSource : SourceText.From(snapshot.GetText());
+                        if (!isCSharp)
+                        {
+                            var textHats = TokenHatMap.CreateText(source, visible, retained, cancellation.Token);
+                            return (Tree: (SyntaxTree?)null, Source: source, Hats: textHats);
+                        }
                         var tree = oldTree;
                         if (tree == null || snapshot != oldSnapshot)
                         {
-                            var source = SourceText.From(snapshot.GetText());
                             tree = tree == null
                                 ? CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview), cancellationToken: cancellation.Token)
                                 : tree.WithChangedText(source);
                         }
                         var hats = TokenHatMap.Create(tree, visible, retained, cancellation.Token);
-                        return (Tree: tree, Hats: hats);
+                        return (Tree: (SyntaxTree?)tree, Source: source, Hats: hats);
                     }, cancellation.Token);
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellation.Token);
                     if (disposed || revision != currentRevision || snapshot != view.TextSnapshot) return;
                     syntaxTree = result.Tree;
+                    sourceText = result.Source;
                     syntaxSnapshot = snapshot;
                     map = result.Hats;
                     mapSnapshot = snapshot;
@@ -195,7 +206,7 @@ namespace CursorlessVisualStudio
                     Status = $"Cursorless: {map.Targets.Count} visible hats ({elapsed} ms including debounce).";
                     if (map.OmittedTokenCount > 0)
                     {
-                        Status += $" WARNING: {map.OmittedTokenCount} tokens have no available visible mark; longer tokens take priority.";
+                        Status += $" WARNING: {map.OmittedTokenCount} targets have no available visible mark; longer targets take priority.";
                         if (Status.Substring(Status.IndexOf("WARNING", StringComparison.Ordinal)) != lastWarning)
                         {
                             lastWarning = Status.Substring(Status.IndexOf("WARNING", StringComparison.Ordinal));
@@ -313,6 +324,7 @@ namespace CursorlessVisualStudio
             timer.Tick -= OnTick;
             view.LayoutChanged -= OnLayoutChanged;
             view.TextBuffer.Changed -= OnBufferChanged;
+            view.TextBuffer.ContentTypeChanged -= OnContentTypeChanged;
             view.Closed -= OnClosed;
             view.GotAggregateFocus -= OnFocus;
             view.VisualElement.IsVisibleChanged -= OnVisibilityChanged;
@@ -325,6 +337,7 @@ namespace CursorlessVisualStudio
             previousSnapshot = null;
             previousTargets = Array.Empty<HatTarget>();
             syntaxTree = null;
+            sourceText = null;
             syntaxSnapshot = null;
         }
     }

@@ -20,7 +20,7 @@ namespace CursorlessVisualStudio
     }
 
     [Export(typeof(IWpfTextViewCreationListener))]
-    [ContentType("CSharp")]
+    [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     internal sealed class HatViewProvider : IWpfTextViewCreationListener
     {
@@ -42,7 +42,7 @@ namespace CursorlessVisualStudio
     }
 
     [Export(typeof(ILineTransformSourceProvider))]
-    [ContentType("CSharp")]
+    [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     internal sealed class HatLineTransformProvider : ILineTransformSourceProvider
     {

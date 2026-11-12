@@ -24,22 +24,21 @@ namespace TestProjectxUnit
             const string text = "  var total = A + 42; // ignored\nvar text = \"hello world\";";
             var map = Create(text);
             var selected = map.Targets.Select(target => text.Substring(target.TokenSpan.Start, target.TokenSpan.Length));
-            Assert.Equal(new[] { "var", "total", "=", "A", "+", "42", ";", "var", "text", "=", "\"hello world\"", ";" }, selected);
+            Assert.Equal(new[] { "var", "total", "=", "A", "+", "42", ";", "var", "text", "=", "\"hello world\"", "hello", "world", ";" }, selected);
             Assert.All(map.Targets, target => Assert.Equal(target.Mark.Symbol,
                 text.Substring(target.CharacterPosition, target.Mark.Symbol.Length)));
         }
 
         [Fact]
-        public void DisjointVisibleSpans_ExcludeHiddenTextAndDeduplicateMultilineTokens()
+        public void DisjointVisibleSpans_OnlyMarkVisibleStringWordsNotTheHiddenOpeningQuote()
         {
             const string text = "var message = @\"first\nsecond\nthird\"; var hidden = 0;";
             var first = text.IndexOf("second", StringComparison.Ordinal);
             var last = text.IndexOf("third", StringComparison.Ordinal);
             var tree = CSharpSyntaxTree.ParseText(text);
             var map = TokenHatMap.Create(tree, new[] { new TextSpan(first, 6), new TextSpan(last, 5) });
-            var target = Assert.Single(map.Targets);
-            Assert.Equal("@\"first\nsecond\nthird\"", text.Substring(target.TokenSpan.Start, target.TokenSpan.Length));
-            Assert.InRange(target.CharacterPosition, first, first + 5);
+            Assert.Equal(new[] { new TextSpan(first, 6), new TextSpan(last, 5) }, map.Targets.Select(target => target.TokenSpan));
+            Assert.DoesNotContain(map.Targets, target => target.Mark.Symbol == "\"");
         }
 
         [Fact]
@@ -101,6 +100,89 @@ namespace TestProjectxUnit
             Assert.ThrowsAny<OperationCanceledException>(() => TokenHatMap.Create(tree, new[] { new TextSpan(0, 5) }, cancellationToken: cancellation.Token));
             Assert.ThrowsAny<OperationCanceledException>(() => TokenHatMap.Create(tree, Array.Empty<TextSpan>(), cancellationToken: cancellation.Token));
         }
+
+        [Theory]
+        [InlineData(".card { color: red; }", ".|card|{|color|:|red|;|}")]
+        [InlineData("<Project>net10.0</Project>", "<|Project|>|net10|.|0|<|/|Project|>")]
+        [InlineData("# Alpha Act A a", "#|Alpha|Act|A|a")]
+        [InlineData("print('hello world')", "print|(|'|hello|world|'|)")]
+        public void TextFallback_HandlesCssXmlMarkdownAndOtherLanguages(string text, string expected)
+        {
+            var map = TokenHatMap.CreateText(SourceText.From(text), new[] { new TextSpan(0, text.Length) });
+            Assert.Equal(expected.Split('|'), SelectedText(text, map));
+            Assert.All(map.Targets, target => Assert.Equal(target.Mark.Symbol,
+                text.Substring(target.CharacterPosition, target.Mark.Symbol.Length)));
+        }
+
+        [Fact]
+        public void TextFallback_ClippedWordsKeepWholeSpansAndDistinctCase()
+        {
+            const string text = "prefixMixedCase A a hidden";
+            var map = TokenHatMap.CreateText(SourceText.From(text), new[] { new TextSpan(6, 3), new TextSpan(16, 3) });
+            Assert.Equal(new[] { "prefixMixedCase", "A", "a" }, SelectedText(text, map));
+            Assert.InRange(map.Targets[0].CharacterPosition, 6, 8);
+            Assert.Equal("A", text.Substring(map.GetTarget(new HatMark(HatColor.Default, HatShape.Default, "A")).TokenSpan.Start, 1));
+            Assert.Equal("a", text.Substring(map.GetTarget(new HatMark(HatColor.Default, HatShape.Default, "a")).TokenSpan.Start, 1));
+        }
+
+        [Theory]
+        [InlineData("\"hello world\"", "hello|world")]
+        [InlineData("@\"hello \"\"quoted\"\" world\"", "hello|quoted|world")]
+        [InlineData("\"\"\"hello \"quoted\" world\"\"\"", "hello|quoted|world")]
+        [InlineData("\"\"\"\nhello\nworld\n\"\"\"", "hello|world")]
+        [InlineData("\"hello world\"u8", "hello|world")]
+        [InlineData("\"unfinished u8", "unfinished|u8")]
+        public void Strings_HaveWordTargetsAndAnOpeningQuoteForTheWholeLiteral(string text, string expectedWords)
+        {
+            var map = Create(text);
+            var whole = map.GetTarget(new HatMark(HatColor.Default, HatShape.Default, "\""));
+            Assert.Equal(new TextSpan(0, text.Length), whole.TokenSpan);
+            Assert.Equal(text.IndexOf('"'), whole.CharacterPosition);
+            Assert.Equal(expectedWords.Split('|'), SelectedText(text, map).Skip(1));
+            Assert.Equal(map.Targets.Count, map.Targets.Select(target => target.CharacterPosition).Distinct().Count());
+        }
+
+        [Theory]
+        [InlineData("\"\"")]
+        [InlineData("@\"\"")]
+        public void EmptyStrings_StillHaveAWholeLiteralTarget(string text)
+        {
+            var target = Assert.Single(Create(text).Targets);
+            Assert.Equal("\"", target.Mark.Symbol);
+            Assert.Equal(new TextSpan(0, text.Length), target.TokenSpan);
+        }
+
+        [Fact]
+        public void StringEscapeSequences_AreNotMistakenForWords()
+        {
+            const string text = "\"one\\ntwo \\\"quoted\\\" \\u0041 three\"";
+            var map = Create(text);
+            Assert.Equal(new[] { text, "one", "two", "quoted", "three" }, SelectedText(text, map));
+        }
+
+        [Theory]
+        [InlineData("$\"hello {user.Name} world\"")]
+        [InlineData("$@\"hello {user.Name} world\"")]
+        [InlineData("$\"\"\"hello {user.Name} world\"\"\"")]
+        public void InterpolatedStrings_PreserveExpressionTokensAlongsideWordsAndWholeString(string text)
+        {
+            var map = Create(text);
+            Assert.Equal(new[] { text, "hello", "{", "user", ".", "Name", "}", "world" }, SelectedText(text, map));
+            Assert.Equal(text.IndexOf('"'), map.GetTarget(new HatMark(HatColor.Default, HatShape.Default, "\"")).CharacterPosition);
+        }
+
+        [Fact]
+        public void NestedStringsAndWrappedWords_KeepDistinctSelectionSpans()
+        {
+            const string text = "$\"outer {$\"inner {x}\"} end\"";
+            Assert.Equal(new[] { text, "outer", "{", "$\"inner {x}\"", "inner", "{", "x", "}", "}", "end" }, SelectedText(text, Create(text)));
+            const string wrapped = "\"longword\"";
+            var map = TokenHatMap.Create(CSharpSyntaxTree.ParseText(wrapped), new[] { new TextSpan(1, 3), new TextSpan(5, 4) });
+            Assert.Equal(new TextSpan(1, 8), Assert.Single(map.Targets).TokenSpan);
+        }
+
+        private static IEnumerable<string> SelectedText(string text, TokenHatMap map) =>
+            map.Targets.Select(target => text.Substring(target.TokenSpan.Start, target.TokenSpan.Length));
 
         private static TokenHatMap Create(string text) => TokenHatMap.Create(
             CSharpSyntaxTree.ParseText(text), new[] { new TextSpan(0, text.Length) });

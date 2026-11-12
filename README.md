@@ -118,7 +118,7 @@ Below are examples of the WinForms Blazor hybrid application showing common work
 - **WinFormsApp**: Blazor Hybrid WinForms project (Windows-only).
 - **DataAccessLibrary**: EF Core with SQLite for data access.
 - **TestProjectxUnit**: Unit tests using XUnit.
-- **CursorlessVisualStudio**: Experimental VS 2026 extension with visible C# token hats; see the [prototype build and demo guide](CursorlessVisualStudio/README.md).
+- **CursorlessVisualStudio**: Experimental VS 2026 extension with visible-text hats and C# string-word targeting; see the [prototype build and demo guide](CursorlessVisualStudio/README.md).
 
 > **Note:** The `TalonVoiceCommandsServer` project is deprecated; its folder remains for historical reference and is marked with `TalonVoiceCommandsServer/DEPRECATED.md`.
 

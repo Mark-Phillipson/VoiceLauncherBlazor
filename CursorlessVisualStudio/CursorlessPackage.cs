@@ -51,7 +51,7 @@ namespace CursorlessVisualStudio
                 if (view != null && view.Properties.TryGetProperty(typeof(HatViewManager), out HatViewManager manager))
                     return manager;
             }
-            ShowMessage("Open a C# document in the editor first.");
+            ShowMessage("Open a text document in the editor first.");
             return null;
         }
 

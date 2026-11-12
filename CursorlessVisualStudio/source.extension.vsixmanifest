@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="CursorlessVisualStudio.699a2b04-31c6-46cf-9670-cef761dcc83a" Version="0.1.0" Language="en-US" Publisher="Mark Phillipson" />
+    <Identity Id="CursorlessVisualStudio.699a2b04-31c6-46cf-9670-cef761dcc83a" Version="0.2.0" Language="en-US" Publisher="Mark Phillipson" />
     <DisplayName>Cursorless Visual Studio Prototype</DisplayName>
-    <Description xml:space="preserve">Case-sensitive hats on visible C# tokens. Rendering and selection prototype; Talon integration is not yet included.</Description>
+    <Description xml:space="preserve">Case-sensitive hats on visible text, with C# token and string-word targets. Rendering and selection prototype; Talon integration is not yet included.</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[18.0,)">
