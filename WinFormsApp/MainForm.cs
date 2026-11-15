@@ -889,14 +889,7 @@ namespace WinFormsApp
                 }
                 else
                 {
-                    if (_launcherWindow.WindowState == FormWindowState.Minimized)
-                        _launcherWindow.WindowState = FormWindowState.Normal;
-
-                    if (!_launcherWindow.Visible)
-                        _launcherWindow.Show();
-
-                    _launcherWindow.BringToFront();
-                    _launcherWindow.Activate();
+                    ShowAndActivateLauncherWindow(_launcherWindow);
                     return;
                 }
             }
@@ -913,10 +906,34 @@ namespace WinFormsApp
                 }
             };
 
-            window.Show();
-            window.BringToFront();
-            window.Activate();
+            ShowAndActivateLauncherWindow(window);
             AppendLog("Launcher window opened");
+        }
+
+        private static void ShowAndActivateLauncherWindow(LauncherWindowForm window)
+        {
+            if (window.IsDisposed || window.Disposing)
+                return;
+
+            if (window.WindowState == FormWindowState.Minimized)
+                window.WindowState = FormWindowState.Normal;
+
+            if (!window.Visible)
+                window.Show();
+
+            // Activate after the show operation has completed its current message
+            // cycle. This gives WinForms/WebView2 a chance to restore the HWND first.
+            window.BeginInvoke(new Action(() =>
+            {
+                if (window.IsDisposed || window.Disposing || !window.IsHandleCreated)
+                    return;
+
+                if (window.WindowState == FormWindowState.Minimized)
+                    window.WindowState = FormWindowState.Normal;
+
+                window.BringToFront();
+                window.Activate();
+            }));
         }
 
         /// <summary>
