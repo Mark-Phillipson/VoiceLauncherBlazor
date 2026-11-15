@@ -24,6 +24,7 @@ namespace RazorClassLibrary.Components
         [Parameter] public EventCallback<string> OnDebounced { get; set; }
         [Parameter] public int DebounceMilliseconds { get; set; } = 300;
         [Parameter] public bool ImmediateOnEnter { get; set; } = true;
+        [Parameter] public bool UpdateOnBlurOnly { get; set; } = false;
 
         protected override void OnParametersSet()
         {
@@ -50,6 +51,11 @@ namespace RazorClassLibrary.Components
             CurrentValue = e?.Value?.ToString() ?? string.Empty;
             var inputValue = CurrentValue;
 
+            if (UpdateOnBlurOnly)
+            {
+                return;
+            }
+
             _cts?.Cancel();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
@@ -62,31 +68,44 @@ namespace RazorClassLibrary.Components
 
                 if (!token.IsCancellationRequested)
                 {
-                    if (ValueChanged.HasDelegate)
-                        await ValueChanged.InvokeAsync(inputValue);
-
-                    if (OnDebounced.HasDelegate)
-                        await OnDebounced.InvokeAsync(inputValue);
+                    await CommitValueAsync(inputValue);
                 }
             }
             catch (TaskCanceledException) { }
+        }
+
+        private Task OnBlur(FocusEventArgs _)
+        {
+            if (!UpdateOnBlurOnly)
+            {
+                return Task.CompletedTask;
+            }
+
+            return CommitValueAsync(CurrentValue);
         }
 
         private async Task OnKeyDown(KeyboardEventArgs e)
         {
             if (ImmediateOnEnter && (e.Key == "Enter"))
             {
-                _cts?.Cancel();
-                _cts?.Dispose();
-                _cts = null;
-                if (ValueChanged.HasDelegate)
-                {
-                    await ValueChanged.InvokeAsync(CurrentValue);
-                }
-                if (OnDebounced.HasDelegate)
-                {
-                    await OnDebounced.InvokeAsync(CurrentValue);
-                }
+                await CommitValueAsync(CurrentValue);
+            }
+        }
+
+        private async Task CommitValueAsync(string value)
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+
+            if (ValueChanged.HasDelegate)
+            {
+                await ValueChanged.InvokeAsync(value);
+            }
+
+            if (OnDebounced.HasDelegate)
+            {
+                await OnDebounced.InvokeAsync(value);
             }
         }
 

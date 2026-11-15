@@ -86,6 +86,7 @@
                     Id="SearchInput"
                     Value="@SearchTerm"
                     ValueChanged="@(v => SearchTerm = v)"
+                    UpdateOnBlurOnly="true"
                     ResetVersion="@SearchResetVersion"
                     DebounceMilliseconds="2000"
                     Placeholder="Filter by Name"
