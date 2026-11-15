@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="AutoMapper" Version="16.3.0" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="AngleSharp" Version="1.9.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />

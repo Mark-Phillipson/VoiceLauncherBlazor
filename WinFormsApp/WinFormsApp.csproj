@@ -12,7 +12,7 @@
     <NoWarn>MSB3277</NoWarn>
     <UserSecretsId>faf022c3-b87d-4635-908d-1cb39d38abe0</UserSecretsId>
   </PropertyGroup>  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="AutoMapper" Version="16.3.0" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
