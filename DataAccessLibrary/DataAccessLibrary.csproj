@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
 		<!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
 		<UseLocalEmbeddings>false</UseLocalEmbeddings>
@@ -42,30 +42,30 @@
 		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
 		<!-- Removed unnecessary Microsoft.AspNetCore.Components*, Microsoft.Extensions.Caching.Memory -->
-		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.14" />
-		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.ObjectPool" Version="11.0.0" />
+		<PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="11.0.0" />
 		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="11.0.0" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
 		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
 
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="11.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="11.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
 		<!-- Removed unnecessary Microsoft.Extensions.Configuration.Abstractions and Hosting -->
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.92.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.14" />
-		<PackageReference Include="System.Numerics.Tensors" Version="10.0.14" />
-		<PackageReference Include="System.Runtime.Caching" Version="10.0.14" />
-		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="11.0.0" />
+		<PackageReference Include="System.Numerics.Tensors" Version="11.0.0" />
+		<PackageReference Include="System.Runtime.Caching" Version="11.0.0" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
 		<!-- Removed unnecessary System.Text.Json direct reference -->
 	</ItemGroup>
 

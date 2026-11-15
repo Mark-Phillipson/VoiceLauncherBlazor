@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net11.0</TargetFramework>
 		<!-- Feature flag to enable/disable local embeddings package that downloads models at build time -->
 		<!-- Set to true only on machines with direct HTTPS access to huggingface.co -->
 		<UseLocalEmbeddings>false</UseLocalEmbeddings>
@@ -24,23 +24,23 @@
 		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
 		<PackageReference Include="InputSimulatorCore" Version="1.0.5" />
 		<PackageReference Include="Markdig" Version="1.6.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="11.0.0" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
 		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.81.0" />
-		<PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.81.0" />		
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.82.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.82.0" />		
 		<PackageReference Include="Radzen.Blazor" Version="13.1.0" />
 		<PackageReference Include="SmartComponents.AspNetCore" Version="0.1.0-preview10148" />
 		<PackageReference Include="SmartComponents.Inference.OpenAI" Version="0.1.0-preview10148" />
 		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.4" />
-		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
