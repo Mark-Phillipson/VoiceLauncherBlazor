@@ -72,7 +72,16 @@
                 <div class="col-12 col-lg-6">
                     <label class="form-label fw-semibold" for="search-folder">Search folder</label>
                     <div class="input-group">
-                        <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
+                        <input id="search-folder"
+                               class="form-control"
+                               value="@_searchRoot"
+                               accesskey="P"
+                               aria-keyshortcuts="Alt+Shift+P"
+                               aria-describedby="search-folder-help"
+                               placeholder="Type or paste a folder path"
+                               @oninput="OnSearchRootChanged"
+                               @onkeydown="HandleSearchRootKeyDown"
+                               @onblur="ApplySearchRootAsync" />
                         <button @ref="_chooseFolderButton"
                                 class="btn btn-outline-secondary"
                                 accesskey="F"
@@ -83,6 +92,7 @@
                             Choose folder <kbd class="speech-search-shortcut">F</kbd>
                         </button>
                     </div>
+                    <div id="search-folder-help" class="form-text text-secondary">Type or paste a path, then press Enter or move out of the field to use it. You can also choose a folder.</div>
                 </div>
                 <div class="col-12 col-lg-6">
                     <label class="form-label fw-semibold" for="file-search">File name contains <kbd class="speech-search-shortcut">N</kbd></label>
@@ -332,6 +342,38 @@
         }
     }
 
+    private void OnSearchRootChanged(ChangeEventArgs args)
+    {
+        _searchRoot = args.Value?.ToString() ?? string.Empty;
+        _errorMessage = null;
+    }
+
+    private async Task HandleSearchRootKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !_isSearching)
+            await ApplySearchRootAsync();
+    }
+
+    private async Task ApplySearchRootAsync()
+    {
+        var folder = _searchRoot.Trim();
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            _errorMessage = "Enter a folder path or choose a folder.";
+            return;
+        }
+
+        if (!Directory.Exists(folder))
+        {
+            _errorMessage = $"The folder does not exist or cannot be accessed: {folder}";
+            return;
+        }
+
+        _searchRoot = Path.GetFullPath(folder);
+        _errorMessage = null;
+        await SearchAsync();
+    }
+
     private async Task BrowseFolderAsync()
     {
         if (RequestFolderAsync is null)
@@ -341,7 +383,8 @@
         if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
             return;
 
-        _searchRoot = folder;
+        _searchRoot = Path.GetFullPath(folder);
+        _errorMessage = null;
         await SearchAsync();
     }
 
