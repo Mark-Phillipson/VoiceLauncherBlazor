@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Security;
+using System.Text.Json;
 
 namespace WinFormsApp;
 
@@ -13,6 +14,14 @@ internal sealed class FolderWalkerService
     public static FolderWalkerService Shared { get; } = new();
 
     private readonly string _connectionString;
+    private readonly string _exclusionsFilePath;
+    private readonly object _exclusionsLock = new();
+    private string[] _excludedPaths = [];
+    private static readonly HashSet<string> BuiltInExcludedFolderNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "$Recycle.Bin",
+        "System Volume Information"
+    };
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _driveLocks =
         new(StringComparer.OrdinalIgnoreCase);
     private readonly object _schemaLock = new();
@@ -24,11 +33,111 @@ internal sealed class FolderWalkerService
         var indexDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "VoiceLauncherBlazor");
+        Directory.CreateDirectory(indexDirectory);
+        _exclusionsFilePath = Path.Combine(indexDirectory, "folder-exclusions.json");
+        _excludedPaths = LoadExcludedPaths();
         _connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = Path.Combine(indexDirectory, "folder-index.db"),
             Mode = SqliteOpenMode.ReadWriteCreate
         }.ToString();
+    }
+
+
+    public IReadOnlyList<string> GetExcludedPaths()
+    {
+        lock (_exclusionsLock)
+            return _excludedPaths.ToArray();
+    }
+
+    public void SaveExcludedPaths(IEnumerable<string> paths)
+    {
+        ArgumentNullException.ThrowIfNull(paths);
+
+        var normalizedPaths = paths
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Select(NormalizeFolderPath)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        lock (_exclusionsLock)
+        {
+            File.WriteAllText(_exclusionsFilePath, JsonSerializer.Serialize(normalizedPaths, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
+            _excludedPaths = normalizedPaths;
+        }
+
+        // The existing index may contain folders that are now excluded. Force a clean rebuild.
+        EnsureDatabase();
+        using var connection = OpenConnection();
+        using var transaction = connection.BeginTransaction();
+        foreach (var table in new[] { "FolderEntries", "FolderNameSearch", "FolderDriveIndexes" })
+        {
+            if (table == "FolderNameSearch" && !_supportsTrigramSearch)
+                continue;
+
+            using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = $"DELETE FROM {table};";
+            command.ExecuteNonQuery();
+        }
+        transaction.Commit();
+    }
+
+    private string[] LoadExcludedPaths()
+    {
+        try
+        {
+            if (!File.Exists(_exclusionsFilePath))
+                return [];
+
+            return JsonSerializer.Deserialize<string[]>(File.ReadAllText(_exclusionsFilePath))?
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Select(NormalizeFolderPath)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray() ?? [];
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return [];
+        }
+    }
+
+    private static string NormalizeFolderPath(string path)
+    {
+        var fullPath = Path.GetFullPath(path.Trim());
+        var root = Path.GetPathRoot(fullPath);
+        return string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)
+            ? fullPath
+            : fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+    }
+
+    private bool IsExcludedFolder(string folderPath, string folderName)
+    {
+        if (BuiltInExcludedFolderNames.Contains(folderName))
+            return true;
+
+        string[] excludedPaths;
+        lock (_exclusionsLock)
+            excludedPaths = _excludedPaths;
+
+        foreach (var excludedPath in excludedPaths)
+        {
+            if (string.Equals(folderPath, excludedPath, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var relativePath = Path.GetRelativePath(excludedPath, folderPath);
+            if (!string.Equals(relativePath, ".", StringComparison.Ordinal) &&
+                !relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) &&
+                !string.Equals(relativePath, "..", StringComparison.Ordinal) &&
+                !Path.IsPathRooted(relativePath))
+                return true;
+        }
+
+        return false;
     }
 
     public async Task<FolderIndexSummary> EnsureIndexAsync(
@@ -161,13 +270,16 @@ internal sealed class FolderWalkerService
 
                         try
                         {
-                            var attributes = File.GetAttributes(childPath);
-                            if ((attributes & FileAttributes.ReparsePoint) != 0)
-                                continue;
-
                             var folderName = Path.GetFileName(childPath.TrimEnd(
                                 Path.DirectorySeparatorChar,
                                 Path.AltDirectorySeparatorChar)) ?? childPath;
+
+                            if (IsExcludedFolder(childPath, folderName))
+                                continue;
+
+                            var attributes = File.GetAttributes(childPath);
+                            if ((attributes & FileAttributes.ReparsePoint) != 0)
+                                continue;
 
                             insertEntry.Parameters["$root"].Value = rootPath;
                             insertEntry.Parameters["$path"].Value = childPath;
