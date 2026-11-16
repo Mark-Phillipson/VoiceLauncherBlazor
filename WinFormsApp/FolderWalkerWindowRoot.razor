@@ -401,12 +401,13 @@
             if (nextMatchIndex > position)
                 builder.AddContent(sequence++, value[position..nextMatchIndex]);
 
+            var matchedText = matchedTerm!;
             builder.OpenElement(sequence++, "mark");
             builder.AddAttribute(sequence++, "class", "folder-match");
-            builder.AddContent(sequence++, value.Substring(nextMatchIndex, matchedTerm!.Length));
+            builder.AddContent(sequence++, value.Substring(nextMatchIndex, matchedText.Length));
             builder.CloseElement();
 
-            position = nextMatchIndex + matchedTerm.Length;
+            position = nextMatchIndex + matchedText.Length;
         }
     };
 
