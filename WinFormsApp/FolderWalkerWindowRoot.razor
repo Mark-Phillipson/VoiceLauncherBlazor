@@ -364,11 +364,11 @@
             await AddExclusion();
     }
 
-    private async Task AddExclusion()
+    private Task AddExclusion()
     {
         var path = _exclusionPathInput.Trim();
         if (string.IsNullOrWhiteSpace(path) || _isIndexing)
-            return;
+            return Task.CompletedTask;
 
         try
         {
@@ -376,11 +376,11 @@
             if (!Directory.Exists(normalizedPath))
             {
                 _errorMessage = "That folder does not exist or is not currently accessible.";
-                return;
+                return Task.CompletedTask;
             }
 
             if (_excludedPaths.Contains(normalizedPath, StringComparer.OrdinalIgnoreCase))
-                return;
+                return Task.CompletedTask;
 
             _excludedPaths.Add(normalizedPath);
             FolderWalker.SaveExcludedPaths(_excludedPaths);
@@ -388,20 +388,19 @@
             _errorMessage = null;
             _searchResults = null;
             _selectedFolder = null;
-
-            if (_selectedRoot is not null)
-                await EnsureDriveIndexAsync(_selectedRoot, forceRefresh: true);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
         {
             _errorMessage = $"The exclusion could not be saved: {exception.Message}";
         }
+
+        return Task.CompletedTask;
     }
 
-    private async Task RemoveExclusion(string path)
+    private Task RemoveExclusion(string path)
     {
         if (_isIndexing)
-            return;
+            return Task.CompletedTask;
 
         _excludedPaths.RemoveAll(item => string.Equals(item, path, StringComparison.OrdinalIgnoreCase));
         try
@@ -410,14 +409,13 @@
             _errorMessage = null;
             _searchResults = null;
             _selectedFolder = null;
-
-            if (_selectedRoot is not null)
-                await EnsureDriveIndexAsync(_selectedRoot, forceRefresh: true);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
         {
             _errorMessage = $"The exclusion could not be saved: {exception.Message}";
         }
+
+        return Task.CompletedTask;
     }
 
     private void RefreshDrives()
