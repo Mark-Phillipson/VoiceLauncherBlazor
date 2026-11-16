@@ -137,12 +137,12 @@
             <section aria-labelledby="folder-exclusions-heading">
                 <h2 id="folder-exclusions-heading" class="h6 mb-1">Global excluded locations</h2>
                 <p class="small text-secondary mb-2">
-                    These paths are excluded from indexing on every drive. The Windows Recycle Bin and System Volume Information are always excluded.
+                    These paths are excluded from indexing on every drive. The Recycle Bin, System Volume Information and standard Backup folders are always excluded.
                 </p>
                 <div class="input-group mb-2">
                     <input class="form-control"
                            aria-label="Folder path to exclude"
-                           placeholder="For example, D:\\Backups"
+                           placeholder="For example, D:\Backups"
                            @bind="_exclusionPathInput"
                            @bind:event="oninput"
                            @onkeydown="HandleExclusionKeyDown" />
