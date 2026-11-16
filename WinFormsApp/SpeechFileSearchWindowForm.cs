@@ -27,6 +27,10 @@ internal sealed class SpeechFileSearchWindowForm : Form
         MaximizeBox = true;
         MinimizeBox = true;
         ShowInTaskbar = true;
+        ShowIcon = true;
+
+        try { Icon = WindowIconFactory.CreateSpeechFileSearch(); }
+        catch { }
 
         var services = new ServiceCollection();
         services.AddSingleton<SpeechFileSearchService>();

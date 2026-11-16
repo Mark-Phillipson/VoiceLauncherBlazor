@@ -58,6 +58,13 @@
     .speech-file-modified {
         color: #adb5bd !important;
     }
+
+    .speech-search-match {
+        padding: 0 .1em;
+        color: #212529;
+        background-color: #ffe066;
+        border-radius: .15rem;
+    }
 </style>
 
 <div class="container-fluid p-4">
@@ -68,174 +75,154 @@
 
     <section class="card border-secondary shadow-sm mb-4 bg-dark text-light">
         <div class="card-body p-4">
-            <div class="row g-3 align-items-end">
+            <div class="row g-3 align-items-start">
                 <div class="col-12 col-lg-6">
                     <label class="form-label fw-semibold" for="search-folder">Search folder</label>
                     <div class="input-group">
-                        <input id="search-folder" class="form-control text-truncate" value="@_searchRoot" readonly />
-                        <button @ref="_chooseFolderButton"
-                                class="btn btn-outline-secondary"
-                                accesskey="F"
-                                aria-keyshortcuts="Alt+Shift+F"
-                                type="button"
-                                @onclick="BrowseFolderAsync"
+                        <input style="width: 750px;" id="search-folder" class="form-control" value="@_searchRoot" accesskey="P"
+                               aria-keyshortcuts="Alt+Shift+P" aria-describedby="search-folder-help"
+                               placeholder="Type or paste a folder path" @oninput="OnSearchRootChanged"
+                               @onkeydown="HandleSearchRootKeyDown" />
+                        <button type="button" class="btn btn-primary" accesskey="U" aria-keyshortcuts="Alt+Shift+U"
+                                @onclick="ApplySearchRootAsync" disabled="@_isSearching">
+                            Use path <kbd class="speech-search-shortcut">U</kbd>
+                        </button>
+                        <button @ref="_chooseFolderButton" class="btn btn-outline-secondary" accesskey="F"
+                                aria-keyshortcuts="Alt+Shift+F" type="button" @onclick="BrowseFolderAsync"
                                 disabled="@(_isSearching || RequestFolderAsync is null)">
                             Choose folder <kbd class="speech-search-shortcut">F</kbd>
                         </button>
                     </div>
-                </div>
-                <div class="col-12 col-lg-6">
-                    <label class="form-label fw-semibold" for="file-search">File name contains <kbd class="speech-search-shortcut">N</kbd></label>
-                    <div class="input-group">
-                        <input id="file-search"
-                               class="form-control"
-                               accesskey="N"
-                               aria-keyshortcuts="Alt+Shift+N"
-                               placeholder="Speak or type a word"
-                               value="@_searchText"
-                               @oninput="OnSearchTextChanged"
-                               @onkeydown="HandleSearchKeyDown" />
-                        <button class="btn btn-primary"
-                                type="button"
-                                accesskey="S"
-                                aria-keyshortcuts="Alt+Shift+S"
-                                @onclick="() => SearchAsync()"
-                                disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
-                            Search <kbd class="speech-search-shortcut">S</kbd>
-                        </button>
+                    <div id="search-folder-help" class="form-text text-secondary">Type or paste a path, then press Enter
+                        or select Use path. You can also choose a folder.</div>
                     </div>
-                </div>
-            </div>
-
-            <div class="d-flex flex-wrap gap-4 mt-3">
-                <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
-                    <input class="form-check-input m-0"
-                           type="checkbox"
-                           checked="@_includeSubfolders"
-                           accesskey="B"
-                           aria-keyshortcuts="Alt+Shift+B"
-                           @onchange="OnIncludeSubfoldersChanged" />
-                    <span class="form-check-label">Search subfolders <kbd class="speech-search-shortcut">B</kbd></span>
-                </label>
-                <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
-                    <input class="form-check-input m-0"
-                           type="checkbox"
-                           checked="@_openDirectly"
-                           accesskey="O"
-                           aria-keyshortcuts="Alt+Shift+O"
-                           @onchange="OnOpenDirectlyChanged" />
-                    <span class="form-check-label">Open file directly <kbd class="speech-search-shortcut">O</kbd></span>
-                </label>
-                <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
-                    <input class="form-check-input m-0"
-                           type="checkbox"
-                           checked="@_sortAlphabetically"
-                           accesskey="A"
-                           aria-keyshortcuts="Alt+Shift+A"
-                           @onchange="OnSortChanged" />
-                    <span class="form-check-label">Sort alphabetically <kbd class="speech-search-shortcut">A</kbd></span>
-                </label>
-                <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option"
-                       title="When both sort options are selected, newest files appear first and filenames break ties.">
-                    <input class="form-check-input m-0"
-                           type="checkbox"
-                           checked="@_sortByModifiedDate"
-                           accesskey="M"
-                           aria-keyshortcuts="Alt+Shift+M"
-                           @onchange="OnSortByModifiedDateChanged" />
-                    <span class="form-check-label">Sort by modified date (newest first) <kbd class="speech-search-shortcut">M</kbd></span>
-                </label>
-            </div>
-        </div>
-    </section>
-
-    @if (!string.IsNullOrWhiteSpace(_errorMessage))
-    {
-        <div class="alert alert-danger" role="alert">@_errorMessage</div>
-    }
-
-    <section class="card border-secondary shadow-sm bg-dark text-light speech-search-results-card">
-        <div class="card-header border-secondary px-4 pt-4 bg-dark text-light">
-            <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                    <h2 class="h5 mb-1">Results</h2>
-                    @if (_results is not null)
-                    {
-                        <p class="text-secondary mb-0">
-                            @if (_results.TotalMatchCount > _results.Files.Count)
-                            {
-                                <span>Showing @_results.Files.Count of @_results.TotalMatchCount matching files</span>
-                            }
-                            else
-                            {
-                                <span>@_results.TotalMatchCount file(s) found</span>
-                            }
-                            @if (_results.SkippedFolderCount > 0)
-                            {
-                                <span> · @_results.SkippedFolderCount folder(s) could not be read</span>
-                            }
-                        </p>
-                    }
-                </div>
-                @if (_isSearching)
-                {
-                    <div class="d-flex align-items-center gap-2 text-secondary" role="status">
-                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                        <span>Searching…</span>
-                    </div>
-                }
-            </div>
-        </div>
-        <div class="card-body px-4 pt-2">
-            @if (_results is null && !_isSearching)
-            {
-                <p class="text-secondary py-3 mb-0">Enter a file name to start searching.</p>
-            }
-            else if (_results is { Files.Count: 0 } && !_isSearching)
-            {
-                <p class="text-secondary py-3 mb-0">No files matched “@_searchText”.</p>
-            }
-            else if (_results is not null)
-            {
-                <div class="d-grid gap-2 speech-search-result-list">
-                    @for (var i = 0; i < _results.Files.Count; i++)
-                    {
-                        var index = i;
-                        var match = _results.Files[index];
-                        var fileName = System.IO.Path.GetFileName(match.FullPath);
-                        var modifiedDate = match.LastModifiedUtc.ToLocalTime().ToString("g");
-                        <div @key="match.FullPath" class="d-flex align-items-stretch gap-2">
-                            @if (index < 9)
-                            {
-                                var shortcutNumber = index + 1;
-                                <button type="button"
-                                        class="btn btn-outline-primary flex-shrink-0 speech-result-shortcut"
-                                        accesskey="@shortcutNumber"
-                                        aria-keyshortcuts="@($"Alt+Shift+{shortcutNumber}")"
-                                        aria-label="@($"Select result {shortcutNumber}: {fileName}")"
-                                        @onclick="() => OpenFile(match)">
-                                    Select <kbd class="speech-search-shortcut">@shortcutNumber</kbd>
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label fw-semibold" for="file-search">File name contains <kbd
+                            class="speech-search-shortcut">N</kbd></label>
+                            <div class="input-group">
+                                <input id="file-search" class="form-control" accesskey="N" aria-keyshortcuts="Alt+Shift+N"
+                                       placeholder="Speak or type a word" value="@_searchText" @oninput="OnSearchTextChanged"
+                                       @onkeydown="HandleSearchKeyDown" />
+                                <button class="btn btn-primary" type="button" accesskey="S" aria-keyshortcuts="Alt+Shift+S"
+                                        @onclick="() => SearchAsync()"
+                                        disabled="@(_isSearching || string.IsNullOrWhiteSpace(_searchRoot))">
+                                    Search <kbd class="speech-search-shortcut">S</kbd>
                                 </button>
-                            }
-                            else
-                            {
-                                <span class="flex-shrink-0 speech-result-shortcut-placeholder" aria-hidden="true"></span>
-                            }
-                            <button type="button"
-                                    class="list-group-item list-group-item-action text-start py-3 flex-grow-1 speech-file-result"
-                                    aria-label="@($"Open {fileName}")"
-                                    @onclick="() => OpenFile(match)">
-                                <span class="d-block fw-semibold text-break">@fileName</span>
-                                <span class="d-block small speech-file-path text-break">@match.FullPath</span>
-                                <span class="d-block small speech-file-modified">Modified: @modifiedDate</span>
-                            </button>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-4 mt-3">
+                        <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
+                            <input class="form-check-input m-0" type="checkbox" checked="@_includeSubfolders" accesskey="B"
+                                   aria-keyshortcuts="Alt+Shift+B" @onchange="OnIncludeSubfoldersChanged" />
+                            <span class="form-check-label">Search subfolders <kbd class="speech-search-shortcut">B</kbd></span>
+                        </label>
+                        <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
+                            <input class="form-check-input m-0" type="checkbox" checked="@_openDirectly" accesskey="O"
+                                   aria-keyshortcuts="Alt+Shift+O" @onchange="OnOpenDirectlyChanged" />
+                            <span class="form-check-label">Open file directly <kbd class="speech-search-shortcut">O</kbd></span>
+                        </label>
+                        <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option">
+                            <input class="form-check-input m-0" type="checkbox" checked="@_sortAlphabetically" accesskey="A"
+                                   aria-keyshortcuts="Alt+Shift+A" @onchange="OnSortChanged" />
+                            <span class="form-check-label">Sort alphabetically <kbd
+                                class="speech-search-shortcut">A</kbd></span>
+                            </label>
+                            <label class="form-check d-flex align-items-center gap-2 mb-0 speech-search-option"
+                                   title="When both sort options are selected, newest files appear first and filenames break ties.">
+                                <input class="form-check-input m-0" type="checkbox" checked="@_sortByModifiedDate" accesskey="M"
+                                       aria-keyshortcuts="Alt+Shift+M" @onchange="OnSortByModifiedDateChanged" />
+                                <span class="form-check-label">Sort by modified date (newest first) <kbd
+                                    class="speech-search-shortcut">M</kbd></span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">@_errorMessage</div>
                     }
+
+                    <section class="card border-secondary shadow-sm bg-dark text-light speech-search-results-card">
+                        <div class="card-header border-secondary px-4 pt-4 bg-dark text-light">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <h2 class="h5 mb-1">Results</h2>
+                                    @if (_results is not null)
+                                    {
+                                        <p class="text-secondary mb-0">
+                                            @if (_results.TotalMatchCount > _results.Files.Count)
+                                            {
+                                                <span>Showing @_results.Files.Count of @_results.TotalMatchCount matching files</span>
+                                            }
+                                            else
+                                            {
+                                                <span>@_results.TotalMatchCount file(s) found</span>
+                                            }
+                                            @if (_results.SkippedFolderCount > 0)
+                                            {
+                                                <span> · @_results.SkippedFolderCount folder(s) could not be read</span>
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                                @if (_isSearching)
+                                {
+                                    <div class="d-flex align-items-center gap-2 text-secondary" role="status">
+                                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        <span>Searching…</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-body px-4 pt-2">
+                            @if (_results is null && !_isSearching)
+                            {
+                                <p class="text-secondary py-3 mb-0">Enter a file name to start searching.</p>
+                            }
+                            else if (_results is { Files.Count: 0 } && !_isSearching)
+                            {
+                                <p class="text-secondary py-3 mb-0">No files matched “@_searchText”.</p>
+                            }
+                            else if (_results is not null)
+                            {
+                                <div class="d-grid gap-2 speech-search-result-list">
+                                    @for (var i = 0; i < _results.Files.Count; i++)
+                                    {
+                                        var index = i;
+                                        var match = _results.Files[index];
+                                        var fileName = System.IO.Path.GetFileName(match.FullPath);
+                                        var modifiedDate = match.LastModifiedUtc.ToLocalTime().ToString("g");
+                                        <div @key="match.FullPath" class="d-flex align-items-stretch gap-2">
+                                            @if (index < 9)
+                                            {
+                                                var shortcutNumber = index + 1;
+                                                <button type="button" class="btn btn-outline-primary flex-shrink-0 speech-result-shortcut"
+                                                        accesskey="@shortcutNumber" aria-keyshortcuts="@($"Alt+Shift+{shortcutNumber}")"
+                                                        aria-label="@($"Select result {shortcutNumber}: {fileName}")" @onclick="() => OpenFile(match)">
+                                                    Select <kbd class="speech-search-shortcut">@shortcutNumber</kbd>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="flex-shrink-0 speech-result-shortcut-placeholder" aria-hidden="true"></span>
+                                            }
+                                            <button type="button"
+                                                    class="list-group-item list-group-item-action text-start py-3 flex-grow-1 speech-file-result"
+                                                    aria-label="@($"Open {fileName}")" @onclick="() => OpenFile(match)">
+                                                <span class="d-block fw-semibold text-break">@HighlightFileName(fileName)</span>
+                                                <span class="d-block small speech-file-path text-break">@match.FullPath</span>
+                                                <span class="d-block small speech-file-modified">Modified: @modifiedDate</span>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </section>
                 </div>
-            }
-        </div>
-    </section>
-</div>
 
 @code {
     [Parameter] public Func<Task<string?>>? RequestFolderAsync { get; set; }
@@ -251,6 +238,39 @@
     private bool _openDirectly = true;
     private bool _sortAlphabetically;
     private bool _sortByModifiedDate = true;
+
+    private RenderFragment HighlightFileName(string fileName) => builder =>
+    {
+        var searchTerm = _searchText.Trim();
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            builder.AddContent(0, fileName);
+            return;
+        }
+
+        var position = 0;
+        var sequence = 0;
+
+        while (position < fileName.Length)
+        {
+            var matchIndex = fileName.IndexOf(searchTerm, position, StringComparison.OrdinalIgnoreCase);
+            if (matchIndex < 0)
+            {
+                builder.AddContent(sequence++, fileName[position..]);
+                break;
+            }
+
+            if (matchIndex > position)
+                builder.AddContent(sequence++, fileName[position..matchIndex]);
+
+            builder.OpenElement(sequence++, "mark");
+            builder.AddAttribute(sequence++, "class", "speech-search-match");
+            builder.AddContent(sequence++, fileName.Substring(matchIndex, searchTerm.Length));
+            builder.CloseElement();
+
+            position = matchIndex + searchTerm.Length;
+        }
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -332,6 +352,38 @@
         }
     }
 
+    private void OnSearchRootChanged(ChangeEventArgs args)
+    {
+        _searchRoot = args.Value?.ToString() ?? string.Empty;
+        _errorMessage = null;
+    }
+
+    private async Task HandleSearchRootKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !_isSearching)
+            await ApplySearchRootAsync();
+    }
+
+    private async Task ApplySearchRootAsync()
+    {
+        var folder = _searchRoot.Trim();
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            _errorMessage = "Enter a folder path or choose a folder.";
+            return;
+        }
+
+        if (!Directory.Exists(folder))
+        {
+            _errorMessage = $"The folder does not exist or cannot be accessed: {folder}";
+            return;
+        }
+
+        _searchRoot = Path.GetFullPath(folder);
+        _errorMessage = null;
+        await SearchAsync();
+    }
+
     private async Task BrowseFolderAsync()
     {
         if (RequestFolderAsync is null)
@@ -341,7 +393,8 @@
         if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
             return;
 
-        _searchRoot = folder;
+        _searchRoot = Path.GetFullPath(folder);
+        _errorMessage = null;
         await SearchAsync();
     }
 
@@ -385,7 +438,8 @@
 
             Process.Start(startInfo);
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException
+or System.ComponentModel.Win32Exception)
         {
             _errorMessage = $"The file could not be opened: {exception.Message}";
         }

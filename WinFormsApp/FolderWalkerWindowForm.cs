@@ -26,6 +26,10 @@ internal sealed class FolderWalkerWindowForm : Form
         MaximizeBox = true;
         MinimizeBox = true;
         ShowInTaskbar = true;
+        ShowIcon = true;
+
+        try { Icon = WindowIconFactory.CreateFolderWalker(); }
+        catch { }
 
         var services = new ServiceCollection();
         services.AddSingleton(FolderWalkerService.Shared);
