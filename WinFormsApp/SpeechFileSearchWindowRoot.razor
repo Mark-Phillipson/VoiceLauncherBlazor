@@ -80,8 +80,15 @@
                                aria-describedby="search-folder-help"
                                placeholder="Type or paste a folder path"
                                @oninput="OnSearchRootChanged"
-                               @onkeydown="HandleSearchRootKeyDown"
-                               @onblur="ApplySearchRootAsync" />
+                               @onkeydown="HandleSearchRootKeyDown" />
+                        <button type="button"
+                                class="btn btn-primary"
+                                accesskey="U"
+                                aria-keyshortcuts="Alt+Shift+U"
+                                @onclick="ApplySearchRootAsync"
+                                disabled="@_isSearching">
+                            Use path <kbd class="speech-search-shortcut">U</kbd>
+                        </button>
                         <button @ref="_chooseFolderButton"
                                 class="btn btn-outline-secondary"
                                 accesskey="F"
@@ -92,7 +99,7 @@
                             Choose folder <kbd class="speech-search-shortcut">F</kbd>
                         </button>
                     </div>
-                    <div id="search-folder-help" class="form-text text-secondary">Type or paste a path, then press Enter or move out of the field to use it. You can also choose a folder.</div>
+                    <div id="search-folder-help" class="form-text text-secondary">Type or paste a path, then press Enter or select Use path. You can also choose a folder.</div>
                 </div>
                 <div class="col-12 col-lg-6">
                     <label class="form-label fw-semibold" for="file-search">File name contains <kbd class="speech-search-shortcut">N</kbd></label>
