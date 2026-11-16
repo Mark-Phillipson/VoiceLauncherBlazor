@@ -134,8 +134,11 @@
             }
 
             <hr class="my-4" />
-            <section aria-labelledby="folder-exclusions-heading">
-                <h2 id="folder-exclusions-heading" class="h6 mb-1">Global excluded locations</h2>
+            <details>
+                <summary class="fw-semibold" style="cursor: pointer;">
+                    Global excluded locations <span class="small text-secondary fw-normal">(@_excludedPaths.Count custom)</span>
+                </summary>
+                <section aria-label="Global excluded locations" class="pt-3">
                 <p class="small text-secondary mb-2">
                     These paths are excluded from indexing on every drive. The Recycle Bin, System Volume Information and standard Backup folders are always excluded.
                 </p>
@@ -177,7 +180,8 @@
                         }
                     </ul>
                 }
-            </section>
+                </section>
+            </details>
             @if (!_drives.Any(drive => drive.IsReady))
             {
                 <div class="alert alert-warning mt-3 mb-0">No ready drives were found.</div>
