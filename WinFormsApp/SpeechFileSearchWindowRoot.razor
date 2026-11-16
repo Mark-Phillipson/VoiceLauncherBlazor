@@ -58,6 +58,13 @@
     .speech-file-modified {
         color: #adb5bd !important;
     }
+
+    .speech-search-match {
+        padding: 0 .1em;
+        color: #212529;
+        background-color: #ffe066;
+        border-radius: .15rem;
+    }
 </style>
 
 <div class="container-fluid p-4">
@@ -205,7 +212,7 @@
                                             <button type="button"
                                                     class="list-group-item list-group-item-action text-start py-3 flex-grow-1 speech-file-result"
                                                     aria-label="@($"Open {fileName}")" @onclick="() => OpenFile(match)">
-                                                <span class="d-block fw-semibold text-break">@fileName</span>
+                                                <span class="d-block fw-semibold text-break">@HighlightFileName(fileName)</span>
                                                 <span class="d-block small speech-file-path text-break">@match.FullPath</span>
                                                 <span class="d-block small speech-file-modified">Modified: @modifiedDate</span>
                                             </button>
@@ -231,6 +238,39 @@
     private bool _openDirectly = true;
     private bool _sortAlphabetically;
     private bool _sortByModifiedDate = true;
+
+    private RenderFragment HighlightFileName(string fileName) => builder =>
+    {
+        var searchTerm = _searchText.Trim();
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            builder.AddContent(0, fileName);
+            return;
+        }
+
+        var position = 0;
+        var sequence = 0;
+
+        while (position < fileName.Length)
+        {
+            var matchIndex = fileName.IndexOf(searchTerm, position, StringComparison.OrdinalIgnoreCase);
+            if (matchIndex < 0)
+            {
+                builder.AddContent(sequence++, fileName[position..]);
+                break;
+            }
+
+            if (matchIndex > position)
+                builder.AddContent(sequence++, fileName[position..matchIndex]);
+
+            builder.OpenElement(sequence++, "mark");
+            builder.AddAttribute(sequence++, "class", "speech-search-match");
+            builder.AddContent(sequence++, fileName.Substring(matchIndex, searchTerm.Length));
+            builder.CloseElement();
+
+            position = matchIndex + searchTerm.Length;
+        }
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
