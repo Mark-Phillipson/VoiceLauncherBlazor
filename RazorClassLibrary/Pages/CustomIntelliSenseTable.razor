@@ -1,6 +1,17 @@
 @page "/customintellisenses/{LanguageId:int}/{CategoryID:int}"
 @page "/customintellisenses"
 <div class="row">
+    @if (RunningInBlazorHybrid)
+    {
+        <div class="col-12 d-flex justify-content-end mb-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary" accesskey="@(IsActive ? "m" : null)"
+                    aria-keyshortcuts="Alt+M"
+                    title="@(_compactView ? "Switch to full view (Alt+M)" : "Switch to compact view (Alt+M)")"
+                    @onclick="ToggleCompactView">
+                @(_compactView ? "Full view" : "Compact view") <kbd>M</kbd>
+            </button>
+        </div>
+    }
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-md-7">
@@ -10,17 +21,17 @@
                         <div style="min-width:160px; max-width:45%; position:relative;">
                             <label for="LanguageInput" class="form-label mb-1">Language <small
                                 class="text-muted"><kbd>L</kbd></small></label>
-                                <input id="LanguageInput" accesskey="@(IsActive ? "l" : null)" aria-keyshortcuts="Alt+L" title="Alt+L: Focus Language"
-                                       class="form-control form-control-sm" placeholder="Type language name"
-                                       @bind="LanguageQuery" />
+                                <input id="LanguageInput" accesskey="@(IsActive ? "l" : null)" aria-keyshortcuts="Alt+L"
+                                       title="Alt+L: Focus Language" class="form-control form-control-sm"
+                                       placeholder="Type language name" @bind="LanguageQuery" />
                             </div>
 
                             <div style="min-width:160px; max-width:45%; position:relative;">
                                 <label for="CategoryInput" class="form-label mb-1">Category <small
                                     class="text-muted"><kbd>G</kbd></small></label>
-                                    <input id="CategoryInput" accesskey="@(IsActive ? "g" : null)" aria-keyshortcuts="Alt+G" title="Alt+G: Focus Category"
-                                           class="form-control form-control-sm" placeholder="Type category name"
-                                           @bind="CategoryQuery" />
+                                    <input id="CategoryInput" accesskey="@(IsActive ? "g" : null)" aria-keyshortcuts="Alt+G"
+                                           title="Alt+G: Focus Category" class="form-control form-control-sm"
+                                           placeholder="Type category name" @bind="CategoryQuery" />
                                 </div>
                             </div>
                         </div>
@@ -29,199 +40,214 @@
                 <!-- Page number moved to below the table for more header space -->
                 <div class="col-md-5">
                     <div class="my-1">
-                        <label for="SearchInput" class="form-label mb-1">Filter <small class="text-muted"><kbd>I</kbd></small></label>
-                        <div class="input-group w-100"
-                             style="display:flex; width:100%; flex-wrap:nowrap; white-space:nowrap; gap:8px;">
-                            <input @ref="SearchInput" accesskey="@(IsActive ? "i" : null)" type="text" class="form-control form-control-sm"
-                                   @bind="SearchInputText" id="SearchInput" name="SearchTerm" placeholder="Filter"
-                                   style="min-width:0; flex:1 1 auto; width:100%;" />
-                            <button id="btnApplyFilterCustomIntelliSense" class="btn btn-outline-primary" type="button"
-                                    accesskey="@(IsActive ? "a" : null)" title="Apply Filter (Alt+A)" aria-label="Apply Filter (Alt+A)"
-                                    @onclick="ApplyFilterButton" style="flex:0 0 auto;">
-                                <i class="fas fa-filter" aria-hidden="true"></i>
-                                <span class="ms-1"><kbd>A</kbd>pply</span>
-                            </button>
-                            <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button"
-                                    accesskey="@(IsActive ? "r" : null)" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)" @onclick="ResetFilter"
-                                    style="flex:0 0 auto; min-width:38px; padding-left:0.5rem; padding-right:0.5rem;">
-                                <i class="fas fa-redo" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
-    else
-            {
-                <div class='ml-1 fs-5'><strong>Custom IntelliSense (Snippets) </strong></div>
-            }
-        </div>
-
-        @if (FilteredCustomIntelliSenseDTO == null && _loadFailed == true)
-        {
-            <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
-            <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
-            <h6 class="text-danger">@ExceptionMessage</h6>
-        }
-        else if (FilteredCustomIntelliSenseDTO == null)
-        {
-            <div style="display:normal;margin:auto" class="loader"></div>
-        }
-        else if (FilteredCustomIntelliSenseDTO.Count == 0)
-        {
-            <p>No Custom Intelli Sense match the criteria @GlobalSearchTerm</p>
-            <button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-light">Add Record <i
-                class="fas fa-plus"></i></button>
-            }
-else
-            {
-                <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
-                    <thead>
-                        <tr>
-                            <th>
-                                <button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
-                                    <i class="fas fa-sort-alpha-up"></i>
+                        <label for="SearchInput" class="form-label mb-1">Filter <small
+                            class="text-muted"><kbd>I</kbd></small></label>
+                            <div class="input-group w-100"
+                                 style="display:flex; width:100%; flex-wrap:nowrap; white-space:nowrap; gap:8px;">
+                                <input @ref="SearchInput" accesskey="@(IsActive ? "i" : null)" type="text"
+                                       class="form-control form-control-sm" @bind="SearchInputText" id="SearchInput" name="SearchTerm"
+                                       placeholder="Filter" style="min-width:0; flex:1 1 auto; width:100%;" />
+                                <button id="btnApplyFilterCustomIntelliSense" class="btn btn-outline-primary" type="button"
+                                        accesskey="@(IsActive ? "a" : null)" title="Apply Filter (Alt+A)" aria-label="Apply Filter (Alt+A)"
+                                        @onclick="ApplyFilterButton" style="flex:0 0 auto;">
+                                    <i class="fas fa-filter" aria-hidden="true"></i>
+                                    <span class="ms-1"><kbd>A</kbd>pply</span>
                                 </button>
-                                <button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
-                                    <i class="fas fa-sort-alpha-up-alt"></i>
+                                <button id="btnResetFilterCustomIntelliSense" class="btn btn-outline-secondary" type="button"
+                                        accesskey="@(IsActive ? "r" : null)" title="Reset filter (Alt+R)" aria-label="Reset filter (Alt+R)"
+                                        @onclick="ResetFilter"
+                                        style="flex:0 0 auto; min-width:38px; padding-left:0.5rem; padding-right:0.5rem;">
+                                    <i class="fas fa-redo" aria-hidden="true"></i>
                                 </button>
-                                Display Value (Copy)
-                            </th>
-                            <th>
-                                <button accesskey="@(IsActive ? "0" : null)" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success "
-                                        title="Add new (Alt+0)">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                                Snippet
-                            </th>
-                            <th>Paste / Edit / Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            counter = 0;
-                        }
-                        @foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
-                        {
-                            counter++;
-                            if (counter == 10)
-                            {
-                                shortcutValue = 0;
-                            }
-                            else
-                            {
-                                shortcutValue = counter;
-                            }
-                            <tr>
-                                <td>
-                                    <button accesskey="@(IsActive ? shortcutValue.ToString() : null)" title='@customIntelliSense.SendKeysValue'
-                                            style='width:100%; display:flex; justify-content:space-between; align-items:center;'
-                                            class="btn btn-outline-primary" type="button"
-                                            @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
-                                        <span>@customIntelliSense.DisplayValue</span>
-                                        <span class="badge bg-info text-dark ms-2">
-                                            @if (counter == 10)
-                                            {
-                                                <text>1</text>
-                                            }
-                                            <u>@shortcutValue.ToString()</u>
-                                        </span>
-                                    </button>
-                                </td>
-                                <td>
-                                    @* ape. preview or details *@
-                                    @if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) ||
-                                        (currentCategory != null && !currentCategory!.Sensitive && string.IsNullOrWhiteSpace(GlobalSearchTerm)))
-                                    {
-                                        <div>
-                                            <code>
-                                                @if (customIntelliSense.SendKeysValue?.Length > 50)
-                                                {
-                                                    @customIntelliSense.SendKeysValue.Substring(0, 47) <text>...</text>
-                                                }
-                                                else
-                                                {
-                                                    @customIntelliSense.SendKeysValue
-                                                }
-                                            </code>
-                                        </div>
-                                    }
-
-                                    @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm))
-                                    {
-                                        <div class="">
-                                            <div class="text-info">
-                                                <strong>Language:</strong> @customIntelliSense.LanguageName
-                                            </div>
-                                            <div class="text-warning">
-                                                <strong> Category:</strong> @customIntelliSense.CategoryName
-                                            </div>
-                                            <br /><strong>Match in: </strong>
-                                            @if (customIntelliSense.DisplayValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
-                                            {
-                                                <span class="badge bg-success">Display</span>
-                                            }
-                                            @if (customIntelliSense.SendKeysValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
-                                            {
-                                                <span class="badge bg-primary">SendKeys</span>
-                                            }
-                                            @if (customIntelliSense.CommandType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
-                                            {
-                                                <span class="badge bg-warning">Command</span>
-                                            }
-                                            @if (customIntelliSense.DeliveryType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
-                                            {
-                                                <span class="badge bg-info">Delivery</span>
-                                            }
-                                        </div>
-                                    }
-                                </td>
-                                <td class="" style='min-width:80px'>
-                                    <div class="btn-group"> 
-                                    <button title="Copy and switch and paste"  class="btn btn-outline-info btn-sm"
-                                            @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                    <button class="btn btn-outline-warning btn-sm"
-                                            @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm"
-                                            @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-                @* Pagination and page number moved below the table *@
-                @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
-                {
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div>
-                            <button accesskey="@(IsActive ? "p" : null)" class="btn btn-outline-success" type="button" disabled="@_isLoading"
-                                    @onclick="@( ( ) => PreviousPageAsync(  ) )">
-                                @if (_isLoading)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                }
-                                <kbd>P</kbd>revious Page
-                            </button>
-                            <button accesskey="@(IsActive ? "n" : null)" class="btn btn-outline-success ms-2" type="button" disabled="@_isLoading"
-                                    @onclick="@( ( ) => NextPageAsync(  ) )">
-                                @if (_isLoading)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                }
-                                <kbd>N</kbd>ext Page
-                            </button>
-                        </div>
-                        <div class="text-muted small">
-                            <span class='ml-1'>@Title </span>&nbsp;
-                            Page #: @pageNumber
+                            </div>
                         </div>
                     </div>
                 }
+    else
+                {
+                    <div class='ml-1 fs-5'><strong>Custom IntelliSense (Snippets) </strong></div>
+                }
+            </div>
+
+            @if (FilteredCustomIntelliSenseDTO == null && _loadFailed == true)
+            {
+                <h2 class="text-danger">The data failed to load please try again in a little while..</h2>
+                <button class="btn btn-danger" type="button" @onclick="@( () => LoadData() )">Reload</button>
+                <h6 class="text-danger">@ExceptionMessage</h6>
             }
+            else if (FilteredCustomIntelliSenseDTO == null)
+            {
+                <div style="display:normal;margin:auto" class="loader"></div>
+            }
+            else if (FilteredCustomIntelliSenseDTO.Count == 0)
+            {
+                <p>No Custom Intelli Sense match the criteria @GlobalSearchTerm</p>
+                @if (!_compactView)
+                {
+                    <button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-light">Add Record <i
+                        class="fas fa-plus"></i></button>
+                    }
+                }
+                else
+                {
+                    <table style="font-size:small" class="table table-bordered table-striped table-sm table-responsive-sm">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue"))">
+                                        <i class="fas fa-sort-alpha-up"></i>
+                                    </button>
+                                    <button class="btn " @onclick="@(() => SortCustomIntelliSense("DisplayValue Desc"))">
+                                        <i class="fas fa-sort-alpha-up-alt"></i>
+                                    </button>
+                                    Display Value (Copy)
+                                </th>
+                                    @if (!_compactView)
+                                    {
+                                <th>
+                                        <button accesskey="@(IsActive ? "0" : null)" @onclick="AddNewCustomIntelliSense"
+                                                class="btn btn-outline-success text-success " title="Add new (Alt+0)">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    Snippet
+                                </th>
+                                <th>Paste / Edit / Delete</th>
+                                    }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                counter = 0;
+                            }
+                            @foreach (var customIntelliSense in FilteredCustomIntelliSenseDTO)
+                            {
+                                counter++;
+                                if (counter == 10)
+                                {
+                                    shortcutValue = 0;
+                                }
+                                else
+                                {
+                                    shortcutValue = counter;
+                                }
+                                <tr>
+                                    <td>
+                                        <button accesskey="@(IsActive ? shortcutValue.ToString() : null)"
+                                                title='@customIntelliSense.SendKeysValue'
+                                                style='width:100%; display:flex; justify-content:space-between; align-items:center;'
+                                                class="btn btn-outline-primary" type="button"
+                                                @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">
+                                            <span>@customIntelliSense.DisplayValue</span>
+                                            <span class="badge bg-info text-dark ms-2">
+                                                @if (counter == 10)
+                                                {
+                                                    <text>1</text>
+                                                }
+                                                <u>@shortcutValue.ToString()</u>
+                                            </span>
+                                        </button>
+                                    </td>
+                                    @if (!_compactView)
+                                    {
+                                    <td>
+                                        @* ape. preview or details *@
+                                        @if ((!customIntelliSense.Sensitive && !string.IsNullOrWhiteSpace(GlobalSearchTerm)) ||
+                                            (currentCategory != null && !currentCategory!.Sensitive && string.IsNullOrWhiteSpace(GlobalSearchTerm)))
+                                        {
+                                            <div>
+                                                <code>
+                                                    @if (customIntelliSense.SendKeysValue?.Length > 50)
+                                                    {
+                                                        @customIntelliSense.SendKeysValue.Substring(0, 47) <text>...</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        @customIntelliSense.SendKeysValue
+                                                    }
+                                                </code>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(GlobalSearchTerm) && !_compactView)
+                                        {
+                                            <div class="">
+                                                <div class="text-info">
+                                                    <strong>Language:</strong> @customIntelliSense.LanguageName
+                                                </div>
+                                                <div class="text-warning">
+                                                    <strong> Category:</strong> @customIntelliSense.CategoryName
+                                                </div>
+                                                <br /><strong>Match in: </strong>
+                                                @if (customIntelliSense.DisplayValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+                                                {
+                                                    <span class="badge bg-success">Display</span>
+                                                }
+                                                @if (customIntelliSense.SendKeysValue?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+                                                {
+                                                    <span class="badge bg-primary">SendKeys</span>
+                                                }
+                                                @if (customIntelliSense.CommandType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+                                                {
+                                                    <span class="badge bg-warning">Command</span>
+                                                }
+                                                @if (customIntelliSense.DeliveryType?.ToLower().Contains(GlobalSearchTerm.ToLower()) == true)
+                                                {
+                                                    <span class="badge bg-info">Delivery</span>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                    }    
+                                    @if (!_compactView)
+                                    {
+                                        <td class="" style='min-width:80px'>
+                                            <div class="btn-group">
+                                                <button title="Copy and switch and paste" class="btn btn-outline-info btn-sm"
+                                                        @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
+                                                    <i class="bi bi-clipboard"></i>
+                                                </button>
+                                                <button class="btn btn-outline-warning btn-sm"
+                                                        @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm"
+                                                        @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    @* Pagination and page number moved below the table *@
+                    @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
+                    {
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <button accesskey="@(IsActive ? "p" : null)" class="btn btn-outline-success" type="button"
+                                        disabled="@_isLoading" @onclick="@( ( ) => PreviousPageAsync(  ) )">
+                                    @if (_isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    }
+                                    <kbd>P</kbd>revious Page
+                                </button>
+                                <button accesskey="@(IsActive ? "n" : null)" class="btn btn-outline-success ms-2" type="button"
+                                        disabled="@_isLoading" @onclick="@( ( ) => NextPageAsync(  ) )">
+                                    @if (_isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    }
+                                    <kbd>N</kbd>ext Page
+                                </button>
+                            </div>
+                            <div class="text-muted small">
+                                <span class='ml-1'>@Title </span>&nbsp;
+                                Page #: @pageNumber
+                            </div>
+                        </div>
+                    }
+                }

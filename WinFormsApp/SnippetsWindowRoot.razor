@@ -16,6 +16,7 @@
         RunningInBlazorHybrid="true"
         CloseApplication="CloseWindowCallback"
         MaximizeApplication="MaximizeWindowCallback"
+        CompactViewChanged="CompactViewChangedCallback"
         IsActive="true" />
 </CascadingBlazoredModal>
 
@@ -25,6 +26,7 @@
     [Parameter] public string LaunchArguments { get; set; } = string.Empty;
     [Parameter] public EventCallback CloseWindowCallback { get; set; }
     [Parameter] public EventCallback MaximizeWindowCallback { get; set; }
+    [Parameter] public EventCallback<bool> CompactViewChangedCallback { get; set; }
 
     [Inject] public required LanguageService LanguageService { get; set; }
     [Inject] public required CategoryService CategoryService { get; set; }

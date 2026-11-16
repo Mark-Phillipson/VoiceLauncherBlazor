@@ -34,8 +34,8 @@ internal sealed class SnippetsWindowForm : Form
     {
         Text = "Snippets";
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(1250, 850);
-MinimumSize = new Size(850, 600);
+        ClientSize = new Size(425, 850);
+        MinimumSize = new Size(400, 400);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
         MinimizeBox = true;
@@ -110,7 +110,8 @@ MinimumSize = new Size(850, 600);
             {
                 { "LaunchArguments", launchArguments ?? string.Empty },
                 { "CloseWindowCallback", new EventCallback(null, Hide) },
-                { "MaximizeWindowCallback", new EventCallback(null, () => WindowState = FormWindowState.Maximized) }
+                { "MaximizeWindowCallback", new EventCallback(null, () => WindowState = FormWindowState.Maximized) },
+                { "CompactViewChangedCallback", new EventCallback<bool>(null, SetCompactView) }
             });
 
         // Host the WebView in a padded panel so the inset is applied consistently.
@@ -123,6 +124,19 @@ MinimumSize = new Size(850, 600);
         Controls.Add(webViewHost);
     }
 
+
+    private void SetCompactView(bool compact)
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(new Action(() => SetCompactView(compact)));
+            return;
+        }
+
+        WindowState = FormWindowState.Normal;
+        MinimumSize = compact ? new Size(400, 400) : new Size(850, 850);
+        ClientSize = compact ? new Size(425, 850) : new Size(1250, 850);
+    }
 
     protected override void OnHandleCreated(EventArgs e)
     {
