@@ -132,6 +132,52 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
                 </div>
             }
+
+            <hr class="my-4" />
+            <section aria-labelledby="folder-exclusions-heading">
+                <h2 id="folder-exclusions-heading" class="h6 mb-1">Global excluded locations</h2>
+                <p class="small text-secondary mb-2">
+                    These paths are excluded from indexing on every drive. The Windows Recycle Bin and System Volume Information are always excluded.
+                </p>
+                <div class="input-group mb-2">
+                    <input class="form-control"
+                           aria-label="Folder path to exclude"
+                           placeholder="For example, D:\\Backups"
+                           @bind="_exclusionPathInput"
+                           @bind:event="oninput"
+                           @onkeydown="HandleExclusionKeyDown" />
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            accesskey="E"
+                            aria-keyshortcuts="Alt+Shift+E"
+                            @onclick="AddExclusion"
+                            disabled="@(_isIndexing || string.IsNullOrWhiteSpace(_exclusionPathInput))">
+                        Exclude folder <kbd class="folder-walker-shortcut">E</kbd>
+                    </button>
+                </div>
+                @if (_excludedPaths.Count == 0)
+                {
+                    <p class="small text-secondary mb-0">No additional locations have been excluded.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var excludedPath in _excludedPaths)
+                        {
+                            <li @key="excludedPath" class="list-group-item d-flex justify-content-between align-items-center gap-2 px-0">
+                                <span class="text-break">@excludedPath</span>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger flex-shrink-0"
+                                        aria-label="@($"Remove exclusion for {excludedPath}")"
+                                        @onclick="() => RemoveExclusion(excludedPath)"
+                                        disabled="@_isIndexing">
+                                    Remove
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
             @if (!_drives.Any(drive => drive.IsReady))
             {
                 <div class="alert alert-warning mt-3 mb-0">No ready drives were found.</div>
@@ -271,6 +317,8 @@
     private ElementReference _searchInput;
     private const int PageSize = 100;
     private readonly List<DriveOption> _drives = [];
+    private readonly List<string> _excludedPaths = [];
+    private string _exclusionPathInput = string.Empty;
     private string? _selectedRoot;
     private string _searchText = string.Empty;
     private string? _selectedFolder;
@@ -304,7 +352,73 @@
             await _searchInput.FocusAsync();
     }
 
-    protected override void OnInitialized() => RefreshDrives();
+    protected override void OnInitialized()
+    {
+        _excludedPaths.AddRange(FolderWalker.GetExcludedPaths());
+        RefreshDrives();
+    }
+
+    private async Task HandleExclusionKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+            await AddExclusion();
+    }
+
+    private async Task AddExclusion()
+    {
+        var path = _exclusionPathInput.Trim();
+        if (string.IsNullOrWhiteSpace(path) || _isIndexing)
+            return;
+
+        try
+        {
+            var normalizedPath = Path.GetFullPath(path);
+            if (!Directory.Exists(normalizedPath))
+            {
+                _errorMessage = "That folder does not exist or is not currently accessible.";
+                return;
+            }
+
+            if (_excludedPaths.Contains(normalizedPath, StringComparer.OrdinalIgnoreCase))
+                return;
+
+            _excludedPaths.Add(normalizedPath);
+            FolderWalker.SaveExcludedPaths(_excludedPaths);
+            _exclusionPathInput = string.Empty;
+            _errorMessage = null;
+            _searchResults = null;
+            _selectedFolder = null;
+
+            if (_selectedRoot is not null)
+                await EnsureDriveIndexAsync(_selectedRoot, forceRefresh: true);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
+        {
+            _errorMessage = $"The exclusion could not be saved: {exception.Message}";
+        }
+    }
+
+    private async Task RemoveExclusion(string path)
+    {
+        if (_isIndexing)
+            return;
+
+        _excludedPaths.RemoveAll(item => string.Equals(item, path, StringComparison.OrdinalIgnoreCase));
+        try
+        {
+            FolderWalker.SaveExcludedPaths(_excludedPaths);
+            _errorMessage = null;
+            _searchResults = null;
+            _selectedFolder = null;
+
+            if (_selectedRoot is not null)
+                await EnsureDriveIndexAsync(_selectedRoot, forceRefresh: true);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or Microsoft.Data.Sqlite.SqliteException)
+        {
+            _errorMessage = $"The exclusion could not be saved: {exception.Message}";
+        }
+    }
 
     private void RefreshDrives()
     {
