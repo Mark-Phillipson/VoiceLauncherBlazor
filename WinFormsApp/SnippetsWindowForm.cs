@@ -129,7 +129,7 @@ internal sealed class SnippetsWindowForm : Form
     {
         if (InvokeRequired)
         {
-            BeginInvoke(() => SetCompactView(compact));
+            BeginInvoke(new Action(() => SetCompactView(compact)));
             return;
         }
 
