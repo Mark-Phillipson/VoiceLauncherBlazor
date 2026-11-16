@@ -36,6 +36,15 @@ namespace RazorClassLibrary.Pages
       [Parameter] public bool RunningInBlazorHybrid { get; set; } = false;
       [Parameter] public EventCallback CloseApplication { get; set; }
       [Parameter] public EventCallback MaximizeApplication { get; set; }
+      [Parameter] public EventCallback<bool> CompactViewChanged { get; set; }
+
+      private bool _compactView;
+
+      private async Task ToggleCompactView()
+      {
+         _compactView = !_compactView;
+         await CompactViewChanged.InvokeAsync(_compactView);
+      }
 
       private LanguageDTO? currentLanguage { get; set; }
       private CategoryDTO? currentCategory { get; set; }
@@ -525,6 +534,7 @@ namespace RazorClassLibrary.Pages
       private const int SEARCH_DEBOUNCE_MS = 300;
       protected override async Task OnInitializedAsync()
       {
+         _compactView = RunningInBlazorHybrid;
          Console.WriteLine($"CustomIntelliSenseTable OnInitializedAsync - GlobalSearchTerm: '{GlobalSearchTerm}', LanguageId: {LanguageId}, CategoryId: {CategoryId}");
          // Load data first (it may set defaults), then load lookups so the autocomplete textboxes are prefilled
          await LoadData();
