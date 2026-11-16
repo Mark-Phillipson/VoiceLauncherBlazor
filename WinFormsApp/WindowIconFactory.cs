@@ -79,6 +79,33 @@ internal static class WindowIconFactory
         g.DrawLine(p, 9, 13, 17, 13);
     });
 
+    public static Icon CreateFolderWalker() => Create(Color.FromArgb(55, 145, 205), (g, p) =>
+    {
+        g.DrawLines(p, new[]
+        {
+            new Point(3, 10), new Point(11, 10), new Point(14, 13),
+            new Point(29, 13), new Point(27, 27), new Point(3, 27), new Point(3, 10)
+        });
+        g.DrawLine(p, 3, 16, 28, 16);
+    });
+
+    public static Icon CreateSpeechFileSearch() => Create(Color.FromArgb(35, 155, 165), (g, p) =>
+    {
+        g.DrawLines(p, new[]
+        {
+            new Point(5, 3), new Point(19, 3), new Point(24, 8),
+            new Point(24, 15)
+        });
+        g.DrawLines(p, new[]
+        {
+            new Point(5, 3), new Point(5, 29), new Point(14, 29)
+        });
+        g.DrawLine(p, 19, 3, 19, 8);
+        g.DrawLine(p, 19, 8, 24, 8);
+        g.DrawEllipse(p, 14, 14, 11, 11);
+        g.DrawLine(p, 23, 23, 30, 30);
+    });
+
     private static Icon Create(Color accent, Action<Graphics, Pen> draw)
     {
         using var bitmap = new Bitmap(32, 32);
