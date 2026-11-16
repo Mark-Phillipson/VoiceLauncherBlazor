@@ -1,6 +1,17 @@
 @page "/customintellisenses/{LanguageId:int}/{CategoryID:int}"
 @page "/customintellisenses"
 <div class="row">
+    @if (RunningInBlazorHybrid)
+    {
+        <div class="col-12 d-flex justify-content-end mb-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                    accesskey="@(IsActive ? "m" : null)" aria-keyshortcuts="Alt+M"
+                    title="@(_compactView ? "Switch to full view (Alt+M)" : "Switch to compact view (Alt+M)")"
+                    @onclick="ToggleCompactView">
+                @(_compactView ? "Full view" : "Compact view") <kbd>M</kbd>
+            </button>
+        </div>
+    }
     @if (string.IsNullOrWhiteSpace(GlobalSearchTerm))
     {
         <div class="col-md-7">
@@ -69,8 +80,11 @@
         else if (FilteredCustomIntelliSenseDTO.Count == 0)
         {
             <p>No Custom Intelli Sense match the criteria @GlobalSearchTerm</p>
-            <button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-light">Add Record <i
-                class="fas fa-plus"></i></button>
+            @if (!_compactView)
+            {
+                <button @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-light">Add Record <i
+                    class="fas fa-plus"></i></button>
+            }
             }
 else
             {
@@ -87,13 +101,16 @@ else
                                 Display Value (Copy)
                             </th>
                             <th>
-                                <button accesskey="@(IsActive ? "0" : null)" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success "
-                                        title="Add new (Alt+0)">
-                                    <i class="bi bi-plus"></i>
-                                </button>
+                                @if (!_compactView)
+                                {
+                                    <button accesskey="@(IsActive ? "0" : null)" @onclick="AddNewCustomIntelliSense" class="btn btn-outline-success text-success "
+                                            title="Add new (Alt+0)">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                }
                                 Snippet
                             </th>
-                            <th>Paste / Edit / Delete</th>
+                            <th>@(_compactView ? "Copy / Paste" : "Paste / Edit / Delete")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -181,14 +198,17 @@ else
                                             @onclick="@(() => CopyAndPasteAsync(customIntelliSense.Id))">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
-                                    <button class="btn btn-outline-warning btn-sm"
-                                            @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm"
-                                            @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    @if (!_compactView)
+                                    {
+                                        <button class="btn btn-outline-warning btn-sm"
+                                                @onclick="@(() => EditCustomIntelliSense(customIntelliSense.Id))">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                @onclick="@(() => DeleteCustomIntelliSense(customIntelliSense.Id))">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
                                     </div>
                                 </td>
                             </tr>
