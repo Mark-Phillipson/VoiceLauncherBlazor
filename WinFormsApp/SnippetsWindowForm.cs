@@ -34,7 +34,7 @@ internal sealed class SnippetsWindowForm : Form
     {
         Text = "Snippets";
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(425, 600);
+        ClientSize = new Size(425, 850);
         MinimumSize = new Size(400, 400);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = true;
@@ -134,8 +134,8 @@ internal sealed class SnippetsWindowForm : Form
         }
 
         WindowState = FormWindowState.Normal;
-        MinimumSize = compact ? new Size(400, 400) : new Size(850, 600);
-        ClientSize = compact ? new Size(425, 600) : new Size(1250, 850);
+        MinimumSize = compact ? new Size(400, 400) : new Size(850, 850);
+        ClientSize = compact ? new Size(425, 850) : new Size(1250, 850);
     }
 
     protected override void OnHandleCreated(EventArgs e)
