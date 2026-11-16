@@ -61,7 +61,7 @@
 <div class="container-fluid p-4">
     <header class="mb-4">
         <h1 class="h3 mb-1">Folder Walker</h1>
-        <p class="text-secondary mb-0">Find folders by name on a drive, then choose one to use.</p>
+        <p class="text-secondary mb-0">Find folders by name or by matching words across their paths, then choose one to use.</p>
     </header>
 
     <div class="card border-0 shadow-sm mb-4">
@@ -88,13 +88,13 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <label class="form-label fw-semibold" for="folder-search">Folder name contains <kbd class="folder-walker-shortcut">T</kbd></label>
+                    <label class="form-label fw-semibold" for="folder-search">Folder name or path contains <kbd class="folder-walker-shortcut">T</kbd></label>
                     <input id="folder-search"
                            accesskey="T"
                            aria-keyshortcuts="Alt+Shift+T"
                            @ref="_searchInput"
                            class="form-control"
-                           placeholder="For example, Documents"
+                           placeholder="For example, Documents or Users Desktop"
                            value="@_searchText"
                            @oninput="OnSearchTextChanged"
                            @onkeydown="HandleSearchKeyDown" />
@@ -309,8 +309,8 @@
                                         aria-pressed="@string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase)"
                                         aria-label="@($"Select folder {folderName}")"
                                         @onclick="() => SelectFolder(folder)">
-                                    <span class="d-block fw-semibold text-break">@HighlightFolderName(folderName)</span>
-                                    <span class="d-block small folder-result-path text-break">@folder</span>
+                                    <span class="d-block fw-semibold text-break">@HighlightMatches(folderName)</span>
+                                    <span class="d-block small folder-result-path text-break">@HighlightMatches(folder)</span>
                                 </button>
                             </div>
                         }
@@ -357,36 +357,57 @@
         !string.IsNullOrWhiteSpace(_selectedRoot) &&
         !string.IsNullOrWhiteSpace(_searchText);
 
-    private RenderFragment HighlightFolderName(string folderName) => builder =>
+    private RenderFragment HighlightMatches(string value) => builder =>
     {
-        var searchTerm = _searchText.Trim();
-        if (string.IsNullOrEmpty(searchTerm))
+        var searchTerms = _searchText.Split(
+            (char[]?)null,
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (searchTerms.Length == 0)
         {
-            builder.AddContent(0, folderName);
+            builder.AddContent(0, value);
             return;
         }
 
         var position = 0;
         var sequence = 0;
 
-        while (position < folderName.Length)
+        while (position < value.Length)
         {
-            var matchIndex = folderName.IndexOf(searchTerm, position, StringComparison.OrdinalIgnoreCase);
-            if (matchIndex < 0)
+            var nextMatchIndex = -1;
+            string? matchedTerm = null;
+
+            foreach (var searchTerm in searchTerms)
             {
-                builder.AddContent(sequence++, folderName[position..]);
+                var matchIndex = value.IndexOf(searchTerm, position, StringComparison.OrdinalIgnoreCase);
+                if (matchIndex < 0)
+                    continue;
+
+                if (nextMatchIndex < 0 ||
+                    matchIndex < nextMatchIndex ||
+                    (matchIndex == nextMatchIndex && searchTerm.Length > matchedTerm!.Length))
+                {
+                    nextMatchIndex = matchIndex;
+                    matchedTerm = searchTerm;
+                }
+            }
+
+            if (nextMatchIndex < 0)
+            {
+                builder.AddContent(sequence++, value[position..]);
                 break;
             }
 
-            if (matchIndex > position)
-                builder.AddContent(sequence++, folderName[position..matchIndex]);
+            if (nextMatchIndex > position)
+                builder.AddContent(sequence++, value[position..nextMatchIndex]);
 
+            var matchedText = matchedTerm!;
             builder.OpenElement(sequence++, "mark");
             builder.AddAttribute(sequence++, "class", "folder-match");
-            builder.AddContent(sequence++, folderName.Substring(matchIndex, searchTerm.Length));
+            builder.AddContent(sequence++, value.Substring(nextMatchIndex, matchedText.Length));
             builder.CloseElement();
 
-            position = matchIndex + searchTerm.Length;
+            position = nextMatchIndex + matchedText.Length;
         }
     };
 

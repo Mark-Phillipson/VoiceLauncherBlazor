@@ -371,7 +371,35 @@ internal sealed class FolderWalkerService
         using var connection = OpenConnection();
         using var command = connection.CreateCommand();
 
-        if (_supportsTrigramSearch && searchText.Length >= 3)
+        var searchTerms = searchText.Split(
+            (char[]?)null,
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (searchTerms.Length > 1)
+        {
+            // Every word must occur somewhere in the complete path. This allows
+            // terms to match different folder levels, e.g. "Users Desktop".
+            var conditions = searchTerms
+                .Select((_, index) => $"FolderPath LIKE $pattern{index} ESCAPE '\\'")
+                .ToArray();
+
+            command.CommandText = $"""
+                SELECT FolderPath
+                FROM FolderEntries
+                WHERE DriveRoot = $root AND {string.Join(" AND ", conditions)}
+                ORDER BY FolderPath COLLATE NOCASE;
+                """;
+
+            for (var index = 0; index < searchTerms.Length; index++)
+            {
+                var escapedSearchTerm = searchTerms[index]
+                    .Replace("\\", "\\\\")
+                    .Replace("%", "\\%")
+                    .Replace("_", "\\_");
+                command.Parameters.AddWithValue($"$pattern{index}", $"%{escapedSearchTerm}%");
+            }
+        }
+        else if (_supportsTrigramSearch && searchText.Length >= 3)
         {
             command.CommandText = """
                 SELECT FolderPath
