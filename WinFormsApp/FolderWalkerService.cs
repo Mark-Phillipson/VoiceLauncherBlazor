@@ -20,7 +20,10 @@ internal sealed class FolderWalkerService
     private static readonly HashSet<string> BuiltInExcludedFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "$Recycle.Bin",
-        "System Volume Information"
+        "System Volume Information",
+        "Backup",
+        "Backups",
+        "WindowsImageBackup"
     };
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _driveLocks =
         new(StringComparer.OrdinalIgnoreCase);
