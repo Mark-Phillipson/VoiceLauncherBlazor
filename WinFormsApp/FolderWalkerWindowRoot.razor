@@ -34,6 +34,13 @@
         color: #adb5bd !important;
     }
 
+    .folder-match {
+        color: #212529;
+        background-color: #ffc107;
+        border-radius: .15rem;
+        padding: 0 .08rem;
+    }
+
     .folder-walker-shortcut {
         display: inline-block;
         min-width: 1.5rem;
@@ -302,7 +309,7 @@
                                         aria-pressed="@string.Equals(folder, _selectedFolder, StringComparison.OrdinalIgnoreCase)"
                                         aria-label="@($"Select folder {folderName}")"
                                         @onclick="() => SelectFolder(folder)">
-                                    <span class="d-block fw-semibold text-break">@folderName</span>
+                                    <span class="d-block fw-semibold text-break">@HighlightFolderName(folderName)</span>
                                     <span class="d-block small folder-result-path text-break">@folder</span>
                                 </button>
                             </div>
@@ -349,6 +356,39 @@
     private bool CanSearch =>
         !string.IsNullOrWhiteSpace(_selectedRoot) &&
         !string.IsNullOrWhiteSpace(_searchText);
+
+    private RenderFragment HighlightFolderName(string folderName) => builder =>
+    {
+        var searchTerm = _searchText.Trim();
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            builder.AddContent(0, folderName);
+            return;
+        }
+
+        var position = 0;
+        var sequence = 0;
+
+        while (position < folderName.Length)
+        {
+            var matchIndex = folderName.IndexOf(searchTerm, position, StringComparison.OrdinalIgnoreCase);
+            if (matchIndex < 0)
+            {
+                builder.AddContent(sequence++, folderName[position..]);
+                break;
+            }
+
+            if (matchIndex > position)
+                builder.AddContent(sequence++, folderName[position..matchIndex]);
+
+            builder.OpenElement(sequence++, "mark");
+            builder.AddAttribute(sequence++, "class", "folder-match");
+            builder.AddContent(sequence++, folderName.Substring(matchIndex, searchTerm.Length));
+            builder.CloseElement();
+
+            position = matchIndex + searchTerm.Length;
+        }
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
