@@ -163,12 +163,18 @@ namespace RazorClassLibrary.Pages
 				if (!string.IsNullOrWhiteSpace(SearchTerm) && CategoryId != 0)
 				{
 					ApplyFilter();
-					FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+					FilteredLauncherDTO = FilteredLauncherDTO
+						.OrderBy(l => l.SortOrder)
+						.ThenBy(l => l.Name)
+						.ToList();
 				}
 				else
 				{
 					// Backend already returned the correctly filtered list (global search or full category list)
-					FilteredLauncherDTO = FilteredLauncherDTO.OrderBy(l => l.Name).ToList();
+					FilteredLauncherDTO = FilteredLauncherDTO
+						.OrderBy(l => l.SortOrder)
+						.ThenBy(l => l.Name)
+						.ToList();
 				}
 
 			if (CategoryDataService != null && CategoryId != 0)
@@ -228,7 +234,10 @@ namespace RazorClassLibrary.Pages
 			}
 			if (string.IsNullOrEmpty(SearchTerm))
 			{
-				FilteredLauncherDTO = LauncherDTO.OrderBy(v => v.Name).ToList();
+				FilteredLauncherDTO = LauncherDTO
+					.OrderBy(v => v.SortOrder)
+					.ThenBy(v => v.Name)
+					.ToList();
 				Title = $"All Launcher ({FilteredLauncherDTO.Count})";
 			}
 			else
