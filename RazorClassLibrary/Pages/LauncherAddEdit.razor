@@ -272,6 +272,7 @@
                     <InputNumber accesskey="s" id="SortOrder" class="form-control" @bind-Value="@LauncherDTO.SortOrder"
                         placeholder="Enter Sort Order"></InputNumber>
                     <ValidationMessage For="@(() => LauncherDTO.SortOrder)" />
+                    <small class="form-text text-muted">Lower values appear first. Use a negative value to place this launcher above the alphabetical list.</small>
                 </div>
                 <div class="form-group">
                     <div class="form-check mt-2 d-flex align-items-center">
