@@ -510,9 +510,15 @@ namespace RazorClassLibrary.Pages
 				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
 				if (JSRuntime != null)
 				{
-					await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopyAndPaste);
-					var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
-					ToastService!.ShowSuccess(message);
+					if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopyAndPaste))
+					{
+						var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
+						ToastService!.ShowSuccess(message);
+					}
+					else
+					{
+						ToastService?.ShowError("Unable to copy the item to the clipboard.");
+					}
 				}
 				CustomIntelliSenseDTO customIntelliSenseDTO = new CustomIntelliSenseDTO();
 				customIntelliSenseDTO.SelectCharactersLeft = customIntelliSenseCurrent.SelectCharactersLeft;
