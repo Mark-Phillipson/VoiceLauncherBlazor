@@ -489,9 +489,15 @@ namespace RazorClassLibrary.Pages
 			}
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy);
-				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message);
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy))
+				{
+					var message = $"Copied Successfully: '{itemToCopy}'";
+					ToastService!.ShowSuccess(message);
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the item to the clipboard.");
+				}
 			}
 			await CloseApplication.InvokeAsync();
 		}
