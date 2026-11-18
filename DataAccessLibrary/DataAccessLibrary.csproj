@@ -61,7 +61,6 @@
 		<!-- Removed unnecessary Microsoft.Extensions.Configuration.Abstractions and Hosting -->
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.92.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="11.0.0" />
 		<PackageReference Include="System.Numerics.Tensors" Version="11.0.0" />
 		<PackageReference Include="System.Runtime.Caching" Version="11.0.0" />
