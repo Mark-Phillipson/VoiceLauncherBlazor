@@ -348,7 +348,6 @@ namespace RazorClassLibrary.Pages
         private void HideTagName()
         {
             _hoveredTag = null;
-            StateHasChanged();
         }
 
         private string GetImageSource()
