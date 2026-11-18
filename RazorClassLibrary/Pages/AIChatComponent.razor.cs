@@ -389,7 +389,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         try
         {
-            JSRuntime.InvokeVoidAsync("adjustTextArea", inputElement);
+            JSRuntime.InvokeVoidAsyncSafe("adjustTextArea", inputElement);
         }
         catch (System.Exception exception)
         {
@@ -627,7 +627,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     private async Task CopyItemAsync(string? itemToCopy)
     {
         if (string.IsNullOrEmpty(itemToCopy)) { return; }
-        await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
+        await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy);
         ToastService?.ShowSuccess("Copied to clipboard.");
         await ShowCopyConfirmationAsync();
     }
@@ -669,7 +669,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync("blazorHybrid.openInCode", content);
+                await JSRuntime.InvokeVoidAsyncSafe("blazorHybrid.openInCode", content);
                 Message = "Requested host to open content in VS Code.";
             }
             catch (Exception ex)
@@ -677,7 +677,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 Message = "Host bridge error: " + ex.Message + " — copying to clipboard as fallback.";
                 try
                 {
-                    await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", content);
+                    await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", content);
                     // Attempt to trigger paste on the host as a fallback
                     await TriggerPasteAsync();
                 }
@@ -724,7 +724,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
                 catch (Exception ex2)
                 {
                     // Final fallback: copy to clipboard and inform user
-                    await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", content);
+                    await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", content);
                     Message = "Failed to open editor: " + ex2.Message + ". Content copied to clipboard as fallback.";
                 }
             }
@@ -790,7 +790,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         {
             Console.WriteLine("TriggerPasteAsync called from C#");
             // Use JavaScript to trigger paste functionality
-            await JSRuntime.InvokeVoidAsync("blazorHybrid.triggerPaste");
+            await JSRuntime.InvokeVoidAsyncSafe("blazorHybrid.triggerPaste");
             Console.WriteLine("JavaScript triggerPaste called successfully");
         }
         catch (Exception ex)
