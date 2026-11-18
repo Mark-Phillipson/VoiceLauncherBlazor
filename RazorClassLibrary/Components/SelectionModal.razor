@@ -56,7 +56,7 @@
     private string FilterText { get; set; } = string.Empty;
     private List<SelectionItem> FilteredItems { get; set; } = new();
     // Keep track of the previous Items reference so we can clear filter when switching item sets
-    private IReadOnlyList<SelectionItem>? _previousItemsReference;
+    private List<SelectionItem>? _previousItemsReference;
 
     private async Task SelectItem(SelectionItem item)
     {
@@ -102,7 +102,6 @@
                 await SelectItem(only);
             }
         }
-        }
     }
 
     private async Task OnKeyPress(KeyboardEventArgs e, SelectionItem item)
@@ -141,7 +140,7 @@
     if (!ReferenceEquals(Items, _previousItemsReference))
     {
         FilterText = string.Empty;
-        _previousItemsReference = Items?.ToList();
+        _previousItemsReference = Items;
     }
     UpdateFilteredItems();
     StateHasChanged();
