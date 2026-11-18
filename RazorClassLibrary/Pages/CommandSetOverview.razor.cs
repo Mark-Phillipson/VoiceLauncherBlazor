@@ -184,7 +184,7 @@ namespace RazorClassLibrary.Pages
 		public async Task CommandDrillDownAsync(string name)
 		{
 			SearchTerm = name;
-			await JavaScriptRuntime!.InvokeVoidAsync(
+			await JavaScriptRuntime!.InvokeVoidAsyncSafe(
 	 "clipboardCopy.copyText", name);
 			_result = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
 			ShowLists = true;
