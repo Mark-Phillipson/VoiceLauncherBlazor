@@ -298,7 +298,6 @@ namespace RazorClassLibrary.Pages
 			{
 				ApplyFilterFlat();
 			}
-			StateHasChanged();
 		}
 		
 		protected void SortCategory(string sortColumn)
