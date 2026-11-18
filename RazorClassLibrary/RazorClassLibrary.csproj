@@ -40,7 +40,6 @@
 		<PackageReference Condition="'$(UseLocalEmbeddings)'=='true'" Include="SmartComponents.LocalEmbeddings" Version="0.1.0-preview10148" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.4" />
-		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\DataAccessLibrary\DataAccessLibrary.csproj" />
