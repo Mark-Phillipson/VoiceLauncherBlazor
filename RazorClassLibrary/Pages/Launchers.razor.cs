@@ -206,7 +206,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (commandLine.Trim().ToLower().StartsWith("http"))
 			{
-				await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
+				await JSRuntime.InvokeVoidAsync("open", commandLine, "_blank");
 			}
 			else
 			{
