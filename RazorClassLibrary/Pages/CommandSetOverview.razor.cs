@@ -189,13 +189,15 @@ namespace RazorClassLibrary.Pages
 			ShowCode = true;
 			if (copied)
 			{
-				_result = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
-				ToastService!.ShowSuccess(_result);
+				var resultMessage = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
+				_result = resultMessage;
+				ToastService!.ShowSuccess(resultMessage);
 			}
 			else
 			{
-				_result = "Unable to copy the command name to the clipboard.";
-				ToastService!.ShowError(_result);
+				const string resultMessage = "Unable to copy the command name to the clipboard.";
+				_result = resultMessage;
+				ToastService!.ShowError(resultMessage);
 			}
 		}
 		async Task ImportFileAsync(InputFileChangeEventArgs arguments)
