@@ -63,7 +63,6 @@ namespace RazorClassLibrary.Pages
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
-				StateHasChanged();
 			}
 		}
 
