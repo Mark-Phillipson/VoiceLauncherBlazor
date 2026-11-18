@@ -385,12 +385,11 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         processing = false;
         StateHasChanged();
     }
-    private void ResizeTextAreaPrompt()
+    private async Task ResizeTextAreaPrompt()
     {
         try
         {
-            JSRuntime.InvokeVoidAsyncSafe("adjustTextArea", inputElement);
-        }
+            await JSRuntime.InvokeVoidAsyncSafe("adjustTextArea", inputElement);
         catch (System.Exception exception)
         {
             System.Console.WriteLine(exception.Message);
