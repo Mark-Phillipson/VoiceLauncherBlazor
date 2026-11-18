@@ -13,7 +13,7 @@ namespace RazorClassLibrary.Pages
             if (ShowVideo && youtubeUrl != null)
             {
                 //NavigationManager.NavigateTo(youtubeUrl,true);
-                _ = await JSRuntime!.InvokeVoidAsync("open", youtubeUrl, "_blank");
+                _ = await JSRuntime!.InvokeVoidAsyncSafe("open", youtubeUrl, "_blank");
             }
             else
             {
