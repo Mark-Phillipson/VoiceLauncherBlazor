@@ -11,18 +11,22 @@ namespace RazorClassLibrary
 
     public class ExampleJsInterop : IAsyncDisposable
     {
-        private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+        private readonly Lazy<Task<IJSObjectReference?>> moduleTask;
 
         public ExampleJsInterop(IJSRuntime jsRuntime)
         {
-            moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+            moduleTask = new(() => jsRuntime.InvokeAsyncSafe<IJSObjectReference>(
                 "import", "./_content/RazorClassLibrary/exampleJsInterop.js").AsTask());
         }
 
         public async ValueTask<string> Prompt(string message)
         {
             var module = await moduleTask.Value;
-            return await module.InvokeAsync<string>("showPrompt", message);
+            if (module is null)
+            {
+                throw new InvalidOperationException("The JavaScript module could not be loaded.");
+            }
+            return await module.InvokeAsyncSafe<string>("showPrompt", message);
         }
 
         public async ValueTask DisposeAsync()
@@ -30,7 +34,10 @@ namespace RazorClassLibrary
             if (moduleTask.IsValueCreated)
             {
                 var module = await moduleTask.Value;
-                await module.DisposeAsync();
+                if (module is not null)
+                {
+                    await module.DisposeAsync();
+                }
             }
         }
     }
