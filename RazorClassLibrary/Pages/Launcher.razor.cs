@@ -87,7 +87,7 @@ namespace RazorClassLibrary.Pages
 		{
 			if (firstRender)
 			{
-				await JSRuntime!.InvokeVoidAsync("setFocus", "LauncherName");
+				await JSRuntime!.InvokeVoidAsyncSafe("setFocus", "LauncherName");
 			}
 		}
 
@@ -124,7 +124,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
-			await JSRuntime!.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime!.InvokeVoidAsyncSafe("CallChange", elementId);
 		}
 
 	}
