@@ -78,7 +78,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+                        await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
                     }
                 }
                 catch (Exception exception)
@@ -98,7 +98,7 @@ namespace RazorClassLibrary.Pages
             FilteredGrammarItemDTO.Add(grammarItem);
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("setFocus", FilteredGrammarItemDTO.Count.ToString());
+                await JSRuntime.InvokeVoidAsyncSafe("setFocus", FilteredGrammarItemDTO.Count.ToString());
             }
 
             return;
@@ -206,7 +206,7 @@ namespace RazorClassLibrary.Pages
         {
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+                await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
             }
         }
 
