@@ -15,7 +15,7 @@ namespace RazorClassLibrary
 
         public ExampleJsInterop(IJSRuntime jsRuntime)
         {
-            moduleTask = new(() => jsRuntime.InvokeAsyncSafe<IJSObjectReference>(
+            moduleTask = new(() => jsRuntime.InvokeAsyncSafe<IJSObjectReference?>(
                 "import", "./_content/RazorClassLibrary/exampleJsInterop.js").AsTask());
         }
 
