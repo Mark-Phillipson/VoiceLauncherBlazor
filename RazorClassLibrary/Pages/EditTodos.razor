@@ -125,7 +125,14 @@
 	[Parameter] public EventCallback Cancel { get; set; }
 	private async Task CallChangeAsync(string elementId)
 	{
-		await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+		}
+		catch (Exception)
+		{
+			// The JavaScript interop call can fail during prerendering or circuit disconnect.
+		}
 	}
 
 }

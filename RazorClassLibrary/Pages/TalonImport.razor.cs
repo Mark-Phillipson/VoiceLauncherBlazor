@@ -126,7 +126,6 @@ namespace RazorClassLibrary.Pages
             IsLoading = true;
             ImportResult = null;
             ErrorMessage = null;
-            StateHasChanged();
  
             try
             {

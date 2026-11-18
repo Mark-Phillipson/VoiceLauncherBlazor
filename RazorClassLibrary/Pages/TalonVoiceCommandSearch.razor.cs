@@ -1069,7 +1069,6 @@ namespace RazorClassLibrary.Pages
             finally
             {
                 IsLoading = false;
-                StateHasChanged();
             }
         }
         public async Task ClearFilters()
@@ -1150,8 +1149,6 @@ namespace RazorClassLibrary.Pages
             if (Enum.TryParse<SearchScope>(e.Value?.ToString(), out var scope))
             {
                 SelectedSearchScope = scope;
-                // Update placeholder text based on scope
-                StateHasChanged();
             }
         }
 
@@ -1202,7 +1199,13 @@ namespace RazorClassLibrary.Pages
             {
                 // This will attempt to open the file in VS Code using the vscode://file URI scheme
                 var uri = $"vscode://file/{filePath.Replace("\\", "/")}";
-                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -1500,7 +1503,13 @@ namespace RazorClassLibrary.Pages
             // scroll focused card into view
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -1511,7 +1520,6 @@ namespace RazorClassLibrary.Pages
         {
             _focusedCommand = null;
             _isFocusMode = false;
-            StateHasChanged();
         }
 
         /// <summary>
@@ -1557,12 +1565,24 @@ namespace RazorClassLibrary.Pages
             if (JSRuntime != null && _focusedCommand != null && !string.IsNullOrWhiteSpace(_focusedCommand.FilePath))
             {
                 // Copy question to clipboard
-                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", question);
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", question);
+                }
+                catch (Exception)
+                {
+                }
 
                 // Open the script file in VS Code
                 var filePath = _focusedCommand.FilePath.Replace("\\", "/");
                 var uri = $"vscode://file/{filePath}";
-                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
     }
