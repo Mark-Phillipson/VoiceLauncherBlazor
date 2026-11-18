@@ -28,7 +28,6 @@ namespace RazorClassLibrary.Pages
                 System.Console.WriteLine(response.Value.ImageUri);
                 imageUrl = response.Value.ImageUri.ToString();
                 generatingImage = false;
-                StateHasChanged();
             }
         }
     }

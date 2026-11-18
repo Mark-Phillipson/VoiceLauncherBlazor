@@ -176,11 +176,11 @@ namespace RazorClassLibrary.Pages
 				SortOrder = generalLookupSource?.SortOrder + 1
 			};
 			GeneralLookupsModel!.Add(generalLookup);
-			await JSRuntime.InvokeVoidAsync("setFocus", "0ItemValue");
+			await JSRuntime.InvokeVoidAsyncSafe("setFocus", "0ItemValue");
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
-			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
 			await ApplyFilter();
 		}
 	}

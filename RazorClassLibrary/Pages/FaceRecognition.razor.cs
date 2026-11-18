@@ -57,7 +57,7 @@ namespace RazorClassLibrary.Pages
                 _hasFocusedUploadName = true;
                 try
                 {
-                    await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _uploadImageNameElement);
+                    await JSRuntime!.InvokeVoidAsyncSafe("blazorHelpers.focusElement", _uploadImageNameElement);
                 }
                 catch (JSException)
                 {
@@ -129,7 +129,7 @@ namespace RazorClassLibrary.Pages
                     // Return focus to the image name input to allow another upload quickly
                     try
                     {
-                        await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _uploadImageNameElement);
+                        await JSRuntime!.InvokeVoidAsyncSafe("blazorHelpers.focusElement", _uploadImageNameElement);
                     }
                     catch (JSException)
                     {
@@ -168,7 +168,7 @@ namespace RazorClassLibrary.Pages
         {
             if (_currentImage == null) return;
 
-            var confirmed = await JSRuntime!.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{_currentImage.ImageName}'?");
+            var confirmed = await JSRuntime!.InvokeAsyncSafe<bool>("confirm", $"Are you sure you want to delete '{_currentImage.ImageName}'?");
             if (!confirmed) return;
 
             try
@@ -215,12 +215,12 @@ namespace RazorClassLibrary.Pages
                 BoundingRect? rect = null;
                 try
                 {
-                    rect = await JSRuntime!.InvokeAsync<BoundingRect>("faceRecognitionHelpers.getImageBoundingRect", _currentImage.ImageName);
+                    rect = await JSRuntime!.InvokeAsyncSafe<BoundingRect>("faceRecognitionHelpers.getImageBoundingRect", _currentImage.ImageName);
                 }
                 catch (JSException)
                 {
                     // Helper not available; fall back to using element reference with a minimal helper
-                    rect = await JSRuntime!.InvokeAsync<BoundingRect>("blazorHelpers.getBoundingClientRect", _imageElement);
+                    rect = await JSRuntime!.InvokeAsyncSafe<BoundingRect>("blazorHelpers.getBoundingClientRect", _imageElement);
                 }
 
                 if (rect == null)
@@ -255,11 +255,11 @@ namespace RazorClassLibrary.Pages
                 await Task.Delay(100);
                 try
                 {
-                    await JSRuntime!.InvokeVoidAsync("faceRecognitionHelpers.focusNameInput");
+                    await JSRuntime!.InvokeVoidAsyncSafe("faceRecognitionHelpers.focusNameInput");
                 }
                 catch (JSException)
                 {
-                    await JSRuntime!.InvokeVoidAsync("blazorHelpers.focusElement", _nameInputElement);
+                    await JSRuntime!.InvokeVoidAsyncSafe("blazorHelpers.focusElement", _nameInputElement);
                 }
             }
             catch (Exception ex)
@@ -302,7 +302,7 @@ namespace RazorClassLibrary.Pages
         {
             if (_currentImage == null) return;
 
-            var confirmed = await JSRuntime!.InvokeAsync<bool>("confirm", "Are you sure you want to delete this tag?");
+            var confirmed = await JSRuntime!.InvokeAsyncSafe<bool>("confirm", "Are you sure you want to delete this tag?");
             if (!confirmed) return;
 
             try
@@ -348,7 +348,6 @@ namespace RazorClassLibrary.Pages
         private void HideTagName()
         {
             _hoveredTag = null;
-            StateHasChanged();
         }
 
         private string GetImageSource()

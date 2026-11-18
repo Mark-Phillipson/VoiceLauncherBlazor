@@ -292,7 +292,7 @@ namespace RazorClassLibrary.Pages
          {
             ShowLanguageSuggestions = false;
             LanguageSuggestionIndex = -1;
-            try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+            try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageInput"); } catch { }
             return;
          }
          if (e.Key == "ArrowDown")
@@ -315,7 +315,7 @@ namespace RazorClassLibrary.Pages
             else
             {
                LanguageSuggestionIndex = -1;
-               await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput");
+               await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageInput");
             }
          }
          else if (e.Key == "Enter")
@@ -330,7 +330,7 @@ namespace RazorClassLibrary.Pages
          {
             ShowLanguageSuggestions = false;
             LanguageSuggestionIndex = -1;
-            await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput");
+            await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageInput");
          }
       }
 
@@ -341,7 +341,7 @@ namespace RazorClassLibrary.Pages
          {
             ShowCategorySuggestions = false;
             CategorySuggestionIndex = -1;
-            try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+            try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "CategoryInput"); } catch { }
             return;
          }
          if (e.Key == "ArrowDown")
@@ -364,7 +364,7 @@ namespace RazorClassLibrary.Pages
             else
             {
                CategorySuggestionIndex = -1;
-               await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput");
+               await JSRuntime.InvokeVoidAsyncSafe("setFocus", "CategoryInput");
             }
          }
          else if (e.Key == "Enter")
@@ -379,7 +379,7 @@ namespace RazorClassLibrary.Pages
          {
             ShowCategorySuggestions = false;
             CategorySuggestionIndex = -1;
-            await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput");
+            await JSRuntime.InvokeVoidAsyncSafe("setFocus", "CategoryInput");
          }
       }
 
@@ -387,7 +387,7 @@ namespace RazorClassLibrary.Pages
       {
          try
          {
-            await JSRuntime.InvokeVoidAsync("setFocus", $"LanguageSuggestion_{index}");
+            await JSRuntime.InvokeVoidAsyncSafe("setFocus", $"LanguageSuggestion_{index}");
          }
          catch { }
       }
@@ -396,7 +396,7 @@ namespace RazorClassLibrary.Pages
       {
          try
          {
-            await JSRuntime.InvokeVoidAsync("setFocus", $"CategorySuggestion_{index}");
+            await JSRuntime.InvokeVoidAsyncSafe("setFocus", $"CategorySuggestion_{index}");
          }
          catch { }
       }
@@ -439,14 +439,14 @@ namespace RazorClassLibrary.Pages
             else
             {
                LanguageSuggestionIndex = -1;
-               try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+               try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageInput"); } catch { }
             }
          }
          else if (e.Key == "Escape")
          {
             ShowLanguageSuggestions = false;
             LanguageSuggestionIndex = -1;
-            try { await JSRuntime.InvokeVoidAsync("setFocus", "LanguageInput"); } catch { }
+            try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageInput"); } catch { }
          }
       }
 
@@ -487,14 +487,14 @@ namespace RazorClassLibrary.Pages
             else
             {
                CategorySuggestionIndex = -1;
-               try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+               try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "CategoryInput"); } catch { }
             }
          }
          else if (e.Key == "Escape")
          {
             ShowCategorySuggestions = false;
             CategorySuggestionIndex = -1;
-            try { await JSRuntime.InvokeVoidAsync("setFocus", "CategoryInput"); } catch { }
+            try { await JSRuntime.InvokeVoidAsyncSafe("setFocus", "CategoryInput"); } catch { }
          }
       }
 
@@ -582,7 +582,7 @@ namespace RazorClassLibrary.Pages
          {
             if (JSRuntime != null)
             {
-               await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+               await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
             }
          }
          catch { }
@@ -625,7 +625,7 @@ namespace RazorClassLibrary.Pages
             {
                if (JSRuntime != null)
                {
-                  await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+                  await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
                }
             }
             catch (Exception exception)
@@ -892,9 +892,15 @@ namespace RazorClassLibrary.Pages
          }
          if (JSRuntime != null && customIntelliSenseCurrent != null)
          {
-            await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-            var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
-            ToastService!.ShowSuccess(message);
+            if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue))
+            {
+               var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+               ToastService!.ShowSuccess(message);
+            }
+            else
+            {
+               ToastService?.ShowError("Unable to copy the item to the clipboard.");
+            }
          }
          if (RunningInBlazorHybrid)
          {
@@ -933,8 +939,8 @@ namespace RazorClassLibrary.Pages
          // {
          //    try
          //    {
-         //       // await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
-         //       await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
+         //       // await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopyAndPaste);
+         //       await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
          //    }
          //    catch (System.Exception exception)
          //    {

@@ -99,7 +99,7 @@ namespace RazorClassLibrary.Pages
         {
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+                await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
             }
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -110,7 +110,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("setFocus", "TextToEnter");
+                        await JSRuntime.InvokeVoidAsyncSafe("setFocus", "TextToEnter");
                     }
                 }
                 catch (Exception exception)

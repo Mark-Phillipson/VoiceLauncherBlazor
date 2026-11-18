@@ -112,7 +112,7 @@ namespace RazorClassLibrary.Pages
 			{
 				try
 				{
-					await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+					await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
 				}
 				catch (Exception exception)
 				{
@@ -141,7 +141,7 @@ namespace RazorClassLibrary.Pages
 			try
 			{
 				if (!_disposed)
-					await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+					await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
 			}
 			catch { }
 		}
@@ -439,7 +439,7 @@ namespace RazorClassLibrary.Pages
 			if (_disposed) return;
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+				await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
 			}
 			await ApplyFilter();
 		}
@@ -489,9 +489,15 @@ namespace RazorClassLibrary.Pages
 			}
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
-				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message);
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy))
+				{
+					var message = $"Copied Successfully: '{itemToCopy}'";
+					ToastService!.ShowSuccess(message);
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the item to the clipboard.");
+				}
 			}
 			await CloseApplication.InvokeAsync();
 		}
@@ -504,9 +510,15 @@ namespace RazorClassLibrary.Pages
 				itemToCopyAndPaste = FillInVariables(itemToCopyAndPaste, customIntelliSenseCurrent);
 				if (JSRuntime != null)
 				{
-					await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopyAndPaste);
-					var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
-					ToastService!.ShowSuccess(message);
+					if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopyAndPaste))
+					{
+						var message = $"Copied Successfully: '{itemToCopyAndPaste}'";
+						ToastService!.ShowSuccess(message);
+					}
+					else
+					{
+						ToastService?.ShowError("Unable to copy the item to the clipboard.");
+					}
 				}
 				CustomIntelliSenseDTO customIntelliSenseDTO = new CustomIntelliSenseDTO();
 				customIntelliSenseDTO.SelectCharactersLeft = customIntelliSenseCurrent.SelectCharactersLeft;

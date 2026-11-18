@@ -281,7 +281,6 @@
     private Task LaunchCursorlessAsync()
     {
         _activeQuiz = "cursorless";
-        StateHasChanged();
         return Task.CompletedTask;
     }
 
@@ -289,34 +288,29 @@
     {
         await EnsureTalonLoadedAsync();
         _activeQuiz = "talon";
-        StateHasChanged();
     }
 
     private async Task LaunchWhatWouldYouSayAsync()
     {
         await EnsureVoiceCommandsLoadedAsync();
         _activeQuiz = "what-would-you-say";
-        StateHasChanged();
     }
 
     private Task LaunchCSharpAsync()
     {
         _activeQuiz = "csharp";
-        StateHasChanged();
         return Task.CompletedTask;
     }
 
     private Task LaunchBlazorAsync()
     {
         _activeQuiz = "blazor";
-        StateHasChanged();
         return Task.CompletedTask;
     }
 
     private void ResetHub()
     {
         _activeQuiz = null;
-        StateHasChanged();
     }
 
     private async Task EnsureTalonLoadedAsync()

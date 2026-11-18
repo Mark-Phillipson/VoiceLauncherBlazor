@@ -124,7 +124,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -142,7 +142,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -161,7 +161,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -180,7 +180,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -199,7 +199,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -218,7 +218,7 @@ namespace RazorClassLibrary.Pages
             }
             if (_selectionModule != null)
             {
-                await _selectionModule.InvokeVoidAsync("showModal", "#selectionModal");
+                await _selectionModule.InvokeVoidAsyncSafe("showModal", "#selectionModal");
             }
         }
 
@@ -253,12 +253,12 @@ namespace RazorClassLibrary.Pages
                 }
                 if (_selectionModule != null && _selectionModuleLoaded)
                 {
-                    await _selectionModule.InvokeVoidAsync("showModal", selector);
+                    await _selectionModule.InvokeVoidAsyncSafe("showModal", selector);
                 }
                 else if (JSRuntime != null)
                 {
                     // Fallback to global
-                    await JSRuntime.InvokeVoidAsync("bootstrapInterop.showModal", selector);
+                    await JSRuntime.InvokeVoidAsyncSafe("bootstrapInterop.showModal", selector);
                 }
                 else
                 {
@@ -272,7 +272,7 @@ namespace RazorClassLibrary.Pages
                 try
                 {
                     if (JSRuntime != null)
-                        await JSRuntime.InvokeVoidAsync("bootstrapInterop.showModal", selector);
+                        await JSRuntime.InvokeVoidAsyncSafe("bootstrapInterop.showModal", selector);
                 }
                 catch { }
             }
@@ -676,12 +676,12 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null && !_selectionModuleLoaded)
                     {
-                        _selectionModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
+                        _selectionModule = await JSRuntime.InvokeAsyncSafe<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
                         _selectionModuleLoaded = true;
                         Console.WriteLine("Selection modal JS module loaded.");
                         try
                         {
-                            await JSRuntime.InvokeVoidAsync("console.debug", "Selection modal JS module loaded (client)");
+                            await JSRuntime.InvokeVoidAsyncSafe("console.debug", "Selection modal JS module loaded (client)");
                         }
                         catch { }
                     }
@@ -693,7 +693,7 @@ namespace RazorClassLibrary.Pages
                     try
                     {
                         if (JSRuntime != null)
-                            await JSRuntime.InvokeVoidAsync("console.error", "Selection modal JS module failed to load (client):", ex?.Message);
+                            await JSRuntime.InvokeVoidAsyncSafe("console.error", "Selection modal JS module failed to load (client):", ex?.Message);
                     }
                     catch { }
                 }
@@ -760,7 +760,7 @@ namespace RazorClassLibrary.Pages
                 // Debug logging
                 if (JSRuntime != null)
                 {
-                    await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
+                    await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] Search conditions - Term: '{SearchTerm}', Length: {SearchTerm?.Length}, UseSemanticMatching: {UseSemanticMatching}, hasSearchTerm: {hasSearchTerm}");
                 }
 
                 if (!hasSearchTerm && !hasApplicationFilter && !hasModeFilter && !hasOSFilter && !hasRepositoryFilter && !hasTagsFilter && !hasTitleFilter && !hasCodeLanguageFilter)
@@ -869,7 +869,7 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                            await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] Using semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
                         }
 
                         // Use semantic search methods which search across all fields
@@ -894,7 +894,7 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
+                            await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] Semantic search returned {semanticResults.Count} results");
                         }
 
                         // Apply filters to semantic results
@@ -947,7 +947,7 @@ namespace RazorClassLibrary.Pages
                         // Debug logging
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                            await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
                         }
                     }
                     else
@@ -958,7 +958,7 @@ namespace RazorClassLibrary.Pages
                             // Debug logging
                             if (JSRuntime != null)
                             {
-                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
+                                await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] Using non-semantic search for term: '{SearchTerm}' with scope: '{SelectedSearchScope}'");
                             }
 
                             // Use appropriate search method based on scope
@@ -980,7 +980,7 @@ namespace RazorClassLibrary.Pages
                             // Debug logging
                             if (JSRuntime != null)
                             {
-                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
+                                await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] Non-semantic search returned {searchResults.Count} results");
                             }
 
                             // Apply filters to search results
@@ -1033,7 +1033,7 @@ namespace RazorClassLibrary.Pages
                             // Debug logging
                             if (JSRuntime != null)
                             {
-                                await JSRuntime.InvokeVoidAsync("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
+                                await JSRuntime.InvokeVoidAsyncSafe("console.log", $"[DEBUG] After filters applied: {Results.Count} final results");
                             }
                         }
                         else
@@ -1069,7 +1069,6 @@ namespace RazorClassLibrary.Pages
             finally
             {
                 IsLoading = false;
-                StateHasChanged();
             }
         }
         public async Task ClearFilters()
@@ -1150,8 +1149,6 @@ namespace RazorClassLibrary.Pages
             if (Enum.TryParse<SearchScope>(e.Value?.ToString(), out var scope))
             {
                 SelectedSearchScope = scope;
-                // Update placeholder text based on scope
-                StateHasChanged();
             }
         }
 
@@ -1175,7 +1172,7 @@ namespace RazorClassLibrary.Pages
             {
                 if (_selectionModuleLoaded && _selectionModule != null)
                 {
-                    await _selectionModule.InvokeVoidAsync("focusElement", "#tvcs-search-input", 10, true);
+                    await _selectionModule.InvokeVoidAsyncSafe("focusElement", "#tvcs-search-input", 10, true);
                     return;
                 }
 
@@ -1189,7 +1186,7 @@ namespace RazorClassLibrary.Pages
                 {
                     try
                     {
-                        await JSRuntime.InvokeVoidAsync("setTimeout", "function() { var el = document.querySelector('#tvcs-search-input'); if (el) el.focus(); }", 10);
+                        await JSRuntime.InvokeVoidAsyncSafe("setTimeout", "function() { var el = document.querySelector('#tvcs-search-input'); if (el) el.focus(); }", 10);
                     }
                     catch { }
                 }
@@ -1202,7 +1199,13 @@ namespace RazorClassLibrary.Pages
             {
                 // This will attempt to open the file in VS Code using the vscode://file URI scheme
                 var uri = $"vscode://file/{filePath.Replace("\\", "/")}";
-                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsyncSafe("window.open", uri, "_blank");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -1500,7 +1503,13 @@ namespace RazorClassLibrary.Pages
             // scroll focused card into view
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("scrollFocusedIntoView");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsyncSafe("scrollFocusedIntoView");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -1511,7 +1520,6 @@ namespace RazorClassLibrary.Pages
         {
             _focusedCommand = null;
             _isFocusMode = false;
-            StateHasChanged();
         }
 
         /// <summary>
@@ -1557,12 +1565,24 @@ namespace RazorClassLibrary.Pages
             if (JSRuntime != null && _focusedCommand != null && !string.IsNullOrWhiteSpace(_focusedCommand.FilePath))
             {
                 // Copy question to clipboard
-                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", question);
+                try
+                {
+                    await JSRuntime.InvokeVoidAsyncSafe("navigator.clipboard.writeText", question);
+                }
+                catch (Exception)
+                {
+                }
 
                 // Open the script file in VS Code
                 var filePath = _focusedCommand.FilePath.Replace("\\", "/");
                 var uri = $"vscode://file/{filePath}";
-                await JSRuntime.InvokeVoidAsync("window.open", uri, "_blank");
+                try
+                {
+                    await JSRuntime.InvokeVoidAsyncSafe("window.open", uri, "_blank");
+                }
+                catch (Exception)
+                {
+                }
             }
         }
     }

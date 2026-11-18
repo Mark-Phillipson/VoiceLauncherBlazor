@@ -165,7 +165,6 @@ public partial class LauncherAddEdit : ComponentBase
     {
         IsImagePreviewOpen = false;
         PreviewImageFilename = string.Empty;
-        StateHasChanged();
     }
 
     protected void SelectPreviewImage()
@@ -344,12 +343,10 @@ public partial class LauncherAddEdit : ComponentBase
         {
             PromptBuilderText = $"Create a simple launcher thumbnail for: {LauncherDTO.Name}. Context: {LauncherDTO.CommandLine}.";
             PromptBuilderVisible = true;
-            StateHasChanged();
             return;
         }
 
         GeneratingImage = true;
-        StateHasChanged();
 
         try
         {
@@ -400,7 +397,6 @@ public partial class LauncherAddEdit : ComponentBase
         finally
         {
             GeneratingImage = false;
-            StateHasChanged();
         }
     }
 
@@ -516,6 +512,5 @@ public partial class LauncherAddEdit : ComponentBase
         protected void ToggleFavourite()
         {
             LauncherDTO.Favourite = !LauncherDTO.Favourite;
-            StateHasChanged();
         }
     }

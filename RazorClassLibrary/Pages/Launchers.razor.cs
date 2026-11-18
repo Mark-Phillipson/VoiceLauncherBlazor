@@ -103,7 +103,6 @@ namespace RazorClassLibrary.Pages
 					Console.WriteLine(exception.Message);
 					_loadFailed = true;
 				}
-				StateHasChanged();
 			}
 		}
 
@@ -200,21 +199,26 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task CallChangeAsync(string elementId)
 		{
-			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
 			await ApplyFilter();
 		}
 		private async Task LaunchItemAsync(string commandLine)
 		{
 			if (commandLine.Trim().ToLower().StartsWith("http"))
 			{
-				await JSRuntime.InvokeAsync<object>("open", commandLine, "_blank");
+				await JSRuntime.InvokeVoidAsyncSafe("open", commandLine, "_blank");
 			}
 			else
 			{
-				await JSRuntime.InvokeVoidAsync(
-					 "clipboardCopy.copyText", commandLine);
-				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService!.ShowSuccess(message + "Copy Commandline");
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", commandLine))
+				{
+					var message = $"Copied Successfully: '{commandLine}'";
+					ToastService!.ShowSuccess(message + "Copy Commandline");
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the command line to the clipboard.");
+				}
 			}
 		}
 	}

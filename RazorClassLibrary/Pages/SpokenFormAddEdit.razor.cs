@@ -55,7 +55,7 @@ namespace RazorClassLibrary.Pages
                 {
                     if (JSRuntime != null)
                     {
-                        await JSRuntime.InvokeVoidAsync("setFocus", "SpokenFormText");
+                        await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SpokenFormText");
                     }
                 }
                 catch (Exception exception)
@@ -101,7 +101,7 @@ namespace RazorClassLibrary.Pages
         {
             if (JSRuntime != null)
             {
-                await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+                await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
             }
         }
 

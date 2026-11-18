@@ -93,7 +93,7 @@ namespace RazorClassLibrary.Pages
 				{
 					if (JSRuntime != null)
 					{
-						await JSRuntime.InvokeVoidAsync("setFocus", "SearchInput");
+						await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SearchInput");
 					}
 				}
 				catch (Exception exception)
@@ -243,9 +243,15 @@ namespace RazorClassLibrary.Pages
 		{
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
-				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message + " Copy Item");
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy))
+				{
+					var message = $"Copied Successfully: '{itemToCopy}'";
+					ToastService!.ShowSuccess(message + " Copy Item");
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the item to the clipboard.");
+				}
 			}
 		}
 	}

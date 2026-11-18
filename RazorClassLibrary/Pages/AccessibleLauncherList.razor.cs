@@ -70,7 +70,6 @@ namespace RazorClassLibrary.Pages
             _secondsDwelled = 0;
             _itemBeingDwelledOn = null;
             _dwellStatusMessage = string.Empty;
-            StateHasChanged();
             try
             {
                 var result = await LauncherDataService.GetFavoriteLaunchersAsync();
@@ -207,7 +206,7 @@ namespace RazorClassLibrary.Pages
                         // Use JSRuntime to open in a new tab
                         if (JSRuntime != null)
                         {
-                            await JSRuntime.InvokeVoidAsync("open", urlToLaunch, "_blank");
+                            await JSRuntime.InvokeVoidAsyncSafe("open", urlToLaunch, "_blank");
                         }
                         else
                         {
@@ -237,7 +236,7 @@ namespace RazorClassLibrary.Pages
             {
                 try
                 {
-                    await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('launcher-item-{SelectedIndex}')?.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});");
+                    await JSRuntime.InvokeVoidAsyncSafe("eval", $"document.getElementById('launcher-item-{SelectedIndex}')?.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});");
                 }
                 catch (JSException ex)
                 {

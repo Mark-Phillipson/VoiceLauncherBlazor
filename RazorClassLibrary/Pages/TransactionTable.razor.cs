@@ -441,7 +441,6 @@ namespace RazorClassLibrary.Pages
             FilteredTransactionDTO = breakdown;
             Title = $"My Transaction Type ({FilteredTransactionDTO.Count})";
             showingBreakdown = true;
-            StateHasChanged();
         }
         private void HouseholdChargesReport()
         {

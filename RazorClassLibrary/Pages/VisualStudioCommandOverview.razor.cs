@@ -122,7 +122,7 @@ namespace RazorClassLibrary.Pages
 			{
 				return;
 			}
-			await JSRuntime.InvokeVoidAsync(
+			await JSRuntime.InvokeVoidAsyncSafe(
  "clipboardCopy.copyText", value);
 			var message = $"Copied Successfully: '{value}'";
 			ToastService!.ShowSuccess(message + "Copy Commandline");

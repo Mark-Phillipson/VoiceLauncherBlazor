@@ -68,7 +68,7 @@ namespace RazorClassLibrary.Pages
 		private async void CancelEdit()
 		{
 			todo = new Todo { Project = Project, Title = "New Todo", Description = "New Description" };
-			await JSRuntime!.InvokeVoidAsync("setFocus", $"SearchInput");
+			await JSRuntime!.InvokeVoidAsyncSafe("setFocus", $"SearchInput");
 		}
 		private async void EditTodo(Todo todoEdit)
 		{
@@ -84,7 +84,7 @@ namespace RazorClassLibrary.Pages
 			todo.Project = todoEdit.Project;
 			todo.Archived = todoEdit.Archived;
 			todo.SortPriority = todoEdit.SortPriority;
-			await JSRuntime!.InvokeVoidAsync("setFocus", $"{todo!.Id}Title");
+			await JSRuntime!.InvokeVoidAsyncSafe("setFocus", $"{todo!.Id}Title");
 		}
 		void ConfirmArchive(int todoId)
 		{
@@ -219,7 +219,7 @@ namespace RazorClassLibrary.Pages
 
 		private async Task CallChangeAsync(string elementId)
 		{
-			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
 			await ApplyFilter();
 		}
 		async Task SetPriorityAsync(int todoId, bool increase)
@@ -276,7 +276,7 @@ namespace RazorClassLibrary.Pages
 		}
 		private async Task<int> GetPageYOffset()
 		{
-			var yOffset = await JSRuntime.InvokeAsync<double>("getPageYOffset");
+			var yOffset = await JSRuntime.InvokeAsyncSafe<double>("getPageYOffset");
 			Console.WriteLine($"Page Y Offset: {yOffset}");
 			return (int)yOffset;
 		}

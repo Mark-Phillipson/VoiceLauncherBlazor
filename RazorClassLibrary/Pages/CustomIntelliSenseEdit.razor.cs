@@ -107,7 +107,7 @@ namespace RazorClassLibrary.Pages
       {
         try
         {
-          await JSRuntime.InvokeVoidAsync("setFocus", "LanguageSelect");
+          await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageSelect");
         }
         catch (Exception exception)
         {
@@ -149,7 +149,7 @@ namespace RazorClassLibrary.Pages
     }
     private async Task CallChangeAsync(string elementId)
     {
-      await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+      await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
     }
     private async Task GoBackAsync()
     {

@@ -89,7 +89,7 @@ namespace RazorClassLibrary.Pages
 				{
 					if (JSRuntime != null)
 					{
-						await JSRuntime.InvokeVoidAsync("setFocus", "LanguageId");
+						await JSRuntime.InvokeVoidAsyncSafe("setFocus", "LanguageId");
 					}
 				}
 				catch (Exception exception)
@@ -159,9 +159,15 @@ namespace RazorClassLibrary.Pages
 			itemToCopy = FillInVariables(itemToCopy);
 			if (JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", itemToCopy);
-				var message = $"Copied Successfully: '{itemToCopy}'";
-				ToastService!.ShowSuccess(message + " Copy Item");
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", itemToCopy))
+				{
+					var message = $"Copied Successfully: '{itemToCopy}'";
+					ToastService!.ShowSuccess(message + " Copy Item");
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the item to the clipboard.");
+				}
 			}
 
 		}
@@ -198,7 +204,7 @@ namespace RazorClassLibrary.Pages
 			{
 				return;
 			}
-			await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+			await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
 			example = FillInVariables(CustomIntelliSenseDTO.SendKeysValue);
 		}
 		private async Task DeleteRecord()

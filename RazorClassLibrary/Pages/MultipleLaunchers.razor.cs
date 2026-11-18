@@ -53,7 +53,7 @@ namespace RazorClassLibrary.Pages
         {
             launchers = await LauncherService.GetLaunchersAsync(LauncherFilter ?? "");
             await CallChangeAsync("FilterLauncher");
-            await JSRuntime.InvokeVoidAsync("setFocus", "NewbridgeSelect ");
+            await JSRuntime.InvokeVoidAsyncSafe("setFocus", "NewbridgeSelect ");
         }
         private async Task SaveBridge()
         {
@@ -87,7 +87,7 @@ namespace RazorClassLibrary.Pages
         }
         private async Task CallChangeAsync(string elementId)
         {
-            await JSRuntime.InvokeVoidAsync("CallChange", elementId);
+            await JSRuntime.InvokeVoidAsyncSafe("CallChange", elementId);
         }
 
     }
