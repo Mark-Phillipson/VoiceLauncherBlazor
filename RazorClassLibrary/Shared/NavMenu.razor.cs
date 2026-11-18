@@ -32,8 +32,7 @@ namespace RazorClassLibrary.Shared
 		}
 		private void MenuItemSelected()
 		{
-			//enableAccessKeys = false;
-			StateHasChanged();
+			// The calling UI event automatically triggers a render.
 		}
 		private void ToggleNavMenu()
 		{
