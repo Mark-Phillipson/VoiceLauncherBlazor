@@ -255,7 +255,6 @@ namespace RazorClassLibrary.Pages
             {
                 getFromJson = false;
                 await LoadData();
-                StateHasChanged();
             }
         }
         private async Task ExportAsJson()
