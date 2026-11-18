@@ -70,7 +70,6 @@ namespace RazorClassLibrary.Pages
             _secondsDwelled = 0;
             _itemBeingDwelledOn = null;
             _dwellStatusMessage = string.Empty;
-            StateHasChanged();
             try
             {
                 var result = await LauncherDataService.GetFavoriteLaunchersAsync();
