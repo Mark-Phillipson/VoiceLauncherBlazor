@@ -42,7 +42,7 @@ namespace RazorClassLibrary.Components
 		private async Task CopyTextToClipboard(string? text)
 		{
 			if (text == null) return;
-			await JavaScriptRuntime!.InvokeVoidAsync(
+			await JavaScriptRuntime!.InvokeVoidAsyncSafe(
 				 "clipboardCopy.copyText", text);
 			_result = $"Copied List Contents Successfully at {DateTime.Now:hh:mm}";
 			ToastService?.ShowSuccess(_result);
