@@ -10,7 +10,7 @@ namespace RazorClassLibrary.Pages
         {
             if (firstRender)
             {
-                await JS.InvokeVoidAsync("applyBoldStyling");
+                await JS.InvokeVoidAsyncSafe("applyBoldStyling");
             }
         }
     }
