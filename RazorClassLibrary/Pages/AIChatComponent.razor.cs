@@ -913,7 +913,6 @@ public partial class AIChatComponent : ComponentBase, IDisposable
             quickPromptSearchTerm = "";
             filteredQuickPrompts.Clear();
         }
-        StateHasChanged();
     }
 
     private string GetQuickPromptTypeColorClass(string type)
@@ -936,7 +935,6 @@ public partial class AIChatComponent : ComponentBase, IDisposable
     {
         quickPromptSearchTerm = e.Value?.ToString() ?? "";
         FilterQuickPrompts();
-        StateHasChanged();
     }
 
     private void FilterQuickPrompts()
