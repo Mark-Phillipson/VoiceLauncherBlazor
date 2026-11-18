@@ -14,7 +14,7 @@ namespace RazorClassLibrary.Components
 		public string? _result { get; set; }
 		private async Task CopyTextToClipboard(string text)
 		{
-			await JavaScriptRuntime!.InvokeVoidAsync(
+			await JavaScriptRuntime!.InvokeVoidAsyncSafe(
 				 "clipboardCopy.copyText", text);
 			_result = $"Copied Successfully at {DateTime.Now:hh:mm}";
 			ToastService.ShowSuccess(_result);
@@ -22,7 +22,7 @@ namespace RazorClassLibrary.Components
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
-			await JavaScriptRuntime!.InvokeVoidAsync("Prism.highlightAll");
+			await JavaScriptRuntime!.InvokeVoidAsyncSafe("Prism.highlightAll");
 		}
 	}
 }
