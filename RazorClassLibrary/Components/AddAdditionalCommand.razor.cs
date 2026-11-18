@@ -59,7 +59,7 @@ namespace RazorClassLibrary.Components
 		{
 			if (firstRender && JSRuntime != null)
 			{
-				await JSRuntime.InvokeVoidAsync("setFocus", "SendKeys_Value");
+				await JSRuntime.InvokeVoidAsyncSafe("setFocus", "SendKeys_Value");
 			}
 		}
 
