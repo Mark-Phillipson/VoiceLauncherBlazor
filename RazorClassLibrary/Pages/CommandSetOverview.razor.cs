@@ -184,12 +184,18 @@ namespace RazorClassLibrary.Pages
 		public async Task CommandDrillDownAsync(string name)
 		{
 			SearchTerm = name;
-			await JavaScriptRuntime!.InvokeVoidAsyncSafe(
-	 "clipboardCopy.copyText", name);
-			_result = $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}";
+			var copied = await JavaScriptRuntime!.InvokeVoidAsyncSafe("clipboardCopy.copyText", name);
+			_result = copied ? $"Copied Spoken Text/Command Name Successfully at {DateTime.Now:hh:mm}" : null;
 			ShowLists = true;
 			ShowCode = true;
-			ToastService!.ShowSuccess(_result);
+			if (copied)
+			{
+				ToastService!.ShowSuccess(_result);
+			}
+			else
+			{
+				ToastService!.ShowError("Unable to copy the command name to the clipboard.");
+			}
 		}
 		async Task ImportFileAsync(InputFileChangeEventArgs arguments)
 		{
