@@ -390,6 +390,7 @@ public partial class AIChatComponent : ComponentBase, IDisposable
         try
         {
             await JSRuntime.InvokeVoidAsyncSafe("adjustTextArea", inputElement);
+        }
         catch (System.Exception exception)
         {
             System.Console.WriteLine(exception.Message);
