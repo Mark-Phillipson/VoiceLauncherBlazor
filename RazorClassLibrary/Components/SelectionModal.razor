@@ -124,11 +124,9 @@
             {
                 _module = await JSRuntime.InvokeAsyncSafe<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
             }
-            if (_module != null)
-            {
+            var focused = _module != null &&
                 await _module.InvokeVoidAsyncSafe("focusAndSelectFilter", "#selectionModal");
-            }
-            else
+            if (!focused)
             {
                 await JSRuntime.InvokeVoidAsyncSafe("bootstrapInterop.focusAndSelectFilter", "#selectionModal");
             }
@@ -153,9 +151,9 @@
             {
                 _module = await JSRuntime.InvokeAsyncSafe<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
             }
-            if (_module != null)
+            if (_module != null &&
+                await _module.InvokeVoidAsyncSafe("showModal", "#selectionModal"))
             {
-                await _module.InvokeVoidAsyncSafe("showModal", "#selectionModal");
                 return;
             }
         }
@@ -172,9 +170,9 @@
             {
                 _module = await JSRuntime.InvokeAsyncSafe<IJSObjectReference>("import", "./_content/RazorClassLibrary/selectionModalInterop.js");
             }
-            if (_module != null)
+            if (_module != null &&
+                await _module.InvokeVoidAsyncSafe("hideModal", "#selectionModal"))
             {
-                await _module.InvokeVoidAsyncSafe("hideModal", "#selectionModal");
                 return;
             }
         }
