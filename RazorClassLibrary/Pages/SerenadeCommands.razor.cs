@@ -11,7 +11,7 @@ namespace RazorClassLibrary.Pages
         {
             if (ShowVideo && youtubeUrl != null)
             {
-                _ = await JSRuntime!.InvokeVoidAsync("open", youtubeUrl, "_blank");
+                _ = await JSRuntime!.InvokeVoidAsyncSafe("open", youtubeUrl, "_blank");
             }
             else
             {
