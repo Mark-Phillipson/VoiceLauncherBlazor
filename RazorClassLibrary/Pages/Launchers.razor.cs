@@ -210,10 +210,15 @@ namespace RazorClassLibrary.Pages
 			}
 			else
 			{
-				await JSRuntime.InvokeVoidAsyncSafe(
-					 "clipboardCopy.copyText", commandLine);
-				var message = $"Copied Successfully: '{commandLine}'";
-				ToastService!.ShowSuccess(message + "Copy Commandline");
+				if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", commandLine))
+				{
+					var message = $"Copied Successfully: '{commandLine}'";
+					ToastService!.ShowSuccess(message + "Copy Commandline");
+				}
+				else
+				{
+					ToastService?.ShowError("Unable to copy the command line to the clipboard.");
+				}
 			}
 		}
 	}
