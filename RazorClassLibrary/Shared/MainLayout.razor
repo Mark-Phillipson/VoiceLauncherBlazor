@@ -94,7 +94,7 @@
         {
             var shouldRefreshUi = false;
 
-            var savedTheme = await JS.InvokeAsync<string>("localStorage.getItem", ThemeStorageKey);
+            var savedTheme = await JS.InvokeAsyncSafe<string>("localStorage.getItem", ThemeStorageKey);
             if (!string.IsNullOrEmpty(savedTheme))
             {
                 CurrentThemeClass = savedTheme == "dark" ? "theme-dark" : "theme-light";
@@ -103,13 +103,13 @@
             else
             {
                 CurrentThemeClass = "theme-light";
-                await JS.InvokeVoidAsync("localStorage.setItem", ThemeStorageKey, "light");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "tvc-theme");
-                await JS.InvokeVoidAsync("localStorage.removeItem", "app-theme");
+                await JS.InvokeVoidAsyncSafe("localStorage.setItem", ThemeStorageKey, "light");
+                await JS.InvokeVoidAsyncSafe("localStorage.removeItem", "tvc-theme");
+                await JS.InvokeVoidAsyncSafe("localStorage.removeItem", "app-theme");
                 shouldRefreshUi = true;
             }
 
-            var savedSidebarState = await JS.InvokeAsync<string>("localStorage.getItem", SidebarStorageKey);
+            var savedSidebarState = await JS.InvokeAsyncSafe<string>("localStorage.getItem", SidebarStorageKey);
             if (!string.IsNullOrEmpty(savedSidebarState))
             {
                 IsSidebarCollapsed = savedSidebarState == "1";
@@ -126,13 +126,13 @@
     private async Task ToggleTheme()
     {
         CurrentThemeClass = CurrentThemeClass == "theme-dark" ? "theme-light" : "theme-dark";
-        await JS.InvokeVoidAsync("localStorage.setItem", ThemeStorageKey, CurrentThemeClass == "theme-dark" ? "dark" : "light");
+        await JS.InvokeVoidAsyncSafe("localStorage.setItem", ThemeStorageKey, CurrentThemeClass == "theme-dark" ? "dark" : "light");
     }
 
     private async Task ToggleSidebarCollapse()
     {
         IsSidebarCollapsed = !IsSidebarCollapsed;
-        await JS.InvokeVoidAsync("localStorage.setItem", SidebarStorageKey, IsSidebarCollapsed ? "1" : "0");
+        await JS.InvokeVoidAsyncSafe("localStorage.setItem", SidebarStorageKey, IsSidebarCollapsed ? "1" : "0");
     }
     private bool ShowNavMenu = true;
 
