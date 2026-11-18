@@ -37,11 +37,12 @@
             <ul class="list-group">
                 @for (int i = 0; i < Launchers.Count; i++)
                 {
-                    var launcher = Launchers[i];
-                    var itemClass = i == SelectedIndex ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action";
-                    <li id="@($"launcher-item-{i}")" 
+                    var itemIndex = i;
+                    var launcher = Launchers[itemIndex];
+                    var itemClass = itemIndex == SelectedIndex ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action";
+                    <li id="@($"launcher-item-{itemIndex}")" 
                         class="@itemClass" 
-                        @onclick="() => SelectItem(i, true)" 
+                        @onclick="() => SelectItem(itemIndex, true)" 
                         role="option" 
                         aria-selected="@(i == SelectedIndex)"
                         tabindex="-1">
