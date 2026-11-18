@@ -892,9 +892,15 @@ namespace RazorClassLibrary.Pages
          }
          if (JSRuntime != null && customIntelliSenseCurrent != null)
          {
-            await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue);
-            var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
-            ToastService!.ShowSuccess(message);
+            if (await JSRuntime.InvokeVoidAsyncSafe("clipboardCopy.copyText", customIntelliSenseCurrent.SendKeysValue))
+            {
+               var message = $"Copied Successfully: '{customIntelliSenseCurrent.SendKeysValue}'";
+               ToastService!.ShowSuccess(message);
+            }
+            else
+            {
+               ToastService?.ShowError("Unable to copy the item to the clipboard.");
+            }
          }
          if (RunningInBlazorHybrid)
          {
