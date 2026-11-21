@@ -763,6 +763,9 @@ namespace WinFormsApp
             if (IsDisposed || Disposing)
                 return;
 
+            // Keep the launcher out of the foreground/Alt+Tab order while a tool window is active.
+            Hide();
+
             if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
             {
                 if (_clipboardWindow.WindowState == FormWindowState.Minimized)
@@ -867,6 +870,9 @@ namespace WinFormsApp
         {
             if (IsDisposed || Disposing)
                 return;
+
+            // Keep the launcher out of the foreground/Alt+Tab order while Snippets is active.
+            Hide();
 
             if (_snippetsWindow != null && !_snippetsWindow.IsDisposed)
             {
