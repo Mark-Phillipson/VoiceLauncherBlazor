@@ -178,12 +178,12 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="d-flex justify-content-end gap-4">
-                            <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> } @launcher.Name</span>
+                            <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> }&nbsp;@launcher.Name</span>
                                 
                             
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
-                                <i class="bi bi-pencil"> </i> @if (hasEditAccessKey) { <kbd> @editAccessKeyNum </kbd> }
+                                <i class="bi bi-pencil"> </i> @if (hasEditAccessKey) { <kbd>&nbsp;@editAccessKeyNum </kbd> }
                             </button>
                             <button title='Delete Launcher' class="btn-narrow btn btn-md btn-outline-danger"
                                 @onclick="@(() => DeleteLauncherAsync(launcher.Id))">
@@ -193,7 +193,7 @@ else
                     }
                     else
                     {
-                        <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> } @launcher.Name</span>
+                        <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> }&nbsp;@launcher.Name</span>
                     }
                 </div>
             }
@@ -237,7 +237,7 @@ else
                     @if (!RunningInBlazorHybrid)
                     {
                         <div class="d-flex justify-content-end gap-4 w-100">
-                            <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> } @launcher.Name</span>
+                            <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> }&nbsp;@launcher.Name</span>
                             <button title="@(hasEditAccessKey ? $"Edit Launcher (Alt+{editAccessKeyNum})" : "Edit Launcher")" accesskey="@(hasEditAccessKey ? editAccessKeyNum.ToString() : null)" class="btn-narrow btn btn-md btn-outline-warning"
                                 @onclick="@(() => EditLauncherAsync(launcher.Id))">
                                 <i class="bi bi-pencil"></i> @if (hasEditAccessKey) { <kbd>@editAccessKeyNum</kbd> }
@@ -250,7 +250,7 @@ else
                     }
                     else
                     {
-                        <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> } @launcher.Name</span>
+                        <span>@if (!string.IsNullOrWhiteSpace(currentLetter)) { <kbd>@currentLetter</kbd> }&nbsp;@launcher.Name</span>
                     }
                 </div>
             }
