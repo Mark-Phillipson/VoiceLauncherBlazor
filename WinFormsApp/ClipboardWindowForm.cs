@@ -1,5 +1,6 @@
 using Blazored.Toast;
 using DataAccessLibrary;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,7 +68,10 @@ MinimumSize = new Size(760, 480);
             HostPage = Path.Combine("wwwroot", "index.html")
         };
         _blazorWebView.Services = _serviceProvider;
-        _blazorWebView.RootComponents.Add<ClipboardWindowRoot>("#app");
+        _blazorWebView.RootComponents.Add<ClipboardWindowRoot>("#app", new Dictionary<string, object?>
+        {
+            { "CloseWindowCallback", new EventCallback(null, () => Hide()) }
+        });
 
         // Host the WebView in a padded panel so the inset is applied consistently.
         var webViewHost = new Panel
