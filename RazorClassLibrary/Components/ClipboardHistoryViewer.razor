@@ -7,8 +7,6 @@
 @using Microsoft.Extensions.Configuration
 @using RazorClassLibrary.Models
 @using RazorClassLibrary.Services
-@using WindowsInput
-@using WindowsInput.Native
 @inject IClipboardHistoryService ClipboardService
 @inject ISqlDataAccess SqlDataAccess
 @inject IConfiguration Configuration
@@ -186,6 +184,8 @@
   private List<ClipboardEntry> Items = new();
   [Parameter]
   public bool IsActive { get; set; } = true;
+  [Parameter]
+  public EventCallback CloseApplication { get; set; }
   private int Page = 1;
   private int PageSize = 25;
   private int TotalCount = 0;
@@ -223,12 +223,9 @@
 
       await JS.InvokeVoidAsync("navigator.clipboard.writeText", txt);
 
-      // Switch back to the application that was active before Clipboard History.
-      // Do not press Enter: that can activate a control in the destination application.
-      var simulator = new InputSimulator();
-      simulator.Keyboard.ModifiedKeyStroke(VirtualKeyCode.MENU, VirtualKeyCode.TAB);
-      simulator.Keyboard.Sleep(300);
-      simulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+      // Hide the clipboard window so Windows restores the previously active application.
+      // The launcher toolbar is hidden when this window is opened, so it cannot become the Alt+Tab target.
+      await CloseApplication.InvokeAsync();
 
       ToastService?.ShowSuccess("Copied to clipboard");
     }
