@@ -408,7 +408,13 @@ namespace WinFormsApp
             button.FlatAppearance.BorderSize = 1;
             button.FlatAppearance.MouseOverBackColor = Color.FromArgb(52, 58, 64);
             button.FlatAppearance.MouseDownBackColor = Color.FromArgb(73, 80, 87);
-            button.Click += (_, _) => openWindow();
+            button.Click += (_, _) =>
+            {
+                // Keep the launcher out of the way whenever a toolbar action is selected.
+                // It can be reopened at any time using the voice command.
+                Hide();
+                openWindow();
+            };
             button.Disposed += (_, _) =>
             {
                 icon.Dispose();
@@ -763,6 +769,9 @@ namespace WinFormsApp
             if (IsDisposed || Disposing)
                 return;
 
+            // Keep the launcher out of the foreground/Alt+Tab order while a tool window is active.
+            Hide();
+
             if (_clipboardWindow != null && !_clipboardWindow.IsDisposed)
             {
                 if (_clipboardWindow.WindowState == FormWindowState.Minimized)
@@ -867,6 +876,9 @@ namespace WinFormsApp
         {
             if (IsDisposed || Disposing)
                 return;
+
+            // Keep the launcher out of the foreground/Alt+Tab order while Snippets is active.
+            Hide();
 
             if (_snippetsWindow != null && !_snippetsWindow.IsDisposed)
             {

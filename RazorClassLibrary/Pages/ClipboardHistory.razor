@@ -3,8 +3,10 @@
 
 <h3>Clipboard History</h3>
 
-<ClipboardHistoryViewer IsActive="@IsActive" />
+<ClipboardHistoryViewer IsActive="@IsActive" CloseApplication="@CloseApplication" />
 @code {
     [Parameter]
     public bool IsActive { get; set; }=true;
+    [Parameter]
+    public EventCallback CloseApplication { get; set; }
 }

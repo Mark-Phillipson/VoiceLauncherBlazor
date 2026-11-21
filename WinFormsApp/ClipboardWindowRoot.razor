@@ -1,8 +1,13 @@
 @using RazorClassLibrary.Pages
+@using Microsoft.AspNetCore.Components
 @using Blazored.Toast.Configuration
 
 <div style="padding: 3px;">
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" ShowProgressBar="true" />
-<ClipboardHistory IsActive="true" />
+<ClipboardHistory IsActive="true" CloseApplication="@CloseWindowCallback" />
 </div>
 
+
+@code {
+    [Parameter] public EventCallback CloseWindowCallback { get; set; }
+}
