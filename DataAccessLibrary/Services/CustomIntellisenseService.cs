@@ -55,11 +55,19 @@ namespace DataAccessLibrary.Services
 			}
 			if (!string.IsNullOrWhiteSpace(languageFilter))
 			{
-				intellisenses = intellisenses.Where(v => v.Language != null && v.Language.LanguageName.Contains(languageFilter));
+				// "Snip" is the interface label for the legacy "Not Applicable" language value.
+				var effectiveLanguageFilter = string.Equals(languageFilter.Trim(), "Snip", StringComparison.OrdinalIgnoreCase)
+					? "Not Applicable"
+					: languageFilter.Trim();
+				var normalizedLanguageFilter = effectiveLanguageFilter.ToLowerInvariant();
+				intellisenses = intellisenses.Where(v => v.Language != null &&
+					v.Language.LanguageName.ToLower().Contains(normalizedLanguageFilter));
 			}
 			if (!string.IsNullOrWhiteSpace(categoryFilter))
 			{
-				intellisenses = intellisenses.Where(v => v.Category != null && v.Category.CategoryName.Contains(categoryFilter));
+				var normalizedCategoryFilter = categoryFilter.Trim().ToLowerInvariant();
+				intellisenses = intellisenses.Where(v => v.Category != null &&
+					v.Category.CategoryName.ToLower().Contains(normalizedCategoryFilter));
 			}
 			if (sortType != null && sortColumn != null)
 			{
