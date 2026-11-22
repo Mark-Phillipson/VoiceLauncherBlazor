@@ -645,19 +645,18 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
-		private Task ToggleTalonCaptures()
+		private Task ShowTalonCaptures()
 		{
-			if (showTalonCaptures)
-			{
-				showTalonCaptures = false;
-			}
-			else
-			{
-				ToggleShowVariablesToFalse();
-				showTalonCaptures = true;
-			}
-			StateHasChanged();
-			return Task.CompletedTask;
+			ToggleShowVariablesToFalse();
+			showTalonCaptures = true;
+			return InvokeAsync(StateHasChanged);
+		}
+
+		private Task ReturnToTalonSearch()
+		{
+			ToggleShowVariablesToFalse();
+			showTalonSearch = true;
+			return InvokeAsync(StateHasChanged);
 		}
 
 		private Task ShowAIChat()
