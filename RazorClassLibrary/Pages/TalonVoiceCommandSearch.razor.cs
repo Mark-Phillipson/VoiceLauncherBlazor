@@ -28,6 +28,7 @@ namespace RazorClassLibrary.Pages
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
         private const string NoTagsFilterValue = "__NO_TAGS__";
+        private const string NoCodeLanguageFilterValue = "__NO_CODE_LANGUAGE__";
 
         private bool MatchesSelectedTag(TalonVoiceCommand command)
         {
@@ -39,6 +40,18 @@ namespace RazorClassLibrary.Pages
             return !string.IsNullOrWhiteSpace(command.Tags) &&
                 command.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool MatchesSelectedCodeLanguage(TalonVoiceCommand command)
+        {
+            if (SelectedCodeLanguage == NoCodeLanguageFilterValue)
+            {
+                return string.IsNullOrWhiteSpace(command.CodeLanguage);
+            }
+
+            return !string.IsNullOrWhiteSpace(command.CodeLanguage) &&
+                command.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(language => language.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase));
         }
 
         private static IOrderedEnumerable<TalonVoiceCommand> OrderCommandsAlphabetically(IEnumerable<TalonVoiceCommand> commands)
@@ -99,7 +112,7 @@ namespace RazorClassLibrary.Pages
 
                 if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                 {
-                    appliedFilters.Add($"Code Languages: {SelectedCodeLanguage}");
+                    appliedFilters.Add($"Code Languages: {(SelectedCodeLanguage == NoCodeLanguageFilterValue ? "No Code Language" : SelectedCodeLanguage)}");
                 }
 
                 return string.Join(" | ", appliedFilters);
@@ -240,6 +253,7 @@ namespace RazorClassLibrary.Pages
         public async Task ShowCodeLanguageModal()
         {
             SelectionModalItems = ToSelectionItems(AvailableCodeLanguages, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = NoCodeLanguageFilterValue, Label = "No Code Language" });
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Code Languages" });
             SelectionModalTitle = "Select Code Language";
             _openFilterTarget = "codelanguage";
@@ -888,10 +902,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasCodeLanguageFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            !string.IsNullOrWhiteSpace(c.CodeLanguage) &&
-                            c.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(lang => lang.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase)));
+                        filteredCommands = filteredCommands.Where(MatchesSelectedCodeLanguage);
                     }
 
                     if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
@@ -957,6 +968,11 @@ namespace RazorClassLibrary.Pages
                         if (hasTitleFilter)
                         {
                             finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                        }
+
+                        if (hasCodeLanguageFilter)
+                        {
+                            finalResults = finalResults.Where(MatchesSelectedCodeLanguage);
                         }
 
                         Results = OrderCommandsAlphabetically(finalResults)
