@@ -1098,6 +1098,9 @@ namespace RazorClassLibrary.Pages
             finally
             {
                 IsLoading = false;
+
+                // Ensure the final search state is rendered after asynchronous work completes.
+                await InvokeAsync(StateHasChanged);
             }
         }
         public async Task ClearFilters()
