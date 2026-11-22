@@ -1506,7 +1506,7 @@ namespace RazorClassLibrary.Pages
                 encoded = Regex.Replace(encoded, @"&lt;([a-zA-Z_][a-zA-Z0-9_.]*)&gt;", m =>
                     $"<span class=\"list-highlight\">{m.Value}</span>");
 
-                encoded = Regex.Replace(encoded, @"\\{([a-zA-Z_][a-zA-Z0-9_.]+)\\}", m =>
+                encoded = Regex.Replace(encoded, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}", m =>
                     $"<span class=\"capture-highlight\">{m.Value}</span>");
 
                 // Highlight search terms only in text nodes, never in generated HTML attributes.
