@@ -61,7 +61,7 @@
 		{
 			<div class="@(showTalonSearch ? string.Empty : "d-none")" aria-hidden="@(!showTalonSearch)">
 				<TalonVoiceCommandSearch IsBlazorHybrid="true" InitialSearchTerm="@searchTerm"
-										 IsActive="@showTalonSearch" OnShowTalonCaptures="ToggleTalonCaptures" />
+										 IsActive="@showTalonSearch" OnShowTalonCaptures="ShowTalonCaptures" />
 			</div>
 		}
 		@if (ShouldRenderSnippets)
@@ -107,7 +107,7 @@
 		@if (ShouldRenderTalonCaptures)
 		{
 			<div class="@(showTalonCaptures ? string.Empty : "d-none")" aria-hidden="@(!showTalonCaptures)">
-				<TalonCaptures OnBackToSearch="ToggleTalonCaptures" />
+				<TalonCaptures OnBackToSearch="ReturnToTalonSearch" />
 			</div>
 		}
 	</div>
