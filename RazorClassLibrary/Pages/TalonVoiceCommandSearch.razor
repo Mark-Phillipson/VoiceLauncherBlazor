@@ -298,7 +298,7 @@
 
             <div class="col-md-3 d-flex align-items-end">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "x" : null)">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -310,7 +310,7 @@
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
                             </svg>
-                            <span><u>C</u>lear Filters</span>
+                            <span>Clear Filters (<u>X</u>)</span>
                         }
                     </button>
                     <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "f" : null)">
