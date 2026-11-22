@@ -1082,3 +1082,18 @@ u {
 .tvcs-panel h6 {
     margin-top: 0.25rem;
 }
+
+/* Purple search-match highlighting, distinct from the existing yellow Talon capture/list styling. */
+.search-match-highlight {
+    background-color: #6f42c1;
+    color: #ffffff;
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.semantic-related-badge {
+    background-color: #6f42c1;
+    color: #ffffff;
+}
+
