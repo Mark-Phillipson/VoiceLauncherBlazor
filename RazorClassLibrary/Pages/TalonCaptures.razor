@@ -94,6 +94,20 @@
                             {
                                 <p class="small text-body-secondary mb-2">@GetDescription(c)</p>
                             }
+                            @if (GetUsageExample(c.Name) is { } example)
+                            {
+                                <div class="alert alert-light border mt-2 mb-2 py-2">
+                                    <strong class="small d-block mb-1">Usage example</strong>
+                                    <div class="small mb-1"><span class="text-muted">Talon rule:</span> <code>@example.Rule</code></div>
+                                    <div class="small mb-1"><span class="text-muted">Say:</span> “@example.SpokenPhrase”</div>
+                                    <div class="small"><span class="text-muted">Captured value:</span> @example.Result</div>
+                                    @if (!string.IsNullOrWhiteSpace(example.Note))
+                                    {
+                                        <div class="small text-muted mt-1">@example.Note</div>
+                                    }
+                                </div>
+                            }
+
                             @if (!string.IsNullOrWhiteSpace(c.SanitizedSnippet))
                             {
                                 <div id="@GetDetailsContainerId(c.Anchor)" class="mt-3">
@@ -540,6 +554,88 @@
         return CaptureDescriptions.TryGetValue(capture.Name, out var description)
             ? description
             : string.Empty;
+    }
+
+    private sealed class CaptureUsageExample
+    {
+        public string Rule { get; init; } = string.Empty;
+        public string SpokenPhrase { get; init; } = string.Empty;
+        public string Result { get; init; } = string.Empty;
+        public string Note { get; init; } = string.Empty;
+    }
+
+    // Only add examples where the capture's purpose and expected value are clear.
+    // These are illustrative command rules; the action after the rule is application-specific.
+    private static readonly Dictionary<string, CaptureUsageExample> CaptureUsageExamples = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["user.address"] = new()
+        {
+            Rule = "navigate to <user.address>",
+            SpokenPhrase = "Navigate to 25 High Street, Maidstone, Kent",
+            Result = "25 High Street, Maidstone, Kent",
+            Note = "Your command's action receives the recognised address. It must decide what to do with it, such as opening a map or filling in an address field."
+        },
+        ["user.text"] = new()
+        {
+            Rule = "enter <user.text>",
+            SpokenPhrase = "Enter hello comma how are you question mark",
+            Result = "Hello, how are you?",
+            Note = "Useful when a command needs a phrase of dictated text rather than a fixed vocabulary item."
+        },
+        ["user.word"] = new()
+        {
+            Rule = "insert <user.word>",
+            SpokenPhrase = "Insert hello",
+            Result = "hello",
+            Note = "Matches one word, including words from your configured vocabulary."
+        },
+        ["user.digits"] = new()
+        {
+            Rule = "enter <user.digits>",
+            SpokenPhrase = "Enter one two three",
+            Result = "123",
+            Note = "The capture returns the parsed digits as a number."
+        },
+        ["user.key"] = new()
+        {
+            Rule = "press <user.key>",
+            SpokenPhrase = "Press escape",
+            Result = "The Escape key",
+            Note = "A command action can pass the captured key to Talon's key action."
+        },
+        ["user.keys"] = new()
+        {
+            Rule = "press <user.keys>",
+            SpokenPhrase = "Press control shift P",
+            Result = "The Ctrl+Shift+P key combination",
+            Note = "Useful for commands that accept a keyboard shortcut rather than one fixed key."
+        },
+        ["user.letter"] = new()
+        {
+            Rule = "type <user.letter>",
+            SpokenPhrase = "Type alpha",
+            Result = "a",
+            Note = "Uses the spoken phonetic alphabet to identify a letter."
+        },
+        ["user.prose"] = new()
+        {
+            Rule = "dictate <user.prose>",
+            SpokenPhrase = "Dictate hello comma how are you question mark",
+            Result = "Hello, how are you?",
+            Note = "Formats recognised prose with punctuation and spacing."
+        },
+        ["user.raw_prose"] = new()
+        {
+            Rule = "dictate raw <user.raw_prose>",
+            SpokenPhrase = "Dictate raw hello comma how are you question mark",
+            Result = "Recognised prose without the usual quote straightening or command recognition.",
+            Note = "Useful when you want prose dictation with fewer automatic transformations."
+        }
+    };
+
+    private static CaptureUsageExample? GetUsageExample(string captureName)
+    {
+        return CaptureUsageExamples.TryGetValue(captureName, out var example) ? example : null;
     }
 
     private static string GetTypeLabel(string type)
