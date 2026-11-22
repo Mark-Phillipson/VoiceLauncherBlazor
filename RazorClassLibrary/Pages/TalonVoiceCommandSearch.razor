@@ -411,7 +411,7 @@
                                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
                                         <small class="text-muted">@GetFileName(cmd.Application)</small>
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
-                                            @if (UseSemanticMatching && !HasLiteralSearchMatch(cmd))
+                                            @if (ResultsUsedSemanticMatching && !HasLiteralSearchMatch(cmd))
                                             {
                                                 <span class="badge semantic-related-badge" title="This result was returned through semantic or list matching; no literal query word appears in its command, script, or title.">Related semantic match</span>
                                             }
