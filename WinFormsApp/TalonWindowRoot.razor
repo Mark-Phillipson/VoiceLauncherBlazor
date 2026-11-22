@@ -2,15 +2,36 @@
 @using Microsoft.AspNetCore.Components
 
 <div style="padding: 3px;">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
-<TalonVoiceCommandSearch
-    IsBlazorHybrid="true"
-    InitialSearchTerm="@SearchTerm"
-    IsActive="true" />
-
+    @if (ShowCaptures)
+    {
+        <TalonCaptures OnBackToSearch="ReturnToSearch" />
+    }
+    else
+    {
+        <TalonVoiceCommandSearch
+            IsBlazorHybrid="true"
+            InitialSearchTerm="@SearchTerm"
+            IsActive="true"
+            OnShowTalonCaptures="ShowTalonCaptures" />
+    }
 </div>
 
 @code {
     [Parameter] public string SearchTerm { get; set; } = string.Empty;
+
+    private bool ShowCaptures;
+
+    private Task ShowTalonCaptures()
+    {
+        ShowCaptures = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task ReturnToSearch()
+    {
+        ShowCaptures = false;
+        return InvokeAsync(StateHasChanged);
+    }
 }
