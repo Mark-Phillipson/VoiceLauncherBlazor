@@ -133,7 +133,7 @@
                                 <tr>
                                     <td>
                                         <button accesskey="@(IsActive ? shortcutValue.ToString() : null)"
-                                                title='@customIntelliSense.SendKeysValue'
+                                                title="@GetSnippetTooltip(customIntelliSense, currentCategory?.Sensitive == true)"
                                                 style='width:100%; display:flex; justify-content:space-between; align-items:center;'
                                                 class="btn btn-outline-primary" type="button"
                                                 @onclick="@( ( ) => CopyItemAsync(customIntelliSense.Id  ) )">

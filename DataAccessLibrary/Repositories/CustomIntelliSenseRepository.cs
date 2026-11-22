@@ -47,6 +47,16 @@ namespace VoiceLauncher.Repositories
 
          // Map to DTOs - no need for additional queries since related data is included
          var customIntelliSenseDTOs = _mapper.Map<List<CustomIntelliSense>, IEnumerable<CustomIntelliSenseDTO>>(customIntelliSenses);
+         foreach (var item in customIntelliSenseDTOs)
+         {
+            var source = customIntelliSenses.FirstOrDefault(x => x.Id == item.Id);
+            if (source != null)
+            {
+               item.LanguageName = source.Language?.LanguageName ?? string.Empty;
+               item.CategoryName = source.Category?.CategoryName ?? string.Empty;
+               item.Sensitive = source.Category?.Sensitive ?? false;
+            }
+         }
 
          // Set the total count in the first DTO for the UI to use
          if (customIntelliSenseDTOs.Any())
@@ -56,7 +66,7 @@ namespace VoiceLauncher.Repositories
 
          return customIntelliSenseDTOs;
       }
-public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm, string? languageFilter = null, string? categoryFilter = null)
+      public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesAsync(string serverSearchTerm, string? languageFilter = null, string? categoryFilter = null)
       {
          using var context = _contextFactory.CreateDbContext();
 
