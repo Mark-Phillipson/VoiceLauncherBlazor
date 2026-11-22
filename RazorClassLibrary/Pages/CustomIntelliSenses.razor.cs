@@ -590,6 +590,15 @@ namespace RazorClassLibrary.Pages
 				: value;
 		}
 
+		private static string GetSnippetTooltip(CustomIntelliSense snippet)
+		{
+			return string.Join(Environment.NewLine,
+				$"Language: {snippet.Language?.LanguageName ?? "Not specified"}",
+				$"Category: {snippet.Category?.CategoryName ?? "Not specified"}",
+				$"Display Value: {snippet.DisplayValue ?? "Not specified"}",
+				$"Snippet: {GetSnippetPreview(snippet)}");
+		}
+
 		private string FillInVariables(string itemToCopy, CustomIntelliSense CustomIntelliSenseDTO)
 		{
 			if (itemToCopy.Contains("`Variable1`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable1))
