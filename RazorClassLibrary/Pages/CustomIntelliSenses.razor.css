@@ -114,3 +114,90 @@ pre.m-2, code.m-2 {
     gap: 5px;
     justify-content: center;
 }
+
+/* Readable snippet cards on the web intellisenses page */
+.layout-as-cards .snippet-card {
+  width: auto;
+  flex: 1 1 320px;
+  min-width: 240px;
+  max-width: 520px;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 12px;
+  text-align: left;
+}
+
+.snippet-card-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.snippet-language,
+.snippet-category {
+  display: inline-block;
+  max-width: 100%;
+  padding: 3px 8px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+  font-size: .85rem;
+}
+
+.snippet-language {
+  color: #111;
+  font-weight: 600;
+}
+
+.snippet-category {
+  background: var(--panel-border-color);
+  color: var(--text);
+}
+
+.snippet-display-value,
+.snippet-display-value button {
+  width: 100%;
+  text-align: left;
+}
+
+.snippet-display-value button {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.snippet-preview {
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 8rem;
+  overflow: hidden;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border-color);
+  border-radius: 4px;
+  background: var(--panel-bg);
+  color: var(--text);
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: .82rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.snippet-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+@media (max-width: 576px) {
+  .layout-as-cards .snippet-card {
+    flex-basis: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
