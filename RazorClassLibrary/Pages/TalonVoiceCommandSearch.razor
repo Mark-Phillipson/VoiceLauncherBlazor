@@ -415,7 +415,11 @@
                                 <div class="card-header">
                                     <h5 class="card-title mb-2" style="@(IsBlazorHybrid ? "white-space:normal; word-break:break-word;" : "")">@((MarkupString)HighlightCapturesInCommand(cmd.Command))</h5>
                                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                                        <small class="text-muted">@GetFileName(cmd.Application)</small>
+                                        @if (!string.IsNullOrWhiteSpace(cmd.Application) &&
+                                             !string.Equals(cmd.Application.Trim(), "global", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <small class="text-muted">@GetFileName(cmd.Application)</small>
+                                        }
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
