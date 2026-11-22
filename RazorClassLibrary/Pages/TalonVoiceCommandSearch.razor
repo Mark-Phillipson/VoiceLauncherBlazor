@@ -395,6 +395,10 @@
                                         <span class="command-text flex-grow-1" style="@((IsBlazorHybrid) ? "min-width:0; white-space:normal; overflow-wrap:break-word;" : "min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;")">
                                             @((MarkupString)HighlightCapturesInCommand(cmd.Command))
                                         </span>
+                                        @if (ResultsUsedSemanticMatching && !HasLiteralSearchMatch(cmd))
+                                        {
+                                            <span class="badge semantic-related-badge ms-2 mt-2 mt-md-0" style="background-color:#7e22ce;color:#fff;" title="This result was returned through semantic or list matching; no literal query word appears in its command, script, or title.">Related semantic match</span>
+                                        }
                                         @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                         {
                                             <span class="badge bg-success badge-with-underline badge-title ms-auto mt-2 mt-md-0" title="Filter by Title (Alt+I)">
@@ -413,7 +417,7 @@
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                             @if (ResultsUsedSemanticMatching && !HasLiteralSearchMatch(cmd))
                                             {
-                                                <span class="badge semantic-related-badge" title="This result was returned through semantic or list matching; no literal query word appears in its command, script, or title.">Related semantic match</span>
+                                                <span class="badge semantic-related-badge" style="background-color:#7e22ce;color:#fff;" title="This result was returned through semantic or list matching; no literal query word appears in its command, script, or title.">Related semantic match</span>
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
