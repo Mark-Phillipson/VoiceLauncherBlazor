@@ -27,6 +27,20 @@ namespace RazorClassLibrary.Pages
 
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
+        private const string NoTagsFilterValue = "__NO_TAGS__";
+
+        private bool MatchesSelectedTag(TalonVoiceCommand command)
+        {
+            if (SelectedTags == NoTagsFilterValue)
+            {
+                return string.IsNullOrWhiteSpace(command.Tags);
+            }
+
+            return !string.IsNullOrWhiteSpace(command.Tags) &&
+                command.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static IOrderedEnumerable<TalonVoiceCommand> OrderCommandsAlphabetically(IEnumerable<TalonVoiceCommand> commands)
         {
             return commands
@@ -65,7 +79,7 @@ namespace RazorClassLibrary.Pages
 
                 if (!string.IsNullOrWhiteSpace(SelectedTags))
                 {
-                    appliedFilters.Add($"Tags: {SelectedTags}");
+                    appliedFilters.Add($"Tags: {(SelectedTags == NoTagsFilterValue ? "No Tags" : SelectedTags)}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
@@ -149,6 +163,7 @@ namespace RazorClassLibrary.Pages
         public async Task ShowTagsModal()
         {
             SelectionModalItems = ToSelectionItems(AvailableTags, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = NoTagsFilterValue, Label = "No Tags" });
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Tags" });
             SelectionModalTitle = "Select Tag";
             _openFilterTarget = "tags";
@@ -864,10 +879,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasTagsFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            !string.IsNullOrWhiteSpace(c.Tags) &&
-                            c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                        filteredCommands = filteredCommands.Where(MatchesSelectedTag);
                     }
                     if (hasTitleFilter)
                     {
@@ -939,10 +951,7 @@ namespace RazorClassLibrary.Pages
                         }
                         if (hasTagsFilter)
                         {
-                            finalResults = finalResults.Where(c =>
-                                !string.IsNullOrWhiteSpace(c.Tags) &&
-                                c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                    .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                            finalResults = finalResults.Where(MatchesSelectedTag);
                         }
 
                         if (hasTitleFilter)
@@ -1017,10 +1026,7 @@ namespace RazorClassLibrary.Pages
                             }
                             if (hasTagsFilter)
                             {
-                                finalResults = finalResults.Where(c =>
-                                    !string.IsNullOrWhiteSpace(c.Tags) &&
-                                    c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                        .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                                finalResults = finalResults.Where(MatchesSelectedTag);
                             }
 
                             if (hasTitleFilter)
