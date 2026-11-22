@@ -19,17 +19,16 @@
 	{
 		<kbd>1</kbd>
 		<input title='Filter by Language' accesskey="@(IsActive ? "1" : "")" style="width: 200px;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter"
+			   @bind="_languageFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Language Filter"
 			   class="form-control" />
 		<kbd>2</kbd>
 		<input title='Filter by Category' accesskey="@(IsActive ? "2" : "")" style="width: 200px;" id="categoryFilter"
-			   @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryfilter"))" placeholder="Category Filter"
+			   @bind="_categoryFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Category Filter"
 			   class="form-control" />
 		<kbd>3</kbd>
 		<div class="input-group" style="width: 350px;">
-			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
-				   @onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
-				   accesskey="@(IsActive ? "3" : "")" placeholder="Blur to Filter" />
+			<input title='Filter by Display and Send Keys' @bind="SearchTerm" @bind:event="oninput" @bind:after="ApplyFilter" id="SearchInput" type="text" class="form-control"
+				   accesskey="@(IsActive ? "3" : "")" placeholder="Filter as you type" />
 			<button class="btn btn-outline-secondary" type="button" title="Remove Filter (Alt+8)"
 					accesskey="@(IsActive ? "8" : "")" aria-label="Remove Filter" @onclick="RemoveFilter">
 				<i class="bi bi-funnel text-danger"></i>
@@ -67,11 +66,10 @@
 	{
 		
 		<input accesskey="@(IsActive ? "1" : "")" style="max-width:25%;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter (1)"
+			   @bind="_languageFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Language Filter (1)"
 			   class="form-control" />
-		<input accesskey="@(IsActive ? "2" : "")" style="max-width:25%;" id="categoryFilter" @bind="_categoryFilter"
-			   @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)" class="form-control" />
-		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+		<input accesskey="@(IsActive ? "2" : "")" style="max-width:25%;" id="categoryFilter" @bind="_categoryFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Category Filter (2)" class="form-control" />
+		<input title='Filter Display and Send Keys' @bind="SearchTerm" @bind:event="oninput" @bind:after="ApplyFilter"
 			   id="SearchInput" class="form-control" style="max-width:25%;" accesskey="@(IsActive ? "3" : "")"
 			   placeholder="Blur to Filter (3)" />
 		@* <label for='useSemanticMatching' class="me-2">Semantic?</label>
@@ -138,66 +136,38 @@
 	{
 		@if (_showTiles)
 		{
-			string group = "";
-			counter = 0;
 			alphabetCounter = 0;
 			<div class="layout-as-cards">
-				@foreach (var intellisense in intellisenses.OrderBy(v => v.Language!.LanguageName).ThenBy(v =>
-						v.Category!.CategoryName))
+				@foreach (var intellisense in intellisenses.Where(item => item != null).OrderBy(item => item.Language!.LanguageName).ThenBy(item => item.Category!.CategoryName).ThenBy(item => item.DisplayValue))
 				{
-					@if (intellisense != null && group != intellisense.Language!.LanguageName + " / " +
-							intellisense.Category!.CategoryName)
-					{
-						counter++;
-						@if (counter < 10)
-						{
-							currentAcceleratorKey = counter + 4;
-							temporaryAccessKey = (IsActive ? currentAcceleratorKey.ToString() : "");
-						}
-						else
-						{
-							temporaryAccessKey = "";
-						}
-						<div class="card p-2">
-							<button accesskey="@temporaryAccessKey" class="btn"
-									style="color:black;background-color:@intellisense.Language.Colour;width:100%;"
-									@onclick="@(() => ApplySpecialFilter(intellisense.Language.Id,intellisense.Category.Id))">
-								@intellisense.Language.LanguageName / @intellisense.Category.CategoryName
-								@if (temporaryAccessKey != "")
-								{
-									<span>&nbsp;</span>
-
-									<kbd>@temporaryAccessKey</kbd>
-								}
-							</button>
+					alphabetCounter++;
+					currentLetter = (IsActive ? Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter : "");
+					<div class="card snippet-card">
+						<div class="snippet-card-metadata">
+							<span class="snippet-language" style="background-color:@intellisense.Language?.Colour">@intellisense.Language?.LanguageName</span>
+							<span class="snippet-category">@intellisense.Category?.CategoryName</span>
 						</div>
-					}
-					@if (!_showOnlyLanguageAndCategory && Alphabet != null && intellisense != null)
-					{
-						alphabetCounter++;
-						currentLetter = (IsActive ? Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter :
-	"");
-						<div class="card p-2" title="@intellisense.SendKeysValue">
-							<div class="d-flex flex-row align-items-left justify-content-left gap-3">
-								<button class="btn btn-outline-warning px-3 py-1" style="width:170px;"
-										@onclick="@(() => EditAsync(intellisense.Id))" @onfocus="@(()=> ShowValue(intellisense.Id))">
-									@intellisense.DisplayValue
+						@if (!_showOnlyLanguageAndCategory)
+						{
+							<div class="snippet-display-value">
+								<button class="btn btn-outline-warning" @onclick="@(() => EditAsync(intellisense.Id))" @onfocus="@(()=> ShowValue(intellisense.Id))">
+									<span>@intellisense.DisplayValue</span>
 									<i class="fa-regular fa-edit ms-1"></i>
 								</button>
+							</div>
+							<div class="snippet-preview" title="Snippet preview">
+								@GetSnippetPreview(intellisense)
+							</div>
+							<div class="snippet-card-actions">
 								@if (!string.IsNullOrWhiteSpace(currentLetter))
 								{
-									<button accesskey="@currentLetter" class="btn btn-outline-primary px-2 py-1" style="width:70px;height:38px;"
-											@onclick="@(() => CopyItemAsync(intellisense!.SendKeysValue ?? "",intellisense.Id))">
+									<button accesskey="@currentLetter" title="@GetSnippetTooltip(intellisense)" class="btn btn-outline-primary px-2 py-1" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue ?? "",intellisense.Id))">
 										<kbd>@currentLetter</kbd> <i class="bi bi-clipboard ms-1"></i>
 									</button>
 								}
 							</div>
-						</div>
-					}
-					@if (intellisense != null)
-					{
-						group = (intellisense.Language?.LanguageName ?? "") + " / " + (intellisense.Category?.CategoryName ?? "");
-					}
+						}
+					</div>
 				}
 			</div>
 		}

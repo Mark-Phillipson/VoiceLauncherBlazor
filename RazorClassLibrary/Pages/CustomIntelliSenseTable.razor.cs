@@ -567,17 +567,21 @@ namespace RazorClassLibrary.Pages
       // Reset the filter and clear cache
       protected async Task ResetFilter()
       {
-         // Clear local search term
+         // Clear all three filters, not just the free-text search.
          searchTerm = null;
-         SearchInputText = null;
+         SearchInputText = string.Empty;
+         LanguageQuery = string.Empty;
+         CategoryQuery = string.Empty;
+         SelectedLanguageId = 0;
+         SelectedCategoryId = 0;
+         LanguageId = 0;
+         CategoryId = 0;
+         pageNumber = 1;
 
-         // Invalidate cache and reload data
-         await InvalidateCache();
+         // Apply the empty filters directly so stale lookup selections cannot be restored.
+         await ApplyWholeTableFilterAsync();
 
-         // Apply default filter (no search term)
-         await ApplyFilter();
-
-         // Refocus search input
+         // Refocus search input.
          try
          {
             if (JSRuntime != null)
@@ -733,7 +737,11 @@ namespace RazorClassLibrary.Pages
             return true;
          }
 
-         var terms = SplitFilterTerms(languageText);
+         // The interface calls the legacy "Not Applicable" language "Snip".
+         var effectiveLanguageText = string.Equals(languageText.Trim(), "Snip", StringComparison.OrdinalIgnoreCase)
+            ? "Not Applicable"
+            : languageText;
+         var terms = SplitFilterTerms(effectiveLanguageText);
          if (terms.Count == 0)
          {
             return true;
