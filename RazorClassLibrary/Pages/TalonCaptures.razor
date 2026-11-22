@@ -1,7 +1,6 @@
 @page "/talon-captures"
 @using RazorClassLibrary.Components
 @inject System.IServiceProvider ServiceProvider
-@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 @inject Microsoft.JSInterop.IJSRuntime JS
 
 <div class="container mt-4">
@@ -138,7 +137,6 @@
 @code {
     private List<CaptureEntry> captures = new();
     private string SearchTerm { get; set; } = string.Empty;
-    private CaptureEntry? SelectedCapture;
     private bool IsLoading = true;
     private string rawMarkdown = string.Empty;
     private Dictionary<string, List<string>> listValues = new(StringComparer.OrdinalIgnoreCase);
@@ -432,11 +430,6 @@
         }
     }
 
-    private void SelectCapture(CaptureEntry c)
-    {
-        SelectedCapture = c;
-    }
-
     // Details are now shown inline for every capture; toggle removed.
 
     private string GetPreview(string md)
@@ -486,6 +479,12 @@
             return;
         }
 
+        if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[A-Za-z0-9_.-]+$"))
+        {
+            AddCaptureError = "Use only letters, numbers, dots, underscores, or hyphens in the capture name.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(rule))
         {
             AddCaptureError = "Enter a rule or description.";
@@ -499,7 +498,7 @@
         }
 
         var anchor = System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9_-]", "-");
-        var safeName = name.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+        var safeName = name;
         var safeRule = System.Net.WebUtility.HtmlEncode(rule)
             .Replace("\r\n", "<br />").Replace("\n", "<br />").Replace("\r", "<br />");
         var entry = $"- [{safeName}](#{anchor}) ({NewCaptureType}){Environment.NewLine}  - Rule: {safeRule}{Environment.NewLine}{Environment.NewLine}";
