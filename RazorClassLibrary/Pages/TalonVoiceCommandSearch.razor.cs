@@ -1534,8 +1534,12 @@ namespace RazorClassLibrary.Pages
 
         private string HighlightSearchTermsInMarkup(string markup)
         {
-            return Regex.Replace(markup, @">([^<]+)<", match =>
-                ">" + HighlightSearchTermsInPlainText(match.Groups[1].Value) + "<");
+            // Match every HTML text node, including plain text before the first
+            // generated span and text after the final span. The previous pattern
+            // only matched text surrounded by both an opening and closing tag,
+            // so ordinary command names were never highlighted.
+            return Regex.Replace(markup, @"(^|>)([^<]+)(?=<|$)", match =>
+                match.Groups[1].Value + HighlightSearchTermsInPlainText(match.Groups[2].Value));
         }
 
         private string HighlightSearchTermsInPlainText(string encodedText)
