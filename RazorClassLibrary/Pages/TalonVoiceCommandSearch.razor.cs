@@ -1540,7 +1540,7 @@ namespace RazorClassLibrary.Pages
             if (string.IsNullOrWhiteSpace(SearchTerm))
                 return encodedText;
 
-            var terms = Regex.Split(SearchTerm.Trim(), @"\\s+")
+            var terms = Regex.Split(SearchTerm.Trim(), @"\s+")
                 .Where(term => term.Length > 1)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderByDescending(term => term.Length);
@@ -1568,7 +1568,7 @@ namespace RazorClassLibrary.Pages
                 return false;
 
             var searchableText = string.Join(" ", command.Command, command.Script, command.Title);
-            var terms = Regex.Split(SearchTerm.Trim(), @"\\s+")
+            var terms = Regex.Split(SearchTerm.Trim(), @"\s+")
                 .Where(term => term.Length > 1);
 
             return terms.Any(term =>
