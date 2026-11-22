@@ -1,16 +1,55 @@
 @page "/talon-captures"
 @using RazorClassLibrary.Components
-@inject System.Net.Http.HttpClient? Http
+@inject System.IServiceProvider ServiceProvider
 @inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @inject Microsoft.JSInterop.IJSRuntime JS
-@implements System.IAsyncDisposable
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Talon Captures</h2>
-        <small class="text-muted">Bundled cheatsheet</small>
+        <div>
+            <h2 class="mb-0">Talon Captures</h2>
+            <small class="text-muted">Bundled cheatsheet and your custom entries</small>
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="ToggleAddCapture">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Add missing capture
+        </button>
     </div>
+
+    @if (ShowAddCapture)
+    {
+        <div class="card mb-3">
+            <div class="card-header">Add a capture or list to your personal cheatsheet</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label for="new-capture-name" class="form-label">Capture or list name</label>
+                        <input id="new-capture-name" class="form-control" @bind="NewCaptureName" placeholder="e.g. user.my_capture" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="new-capture-type" class="form-label">Type</label>
+                        <select id="new-capture-type" class="form-select" @bind="NewCaptureType">
+                            <option value="capture">Capture</option>
+                            <option value="list">List</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="new-capture-rule" class="form-label">Rule or description</label>
+                        <textarea id="new-capture-rule" class="form-control" rows="3" @bind="NewCaptureRule"
+                                  placeholder="Enter the capture rule, list details, or a short description"></textarea>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(AddCaptureError))
+                {
+                    <div class="alert alert-danger mt-3 mb-0">@AddCaptureError</div>
+                }
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="btn btn-success" @onclick="AddCaptureAsync">Save capture</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ToggleAddCapture">Cancel</button>
+                </div>
+                <small class="text-muted d-block mt-2">Custom entries are saved locally for this Windows user. They do not change your Talon configuration.</small>
+            </div>
+        </div>
+    }
 
     <div class="row mb-3">
         <div class="col-md-6">
@@ -103,6 +142,11 @@
     private bool IsLoading = true;
     private string rawMarkdown = string.Empty;
     private Dictionary<string, List<string>> listValues = new(StringComparer.OrdinalIgnoreCase);
+    private bool ShowAddCapture;
+    private string NewCaptureName = string.Empty;
+    private string NewCaptureType = "capture";
+    private string NewCaptureRule = string.Empty;
+    private string AddCaptureError = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,37 +159,45 @@
         {
             IsLoading = true;
             string md = string.Empty;
+
+            // Server hosting can read from the web root. The Hybrid host reads the
+            // bundled file copied beside the executable by the WinForms project.
             try
             {
-                if (Http != null)
+                var env = ServiceProvider.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment))
+                    as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+                var contentRoot = env?.ContentRootPath;
+                var candidates = new[]
                 {
-                    md = await Http.GetStringAsync("/cheatsheets/talon-captures.md");
-                }
-                else
-                {
-                    using var client = new System.Net.Http.HttpClient();
-                    md = await client.GetStringAsync(NavigationManager.BaseUri + "cheatsheets/talon-captures.md");
-                }
-            }
-            catch
-            {
-                // swallow - file may not exist in some dev scenarios
-                md = string.Empty;
-            }
+                    string.IsNullOrWhiteSpace(contentRoot) ? null : System.IO.Path.Combine(contentRoot, "wwwroot", "cheatsheets", "talon-captures.md"),
+                    System.IO.Path.Combine(AppContext.BaseDirectory, "wwwroot", "cheatsheets", "talon-captures.md")
+                };
 
-            // If HTTP fetch failed or returned empty content, try reading from the server's wwwroot folder directly.
-            if (string.IsNullOrWhiteSpace(md) && Env != null)
-            {
-                try
+                foreach (var candidate in candidates.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct())
                 {
-                    var local = System.IO.Path.Combine(Env.ContentRootPath ?? string.Empty, "wwwroot", "cheatsheets", "talon-captures.md");
-                    if (System.IO.File.Exists(local))
+                    if (System.IO.File.Exists(candidate))
                     {
-                        md = await System.IO.File.ReadAllTextAsync(local);
+                        md = await System.IO.File.ReadAllTextAsync(candidate!);
+                        break;
                     }
                 }
-                catch { }
             }
+            catch { }
+
+            // Append the user's local additions without modifying the bundled source.
+            try
+            {
+                var customPath = GetCustomCapturesPath();
+                if (System.IO.File.Exists(customPath))
+                {
+                    var customMarkdown = await System.IO.File.ReadAllTextAsync(customPath);
+                    if (!string.IsNullOrWhiteSpace(customMarkdown))
+                    {
+                        md = string.Concat(md, Environment.NewLine, customMarkdown);
+                    }
+                }
+            }
+            catch { }
 
             rawMarkdown = md ?? string.Empty;
             ParseMarkdown(rawMarkdown);
@@ -399,53 +451,83 @@
         return s;
     }
 
-    private DotNetObjectReference<TalonCaptures>? _dotNetRef;
-    private bool _handlerRegistered = false;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!_handlerRegistered)
-        {
-            _dotNetRef ??= DotNetObjectReference.Create(this);
-            var attempts = 0;
-            while (!_handlerRegistered && attempts < 10)
-            {
-                try
-                {
-                    await JS.InvokeVoidAsync("talonCapturesInterop.registerHandler", _dotNetRef);
-                    _handlerRegistered = true;
-                    break;
-                }
-                catch
-                {
-                    // retry a few times if the interop hasn't loaded yet
-                    attempts++;
-                    await Task.Delay(200);
-                }
-            }
-        }
         if (firstRender)
         {
             try
             {
-                // Use the global helper loaded in the layout to set focus by id.
                 await JS.InvokeVoidAsync("setFocus", "talon-captures-search");
             }
             catch { }
         }
     }
 
-    [Microsoft.JSInterop.JSInvokable]
-    public async Task OnAnchorClick(string anchor)
+    private string GetCustomCapturesPath()
     {
-        if (string.IsNullOrWhiteSpace(anchor)) return;
-        var match = captures.FirstOrDefault(c => string.Equals(c.Anchor, anchor, StringComparison.OrdinalIgnoreCase));
-        if (match != null)
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        return System.IO.Path.Combine(appData, "VoiceLauncherBlazor", "TalonCaptures.custom.md");
+    }
+
+    private void ToggleAddCapture()
+    {
+        ShowAddCapture = !ShowAddCapture;
+        AddCaptureError = string.Empty;
+    }
+
+    private async Task AddCaptureAsync()
+    {
+        var name = (NewCaptureName ?? string.Empty).Trim();
+        var rule = (NewCaptureRule ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(name))
         {
-            SelectedCapture = match;
-            var id = GetDetailsContainerId(match.Anchor);
-            try { await JS.InvokeVoidAsync("talonCapturesInterop.scrollTo", id); } catch { }
-            await InvokeAsync(StateHasChanged);
+            AddCaptureError = "Enter a capture or list name.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(rule))
+        {
+            AddCaptureError = "Enter a rule or description.";
+            return;
+        }
+
+        if (captures.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            AddCaptureError = $"'{name}' is already in the cheatsheet.";
+            return;
+        }
+
+        var anchor = System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9_-]", "-");
+        var safeName = name.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+        var safeRule = System.Net.WebUtility.HtmlEncode(rule)
+            .Replace("\r\n", "<br />").Replace("\n", "<br />").Replace("\r", "<br />");
+        var entry = $"- [{safeName}](#{anchor}) ({NewCaptureType}){Environment.NewLine}  - Rule: {safeRule}{Environment.NewLine}{Environment.NewLine}";
+
+        try
+        {
+            var path = GetCustomCapturesPath();
+            var directory = System.IO.Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                System.IO.Directory.CreateDirectory(directory);
+            }
+
+            await System.IO.File.AppendAllTextAsync(path, entry);
+            rawMarkdown = string.Concat(rawMarkdown, Environment.NewLine, entry);
+            ParseMarkdown(rawMarkdown);
+            await ResolveListValuesAsync();
+
+            SearchTerm = name;
+            NewCaptureName = string.Empty;
+            NewCaptureRule = string.Empty;
+            NewCaptureType = "capture";
+            AddCaptureError = string.Empty;
+            ShowAddCapture = false;
+        }
+        catch (Exception ex)
+        {
+            AddCaptureError = $"Could not save the custom entry: {ex.Message}";
         }
     }
 
@@ -454,19 +536,6 @@
         if (string.IsNullOrWhiteSpace(anchor)) return "talon-captures-markdown-container";
         var safe = System.Text.RegularExpressions.Regex.Replace(anchor, "[^A-Za-z0-9\\-_]", "-");
         return "talon-captures-markdown-" + safe;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            if (_handlerRegistered)
-            {
-                await JS.InvokeVoidAsync("talonCapturesInterop.unregisterHandler");
-            }
-        }
-        catch { }
-        _dotNetRef?.Dispose();
     }
 
     private class CaptureEntry
