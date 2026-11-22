@@ -1050,6 +1050,11 @@ namespace RazorClassLibrary.Pages
                                 finalResults = finalResults.Where(c => c.Title == SelectedTitle);
                             }
 
+                            if (hasCodeLanguageFilter)
+                            {
+                                finalResults = finalResults.Where(MatchesSelectedCodeLanguage);
+                            }
+
                             Results = OrderCommandsAlphabetically(finalResults)
                                 .Take(maxResults)
                                 .ToList();
