@@ -51,9 +51,13 @@
 
 	@if (RunningInWinForms)
 	{
-		<div class="mx-2 mb-2 alert alert-secondary py-2 text-truncate" role="note" aria-label="Voice command hint">
-			Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat,
-			snippets, launcher, talon search, and global search.
+		<div class="mx-2 mb-2 alert alert-secondary py-2 d-flex align-items-center justify-content-between flex-wrap gap-2" role="note" aria-label="Voice command hint">
+			<span>Voice commands available: menu mode, data views menu, window menu, refresh data, clipboard history, AI chat,
+			snippets, launcher, talon search, and global search.</span>
+			<button type="button" class="btn btn-sm btn-outline-primary" @onclick="ToggleTalonCaptures">
+				<i class="bi bi-journal-text me-1" aria-hidden="true"></i>
+				@(showTalonCaptures ? "Back to main view" : "Talon Captures")
+			</button>
 		</div>
 	}
 	<div class="host-content-shell">
@@ -101,6 +105,13 @@
 		{
 			<div class="@(showGlobalSearch ? string.Empty : "d-none")" aria-hidden="@(!showGlobalSearch)">
 				<GlobalSearch IsActive="@showGlobalSearch" />
+			</div>
+		}
+
+		@if (ShouldRenderTalonCaptures)
+		{
+			<div class="@(showTalonCaptures ? string.Empty : "d-none")" aria-hidden="@(!showTalonCaptures)">
+				<TalonCaptures />
 			</div>
 		}
 	</div>
