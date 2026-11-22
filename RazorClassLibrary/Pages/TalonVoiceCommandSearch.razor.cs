@@ -1496,26 +1496,83 @@ namespace RazorClassLibrary.Pages
         {
             if (string.IsNullOrEmpty(command))
                 return command;
-            // HTML-encode entire command so raw '<' '>' are visible as text
+
+            // Encode first so command text and Talon syntax are rendered safely.
             var encoded = System.Net.WebUtility.HtmlEncode(command);
 
             try
             {
-                // Highlight lists which are encoded as &lt;name&gt;
+                // Preserve the existing list and capture styling.
                 encoded = Regex.Replace(encoded, @"&lt;([a-zA-Z_][a-zA-Z0-9_.]*)&gt;", m =>
                     $"<span class=\"list-highlight\">{m.Value}</span>");
 
-                // Highlight captures which remain as {name} after encoding
-                encoded = Regex.Replace(encoded, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}", m =>
-                    $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode(m.Value)}</span>");
+                encoded = Regex.Replace(encoded, @"\\{([a-zA-Z_][a-zA-Z0-9_.]+)\\}", m =>
+                    $"<span class=\"capture-highlight\">{m.Value}</span>");
 
-                return encoded;
+                // Highlight search terms only in text nodes, never in generated HTML attributes.
+                return HighlightSearchTermsInMarkup(encoded);
             }
             catch
             {
-                // Fallback to safe encoded string
                 return System.Net.WebUtility.HtmlEncode(command);
             }
+        }
+
+        /// <summary>
+        /// Highlights literal search terms in plain text such as script content.
+        /// </summary>
+        public string HighlightSearchMatches(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return HighlightSearchTermsInPlainText(System.Net.WebUtility.HtmlEncode(text));
+        }
+
+        private string HighlightSearchTermsInMarkup(string markup)
+        {
+            return Regex.Replace(markup, @">([^<]+)<", match =>
+                ">" + HighlightSearchTermsInPlainText(match.Groups[1].Value) + "<");
+        }
+
+        private string HighlightSearchTermsInPlainText(string encodedText)
+        {
+            if (string.IsNullOrWhiteSpace(SearchTerm))
+                return encodedText;
+
+            var terms = Regex.Split(SearchTerm.Trim(), @"\\s+")
+                .Where(term => term.Length > 1)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(term => term.Length);
+
+            foreach (var term in terms)
+            {
+                var encodedTerm = System.Net.WebUtility.HtmlEncode(term);
+                encodedText = Regex.Replace(
+                    encodedText,
+                    Regex.Escape(encodedTerm),
+                    match => $"<span class=\"search-match-highlight\">{match.Value}</span>",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            }
+
+            return encodedText;
+        }
+
+        /// <summary>
+        /// Indicates whether a semantic result contains any literal query words in its
+        /// command, script, or title. Results without one are related by semantic/list matching.
+        /// </summary>
+        public bool HasLiteralSearchMatch(TalonVoiceCommand command)
+        {
+            if (command == null || string.IsNullOrWhiteSpace(SearchTerm))
+                return false;
+
+            var searchableText = string.Join(" ", command.Command, command.Script, command.Title);
+            var terms = Regex.Split(SearchTerm.Trim(), @"\\s+")
+                .Where(term => term.Length > 1);
+
+            return terms.Any(term =>
+                searchableText.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         /// <summary>
