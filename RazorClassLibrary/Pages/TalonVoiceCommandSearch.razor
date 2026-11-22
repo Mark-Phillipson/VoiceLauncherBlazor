@@ -4,7 +4,15 @@
 
 <div class="@(IsBlazorHybrid ? "container-fluid px-2 mt-4" : "container mt-4")">   
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Talon Voice Command Search</h2>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h2 class="mb-0">Talon Voice Command Search</h2>
+            @if (IsBlazorHybrid)
+            {
+                <button type="button" class="btn btn-outline-primary" @onclick="() => OnShowTalonCaptures.InvokeAsync()">
+                    <i class="oi oi-book me-1" aria-hidden="true"></i> Talon Captures
+                </button>
+            }
+        </div>
         <div class="d-flex flex-column align-items-end">
             <span class="text-muted">Current App: @CurrentApplication</span>
             <div class="small text-muted mt-1">
