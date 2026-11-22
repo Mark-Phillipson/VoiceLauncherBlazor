@@ -107,7 +107,7 @@
 		@if (ShouldRenderTalonCaptures)
 		{
 			<div class="@(showTalonCaptures ? string.Empty : "d-none")" aria-hidden="@(!showTalonCaptures)">
-				<TalonCaptures />
+				<TalonCaptures OnBackToSearch="ToggleTalonCaptures" />
 			</div>
 		}
 	</div>
