@@ -28,7 +28,7 @@
 		<kbd>3</kbd>
 		<div class="input-group" style="width: 350px;">
 			<input title='Filter by Display and Send Keys' @bind="SearchTerm" @bind:event="oninput" @bind:after="ApplyFilter" id="SearchInput" type="text" class="form-control"
-				   accesskey="@(IsActive ? "3" : "")" placeholder="Blur to Filter" />
+				   accesskey="@(IsActive ? "3" : "")" placeholder="Filter as you type" />
 			<button class="btn btn-outline-secondary" type="button" title="Remove Filter (Alt+8)"
 					accesskey="@(IsActive ? "8" : "")" aria-label="Remove Filter" @onclick="RemoveFilter">
 				<i class="bi bi-funnel text-danger"></i>
