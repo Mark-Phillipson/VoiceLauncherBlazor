@@ -278,7 +278,7 @@
             <div class="col-md-3">
                 <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)" title="Filter by Code Language">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="@(IsActive ? "y" : null)" title="Filter by Code Language (Alt+Y)">
                         <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
                         @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                         {
@@ -438,7 +438,7 @@
                                             {
                                                 @foreach (var codeLanguage in cmd.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(cl => cl.Trim()))
                                                 {
-                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+C)">@codeLanguage</span>
+                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+Y)">@codeLanguage</span>
                                                 }
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Language))
