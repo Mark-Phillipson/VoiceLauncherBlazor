@@ -19,16 +19,15 @@
 	{
 		<kbd>1</kbd>
 		<input title='Filter by Language' accesskey="@(IsActive ? "1" : "")" style="width: 200px;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter"
+			   @bind="_languageFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Language Filter"
 			   class="form-control" />
 		<kbd>2</kbd>
 		<input title='Filter by Category' accesskey="@(IsActive ? "2" : "")" style="width: 200px;" id="categoryFilter"
-			   @bind="_categoryFilter" @oninput="@(e => CallChangeAsync("categoryfilter"))" placeholder="Category Filter"
+			   @bind="_categoryFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Category Filter"
 			   class="form-control" />
 		<kbd>3</kbd>
 		<div class="input-group" style="width: 350px;">
-			<input title='Filter by Display and Send Keys' @bind="SearchTerm"
-				   @onblur="@(e => CallChangeAsync("SearchInput"))" id="SearchInput" type="text" class="form-control"
+			<input title='Filter by Display and Send Keys' @bind="SearchTerm" @bind:event="oninput" @bind:after="ApplyFilter" id="SearchInput" type="text" class="form-control"
 				   accesskey="@(IsActive ? "3" : "")" placeholder="Blur to Filter" />
 			<button class="btn btn-outline-secondary" type="button" title="Remove Filter (Alt+8)"
 					accesskey="@(IsActive ? "8" : "")" aria-label="Remove Filter" @onclick="RemoveFilter">
@@ -67,11 +66,10 @@
 	{
 		
 		<input accesskey="@(IsActive ? "1" : "")" style="max-width:25%;" id="languageFilter"
-			   @oninput="@(e => CallChangeAsync("languageFilter"))" @bind="_languageFilter" placeholder="Language Filter (1)"
+			   @bind="_languageFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Language Filter (1)"
 			   class="form-control" />
-		<input accesskey="@(IsActive ? "2" : "")" style="max-width:25%;" id="categoryFilter" @bind="_categoryFilter"
-			   @oninput="@(e => CallChangeAsync("categoryFilter"))" placeholder="Category Filter (2)" class="form-control" />
-		<input title='Filter Display and Send Keys' @bind="SearchTerm" @onblur="@(e => CallChangeAsync("SearchInput"))"
+		<input accesskey="@(IsActive ? "2" : "")" style="max-width:25%;" id="categoryFilter" @bind="_categoryFilter" @bind:event="oninput" @bind:after="ApplyFilter" placeholder="Category Filter (2)" class="form-control" />
+		<input title='Filter Display and Send Keys' @bind="SearchTerm" @bind:event="oninput" @bind:after="ApplyFilter"
 			   id="SearchInput" class="form-control" style="max-width:25%;" accesskey="@(IsActive ? "3" : "")"
 			   placeholder="Blur to Filter (3)" />
 		@* <label for='useSemanticMatching' class="me-2">Semantic?</label>
