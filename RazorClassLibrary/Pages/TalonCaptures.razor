@@ -3,15 +3,22 @@
 @inject System.IServiceProvider ServiceProvider
 @inject Microsoft.JSInterop.IJSRuntime JS
 
+@code { [Parameter] public EventCallback OnBackToSearch { get; set; } }
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h2 class="mb-0">Talon Captures</h2>
             <small class="text-muted">Bundled cheatsheet and your custom entries</small>
         </div>
-        <button type="button" class="btn btn-primary" @onclick="ToggleAddCapture">
-            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Add missing capture
-        </button>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-secondary" @onclick="() => OnBackToSearch.InvokeAsync()">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to Talon Search
+            </button>
+            <button type="button" class="btn btn-primary" @onclick="ToggleAddCapture">
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Add missing capture
+            </button>
+        </div>
     </div>
 
     @if (ShowAddCapture)
