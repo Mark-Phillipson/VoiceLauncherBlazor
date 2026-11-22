@@ -1568,7 +1568,7 @@ namespace RazorClassLibrary.Pages
                 encodedText = Regex.Replace(
                     encodedText,
                     Regex.Escape(encodedTerm),
-                    match => $"<span class=\"search-match-highlight\">{match.Value}</span>",
+                    match => $"<span class=\"search-match-highlight\" style=\"background-color:#e9d5ff;color:#581c87;border-radius:3px;padding:0 2px;font-weight:600;\">{match.Value}</span>",
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             }
 
