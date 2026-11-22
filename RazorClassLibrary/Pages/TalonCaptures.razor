@@ -429,13 +429,11 @@
                 }
                 catch { }
 
-                if (!dict.ContainsKey(name) || inPersonalEntries)
-                {
-                    var fullSnippet = sb.ToString();
-                    // The card header already displays the symbol name and type, so
-                    // remove the repeated Markdown index entry from the card body.
-                    var sanitized = System.Text.RegularExpressions.Regex.Replace(
-                        fullSnippet,
+                var fullSnippet = sb.ToString();
+                // The card header already displays the symbol name and type, so
+                // remove the repeated Markdown index entry from the card body.
+                var sanitized = System.Text.RegularExpressions.Regex.Replace(
+                    fullSnippet,
                         @"^\s*-\s*\[[^\]]+\]\(#[^)]+\)\s*\([^)]+\)\s*(?:\r?\n)?",
                         "",
                         System.Text.RegularExpressions.RegexOptions.Multiline);
@@ -462,6 +460,12 @@
                         @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)",
                         "",
                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                // Keep the detailed definition when the Symbol Index repeats it.
+                // Older custom entries were appended without a heading; their Rule
+                // line distinguishes them from plain Symbol Index rows.
+                var hasDetails = !string.IsNullOrWhiteSpace(sanitized);
+                if (!dict.ContainsKey(name) || inPersonalEntries || (inSymbolIndex && hasDetails))
+                {
                     dict[name] = new CaptureEntry
                     {
                         Name = name,
