@@ -569,6 +569,27 @@ namespace RazorClassLibrary.Pages
 				customIntelliSenseCurrent.SendKeysValue = "********";
 			}
 		}
+		private static string GetSnippetPreview(CustomIntelliSense snippet, int maximumLength = 220)
+		{
+			if (snippet == null)
+				return string.Empty;
+
+			// Never expose password snippets in the card preview.
+			if (snippet.Category?.CategoryName?.Contains("password", StringComparison.OrdinalIgnoreCase) == true ||
+				snippet.DisplayValue?.Contains("password", StringComparison.OrdinalIgnoreCase) == true)
+			{
+				return "********";
+			}
+
+			var value = snippet.SendKeysValue?.Trim();
+			if (string.IsNullOrEmpty(value))
+				return "(No snippet content)";
+
+			return value.Length > maximumLength
+				? value[..maximumLength].TrimEnd() + "…"
+				: value;
+		}
+
 		private string FillInVariables(string itemToCopy, CustomIntelliSense CustomIntelliSenseDTO)
 		{
 			if (itemToCopy.Contains("`Variable1`") && !string.IsNullOrWhiteSpace(CustomIntelliSenseDTO.Variable1))
