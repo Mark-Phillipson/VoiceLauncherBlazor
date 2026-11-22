@@ -333,6 +333,32 @@ namespace RazorClassLibrary.Pages
         public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
 
 
+        /// <summary>
+        /// Checks an application's filter against every application token on a command.
+        /// Talon commands may contain comma-separated application values, so comparing
+        /// the complete Application field with a single alias can produce inconsistent results.
+        /// </summary>
+        private bool MatchesSelectedApplication(TalonVoiceCommand command)
+        {
+            if (string.IsNullOrWhiteSpace(SelectedApplication))
+            {
+                return true;
+            }
+
+            var selectedApplication = SelectedApplication.Trim();
+            var aliases = ApplicationMappingService?.GetAliases(selectedApplication)
+                ?? new List<string> { selectedApplication };
+
+            return (command.Application ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(application => application.Trim())
+                .Any(application =>
+                    string.Equals(application, selectedApplication, StringComparison.OrdinalIgnoreCase) ||
+                    aliases.Contains(application, StringComparer.OrdinalIgnoreCase) ||
+                    (ApplicationMappingService != null &&
+                     string.Equals(ApplicationMappingService.GetDisplayName(application), selectedApplication, StringComparison.OrdinalIgnoreCase)));
+        }
+
         // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
         public string SelectedMode { get; set; } = string.Empty;
@@ -818,15 +844,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasApplicationFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            c.Application != null &&
-                            c.Application.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(a => a.Trim())
-                            .Any(app =>
-                                string.Equals(app, SelectedApplication, StringComparison.OrdinalIgnoreCase) ||
-                                (ApplicationMappingService != null && string.Equals(ApplicationMappingService.GetDisplayName(app), SelectedApplication, StringComparison.OrdinalIgnoreCase))
-                            )
-                        );
+                        filteredCommands = filteredCommands.Where(MatchesSelectedApplication);
                     }
 
                     if (hasModeFilter)
@@ -902,15 +920,7 @@ namespace RazorClassLibrary.Pages
 
                         if (hasApplicationFilter)
                         {
-                            if (ApplicationMappingService != null)
-                            {
-                                var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
-                                finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
-                            }
-                            else
-                            {
-                                finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                            }
+                            finalResults = finalResults.Where(MatchesSelectedApplication);
                         }
 
                         if (hasModeFilter)
@@ -988,15 +998,7 @@ namespace RazorClassLibrary.Pages
 
                             if (hasApplicationFilter)
                             {
-                                if (ApplicationMappingService != null)
-                                {
-                                    var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
-                                    finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
-                                }
-                                else
-                                {
-                                    finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                                }
+                                finalResults = finalResults.Where(MatchesSelectedApplication);
                             }
 
                             if (hasModeFilter)
