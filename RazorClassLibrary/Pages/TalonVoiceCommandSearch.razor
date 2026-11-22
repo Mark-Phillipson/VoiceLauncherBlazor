@@ -398,7 +398,7 @@
                                         @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                         {
                                             <span class="badge bg-success badge-with-underline badge-title ms-auto mt-2 mt-md-0" title="Filter by Title (Alt+I)">
-                                                @cmd.Title
+                                                @((MarkupString)HighlightSearchMatches(cmd.Title))
                                             </span>
                                         }
                                     </div>
@@ -411,9 +411,13 @@
                                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
                                         <small class="text-muted">@GetFileName(cmd.Application)</small>
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
+                                            @if (UseSemanticMatching && !HasLiteralSearchMatch(cmd))
+                                            {
+                                                <span class="badge semantic-related-badge" title="This result was returned through semantic or list matching; no literal query word appears in its command, script, or title.">Related semantic match</span>
+                                            }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
-                                                <span class="badge bg-success badge-with-underline badge-title" title="Filter by Title (Alt+I)">@cmd.Title</span>
+                                                <span class="badge bg-success badge-with-underline badge-title" title="Filter by Title (Alt+I)">@((MarkupString)HighlightSearchMatches(cmd.Title))</span>
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Mode))
                                             {
@@ -466,7 +470,7 @@
                                 <div class="card-body">                                
                                     <div class="mb-3">
                                         <h6 class="card-subtitle text-muted">Script:</h6>
-                                        <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>
+                                        <pre class="card-text script-content p-2 rounded border">@((MarkupString)HighlightSearchMatches(GetTrimmedScript(cmd.Script)))</pre>
 
                                         @{ 
                                             var listsUsed = GetListsUsedInCommand(cmd.Command);
