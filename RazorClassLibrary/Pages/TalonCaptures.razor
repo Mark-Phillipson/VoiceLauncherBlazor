@@ -503,7 +503,7 @@
     private static readonly Dictionary<string, string> CaptureDescriptions = new(StringComparer.OrdinalIgnoreCase)
     {
         ["user.abbreviation"] = "Matches a configured abbreviation after the spoken word “brief”.",
-        ["user.address"] = "Captures an address or location string for an application context that supports address navigation.",
+        ["user.address"] = "Context-sensitive capture: in a browser it captures a configured website address (URL); in a file manager it captures a system file or folder path. The user.address tag enables related address commands in supported applications.",
         ["user.any_alphanumeric_key"] = "Matches a single letter, number, or symbol key.",
         ["user.arrow_key"] = "Matches one arrow key from the configured arrow-key list.",
         ["user.arrow_keys"] = "Matches one or more arrow keys, for example as part of a keyboard shortcut.",
@@ -570,10 +570,10 @@
     {
         ["user.address"] = new()
         {
-            Rule = "navigate to <user.address>",
-            SpokenPhrase = "Navigate to 25 High Street, Maidstone, Kent",
-            Result = "25 High Street, Maidstone, Kent",
-            Note = "Your command's action receives the recognised address. It must decide what to do with it, such as opening a map or filling in an address field."
+            Rule = "go to <user.address>",
+            SpokenPhrase = "Go to GitHub",
+            Result = "The URL configured for the spoken website name (for example, https://github.com)",
+            Note = "In a browser, this capture matches a configured website from user.website. The user.address tag also enables commands such as “address bar” and “address copy”. In a file manager, the same capture name instead matches a system path."
         },
         ["user.text"] = new()
         {
