@@ -352,6 +352,7 @@ namespace RazorClassLibrary.Pages
         [SupplyParameterFromQuery(Name = "focusCommandId")]
         public int? FocusCommandId { get; set; }
         [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
+        [Parameter] public EventCallback OnShowTalonCaptures { get; set; }
 
         public string SearchTerm { get; set; } = string.Empty;
         // Keep result annotations tied to the search that produced the current Results,

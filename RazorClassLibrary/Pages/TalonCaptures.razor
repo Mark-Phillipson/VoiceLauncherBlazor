@@ -1,16 +1,58 @@
 @page "/talon-captures"
 @using RazorClassLibrary.Components
-@inject System.Net.Http.HttpClient? Http
-@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+@inject System.IServiceProvider ServiceProvider
 @inject Microsoft.JSInterop.IJSRuntime JS
-@implements System.IAsyncDisposable
+
+@code { [Microsoft.AspNetCore.Components.Parameter] public Microsoft.AspNetCore.Components.EventCallback OnBackToSearch { get; set; } }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Talon Captures</h2>
-        <small class="text-muted">Bundled cheatsheet</small>
+        <div>
+            <h2 class="mb-0">Talon Captures</h2>
+            <small class="text-muted">Bundled cheatsheet and your custom entries</small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-secondary" @onclick="() => OnBackToSearch.InvokeAsync()">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to Talon Search
+            </button>
+            <button type="button" class="btn btn-primary" @onclick="BeginAddCapture">
+                <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Add missing capture
+            </button>
+        </div>
     </div>
+
+    @if (ShowAddCapture)
+    {
+        <div class="card mb-3">
+            <div class="card-header">@(IsEditingCapture ? $"Edit {EditingCaptureName}" : "Add a capture or list to your personal cheatsheet")</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label for="new-capture-name" class="form-label">Capture or list name</label>
+                        <input id="new-capture-name" class="form-control" @bind="NewCaptureName" placeholder="e.g. user.my_capture" disabled="@IsEditingCapture" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="new-capture-type" class="form-label">Type</label>
+                        <input id="new-capture-type" class="form-control" @bind="NewCaptureType" placeholder="capture, list, or capture, list" />
+                    </div>
+                    <div class="col-12">
+                        <label for="new-capture-rule" class="form-label">Rule or description</label>
+                        <textarea id="new-capture-rule" class="form-control" rows="3" @bind="NewCaptureRule"
+                                  placeholder="Enter the capture rule, list details, or a short description"></textarea>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(AddCaptureError))
+                {
+                    <div class="alert alert-danger mt-3 mb-0">@AddCaptureError</div>
+                }
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="btn btn-success" @onclick="SaveCaptureAsync">@(IsEditingCapture ? "Save changes" : "Save capture")</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CancelCaptureEdit">Cancel</button>
+                </div>
+                <small class="text-muted d-block mt-2">New entries and edits are saved locally for this Windows user. They do not change your Talon configuration.</small>
+            </div>
+        </div>
+    }
 
     <div class="row mb-3">
         <div class="col-md-6">
@@ -44,18 +86,34 @@
                 <div class="col-12 col-sm-6 col-md-4 mb-3">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title mb-0 text-truncate">@c.Name</h5>
-                                <small class="text-muted">@c.Type</small>
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                <h5 class="card-title mb-0 text-break flex-grow-1">@c.Name</h5>
+                                <small class="text-muted flex-shrink-0">@GetTypeLabel(c.Type)</small>
                             </div>
-                            <p class="card-text text-muted small flex-grow-1" style="white-space:pre-wrap;">@GetPreview(c.SanitizedSnippet)</p>
-                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                <small class="text-muted">@c.Anchor</small>
-                            </div>
+                            @if (!string.IsNullOrWhiteSpace(GetDescription(c)))
+                            {
+                                <p class="small text-body-secondary mb-2">@GetDescription(c)</p>
+                            }
+                            @if (GetUsageExample(c.Name) is { } example)
+                            {
+                                <div class="alert alert-light border mt-2 mb-2 py-2">
+                                    <strong class="small d-block mb-1">Usage example</strong>
+                                    <div class="small mb-1"><span class="text-muted">Talon rule:</span> <code>@example.Rule</code></div>
+                                    <div class="small mb-1"><span class="text-muted">Say:</span> “@example.SpokenPhrase”</div>
+                                    <div class="small"><span class="text-muted">Captured value:</span> @example.Result</div>
+                                    @if (!string.IsNullOrWhiteSpace(example.Note))
+                                    {
+                                        <div class="small text-muted mt-1">@example.Note</div>
+                                    }
+                                </div>
+                            }
 
-                            <div id="@GetDetailsContainerId(c.Anchor)" class="markdown-container mt-3">
-                                <MarkdownConverter MarkdownContent="@c.SanitizedSnippet" />
-                            </div>
+                            @if (!string.IsNullOrWhiteSpace(c.SanitizedSnippet))
+                            {
+                                <div id="@GetDetailsContainerId(c.Anchor)" class="mt-3">
+                                    <MarkdownConverter MarkdownContent="@c.SanitizedSnippet" />
+                                </div>
+                            }
 
                             @if (c.InlineMatches?.Any() == true)
                             {
@@ -88,6 +146,11 @@
                                     }
                                 </div>
                             }
+                            <div class="mt-auto pt-3 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => BeginEditCapture(c)">
+                                    <i class="bi bi-pencil me-1" aria-hidden="true"></i> Edit
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -99,10 +162,16 @@
 @code {
     private List<CaptureEntry> captures = new();
     private string SearchTerm { get; set; } = string.Empty;
-    private CaptureEntry? SelectedCapture;
     private bool IsLoading = true;
     private string rawMarkdown = string.Empty;
     private Dictionary<string, List<string>> listValues = new(StringComparer.OrdinalIgnoreCase);
+    private bool ShowAddCapture;
+    private bool IsEditingCapture;
+    private string EditingCaptureName = string.Empty;
+    private string NewCaptureName = string.Empty;
+    private string NewCaptureType = "capture";
+    private string NewCaptureRule = string.Empty;
+    private string AddCaptureError = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,37 +184,45 @@
         {
             IsLoading = true;
             string md = string.Empty;
+
+            // Server hosting can read from the web root. The Hybrid host reads the
+            // bundled file copied beside the executable by the WinForms project.
             try
             {
-                if (Http != null)
+                var env = ServiceProvider.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment))
+                    as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+                var contentRoot = env?.ContentRootPath;
+                var candidates = new[]
                 {
-                    md = await Http.GetStringAsync("/cheatsheets/talon-captures.md");
-                }
-                else
-                {
-                    using var client = new System.Net.Http.HttpClient();
-                    md = await client.GetStringAsync(NavigationManager.BaseUri + "cheatsheets/talon-captures.md");
-                }
-            }
-            catch
-            {
-                // swallow - file may not exist in some dev scenarios
-                md = string.Empty;
-            }
+                    string.IsNullOrWhiteSpace(contentRoot) ? null : System.IO.Path.Combine(contentRoot, "wwwroot", "cheatsheets", "talon-captures.md"),
+                    System.IO.Path.Combine(AppContext.BaseDirectory, "wwwroot", "cheatsheets", "talon-captures.md")
+                };
 
-            // If HTTP fetch failed or returned empty content, try reading from the server's wwwroot folder directly.
-            if (string.IsNullOrWhiteSpace(md) && Env != null)
-            {
-                try
+                foreach (var candidate in candidates.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct())
                 {
-                    var local = System.IO.Path.Combine(Env.ContentRootPath ?? string.Empty, "wwwroot", "cheatsheets", "talon-captures.md");
-                    if (System.IO.File.Exists(local))
+                    if (System.IO.File.Exists(candidate))
                     {
-                        md = await System.IO.File.ReadAllTextAsync(local);
+                        md = await System.IO.File.ReadAllTextAsync(candidate!);
+                        break;
                     }
                 }
-                catch { }
             }
+            catch { }
+
+            // Append the user's local additions without modifying the bundled source.
+            try
+            {
+                var customPath = GetCustomCapturesPath();
+                if (System.IO.File.Exists(customPath))
+                {
+                    var customMarkdown = await System.IO.File.ReadAllTextAsync(customPath);
+                    if (!string.IsNullOrWhiteSpace(customMarkdown))
+                    {
+                        md = string.Concat(md, Environment.NewLine, customMarkdown);
+                    }
+                }
+            }
+            catch { }
 
             rawMarkdown = md ?? string.Empty;
             ParseMarkdown(rawMarkdown);
@@ -301,10 +378,28 @@
 
         var itemRegex = new System.Text.RegularExpressions.Regex(@"^- \[([^\]]+)\]\(#([^\)]+)\)\s*\(([^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
+        var inSymbolIndex = false;
+        var inPersonalEntries = false;
+
         for (int i = 0; i < lines.Length; i++)
         {
             var line = lines[i] ?? string.Empty;
             var trim = line.TrimStart();
+
+            // The Symbol Index contains the full catalogue. Keep its entries as
+            // fallback cards, while allowing richer definitions above it to win.
+            if (trim.Equals("## Symbol Index", StringComparison.OrdinalIgnoreCase))
+            {
+                inSymbolIndex = true;
+                continue;
+            }
+
+            if (trim.Equals("## Personal entries", StringComparison.OrdinalIgnoreCase))
+            {
+                inPersonalEntries = true;
+                continue;
+            }
+
             var match = itemRegex.Match(trim);
             if (match.Success)
             {
@@ -348,11 +443,43 @@
                 }
                 catch { }
 
-                if (!dict.ContainsKey(name))
+                var fullSnippet = sb.ToString();
+                // The card header already displays the symbol name and type, so
+                // remove the repeated Markdown index entry from the card body.
+                var sanitized = System.Text.RegularExpressions.Regex.Replace(
+                    fullSnippet,
+                        @"^\s*-\s*\[[^\]]+\]\(#[^)]+\)\s*\([^)]+\)\s*(?:\r?\n)?",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.Multiline);
+
+                    // Definition and usage references are generated from local source
+                    // paths and line numbers. Omit those rows entirely: they are not
+                    // useful navigation links in the card and can become stale.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"^\s*-\s*(?:Definition|Used here):.*(?:\r?\n|$)",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    // Strip any remaining local file links without leaving link markup.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"\[([^\]]+)\]\(file:///[^)]+\)",
+                        "$1",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    // Actions are not useful in the capture detail panel.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                // Keep the detailed definition when the Symbol Index repeats it.
+                // Older custom entries were appended without a heading; their Rule
+                // line distinguishes them from plain Symbol Index rows.
+                var hasDetails = !string.IsNullOrWhiteSpace(sanitized);
+                if (!dict.ContainsKey(name) || inPersonalEntries || (inSymbolIndex && hasDetails))
                 {
-                    var fullSnippet = sb.ToString();
-                    // Remove any "Actions:" blocks from the displayed snippet by default
-                    var sanitized = System.Text.RegularExpressions.Regex.Replace(fullSnippet, @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     dict[name] = new CaptureEntry
                     {
                         Name = name,
@@ -369,6 +496,161 @@
         captures = dict.Values.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
+
+    // Descriptions below are taken from the community README, Talon documentation,
+    // or the capture/list docstrings in the community source. Leave undocumented
+    // captures to their generated rule and usage details rather than guessing.
+    private static readonly Dictionary<string, string> CaptureDescriptions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["user.abbreviation"] = "Matches a configured abbreviation after the spoken word “brief”.",
+        ["user.address"] = "Context-sensitive capture: in a browser it captures a configured website address (URL); in a file manager it captures a system file or folder path. The user.address tag enables related address commands in supported applications.",
+        ["user.any_alphanumeric_key"] = "Matches a single letter, number, or symbol key.",
+        ["user.arrow_key"] = "Matches one arrow key from the configured arrow-key list.",
+        ["user.arrow_keys"] = "Matches one or more arrow keys, for example as part of a keyboard shortcut.",
+        ["user.c_cast"] = "Builds a C cast type, including optional signedness and pointer annotations.",
+        ["user.c_fixed_integer"] = "Matches a fixed-width C integer type, such as uint32_t.",
+        ["user.c_pointers"] = "Matches a C pointer annotation.",
+        ["user.c_signed"] = "Matches a signed or unsigned type prefix for C data types.",
+        ["user.c_types"] = "Matches a C data type.",
+        ["user.c_variable"] = "Builds a complete C variable type, including optional signedness and pointer annotations.",
+        ["user.code_common_function"] = "Matches a common function name for the currently active programming language.",
+        ["user.code_formatters"] = "Matches one or more formatters typically used when formatting code.",
+        ["user.cpp_namespace_list"] = "Matches a sequence of C++ namespaces and formats them with scope-resolution separators.",
+        ["user.cpp_standard_constant"] = "Matches a C++ standard-library constant and returns its properly qualified name.",
+        ["user.cpp_standard_function"] = "Matches a C++ standard-library function and returns its properly qualified name.",
+        ["user.cpp_standard_type"] = "Matches a C++ standard-library type and returns its properly qualified name.",
+        ["user.delimiter_pair"] = "Matches a configured pair of delimiters, used when inserting a pair or wrapping selected text.",
+        ["user.digits"] = "Parses a spoken sequence of digits and returns the resulting number as an integer.",
+        ["user.format_code"] = "Formats recognised text using code formatters and returns the formatted string.",
+        ["user.format_text"] = "Applies the selected formatters to text and returns the formatted string.",
+        ["user.formatter_immune"] = "Marks text as immune to automatic formatting, so formatters leave it unchanged.",
+        ["user.formatters"] = "Matches one or more code or prose formatters that can be applied to text.",
+        ["user.function_key"] = "Matches a keyboard function key, such as F1 or F2.",
+        ["user.generic_data_structure"] = "Matches a generic data structure that accepts type parameters, such as a collection type.",
+        ["user.generic_type_connector"] = "Matches the connector that determines how generic type parameters are joined in the target language.",
+        ["user.generic_type_connector_done"] = "Signals that a nested generic type has finished.",
+        ["user.generic_type_continuation"] = "Matches generic type parameters that follow the first parameter, including their connectors.",
+        ["user.generic_type_parameter_argument"] = "Matches one type argument for a generic data structure, including built-in and user-defined types.",
+        ["user.generic_type_parameter_arguments"] = "Combines generic type arguments and connectors into a formatted parameter list.",
+        ["user.common_generic_type_connector"] = "Matches common spoken connectors, such as “and” or “of”, between generic type arguments.",
+        ["user.git_arguments"] = "Captures one or more Git command-line arguments as a single string, including the leading space.",
+        ["user.go_complex_type"] = "Matches a fixed-width Go complex type, such as complex64.",
+        ["user.go_float_type"] = "Matches a fixed-width Go floating-point type, such as float32.",
+        ["user.go_int_type"] = "Matches a fixed-width Go integer type, such as uint32.",
+        ["user.homophones_canonical"] = "Matches a canonical word from the configured homophones list, for looking up alternative words or spellings.",
+        ["user.java_generic_type"] = "Matches a Java generic type with its specified type parameters.",
+        ["user.key"] = "Matches a keyboard key, optionally preceded by modifier keys.",
+        ["user.keypad_key"] = "Matches a key on the numeric keypad.",
+        ["user.keys"] = "Matches one or more keys, allowing combinations to be spoken as keyboard shortcuts.",
+        ["user.letter"] = "Matches a letter from the spoken phonetic alphabet.",
+        ["user.prose"] = "Matches mixed words and punctuation, with automatic spacing and capitalisation.",
+        ["user.raw_prose"] = "Matches mixed words and punctuation with automatic spacing and capitalisation, without quote straightening or command recognition.",
+        ["user.text"] = "Matches a sequence of words, including words from your user-defined vocabulary.",
+        ["user.word"] = "Matches a single word, including words from your user-defined vocabulary and abbreviations."
+    };
+
+    private static string GetDescription(CaptureEntry capture)
+    {
+        return CaptureDescriptions.TryGetValue(capture.Name, out var description)
+            ? description
+            : string.Empty;
+    }
+
+    private sealed class CaptureUsageExample
+    {
+        public string Rule { get; init; } = string.Empty;
+        public string SpokenPhrase { get; init; } = string.Empty;
+        public string Result { get; init; } = string.Empty;
+        public string Note { get; init; } = string.Empty;
+    }
+
+    // Only add examples where the capture's purpose and expected value are clear.
+    // These are illustrative command rules; the action after the rule is application-specific.
+    private static readonly Dictionary<string, CaptureUsageExample> CaptureUsageExamples = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["user.address"] = new()
+        {
+            Rule = "go to <user.address>",
+            SpokenPhrase = "Go to GitHub",
+            Result = "The URL configured for the spoken website name (for example, https://github.com)",
+            Note = "In a browser, this capture matches a configured website from user.website. The user.address tag also enables commands such as “address bar” and “address copy”. In a file manager, the same capture name instead matches a system path."
+        },
+        ["user.text"] = new()
+        {
+            Rule = "enter <user.text>",
+            SpokenPhrase = "Enter hello comma how are you question mark",
+            Result = "Hello, how are you?",
+            Note = "Useful when a command needs a phrase of dictated text rather than a fixed vocabulary item."
+        },
+        ["user.word"] = new()
+        {
+            Rule = "insert <user.word>",
+            SpokenPhrase = "Insert hello",
+            Result = "hello",
+            Note = "Matches one word, including words from your configured vocabulary."
+        },
+        ["user.digits"] = new()
+        {
+            Rule = "enter <user.digits>",
+            SpokenPhrase = "Enter one two three",
+            Result = "123",
+            Note = "The capture returns the parsed digits as a number."
+        },
+        ["user.key"] = new()
+        {
+            Rule = "press <user.key>",
+            SpokenPhrase = "Press escape",
+            Result = "The Escape key",
+            Note = "A command action can pass the captured key to Talon's key action."
+        },
+        ["user.keys"] = new()
+        {
+            Rule = "press <user.keys>",
+            SpokenPhrase = "Press control shift P",
+            Result = "The Ctrl+Shift+P key combination",
+            Note = "Useful for commands that accept a keyboard shortcut rather than one fixed key."
+        },
+        ["user.letter"] = new()
+        {
+            Rule = "type <user.letter>",
+            SpokenPhrase = "Type alpha",
+            Result = "a",
+            Note = "Uses the spoken phonetic alphabet to identify a letter."
+        },
+        ["user.prose"] = new()
+        {
+            Rule = "dictate <user.prose>",
+            SpokenPhrase = "Dictate hello comma how are you question mark",
+            Result = "Hello, how are you?",
+            Note = "Formats recognised prose with punctuation and spacing."
+        },
+        ["user.raw_prose"] = new()
+        {
+            Rule = "dictate raw <user.raw_prose>",
+            SpokenPhrase = "Dictate raw hello comma how are you question mark",
+            Result = "Recognised prose without the usual quote straightening or command recognition.",
+            Note = "Useful when you want prose dictation with fewer automatic transformations."
+        }
+    };
+
+    private static CaptureUsageExample? GetUsageExample(string captureName)
+    {
+        return CaptureUsageExamples.TryGetValue(captureName, out var example) ? example : null;
+    }
+
+    private static string GetTypeLabel(string type)
+    {
+        var parts = (type ?? string.Empty)
+            .Split(',')
+            .Select(part => part.Trim().ToLowerInvariant())
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Distinct()
+            .OrderBy(part => part == "capture" ? 0 : part == "list" ? 1 : 2)
+            .Select(part => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part));
+
+        return string.Join(" · ", parts);
+    }
+
     private IEnumerable<CaptureEntry> FilteredCaptures
     {
         get
@@ -378,11 +660,6 @@
                 : captures.Where(c => c.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || c.Anchor.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
             return q.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase);
         }
-    }
-
-    private void SelectCapture(CaptureEntry c)
-    {
-        SelectedCapture = c;
     }
 
     // Details are now shown inline for every capture; toggle removed.
@@ -399,53 +676,145 @@
         return s;
     }
 
-    private DotNetObjectReference<TalonCaptures>? _dotNetRef;
-    private bool _handlerRegistered = false;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!_handlerRegistered)
-        {
-            _dotNetRef ??= DotNetObjectReference.Create(this);
-            var attempts = 0;
-            while (!_handlerRegistered && attempts < 10)
-            {
-                try
-                {
-                    await JS.InvokeVoidAsync("talonCapturesInterop.registerHandler", _dotNetRef);
-                    _handlerRegistered = true;
-                    break;
-                }
-                catch
-                {
-                    // retry a few times if the interop hasn't loaded yet
-                    attempts++;
-                    await Task.Delay(200);
-                }
-            }
-        }
         if (firstRender)
         {
             try
             {
-                // Use the global helper loaded in the layout to set focus by id.
                 await JS.InvokeVoidAsync("setFocus", "talon-captures-search");
             }
             catch { }
         }
     }
 
-    [Microsoft.JSInterop.JSInvokable]
-    public async Task OnAnchorClick(string anchor)
+    private string GetCustomCapturesPath()
     {
-        if (string.IsNullOrWhiteSpace(anchor)) return;
-        var match = captures.FirstOrDefault(c => string.Equals(c.Anchor, anchor, StringComparison.OrdinalIgnoreCase));
-        if (match != null)
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        return System.IO.Path.Combine(appData, "VoiceLauncherBlazor", "TalonCaptures.custom.md");
+    }
+
+    private void BeginAddCapture()
+    {
+        IsEditingCapture = false;
+        EditingCaptureName = string.Empty;
+        NewCaptureName = string.Empty;
+        NewCaptureType = "capture";
+        NewCaptureRule = string.Empty;
+        AddCaptureError = string.Empty;
+        ShowAddCapture = true;
+    }
+
+    private void BeginEditCapture(CaptureEntry capture)
+    {
+        IsEditingCapture = true;
+        EditingCaptureName = capture.Name;
+        NewCaptureName = capture.Name;
+        NewCaptureType = capture.Type;
+        NewCaptureRule = GetEditableRule(capture);
+        AddCaptureError = string.Empty;
+        ShowAddCapture = true;
+    }
+
+    private void CancelCaptureEdit()
+    {
+        ShowAddCapture = false;
+        IsEditingCapture = false;
+        EditingCaptureName = string.Empty;
+        AddCaptureError = string.Empty;
+    }
+
+    private static string GetEditableRule(CaptureEntry capture)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(
+            capture.MarkdownSnippet ?? string.Empty,
+            @"^\s*-\s*Rule:\s*(?<rule>.*)$",
+            System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        if (match.Success)
         {
-            SelectedCapture = match;
-            var id = GetDetailsContainerId(match.Anchor);
-            try { await JS.InvokeVoidAsync("talonCapturesInterop.scrollTo", id); } catch { }
-            await InvokeAsync(StateHasChanged);
+            var value = System.Net.WebUtility.HtmlDecode(match.Groups["rule"].Value);
+            value = System.Text.RegularExpressions.Regex.Replace(value, @"<br\s*/?>", Environment.NewLine, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            return value.Trim();
+        }
+
+        return GetDescription(capture);
+    }
+
+    private async Task SaveCaptureAsync()
+    {
+        var name = (NewCaptureName ?? string.Empty).Trim();
+        var type = (NewCaptureType ?? string.Empty).Trim();
+        var rule = (NewCaptureRule ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            AddCaptureError = "Enter a capture or list name.";
+            return;
+        }
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[A-Za-z0-9_.-]+$"))
+        {
+            AddCaptureError = "Use only letters, numbers, dots, underscores, or hyphens in the capture name.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(type))
+        {
+            AddCaptureError = "Enter a type, such as capture or list.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(rule))
+        {
+            AddCaptureError = "Enter a rule or description.";
+            return;
+        }
+
+        var exists = captures.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (!IsEditingCapture && exists)
+        {
+            AddCaptureError = $"'{name}' is already in the cheatsheet. Use Edit to update it.";
+            return;
+        }
+
+        if (IsEditingCapture && !string.Equals(name, EditingCaptureName, StringComparison.OrdinalIgnoreCase))
+        {
+            AddCaptureError = "The capture name cannot be changed while editing.";
+            return;
+        }
+
+        var anchor = System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9_-]", "-");
+        var safeRule = System.Net.WebUtility.HtmlEncode(rule)
+            .Replace("\r\n", "<br />").Replace("\n", "<br />").Replace("\r", "<br />");
+        var entry = $"## Personal entries{Environment.NewLine}{Environment.NewLine}- [{name}](#{anchor}) ({type}){Environment.NewLine}  - Rule: {safeRule}{Environment.NewLine}{Environment.NewLine}";
+
+        try
+        {
+            var path = GetCustomCapturesPath();
+            var directory = System.IO.Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                System.IO.Directory.CreateDirectory(directory);
+            }
+
+            await System.IO.File.AppendAllTextAsync(path, entry);
+            rawMarkdown = string.Concat(rawMarkdown, Environment.NewLine, entry);
+            ParseMarkdown(rawMarkdown);
+            await ResolveListValuesAsync();
+
+            SearchTerm = name;
+            NewCaptureName = string.Empty;
+            NewCaptureRule = string.Empty;
+            NewCaptureType = "capture";
+            AddCaptureError = string.Empty;
+            ShowAddCapture = false;
+            IsEditingCapture = false;
+            EditingCaptureName = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            AddCaptureError = $"Could not save the custom entry: {ex.Message}";
         }
     }
 
@@ -454,19 +823,6 @@
         if (string.IsNullOrWhiteSpace(anchor)) return "talon-captures-markdown-container";
         var safe = System.Text.RegularExpressions.Regex.Replace(anchor, "[^A-Za-z0-9\\-_]", "-");
         return "talon-captures-markdown-" + safe;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            if (_handlerRegistered)
-            {
-                await JS.InvokeVoidAsync("talonCapturesInterop.unregisterHandler");
-            }
-        }
-        catch { }
-        _dotNetRef?.Dispose();
     }
 
     private class CaptureEntry

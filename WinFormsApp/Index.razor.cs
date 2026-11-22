@@ -53,6 +53,8 @@ namespace WinFormsApp
 		private bool keepCalculatorAlive = false;
 		private bool showGlobalSearch = false;
 		private bool keepGlobalSearchAlive = false;
+		private bool showTalonCaptures = false;
+		private bool keepTalonCapturesAlive = false;
 
 		private bool IsDefaultSnippetsViewActive =>
 			!showAIChat &&
@@ -62,7 +64,8 @@ namespace WinFormsApp
 			!displayValueSearch &&
 			!launcher &&
 			!showCalculator &&
-			!showGlobalSearch;
+			!showGlobalSearch &&
+			!showTalonCaptures;
 
 		private bool ShouldRenderAIChat
 		{
@@ -135,6 +138,15 @@ namespace WinFormsApp
 				return IsDefaultSnippetsViewActive || keepDefaultSnippetsAlive;
 			}
 		}
+		private bool ShouldRenderTalonCaptures
+		{
+			get
+			{
+				keepTalonCapturesAlive |= showTalonCaptures;
+				return showTalonCaptures || keepTalonCapturesAlive;
+			}
+		}
+
 		private bool ShouldRenderGlobalSearch
 		{
 			get
@@ -598,6 +610,7 @@ namespace WinFormsApp
 			launcher = false;
 			showTalonSearch = false;
 			showGlobalSearch = false;
+			showTalonCaptures = false;
 			showClipboardHistory = false;
 
 		}
@@ -632,6 +645,20 @@ namespace WinFormsApp
 		{
 			await SetTitleCallback.InvokeAsync(title);
 		}
+		private Task ShowTalonCaptures()
+		{
+			ToggleShowVariablesToFalse();
+			showTalonCaptures = true;
+			return InvokeAsync(StateHasChanged);
+		}
+
+		private Task ReturnToTalonSearch()
+		{
+			ToggleShowVariablesToFalse();
+			showTalonSearch = true;
+			return InvokeAsync(StateHasChanged);
+		}
+
 		private Task ShowAIChat()
 		{
 			return OpenAIChatWindowCallback.InvokeAsync();

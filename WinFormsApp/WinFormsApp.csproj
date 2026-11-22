@@ -30,6 +30,14 @@
     <ProjectReference Include="..\RazorClassLibrary\RazorClassLibrary.csproj" />
   </ItemGroup>
 
+  <!-- Make the generated Talon captures cheatsheet available to the Hybrid executable. -->
+  <ItemGroup>
+    <Content Include="..\VoiceAdmin\wwwroot\cheatsheets\talon-captures.md"
+             Link="wwwroot\cheatsheets\talon-captures.md"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- Embedded app icon provided by user -->
   <ItemGroup>
     <EmbeddedResource Include="C:\Users\MPhil\OneDrive\Pictures\TempestRising.ico">
