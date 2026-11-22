@@ -142,7 +142,7 @@
 				{
 					alphabetCounter++;
 					currentLetter = (IsActive ? Alphabet.AlphabetList?.Where(x => x.Id == alphabetCounter).FirstOrDefault()?.Letter : "");
-					<div class="card snippet-card" title="@intellisense.DisplayValue">
+					<div class="card snippet-card">
 						<div class="snippet-card-metadata">
 							<span class="snippet-language" style="background-color:@intellisense.Language?.Colour">@intellisense.Language?.LanguageName</span>
 							<span class="snippet-category">@intellisense.Category?.CategoryName</span>
@@ -161,7 +161,7 @@
 							<div class="snippet-card-actions">
 								@if (!string.IsNullOrWhiteSpace(currentLetter))
 								{
-									<button accesskey="@currentLetter" class="btn btn-outline-primary px-2 py-1" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue ?? "",intellisense.Id))">
+									<button accesskey="@currentLetter" title="@GetSnippetTooltip(intellisense)" class="btn btn-outline-primary px-2 py-1" @onclick="@(() => CopyItemAsync(intellisense.SendKeysValue ?? "",intellisense.Id))">
 										<kbd>@currentLetter</kbd> <i class="bi bi-clipboard ms-1"></i>
 									</button>
 								}
