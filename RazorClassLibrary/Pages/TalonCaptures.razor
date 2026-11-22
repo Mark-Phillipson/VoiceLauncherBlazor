@@ -15,7 +15,7 @@
             <button type="button" class="btn btn-outline-secondary" @onclick="() => OnBackToSearch.InvokeAsync()">
                 <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to Talon Search
             </button>
-            <button type="button" class="btn btn-primary" @onclick="ToggleAddCapture">
+            <button type="button" class="btn btn-primary" @onclick="BeginAddCapture">
                 <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Add missing capture
             </button>
         </div>
@@ -24,19 +24,16 @@
     @if (ShowAddCapture)
     {
         <div class="card mb-3">
-            <div class="card-header">Add a capture or list to your personal cheatsheet</div>
+            <div class="card-header">@(IsEditingCapture ? $"Edit {EditingCaptureName}" : "Add a capture or list to your personal cheatsheet")</div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-5">
                         <label for="new-capture-name" class="form-label">Capture or list name</label>
-                        <input id="new-capture-name" class="form-control" @bind="NewCaptureName" placeholder="e.g. user.my_capture" />
+                        <input id="new-capture-name" class="form-control" @bind="NewCaptureName" placeholder="e.g. user.my_capture" disabled="@IsEditingCapture" />
                     </div>
                     <div class="col-md-3">
                         <label for="new-capture-type" class="form-label">Type</label>
-                        <select id="new-capture-type" class="form-select" @bind="NewCaptureType">
-                            <option value="capture">Capture</option>
-                            <option value="list">List</option>
-                        </select>
+                        <input id="new-capture-type" class="form-control" @bind="NewCaptureType" placeholder="capture, list, or capture, list" />
                     </div>
                     <div class="col-12">
                         <label for="new-capture-rule" class="form-label">Rule or description</label>
@@ -49,10 +46,10 @@
                     <div class="alert alert-danger mt-3 mb-0">@AddCaptureError</div>
                 }
                 <div class="d-flex gap-2 mt-3">
-                    <button type="button" class="btn btn-success" @onclick="AddCaptureAsync">Save capture</button>
-                    <button type="button" class="btn btn-outline-secondary" @onclick="ToggleAddCapture">Cancel</button>
+                    <button type="button" class="btn btn-success" @onclick="SaveCaptureAsync">@(IsEditingCapture ? "Save changes" : "Save capture")</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CancelCaptureEdit">Cancel</button>
                 </div>
-                <small class="text-muted d-block mt-2">Custom entries are saved locally for this Windows user. They do not change your Talon configuration.</small>
+                <small class="text-muted d-block mt-2">New entries and edits are saved locally for this Windows user. They do not change your Talon configuration.</small>
             </div>
         </div>
     }
@@ -135,6 +132,11 @@
                                     }
                                 </div>
                             }
+                            <div class="mt-auto pt-3 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => BeginEditCapture(c)">
+                                    <i class="bi bi-pencil me-1" aria-hidden="true"></i> Edit
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,6 +152,8 @@
     private string rawMarkdown = string.Empty;
     private Dictionary<string, List<string>> listValues = new(StringComparer.OrdinalIgnoreCase);
     private bool ShowAddCapture;
+    private bool IsEditingCapture;
+    private string EditingCaptureName = string.Empty;
     private string NewCaptureName = string.Empty;
     private string NewCaptureType = "capture";
     private string NewCaptureRule = string.Empty;
@@ -360,16 +364,26 @@
 
         var itemRegex = new System.Text.RegularExpressions.Regex(@"^- \[([^\]]+)\]\(#([^\)]+)\)\s*\(([^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
+        var inSymbolIndex = false;
+        var inPersonalEntries = false;
+
         for (int i = 0; i < lines.Length; i++)
         {
             var line = lines[i] ?? string.Empty;
             var trim = line.TrimStart();
 
-            // The generated Symbol Index is only a navigation list, not a set of
-            // capture definitions. Do not turn its entries into empty duplicate cards.
+            // The Symbol Index contains the full catalogue. Keep its entries as
+            // fallback cards, while allowing richer definitions above it to win.
             if (trim.Equals("## Symbol Index", StringComparison.OrdinalIgnoreCase))
             {
-                break;
+                inSymbolIndex = true;
+                continue;
+            }
+
+            if (trim.Equals("## Personal entries", StringComparison.OrdinalIgnoreCase))
+            {
+                inPersonalEntries = true;
+                continue;
             }
 
             var match = itemRegex.Match(trim);
@@ -415,7 +429,7 @@
                 }
                 catch { }
 
-                if (!dict.ContainsKey(name))
+                if (!dict.ContainsKey(name) || inPersonalEntries)
                 {
                     var fullSnippet = sb.ToString();
                     // The card header already displays the symbol name and type, so
@@ -580,15 +594,57 @@
         return System.IO.Path.Combine(appData, "VoiceLauncherBlazor", "TalonCaptures.custom.md");
     }
 
-    private void ToggleAddCapture()
+    private void BeginAddCapture()
     {
-        ShowAddCapture = !ShowAddCapture;
+        IsEditingCapture = false;
+        EditingCaptureName = string.Empty;
+        NewCaptureName = string.Empty;
+        NewCaptureType = "capture";
+        NewCaptureRule = string.Empty;
+        AddCaptureError = string.Empty;
+        ShowAddCapture = true;
+    }
+
+    private void BeginEditCapture(CaptureEntry capture)
+    {
+        IsEditingCapture = true;
+        EditingCaptureName = capture.Name;
+        NewCaptureName = capture.Name;
+        NewCaptureType = capture.Type;
+        NewCaptureRule = GetEditableRule(capture);
+        AddCaptureError = string.Empty;
+        ShowAddCapture = true;
+    }
+
+    private void CancelCaptureEdit()
+    {
+        ShowAddCapture = false;
+        IsEditingCapture = false;
+        EditingCaptureName = string.Empty;
         AddCaptureError = string.Empty;
     }
 
-    private async Task AddCaptureAsync()
+    private static string GetEditableRule(CaptureEntry capture)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(
+            capture.MarkdownSnippet ?? string.Empty,
+            @"^\s*-\s*Rule:\s*(?<rule>.*)$",
+            System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        if (match.Success)
+        {
+            var value = System.Net.WebUtility.HtmlDecode(match.Groups["rule"].Value);
+            value = System.Text.RegularExpressions.Regex.Replace(value, @"<br\s*/?>", Environment.NewLine, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            return value.Trim();
+        }
+
+        return GetDescription(capture);
+    }
+
+    private async Task SaveCaptureAsync()
     {
         var name = (NewCaptureName ?? string.Empty).Trim();
+        var type = (NewCaptureType ?? string.Empty).Trim();
         var rule = (NewCaptureRule ?? string.Empty).Trim();
 
         if (string.IsNullOrWhiteSpace(name))
@@ -603,23 +659,35 @@
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(type))
+        {
+            AddCaptureError = "Enter a type, such as capture or list.";
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(rule))
         {
             AddCaptureError = "Enter a rule or description.";
             return;
         }
 
-        if (captures.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)))
+        var exists = captures.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (!IsEditingCapture && exists)
         {
-            AddCaptureError = $"'{name}' is already in the cheatsheet.";
+            AddCaptureError = $"'{name}' is already in the cheatsheet. Use Edit to update it.";
+            return;
+        }
+
+        if (IsEditingCapture && !string.Equals(name, EditingCaptureName, StringComparison.OrdinalIgnoreCase))
+        {
+            AddCaptureError = "The capture name cannot be changed while editing.";
             return;
         }
 
         var anchor = System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9_-]", "-");
-        var safeName = name;
         var safeRule = System.Net.WebUtility.HtmlEncode(rule)
             .Replace("\r\n", "<br />").Replace("\n", "<br />").Replace("\r", "<br />");
-        var entry = $"- [{safeName}](#{anchor}) ({NewCaptureType}){Environment.NewLine}  - Rule: {safeRule}{Environment.NewLine}{Environment.NewLine}";
+        var entry = $"## Personal entries{Environment.NewLine}{Environment.NewLine}- [{name}](#{anchor}) ({type}){Environment.NewLine}  - Rule: {safeRule}{Environment.NewLine}{Environment.NewLine}";
 
         try
         {
@@ -641,6 +709,8 @@
             NewCaptureType = "capture";
             AddCaptureError = string.Empty;
             ShowAddCapture = false;
+            IsEditingCapture = false;
+            EditingCaptureName = string.Empty;
         }
         catch (Exception ex)
         {
