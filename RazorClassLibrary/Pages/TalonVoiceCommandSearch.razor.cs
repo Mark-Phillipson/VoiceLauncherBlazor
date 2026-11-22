@@ -354,6 +354,10 @@ namespace RazorClassLibrary.Pages
         [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
 
         public string SearchTerm { get; set; } = string.Empty;
+        // Keep result annotations tied to the search that produced the current Results,
+        // not to text or toggle changes made while preparing another search.
+        public string ResultsSearchTerm { get; set; } = string.Empty;
+        public bool ResultsUsedSemanticMatching { get; set; }
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
@@ -849,6 +853,8 @@ namespace RazorClassLibrary.Pages
                     }
 
                     HasSearched = false;
+                    ResultsSearchTerm = string.Empty;
+                    ResultsUsedSemanticMatching = false;
                     IsLoading = false;
                     StateHasChanged();
                     await EnsureSearchFocus();
@@ -1078,6 +1084,8 @@ namespace RazorClassLibrary.Pages
                     Results = new List<TalonVoiceCommand>();
                 }
 
+                ResultsSearchTerm = SearchTerm ?? string.Empty;
+                ResultsUsedSemanticMatching = UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2;
                 IsLoading = false;
                 StateHasChanged();
 
@@ -1093,6 +1101,8 @@ namespace RazorClassLibrary.Pages
                 // Log the error and show user-friendly message
                 Console.WriteLine($"Search error: {ex.Message}");
                 Results = new List<TalonVoiceCommand>();
+                ResultsSearchTerm = SearchTerm ?? string.Empty;
+                ResultsUsedSemanticMatching = false;
                 HasSearched = true;
             }
             finally
@@ -1544,10 +1554,10 @@ namespace RazorClassLibrary.Pages
 
         private string HighlightSearchTermsInPlainText(string encodedText)
         {
-            if (string.IsNullOrWhiteSpace(SearchTerm))
+            if (string.IsNullOrWhiteSpace(ResultsSearchTerm))
                 return encodedText;
 
-            var terms = Regex.Split(SearchTerm.Trim(), @"\s+")
+            var terms = Regex.Split(ResultsSearchTerm.Trim(), @"\s+")
                 .Where(term => term.Length > 1)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderByDescending(term => term.Length);
@@ -1571,11 +1581,11 @@ namespace RazorClassLibrary.Pages
         /// </summary>
         public bool HasLiteralSearchMatch(TalonVoiceCommand command)
         {
-            if (command == null || string.IsNullOrWhiteSpace(SearchTerm))
+            if (command == null || string.IsNullOrWhiteSpace(ResultsSearchTerm))
                 return false;
 
             var searchableText = string.Join(" ", command.Command, command.Script, command.Title);
-            var terms = Regex.Split(SearchTerm.Trim(), @"\s+")
+            var terms = Regex.Split(ResultsSearchTerm.Trim(), @"\s+")
                 .Where(term => term.Length > 1);
 
             return terms.Any(term =>
