@@ -91,13 +91,12 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                                 <h5 class="card-title mb-0 text-break flex-grow-1">@c.Name</h5>
-                                <small class="text-muted flex-shrink-0">@c.Type</small>
+                                <small class="text-muted flex-shrink-0">@GetTypeLabel(c.Type)</small>
                             </div>
                             @if (!string.IsNullOrWhiteSpace(GetDescription(c)))
                             {
                                 <p class="small text-body-secondary mb-2">@GetDescription(c)</p>
                             }
-                            <p class="card-text text-muted small flex-grow-1" style="white-space:pre-wrap;">@GetPreview(c.SanitizedSnippet)</p>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted">@c.Anchor</small>
                             </div>
@@ -412,8 +411,29 @@
                 if (!dict.ContainsKey(name))
                 {
                     var fullSnippet = sb.ToString();
-                    // Remove any "Actions:" blocks from the displayed snippet by default
-                    var sanitized = System.Text.RegularExpressions.Regex.Replace(fullSnippet, @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    // The card header already displays the symbol name and type, so
+                    // remove the repeated Markdown index entry from the card body.
+                    var sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        fullSnippet,
+                        @"^\s*-\s*\[[^\]]+\]\(#[^)]+\)\s*\([^)]+\)\s*(?:\r?\n)?",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.Multiline);
+
+                    // Generated file:// links point to local source files and line numbers
+                    // that can become stale. Keep their readable labels, but don't render
+                    // them as clickable links in the card.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"\[([^\]]+)\]\(file:///[^)]+\)",
+                        "$1",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    // Actions are not useful in the capture detail panel.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"Actions:\s*[\s\S]*?(?:\r?\n\s*\r?\n|$)",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     dict[name] = new CaptureEntry
                     {
                         Name = name,
@@ -488,6 +508,19 @@
         return CaptureDescriptions.TryGetValue(capture.Name, out var description)
             ? description
             : string.Empty;
+    }
+
+    private static string GetTypeLabel(string type)
+    {
+        var parts = (type ?? string.Empty)
+            .Split(',')
+            .Select(part => part.Trim().ToLowerInvariant())
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Distinct()
+            .OrderBy(part => part == "capture" ? 0 : part == "list" ? 1 : 2)
+            .Select(part => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(part));
+
+        return string.Join(" · ", parts);
     }
 
     private IEnumerable<CaptureEntry> FilteredCaptures
