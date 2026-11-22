@@ -71,7 +71,11 @@ public async Task<IEnumerable<CustomIntelliSenseDTO>> SearchCustomIntelliSensesA
              .Include(x => x.Category)
              .AsQueryable();
 
-         var languageTerms = SplitFilterTerms(languageFilter);
+         // "Snip" is the interface label for the legacy "Not Applicable" language value.
+         var effectiveLanguageFilter = string.Equals(languageFilter?.Trim(), "Snip", StringComparison.OrdinalIgnoreCase)
+             ? "Not Applicable"
+             : languageFilter;
+         var languageTerms = SplitFilterTerms(effectiveLanguageFilter);
          if (languageTerms.Count > 0)
          {
             var normalizedLanguageTerms = languageTerms
