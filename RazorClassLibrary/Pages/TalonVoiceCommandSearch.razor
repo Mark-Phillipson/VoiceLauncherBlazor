@@ -202,6 +202,10 @@
                         {
                             <span>All Tags</span>
                         }
+                        else if (SelectedTags == NoTagsFilterValue)
+                        {
+                            <span>No Tags</span>
+                        }
                         else
                         {
                             <span>@SelectedTags</span>
@@ -272,13 +276,17 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label small label-code-language">Filter by <span class="underline-code-language">C</span>ode Language:</label>
+                <label class="form-label small label-code-language">Filter b<span class="underline-code-language">y</span> Code Language (Alt+Y):</label>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)" title="Filter by Code Language">
+                    <button type="button" class="btn btn-outline-secondary flex-grow-1 text-start filter-btn-code-language" @onclick="ShowCodeLanguageModal" disabled="@IsLoading" accesskey="@(IsActive ? "y" : null)" title="Filter by Code Language (Alt+Y)">
                         <span class="filter-btn-icon me-2" aria-hidden="true">💻</span>
                         @if (string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                         {
                             <span>All Code Languages</span>
+                        }
+                        else if (SelectedCodeLanguage == NoCodeLanguageFilterValue)
+                        {
+                            <span>No Code Language</span>
                         }
                         else
                         {
@@ -290,7 +298,7 @@
 
             <div class="col-md-3 d-flex align-items-end">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "c" : null)">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ClearFilters" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "x" : null)">
                         @if (IsLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -302,7 +310,7 @@
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="m4.646 4.646.708.708L8 8l2.646-2.646.708.708L8.708 8.5l2.647 2.646-.708.708L8 9.207l-2.646 2.647-.708-.708L7.293 8.5 4.646 5.854z"/>
                             </svg>
-                            <span><u>C</u>lear Filters</span>
+                            <span>Clear Filters (<u>X</u>)</span>
                         }
                     </button>
                     <button class="btn btn-outline-primary btn-sm" @onclick="RefreshFiltersAsync" type="button" disabled="@IsLoading" accesskey="@(IsActive ? "f" : null)">
@@ -368,6 +376,12 @@
         }
         else if (Results?.Any() == true)
         {
+            @if (ResultsUsedSemanticMatching)
+            {
+                <div class="alert mb-3" role="status" style="background-color:#f3e8ff;color:#581c87;border:1px solid #d8b4fe;">
+                    <strong>Semantic search:</strong> Results may include commands related to your search, even when they do not contain the exact words you entered.
+                </div>
+            }
             @if (IsRandomResult)
             {
                 <div class="alert alert-info mb-3" role="alert">
@@ -390,7 +404,7 @@
                                         @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                         {
                                             <span class="badge bg-success badge-with-underline badge-title ms-auto mt-2 mt-md-0" title="Filter by Title (Alt+I)">
-                                                @cmd.Title
+                                                @((MarkupString)HighlightSearchMatches(cmd.Title))
                                             </span>
                                         }
                                     </div>
@@ -405,7 +419,7 @@
                                         <div class="d-flex flex-wrap gap-1 align-items-center">
                                             @if (!string.IsNullOrWhiteSpace(cmd.Title))
                                             {
-                                                <span class="badge bg-success badge-with-underline badge-title" title="Filter by Title (Alt+I)">@cmd.Title</span>
+                                                <span class="badge bg-success badge-with-underline badge-title" title="Filter by Title (Alt+I)">@((MarkupString)HighlightSearchMatches(cmd.Title))</span>
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Mode))
                                             {
@@ -430,7 +444,7 @@
                                             {
                                                 @foreach (var codeLanguage in cmd.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(cl => cl.Trim()))
                                                 {
-                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+C)">@codeLanguage</span>
+                                                    <span class="badge bg-danger badge-with-underline badge-code-language" title="Filter by Code Language (Alt+Y)">@codeLanguage</span>
                                                 }
                                             }
                                             @if (!string.IsNullOrWhiteSpace(cmd.Language))
@@ -458,7 +472,7 @@
                                 <div class="card-body">                                
                                     <div class="mb-3">
                                         <h6 class="card-subtitle text-muted">Script:</h6>
-                                        <pre class="card-text script-content p-2 rounded border">@GetTrimmedScript(cmd.Script)</pre>
+                                        <pre class="card-text script-content p-2 rounded border">@((MarkupString)HighlightSearchMatches(GetTrimmedScript(cmd.Script)))</pre>
 
                                         @{ 
                                             var listsUsed = GetListsUsedInCommand(cmd.Command);

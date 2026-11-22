@@ -27,6 +27,33 @@ namespace RazorClassLibrary.Pages
 
     public partial class TalonVoiceCommandSearch : ComponentBase, IDisposable
     {
+        private const string NoTagsFilterValue = "__NO_TAGS__";
+        private const string NoCodeLanguageFilterValue = "__NO_CODE_LANGUAGE__";
+
+        private bool MatchesSelectedTag(TalonVoiceCommand command)
+        {
+            if (SelectedTags == NoTagsFilterValue)
+            {
+                return string.IsNullOrWhiteSpace(command.Tags);
+            }
+
+            return !string.IsNullOrWhiteSpace(command.Tags) &&
+                command.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool MatchesSelectedCodeLanguage(TalonVoiceCommand command)
+        {
+            if (SelectedCodeLanguage == NoCodeLanguageFilterValue)
+            {
+                return string.IsNullOrWhiteSpace(command.CodeLanguage);
+            }
+
+            return !string.IsNullOrWhiteSpace(command.CodeLanguage) &&
+                command.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(language => language.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static IOrderedEnumerable<TalonVoiceCommand> OrderCommandsAlphabetically(IEnumerable<TalonVoiceCommand> commands)
         {
             return commands
@@ -65,7 +92,7 @@ namespace RazorClassLibrary.Pages
 
                 if (!string.IsNullOrWhiteSpace(SelectedTags))
                 {
-                    appliedFilters.Add($"Tags: {SelectedTags}");
+                    appliedFilters.Add($"Tags: {(SelectedTags == NoTagsFilterValue ? "No Tags" : SelectedTags)}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(SelectedOperatingSystem))
@@ -85,7 +112,7 @@ namespace RazorClassLibrary.Pages
 
                 if (!string.IsNullOrWhiteSpace(SelectedCodeLanguage))
                 {
-                    appliedFilters.Add($"Code Languages: {SelectedCodeLanguage}");
+                    appliedFilters.Add($"Code Languages: {(SelectedCodeLanguage == NoCodeLanguageFilterValue ? "No Code Language" : SelectedCodeLanguage)}");
                 }
 
                 return string.Join(" | ", appliedFilters);
@@ -149,6 +176,7 @@ namespace RazorClassLibrary.Pages
         public async Task ShowTagsModal()
         {
             SelectionModalItems = ToSelectionItems(AvailableTags, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = NoTagsFilterValue, Label = "No Tags" });
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Tags" });
             SelectionModalTitle = "Select Tag";
             _openFilterTarget = "tags";
@@ -225,6 +253,7 @@ namespace RazorClassLibrary.Pages
         public async Task ShowCodeLanguageModal()
         {
             SelectionModalItems = ToSelectionItems(AvailableCodeLanguages, "bg-light");
+            SelectionModalItems.Insert(0, new SelectionItem { Id = NoCodeLanguageFilterValue, Label = "No Code Language" });
             SelectionModalItems.Insert(0, new SelectionItem { Id = string.Empty, Label = "All Code Languages" });
             SelectionModalTitle = "Select Code Language";
             _openFilterTarget = "codelanguage";
@@ -325,6 +354,10 @@ namespace RazorClassLibrary.Pages
         [Parameter] public bool IsBlazorHybrid { get; set; } = false; // Used to detect if running in Blazor Hybrid mode
 
         public string SearchTerm { get; set; } = string.Empty;
+        // Keep result annotations tied to the search that produced the current Results,
+        // not to text or toggle changes made while preparing another search.
+        public string ResultsSearchTerm { get; set; } = string.Empty;
+        public bool ResultsUsedSemanticMatching { get; set; }
         public List<TalonVoiceCommand> Results { get; set; } = new();
         public bool IsLoading { get; set; }
         public bool HasSearched { get; set; }
@@ -332,6 +365,32 @@ namespace RazorClassLibrary.Pages
         public bool UseSemanticMatching { get; set; } = false;
         public SearchScope SelectedSearchScope { get; set; } = SearchScope.CommandNamesOnly; // Default to command names only
 
+
+        /// <summary>
+        /// Checks an application's filter against every application token on a command.
+        /// Talon commands may contain comma-separated application values, so comparing
+        /// the complete Application field with a single alias can produce inconsistent results.
+        /// </summary>
+        private bool MatchesSelectedApplication(TalonVoiceCommand command)
+        {
+            if (string.IsNullOrWhiteSpace(SelectedApplication))
+            {
+                return true;
+            }
+
+            var selectedApplication = SelectedApplication.Trim();
+            var aliases = ApplicationMappingService?.GetAliases(selectedApplication)
+                ?? new List<string> { selectedApplication };
+
+            return (command.Application ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(application => application.Trim())
+                .Any(application =>
+                    string.Equals(application, selectedApplication, StringComparison.OrdinalIgnoreCase) ||
+                    aliases.Contains(application, StringComparer.OrdinalIgnoreCase) ||
+                    (ApplicationMappingService != null &&
+                     string.Equals(ApplicationMappingService.GetDisplayName(application), selectedApplication, StringComparison.OrdinalIgnoreCase)));
+        }
 
         // Filter properties
         public string SelectedApplication { get; set; } = string.Empty;
@@ -794,6 +853,8 @@ namespace RazorClassLibrary.Pages
                     }
 
                     HasSearched = false;
+                    ResultsSearchTerm = string.Empty;
+                    ResultsUsedSemanticMatching = false;
                     IsLoading = false;
                     StateHasChanged();
                     await EnsureSearchFocus();
@@ -818,15 +879,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasApplicationFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            c.Application != null &&
-                            c.Application.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(a => a.Trim())
-                            .Any(app =>
-                                string.Equals(app, SelectedApplication, StringComparison.OrdinalIgnoreCase) ||
-                                (ApplicationMappingService != null && string.Equals(ApplicationMappingService.GetDisplayName(app), SelectedApplication, StringComparison.OrdinalIgnoreCase))
-                            )
-                        );
+                        filteredCommands = filteredCommands.Where(MatchesSelectedApplication);
                     }
 
                     if (hasModeFilter)
@@ -846,10 +899,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasTagsFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            !string.IsNullOrWhiteSpace(c.Tags) &&
-                            c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                        filteredCommands = filteredCommands.Where(MatchesSelectedTag);
                     }
                     if (hasTitleFilter)
                     {
@@ -858,10 +908,7 @@ namespace RazorClassLibrary.Pages
 
                     if (hasCodeLanguageFilter)
                     {
-                        filteredCommands = filteredCommands.Where(c =>
-                            !string.IsNullOrWhiteSpace(c.CodeLanguage) &&
-                            c.CodeLanguage.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Any(lang => lang.Trim().Equals(SelectedCodeLanguage, StringComparison.OrdinalIgnoreCase)));
+                        filteredCommands = filteredCommands.Where(MatchesSelectedCodeLanguage);
                     }
 
                     if (UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2)
@@ -902,15 +949,7 @@ namespace RazorClassLibrary.Pages
 
                         if (hasApplicationFilter)
                         {
-                            if (ApplicationMappingService != null)
-                            {
-                                var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
-                                finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
-                            }
-                            else
-                            {
-                                finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                            }
+                            finalResults = finalResults.Where(MatchesSelectedApplication);
                         }
 
                         if (hasModeFilter)
@@ -929,15 +968,17 @@ namespace RazorClassLibrary.Pages
                         }
                         if (hasTagsFilter)
                         {
-                            finalResults = finalResults.Where(c =>
-                                !string.IsNullOrWhiteSpace(c.Tags) &&
-                                c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                    .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                            finalResults = finalResults.Where(MatchesSelectedTag);
                         }
 
                         if (hasTitleFilter)
                         {
                             finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                        }
+
+                        if (hasCodeLanguageFilter)
+                        {
+                            finalResults = finalResults.Where(MatchesSelectedCodeLanguage);
                         }
 
                         Results = OrderCommandsAlphabetically(finalResults)
@@ -988,15 +1029,7 @@ namespace RazorClassLibrary.Pages
 
                             if (hasApplicationFilter)
                             {
-                                if (ApplicationMappingService != null)
-                                {
-                                    var aliases = ApplicationMappingService.GetAliases(SelectedApplication);
-                                    finalResults = finalResults.Where(c => aliases.Contains(c.Application, StringComparer.OrdinalIgnoreCase));
-                                }
-                                else
-                                {
-                                    finalResults = finalResults.Where(c => c.Application == SelectedApplication);
-                                }
+                                finalResults = finalResults.Where(MatchesSelectedApplication);
                             }
 
                             if (hasModeFilter)
@@ -1015,15 +1048,17 @@ namespace RazorClassLibrary.Pages
                             }
                             if (hasTagsFilter)
                             {
-                                finalResults = finalResults.Where(c =>
-                                    !string.IsNullOrWhiteSpace(c.Tags) &&
-                                    c.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                        .Any(tag => tag.Trim().Equals(SelectedTags, StringComparison.OrdinalIgnoreCase)));
+                                finalResults = finalResults.Where(MatchesSelectedTag);
                             }
 
                             if (hasTitleFilter)
                             {
                                 finalResults = finalResults.Where(c => c.Title == SelectedTitle);
+                            }
+
+                            if (hasCodeLanguageFilter)
+                            {
+                                finalResults = finalResults.Where(MatchesSelectedCodeLanguage);
                             }
 
                             Results = OrderCommandsAlphabetically(finalResults)
@@ -1049,6 +1084,8 @@ namespace RazorClassLibrary.Pages
                     Results = new List<TalonVoiceCommand>();
                 }
 
+                ResultsSearchTerm = SearchTerm ?? string.Empty;
+                ResultsUsedSemanticMatching = UseSemanticMatching && hasSearchTerm && SearchTerm?.Length > 2;
                 IsLoading = false;
                 StateHasChanged();
 
@@ -1064,11 +1101,16 @@ namespace RazorClassLibrary.Pages
                 // Log the error and show user-friendly message
                 Console.WriteLine($"Search error: {ex.Message}");
                 Results = new List<TalonVoiceCommand>();
+                ResultsSearchTerm = SearchTerm ?? string.Empty;
+                ResultsUsedSemanticMatching = false;
                 HasSearched = true;
             }
             finally
             {
                 IsLoading = false;
+
+                // Ensure the final search state is rendered after asynchronous work completes.
+                await InvokeAsync(StateHasChanged);
             }
         }
         public async Task ClearFilters()
@@ -1467,26 +1509,87 @@ namespace RazorClassLibrary.Pages
         {
             if (string.IsNullOrEmpty(command))
                 return command;
-            // HTML-encode entire command so raw '<' '>' are visible as text
+
+            // Encode first so command text and Talon syntax are rendered safely.
             var encoded = System.Net.WebUtility.HtmlEncode(command);
 
             try
             {
-                // Highlight lists which are encoded as &lt;name&gt;
+                // Preserve the existing list and capture styling.
                 encoded = Regex.Replace(encoded, @"&lt;([a-zA-Z_][a-zA-Z0-9_.]*)&gt;", m =>
                     $"<span class=\"list-highlight\">{m.Value}</span>");
 
-                // Highlight captures which remain as {name} after encoding
                 encoded = Regex.Replace(encoded, @"\{([a-zA-Z_][a-zA-Z0-9_.]+)\}", m =>
-                    $"<span class=\"capture-highlight\">{System.Net.WebUtility.HtmlEncode(m.Value)}</span>");
+                    $"<span class=\"capture-highlight\">{m.Value}</span>");
 
-                return encoded;
+                // Highlight search terms only in text nodes, never in generated HTML attributes.
+                return HighlightSearchTermsInMarkup(encoded);
             }
             catch
             {
-                // Fallback to safe encoded string
                 return System.Net.WebUtility.HtmlEncode(command);
             }
+        }
+
+        /// <summary>
+        /// Highlights literal search terms in plain text such as script content.
+        /// </summary>
+        public string HighlightSearchMatches(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return HighlightSearchTermsInPlainText(System.Net.WebUtility.HtmlEncode(text));
+        }
+
+        private string HighlightSearchTermsInMarkup(string markup)
+        {
+            // Match every HTML text node, including plain text before the first
+            // generated span and text after the final span. The previous pattern
+            // only matched text surrounded by both an opening and closing tag,
+            // so ordinary command names were never highlighted.
+            return Regex.Replace(markup, @"(^|>)([^<]+)(?=<|$)", match =>
+                match.Groups[1].Value + HighlightSearchTermsInPlainText(match.Groups[2].Value));
+        }
+
+        private string HighlightSearchTermsInPlainText(string encodedText)
+        {
+            if (string.IsNullOrWhiteSpace(ResultsSearchTerm))
+                return encodedText;
+
+            var terms = Regex.Split(ResultsSearchTerm.Trim(), @"\s+")
+                .Where(term => term.Length > 1)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(term => term.Length);
+
+            foreach (var term in terms)
+            {
+                var encodedTerm = System.Net.WebUtility.HtmlEncode(term);
+                encodedText = Regex.Replace(
+                    encodedText,
+                    Regex.Escape(encodedTerm),
+                    match => $"<span class=\"search-match-highlight\" style=\"background-color:#e9d5ff;color:#581c87;border-radius:3px;padding:0 2px;font-weight:600;\">{match.Value}</span>",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            }
+
+            return encodedText;
+        }
+
+        /// <summary>
+        /// Indicates whether a semantic result contains any literal query words in its
+        /// command, script, or title. Results without one are related by semantic/list matching.
+        /// </summary>
+        public bool HasLiteralSearchMatch(TalonVoiceCommand command)
+        {
+            if (command == null || string.IsNullOrWhiteSpace(ResultsSearchTerm))
+                return false;
+
+            var searchableText = string.Join(" ", command.Command, command.Script, command.Title);
+            var terms = Regex.Split(ResultsSearchTerm.Trim(), @"\s+")
+                .Where(term => term.Length > 1);
+
+            return terms.Any(term =>
+                searchableText.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         /// <summary>
