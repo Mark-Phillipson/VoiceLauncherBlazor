@@ -91,6 +91,10 @@
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title mb-0 text-truncate">@c.Name</h5>
+                                @if (!string.IsNullOrWhiteSpace(GetDescription(c)))
+                                {
+                                    <p class="small text-body-secondary mt-2 mb-1">@GetDescription(c)</p>
+                                }
                                 <small class="text-muted">@c.Type</small>
                             </div>
                             <p class="card-text text-muted small flex-grow-1" style="white-space:pre-wrap;">@GetPreview(c.SanitizedSnippet)</p>
@@ -424,6 +428,66 @@
         }
 
         captures = dict.Values.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+
+    // Descriptions below are taken from the community README, Talon documentation,
+    // or the capture/list docstrings in the community source. Leave undocumented
+    // captures to their generated rule and usage details rather than guessing.
+    private static readonly Dictionary<string, string> CaptureDescriptions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["user.abbreviation"] = "Matches a configured abbreviation after the spoken word “brief”.",
+        ["user.address"] = "Captures an address or location string for an application context that supports address navigation.",
+        ["user.any_alphanumeric_key"] = "Matches a single letter, number, or symbol key.",
+        ["user.arrow_key"] = "Matches one arrow key from the configured arrow-key list.",
+        ["user.arrow_keys"] = "Matches one or more arrow keys, for example as part of a keyboard shortcut.",
+        ["user.c_cast"] = "Builds a C cast type, including optional signedness and pointer annotations.",
+        ["user.c_fixed_integer"] = "Matches a fixed-width C integer type, such as uint32_t.",
+        ["user.c_pointers"] = "Matches a C pointer annotation.",
+        ["user.c_signed"] = "Matches a signed or unsigned type prefix for C data types.",
+        ["user.c_types"] = "Matches a C data type.",
+        ["user.c_variable"] = "Builds a complete C variable type, including optional signedness and pointer annotations.",
+        ["user.code_common_function"] = "Matches a common function name for the currently active programming language.",
+        ["user.code_formatters"] = "Matches one or more formatters typically used when formatting code.",
+        ["user.cpp_namespace_list"] = "Matches a sequence of C++ namespaces and formats them with scope-resolution separators.",
+        ["user.cpp_standard_constant"] = "Matches a C++ standard-library constant and returns its properly qualified name.",
+        ["user.cpp_standard_function"] = "Matches a C++ standard-library function and returns its properly qualified name.",
+        ["user.cpp_standard_type"] = "Matches a C++ standard-library type and returns its properly qualified name.",
+        ["user.delimiter_pair"] = "Matches a configured pair of delimiters, used when inserting a pair or wrapping selected text.",
+        ["user.digits"] = "Parses a spoken sequence of digits and returns the resulting number as an integer.",
+        ["user.format_code"] = "Formats recognised text using code formatters and returns the formatted string.",
+        ["user.format_text"] = "Applies the selected formatters to text and returns the formatted string.",
+        ["user.formatter_immune"] = "Marks text as immune to automatic formatting, so formatters leave it unchanged.",
+        ["user.formatters"] = "Matches one or more code or prose formatters that can be applied to text.",
+        ["user.function_key"] = "Matches a keyboard function key, such as F1 or F2.",
+        ["user.generic_data_structure"] = "Matches a generic data structure that accepts type parameters, such as a collection type.",
+        ["user.generic_type_connector"] = "Matches the connector that determines how generic type parameters are joined in the target language.",
+        ["user.generic_type_connector_done"] = "Signals that a nested generic type has finished.",
+        ["user.generic_type_continuation"] = "Matches generic type parameters that follow the first parameter, including their connectors.",
+        ["user.generic_type_parameter_argument"] = "Matches one type argument for a generic data structure, including built-in and user-defined types.",
+        ["user.generic_type_parameter_arguments"] = "Combines generic type arguments and connectors into a formatted parameter list.",
+        ["user.common_generic_type_connector"] = "Matches common spoken connectors, such as “and” or “of”, between generic type arguments.",
+        ["user.git_arguments"] = "Captures one or more Git command-line arguments as a single string, including the leading space.",
+        ["user.go_complex_type"] = "Matches a fixed-width Go complex type, such as complex64.",
+        ["user.go_float_type"] = "Matches a fixed-width Go floating-point type, such as float32.",
+        ["user.go_int_type"] = "Matches a fixed-width Go integer type, such as uint32.",
+        ["user.homophones_canonical"] = "Matches a canonical word from the configured homophones list, for looking up alternative words or spellings.",
+        ["user.java_generic_type"] = "Matches a Java generic type with its specified type parameters.",
+        ["user.key"] = "Matches a keyboard key, optionally preceded by modifier keys.",
+        ["user.keypad_key"] = "Matches a key on the numeric keypad.",
+        ["user.keys"] = "Matches one or more keys, allowing combinations to be spoken as keyboard shortcuts.",
+        ["user.letter"] = "Matches a letter from the spoken phonetic alphabet.",
+        ["user.prose"] = "Matches mixed words and punctuation, with automatic spacing and capitalisation.",
+        ["user.raw_prose"] = "Matches mixed words and punctuation with automatic spacing and capitalisation, without quote straightening or command recognition.",
+        ["user.text"] = "Matches a sequence of words, including words from your user-defined vocabulary.",
+        ["user.word"] = "Matches a single word, including words from your user-defined vocabulary and abbreviations."
+    };
+
+    private static string GetDescription(CaptureEntry capture)
+    {
+        return CaptureDescriptions.TryGetValue(capture.Name, out var description)
+            ? description
+            : string.Empty;
     }
 
     private IEnumerable<CaptureEntry> FilteredCaptures
