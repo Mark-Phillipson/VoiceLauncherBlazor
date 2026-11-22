@@ -419,9 +419,16 @@
                         "",
                         System.Text.RegularExpressions.RegexOptions.Multiline);
 
-                    // Generated file:// links point to local source files and line numbers
-                    // that can become stale. Keep their readable labels, but don't render
-                    // them as clickable links in the card.
+                    // Definition and usage references are generated from local source
+                    // paths and line numbers. Omit those rows entirely: they are not
+                    // useful navigation links in the card and can become stale.
+                    sanitized = System.Text.RegularExpressions.Regex.Replace(
+                        sanitized,
+                        @"^\s*-\s*(?:Definition|Used here):.*(?:\r?\n|$)",
+                        "",
+                        System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    // Strip any remaining local file links without leaving link markup.
                     sanitized = System.Text.RegularExpressions.Regex.Replace(
                         sanitized,
                         @"\[([^\]]+)\]\(file:///[^)]+\)",
